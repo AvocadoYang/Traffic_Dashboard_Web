@@ -104,7 +104,7 @@ const Config: FC<{
               </>
             }
             name="offloadMissionId"
-            rules={[{ required: true, message: t('shelf.cargo_mission.offload_mission_required') }]}
+          //  rules={[{ required: true, message: t('shelf.cargo_mission.offload_mission_required') }]}
           >
             <Select options={taskOption} placeholder={t('utils.select')} showSearch />
           </Form.Item>

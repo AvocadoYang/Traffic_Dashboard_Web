@@ -6,7 +6,7 @@ import { LoadingOutlined, RobotOutlined } from '@ant-design/icons';
 
 const MapImage = forwardRef<HTMLImageElement>((_props, ref) => {
   const { data, isLoading, isError } = useMap();
-
+  // console.log(data?.imageUrl)
   if (isLoading)
     return (
       <div
@@ -59,7 +59,7 @@ const MapImage = forwardRef<HTMLImageElement>((_props, ref) => {
       src={`${data.imageUrl}`}
       draggable={false}
       style={{ userSelect: 'none' }}
-      alt="Map"
+      alt="Map-bibib"
       onDragStart={(e) => e.preventDefault()}
     />
   );

@@ -81,7 +81,7 @@ const Cargo: FC<{
     },
     [editColumnMutation]
   );
-  console.log(shelfInfo);
+  //console.log(shelfInfo);
   if (!shelfInfo || !shelfInfo.layer) return <LoadingStation />;
   return (
     <>

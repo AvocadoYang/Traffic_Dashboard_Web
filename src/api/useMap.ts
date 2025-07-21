@@ -44,12 +44,12 @@ const schema = object({
       backgroundColor: string().required(),
       category: array(string().required()).required(),
       tagSetting: object({
-        speed_limit: number().required().nullable(),
-        hight_limit: number().required().nullable(),
-        forbidden_car: array(string()).required(),
-        limitNum: number().required().nullable(),
-        view_available: number().required().nullable()
-      }).required(),
+        speed_limit: number().nullable(),
+        hight_limit: number().nullable(),
+        forbidden_car: array(string()),
+        limitNum: number().nullable(),
+        view_available: number().nullable()
+      }).optional(),
       startPoint: object({
         startX: number().required(),
         startY: number().required()
@@ -60,8 +60,8 @@ const schema = object({
       }).required()
     })
   ).required(),
-  mapWidth: number().positive().required(),
-  mapHeight: number().positive().required(),
+  mapWidth: number().required(),
+  mapHeight: number().required(),
   mapOriginX: number().required(),
   mapOriginY: number().required(),
   mapResolution: number().positive().required(),
@@ -69,14 +69,21 @@ const schema = object({
 }).required();
 
 const getMap = async () => {
-  const { data } = await api.get<unknown>('/map');
+  const { data } = await api.get<unknown>('/api/map');
   const parsed = await schema.validate(data, { stripUnknown: true });
-  if (parsed.imageUrl) {
-    parsed.imageUrl = `${MISSION_CONTROL_URL.replace('localhost', location.host).replace(
-      '5173',
-      '4000'
-    )}${parsed.imageUrl}`;
-  }
+ if (parsed.imageUrl) {
+
+  const baseUrl = MISSION_CONTROL_URL
+    .replace('localhost', location.hostname)
+    .replace(/:5173/, ':4000')
+    .replace(/\/+$/, ''); 
+
+  const path = parsed.imageUrl.replace(/^\/+/, ''); 
+
+  parsed.imageUrl = `${baseUrl}/${path}`;
+}
+
+  console.log(parsed.imageUrl,'papsappsa')
 
   return parsed;
 };

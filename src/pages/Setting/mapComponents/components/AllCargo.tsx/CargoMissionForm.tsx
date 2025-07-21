@@ -129,7 +129,7 @@ const CargoMissionForm: FC<{
             </>
           }
           name="load"
-          rules={[{ required: true, message: t('shelf.cargo_mission.load_mission_required') }]}
+          //rules={[{ required: true, message: t('shelf.cargo_mission.load_mission_required') }]}
         >
           <Select options={taskOption} placeholder={t('utils.select')} showSearch />
         </Form.Item>
@@ -146,7 +146,7 @@ const CargoMissionForm: FC<{
             </>
           }
           name="offload"
-          rules={[{ required: true, message: t('shelf.cargo_mission.offload_mission_required') }]}
+          //rules={[{ required: true, message: t('shelf.cargo_mission.offload_mission_required') }]}
         >
           <Select options={taskOption} placeholder={t('utils.select')} showSearch />
         </Form.Item>

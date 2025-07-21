@@ -7,6 +7,13 @@ import { IsEditPeripheralModal, IsOpenCargoEditorModal } from './jotai';
 
 const { Title } = Typography;
 
+const prefixLevelName = (word: string | null | undefined) => {
+  if (!word) return null;
+  const parts = word.split('-');
+  parts.pop();
+  return parts.join('-');
+};
+
 const CargoInfoAtPeripheral: FC<{ form: FormInstance<unknown> }> = ({ form }) => {
   const { t } = useTranslation();
   const setOpenModal = useSetAtom(IsOpenCargoEditorModal);
@@ -20,7 +27,7 @@ const CargoInfoAtPeripheral: FC<{ form: FormInstance<unknown> }> = ({ form }) =>
     if (!openModal || !openModal.cargo) return;
 
     form.setFieldValue('hasCargo', openModal.cargo.length > 0);
-    form.setFieldValue('name', openModal.name);
+ form.setFieldValue('name', prefixLevelName(openModal.name));
     form.setFieldValue('disable', openModal.disable);
   }, []);
 
