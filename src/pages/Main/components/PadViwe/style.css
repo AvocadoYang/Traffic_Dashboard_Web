@@ -1,0 +1,100 @@
+.map-icon svg{
+  fill: rgb(56, 142, 240);
+}
+
+.mission-icon svg {
+  fill: rgb(247, 108, 10);
+}
+
+.info-icon svg {
+  fill: rgb(71, 138, 129);
+}
+
+.alert-icon svg {
+  fill: rgb(250, 171, 0);
+}
+
+.pad-content {
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pad-map-content {
+  overflow: scroll;
+  height: 100%;
+  width: 100%;
+}
+
+.close-pad-map-button {
+  position: fixed;
+  z-index: 1000;
+  top: 11%;
+  left: 20px;
+  font-size: 1.5em;
+
+}
+
+.zoom-pad-wrap {
+  position: fixed;
+  z-index: 1000;
+  top: 10.2%;
+  right: 15px;
+}
+
+.pad-sider li {
+  overflow: visible !important;
+}
+
+
+.pad-card-wrap {
+  margin-top: 9px;
+  margin-bottom: 3px;
+  width: 80%;
+  box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.2);
+}
+
+html, body, #root {
+  height: -webkit-fill-available;
+}
+
+.alarm-icon svg {
+  fill: rgb(250, 171, 0);
+}
+.alarm-text {
+  color: rgb(250, 171, 0);
+}
+
+.error-list-icon svg {
+  fill: rgb(0, 110, 255);
+}
+
+.error-list-text {
+  color: rgb(0, 110, 255);
+}
+
+.error-list-wrap {
+  font-weight: bold;
+  font-size: 18px;
+  /* transition: 0.1s; */
+  cursor: pointer;
+}
+
+.alarm-wrap {
+  font-weight: bold;
+  font-size: 18px;
+  /* transition: 0.1s; */
+  cursor: pointer;
+}
+
+.car-and-mission-wrap {
+  position: relative;
+}
+
+.rollback-icon {
+  position: absolute;
+  top: 1px;
+  right: 20px;
+  font-size: 18px;
+}

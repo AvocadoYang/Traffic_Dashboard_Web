@@ -1,0 +1,38 @@
+.background {
+  background-image: url('../../assets/View.svg');
+  background-size: cover;
+  height: 100vh;
+  width: 100vw;
+}
+
+.From-Wrap {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* background-color: #e38e3c; */
+}
+
+.wrapper {
+  height: 50%;
+  width: 50%;
+  box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.Tittle {
+  background-image: url('../../assets/kenmec_without_background.png');
+  background-size: cover;
+  background-position: center;
+  width: 50%;
+  height: 10%;
+  margin-bottom: 20px;
+}

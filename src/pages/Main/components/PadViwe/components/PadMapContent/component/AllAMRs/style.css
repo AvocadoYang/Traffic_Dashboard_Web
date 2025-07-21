@@ -1,0 +1,10 @@
+.hint-icon svg {
+  fill: red
+}
+.hint-icon {
+  font-weight: bold;
+}
+
+.opacity-icon {
+  opacity: 0.1;
+}

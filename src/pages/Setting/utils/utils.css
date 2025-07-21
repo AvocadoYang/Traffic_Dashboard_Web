@@ -1,0 +1,9 @@
+.form-close-btn svg {
+  font-size: 1.2em;
+}
+
+.form-close-btn {
+  position: absolute;
+  right: 1em;
+  top: 1em
+}

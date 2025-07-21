@@ -1,0 +1,1173 @@
+{
+  "utils": {
+    "yes": "Yes",
+    "no": "No",
+    "open": "Open",
+    "detail": "Detail",
+    "location": "Location",
+    "search": "search",
+    "reset": "reset",
+    "close": "Close",
+    "count": "Count",
+    "random": "random",
+    "working": "Working",
+    "stopping": "Stop",
+    "filter": "filter",
+    "cancel": "cancel",
+    "amr_id": "Amr ID",
+    "yaw": "Yaw",
+    "opacity": "opacity",
+    "show": "show",
+    "status": "Status",
+    "road_conditions": "Road conditions",
+    "maintenance_level": "Maintenance level",
+    "mission_is_required": "Mission is required",
+    "point_type": "Point Type",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "online": "Online",
+    "offline": "Offline",
+    "num": "Num.",
+    "category": "Category",
+    "success": "Success",
+    "fail": "Fail",
+    "submit": "Submit",
+    "add": "Add",
+    "select": "please select",
+    "error": "Error",
+    "active": "Active",
+    "inactive": "Inactive",
+    "required": "Required",
+    "delete_warn": "Are you sure?",
+    "cost_time": "Cost Time (minutes)",
+    "loading": "Loading...",
+    "retry": "Retry",
+    "minutes": "Minutes",
+    "units": "Units",
+    "missions": "Missions",
+    "seconds": "Seconds",
+    "meters": "Meters",
+    "none": "noneA",
+    "floor": "floor",
+    "overdue": "overdue",
+    "location_property": {
+      "none": "Normal",
+      "charge_station": "Charge Station",
+      "prepare_side": "Prepare Side",
+      "shelve": "Shelf",
+      "wait_side": "Waiting Side"
+    }
+  },
+
+  "peripheral": {
+    "Charging": "Charging",
+    "Dispatch": "Dispatch",
+    "Standby": "Standby",
+    "Storage": "Storage",
+    "Extra": "Extra",
+    "Elevator": "Elevator",
+    "RoboticArm": "Robotic Arm",
+    "Conveyor": "Conveyor",
+    "LiftGate": "Lift Gate",
+    "Palletizer": "Palletizer"
+  },
+
+  "mission_history": {
+    "open": "Open History",
+    "mission_id": "Mission ID",
+    "amr_id": "AMR ID",
+    "status": "Status",
+    "pending": "pending",
+    "assigned": "assigned",
+    "executing": "executing",
+    "completed": "completed",
+    "aborting": "canceled",
+    "canceled": "canceled",
+    "failed": "Failed",
+    "total_time": "Total Time",
+    "min": "min",
+    "sec": "sec",
+    "refresh": "Refresh",
+    "full_name": "name",
+    "sub_name": "Sub Name",
+    "category": "Category",
+    "priority": "Priority",
+    "send_by": "Send By",
+    "created_at": "Created At",
+    "started_at": "Started At",
+    "completed_at": "Completed At",
+    "battery_cost": "Battery Cost",
+    "distance_traveled": "Distance Traveled (m)",
+    "manual_mode": "Manual Mode",
+    "manual": "Manual",
+    "auto": "Auto",
+    "emergency_btn": "Emergency Btn",
+    "pressed": "Pressed",
+    "not_pressed": "Not Pressed",
+    "recovery_btn": "Recovery Btn",
+    "actions": "Actions",
+    "view": "View",
+    "title": "Mission History",
+    "error_loading": "Error loading mission history",
+    "total_missions": "Total {{count}} missions",
+    "warning_id_list": "Warning ID List",
+    "none": "None",
+    "has_warnings": "Has Warnings",
+    "no_warnings": "No Warnings",
+    "unknown": "unknown",
+    "rcs": "RCS",
+    "user": "USER",
+    "wcs": "WCS"
+  },
+
+  "maintenance": {
+    "update": "update maintenance level",
+    "unknown": "initial value",
+    "normal": "normal",
+    "forbidden_all_mission": "Cannot accept missions",
+    "forbidden_wcs_mission": "Cannot accept WCS mission",
+    "forbidden_rcs_mission": "Cannot accept traffic control mission",
+    "forbidden_user_mission": "Cannot accept user missions",
+    "broken": "The vehicle is damaged"
+  },
+
+  "amr_card": {
+    "delete_current_mission": "Delete mission",
+    "emergency_stop": "Start emergency stop",
+    "continue_move": "Release emergency stop",
+    "update_cargo": "update carrier info",
+    "metadata": "Metadata (can only read)",
+    "metadata_desc": "This data has not been defined and cannot be edited in the traffic control system",
+    "add_cargo": "Add cargo information",
+    "add_desc": "Added means this vehicle carries more than one cargo at the same time. After releasing the cargo, all cargo information will be transferred to the release point."
+  },
+
+  "scale_pad": {
+    "title": "Change simulate speed"
+  },
+
+  "change_map": {
+    "view_maps": "View Maps",
+    "upload_map": "Upload Map",
+    "switch_map": "Switch Map",
+    "import_map": "Import locations and roads from other script",
+    "no_img_found": "No image found"
+  },
+
+  "mode": {
+    "manual_mode": "manual",
+    "is_mission": "Is working",
+    "is_carry": "is carry",
+    "is_charge": "is charging",
+    "low_power": "low power",
+    "unknown": "unknown"
+  },
+
+  "locations": {
+    "none": "none",
+    "charge_station": "charge station",
+    "prepare_spot": "prepare location",
+    "standby": "standby",
+    "cargo": "cargo"
+  },
+  "test_translation": "test translation",
+  "open": "Open Drawer",
+  "close": "Close Drawer",
+
+  "map_tool": {
+    "zoom_out": "Zoom Out",
+    "zoom_in": "Zoom In",
+    "road": "Road",
+    "location": "Location",
+    "road_tooltip": "Road Tooltip",
+    "location_tooltip": "Road Tooltip"
+  },
+
+  "page_view": "View",
+  "page_setting": "Setting",
+  "page_dashboard": "Dashboard",
+  "page_simulate": "Simulate",
+  "simulate": "simulate",
+  "page_analysis": "Mission analysis",
+  "page_cargo_history": "Cargo History",
+  "page_amr": "Amf info",
+  "main_task_list": {
+    "wait_suitable": "wait suitable"
+  },
+
+  "toolbar": {
+    "location": {
+      "locations": "Locations",
+      "edit_locations": "Edit Locations",
+      "quick_edit_locations": "Quick Edit Locations",
+      "show_in_use_locations": "Show stored Locations",
+      "show_edit_locations": "Show Edit Locations",
+      "show_locations_table": "Show Locations Table",
+      "show_tooltip": "Show Tooltip"
+    },
+    "road": {
+      "roads": {
+        "roads": "Roads",
+        "edit_roads": "Edit Roads",
+        "show_in_use_roads": "Show stored Roads",
+        "show_edit_roads": "Show Edit Locations",
+        "show_roads_table": "Show Roads Table",
+        "quick_edit_road": "Quick Edit Road"
+      }
+    },
+    "zone": {
+      "zones": {
+        "zones": "Zones",
+        "edit_zone": "Edit Zones",
+        "show_zone_list": "Show Zone List",
+        "show_zone_table": "Show Zone Table"
+      }
+    },
+    "shelve": {
+      "shelves": {
+        "shelves&pallet": "Shelves & Pallet",
+        "edit_shelve": "Edit shelves",
+        "edit_shelve_type": "Edit shelves type",
+        "edit_yaw": "Shelves Yaw",
+        "edit_pallet": "Edit Pallet"
+      }
+    },
+    "amr_setting": {
+      "robot": "robot",
+      "register_amr": "Register Robot",
+      "amr_config": "Robot Config"
+    },
+    "mission": {
+      "mission": "Mission",
+      "edit_mission": "Edit mission",
+      "charge_mission": "Charge mission",
+      "cycle_mission": "Cycle mission",
+      "before_left_charge_station_mission": "Before left charge station mission",
+      "schedule_mission": "Schedule mission",
+      "idle_mission": "Idle mission",
+      "topic_mission": "Topic mission",
+      "abort_mission_when_has_cargo_mission": "Delete mission when there is cargo to process"
+    },
+    "others": {
+      "others": "Others",
+      "edit_gauge": "Edit Gauge",
+      "edit_tag": "Edit Tag",
+      "edit_peripheral_style": "Edit peripheral style",
+      "custom_cargo_info": "custom cargo info"
+    },
+    "file_setting": {
+      "file_setting": "File Setting",
+      "warning_id": "Warning ID Setting",
+      "upload_warning_file": "Upload warning id file",
+      "backup_file": "Backup",
+      "switch_map": "Switch Map",
+      "import_map": "Import locations and roads from other script"
+    },
+    "restart": {
+      "restart": "restart system"
+    }
+  },
+
+  "sider_output_form_name": {
+    "locationPanel": "Edit Location",
+    "roadPanel": "Edit Road",
+    "zonePanel": "Edit Zone",
+    "zoneTable": "Zone Table",
+    "locationList": "Location List"
+  },
+
+  "quick_edit_location_panel": {
+    "quick_edit_location_panel": "Quick Edit locations",
+    "areaType": "AreaType",
+    "location": "Location",
+    "x_gap": "x gap",
+    "y_gap": "y gap",
+    "dir_x": "x direction",
+    "dir_y": "y direction",
+    "is_connect_road": "Auto Produce Road",
+    "save": "Save",
+
+    "save_pose_notify": {
+      "is_a_navigate": "Location ID can't be a negative number or zero",
+      "duplicate_id": "ID is duplicated with existing ID"
+    }
+  },
+
+  "quick_edit_road_panel": {
+    "title": "Quick Edit Path",
+    "disabled_tooltip": "After selecting, the vehicle cannot travel this path",
+    "limit_tooltip": "After a vehicle passes through, other vehicles can only take this path after the same vehicle has passed through it once",
+    "stop_editing": "Stop editing",
+    "start_editing": "Start editing",
+    "selected_points": "Selected points",
+    "click_points_prompt": "Click points on the map to connect them.",
+    "clear_points": "Reselect",
+    "error_min_spots": "at least two point"
+  },
+
+  "edit_location_panel": {
+    "none": "normal",
+    "charge_station": "charge station",
+    "prepare_spot": "prepare location",
+    "wait_side": "wait side",
+    "shelve": "shelve",
+    "can_rotate": "Can Rotate",
+    "save": "save",
+    "elevator": "Elevator",
+    "roboticArm": "Robotic Arm",
+    "conveyor": "Conveyor",
+    "liftGate": "Lifting Gate",
+    "palletizer": "Palletizer",
+    "areaType": "Area Type",
+    "Charging": "Charging point",
+    "Dispatch": "Pre-dispatch point",
+    "Standby": "Standby point",
+    "Storage": "Storage point",
+    "save_pose_notify": {
+      "empty_value": "X/Y is required",
+      "fill_in_value": "Please fill in the X/Y value",
+      "format_warn": "formate error",
+      "is_a_navigate": "Location ID can't be a negative number",
+      "duplicate_id": "duplicate ID",
+      "change_duplicate_id": "please change ID, can not be same",
+      "no_more_than_360": "No more than 360",
+      "cannot_be_less_than_-360": "No less than -360"
+    },
+
+    "table_notify": {
+      "are_you_sure": "Are you sure delete？"
+    }
+  },
+
+  "edit_road_panel": {
+    "road_table": "Road Table",
+    "road": "Road",
+    "single_road": "Single Road",
+    "high": "Height",
+    "medium": "Medium",
+    "low": "Low",
+    "two_way_road": "Two Way Road",
+    "yaw": "Yaw",
+    "disabled": "Disable Line",
+    "limit": "limit tunnel",
+    "start_point": "Start Point",
+    "end_point": "End Point",
+    "add": "Add New Road",
+    "priority": "Priority",
+
+    "save_road_notify": {
+      "warn": "road setting error",
+      "warn_number_only": "Only Number",
+      "warn_msg": "Start point and End point can not be same !",
+      "warn_road_yaw": "Yaw list is necessary !",
+      "illegal_road_yaw": "Vertical and Horizontal yaws can't be set at the same time !",
+      "duplicate_id": "duplicate ID",
+      "road_exists": "This road already exists"
+    }
+  },
+
+  "all_location_list_form": {
+    "all_loc": "All Location",
+    "stored_loc": "Stored Location",
+    "tmp_loc": "Temporary Location"
+  },
+
+  "edit_zone_panel": {
+    "start_x": "Start X",
+    "start_y": "Start Y",
+    "end_x": "End X",
+    "end_y": "End Y",
+    "category": "Category",
+    "color": "Display color",
+    "name": "Zone Name",
+    "tag_setting": "Zone setting",
+    "necessary": "Necessary",
+    "highest_speed": "Highest speed",
+    "hight_limit": "Hight limit",
+    "forbidden_vehicle": "Forbidden vehicles",
+    "limit_count": "Max number of AMRs",
+    "car_type": "AMR type",
+    "all_vehicle_forbidden": "All vehicle forbidden",
+    "free_zone": "Free zone",
+    "not_vehicle_forbidden": "Not set",
+    "hint": "Tag setting isn't yet completed !",
+    "edit_zone": "Edit Zones",
+    "deceleration_zone": "Deceleration zone",
+    "height_limit_zone": "Height limit zone",
+    "restricted_zone": "Restricted zone",
+    "controlled_zone": "Controlled zone",
+    "view_available_zone": "View available zone",
+    "view_available": "View available",
+    "placeholder": {
+      "zone_name": "Please enter zone name",
+      "zone_category": "Please select zone category (multiple selection allowed)",
+      "forbidden": "Please select forbidden vehicles",
+      "limit": "Please enter vehicle limit",
+      "hight_limit": "Please enter height limit",
+      "speed_limit": "Please enter maximum speed limit",
+      "view_available": "Please enter waiting point"
+    },
+    "waring": {
+      "tag_not_yet_setting": "The tag setting is still not setting ",
+      "name_empty_error": "Name field cannot be empty",
+      "name_duplicated_error": "Zone name already exists",
+      "color_error": "Please choose a color for zone",
+      "invalid_frame": "Invalid selection"
+    }
+  },
+
+  "zone_table_form": {
+    "zone_name": "Zone name",
+    "start_point": "Start point",
+    "end_point": "End point",
+    "zone_attr": "Zone label",
+    "zone_color": "Zone color"
+  },
+
+  "shelf": {
+    "shelf": "Shelf",
+    "cargo_mission": {
+      "default_title": "Cargo Mission Configuration",
+      "load_mission": "Load Mission",
+      "load_mission_required": "Please select a load mission",
+      "offload_mission": "Offload Mission",
+      "offload_mission_required": "Please select an offload mission",
+      "location_name": "Location Name",
+      "enter_name": "Enter location name",
+      "region_name": "Region Name",
+      "region_name_required": "Please select a region",
+      "yaw": "Yaw",
+      "yaw_required": "Please select a yaw",
+      "prepare_point": "Prepare Point",
+      "prepare_point_required": "Please select a prepare point",
+      "unset": "Unset",
+      "priority": "Priority",
+      "priority_required": "Please enter a priority",
+      "priority_min": "Priority must be at least 0",
+      "relationships": "Relationships",
+      "add_relationship": "Add Relationship",
+      "related_loc_required": "Please select a related location",
+      "relationship_type_required": "Please select a relationship type",
+      "select_location": "Select Location",
+      "select_relationship_type": "Select Relationship Type",
+      "relationship_fixed": "Fixed",
+      "relationship_non_fixed": "Non-Fixed",
+      "submit": "Save Changes",
+      "duplicate_relationships": "Duplicate related locations are not allowed",
+      "utils.select": "Select",
+      "utils.enter_number": "Enter a number",
+      "load_desc": "The task that will be read when going to this storage location to pick up goods",
+      "offload_desc": "The task that will be read when going to this storage location to release the goods",
+      "yaw_desc": "This angle will be used if the sub-mission angle with rotation in dynamic_mission is set to 'Auto (Fast Mission Frame Direction)'",
+      "prepare_point_desc": "When dynamic_mission is selected, if 'Automatic (preset pre-assignment point)' is specified, this location ID will be imported",
+      "priority_desc": "Set a number (0-1000) to determine the priority of this location for sending or receiving goods. Higher values ​​will take precedence over other locations with lower values. For example, when releasing goods, a destination with a priority of 20 will be released before a destination with a priority of 15. Conversely, when picking up goods, a destination with a priority of 15 will be picked up before a destination with a priority of 20",
+      "relationships_desc": "Define connections to other locations for cargo placement. Select 'Fixed' for strict source-destination pairs (e.g., only to one location). Select 'Non-Fixed' for flexible placement, allowing cargo to move to backup locations if the primary is unavailable."
+    },
+    "layer_form": {
+      "layers": "Individual floor settings",
+      "enter_level_name": "Enter the level name",
+      "mission": "Mission",
+      "level": "Level",
+      "column_name": "Column Name",
+      "disable": "Disable",
+      "has_cargo": "Has Cargo",
+      "no_cargo": "No Cargo",
+      "cargo_name": "Cargo Name",
+      "edit_detail": "edit cargo detail info",
+      "cargo_limit": "Cargo Limit",
+      "pallet": "Pallet"
+    },
+    "error": {
+      "info_error": "error read info error"
+    }
+  },
+
+  "edit_shelf_panel": {
+    "edit_shelf": "Edit Shelf",
+    "category": "Category",
+    "load_mission": "Load Mission",
+    "offload_mission": "Offload Mission",
+    "yaw": "Yaw",
+    "region_name": "Region Name",
+    "location_id": "Location",
+    "level": "Level",
+    "column_name": "Column Name",
+    "cargo_limit": "Cargo Limit",
+    "detail": "Detail",
+    "setting": "Setting Style",
+    "disabled": "Disable",
+    "height": "Height",
+    "save": "save",
+    "edit_position": "Edit Style",
+    "shelf_config": "Individual storage location information",
+    "config_tooltip": "Click on the storage location on the map to edit related parameters",
+    "relationships": "Relationships",
+    "placement_priority": "Priority"
+  },
+  "edit_shelf_category": {
+    "edit_shelf_category": "Edit Shelf Category",
+    "add_shelf": "Add Shelf",
+    "name": "Name",
+    "style": "Style",
+    "type_1": "type 1",
+    "type_2": "type 2",
+    "f1": "Floor",
+    "f2": "",
+    "every_level": "Every Level Height",
+    "add_number_warning": "number only",
+    "add_duplicate_warning": "Duplicate Date",
+    "delete_warning": "Delete will cause other shelf is using this category become default shelf."
+  },
+  "edit_yaw": {
+    "edit_yaw": "Edit Yaw",
+    "add": "Add",
+    "input_warning": "please inert right number"
+  },
+  "edit_pallet": {
+    "edit_pallet": "Edit Pallet",
+    "edit_default_warning": "Can not edit default pallet",
+    "type": "Type",
+    "color": "Color",
+    "name_warn": "name is required"
+  },
+  "setting_amr": {
+    "register_amr": {
+      "title_name": "Register AMR",
+      "amr_name": "amr name",
+      "type": "type",
+      "serial_number": " MAC address",
+      "invalid_serial_number": "invalid serial number",
+      "executing": "using",
+      "stale": "not in use"
+    }
+  },
+
+  "import_map": {
+    "title": "Import Points, Paths, and Zones from Another Script",
+    "info": "This feature will copy points, paths, and zones from another script into the currently selected script. If any data already exists, it will not be overwritten.",
+    "import": "Import",
+    "confirm_title": "Confirm Import",
+    "confirm_content": "Are you sure you want to import this script? This action may overwrite existing data."
+  },
+
+  "charge": {
+    "id": "id",
+    "coreFail": "no connect",
+    "active": "Active",
+    "name": "mission name",
+    "amrId": "amrId",
+    "aggressive": "aggressive charge percent",
+    "full_rate": "full percent",
+    "active_idle": "active idle charge",
+    "idle_full": "idle full charge percent",
+    "idle_wait_time": "idle wait time",
+    "available_get_task": "available get task percent",
+    "active_time_zone": "active time zone charge",
+    "time_zone": "time zone charge",
+    "mins": "mins",
+    "charge": "charge",
+
+    "updateTime": "update time",
+
+    "auto_mode": "auto mode",
+    "current": "current",
+    "complete": "complete",
+    "fault": "fault",
+    "process": "process",
+    "standby": "standby",
+
+    "error": "error",
+    "moduleCommunicationFailure": "module communication failure",
+    "reverseBetterConnection": "reverse battery connection",
+    "batteryNotConnected": "battery not connected",
+    "shortCircuit": "short circuit",
+    "overVoltage": "over voltage",
+    "overCurrent": "over current",
+    "totalFault": "total fault",
+
+    "other": "other",
+    "infraredInPlace": "infrared in place",
+    "compress": "compress",
+    "scalingFault": "scaling fault",
+    "reachOutCharge": "reach out charge",
+    "returning": "returning",
+    "isStretching": "is stretching",
+    "reset": "reset",
+    "form_title": "Charge Configuration",
+    "amrId_required": "Please select at least one AMR ID",
+    "select_amr": "Select AMR(s)",
+    "task_required": "Please select a task",
+    "select_task": "Select a task",
+    "aggressive_max": "Aggressive threshold must be at most 70%",
+    "full_rate_min": "Full charge threshold must be at least 70%",
+    "available_min": "Available task threshold must be at least 11%",
+    "submit": "Submit"
+  },
+
+  "main": {
+    "pad_view": {
+      "sider": {
+        "alert_view": "Alert",
+        "map_view": "Map",
+        "mission_view": "Mission",
+        "info_view": "Information"
+      }
+    },
+    "card_name": {
+      "map_2D_view": "2D Map",
+      "map_3D_view": "3D Map",
+      "mission": "send mission",
+      "quick_mission": "Quick mission",
+      "auto_mission": "Cycle mission",
+      "new_mission": "New mission",
+      "input_mission": "Input mission",
+      "mission_info": "Mission information cards",
+      "car_info": "Car information cards"
+    },
+    "mission_modal": {
+      "dialog_mission": {
+        "task_priority": "Task priority",
+        "mission_type": "Mission Type",
+        "priority": {
+          "TRIVIAL": "Trivial",
+          "NORMAL": "Normal",
+          "PIVOTAL": "Pivotal",
+          "CRITICAL": "Critical"
+        }
+      }
+    },
+    "quick_mission": {
+      "load_tooltip": "Select a shelf to load cargo from",
+      "offload_tooltip": "Select a shelf to offload cargo to",
+      "load": "Load",
+      "offload": "Offload",
+      "click_shelves_or_cancel": "Click the shelves in the map or press ESC to cancel"
+    }
+  },
+
+  "mission": {
+    "add_mission": {
+      "title": "Edit Mission",
+      "empty_warn": "can not be empty",
+      "empty_car_warn": "can not be empty",
+      "duplicate_warn": "name already exists, please change",
+      "edit_info": "Edit Mission Info",
+      "edit_detail": "Edit Mission Detail",
+      "name_warn": "name is required",
+      "car_warn": "car type is required",
+
+      "name": "mission name",
+      "create_mission": "create mission",
+      "search_mission": "search mission",
+      "name_placeholder": "please insert mission name",
+      "car": "Car type",
+      "car_type_placeholder": "Please select",
+      "tag": " Tag",
+      "dynamic_mission": "dynamic mission",
+      "normal_mission": "normal mission",
+      "tag_warn": "You must select either 'dynamic-mission' or 'normal-mission' as a tag, but you cannot select both at the same time.",
+      "tag_info": "'Dynamic-mission' tags are used for quick tasks that require specific settings, while 'normal-mission' tags are for standard task assignments. For more details, please refer to the usage instructions in the tag editing section.",
+      "normal_mission_tag_description": "A 'normal-mission' tag is used for tasks where each subtask has predefined, fixed parameters, such as location, shelf height, and rotation angle. These parameters are typically set to 'custom,' allowing you to manually input the values for each subtask.",
+      "dynamic_mission_tag_description": "A 'dynamic-mission' tag is designed for quick-pickup tasks where certain subtask parameters, such as location, shelf height, and rotation angle, are set to 'automatic.' When a task with this tag is assigned, the system automatically selects a storage slot and retrieves its details (e.g., location, shelf height, rotation angle). These details are then dynamically applied to the subtask, enabling faster task dispatching.",
+      "charge": "Used for charging tasks",
+      "force": "When this tag is present, dispatching this task will immediately elevate its priority to the highest level (note: this is not an inserted task)."
+    },
+    "mission_list": {
+      "wait_required_warn": " wait column need default value",
+      "yaw_required_warn": "yaw is required",
+      "height_required_warn": "height is required",
+      "edit_mission": "Edit Mission",
+      "create_mission": "Create Mission",
+      "copy_mission": "Copy Mission",
+      "previous": "previous page",
+      "wait_amr_warn": "if you has wait other car, please insert both wait amr and wait type",
+      "location_required_warn": "location is required"
+    },
+    "task_table": {
+      "expand": "expand",
+      "sort": "Order",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "action": "Action Type",
+      "wait": "Wait Time (seconds)",
+
+      "custom": "Custom",
+      "select": "Auto",
+      "default": "Default",
+      "is_selectable": "Selectable for Quick Assignment",
+      "available_charge_station": "available charge station",
+      "location": "Location",
+
+      "yaw": "Yaw",
+      "auto_preparatory_point": "Automatic Preparatory Point",
+      "is_define_heigh": "Fork Height Option",
+      "height": "Height",
+      "level": "Level",
+
+      "tolerance": "tolerance",
+      "lookahead": "lookahead",
+      "camera_config": "camera config",
+      "camera_config_info": "This setting defines the height at which the recognition camera observes the pallet. If the camera is mounted above the forks, set it to the same height as the forks. If it's mounted below, set it to a height higher than the forks.",
+      "modify_dis": "modify dis",
+      "modify_dis_info": "please as FAE engineer",
+
+      "by_target_shelf_setting": "by target shelf setting",
+      "calculate_by_agv_and_shelf_angle": "calculate by agv shelf angle",
+      "has_cargo_to_process": "Shelf Status",
+      "has_cargo_true": "Shelf Contains Cargo (Offloading Blocked)",
+      "has_cargo_false": "Shelf is Empty (Offloading Allowed)",
+      "amr_list": "Vehicles",
+      "active_wait_amr": "active wa",
+      "wait_genre": "Wait Category",
+      "execute_first": "Execute First",
+      "wait_other_finish": "Execute After Others",
+      "in_use": "Use This Action",
+      "stop_this_process": "Disable This Action",
+      "import_mission": "import mission",
+      "special": "Special",
+      "normal": "Normal",
+      "other_special": "other special movement",
+      "special_movement_info": "Most of the time this function is not needed, it is mainly used to exchange goods between two vehicles.",
+      "spin_warn": "If the action is a rotation, the action type must have S",
+      "control_warn": "control at least select one ",
+      "is_define_height": "Forklift height mode",
+      "fork_height_tooltip": "Choose how to set the forklift height: 'Custom' allows you to enter a specific height, 'Auto' uses the shelf height in the quick task, 'Default' sets the height to 350mm.",
+      "fork_height_custom": "Custom (enter height)",
+      "fork_height_custom_desc": "Manually enter the forklift height in mm.",
+      "fork_height_select": "Automatic (use quick task's or mission control auto assign fork height)",
+      "fork_height_select_desc": "Automatically set forklift height to shelf height when using quick tasks.",
+      "fork_height_default": "Default (350 mm)",
+      "fork_height_default_desc": "Set forklift height to a fixed 350mm.",
+      "fork_height_level": "Select a floor",
+      "fork_height_level_desc": "Number of levels of the fork slot at the location",
+      "height_required": "Please enter the forklift height.",
+      "location_required": "Please select a location.",
+      "wait_other_amr_required": "Please select a robot to wait for.",
+      "wait_genre_required": "Please select a wait genre.",
+
+      "is_custom_location": "Location Selection Mode",
+      "location_tooltip": "Choose how to set the location: 'Custom' lets you enter a specific location ID, 'Auto' uses the location from a fast-mission, and 'Auto (Idle Charge Station)' finds an available charging station.",
+      "location_custom": "Custom (Enter Location ID)",
+      "location_custom_desc": "Manually select a location ID from the available options.",
+      "location_select": "Auto (Fast-Mission Location)",
+      "location_select_desc": "Automatically sets the location based on the fast-mission.",
+      "location_charge_station": "Auto (Idle Charge Station)",
+      "location_charge_station_desc": "Automatically finds an available charging station.",
+
+      "back_to_load_place": "Auto (back to load prepare point)",
+      "back_to_load_place_desc": "back to load prepare point",
+
+      "prepare_point": "Auto (Prepare Point)",
+      "prepare_point_desc": "Automatically finds an prepare point",
+      "is_custom_yaw": "Yaw Selection Mode",
+      "yaw_tooltip": "Choose how to set the yaw: 'Custom' lets you enter a specific degree, 'Auto' uses the shelf direction from a fast-mission, and 'Auto (Calculate at Shelf)' calculates the yaw when the AMR reaches the shelf.",
+      "yaw_custom": "Custom (Enter Yaw Degree)",
+      "yaw_custom_desc": "Manually enter the yaw angle in degrees (0–360).",
+      "yaw_select": "Auto (Fast-Mission Shelf Direction)",
+      "yaw_select_desc": "Automatically sets the yaw to the target shelf's direction in a fast-mission.",
+      "yaw_calculate": "Auto (Calculate at Shelf)",
+      "yaw_calculate_desc": "Calculates the yaw when the AMR reaches the front of the target shelf.",
+      "yaw_required": "Please enter the yaw angle.",
+      "yaw_range": "Yaw must be between -180 and 180 degrees."
+    },
+
+    "task_table_human_robot": {
+      "sort": "Sort",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "action": "Action Type",
+      "control": "Control",
+      "detail": "Detail",
+      "limit": "limit rad",
+      "limit_error": "limit_error",
+      "move": "Move",
+      "load": ":Load",
+      "offload": "offload",
+      "upper_control": "Upper Control"
+    },
+
+    "charge_mission": {
+      "charge_mission": "Charge mission",
+      "executing": "Execution",
+      "stale": "Stale",
+      "amr_warn": "amr is required",
+      "mission_warn": "mission is required",
+      "aggressive_warn": "aggressive charge is required",
+      "full_warn": "full battery rate is required",
+      "full_less_than_aggressive": "full rate can not less than aggressive",
+      "available_warn": "some field is not insert yet, please check again",
+      "available_less_than_aggressive": "available get mission can not less than aggressive",
+      "haventSetChargeMission": "haven't set charge mission"
+    },
+
+    "cycle_mission": {
+      "cycle_mission": "Cycle Mission",
+      "random": "Random",
+      "mission_is_required": "Mission is required",
+      "mission": "Mission",
+      "car": "Car",
+      "status": "Status",
+      "executing": "Execution",
+      "stale": "Stale"
+    },
+    "before_left_charge_station_mission": {
+      "before_left_charge_station_mission": "Before left charge station mission",
+      "field_required": "field data missed, please double check",
+      "car": "Car",
+      "mission": "Mission",
+      "status": "Status",
+      "executing": "Execution",
+      "stale": "Stale"
+    },
+
+    "schedule_mission": {
+      "schedule_mission": "Schedule mission",
+      "car": "Car",
+      "mission": "Mission",
+      "week": "Week",
+      "what_time": "Time",
+      "status": "Status",
+      "executing": "Execution",
+      "stale": "Stale",
+      "car_required": "Please select at least one AMR",
+      "mission_required": "Please select a mission",
+      "week_required": "Please select at least one day",
+      "time_required": "Please select a time"
+    },
+    "idle_mission": {
+      "idle_mission": "Idle mission",
+      "car": "Car",
+      "mission": "Mission",
+      "idle_min": "Idle Min",
+      "forbidden": "Forbidden",
+      "amr_warn": "amr is required",
+      "min_warn": "at least 3 mins",
+      "status": "Status",
+      "executing": "Execution",
+      "stale": "Stale",
+      "mission_name_warn": "mission is required"
+    },
+    "topic_mission": {
+      "topic_mission": "Topic mission",
+      "car": "Car",
+      "mission": "Mission",
+      "missed": "missed",
+      "amr_warn": "amr is required",
+      "status": "Status",
+      "topic_duplicate": "topic id duplicate",
+      "executing": "Execution",
+      "stale": "Stale"
+    },
+    "abort_mission_when_has_cargo_mission": {
+      "title": "Delete mission when there is cargo to process",
+      "car": "Vehicle",
+      "amr_warn": "amr is required",
+      "mission": "Mission",
+      "missed": "Missing information",
+      "status": "Status",
+      "executing": "Running",
+      "stale": "Stopped"
+    }
+  },
+
+  "other": {
+    "edit_mission_tag": {
+      "title": "Edit mission tag",
+      "tag": "Tag",
+      "color": "Color",
+      "location": "Location",
+      "forbidden_edit_default": "Forbidden edit default"
+    },
+    "edit_charge_station_icon_style": {
+      "title": "edit charge station icon style",
+      "edit_position": "Edit Style"
+    }
+  },
+
+  "file": {
+    "warning_list": {
+      "warning_table": "Warning Table",
+      "genre": "Genre",
+      "error_code": "Code",
+      "buzzer": "Buzzer",
+      "info": "Info",
+      "solution": "Solution",
+      "sensor": "Sensor",
+      "info_ch": "Error info (chinese)",
+      "info_en": "Error info(english)",
+      "solution_ch": "Solution(chinese)",
+      "solution_en": "Solution(english)",
+      "sensor_location_en": "Sensor(english)",
+      "sensor_location_ch": "Sensor(chinese)",
+      "genre_name_ch": "Genre(chinese)",
+      "genre_name_en": "Genre(english)",
+      "add_new_genre": "Add New Genre",
+
+      "id_duplicate_warn": "this warning ID is duplicate, please change"
+    },
+    "backup_file": {
+      "title": "backup file",
+      "backup_now": "Backup Now",
+      "create_at": "Create At",
+      "backup_path": "Backup Path",
+      "restore": "Restore",
+      "restore_warn": "Confirm to restore this record, please turn off all vehicles, delete all tasks before executing, the system will restart"
+    }
+  },
+
+  "car_control_translate": {
+    "cargo_limit": "Cargo limit",
+    "move": "move",
+    "load": "load",
+    "offload": "offload",
+    "charge": "charge",
+    "fork": "fork",
+    "load_from_other": "load from other",
+    "offload_from_other": "offload to other",
+    "upper_control": "Upper Control",
+    "F": "forward",
+    "B": "backward",
+    "S": "spin",
+    "H": "fork movement",
+    "W": "wait"
+  },
+
+  "customCargo": {
+    "warn": "WARN !!",
+    "create": "Create Format",
+    "modalTitle": "Create Custom Cargo Format",
+    "name": "Custom Format Name",
+    "namePlaceholder": "e.g., My Cargo Format",
+    "addField": "Add Field",
+    "keyRequired": "Key is required",
+    "valueRequired": "Value type is required",
+    "isDefault": "is default",
+    "not_defined_format": "Not yet defined or the data format for this cargo custom info is not defined",
+    "delete_desc": "And confirm that the entire site is not in a mission state, deletion will reload all cargo-related equipment records. "
+  },
+
+  "sim": {
+    "add_car": "Add car",
+    "start_sim": "Start simulate",
+    "stop_sim": "Stop simulate",
+    "reset_sim": "Reset simulate",
+    "cargo": {
+      "already_exist": "already exist in table",
+      "input": {
+        "input": "Input",
+        "auto_shift_cargo": "Auto Shift Cargo",
+        "shift_location": "Shift location",
+        "shift_speed": "Shift speed (millisecond)"
+      },
+      "output": {
+        "output": "Output",
+        "cargo_number": "Cargo Number",
+        "respawn_cargo": "respawn cargo",
+        "speed": "Out cargo speed (second)",
+        "specify_car": "Specify car",
+        "placement": "Placement"
+      }
+    },
+    "modal": {
+      "mini": "mini",
+      "expand": "expand",
+      "current": "Current Script",
+      "name": "Name",
+      "source": "Source",
+      "target": "Target",
+      "select_locations": "Map select locations",
+      "edit_info": "Edit Mission Info",
+      "location": "Location",
+      "none": "none",
+      "not_info_yet": "Haven't set default script",
+      "haven't_set_default": "Haven't set default script",
+      "do_you_want_to_create_one": "A default Script mission is required or can not use",
+      "not_mission_set": "The mission has not been set yet, please go to the settings page to set it",
+      "valid_mission": "mission has set",
+      "valid_mission_info": "Set the pick-up and delivery mission to perform the correct behavior during the mission simulation. If not set, this area will be skipped."
+    },
+    "robot": {
+      "no_add_warn": "The robot has not been added yet. Click the Add button below and drag the robot to the map point.",
+      "unset": "unset",
+      "no_overlapping": "this place already has robot",
+      "modal": {
+        "edit": "Edit config",
+        "full_name": "robot name",
+        "placement": "Placement"
+      }
+    },
+    "select_script": {
+      "change": "Change Script",
+      "add_or_change": "Add or Change Script",
+      "info": "You can add or switch different scripts. The location settings and vehicle settings will be different each time you switch, but the location and route will be the same.",
+      "script": "script",
+      "status": "Status",
+      "using": "using",
+      "no_using": "-",
+      "using_this": "use this script",
+      "title": "Select a Script",
+      "selected": "Selected",
+      "no_scripts": "No scripts available",
+      "error_loading": "Failed to load scripts"
+    },
+
+    "start_sim_modal": {
+      "inactive_sim": "Stop simulate",
+      "active_sim": "Start simulation",
+      "please_confirm_info": "Please confirm the following simulation details",
+      "sim_script": "Simulation script:",
+      "no_script_select": "No script selected",
+      "in_use_robot": "Vehicle/Robot used:",
+      "no_robot_select": "No vehicle/robot selected",
+      "active": "Confirm to start",
+      "cancel": "Cancel",
+      "duration": "Simulation duration",
+      "station_mission": "Active each station task",
+      "remainTime": "Simulation remaining time"
+    },
+
+    "results": {
+      "title": "Simulation results",
+      "duration": "Simulation duration",
+      "cargos_carried": "Number of cargoes transported",
+      "battery_cost": "Battery consumption",
+      "missions_per_amr": "Number of missions per AMR",
+      "average_mission_time": "Average mission time",
+      "total_distance_traveled": "Total travel distance",
+      "idle_time_per_amr": "Idle time per AMR",
+      "mission_success_rate": "Mission success rate",
+      "completed_missions": "Total number of completed missions",
+      "total_missions": "total mission",
+      "download": "Download results",
+      "no_result": "No mission record yet",
+      "table": {
+        "amr_id": "AMR ID",
+        "missions": "Number of missions",
+        "battery_cost": "Battery consumption",
+        "average_mission_time": "Average mission time",
+        "total_distance_traveled": "Total distance traveled",
+        "idle_time": "Idle time",
+        "carried": "carried"
+      }
+    },
+
+    "conveyor": {
+      "title": "Warehouse Control System Settings",
+      "card_title": "Conveyor Station Activation",
+      "station": "Station: {{id}}",
+      "active_config": "Active",
+      "active_notify_mission": "Active notify mission",
+      "spawn_cargo": "Spawn Cargo",
+      "spawn_time": "Spawn Time",
+      "active_shift": "Active Shift",
+      "shift_time": "Shift Time",
+      "shift_target": "Shift Target",
+      "none": "None",
+      "save": "Save Settings",
+      "cancel": "Cancel",
+      "active_config_desc": "Start the parameter settings in the table below",
+      "active_notify_mission_desc": "When there is stock, a notify task will be automatically generated"
+    }
+  },
+  "cargo_history": {
+    "cargoId": "Cargo ID",
+    "status": "Status",
+    "customFormat": "Custom Format",
+    "undefined_format": "Undefined Format",
+    "undefined_format_desc": "This data format is judged as undefined. It may be that when the third party specifies the storage location or place that can contain goods, the format is wrong or the data format has not been defined in the QAMS. You can add a new format in the settings page -> Shelves & Pallets -> Customized Goods Information",
+    "re_verity_format": "Recheck format",
+    "metadata": "Metadata",
+    "createdAt": "Created At",
+    "history": "History",
+    "search": "Search",
+    "reset": "Reset",
+    "refetch": "Refetch",
+    "no_defined": "Data format has not been defined yet",
+    "search_metadata": "Search metadata"
+  },
+  "upload": {
+    "success": "Map uploaded successfully!",
+    "no_file": "Please upload a file.",
+    "validation_error": "Please complete all required fields.",
+    "invalid_filename": "Filename must be in English, contain no spaces, and end with .png",
+    "invalid_filename_when_edit": "Filename must be in English, contain no spaces.",
+    "invalid_file_type": "{{name}} is not a PNG file",
+    "only_one_file": "Only one file can be uploaded at a time.",
+    "map_origin_x": "Map Origin X",
+    "map_origin_y": "Map Origin Y",
+    "filename": "file name",
+    "status": "Status",
+    "is_using": "Use the map",
+    "using": "using",
+    "not_using": "not using",
+    "enter_map_origin_x": "Enter map origin X",
+    "enter_map_origin_y": "Enter map origin Y",
+    "upload_label": "Upload Map File",
+    "drag_text": "Click or drag file to this area to upload",
+    "hint": "Please upload the map image file. Only one file is allowed.",
+    "button": "Upload Map"
+  },
+  "conveyor": {
+    "title": "Edit conveyor belt parameters",
+    "active_notify_mission": "Active notify mission",
+    "edit_fork_height": "Edit fork height when picking up and releasing goods",
+    "enable_loading": "Enable Loading",
+    "enable_offloading": "Enable Offloading",
+    "error_fork_height": "Fork height is required",
+    "mock_config": "Edit conveyor belt mock parameters",
+    "mock_enable": "Enable Mock Conveyor",
+    "mock_spawn_cargo": "Enable Spawn Cargo",
+    "mock_spawn_time": "Spawn Interval (ms)",
+    "mock_active_shift": "Enable Shift",
+    "mock_shift_time": "Shift Interval (ms)",
+    "mock_shift_target": "Shift Target Location ID",
+    "error_spawn_time": "Please input spawn interval",
+    "error_shift_time": "Please input shift interval",
+    "error_shift_location": "Please input shift location ID",
+    "none": "none"
+  },
+  "amr_detail": {
+    "back": "Back to AMR List",
+    "online": "Online",
+    "offline": "Offline",
+    "overdue": "Overdue",
+    "normal": "Normal",
+    "accurate": "Position Accurate",
+    "inaccurate": "Position Inaccurate",
+    "delay": "Delay: {{ms}} ms",
+    "battery": "Battery",
+    "location": "Location",
+    "current_position": "Current Position",
+    "carrying_cargo": "Carrying Cargo",
+    "show_cargo_metadata": "Show Cargo Metadata",
+    "maintenance": "Maintenance",
+    "manual_operation": "Manual Operation",
+    "show_manual": "Show Manual Operation",
+    "hide_manual": "Hide Manual Operation",
+    "reset": "Reset",
+    "force_to_standby": "force machine to standby",
+    "stop": "Stop",
+    "continue": "Continue",
+    "recent_tasks": "Recent Tasks",
+    "task_id": "Task ID",
+    "desc": "Description",
+    "status": "Status",
+    "time": "Time",
+    "no_mission": "No recent mission",
+    "amr_not_found": "AMR Not Found",
+    "no_data": "No data available for this AMR.",
+    "cargo_metadata": "Cargo Metadata",
+    "no_metadata": "No metadata available",
+    "show_io": "Show IO",
+    "hide_io": "Hide IO",
+    "io": "IO information",
+    "no_io": "No IO information"
+  },
+
+  "peripheral_style": {
+    "areaType": "地點功能"
+  }
+}

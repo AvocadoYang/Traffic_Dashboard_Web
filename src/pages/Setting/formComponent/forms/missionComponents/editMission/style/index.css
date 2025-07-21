@@ -1,0 +1,14 @@
+/* Target the expanded row and the Descriptions component inside it */
+.ant-table-expanded-row .ant-descriptions {
+  z-index: 900 !important; /* Lower than the modal's default z-index of 1000 */
+}
+
+/* Ensure the expanded row itself has a controlled z-index */
+.ant-table-expanded-row {
+  z-index: 1 !important; /* Keep this low to avoid conflicts with other elements */
+}
+
+/* Optional: Ensure the modal has a higher z-index (if needed) */
+.ant-modal {
+  z-index: 1000 !important; /* This is the default, but explicitly setting it can help */
+}

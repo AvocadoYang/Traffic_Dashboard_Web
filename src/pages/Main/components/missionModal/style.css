@@ -1,0 +1,33 @@
+.quick-mission-web-wrap {
+  position: fixed;
+  width: 20vw;
+
+  z-index: 20;
+  background-color: #f5f5f5;
+  box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  bottom: 20px;
+  right: -100%;
+  padding: 20px;
+
+}
+
+.quick-mission-web-wrap-show {
+  transition: right 0.2s ease-in-out;
+  right: 20px; /* 滑入到可見區域 */
+}
+
+.form-title {
+  margin-bottom: 10px;
+  font-weight: bold;
+  font-size: 1em;
+  text-align: center;
+}
+
+
+.form-info-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-weight: bold;
+}

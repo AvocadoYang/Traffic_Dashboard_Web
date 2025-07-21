@@ -1,0 +1,58 @@
+.change-map-wrap {
+  height: 70vh;
+  width: 70vw;
+  position: fixed;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 200%;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.3);
+  z-index: 10000;
+}
+
+
+.show {
+  transition: left 0.4s ease-in-out;
+  left: calc(50%); /* 滑入到可見區域 */
+}
+
+.tittle-wrap{
+  height: 8%;
+}
+.body-wrap{
+  padding: 10px 20px 10px 20px;
+  overflow-y: scroll;
+  height: 92%;
+}
+
+.tittle {
+  font-size: bold;
+  position: absolute;
+  font-size: 1.2em;
+  top: 15px;
+  left: 15px;
+  z-index: 20000;
+}
+
+
+.info-wrap {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+.close-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 300;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.carousel {
+  height: 55vh;
+  width: 100%;
+}
+
