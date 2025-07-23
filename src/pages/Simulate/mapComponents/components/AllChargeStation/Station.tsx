@@ -1,5 +1,5 @@
-import { FC } from 'react';
-import styled, { keyframes } from 'styled-components';
+import { FC } from "react";
+import styled, { keyframes } from "styled-components";
 
 type ChargeStyle = {
   $is_in_service: boolean;
@@ -25,7 +25,8 @@ const pulse = keyframes`
 const CStation = styled.div<ChargeStyle>`
   width: 21px;
   height: 26px;
-  background-color: ${(prop) => (prop.$is_in_service ? '#2581ffc2' : '#3d3d3d')};
+  background-color: ${(prop) =>
+    prop.$is_in_service ? "#2581ffc2" : "#3d3d3d"};
   z-index: 20;
   text-align: center;
   position: absolute;
@@ -41,9 +42,10 @@ const CStation = styled.div<ChargeStyle>`
   transform: ${(props) =>
     `translate(${props.translate_x}em, ${props.translate_y}em) scale(${props.scale}) rotate(${props.rotate}deg)`};
 
-  animation-name: ${(props) => (props.$is_in_service ? 'none' : pulse)};
-  animation-duration: ${(props) => (props.$is_in_service ? '0s' : '1.5s')};
-  animation-iteration-count: ${(props) => (props.$is_in_service ? '0' : 'infinite')};
+  animation-name: ${(props) => (props.$is_in_service ? "none" : pulse)};
+  animation-duration: ${(props) => (props.$is_in_service ? "0s" : "1.5s")};
+  animation-iteration-count: ${(props) =>
+    props.$is_in_service ? "0" : "infinite"};
 `;
 
 const Svg = styled.svg`
@@ -52,7 +54,7 @@ const Svg = styled.svg`
 `;
 
 const PathStyle = styled.path<ChargeStyle>`
-  fill: ${(prop) => (prop.$is_in_service ? '#ffffff' : '#b30000')};
+  fill: ${(prop) => (prop.$is_in_service ? "#ffffff" : "#b30000")};
 `;
 const Station: FC<{
   locationId: string;

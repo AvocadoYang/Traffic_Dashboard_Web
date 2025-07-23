@@ -1,15 +1,15 @@
 /* eslint-disable no-void */
 
-import { Flex, Button, message, MenuProps, Dropdown } from 'antd';
-import { useTranslation } from 'react-i18next';
-import { FC, useState } from 'react';
-import client from '@/api/axiosClient';
-import { useMutation } from '@tanstack/react-query';
-import { MaintenanceLevel } from '@/sockets/useAMRInfo';
-import styled from 'styled-components';
-import { ErrorResponse } from '@/utils/globalType';
-import { errorHandler } from '@/utils/utils';
-import EditCargoCarrier from './EditCargoCarrier';
+import { Flex, Button, message, MenuProps, Dropdown } from "antd";
+import { useTranslation } from "react-i18next";
+import { FC, useState } from "react";
+import client from "@/api/axiosClient";
+import { useMutation } from "@tanstack/react-query";
+import { MaintenanceLevel } from "@/sockets/useAMRInfo";
+import styled from "styled-components";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
+import EditCargoCarrier from "./EditCargoCarrier";
 
 const StyledFlex = styled(Flex)`
   width: 100%;
@@ -50,32 +50,32 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
 
   const manualChargeMutation = useMutation({
     mutationFn: () => {
-      return client.post('/api/amr/amr-charge', { amrId });
+      return client.post("/api/amr/amr-charge", { amrId });
     },
     onSuccess: () => {
-      void messageApi.success(t('utils.success'));
+      void messageApi.success(t("utils.success"));
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const emergencyMutation = useMutation({
     mutationFn: (isStop: boolean) => {
-      return client.post('/api/amr/emergency-stop', { amrId, isStop });
+      return client.post("/api/amr/emergency-stop", { amrId, isStop });
     },
     onSuccess: () => {
-      void messageApi.success(t('utils.success'));
+      void messageApi.success(t("utils.success"));
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const deleteMissionMutation = useMutation({
     mutationFn: () => {
-      return client.post('/api/amr/delete-mission', { amrId });
+      return client.post("/api/amr/delete-mission", { amrId });
     },
     onSuccess: () => {
-      void messageApi.success(t('utils.success'));
+      void messageApi.success(t("utils.success"));
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const handleEmergencyStop = (isStop: boolean) => {
@@ -95,10 +95,15 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
           variant="outlined"
           onClick={() => manualChargeMutation.mutate()}
         >
-          {t('charge.charge')}
+          {t("charge.charge")}
         </StyledButton>
-        <StyledButton type="default" variant="outlined" danger onClick={() => handleDelMis()}>
-          {t('amr_card.delete_current_mission')}
+        <StyledButton
+          type="default"
+          variant="outlined"
+          danger
+          onClick={() => handleDelMis()}
+        >
+          {t("amr_card.delete_current_mission")}
         </StyledButton>
         <MaintenancePanel amrId={amrId} />
 
@@ -108,15 +113,23 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
           danger
           onClick={() => handleEmergencyStop(true)}
         >
-          {t('amr_card.emergency_stop')}
+          {t("amr_card.emergency_stop")}
         </StyledButton>
 
-        <StyledButton type="default" variant="outlined" onClick={() => handleEmergencyStop(false)}>
-          {t('amr_card.continue_move')}
+        <StyledButton
+          type="default"
+          variant="outlined"
+          onClick={() => handleEmergencyStop(false)}
+        >
+          {t("amr_card.continue_move")}
         </StyledButton>
 
-        <StyledButton type="default" variant="outlined" onClick={() => setIsCarrierModalOpen(true)}>
-          {t('amr_card.update_cargo')}
+        <StyledButton
+          type="default"
+          variant="outlined"
+          onClick={() => setIsCarrierModalOpen(true)}
+        >
+          {t("amr_card.update_cargo")}
         </StyledButton>
       </StyledFlex>
 
@@ -137,56 +150,63 @@ const MaintenancePanel: FC<{ amrId: string }> = ({ amrId }) => {
 
   const maintenanceMutation = useMutation({
     mutationFn: (maintenanceLevel: string) => {
-      return client.post('/api/amr/update-maintenance-level', { amrId, maintenanceLevel });
+      return client.post("/api/amr/update-maintenance-level", {
+        amrId,
+        maintenanceLevel,
+      });
     },
     onSuccess: () => {
-      void messageApi.success(t('utils.success'));
+      void messageApi.success(t("utils.success"));
     },
     onError: () => {
-      void messageApi.error(t('mission.charge_mission.haventSetChargeMission'));
-    }
+      void messageApi.error(t("mission.charge_mission.haventSetChargeMission"));
+    },
   });
 
-  const onClick: MenuProps['onClick'] = ({ key }) => {
+  const onClick: MenuProps["onClick"] = ({ key }) => {
     maintenanceMutation.mutate(key);
   };
 
-  const items: MenuProps['items'] = [
+  const items: MenuProps["items"] = [
     {
-      label: t('maintenance.unknown'),
-      key: MaintenanceLevel.UNKNOWN.toString()
+      label: t("maintenance.unknown"),
+      key: MaintenanceLevel.UNKNOWN.toString(),
     },
     {
-      label: t('maintenance.normal'),
-      key: MaintenanceLevel.NORMAL.toString()
+      label: t("maintenance.normal"),
+      key: MaintenanceLevel.NORMAL.toString(),
     },
     {
-      label: t('maintenance.forbidden_all_mission'),
-      key: MaintenanceLevel.FORBIDDEN_ALL_MISSION.toString()
+      label: t("maintenance.forbidden_all_mission"),
+      key: MaintenanceLevel.FORBIDDEN_ALL_MISSION.toString(),
     },
     {
-      label: t('maintenance.forbidden_wcs_mission'),
-      key: MaintenanceLevel.FORBIDDEN_WCS_MISSION.toString()
+      label: t("maintenance.forbidden_wcs_mission"),
+      key: MaintenanceLevel.FORBIDDEN_WCS_MISSION.toString(),
     },
     {
-      label: t('maintenance.forbidden_rcs_mission'),
-      key: MaintenanceLevel.FORBIDDEN_RCS_MISSION.toString()
+      label: t("maintenance.forbidden_rcs_mission"),
+      key: MaintenanceLevel.FORBIDDEN_RCS_MISSION.toString(),
     },
     {
-      label: t('maintenance.forbidden_user_mission'),
-      key: MaintenanceLevel.FORBIDDEN_USER_MISSION.toString()
+      label: t("maintenance.forbidden_user_mission"),
+      key: MaintenanceLevel.FORBIDDEN_USER_MISSION.toString(),
     },
     {
-      label: t('maintenance.broken'),
-      key: MaintenanceLevel.BROKEN.toString()
-    }
+      label: t("maintenance.broken"),
+      key: MaintenanceLevel.BROKEN.toString(),
+    },
   ];
 
   return (
     <>
       {contextHolder}
-      <Dropdown menu={{ items, onClick }} trigger={['click']} placement="bottom">
-        <StyledDropdownButton>{t('maintenance.update')}</StyledDropdownButton>
+      <Dropdown
+        menu={{ items, onClick }}
+        trigger={["click"]}
+        placement="bottom"
+      >
+        <StyledDropdownButton>{t("maintenance.update")}</StyledDropdownButton>
       </Dropdown>
     </>
   );

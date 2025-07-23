@@ -1,16 +1,20 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Layout, Form, Splitter, Flex } from 'antd';
-import Header from '../../components/Header';
-import { ZoomPad, Sider, FormDrawerBtn, ToolComponents } from './components';
-import { useResetSiderSwitch } from './hooks';
-import './setting.css';
-import { DndContext } from '@dnd-kit/core';
-import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { restrictToParentElement } from '@dnd-kit/modifiers';
-import { getMoveIndex } from './utils/utils';
-import { toolbarState } from './components/siderElement';
-import { useIsMobile } from '@/hooks/useIsMoblie';
-import MapView from './mapComponents/MapView';
+import React, { useState, useRef, useEffect, useMemo } from "react";
+import { Layout, Form, Splitter, Flex } from "antd";
+import Header from "../../components/Header";
+import { ZoomPad, Sider, FormDrawerBtn, ToolComponents } from "./components";
+import { useResetSiderSwitch } from "./hooks";
+import "./setting.css";
+import { DndContext } from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { restrictToParentElement } from "@dnd-kit/modifiers";
+import { getMoveIndex } from "./utils/utils";
+import { toolbarState } from "./components/siderElement";
+import { useIsMobile } from "@/hooks/useIsMoblie";
+import MapView from "./mapComponents/MapView";
 const { Content } = Layout;
 
 const Setting: React.FC = () => {
@@ -23,7 +27,10 @@ const Setting: React.FC = () => {
   const [zonePanelForm] = Form.useForm();
   const [dataList, setDataList] = useState(toolbarState);
   const [scale, setScale] = useState(1);
-  const [splitterSize, setSplitterSize] = useState<number[] | string[]>(['0%', '100%']);
+  const [splitterSize, setSplitterSize] = useState<number[] | string[]>([
+    "0%",
+    "100%",
+  ]);
 
   const dragEndEvent = (dragItem) => {
     setDataList((prevDataList) => {
@@ -36,9 +43,21 @@ const Setting: React.FC = () => {
 
   const dndContextMemo = useMemo(() => {
     return (
-      <DndContext onDragEnd={dragEndEvent} modifiers={[restrictToParentElement]}>
-        <SortableContext items={dataList.map((c) => c.key)} strategy={verticalListSortingStrategy}>
-          <Flex vertical gap="middle" align="start" className="attrs" style={{ padding: '1em' }}>
+      <DndContext
+        onDragEnd={dragEndEvent}
+        modifiers={[restrictToParentElement]}
+      >
+        <SortableContext
+          items={dataList.map((c) => c.key)}
+          strategy={verticalListSortingStrategy}
+        >
+          <Flex
+            vertical
+            gap="middle"
+            align="start"
+            className="attrs"
+            style={{ padding: "1em" }}
+          >
             {
               <ToolComponents
                 locationPanelForm={locationPanelForm}
@@ -55,9 +74,9 @@ const Setting: React.FC = () => {
 
   useEffect(() => {
     if (hasOpenTool) {
-      setSplitterSize(['30%', '100%']);
+      setSplitterSize(["30%", "100%"]);
     } else {
-      setSplitterSize(['0%', '100%']);
+      setSplitterSize(["0%", "100%"]);
     }
   }, [hasOpenTool]);
 
@@ -69,14 +88,14 @@ const Setting: React.FC = () => {
 
   return (
     <>
-      <Layout style={{ height: `${isMobile ? '100dvh' : '100%'}` }}>
+      <Layout style={{ height: `${isMobile ? "100dvh" : "100%"}` }}>
         <Header isMobile={isMobile}></Header>
         <Content>
-          <Layout style={{ height: '100%', width: '100%' }}>
+          <Layout style={{ height: "100%", width: "100%" }}>
             <Sider setHasOpenTool={setHasOpenTool} />
             <Content
               style={{
-                backgroundColor: '#f5f5f5'
+                backgroundColor: "#f5f5f5",
               }}
             >
               <Splitter onResize={updateSize}>
@@ -84,19 +103,19 @@ const Setting: React.FC = () => {
                   size={splitterSize[0]}
                   collapsible={hasOpenTool ? true : false}
                   resizable={hasOpenTool ? true : false}
-                  style={{ overflowX: 'hidden' }}
+                  style={{ overflowX: "hidden" }}
                 >
                   {dndContextMemo}
                 </Splitter.Panel>
                 <Splitter.Panel
                   size={splitterSize[1]}
-                  style={{ overflow: 'hidden', backgroundColor: '#f5f5f5' }}
+                  style={{ overflow: "hidden", backgroundColor: "#f5f5f5" }}
                 >
                   <div
                     style={{
-                      height: '100%',
-                      width: '100%',
-                      overflow: 'scroll'
+                      height: "100%",
+                      width: "100%",
+                      overflow: "scroll",
                     }}
                     draggable={false}
                     ref={mapWrapRef}

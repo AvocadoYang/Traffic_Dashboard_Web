@@ -1,12 +1,12 @@
-import { FC } from 'react';
-import { RedoOutlined, StopOutlined } from '@ant-design/icons';
-import styled from 'styled-components';
-import { Button, Flex, message, Typography } from 'antd';
-import { useTranslation } from 'react-i18next';
-import { ErrorResponse } from '@/utils/globalType';
-import { errorHandler } from '@/utils/utils';
-import client from '@/api/axiosClient';
-import { useMutation } from '@tanstack/react-query';
+import { FC } from "react";
+import { RedoOutlined, StopOutlined } from "@ant-design/icons";
+import styled from "styled-components";
+import { Button, Flex, message, Typography } from "antd";
+import { useTranslation } from "react-i18next";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
+import client from "@/api/axiosClient";
+import { useMutation } from "@tanstack/react-query";
 
 const { Title } = Typography;
 const ControlPanel = styled.div`
@@ -75,40 +75,40 @@ const DPad: FC<{ amrId: string }> = ({ amrId }) => {
 
   const forceIdleMutation = useMutation({
     mutationFn: () => {
-      return client.post('api/amr/force-idle', { amrId });
+      return client.post("api/amr/force-idle", { amrId });
     },
     onSuccess: () => {
-      messageApi.success(t('utils.success'));
+      messageApi.success(t("utils.success"));
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const resetMutation = useMutation({
     mutationFn: () => {
-      return client.post('api/amr/reset', { amrId });
+      return client.post("api/amr/reset", { amrId });
     },
     onSuccess: () => {
-      messageApi.success(t('utils.success'));
+      messageApi.success(t("utils.success"));
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const pauseMutation = useMutation({
     mutationFn: (isStop: boolean) => {
-      return client.post('api/amr/emergency-stop', { amrId, isStop });
+      return client.post("api/amr/emergency-stop", { amrId, isStop });
     },
     onSuccess: () => {
-      messageApi.success(t('utils.success'));
+      messageApi.success(t("utils.success"));
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   return (
     <>
       {contextHolder}
       <ControlPanel>
-        <Title level={4} style={{ marginBottom: 12, fontSize: '1.2em' }}>
-          {t('amr_detail.manual_operation')}
+        <Title level={4} style={{ marginBottom: 12, fontSize: "1.2em" }}>
+          {t("amr_detail.manual_operation")}
         </Title>
         <DPadRow>
           {/*
@@ -129,24 +129,32 @@ const DPad: FC<{ amrId: string }> = ({ amrId }) => {
                 type="default"
                 aria-label="force_to_standby"
               >
-                {t('amr_detail.force_to_standby')}
+                {t("amr_detail.force_to_standby")}
               </Button>
               <Button
                 onClick={() => resetMutation.mutate()}
                 icon={<RedoOutlined />}
                 type="primary"
-                style={{ background: '#faad14', borderColor: '#faad14', color: '#fff' }}
+                style={{
+                  background: "#faad14",
+                  borderColor: "#faad14",
+                  color: "#fff",
+                }}
                 aria-label="Reset AMR position"
               >
-                {t('amr_detail.reset')}
+                {t("amr_detail.reset")}
               </Button>
               <Button
                 onClick={() => pauseMutation.mutate(false)}
-                style={{ background: '#92fa14', borderColor: '#92fa14', color: '#fff' }}
+                style={{
+                  background: "#92fa14",
+                  borderColor: "#92fa14",
+                  color: "#fff",
+                }}
                 icon={<StopOutlined />}
                 aria-label="continue AMR"
               >
-                {t('amr_detail.continue')}
+                {t("amr_detail.continue")}
               </Button>
               <Button
                 onClick={() => pauseMutation.mutate(true)}
@@ -154,7 +162,7 @@ const DPad: FC<{ amrId: string }> = ({ amrId }) => {
                 danger
                 aria-label="Emergency stop AMR"
               >
-                {t('amr_detail.stop')}
+                {t("amr_detail.stop")}
               </Button>
             </Flex>
           </DPadSide>

@@ -1,1 +1,1 @@
-export { default as ShelfPanel } from './ShelfPanel';
+export { default as ShelfPanel } from "./ShelfPanel";

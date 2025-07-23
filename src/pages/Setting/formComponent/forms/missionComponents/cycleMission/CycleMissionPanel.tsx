@@ -1,15 +1,19 @@
-import { Button, Flex, Popconfirm, Table, TableProps, message } from 'antd';
-import { FC } from 'react';
-import styled from 'styled-components';
-import { useTranslation } from 'react-i18next';
-import { useMutation } from '@tanstack/react-query';
-import { CloseCircleOutlined, DeleteTwoTone, PlayCircleOutlined } from '@ant-design/icons';
-import client from '@/api/axiosClient';
-import { errorHandler } from '@/utils/utils';
-import { ErrorResponse } from '@/utils/globalType';
-import { useCycleMission } from '@/sockets/useCycleMission';
-import FormHr from '@/pages/Setting/utils/FormHr';
-import CycleForm from './CycleForm';
+import { Button, Flex, Popconfirm, Table, TableProps, message } from "antd";
+import { FC } from "react";
+import styled from "styled-components";
+import { useTranslation } from "react-i18next";
+import { useMutation } from "@tanstack/react-query";
+import {
+  CloseCircleOutlined,
+  DeleteTwoTone,
+  PlayCircleOutlined,
+} from "@ant-design/icons";
+import client from "@/api/axiosClient";
+import { errorHandler } from "@/utils/utils";
+import { ErrorResponse } from "@/utils/globalType";
+import { useCycleMission } from "@/sockets/useCycleMission";
+import FormHr from "@/pages/Setting/utils/FormHr";
+import CycleForm from "./CycleForm";
 
 const NotActive = styled.div`
   min-width: 65px;
@@ -98,8 +102,10 @@ type CM = {
 
 const CycleMissionPanel: FC<{
   sortableId: string;
-  attributes: import('@dnd-kit/core').DraggableAttributes;
-  listeners: import('@dnd-kit/core/dist/hooks/utilities').SyntheticListenerMap | undefined;
+  attributes: import("@dnd-kit/core").DraggableAttributes;
+  listeners:
+    | import("@dnd-kit/core/dist/hooks/utilities").SyntheticListenerMap
+    | undefined;
 }> = ({ attributes, listeners }) => {
   const { t } = useTranslation();
   const data = useCycleMission();
@@ -107,38 +113,38 @@ const CycleMissionPanel: FC<{
   const deleteMutation = useMutation({
     mutationFn: (payload: { id: string }) => {
       return client.post(
-        'api/setting/delete-cycle-mission',
+        "api/setting/delete-cycle-mission",
         {
-          cycle_id: payload.id
+          cycle_id: payload.id,
         },
         {
-          headers: { authorization: `Bearer ${localStorage.getItem('_KMT')}` }
-        }
+          headers: { authorization: `Bearer ${localStorage.getItem("_KMT")}` },
+        },
       );
     },
     onSuccess: () => {
-      void messageApi.success(t('utils.success'));
+      void messageApi.success(t("utils.success"));
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const activeMutation = useMutation({
     mutationFn: (payload: { id: string; isActive: boolean }) => {
       return client.post(
-        'api/setting/active-cycle-mission',
+        "api/setting/active-cycle-mission",
         {
           cycle_id: payload.id,
-          isActive: payload.isActive
+          isActive: payload.isActive,
         },
         {
-          headers: { authorization: `Bearer ${localStorage.getItem('_KMT')}` }
-        }
+          headers: { authorization: `Bearer ${localStorage.getItem("_KMT")}` },
+        },
       );
     },
     onSuccess: () => {
-      void messageApi.success(t('utils.success'));
+      void messageApi.success(t("utils.success"));
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const activeSwitch = (id: string, isActive: boolean) => {
@@ -149,47 +155,55 @@ const CycleMissionPanel: FC<{
     deleteMutation.mutate({ id });
   };
 
-  const columns: TableProps<CM>['columns'] = [
+  const columns: TableProps<CM>["columns"] = [
     {
-      title: t('mission.cycle_mission.random'),
-      dataIndex: 'missionName',
-      key: 'missionName',
-      width: '30%'
+      title: t("mission.cycle_mission.random"),
+      dataIndex: "missionName",
+      key: "missionName",
+      width: "30%",
     },
     {
-      title: t('mission.cycle_mission.car'),
-      dataIndex: 'amrId',
-      key: 'amrId',
-      width: '25%',
+      title: t("mission.cycle_mission.car"),
+      dataIndex: "amrId",
+      key: "amrId",
+      width: "25%",
       render(_, record) {
-        return record.amrId ? record.amrId : t('mission.cycle_mission.random');
-      }
+        return record.amrId ? record.amrId : t("mission.cycle_mission.random");
+      },
     },
     {
-      title: t('mission.cycle_mission.status'),
-      dataIndex: 'status',
-      key: 'status',
-      width: '15%',
+      title: t("mission.cycle_mission.status"),
+      dataIndex: "status",
+      key: "status",
+      width: "15%",
       render(_, record) {
         return record.isActive ? <ActiveLogo /> : <NotActive />;
-      }
+      },
     },
     {
-      key: 'action',
-      width: '30%',
+      key: "action",
+      width: "30%",
       render: (_, record) => (
         <MinWid>
           <Flex gap="middle">
             <Button
-              color={record.isActive ? 'default' : 'primary'}
+              color={record.isActive ? "default" : "primary"}
               variant="filled"
-              icon={record.isActive ? <CloseCircleOutlined /> : <PlayCircleOutlined />}
+              icon={
+                record.isActive ? (
+                  <CloseCircleOutlined />
+                ) : (
+                  <PlayCircleOutlined />
+                )
+              }
               loading={activeMutation.isLoading}
-              onClick={() => activeSwitch(record.cycle_relate_id, !record.isActive)}
+              onClick={() =>
+                activeSwitch(record.cycle_relate_id, !record.isActive)
+              }
             >
               {record.isActive
-                ? t('mission.cycle_mission.stale')
-                : t('mission.cycle_mission.executing')}
+                ? t("mission.cycle_mission.stale")
+                : t("mission.cycle_mission.executing")}
             </Button>
             {record.isActive ? (
               []
@@ -206,14 +220,14 @@ const CycleMissionPanel: FC<{
                   type="dashed"
                   danger
                 >
-                  {t('utils.delete')}
+                  {t("utils.delete")}
                 </Button>
               </Popconfirm>
             )}
           </Flex>
         </MinWid>
-      )
-    }
+      ),
+    },
   ];
 
   if (!data) return [];
@@ -222,13 +236,15 @@ const CycleMissionPanel: FC<{
       {contextHolder}
       <PanelContainer>
         <h3 className="drop_button_style" {...listeners} {...attributes}>
-          {t('mission.cycle_mission.cycle_mission')}
+          {t("mission.cycle_mission.cycle_mission")}
         </h3>
         <FormHr />
         <Flex gap="middle" justify="flex-start" align="start" vertical>
           <CycleForm />
           <WideTable
-            rowKey={(record) => (record as { cycle_relate_id: string }).cycle_relate_id as string}
+            rowKey={(record) =>
+              (record as { cycle_relate_id: string }).cycle_relate_id as string
+            }
             columns={columns as []}
             dataSource={data}
             pagination={{ pageSize: 4 }}

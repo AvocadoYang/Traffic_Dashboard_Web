@@ -1,13 +1,13 @@
 // useAllMissionHistory.ts
-import { useQuery } from '@tanstack/react-query';
-import { array, object, string, number, boolean, date } from 'yup';
-import client from './axiosClient';
+import { useQuery } from "@tanstack/react-query";
+import { array, object, string, number, boolean, date } from "yup";
+import client from "./axiosClient";
 
 const missionSchema = object({
   pagination: object({
     page: number().required(),
     pageSize: number().required(),
-    total: number().required()
+    total: number().required(),
   }),
   data: array(
     object({
@@ -32,30 +32,32 @@ const missionSchema = object({
       batteryRateWhenStarted: number().required(),
       totalDistanceTraveled: number().required(),
       info: string().nullable(),
-      message: string().nullable()
-    }).required()
-  )
+      message: string().nullable(),
+    }).required(),
+  ),
 });
 
 const getAllMission = async (
   params: {
     page?: number;
     pageSize?: number;
-  } = {}
+  } = {},
 ) => {
-  const { data } = await client.get<unknown>('api/missions/mission-history', {
-    params: { page: params.page, pageSize: params.pageSize }
+  const { data } = await client.get<unknown>("api/missions/mission-history", {
+    params: { page: params.page, pageSize: params.pageSize },
   });
   const parsed = await missionSchema.validate(data, { stripUnknown: true });
   return parsed;
 };
 
-const useAllMissionHistory = (params: { page?: number; pageSize?: number } = {}) => {
+const useAllMissionHistory = (
+  params: { page?: number; pageSize?: number } = {},
+) => {
   return useQuery({
-    queryKey: ['mission-history', params.page, params.pageSize],
+    queryKey: ["mission-history", params.page, params.pageSize],
     queryFn: () => getAllMission(params),
     retry: 2,
-    staleTime: 5 * 60 * 1000 // 5 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
 

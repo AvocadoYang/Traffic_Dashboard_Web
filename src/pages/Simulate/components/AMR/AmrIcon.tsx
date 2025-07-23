@@ -1,18 +1,18 @@
-import { FC, memo, RefObject, useRef, useState } from 'react';
-import styled from 'styled-components';
-import { message, Spin, Tooltip } from 'antd';
-import useMap from '@/api/useMap';
-import { useTranslation } from 'react-i18next';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import client from '@/api/axiosClient';
-import useScriptRobot from '@/api/useScriptRobot';
-import { errorHandler, rvizCoord } from '@/utils/utils';
-import { EditFormType } from './amr';
-import AmrForm from './AmrForm';
-import { findClosestLocation } from '../../utils/funcs';
-import { ErrorResponse } from '@/utils/globalType';
-import { useAtomValue } from 'jotai';
-import { globalScale } from '../../utils/mapStatus';
+import { FC, memo, RefObject, useRef, useState } from "react";
+import styled from "styled-components";
+import { message, Spin, Tooltip } from "antd";
+import useMap from "@/api/useMap";
+import { useTranslation } from "react-i18next";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import client from "@/api/axiosClient";
+import useScriptRobot from "@/api/useScriptRobot";
+import { errorHandler, rvizCoord } from "@/utils/utils";
+import { EditFormType } from "./amr";
+import AmrForm from "./AmrForm";
+import { findClosestLocation } from "../../utils/funcs";
+import { ErrorResponse } from "@/utils/globalType";
+import { useAtomValue } from "jotai";
+import { globalScale } from "../../utils/mapStatus";
 
 const AMR_FORK_WIDTH = 1.4; // meter
 const AMR_FORK_HEIGHT = 2; // meter
@@ -27,9 +27,9 @@ const ColorAmr = styled.div.attrs<{
   placement: string;
 }>(({ left, top }) => ({
   style: {
-    left: `${left !== null ? left : 'auto'}px`,
-    top: `${top !== null ? top : 'auto'}px`
-  }
+    left: `${left !== null ? left : "auto"}px`,
+    top: `${top !== null ? top : "auto"}px`,
+  },
 }))<{
   left: number | null;
   top: number | null;
@@ -37,9 +37,10 @@ const ColorAmr = styled.div.attrs<{
   width: 1.2em;
   min-height: 1.5em;
   display: flex;
-  border: ${(prop) => (prop.$is_agv ? '1px solid gray' : 'none')};
-  justify-content: ${(prop) => (prop.$is_agv ? 'space-evenly' : 'space-around')};
-  position: ${(prop) => (prop.placement === 'unset' ? 'relative' : 'absolute')};
+  border: ${(prop) => (prop.$is_agv ? "1px solid gray" : "none")};
+  justify-content: ${(prop) =>
+    prop.$is_agv ? "space-evenly" : "space-around"};
+  position: ${(prop) => (prop.placement === "unset" ? "relative" : "absolute")};
   background-color: ${(prop) => prop.color};
   transform-origin: x y;
   border-radius: 2px;
@@ -55,7 +56,7 @@ const Fork = styled.div<{
   border-radius: 0px 0px 1px 1px;
 
   position: absolute;
-  left: ${(prop) => (prop.direct === 'left' ? '20%' : '65%')};
+  left: ${(prop) => (prop.direct === "left" ? "20%" : "65%")};
   bottom: -53%;
 `;
 
@@ -83,31 +84,33 @@ const AmrIcon: FC<{
 
   const editMutation = useMutation({
     mutationFn: (payload: EditFormType) => {
-      return client.post('api/simulate/edit-robot', { ...payload, id });
+      return client.post("api/simulate/edit-robot", { ...payload, id });
     },
     onSuccess: async () => {
       refetch();
-      void messageApi.success(t('utils.success'));
+      void messageApi.success(t("utils.success"));
       setIsOpen(false);
-      queryClient.refetchQueries({ queryKey: ['mock-robot'] });
+      queryClient.refetchQueries({ queryKey: ["mock-robot"] });
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const isRegisterMutation = useMutation({
     mutationFn: async (locationId: string) => {
-      const response = await client.post('api/simulate/is-place-has-robot', { locationId });
+      const response = await client.post("api/simulate/is-place-has-robot", {
+        locationId,
+      });
       return response.data as { locationId: string; isRegister: boolean };
     },
     onSuccess: (result) => {
       if (result.isRegister) {
-        messageApi.warning(t('sim.robot.no_overlapping'));
+        messageApi.warning(t("sim.robot.no_overlapping"));
         return;
       }
       handlePlacement(result.locationId);
-      queryClient.refetchQueries({ queryKey: ['mock-robot'] });
+      queryClient.refetchQueries({ queryKey: ["mock-robot"] });
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const handleEditMutation = (payload: EditFormType) => {
@@ -119,7 +122,7 @@ const AmrIcon: FC<{
 
     handleEditMutation({
       full_name: info?.full_name as string,
-      script_placement_location: locationId === null ? 'unset' : locationId
+      script_placement_location: locationId === null ? "unset" : locationId,
     });
   };
 
@@ -138,7 +141,7 @@ const AmrIcon: FC<{
       mapOriginX: map.mapOriginX,
       mapOriginY: map.mapOriginY,
       mapHeight: map.mapHeight,
-      scaleSize: scale
+      scaleSize: scale,
     });
 
     // console.log(rx, ry);
@@ -146,7 +149,7 @@ const AmrIcon: FC<{
     const closestLocationId = findClosestLocation(rx, ry, map);
 
     if (!closestLocationId) {
-      messageApi.warning('edit location first');
+      messageApi.warning("edit location first");
       return;
     }
 
@@ -169,7 +172,7 @@ const AmrIcon: FC<{
           width={AMR_FORK_WIDTH / map.mapResolution}
           height={AMR_FORK_HEIGHT / map.mapResolution}
           color={color}
-          $is_agv={amrId.includes('SW15')}
+          $is_agv={amrId.includes("SW15")}
         >
           <Fork direct="left"></Fork>
           <Fork direct="right"></Fork>
@@ -187,5 +190,6 @@ const AmrIcon: FC<{
 
 export default memo(
   AmrIcon,
-  (prev, next) => JSON.stringify(prev.placement) === JSON.stringify(next.placement)
+  (prev, next) =>
+    JSON.stringify(prev.placement) === JSON.stringify(next.placement),
 );

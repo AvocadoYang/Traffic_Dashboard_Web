@@ -1,14 +1,18 @@
-import { FC } from 'react';
-import { CloseCircleOutlined, DeleteTwoTone, PlayCircleOutlined } from '@ant-design/icons';
-import { useMutation } from '@tanstack/react-query';
-import styled from 'styled-components';
-import { Button, Flex, Popconfirm, Table, message } from 'antd';
-import { nanoid } from 'nanoid';
-import { useTranslation } from 'react-i18next';
-import { ErrorResponse } from '@/utils/globalType';
-import { errorHandler } from '@/utils/utils';
-import client from '@/api/axiosClient';
-import { useAbortMissionWhenHasCargo } from '@/api/useAbortMissionWhenHasCargo';
+import { FC } from "react";
+import {
+  CloseCircleOutlined,
+  DeleteTwoTone,
+  PlayCircleOutlined,
+} from "@ant-design/icons";
+import { useMutation } from "@tanstack/react-query";
+import styled from "styled-components";
+import { Button, Flex, Popconfirm, Table, message } from "antd";
+import { nanoid } from "nanoid";
+import { useTranslation } from "react-i18next";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
+import client from "@/api/axiosClient";
+import { useAbortMissionWhenHasCargo } from "@/api/useAbortMissionWhenHasCargo";
 
 const Wrapper = styled.div`
   display: flex;
@@ -33,7 +37,7 @@ const Dot = styled.div<DotStyle>`
   border-radius: 99%;
   width: 7px;
   height: 7px;
-  background-color: ${(prop) => (prop.$active ? '#2bea00' : '#979797')};
+  background-color: ${(prop) => (prop.$active ? "#2bea00" : "#979797")};
 `;
 
 interface DataType {
@@ -52,23 +56,23 @@ const AbortCargoMissionTable: FC = () => {
 
   const activeMutation = useMutation({
     mutationFn: (payload: { id: string; isActive: boolean }) => {
-      return client.post('api/setting/active-abort-when-has-cargo', payload);
+      return client.post("api/setting/active-abort-when-has-cargo", payload);
     },
     onSuccess: () => {
-      void messageApi.success(t('utils.success'));
+      void messageApi.success(t("utils.success"));
       void refetch();
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (payload: { id: string }) => {
-      return client.post('api/setting/delete-abort-when-has-cargo', payload);
+      return client.post("api/setting/delete-abort-when-has-cargo", payload);
     },
     onSuccess() {
       void refetch();
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const handleActive = (isActive: boolean, id: string) => {
@@ -81,49 +85,49 @@ const AbortCargoMissionTable: FC = () => {
 
   const columns = [
     {
-      title: t('mission.topic_mission.status'),
-      key: 'active',
-      dataIndex: 'active',
+      title: t("mission.topic_mission.status"),
+      key: "active",
+      dataIndex: "active",
       width: 100,
       render: (_v: unknown, record: DataType) => {
         return (
           <ActiveBox>
-            <Dot $active={record.active as boolean} />{' '}
+            <Dot $active={record.active as boolean} />{" "}
             <>
               {record.active
-                ? t('mission.topic_mission.executing')
-                : t('mission.topic_mission.stale')}
+                ? t("mission.topic_mission.executing")
+                : t("mission.topic_mission.stale")}
             </>
           </ActiveBox>
         );
-      }
+      },
     },
     {
-      title: t('mission.topic_mission.car'),
-      dataIndex: 'amrId',
-      key: 'amrId',
+      title: t("mission.topic_mission.car"),
+      dataIndex: "amrId",
+      key: "amrId",
       width: 150,
       render: (_: unknown, record: DataType) => {
         return record.amrId.map((item, i) => {
           return <p key={`${item}-${i}`}>{item} ,</p>;
         });
-      }
+      },
     },
 
     {
-      title: t('mission.topic_mission.mission'),
-      dataIndex: 'missionName',
-      key: 'missionName',
+      title: t("mission.topic_mission.mission"),
+      dataIndex: "missionName",
+      key: "missionName",
       width: 300,
 
       render: (_v: unknown, record: DataType) => {
         return record.taskName;
-      }
+      },
     },
     {
-      title: '',
+      title: "",
       width: 30,
-      dataIndex: 'operation',
+      dataIndex: "operation",
       key: nanoid(),
 
       render(_v: unknown, record: DataType) {
@@ -139,8 +143,8 @@ const AbortCargoMissionTable: FC = () => {
                     variant="filled"
                     type="link"
                   >
-                    {' '}
-                    {t('mission.topic_mission.stale')}
+                    {" "}
+                    {t("mission.topic_mission.stale")}
                   </Button>
                 </>
               ) : (
@@ -152,25 +156,28 @@ const AbortCargoMissionTable: FC = () => {
                     variant="filled"
                     type="link"
                   >
-                    {t('mission.topic_mission.executing')}
+                    {t("mission.topic_mission.executing")}
                   </Button>
                 </>
               )}
 
-              <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.id)}>
+              <Popconfirm
+                title="Sure to delete?"
+                onConfirm={() => handleDelete(record.id)}
+              >
                 <Button
                   icon={<DeleteTwoTone twoToneColor="#f30303" />}
                   color="danger"
                   variant="filled"
                 >
-                  {t('utils.delete')}
+                  {t("utils.delete")}
                 </Button>
               </Popconfirm>
             </Flex>
           </>
         );
-      }
-    }
+      },
+    },
   ];
 
   return (

@@ -1,10 +1,10 @@
-import { Relation } from '@/api/useLoc';
+import { Relation } from "@/api/useLoc";
 
 export enum PeripheralMachineStatus {
-  INIT = 'INIT',
-  IDLE = 'IDLE',
-  BUSY = 'BUSY',
-  ERROR = 'ERROR'
+  INIT = "INIT",
+  IDLE = "IDLE",
+  BUSY = "BUSY",
+  ERROR = "ERROR",
 }
 
 export type AmrId = string | undefined;
@@ -12,13 +12,13 @@ export type ReservationMap = Map<LocationId, AmrId>;
 export type LocationId = string;
 
 export type PeripheralTypes =
-  | 'CHARGING_STATION'
-  | 'GENERAL_STATION'
-  | 'STANDBY_LOCATION'
-  | 'OUTPUT_STATION'
-  | 'CARGO_AREA'
-  | 'FORKLIFT_LOAD_STATION'
-  | 'CONVEYOR';
+  | "CHARGING_STATION"
+  | "GENERAL_STATION"
+  | "STANDBY_LOCATION"
+  | "OUTPUT_STATION"
+  | "CARGO_AREA"
+  | "FORKLIFT_LOAD_STATION"
+  | "CONVEYOR";
 
 export type PeripheralInfo = {
   id: string;
@@ -66,5 +66,5 @@ export type Conveyor_Info = {
 };
 
 export enum Peripheral_Error {
-  CONVEYOR_ALREADY_HAS_CARGO = 101
+  CONVEYOR_ALREADY_HAS_CARGO = 101,
 }

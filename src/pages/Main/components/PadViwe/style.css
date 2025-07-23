@@ -1,4 +1,4 @@
-.map-icon svg{
+.map-icon svg {
   fill: rgb(56, 142, 240);
 }
 
@@ -33,7 +33,6 @@
   top: 11%;
   left: 20px;
   font-size: 1.5em;
-
 }
 
 .zoom-pad-wrap {
@@ -47,7 +46,6 @@
   overflow: visible !important;
 }
 
-
 .pad-card-wrap {
   margin-top: 9px;
   margin-bottom: 3px;
@@ -55,7 +53,9 @@
   box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.2);
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: -webkit-fill-available;
 }
 

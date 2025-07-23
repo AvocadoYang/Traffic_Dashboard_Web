@@ -1,13 +1,22 @@
-import useCargoHistory from '@/api/useCargoHistory';
-import { Typography, Table, Tag, Flex, Card, Input, Alert, Tooltip } from 'antd';
-import moment from 'moment';
-import { FC, useState } from 'react';
-import styled from 'styled-components';
-import ReactJsonView from '@uiw/react-json-view';
-import { Button } from 'antd';
-import { useTranslation } from 'react-i18next';
-import useSearchCargoMetadata from '@/api/useSearchCargoMetadata';
-import { useReverifyCargoFormat } from '@/hooks/useReverifyCargoFormat';
+import useCargoHistory from "@/api/useCargoHistory";
+import {
+  Typography,
+  Table,
+  Tag,
+  Flex,
+  Card,
+  Input,
+  Alert,
+  Tooltip,
+} from "antd";
+import moment from "moment";
+import { FC, useState } from "react";
+import styled from "styled-components";
+import ReactJsonView from "@uiw/react-json-view";
+import { Button } from "antd";
+import { useTranslation } from "react-i18next";
+import useSearchCargoMetadata from "@/api/useSearchCargoMetadata";
+import { useReverifyCargoFormat } from "@/hooks/useReverifyCargoFormat";
 
 const { Text } = Typography;
 
@@ -69,24 +78,24 @@ type CargoData = {
 };
 
 export enum CargoCurrentStatus {
-  ON_AMR = 'ON_AMR',
-  AT_LOCATION = 'AT_LOCATION',
-  SHIFT = 'SHIFT'
+  ON_AMR = "ON_AMR",
+  AT_LOCATION = "AT_LOCATION",
+  SHIFT = "SHIFT",
 }
 
 export enum CargoAction {
-  CREATED = 'CREATED',
-  TRANSFER="TRANSFER",
-  LOAD = 'LOAD',
-  OFFLOAD = 'OFFLOAD',
-  SHIFTED = 'SHIFTED',
-  UPDATED = 'UPDATED'
+  CREATED = "CREATED",
+  TRANSFER = "TRANSFER",
+  LOAD = "LOAD",
+  OFFLOAD = "OFFLOAD",
+  SHIFTED = "SHIFTED",
+  UPDATED = "UPDATED",
 }
 
 const HistoryTable: FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 20;
-  const [metadataSearch, setMetadataSearch] = useState('');
+  const [metadataSearch, setMetadataSearch] = useState("");
   const { data, refetch, isFetching } = useCargoHistory(currentPage, pageSize);
   const { data: searchData } = useSearchCargoMetadata(metadataSearch);
 
@@ -101,33 +110,33 @@ const HistoryTable: FC = () => {
   const getActionColor = (action: CargoAction): string => {
     switch (action) {
       case CargoAction.CREATED:
-        return 'blue';
+        return "blue";
       case CargoAction.TRANSFER:
-        return 'magenta';
+        return "magenta";
       case CargoAction.LOAD:
-        return 'gold';
+        return "gold";
       case CargoAction.OFFLOAD:
-        return 'green';
+        return "green";
       case CargoAction.SHIFTED:
-        return 'default';
+        return "default";
       case CargoAction.UPDATED:
-        return 'purple';
+        return "purple";
       default:
-        return 'default';
+        return "default";
     }
   };
 
   const columns = [
     {
-      title: t('cargo_history.cargoId'),
-      dataIndex: 'id',
-      key: 'id',
-      render: (id: string) => <Text code>{id.slice(0, 8)}...</Text>
+      title: t("cargo_history.cargoId"),
+      dataIndex: "id",
+      key: "id",
+      render: (id: string) => <Text code>{id.slice(0, 8)}...</Text>,
     },
     {
-      title: t('cargo_history.status'),
-      dataIndex: 'status',
-      key: 'status',
+      title: t("cargo_history.status"),
+      dataIndex: "status",
+      key: "status",
       render: (status: CargoCurrentStatus) => {
         switch (status) {
           case CargoCurrentStatus.ON_AMR:
@@ -139,36 +148,39 @@ const HistoryTable: FC = () => {
           default:
             return <Tag>{status}</Tag>;
         }
-      }
+      },
     },
     {
-      title: t('cargo_history.customFormat'),
-      dataIndex: ['custom_cargo_metadata', 'custom_name'],
-      key: 'custom_cargo_metadata',
-      render: (name: string | undefined) => name || '-'
+      title: t("cargo_history.customFormat"),
+      dataIndex: ["custom_cargo_metadata", "custom_name"],
+      key: "custom_cargo_metadata",
+      render: (name: string | undefined) => name || "-",
     },
     {
-      title: t('cargo_history.metadata'),
-      dataIndex: 'metadata',
-      key: 'metadata',
+      title: t("cargo_history.metadata"),
+      dataIndex: "metadata",
+      key: "metadata",
       render: (meta: string | null) => {
         try {
           const parsed = meta ? meta : {};
           return (
-            <pre style={{ fontSize: 12 }}>{JSON.stringify(parsed, null, 0).slice(0, 8)}...</pre>
+            <pre style={{ fontSize: 12 }}>
+              {JSON.stringify(parsed, null, 0).slice(0, 8)}...
+            </pre>
           );
         } catch (e) {
           return <Text type="secondary">Invalid JSON</Text>;
         }
-      }
+      },
     },
     {
-      title: t('cargo_history.createdAt'),
-      dataIndex: 'createdAt',
-      key: 'createdAt',
+      title: t("cargo_history.createdAt"),
+      dataIndex: "createdAt",
+      key: "createdAt",
       sorter: (a, b) => moment(a.createdAt).unix() - moment(b.createdAt).unix(),
-      render: (_v, record: CargoData) => new Date(record.createdAt).toLocaleString()
-    }
+      render: (_v, record: CargoData) =>
+        new Date(record.createdAt).toLocaleString(),
+    },
   ];
 
   return (
@@ -178,7 +190,7 @@ const HistoryTable: FC = () => {
         <HeaderContainer>
           <Flex gap="small">
             <Input
-              placeholder={t('cargo_history.search_metadata')}
+              placeholder={t("cargo_history.search_metadata")}
               value={metadataSearch}
               onChange={(e) => setMetadataSearch(e.target.value)}
               style={{ width: 300 }}
@@ -187,11 +199,13 @@ const HistoryTable: FC = () => {
           </Flex>
 
           <Button onClick={() => refetch()} loading={isFetching}>
-            {t('cargo_history.refetch')}
+            {t("cargo_history.refetch")}
           </Button>
         </HeaderContainer>
         <StyledTable<any>
-          dataSource={metadataSearch ? searchData?.data || [] : data?.data || []}
+          dataSource={
+            metadataSearch ? searchData?.data || [] : data?.data || []
+          }
           columns={columns}
           pagination={
             metadataSearch
@@ -199,26 +213,28 @@ const HistoryTable: FC = () => {
               : {
                   pageSize,
                   total: data?.total,
-                  onChange: (page) => setCurrentPage(page)
+                  onChange: (page) => setCurrentPage(page),
                 }
           }
           rowKey="id"
           expandable={{
             expandedRowRender: (record: CargoData) => (
-              <div style={{ width: '100%' }}>
-                <Flex gap="small" style={{ width: '100%' }}>
+              <div style={{ width: "100%" }}>
+                <Flex gap="small" style={{ width: "100%" }}>
                   <MetaCard
                     title={
                       <>
                         <Flex align="center" gap="large">
-                          {t('cargo_history.metadata')}
+                          {t("cargo_history.metadata")}
 
                           {record.custom_cargo_metadata ? (
                             []
                           ) : (
-                            <Tooltip title={t('cargo_history.undefined_format_desc')}>
+                            <Tooltip
+                              title={t("cargo_history.undefined_format_desc")}
+                            >
                               <Alert
-                                message={t('cargo_history.undefined_format')}
+                                message={t("cargo_history.undefined_format")}
                                 type="warning"
                                 showIcon
                               />
@@ -232,14 +248,14 @@ const HistoryTable: FC = () => {
                               loading={isLoading}
                               onClick={() => reVerityCargoFormat(record.id)}
                             >
-                              {t('cargo_history.re_verity_format')}
+                              {t("cargo_history.re_verity_format")}
                             </Button>
                           )}
                         </Flex>
                       </>
                     }
                   >
-                    {record.metadata && record.metadata !== 'null' ? (
+                    {record.metadata && record.metadata !== "null" ? (
                       <ReactJsonView
                         displayDataTypes={false}
                         value={record.metadata as {}}
@@ -248,23 +264,34 @@ const HistoryTable: FC = () => {
                         style={{ fontSize: 14 }}
                       />
                     ) : (
-                      <NoDefine>{t('cargo_history.no_defined')}</NoDefine>
+                      <NoDefine>{t("cargo_history.no_defined")}</NoDefine>
                     )}
                   </MetaCard>
-                  <HisCard title={t('cargo_history.history')}>
+                  <HisCard title={t("cargo_history.history")}>
                     <div style={{ marginTop: 8 }}>
                       {[...record.history]
                         .sort(
                           (a, b) =>
-                            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+                            new Date(a.timestamp).getTime() -
+                            new Date(b.timestamp).getTime(),
                         )
                         .map((h) => (
-                          <Flex key={h.id} gap="small" style={{ marginBottom: 4 }}>
+                          <Flex
+                            key={h.id}
+                            gap="small"
+                            style={{ marginBottom: 4 }}
+                          >
                             <Text type="secondary" style={{ minWidth: 160 }}>
-                              {moment(h.timestamp).format('YYYY-MM-DD HH:mm:ss')}
+                              {moment(h.timestamp).format(
+                                "YYYY-MM-DD HH:mm:ss",
+                              )}
                             </Text>
                             <ActionWrapper>
-                              <Tag color={getActionColor(h.action as CargoAction)}>{h.action}</Tag>
+                              <Tag
+                                color={getActionColor(h.action as CargoAction)}
+                              >
+                                {h.action}
+                              </Tag>
                             </ActionWrapper>
                             <span>{h.description}</span>
                           </Flex>
@@ -273,7 +300,7 @@ const HistoryTable: FC = () => {
                   </HisCard>
                 </Flex>
               </div>
-            )
+            ),
           }}
         />
       </PageContainer>

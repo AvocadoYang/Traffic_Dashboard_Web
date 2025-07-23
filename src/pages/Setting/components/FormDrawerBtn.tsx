@@ -1,10 +1,9 @@
- 
-import styled from 'styled-components';
-import { LeftOutlined } from '@ant-design/icons';
-import './compont.css';
+import styled from "styled-components";
+import { LeftOutlined } from "@ant-design/icons";
+import "./compont.css";
 
-import { useAtom } from 'jotai';
-import { SideSwitchToShowForm } from '@/utils/siderGloble';
+import { useAtom } from "jotai";
+import { SideSwitchToShowForm } from "@/utils/siderGloble";
 
 const BtnWrap = styled.div`
   position: absolute;
@@ -30,7 +29,8 @@ const BtnWrap = styled.div`
 `;
 
 const FormDrawerBtn = () => {
-  const [sideSwitchToShowForm, setSideSwitchToShowForm] = useAtom(SideSwitchToShowForm);
+  const [sideSwitchToShowForm, setSideSwitchToShowForm] =
+    useAtom(SideSwitchToShowForm);
   return (
     <>
       {!sideSwitchToShowForm ? (

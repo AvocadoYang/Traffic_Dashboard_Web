@@ -1,8 +1,8 @@
-import styled from 'styled-components';
-import { FC, memo } from 'react';
-import { useAtomValue } from 'jotai';
-import { DragLineInfo, showBlockId as ShowBlockId } from '@/utils/gloable';
-import { EditRoadPanelSwitch } from '@/utils/siderGloble';
+import styled from "styled-components";
+import { FC, memo } from "react";
+import { useAtomValue } from "jotai";
+import { DragLineInfo, showBlockId as ShowBlockId } from "@/utils/gloable";
+import { EditRoadPanelSwitch } from "@/utils/siderGloble";
 
 const PointDiv = styled.div.attrs<{
   left: number;
@@ -10,7 +10,7 @@ const PointDiv = styled.div.attrs<{
   canrotate: string;
   hoverLoc?: boolean;
 }>(({ left, top, canrotate, hoverLoc }) => ({
-  style: { left, top, canrotate, hoverLoc }
+  style: { left, top, canrotate, hoverLoc },
 }))<{
   left: number;
   top: number;
@@ -20,12 +20,13 @@ const PointDiv = styled.div.attrs<{
   position: absolute;
   width: 5px;
   height: 5px;
-  background: ${(props) => (props.canrotate === 'true' ? '#ebac5b' : '#1b00ce')};
+  background: ${(props) =>
+    props.canrotate === "true" ? "#ebac5b" : "#1b00ce"};
   border-radius: 50%;
   z-index: 10;
   transition-duration: 200ms;
 
-  border: ${(props) => (props.hoverLoc ? '5px solid #ff0000' : 'none')};
+  border: ${(props) => (props.hoverLoc ? "5px solid #ff0000" : "none")};
   &:hover {
     background: red;
   }
@@ -44,10 +45,10 @@ const DraggableLineDiv = styled.div.attrs<{
     left,
     top,
     transform: `rotate(${deg || 0}deg)`,
-    width: width ? width : 5
-  }
+    width: width ? width : 5,
+  },
 }))`
-  display: ${(props) => (props.openeditroadpanel ? 'block' : 'none')};
+  display: ${(props) => (props.openeditroadpanel ? "block" : "none")};
   position: absolute;
   background-color: black;
   height: 3px;
@@ -55,7 +56,7 @@ const DraggableLineDiv = styled.div.attrs<{
   pointer-events: none;
 
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     border: solid black;
     border-width: 0 3px 3px 0;
@@ -68,7 +69,11 @@ const DraggableLineDiv = styled.div.attrs<{
   }
 `;
 
-const DragLineWrap: FC<{ locId: string; left: number; top: number }> = ({ locId, left, top }) => {
+const DragLineWrap: FC<{ locId: string; left: number; top: number }> = ({
+  locId,
+  left,
+  top,
+}) => {
   const showBlockId = useAtomValue(ShowBlockId);
   const setDragLineInfo = useAtomValue(DragLineInfo);
   const openEditRoadPanel = useAtomValue(EditRoadPanelSwitch);

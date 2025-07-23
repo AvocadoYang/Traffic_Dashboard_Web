@@ -1,9 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
-import { array, number, object, string } from 'yup';
-import client from './axiosClient';
+import { useQuery } from "@tanstack/react-query";
+import { array, number, object, string } from "yup";
+import client from "./axiosClient";
 
 const getSchedule = async () => {
-  const { data } = await client.get<unknown>('api/simulate/result');
+  const { data } = await client.get<unknown>("api/simulate/result");
 
   const schema = () =>
     object({
@@ -21,19 +21,19 @@ const getSchedule = async () => {
           batteryCostPerAmr: number().required(),
           averageMissionTimePerAmr: number().required(),
           totalDistanceTraveledPerAmr: number().required(),
-          cargoCarryPerAmr: number().required()
-        })
-      ).optional()
+          cargoCarryPerAmr: number().required(),
+        }),
+      ).optional(),
     }).required();
 
   return schema().validate(data, { stripUnknown: true });
 };
 
 const useSimResult = () => {
-  return useQuery(['sim-result'], {
+  return useQuery(["sim-result"], {
     queryFn: () => {
       return getSchedule();
-    }
+    },
   });
 };
 

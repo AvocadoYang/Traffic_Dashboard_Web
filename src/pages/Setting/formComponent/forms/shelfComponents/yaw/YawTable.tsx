@@ -1,11 +1,11 @@
-import { DeleteTwoTone, EditOutlined } from '@ant-design/icons';
-import client from '@/api/axiosClient';
-import { YawType, YawTypeWithoutList } from '@/api/useYaw';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Popconfirm, Skeleton, Table, Flex, Button } from 'antd';
-import { ColumnsType } from 'antd/es/table';
-import { FC } from 'react';
-import { useTranslation } from 'react-i18next';
+import { DeleteTwoTone, EditOutlined } from "@ant-design/icons";
+import client from "@/api/axiosClient";
+import { YawType, YawTypeWithoutList } from "@/api/useYaw";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Popconfirm, Skeleton, Table, Flex, Button } from "antd";
+import { ColumnsType } from "antd/es/table";
+import { FC } from "react";
+import { useTranslation } from "react-i18next";
 
 const YawTable: FC<{
   setOpenYawModel: React.Dispatch<React.SetStateAction<boolean>>;
@@ -16,16 +16,16 @@ const YawTable: FC<{
   const { t } = useTranslation();
   const deleteMutation = useMutation({
     mutationFn: (id: string) => {
-      return client.post('api/setting/delete-yaw', {
-        id
+      return client.post("api/setting/delete-yaw", {
+        id,
       });
     },
     onSuccess: async () => {
       await queryClient.refetchQueries({
-        queryKey: ['yaw']
+        queryKey: ["yaw"],
       });
-      await queryClient.refetchQueries({ queryKey: ['cargoLoc-mission'] });
-    }
+      await queryClient.refetchQueries({ queryKey: ["cargoLoc-mission"] });
+    },
   });
 
   const handleDelete = (id: string) => {
@@ -39,27 +39,30 @@ const YawTable: FC<{
 
   const columns: ColumnsType<YawTypeWithoutList> = [
     {
-      title: 'yaw',
-      dataIndex: 'yaw',
-      key: 'yaw',
-      sorter: (a, b) => a.yaw - b.yaw
+      title: "yaw",
+      dataIndex: "yaw",
+      key: "yaw",
+      sorter: (a, b) => a.yaw - b.yaw,
     },
     {
-      title: '',
-      dataIndex: 'operation',
-      key: 'operation',
+      title: "",
+      dataIndex: "operation",
+      key: "operation",
 
       render: (_, record: YawTypeWithoutList) => {
         return (
           <Flex gap="small">
-            <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.id)}>
+            <Popconfirm
+              title="Sure to delete?"
+              onConfirm={() => handleDelete(record.id)}
+            >
               <Button
                 icon={<DeleteTwoTone twoToneColor="#f30303" />}
                 color="danger"
                 variant="filled"
                 type="link"
               >
-                {t('utils.delete')}
+                {t("utils.delete")}
               </Button>
             </Popconfirm>
             <Button
@@ -69,12 +72,12 @@ const YawTable: FC<{
               variant="filled"
               type="link"
             >
-              {t('utils.edit')}
+              {t("utils.edit")}
             </Button>
           </Flex>
         );
-      }
-    }
+      },
+    },
   ];
   if (!yawDataSource) return <Skeleton active />;
 

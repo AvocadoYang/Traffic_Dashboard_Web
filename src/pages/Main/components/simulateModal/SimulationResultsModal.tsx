@@ -1,8 +1,8 @@
-import useSimResult from '@/api/useSimResult';
-import { Modal, Typography, Space, Button, Table } from 'antd';
-import { ColumnType } from 'antd/es/table';
-import { useTranslation } from 'react-i18next';
-import styled from 'styled-components';
+import useSimResult from "@/api/useSimResult";
+import { Modal, Typography, Space, Button, Table } from "antd";
+import { ColumnType } from "antd/es/table";
+import { useTranslation } from "react-i18next";
+import styled from "styled-components";
 
 const StatItem = styled.div`
   display: flex;
@@ -50,15 +50,18 @@ interface SimulationResultsModalProps {
   onClose: () => void;
 }
 
-const SimulationResultsModal: React.FC<SimulationResultsModalProps> = ({ visible, onClose }) => {
+const SimulationResultsModal: React.FC<SimulationResultsModalProps> = ({
+  visible,
+  onClose,
+}) => {
   const { t } = useTranslation();
   const { data: result } = useSimResult();
   const handleDownload = () => {
     if (!result) return;
     const dataStr = JSON.stringify(result, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
+    const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
     link.download = `simulation_results_${result.simulationId}.json`;
     document.body.appendChild(link);
@@ -69,57 +72,62 @@ const SimulationResultsModal: React.FC<SimulationResultsModalProps> = ({ visible
 
   const columns: Array<ColumnType<Mock_Result>> = [
     {
-      title: t('sim.results.table.amr_id'),
-      dataIndex: 'amrId',
-      key: 'amrId'
+      title: t("sim.results.table.amr_id"),
+      dataIndex: "amrId",
+      key: "amrId",
     },
     {
-      title: t('sim.results.table.missions'),
-      dataIndex: 'missionsPerAmr',
-      key: 'missionsPerAmr',
+      title: t("sim.results.table.missions"),
+      dataIndex: "missionsPerAmr",
+      key: "missionsPerAmr",
       render: (_, record: Mock_Result) => {
-        return `${record.missionsPerAmr} ${t('utils.missions')}`;
-      }
+        return `${record.missionsPerAmr} ${t("utils.missions")}`;
+      },
     },
     {
-      title: t('sim.results.table.battery_cost'),
-      dataIndex: 'batteryCost',
-      key: 'batteryCost',
-      render: (_, record: Mock_Result) => `${record.batteryCostPerAmr} ${t('utils.units')}`
-    },
-    {
-      title: t('sim.results.table.average_mission_time'),
-      dataIndex: 'averageMissionTime',
-      key: 'averageMissionTime',
-      render: (_, record: Mock_Result) => `${record.averageMissionTimePerAmr} ${t('utils.seconds')}`
-    },
-    {
-      title: t('sim.results.table.total_distance_traveled'),
-      dataIndex: 'totalDistanceTraveled',
-      key: 'totalDistanceTraveled',
+      title: t("sim.results.table.battery_cost"),
+      dataIndex: "batteryCost",
+      key: "batteryCost",
       render: (_, record: Mock_Result) =>
-        `${record.totalDistanceTraveledPerAmr} ${t('utils.meters')}`
+        `${record.batteryCostPerAmr} ${t("utils.units")}`,
     },
     {
-      title: t('sim.results.table.carried'),
-      dataIndex: 'cargoCarryPerAmr',
-      key: 'cargoCarryPerAmr',
-      render: (_, record) => `${record.cargoCarryPerAmr}`
-    }
+      title: t("sim.results.table.average_mission_time"),
+      dataIndex: "averageMissionTime",
+      key: "averageMissionTime",
+      render: (_, record: Mock_Result) =>
+        `${record.averageMissionTimePerAmr} ${t("utils.seconds")}`,
+    },
+    {
+      title: t("sim.results.table.total_distance_traveled"),
+      dataIndex: "totalDistanceTraveled",
+      key: "totalDistanceTraveled",
+      render: (_, record: Mock_Result) =>
+        `${record.totalDistanceTraveledPerAmr} ${t("utils.meters")}`,
+    },
+    {
+      title: t("sim.results.table.carried"),
+      dataIndex: "cargoCarryPerAmr",
+      key: "cargoCarryPerAmr",
+      render: (_, record) => `${record.cargoCarryPerAmr}`,
+    },
   ];
 
   return (
     <Modal
-      title={t('sim.results.title')}
+      title={t("sim.results.title")}
       open={visible}
       onCancel={onClose}
       footer={
         <Space>
-          <Button onClick={handleDownload} disabled={result?.table === undefined}>
-            {t('sim.results.download')}
+          <Button
+            onClick={handleDownload}
+            disabled={result?.table === undefined}
+          >
+            {t("sim.results.download")}
           </Button>
           <Button type="primary" onClick={onClose}>
-            {t('utils.close')}
+            {t("utils.close")}
           </Button>
         </Space>
       }
@@ -127,31 +135,31 @@ const SimulationResultsModal: React.FC<SimulationResultsModalProps> = ({ visible
       centered
     >
       {result && result.table ? (
-        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+        <Space direction="vertical" size="middle" style={{ width: "100%" }}>
           <StatItem>
-            <StatLabel>{t('sim.results.duration')}</StatLabel>
+            <StatLabel>{t("sim.results.duration")}</StatLabel>
             <StatValue>
-              {result.duration} {t('utils.minutes')}
+              {result.duration} {t("utils.minutes")}
             </StatValue>
           </StatItem>
 
           <StatItem>
-            <StatLabel>{t('sim.results.cargos_carried')}</StatLabel>
+            <StatLabel>{t("sim.results.cargos_carried")}</StatLabel>
             <StatValue>{result.totalCargosCarried}</StatValue>
           </StatItem>
 
           <StatItem>
-            <StatLabel>{t('sim.results.total_missions')}</StatLabel>
+            <StatLabel>{t("sim.results.total_missions")}</StatLabel>
             <StatValue>{result.totalMissionCount}</StatValue>
           </StatItem>
 
           <StatItem>
-            <StatLabel>{t('sim.results.mission_success_rate')}</StatLabel>
+            <StatLabel>{t("sim.results.mission_success_rate")}</StatLabel>
             <StatValue>{result.missionSuccessRate.toFixed(2)}%</StatValue>
           </StatItem>
 
           <StatItem>
-            <StatLabel>{t('sim.results.completed_missions')}</StatLabel>
+            <StatLabel>{t("sim.results.completed_missions")}</StatLabel>
             <StatValue>{result.completedMissions}</StatValue>
           </StatItem>
 
@@ -164,7 +172,7 @@ const SimulationResultsModal: React.FC<SimulationResultsModalProps> = ({ visible
           />
         </Space>
       ) : (
-        <NoResult>{t('sim.results.no_result')}</NoResult>
+        <NoResult>{t("sim.results.no_result")}</NoResult>
       )}
     </Modal>
   );

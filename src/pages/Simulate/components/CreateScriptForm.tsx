@@ -1,13 +1,13 @@
-import client from '@/api/axiosClient';
-import useSimulateScript from '@/api/useSimulateScript';
-import { GlobalLoadingPage } from '@/utils/GlobalLoadingPage';
-import { ErrorResponse } from '@/utils/globalType';
-import SubmitButton from '@/utils/SubmitButton';
-import { errorHandler } from '@/utils/utils';
-import { useMutation } from '@tanstack/react-query';
-import { Flex, Form, Input, message, Modal, Typography } from 'antd';
-import { FC, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import client from "@/api/axiosClient";
+import useSimulateScript from "@/api/useSimulateScript";
+import { GlobalLoadingPage } from "@/utils/GlobalLoadingPage";
+import { ErrorResponse } from "@/utils/globalType";
+import SubmitButton from "@/utils/SubmitButton";
+import { errorHandler } from "@/utils/utils";
+import { useMutation } from "@tanstack/react-query";
+import { Flex, Form, Input, message, Modal, Typography } from "antd";
+import { FC, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 type FieldType = {
   name: string;
@@ -22,14 +22,14 @@ const CreateScriptForm: FC = () => {
 
   const createMutation = useMutation({
     mutationFn: (payload: FieldType) => {
-      return client.post('api/simulate/create-script', payload);
+      return client.post("api/simulate/create-script", payload);
     },
     onSuccess: () => {
-      void messageApi.success(t('utils.success'));
+      void messageApi.success(t("utils.success"));
       setOpen(false);
       refetch();
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const onFinish = () => {
@@ -52,13 +52,15 @@ const CreateScriptForm: FC = () => {
         footer={() => <SubmitButton isModel form={form} onOk={onFinish} />}
       >
         <Flex vertical align="start" gap={24}>
-          <Typography.Text>{t('sim.modal.do_you_want_to_create_one')}</Typography.Text>
+          <Typography.Text>
+            {t("sim.modal.do_you_want_to_create_one")}
+          </Typography.Text>
 
           <Form form={form} autoComplete="off">
             <Form.Item<FieldType>
-              label={t('sim.modal.name')}
+              label={t("sim.modal.name")}
               name="name"
-              rules={[{ required: true, message: t('utils.required') }]}
+              rules={[{ required: true, message: t("utils.required") }]}
             >
               <Input />
             </Form.Item>

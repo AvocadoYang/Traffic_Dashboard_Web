@@ -1,7 +1,13 @@
-import { string, object } from 'yup';
-import { fromEventPattern, share, map, filter, distinctUntilChanged } from 'rxjs';
-import { useEffect, useState } from 'react';
-import { io } from './socketConnect';
+import { string, object } from "yup";
+import {
+  fromEventPattern,
+  share,
+  map,
+  filter,
+  distinctUntilChanged,
+} from "rxjs";
+import { useEffect, useState } from "react";
+import { io } from "./socketConnect";
 
 export type LayerType = {
   [level: number]: {
@@ -26,26 +32,26 @@ export type Info = {
 const schema = () =>
   object({
     amrId: string().required(),
-    status: string().defined()
+    status: string().defined(),
   }).required();
 
 const getRoadConditions$ = fromEventPattern(
   (next) => {
-    io.on('road-conditions', next);
+    io.on("road-conditions", next);
     return next;
   },
   (next) => {
-    io.off('road-conditions', next);
-  }
+    io.off("road-conditions", next);
+  },
 ).pipe(
   map((roadConditions) => {
     return schema().validateSync(roadConditions);
   }),
-  share()
+  share(),
 );
 
 const useRoadConditions = (amrId: string) => {
-  const [roadConditions, setRoadConditions] = useState<string | null>('');
+  const [roadConditions, setRoadConditions] = useState<string | null>("");
 
   useEffect(() => {
     const subscription = getRoadConditions$
@@ -56,7 +62,7 @@ const useRoadConditions = (amrId: string) => {
         map((data) => data.status),
         distinctUntilChanged((pre, cur) => {
           return cur === pre;
-        })
+        }),
       )
       .subscribe((roadConditions) => {
         setRoadConditions(roadConditions);

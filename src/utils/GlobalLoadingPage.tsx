@@ -1,5 +1,5 @@
-import styled from 'styled-components';
-import ReactDOM from 'react-dom';
+import styled from "styled-components";
+import ReactDOM from "react-dom";
 
 const LoaderWrapper = styled.div`
   display: flex;
@@ -24,7 +24,7 @@ const Loader = styled.div`
 
   &::before,
   &::after {
-    content: '';
+    content: "";
     flex: 1;
     clip-path: polygon(0 0, 100% 0, 100% 100%);
     background: #fc3a51;
@@ -41,17 +41,21 @@ const Loader = styled.div`
   @keyframes l15-1 {
     0%,
     10% {
-      transform: scale(var(--s, 1)) translate(0px) perspective(150px) rotateY(0deg);
+      transform: scale(var(--s, 1)) translate(0px) perspective(150px)
+        rotateY(0deg);
     }
     33% {
-      transform: scale(var(--s, 1)) translate(-10px) perspective(150px) rotateX(0deg);
+      transform: scale(var(--s, 1)) translate(-10px) perspective(150px)
+        rotateX(0deg);
     }
     66% {
-      transform: scale(var(--s, 1)) translate(-10px) perspective(150px) rotateX(-180deg);
+      transform: scale(var(--s, 1)) translate(-10px) perspective(150px)
+        rotateX(-180deg);
     }
     90%,
     100% {
-      transform: scale(var(--s, 1)) translate(0px) perspective(150px) rotateX(-180deg);
+      transform: scale(var(--s, 1)) translate(0px) perspective(150px)
+        rotateX(-180deg);
     }
   }
 
@@ -72,6 +76,6 @@ export const GlobalLoadingPage = () => {
     <LoaderWrapper>
       <Loader />
     </LoaderWrapper>,
-    document.body // Ensure it's appended to the body element
+    document.body, // Ensure it's appended to the body element
   );
 };

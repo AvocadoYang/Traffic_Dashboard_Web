@@ -1,4 +1,4 @@
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from "jotai";
 import {
   EditLocationPanelSwitch,
   EditLocationListTableSwitch,
@@ -7,10 +7,10 @@ import {
   EditRoadPanelSwitch,
   EditZoneSwitch,
   showAllZonesSwitch,
-  isOpenSwitchMap
-} from '@/utils/siderGloble';
-import { useEffect } from 'react';
-import { showBlockId } from '@/utils/gloable';
+  isOpenSwitchMap,
+} from "@/utils/siderGloble";
+import { useEffect } from "react";
+import { showBlockId } from "@/utils/gloable";
 
 const useResetSiderSwitch = () => {
   const [, setSideSwitchToShowForm] = useAtom(SideSwitchToShowForm);
@@ -31,7 +31,7 @@ const useResetSiderSwitch = () => {
     setOpenEditZone(false);
     setShowAllZonesSwitch(true);
     setOpenSwitchMap(false);
-    setShowBlockId('');
+    setShowBlockId("");
   }, []);
 };
 

@@ -7,29 +7,29 @@ import {
   Checkbox,
   FormInstance,
   Flex,
-  Space
-} from 'antd';
-import client from '@/api/axiosClient';
-import { memo, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { LocationType, RoadListType } from '@/utils/jotai';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ErrorResponse } from '@/utils/globalType';
-import { errorHandler } from '@/utils/utils';
-import useMap from '@/api/useMap';
-import { openNotificationWithIcon } from '../../utils/notification';
-import { useAtom, useAtomValue } from 'jotai';
+  Space,
+} from "antd";
+import client from "@/api/axiosClient";
+import { memo, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { LocationType, RoadListType } from "@/utils/jotai";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
+import useMap from "@/api/useMap";
+import { openNotificationWithIcon } from "../../utils/notification";
+import { useAtom, useAtomValue } from "jotai";
 import {
   locationXForQuickEditLocationPanel,
   locationYForQuickEditLocationPanel,
-  TempStoredLocationsForQuickEditPanel
-} from '@/utils/gloable';
-import FormHr from '../../utils/FormHr';
-import useAllAreaTypes from '@/api/useAllAreaTypes';
-import { locationOption } from '../../utils/func';
+  TempStoredLocationsForQuickEditPanel,
+} from "@/utils/gloable";
+import FormHr from "../../utils/FormHr";
+import useAllAreaTypes from "@/api/useAllAreaTypes";
+import { locationOption } from "../../utils/func";
 
 const initialFormDate = {
-  genre: 'Extra',
+  genre: "Extra",
   originId: 0,
   originX: null,
   originY: null,
@@ -37,9 +37,9 @@ const initialFormDate = {
   multiplyY: 0,
   xGap: 0,
   yGap: 0,
-  dirX: 'right',
-  dirY: 'down',
-  connectRoad: false
+  dirX: "right",
+  dirY: "down",
+  connectRoad: false,
 };
 
 type FormT = {
@@ -55,14 +55,16 @@ type FormT = {
   dirY: string;
 };
 
-const selectDirX = [{ value: 'left' }, { value: 'right' }];
-const selectDirY = [{ value: 'top' }, { value: 'down' }];
+const selectDirX = [{ value: "left" }, { value: "right" }];
+const selectDirY = [{ value: "top" }, { value: "down" }];
 
 const QuickEditLocationPanel: React.FC<{
   locationPanelForm: FormInstance<unknown>;
   sortableId: string;
-  attributes: import('@dnd-kit/core').DraggableAttributes;
-  listeners: import('@dnd-kit/core/dist/hooks/utilities').SyntheticListenerMap | undefined;
+  attributes: import("@dnd-kit/core").DraggableAttributes;
+  listeners:
+    | import("@dnd-kit/core/dist/hooks/utilities").SyntheticListenerMap
+    | undefined;
 }> = ({ attributes, listeners }) => {
   const [form] = Form.useForm();
   const { data } = useMap();
@@ -71,7 +73,9 @@ const QuickEditLocationPanel: React.FC<{
   const [, setFLR] = useState<RoadListType[]>([]);
   const mousePointX = useAtomValue(locationXForQuickEditLocationPanel);
   const mousePointY = useAtomValue(locationYForQuickEditLocationPanel);
-  const [, setTempStoredLocationsForQuickEditPanel] = useAtom(TempStoredLocationsForQuickEditPanel);
+  const [, setTempStoredLocationsForQuickEditPanel] = useAtom(
+    TempStoredLocationsForQuickEditPanel,
+  );
 
   const [messageApi, contextHolder] = message.useMessage();
   const queryClient = useQueryClient();
@@ -82,16 +86,16 @@ const QuickEditLocationPanel: React.FC<{
 
   const saveLocationMutation = useMutation({
     mutationFn: (payload: LocationType[]) => {
-      return client.post('api/setting/save-edit-loc-fastShelve', payload);
+      return client.post("api/setting/save-edit-loc-fastShelve", payload);
     },
     onSuccess: () => {
-      void messageApi.success('success');
-      queryClient.refetchQueries({ queryKey: ['map'] });
+      void messageApi.success("success");
+      queryClient.refetchQueries({ queryKey: ["map"] });
       queryClient.refetchQueries({
-        queryKey: ['loc-only']
+        queryKey: ["loc-only"],
       });
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const savePose = () => {
@@ -103,10 +107,10 @@ const QuickEditLocationPanel: React.FC<{
 
     if (isNegative != -1) {
       openNotificationWithIcon(
-        'warning',
-        t('quick_edit_location_panel.save_pose_notify.is_a_navigate'),
-        t('quick_edit_location_panel.save_pose_notify.is_a_navigate'),
-        'bottomLeft'
+        "warning",
+        t("quick_edit_location_panel.save_pose_notify.is_a_navigate"),
+        t("quick_edit_location_panel.save_pose_notify.is_a_navigate"),
+        "bottomLeft",
       );
       return false;
     }
@@ -122,14 +126,16 @@ const QuickEditLocationPanel: React.FC<{
     });
 
     if (isDuplicate) {
-      void messageApi.warning(t('quick_edit_location_panel.save_pose_notify.duplicate_id'));
+      void messageApi.warning(
+        t("quick_edit_location_panel.save_pose_notify.duplicate_id"),
+      );
       return false;
     }
 
     const formatData = payload.map((loc) => {
       return {
         ...loc,
-        locationId: loc.locationId
+        locationId: loc.locationId,
       };
     });
 
@@ -162,8 +168,18 @@ const QuickEditLocationPanel: React.FC<{
   useEffect(() => {
     if (!formValues) return;
 
-    const { genre, originId, originX, originY, multiplyX, multiplyY, xGap, yGap, dirX, dirY } =
-      formValues;
+    const {
+      genre,
+      originId,
+      originX,
+      originY,
+      multiplyX,
+      multiplyY,
+      xGap,
+      yGap,
+      dirX,
+      dirY,
+    } = formValues;
 
     // Check if any value is `0`, return early
     if (!originId || !originX || !originY || !multiplyX || !multiplyY) {
@@ -176,21 +192,29 @@ const QuickEditLocationPanel: React.FC<{
     let xWhileIndex = 0;
     while (xWhileIndex < multiplyX) {
       const xPrefix =
-        dirX === 'right' ? originX + xWhileIndex * xGap : originX - xWhileIndex * xGap;
+        dirX === "right"
+          ? originX + xWhileIndex * xGap
+          : originX - xWhileIndex * xGap;
 
       let yWhileIndex = 0;
 
       while (yWhileIndex < multiplyY) {
         const yPrefix =
-          dirY === 'top' ? originY + yWhileIndex * yGap : originY - yWhileIndex * yGap;
+          dirY === "top"
+            ? originY + yWhileIndex * yGap
+            : originY - yWhileIndex * yGap;
 
         const data: LocationType = {
-          locationId: (originId + yWhileIndex + multiplyY * xWhileIndex).toString(),
+          locationId: (
+            originId +
+            yWhileIndex +
+            multiplyY * xWhileIndex
+          ).toString(),
           areaType: genre,
           x: xPrefix,
           y: yPrefix,
           rotation: 0,
-          canRotate: true
+          canRotate: true,
         };
 
         newLocationData.push(data);
@@ -206,21 +230,25 @@ const QuickEditLocationPanel: React.FC<{
 
           const currentId = originId + row * multiplyX + col;
           const nextId = currentId + 1;
-          const curPose = newLocationData.find((v) => Number(v.locationId) === currentId);
-          const nextPose = newLocationData.find((v) => Number(v.locationId) === nextId);
+          const curPose = newLocationData.find(
+            (v) => Number(v.locationId) === currentId,
+          );
+          const nextPose = newLocationData.find(
+            (v) => Number(v.locationId) === nextId,
+          );
 
           newRoadData.push({
             roadId: `${currentId} <-> ${nextId}`,
-            validYawList: '*',
+            validYawList: "*",
             x: currentId.toString(),
             to: nextId.toString(),
             x1: curPose?.x as number,
             y1: curPose?.y as number,
             x2: nextPose?.x as number,
             y2: nextPose?.y as number,
-            roadType: 'twoWayRoad',
+            roadType: "twoWayRoad",
             disabled: false,
-            limit: false
+            limit: false,
           });
         }
       }
@@ -232,26 +260,26 @@ const QuickEditLocationPanel: React.FC<{
 
   useEffect(() => {
     setTempStoredLocationsForQuickEditPanel([]);
-    form.setFieldValue('genre', 'Extra');
-    form.setFieldValue('multiplyX', 2);
-    form.setFieldValue('multiplyY', 2);
-    form.setFieldValue('xGap', 1);
-    form.setFieldValue('yGap', 1);
+    form.setFieldValue("genre", "Extra");
+    form.setFieldValue("multiplyX", 2);
+    form.setFieldValue("multiplyY", 2);
+    form.setFieldValue("xGap", 1);
+    form.setFieldValue("yGap", 1);
     setFL([]);
     setFLR([]);
   }, []);
 
   useEffect(() => {
-    form.setFieldValue('originX', Number(mousePointX));
-    form.setFieldValue('originY', Number(mousePointY));
+    form.setFieldValue("originX", Number(mousePointX));
+    form.setFieldValue("originY", Number(mousePointY));
   }, [mousePointX, mousePointY]);
 
   return (
     <>
       {contextHolder}
-      <div style={{ width: '29em' }}>
+      <div style={{ width: "29em" }}>
         <h3 className="drop_button_style" {...listeners} {...attributes}>
-          {t('quick_edit_location_panel.quick_edit_location_panel')}
+          {t("quick_edit_location_panel.quick_edit_location_panel")}
         </h3>
         <FormHr></FormHr>
         <Form
@@ -261,29 +289,43 @@ const QuickEditLocationPanel: React.FC<{
           onValuesChange={(_, allValues) => {
             setFormValues(allValues as FormT);
           }}
-          style={{ fontWeight: 'bold' }}
+          style={{ fontWeight: "bold" }}
         >
           <Flex vertical>
             <Space
-              size={'large'}
-              style={{ borderBottom: '2px solid black', marginBottom: '15px', overflow: 'hidden' }}
+              size={"large"}
+              style={{
+                borderBottom: "2px solid black",
+                marginBottom: "15px",
+                overflow: "hidden",
+              }}
             >
-              <Form.Item label={t('quick_edit_location_panel.areaType')} name="genre">
+              <Form.Item
+                label={t("quick_edit_location_panel.areaType")}
+                name="genre"
+              >
                 <Select
                   options={locGenre?.map((v) => ({
                     label: locationOption(v.value),
-                    value: v.value
+                    value: v.value,
                   }))}
-                  style={{ overflow: 'hidden', width: '8em' }}
+                  style={{ overflow: "hidden", width: "8em" }}
                 />
               </Form.Item>
-              <Form.Item label={t('quick_edit_location_panel.location')} name="originId">
+              <Form.Item
+                label={t("quick_edit_location_panel.location")}
+                name="originId"
+              >
                 <InputNumber min={1} />
               </Form.Item>
             </Space>
             <Space
-              size={'large'}
-              style={{ borderBottom: '2px solid black', marginBottom: '15px', overflow: 'hidden' }}
+              size={"large"}
+              style={{
+                borderBottom: "2px solid black",
+                marginBottom: "15px",
+                overflow: "hidden",
+              }}
             >
               <Flex vertical>
                 <Form.Item label="X" name="originX">
@@ -295,15 +337,24 @@ const QuickEditLocationPanel: React.FC<{
               </Flex>
 
               <Flex vertical>
-                <Form.Item label={t('quick_edit_location_panel.x_gap')} name="xGap">
+                <Form.Item
+                  label={t("quick_edit_location_panel.x_gap")}
+                  name="xGap"
+                >
                   <InputNumber />
                 </Form.Item>
-                <Form.Item label={t('quick_edit_location_panel.y_gap')} name="yGap">
+                <Form.Item
+                  label={t("quick_edit_location_panel.y_gap")}
+                  name="yGap"
+                >
                   <InputNumber />
                 </Form.Item>
               </Flex>
             </Space>
-            <Flex vertical style={{ borderBottom: '2px solid black', marginBottom: '15px' }}>
+            <Flex
+              vertical
+              style={{ borderBottom: "2px solid black", marginBottom: "15px" }}
+            >
               <Form.Item label="multiplyX" name="multiplyX">
                 <InputNumber />
               </Form.Item>
@@ -311,14 +362,14 @@ const QuickEditLocationPanel: React.FC<{
                 <InputNumber />
               </Form.Item>
             </Flex>
-            <Form.Item label={t('quick_edit_location_panel.dir_x')} name="dirX">
+            <Form.Item label={t("quick_edit_location_panel.dir_x")} name="dirX">
               <Select options={selectDirX} />
             </Form.Item>
-            <Form.Item label={t('quick_edit_location_panel.dir_y')} name="dirY">
+            <Form.Item label={t("quick_edit_location_panel.dir_y")} name="dirY">
               <Select options={selectDirY} />
             </Form.Item>
             <Form.Item
-              label={t('quick_edit_location_panel.is_connect_road')}
+              label={t("quick_edit_location_panel.is_connect_road")}
               name="connectRoad"
               shouldUpdate
             >
@@ -331,7 +382,7 @@ const QuickEditLocationPanel: React.FC<{
           </Flex>
           <Flex align="center" justify="center">
             <Button color="primary" variant="filled" onClick={() => save()}>
-              {t('quick_edit_location_panel.save')}
+              {t("quick_edit_location_panel.save")}
             </Button>
           </Flex>
         </Form>

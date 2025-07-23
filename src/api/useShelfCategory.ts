@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
-import { array, object, string, number, InferType } from 'yup';
-import client from './axiosClient';
+import { useQuery } from "@tanstack/react-query";
+import { array, object, string, number, InferType } from "yup";
+import client from "./axiosClient";
 
 const shelfSchema = array(
   object({
@@ -11,39 +11,39 @@ const shelfSchema = array(
       object({
         id: string().required(),
         height: number().required(),
-        shelfCategoryId: string().required()
-      }).optional()
-    ).optional()
-  }).required()
+        shelfCategoryId: string().required(),
+      }).optional(),
+    ).optional(),
+  }).required(),
 );
 
 const getShelfCategory = async () => {
-  const { data } = await client.get<unknown>('api/setting/all-shelf-category');
+  const { data } = await client.get<unknown>("api/setting/all-shelf-category");
 
   // console.log(data);
   const validatedData = await shelfSchema.validate(data, {
-    stripUnknown: true
+    stripUnknown: true,
   });
   return validatedData;
 };
 
 const useShelfCategory = () => {
-  return useQuery(['all-shelf-category'], getShelfCategory);
+  return useQuery(["all-shelf-category"], getShelfCategory);
 };
 
 type ShelfHeight = {
-  id: string
-  height: number
-  shelfCategoryId: string
-}
+  id: string;
+  height: number;
+  shelfCategoryId: string;
+};
 
 export type ShelfCategoryWithoutList = {
-  id: string
-  name: string
-  shelf_style: string
-  Height: ShelfHeight[] | undefined
-}
+  id: string;
+  name: string;
+  shelf_style: string;
+  Height: ShelfHeight[] | undefined;
+};
 
-export type ShelfCategory = InferType<typeof shelfSchema>
+export type ShelfCategory = InferType<typeof shelfSchema>;
 
 export default useShelfCategory;

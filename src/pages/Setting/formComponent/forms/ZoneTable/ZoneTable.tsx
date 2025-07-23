@@ -1,6 +1,6 @@
-import { memo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import FormHr from '../../../utils/FormHr';
+import { memo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import FormHr from "../../../utils/FormHr";
 import {
   Button,
   ColorPicker,
@@ -10,23 +10,25 @@ import {
   Space,
   Table,
   Tag,
-  Typography
-} from 'antd';
-import { DeleteTwoTone, EditOutlined } from '@ant-design/icons';
-import useMap from '@/api/useMap';
-import { nanoid } from 'nanoid';
-import { tagColor } from '../../../utils/utils';
-import { ZoneTableData } from '../antd';
-import EditZoneTable from './component/EditZoneTable';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import client from '@/api/axiosClient';
-import { ErrorResponse } from '@/utils/globalType';
-import { errorHandler } from '@/utils/utils';
+  Typography,
+} from "antd";
+import { DeleteTwoTone, EditOutlined } from "@ant-design/icons";
+import useMap from "@/api/useMap";
+import { nanoid } from "nanoid";
+import { tagColor } from "../../../utils/utils";
+import { ZoneTableData } from "../antd";
+import EditZoneTable from "./component/EditZoneTable";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import client from "@/api/axiosClient";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
 
 const ZoneTable: React.FC<{
   sortableId: string;
-  attributes: import('@dnd-kit/core').DraggableAttributes;
-  listeners: import('@dnd-kit/core/dist/hooks/utilities').SyntheticListenerMap | undefined;
+  attributes: import("@dnd-kit/core").DraggableAttributes;
+  listeners:
+    | import("@dnd-kit/core/dist/hooks/utilities").SyntheticListenerMap
+    | undefined;
 }> = ({ listeners, attributes, sortableId }) => {
   const { data } = useMap();
   const [editingKey, setEditingKey] = useState<string | null>(null);
@@ -39,25 +41,25 @@ const ZoneTable: React.FC<{
   const deleteMutation = useMutation({
     mutationFn: (zoneId: string[]) => {
       return client.post(`api/setting/delete-edit-zone`, {
-        zoneIds: zoneId
+        zoneIds: zoneId,
       });
     },
     onSuccess: (__data, zonIds) => {
-      void messageApi.success('success');
+      void messageApi.success("success");
 
       setSelectedRowKeys((pre) => {
         return [...pre].filter((zoneId) => !zonIds.includes(zoneId as string));
       });
       console.log(selectedRowKeys);
-      queryClient.refetchQueries({ queryKey: ['map'] });
+      queryClient.refetchQueries({ queryKey: ["map"] });
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   //選擇要修改的區域列, 並且設定表單
   const edit = (record: Partial<ZoneTableData> & { id: string }) => {
     const isValidRecord = (
-      record: Partial<ZoneTableData> & { id: string }
+      record: Partial<ZoneTableData> & { id: string },
     ): record is ZoneTableData & { id: string } => {
       return Object.values(record).every((value) => value !== undefined);
     };
@@ -69,7 +71,7 @@ const ZoneTable: React.FC<{
       endPoint: record.endPoint,
       startPoint: record.startPoint,
       tagSetting: record.tagSetting,
-      name: record.name
+      name: record.name,
     };
     setOldData(data);
     setEditingKey(record.id);
@@ -77,16 +79,16 @@ const ZoneTable: React.FC<{
 
   const columns = [
     {
-      title: t('zone_table_form.zone_name'),
-      dataIndex: 'name',
-      key: 'name',
+      title: t("zone_table_form.zone_name"),
+      dataIndex: "name",
+      key: "name",
       editable: true,
-      width: '16%'
+      width: "16%",
     },
     {
-      title: t('zone_table_form.start_point'),
-      dataIndex: 'startPoint',
-      key: 'startPoint',
+      title: t("zone_table_form.start_point"),
+      dataIndex: "startPoint",
+      key: "startPoint",
       render: (data) => {
         return (
           <Flex justify="center" align="center" vertical>
@@ -96,12 +98,12 @@ const ZoneTable: React.FC<{
         );
       },
       editable: true,
-      width: '16%'
+      width: "16%",
     },
     {
-      title: t('zone_table_form.end_point'),
-      dataIndex: 'endPoint',
-      key: 'endPoint',
+      title: t("zone_table_form.end_point"),
+      dataIndex: "endPoint",
+      key: "endPoint",
       editable: true,
       render: (data) => {
         return (
@@ -111,16 +113,16 @@ const ZoneTable: React.FC<{
           </Flex>
         );
       },
-      width: '16%'
+      width: "16%",
     },
     {
-      title: t('zone_table_form.zone_attr'),
-      dataIndex: 'category',
-      key: 'category',
+      title: t("zone_table_form.zone_attr"),
+      dataIndex: "category",
+      key: "category",
       editable: true,
       render: (data) => {
         return (
-          <Space wrap style={{ fontWeight: 'bold' }}>
+          <Space wrap style={{ fontWeight: "bold" }}>
             {(data as string[]).map((tag) => {
               return (
                 <Tag color={tagColor(tag)} key={nanoid()}>
@@ -131,40 +133,45 @@ const ZoneTable: React.FC<{
           </Space>
         );
       },
-      width: '23%'
+      width: "23%",
     },
     {
-      title: t('zone_table_form.zone_color'),
-      dataIndex: 'backgroundColor',
-      key: 'backgroundColor',
+      title: t("zone_table_form.zone_color"),
+      dataIndex: "backgroundColor",
+      key: "backgroundColor",
       render: (data) => {
         // console.log(data)
         return <ColorPicker disabled defaultValue={data}></ColorPicker>;
       },
       editable: true,
-      width: '6%'
+      width: "6%",
     },
     {
-      dataIndex: 'operation',
-      key: 'operation',
+      dataIndex: "operation",
+      key: "operation",
       render: (_, record: ZoneTableData) => {
         return (
-          <Flex vertical align="center" justify="space-between" gap={'middle'}>
+          <Flex vertical align="center" justify="space-between" gap={"middle"}>
             <Typography.Link
               onClick={() => {
                 edit(record);
               }}
             >
-              <Button icon={<EditOutlined />} color="primary" variant="filled" type="link">
-                {t('utils.edit')}
+              <Button
+                icon={<EditOutlined />}
+                color="primary"
+                variant="filled"
+                type="link"
+              >
+                {t("utils.edit")}
               </Button>
             </Typography.Link>
             <Popconfirm
-              title={t('utils.delete')}
-              description={t('edit_location_panel.table_notify.are_you_sure')}
+              title={t("utils.delete")}
+              description={t("edit_location_panel.table_notify.are_you_sure")}
               onConfirm={() => deleteMutation.mutate([record.id])}
-              okText={t('utils.yes')}
-              cancelText={t('utils.no')}
+              okText={t("utils.yes")}
+              cancelText={t("utils.no")}
             >
               <Button
                 icon={<DeleteTwoTone twoToneColor="#f30303" />}
@@ -172,14 +179,14 @@ const ZoneTable: React.FC<{
                 variant="filled"
                 type="link"
               >
-                {t('utils.delete')}
+                {t("utils.delete")}
               </Button>
             </Popconfirm>
           </Flex>
         );
       },
-      width: '12%'
-    }
+      width: "12%",
+    },
   ];
 
   if (!data) return;
@@ -187,17 +194,19 @@ const ZoneTable: React.FC<{
     <>
       {contextHolders}
       <h3 className="drop_button_style" {...listeners} {...attributes}>
-        {!editingKey ? t('sider_output_form_name.zoneTable') : t('edit_zone_panel.edit_zone')}
+        {!editingKey
+          ? t("sider_output_form_name.zoneTable")
+          : t("edit_zone_panel.edit_zone")}
       </h3>
       <FormHr></FormHr>
       {!editingKey ? (
         <Flex gap="middle" justify="flex-start" align="start" vertical>
           <Popconfirm
-            title={t('utils.delete')}
-            description={t('edit_location_panel.table_notify.are_you_sure')}
+            title={t("utils.delete")}
+            description={t("edit_location_panel.table_notify.are_you_sure")}
             onConfirm={() => deleteMutation.mutate(selectedRowKeys as string[])}
-            okText={t('utils.yes')}
-            cancelText={t('utils.no')}
+            okText={t("utils.yes")}
+            cancelText={t("utils.no")}
           >
             <Button
               icon={<DeleteTwoTone twoToneColor="#f30303" />}
@@ -205,15 +214,15 @@ const ZoneTable: React.FC<{
               color="danger"
               variant="filled"
             >
-              {t('utils.delete')}
+              {t("utils.delete")}
             </Button>
           </Popconfirm>
           <Table
             rowSelection={{
-              type: 'checkbox',
+              type: "checkbox",
               onChange: (selectedRowKeys: React.Key[]) => {
                 setSelectedRowKeys([...selectedRowKeys]);
-              }
+              },
             }}
             rowKey={(record) => record.id}
             columns={columns}

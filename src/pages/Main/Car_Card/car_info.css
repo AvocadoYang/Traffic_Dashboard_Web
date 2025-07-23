@@ -15,7 +15,6 @@
   overflow-y: scroll;
 }
 
-
 .card-wrap-2d {
   height: 100%;
   width: 100%;
@@ -32,7 +31,6 @@
   text-align: center;
   display: grid;
   place-items: center; /* 同時水平 & 垂直置中 */
-
 }
 
 .drop-icon {
@@ -49,14 +47,13 @@
 .full-tag-wrap {
   padding: 3px;
   min-height: 10px;
-  border-top: 1px dashed gray
+  border-top: 1px dashed gray;
 }
 
 .hide-tag-wrap {
   height: 0;
   overflow: hidden;
 }
-
 
 .dark-mode-title {
   color: aliceblue;
@@ -127,15 +124,12 @@
   color: white;
 }
 
-
-
-
 .power-icon svg {
-  fill: rgb(240, 132, 9)
+  fill: rgb(240, 132, 9);
 }
 
 .power-icon-dark svg {
-  fill: rgb(253, 228, 5)
+  fill: rgb(253, 228, 5);
 }
 
 @keyframes blink {
@@ -143,7 +137,6 @@
     fill: rgb(240, 132, 9); /* 橘色 */
   }
   50% {
-
     fill: red; /* 紅色 */
   }
   100% {
@@ -156,7 +149,6 @@
     fill: rgb(253, 228, 5); /* 橘色 */
   }
   50% {
-
     fill: red; /* 紅色 */
   }
   100% {
@@ -166,7 +158,6 @@
 
 /* 低電量時 (電量 < 20%)，啟動動畫 */
 .low-battery svg {
-
   animation: blink 1s infinite;
 }
 
@@ -174,12 +165,11 @@
   animation: blink-dark 1s infinite;
 }
 
-
 .yaw-icon svg {
-  fill: rgb(4, 110, 4)
+  fill: rgb(4, 110, 4);
 }
 .yaw-icon-dark svg {
-  fill: rgb(1, 233, 1)
+  fill: rgb(1, 233, 1);
 }
 
 .third-row-span {
@@ -208,7 +198,6 @@
 .card-wrap-2d::-webkit-scrollbar {
   width: 6px;
   height: 6px;
-
 }
 .dark-mode-wrap::-webkit-scrollbar {
   width: 6px;

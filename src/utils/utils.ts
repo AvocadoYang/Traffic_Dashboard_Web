@@ -1,8 +1,7 @@
-import { MessageInstance } from 'antd/es/message/interface';
-import { ErrorResponse } from './globalType';
-import { MD5 } from 'crypto-js';
-import convert from 'color-convert';
-
+import { MessageInstance } from "antd/es/message/interface";
+import { ErrorResponse } from "./globalType";
+import { MD5 } from "crypto-js";
+import convert from "color-convert";
 
 export const rosCoord2DisplayCoord = ({
   x,
@@ -10,7 +9,7 @@ export const rosCoord2DisplayCoord = ({
   mapResolution,
   mapOriginX,
   mapOriginY,
-  mapHeight
+  mapHeight,
 }: {
   x: number;
   y: number;
@@ -18,7 +17,10 @@ export const rosCoord2DisplayCoord = ({
   mapOriginX: number;
   mapOriginY: number;
   mapHeight: number;
-}) => [(x - mapOriginX) / mapResolution, mapHeight - (y - mapOriginY) / mapResolution];
+}) => [
+  (x - mapOriginX) / mapResolution,
+  mapHeight - (y - mapOriginY) / mapResolution,
+];
 
 export const rvizCoord = ({
   displayX,
@@ -27,7 +29,7 @@ export const rvizCoord = ({
   mapOriginX,
   mapOriginY,
   mapHeight,
-  scaleSize
+  scaleSize,
 }: {
   displayX: number;
   displayY: number;
@@ -38,7 +40,7 @@ export const rvizCoord = ({
   scaleSize: number;
 }) => [
   (displayX / scaleSize) * mapResolution + mapOriginX,
-  (mapHeight - displayY / scaleSize) * mapResolution + mapOriginY
+  (mapHeight - displayY / scaleSize) * mapResolution + mapOriginY,
 ];
 
 export const rvizCoord2 = ({
@@ -48,7 +50,7 @@ export const rvizCoord2 = ({
   mapOriginX,
   mapOriginY,
   mapHeight,
-  scaleSize
+  scaleSize,
 }: {
   displayX: number;
   displayY: number;
@@ -59,7 +61,7 @@ export const rvizCoord2 = ({
   scaleSize: number;
 }) => [
   displayX * scaleSize * mapResolution + mapOriginX,
-  (mapHeight - displayY * scaleSize) * mapResolution + mapOriginY
+  (mapHeight - displayY * scaleSize) * mapResolution + mapOriginY,
 ];
 
 export const sanitizeDeg = (deg: number) => ((deg % 360) + 360) % 360;
@@ -71,7 +73,8 @@ export const deg2Rad = (deg: number) => (sanitizeDeg(deg) / 180) * Math.PI;
 export const errorHandler = (e: ErrorResponse, messageApi: MessageInstance) => {
   console.log(e);
 
-  const errorMessage = e?.response?.data?.message || 'An unknown error occurred';
+  const errorMessage =
+    e?.response?.data?.message || "An unknown error occurred";
 
   void messageApi.error(errorMessage, 5);
 };

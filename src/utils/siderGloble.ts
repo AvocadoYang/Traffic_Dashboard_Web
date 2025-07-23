@@ -1,4 +1,4 @@
-import { atom } from 'jotai';
+import { atom } from "jotai";
 
 /** 1-1 編輯點位開關 */
 export const EditLocationPanelSwitch = atom<boolean>(false);

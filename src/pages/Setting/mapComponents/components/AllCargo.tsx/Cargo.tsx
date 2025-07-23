@@ -1,17 +1,20 @@
-import { message } from 'antd';
-import { FC, memo, useCallback } from 'react';
+import { message } from "antd";
+import { FC, memo, useCallback } from "react";
 
-import { WrapperType } from './types';
-import styled from 'styled-components';
-import { useCargoMutations } from './hook/useCargoMutations';
-import CargoDisplay from './CargoDisplay';
-import { CargoInfo } from '@/sockets/useCargoInfo';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { EditRoadPanelSwitch, EditZoneSwitch } from '@/utils/siderGloble';
-import { LoadingStation } from './LoadingStation';
-import { IsEditingQuickRoads, QuickRoadsArray } from '@/pages/Setting/utils/settingJotai';
-import { prefixLevelName } from '@/utils/globalFunction';
-import { BaseGlobalCargoInfoModal, GlobalCargoData } from './jotaiState';
+import { WrapperType } from "./types";
+import styled from "styled-components";
+import { useCargoMutations } from "./hook/useCargoMutations";
+import CargoDisplay from "./CargoDisplay";
+import { CargoInfo } from "@/sockets/useCargoInfo";
+import { useAtomValue, useSetAtom } from "jotai";
+import { EditRoadPanelSwitch, EditZoneSwitch } from "@/utils/siderGloble";
+import { LoadingStation } from "./LoadingStation";
+import {
+  IsEditingQuickRoads,
+  QuickRoadsArray,
+} from "@/pages/Setting/utils/settingJotai";
+import { prefixLevelName } from "@/utils/globalFunction";
+import { BaseGlobalCargoInfoModal, GlobalCargoData } from "./jotaiState";
 
 const Wrapper = styled.div<WrapperType>`
   position: relative;
@@ -46,7 +49,16 @@ const Cargo: FC<{
   scale: number;
   flex_direction: string;
   shelfInfo: CargoInfo | undefined;
-}> = ({ id, locId, translateX, translateY, rotate, scale, shelfInfo, flex_direction }) => {
+}> = ({
+  id,
+  locId,
+  translateX,
+  translateY,
+  rotate,
+  scale,
+  shelfInfo,
+  flex_direction,
+}) => {
   const [messageApi, contextHolder] = message.useMessage();
   const openEditZone = useAtomValue(EditZoneSwitch);
   const openEditRoadPanel = useAtomValue(EditRoadPanelSwitch);
@@ -63,7 +75,11 @@ const Cargo: FC<{
     setQuickRoadArr((prev) => [...prev, locationId]);
   };
 
-  const handleCargo = (data: { id: string; locationId: string; shelfInfo: CargoInfo }) => {
+  const handleCargo = (data: {
+    id: string;
+    locationId: string;
+    shelfInfo: CargoInfo;
+  }) => {
     if (quickRoad) {
       handleQuickRoad(locId);
       return;
@@ -75,11 +91,19 @@ const Cargo: FC<{
   };
 
   const handleMouseDown = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>, targetId: string, targetLevel: number) => {
+    (
+      event: React.MouseEvent<HTMLDivElement>,
+      targetId: string,
+      targetLevel: number,
+    ) => {
       if (event.button !== 1) return;
-      editColumnMutation.mutate({ id, locationId: targetId, level: targetLevel });
+      editColumnMutation.mutate({
+        id,
+        locationId: targetId,
+        level: targetLevel,
+      });
     },
-    [editColumnMutation]
+    [editColumnMutation],
   );
   //console.log(shelfInfo);
   if (!shelfInfo || !shelfInfo.layer) return <LoadingStation />;
@@ -96,11 +120,11 @@ const Cargo: FC<{
           handleCargo({
             id,
             locationId: locId,
-            shelfInfo
+            shelfInfo,
           });
         }}
       >
-        {' '}
+        {" "}
         {Object.entries(shelfInfo.layer).map(([levelStr, info]) => {
           const level = Number(levelStr);
           const cargoValue = info.hasCargo || false;
@@ -116,7 +140,11 @@ const Cargo: FC<{
               locId={locId}
               rotate={0}
               handleMouseDown={(e) =>
-                handleMouseDown(e as React.MouseEvent<HTMLDivElement>, locId, level)
+                handleMouseDown(
+                  e as React.MouseEvent<HTMLDivElement>,
+                  locId,
+                  level,
+                )
               }
             />
           );

@@ -1,16 +1,16 @@
-import { FC, useEffect } from 'react';
-import { useAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-import { Button, Flex, Form, message, Modal } from 'antd';
-import { ErrorResponse } from '@/utils/globalType';
-import { errorHandler } from '@/utils/utils';
-import client from '@/api/axiosClient';
-import { useMutation } from '@tanstack/react-query';
-import { Relation } from '@/api/useLoc';
-import Config from './Config';
-import CargoInfoAtPeripheral from './CargoInfo';
-import { IsEditPeripheralModal } from './jotai';
-import { PeripheralTypes } from '@/types/peripheral';
+import { FC, useEffect } from "react";
+import { useAtom } from "jotai";
+import { useTranslation } from "react-i18next";
+import { Button, Flex, Form, message, Modal } from "antd";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
+import client from "@/api/axiosClient";
+import { useMutation } from "@tanstack/react-query";
+import { Relation } from "@/api/useLoc";
+import Config from "./Config";
+import CargoInfoAtPeripheral from "./CargoInfo";
+import { IsEditPeripheralModal } from "./jotai";
+import { PeripheralTypes } from "@/types/peripheral";
 
 const EditPeripheralModal: FC = () => {
   const [openModal, setOpenModal] = useAtom(IsEditPeripheralModal);
@@ -34,19 +34,21 @@ const EditPeripheralModal: FC = () => {
       return client.post(`/api/peripherals/update-config`, data);
     },
     onSuccess: () => {
-      messageApi.success(t('utils.success'));
+      messageApi.success(t("utils.success"));
       setOpenModal(null);
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   useEffect(() => {
     if (openModal) {
       const relationshipArray = openModal.relationships
-        ? Object.entries(openModal.relationships).map(([relatedLocId, relationshipType]) => ({
-            relatedLocId,
-            relationshipType
-          }))
+        ? Object.entries(openModal.relationships).map(
+            ([relatedLocId, relationshipType]) => ({
+              relatedLocId,
+              relationshipType,
+            }),
+          )
         : [];
 
       formConfig.setFieldsValue({
@@ -56,7 +58,7 @@ const EditPeripheralModal: FC = () => {
         loadMissionId: openModal.loadMissionId,
         offloadMissionId: openModal.offloadMissionId,
         placement_priority: openModal.placement_priority,
-        relationships: relationshipArray
+        relationships: relationshipArray,
       });
     }
   }, [openModal, formConfig]);
@@ -67,7 +69,7 @@ const EditPeripheralModal: FC = () => {
 
   const handleSubmit = async () => {
     if (!openModal) {
-      messageApi.warning('the station not found');
+      messageApi.warning("the station not found");
       return;
     }
 
@@ -78,7 +80,7 @@ const EditPeripheralModal: FC = () => {
       stationId: openModal.stationId,
       peripheralType: openModal.stationType,
       ...values,
-      ...cargoInfo
+      ...cargoInfo,
     });
   };
 
@@ -92,8 +94,12 @@ const EditPeripheralModal: FC = () => {
         centered
         width={1000}
         footer={
-          <Button type="primary" onClick={handleSubmit} loading={updateMutation.isLoading}>
-            {t('utils.save')}
+          <Button
+            type="primary"
+            onClick={handleSubmit}
+            loading={updateMutation.isLoading}
+          >
+            {t("utils.save")}
           </Button>
         }
       >

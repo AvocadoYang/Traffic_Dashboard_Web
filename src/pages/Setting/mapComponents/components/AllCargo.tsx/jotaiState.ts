@@ -1,6 +1,6 @@
-import { CargoInfo } from '@/sockets/useCargoInfo';
-import { Cargo } from '@/types/peripheral';
-import { atom } from 'jotai';
+import { CargoInfo } from "@/sockets/useCargoInfo";
+import { Cargo } from "@/types/peripheral";
+import { atom } from "jotai";
 
 // 只有給shelf用
 export const GlobalCargoInfoModal = atom<boolean>(false);
@@ -19,7 +19,7 @@ export const GlobalCargoInfo = atom<{
   dbId: null,
   locationId: null,
   level: -1,
-  cargo: []
+  cargo: [],
 });
 
 // 給其他有需要攜帶設備用
@@ -30,7 +30,7 @@ export const GlobalCargoInfoPeripheral = atom<{
 }>({
   dbId: null,
   locationId: null,
-  cargo: []
+  cargo: [],
 });
 
 export const GlobalCargoData = atom<{
@@ -40,5 +40,5 @@ export const GlobalCargoData = atom<{
 }>({
   id: null,
   locationId: null,
-  shelfInfo: null
+  shelfInfo: null,
 });

@@ -1,14 +1,16 @@
-import { Button, Flex } from 'antd';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import ShelfTable from './ShelfTable';
-import ShelfDrawer from './ShelfDrawer';
-import FormHr from '../../../../utils/FormHr';
+import { Button, Flex } from "antd";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import ShelfTable from "./ShelfTable";
+import ShelfDrawer from "./ShelfDrawer";
+import FormHr from "../../../../utils/FormHr";
 
 const ShelfPanel: React.FC<{
   sortableId: string;
-  attributes: import('@dnd-kit/core').DraggableAttributes;
-  listeners: import('@dnd-kit/core/dist/hooks/utilities').SyntheticListenerMap | undefined;
+  attributes: import("@dnd-kit/core").DraggableAttributes;
+  listeners:
+    | import("@dnd-kit/core/dist/hooks/utilities").SyntheticListenerMap
+    | undefined;
 }> = ({ attributes, listeners }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [openDrawer, setOpenDrawer] = useState(false);
@@ -18,7 +20,7 @@ const ShelfPanel: React.FC<{
   return (
     <>
       <h3 className="drop_button_style" {...listeners} {...attributes}>
-        {t('edit_shelf_panel.edit_shelf')}
+        {t("edit_shelf_panel.edit_shelf")}
       </h3>
 
       <FormHr></FormHr>
@@ -30,10 +32,13 @@ const ShelfPanel: React.FC<{
           onClick={() => setOpenDrawer(true)}
           disabled={selectedRowKeys.length === 0}
         >
-          {t('utils.edit')}
+          {t("utils.edit")}
         </Button>
 
-        <ShelfTable selectedRowKeys={selectedRowKeys} setSelectedRowKeys={setSelectedRowKeys} />
+        <ShelfTable
+          selectedRowKeys={selectedRowKeys}
+          setSelectedRowKeys={setSelectedRowKeys}
+        />
       </Flex>
 
       <ShelfDrawer

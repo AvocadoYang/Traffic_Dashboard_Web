@@ -1,18 +1,18 @@
-import { cargoStyle, shelfSelectedStyleLocationId } from '@/utils/gloable';
-import { useAtomValue } from 'jotai';
-import { FC } from 'react';
-import styled from 'styled-components';
-import { rosCoord2DisplayCoord } from '@/utils/utils';
-import useMap from '@/api/useMap';
-import useShelf from '@/api/useShelf';
-import { Button } from 'antd';
-import { prefixLevelName } from '@/utils/globalFunction';
+import { cargoStyle, shelfSelectedStyleLocationId } from "@/utils/gloable";
+import { useAtomValue } from "jotai";
+import { FC } from "react";
+import styled from "styled-components";
+import { rosCoord2DisplayCoord } from "@/utils/utils";
+import useMap from "@/api/useMap";
+import useShelf from "@/api/useShelf";
+import { Button } from "antd";
+import { prefixLevelName } from "@/utils/globalFunction";
 
 const WrapperForCargo = styled.div.attrs<{
   left: number;
   top: number;
 }>(({ left, top }) => ({
-  style: { left, top }
+  style: { left, top },
 }))<{
   left: number;
   top: number;
@@ -55,7 +55,7 @@ const Block = styled(Button)`
   position: relative;
   flex-grow: 1;
   z-index: 1;
-  cursor: 'pointer';
+  cursor: "pointer";
   opacity: 1;
 `;
 
@@ -75,18 +75,25 @@ const SudoCargo: FC = () => {
   if (!cStyle || !data || !shelf) return;
 
   const currentShelf =
-    shelf?.find((v) => v.Loc.locationId === shelfSelectedStyleId)?.ShelfConfig.length || 1;
+    shelf?.find((v) => v.Loc.locationId === shelfSelectedStyleId)?.ShelfConfig
+      .length || 1;
 
   const [displayX, displayY] = rosCoord2DisplayCoord({
-    x: data?.locations.find((v) => v.locationId === shelfSelectedStyleId)?.x || 0,
-    y: data?.locations.find((v) => v.locationId === shelfSelectedStyleId)?.y || 0,
+    x:
+      data?.locations.find((v) => v.locationId === shelfSelectedStyleId)?.x ||
+      0,
+    y:
+      data?.locations.find((v) => v.locationId === shelfSelectedStyleId)?.y ||
+      0,
     mapHeight: data?.mapHeight,
     mapOriginX: data?.mapOriginX,
     mapOriginY: data.mapOriginY,
-    mapResolution: data.mapResolution
+    mapResolution: data.mapResolution,
   });
 
-  const eachShelf = shelf?.find((v) => v.Loc.locationId === shelfSelectedStyleId);
+  const eachShelf = shelf?.find(
+    (v) => v.Loc.locationId === shelfSelectedStyleId,
+  );
 
   return (
     <>
@@ -100,7 +107,9 @@ const SudoCargo: FC = () => {
         >
           {Array.from({ length: currentShelf }, (_, i) => (
             <Block key={i}>
-              <BlockSpan>{prefixLevelName(eachShelf?.ShelfConfig[i]?.name)}</BlockSpan>
+              <BlockSpan>
+                {prefixLevelName(eachShelf?.ShelfConfig[i]?.name)}
+              </BlockSpan>
             </Block>
           ))}
         </Wrapper>

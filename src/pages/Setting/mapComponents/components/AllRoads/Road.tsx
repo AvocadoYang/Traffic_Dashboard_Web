@@ -1,10 +1,10 @@
-import { FC, useEffect, useRef, useState } from 'react';
-import styled, { css } from 'styled-components';
-import { useAtomValue } from 'jotai';
-import { Tooltip } from 'antd';
-import { rad2Deg } from '@/utils/utils';
-import { isShowRoadTooltip } from '@/utils/siderGloble';
-import { useMockInfo } from '@/sockets/useMockInfo';
+import { FC, useEffect, useRef, useState } from "react";
+import styled, { css } from "styled-components";
+import { useAtomValue } from "jotai";
+import { Tooltip } from "antd";
+import { rad2Deg } from "@/utils/utils";
+import { isShowRoadTooltip } from "@/utils/siderGloble";
+import { useMockInfo } from "@/sockets/useMockInfo";
 
 const Container = styled.div.attrs<{
   left: number;
@@ -25,18 +25,28 @@ const Line = styled.div.attrs<{
   $isClaimed: boolean;
   $limit: boolean;
   $isOnHover: boolean;
-}>(({ length, angle, $isOneWayRoad, $isClaimed, $isOnHover, color, priority }) => ({
-  style: {
-    width: length,
-    height: $isOnHover ? '2px' : '1px',
-    transform: `rotate(${angle}deg) translateY(-50%)`,
-    backgroundColor: $isOneWayRoad ? '#ffffff5' : 'rgb(0 68 255 / 0%)',
-    border:
-      $isClaimed || $isOnHover
-        ? `1px solid ${color}`
-        : `${priority === 1 ? '0.5px solid #f74f8746' : '0.5px solid #02ddff'}`
-  }
-}))<{
+}>(
+  ({
+    length,
+    angle,
+    $isOneWayRoad,
+    $isClaimed,
+    $isOnHover,
+    color,
+    priority,
+  }) => ({
+    style: {
+      width: length,
+      height: $isOnHover ? "2px" : "1px",
+      transform: `rotate(${angle}deg) translateY(-50%)`,
+      backgroundColor: $isOneWayRoad ? "#ffffff5" : "rgb(0 68 255 / 0%)",
+      border:
+        $isClaimed || $isOnHover
+          ? `1px solid ${color}`
+          : `${priority === 1 ? "0.5px solid #f74f8746" : "0.5px solid #02ddff"}`,
+    },
+  }),
+)<{
   length: number;
   angle: number;
   $isOneWayRoad: boolean;
@@ -57,7 +67,7 @@ const Line = styled.div.attrs<{
     $isOneWayRoad &&
     css`
       ::before {
-        content: '';
+        content: "";
         display: block;
         left: 0px;
         position: absolute;
@@ -77,12 +87,12 @@ const Line = styled.div.attrs<{
 
 const Road: FC<{
   roadId: string;
-  roadType: 'oneWayRoad' | 'twoWayRoad';
+  roadType: "oneWayRoad" | "twoWayRoad";
   x1: number; // in pixel, css coordinate
   y1: number; // in pixel, css coordinate
   x2: number; // in pixel, css coordinate
   y2: number; // in pixel, css coordinate
-  validYawList: '*' | number[];
+  validYawList: "*" | number[];
   priority: number;
   disabled: boolean;
   isClaimedBy?: string;
@@ -99,11 +109,11 @@ const Road: FC<{
   limit,
   disabled,
   isRoadOnHover,
-  priority
+  priority,
 }) => {
   const ref = useRef(null);
 
-  const [simulateColor, setSimulateColor] = useState('#ff9646');
+  const [simulateColor, setSimulateColor] = useState("#ff9646");
   const length = Math.hypot(x1 - x2, y1 - y2);
   const angle = rad2Deg(Math.atan2(y2 - y1, x2 - x1));
   const script = useMockInfo();
@@ -112,22 +122,22 @@ const Road: FC<{
   useEffect(() => {
     if (!script) return;
     if (script.isSimulate) {
-      setSimulateColor('#7ca1ea');
+      setSimulateColor("#7ca1ea");
     } else {
-      setSimulateColor('#ff9646');
+      setSimulateColor("#ff9646");
     }
   }, [script]);
 
   return (
     <Container left={x1} top={y1}>
-      <Tooltip title={showRoadTooltip ? roadId : ''}>
+      <Tooltip title={showRoadTooltip ? roadId : ""}>
         <Line
           length={length}
           angle={angle}
           ref={ref}
           priority={priority}
           color={simulateColor}
-          $isOneWayRoad={roadType === 'oneWayRoad'}
+          $isOneWayRoad={roadType === "oneWayRoad"}
           $isClaimed={isClaimedBy !== undefined}
           $limit={!!limit}
           $isOnHover={isRoadOnHover}
@@ -135,13 +145,13 @@ const Road: FC<{
           {disabled && (
             <p
               style={{
-                fontSize: '10px',
-                position: 'absolute',
-                top: '-px',
+                fontSize: "10px",
+                position: "absolute",
+                top: "-px",
                 // bottom: '10p%',
-                left: '23%',
-                zIndex: '100',
-                transform: `rotate(-${angle}deg) translateY(-25%) translateX(20%)`
+                left: "23%",
+                zIndex: "100",
+                transform: `rotate(-${angle}deg) translateY(-25%) translateX(20%)`,
               }}
             >
               ⛔
@@ -150,13 +160,13 @@ const Road: FC<{
           {limit && (
             <p
               style={{
-                fontSize: '10px',
-                position: 'absolute',
-                top: '-px',
+                fontSize: "10px",
+                position: "absolute",
+                top: "-px",
                 // bottom: '10p%',
-                left: '23%',
-                zIndex: '100',
-                transform: `rotate(-${angle}deg) translateY(-25%) translateX(20%)`
+                left: "23%",
+                zIndex: "100",
+                transform: `rotate(-${angle}deg) translateY(-25%) translateX(20%)`,
               }}
             >
               ❶

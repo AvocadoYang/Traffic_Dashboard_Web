@@ -1,11 +1,11 @@
-import { Button, message, Tooltip } from 'antd';
-import { memo, useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { useMutation } from '@tanstack/react-query';
-import client from '@/api/axiosClient';
-import { SwapOutlined, CloseOutlined } from '@ant-design/icons';
-import { useTranslation } from 'react-i18next';
-import { useMockInfo } from '@/sockets/useMockInfo';
+import { Button, message, Tooltip } from "antd";
+import { memo, useState, useEffect } from "react";
+import styled from "styled-components";
+import { useMutation } from "@tanstack/react-query";
+import client from "@/api/axiosClient";
+import { SwapOutlined, CloseOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
+import { useMockInfo } from "@/sockets/useMockInfo";
 
 const ScalePadWrap = styled.div<{ $isMinimized: boolean }>`
   position: absolute;
@@ -21,8 +21,8 @@ const ScalePadWrap = styled.div<{ $isMinimized: boolean }>`
   gap: 8px;
   opacity: 1;
   transition: all 0.3s ease-in-out;
-  width: ${(props) => (props.$isMinimized ? '40px' : 'auto')};
-  height: ${(props) => (props.$isMinimized ? '4em' : 'auto')};
+  width: ${(props) => (props.$isMinimized ? "40px" : "auto")};
+  height: ${(props) => (props.$isMinimized ? "4em" : "auto")};
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -32,19 +32,19 @@ const ScalePadWrap = styled.div<{ $isMinimized: boolean }>`
   }
 
   @media (max-width: 768px) {
-    padding: ${(props) => (props.$isMinimized ? '0' : '6px')};
+    padding: ${(props) => (props.$isMinimized ? "0" : "6px")};
     gap: 6px;
     border-radius: 6px;
   }
 
   @media (max-width: 576px) {
-    padding: ${(props) => (props.$isMinimized ? '0' : '4px')};
+    padding: ${(props) => (props.$isMinimized ? "0" : "4px")};
     gap: 4px;
     border-radius: 4px;
   }
 
   @media (max-width: 480px) {
-    padding: ${(props) => (props.$isMinimized ? '0' : '4px')};
+    padding: ${(props) => (props.$isMinimized ? "0" : "4px")};
     gap: 4px;
     border-radius: 4px;
   }
@@ -111,7 +111,7 @@ const ContentWrapper = styled.div<{ $isVisible: boolean }>`
   gap: 8px;
   opacity: ${(props) => (props.$isVisible ? 1 : 0)};
   transition: opacity 0.3s ease-in-out;
-  pointer-events: ${(props) => (props.$isVisible ? 'auto' : 'none')};
+  pointer-events: ${(props) => (props.$isVisible ? "auto" : "none")};
 `;
 
 const ScalePad = () => {
@@ -123,37 +123,37 @@ const ScalePad = () => {
 
   // Optionally persist the minimized state in localStorage
   useEffect(() => {
-    const savedState = localStorage.getItem('scalePadMinimized');
+    const savedState = localStorage.getItem("scalePadMinimized");
     if (savedState) {
       set$isMinimized(JSON.parse(savedState));
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('scalePadMinimized', JSON.stringify($isMinimized));
+    localStorage.setItem("scalePadMinimized", JSON.stringify($isMinimized));
   }, [$isMinimized]);
 
   const sendSetScale = useMutation({
     mutationFn: (scale: number) => {
       return client.post(
-        '/api/simulate/scale',
+        "/api/simulate/scale",
         { scale },
         {
-          headers: { authorization: `Bearer ${localStorage.getItem('_KMT')}` }
-        }
+          headers: { authorization: `Bearer ${localStorage.getItem("_KMT")}` },
+        },
       );
     },
     onSuccess: (resData) => {
       const res = resData.data;
-      if (res.status === 'success') {
+      if (res.status === "success") {
         setScale(res.response.scale);
       } else {
-        void messageApi.error('無法排除 聯絡FAE工程師');
+        void messageApi.error("無法排除 聯絡FAE工程師");
       }
     },
     onError: () => {
-      void messageApi.error('無法排除 聯絡FAE工程師');
-    }
+      void messageApi.error("無法排除 聯絡FAE工程師");
+    },
   });
 
   const scaleOptions = Array.from({ length: 10 }, (_, index) => index + 1);
@@ -170,12 +170,12 @@ const ScalePad = () => {
       {contextHolder}
       {script?.isSimulate ? (
         <ScalePadWrap $isMinimized={$isMinimized}>
-          <Tooltip placement="bottom" title={t('scale_pad.title')}>
+          <Tooltip placement="bottom" title={t("scale_pad.title")}>
             <Button
               type="text"
               icon={<SwapOutlined />}
               onClick={() => set$isMinimized(false)}
-              style={{ display: $isMinimized ? 'inline-flex' : 'none' }}
+              style={{ display: $isMinimized ? "inline-flex" : "none" }}
             />
           </Tooltip>
 
@@ -183,7 +183,7 @@ const ScalePad = () => {
             {scaleOptions.map((scaleValue) => (
               <StyledButton
                 key={scaleValue}
-                className={scale === scaleValue ? 'selected' : ''}
+                className={scale === scaleValue ? "selected" : ""}
                 onClick={() => {
                   if (scale === scaleValue) return;
                   sendSetScale.mutate(scaleValue);

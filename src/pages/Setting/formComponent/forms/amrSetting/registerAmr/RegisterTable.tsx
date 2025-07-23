@@ -1,17 +1,17 @@
-import useRegisterAmr from '@/api/useRegisterAmr';
-import { TableProps, Table, Button, Flex, Popconfirm, message } from 'antd';
-import { t } from 'i18next';
-import { Dispatch, FC, SetStateAction } from 'react';
+import useRegisterAmr from "@/api/useRegisterAmr";
+import { TableProps, Table, Button, Flex, Popconfirm, message } from "antd";
+import { t } from "i18next";
+import { Dispatch, FC, SetStateAction } from "react";
 import {
   CloseCircleOutlined,
   DeleteTwoTone,
   EditOutlined,
-  PlayCircleOutlined
-} from '@ant-design/icons';
-import styled from 'styled-components';
-import client from '@/api/axiosClient';
-import { Err } from '@/utils/responseErr';
-import { useMutation } from '@tanstack/react-query';
+  PlayCircleOutlined,
+} from "@ant-design/icons";
+import styled from "styled-components";
+import client from "@/api/axiosClient";
+import { Err } from "@/utils/responseErr";
+import { useMutation } from "@tanstack/react-query";
 
 interface DataType {
   id: string;
@@ -48,7 +48,7 @@ const Dot = styled.div<DotStyle>`
   border-radius: 99%;
   width: 7px;
   height: 7px;
-  background-color: ${(prop) => (prop.$active ? '#2bea00' : '#979797')};
+  background-color: ${(prop) => (prop.$active ? "#2bea00" : "#979797")};
 `;
 
 const RegisterTable: FC<{
@@ -62,28 +62,28 @@ const RegisterTable: FC<{
 
   const deleteMutation = useMutation({
     mutationFn: (payload: { id: string }) => {
-      return client.post('api/setting/delete-register-robot', payload);
+      return client.post("api/setting/delete-register-robot", payload);
     },
     onSuccess: async () => {
-      messageApi.success(t('utils.success'));
+      messageApi.success(t("utils.success"));
       refetch();
     },
     onError(error: Err) {
       messageApi.error(error.response.data.message);
-    }
+    },
   });
 
   const enableMutation = useMutation({
     mutationFn: (payload: { id: string; isEnable: boolean }) => {
-      return client.post('api/setting/enable-register-robot', payload);
+      return client.post("api/setting/enable-register-robot", payload);
     },
     onSuccess: async () => {
-      messageApi.success(t('utils.success'));
+      messageApi.success(t("utils.success"));
       refetch();
     },
     onError(error: Err) {
       messageApi.error(error.response.data.message);
-    }
+    },
   });
 
   const handleEdit = (record: DataType) => {
@@ -92,7 +92,7 @@ const RegisterTable: FC<{
       id: record.id,
       robot_type: record.Robot_type.value,
       full_name: record.full_name,
-      serialNum: record.serialNum
+      serialNum: record.serialNum,
     });
   };
 
@@ -104,48 +104,48 @@ const RegisterTable: FC<{
     deleteMutation.mutate({ id });
   };
 
-  const columns: TableProps<DataType>['columns'] = [
+  const columns: TableProps<DataType>["columns"] = [
     {
-      title: t('mission.before_left_charge_station_mission.status'),
-      key: 'active',
-      dataIndex: 'active',
+      title: t("mission.before_left_charge_station_mission.status"),
+      key: "active",
+      dataIndex: "active",
       width: 100,
       render: (_v: unknown, record: DataType) => {
         return (
           <ActiveBox>
-            <Dot $active={record.is_enable as boolean} />{' '}
+            <Dot $active={record.is_enable as boolean} />{" "}
             <>
               {record.is_enable
-                ? t('setting_amr.register_amr.executing')
-                : t('setting_amr.register_amr.stale')}
+                ? t("setting_amr.register_amr.executing")
+                : t("setting_amr.register_amr.stale")}
             </>
           </ActiveBox>
         );
-      }
+      },
     },
     {
-      title: 'full_name',
-      dataIndex: 'full_name',
-      key: 'full_name',
-      render: (text) => <a>{text}</a>
+      title: "full_name",
+      dataIndex: "full_name",
+      key: "full_name",
+      render: (text) => <a>{text}</a>,
     },
     {
-      title: 'serialNum',
-      dataIndex: 'serialNum',
-      key: 'serialNum'
+      title: "serialNum",
+      dataIndex: "serialNum",
+      key: "serialNum",
     },
     {
-      title: 'robot_type',
-      dataIndex: 'robot_type',
-      key: 'robot_type',
+      title: "robot_type",
+      dataIndex: "robot_type",
+      key: "robot_type",
       render: (_, record) => {
         return record.Robot_type.name;
-      }
+      },
     },
     {
-      title: '',
-      dataIndex: 'option',
-      key: 'option',
+      title: "",
+      dataIndex: "option",
+      key: "option",
       width: 50,
       render: (_v: unknown, record: DataType) => {
         return (
@@ -159,7 +159,7 @@ const RegisterTable: FC<{
                   variant="filled"
                   type="link"
                 >
-                  {t('utils.inactive')}
+                  {t("utils.inactive")}
                 </Button>
               ) : (
                 <Button
@@ -169,7 +169,7 @@ const RegisterTable: FC<{
                   variant="filled"
                   type="link"
                 >
-                  {t('utils.active')}
+                  {t("utils.active")}
                 </Button>
               )}
 
@@ -181,24 +181,27 @@ const RegisterTable: FC<{
                 variant="filled"
                 type="link"
               >
-                {t('utils.edit')}
+                {t("utils.edit")}
               </Button>
 
-              <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.id)}>
+              <Popconfirm
+                title="Sure to delete?"
+                onConfirm={() => handleDelete(record.id)}
+              >
                 <Button
                   icon={<DeleteTwoTone twoToneColor="#f30303" />}
                   color="danger"
                   variant="filled"
                   type="link"
                 >
-                  {t('utils.delete')}
+                  {t("utils.delete")}
                 </Button>
               </Popconfirm>
             </Flex>
           </>
         );
-      }
-    }
+      },
+    },
   ];
 
   return (

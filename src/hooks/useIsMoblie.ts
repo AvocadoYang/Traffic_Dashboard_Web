@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { useSetAtom } from 'jotai';
-import { viewBtn, ViewBtn } from '@/pages/Main/global/jotai';
+import { useEffect, useState } from "react";
+import { useSetAtom } from "jotai";
+import { viewBtn, ViewBtn } from "@/pages/Main/global/jotai";
 
 export const useIsMobile = () => {
   const setOpenEditLocationPanel = useSetAtom(viewBtn);
@@ -8,12 +8,12 @@ export const useIsMobile = () => {
   const [, setWindowHeight] = useState(window.innerHeight);
   useEffect(() => {
     const updateHeight = () => setWindowHeight(window.innerHeight);
-    window.addEventListener('resize', updateHeight);
+    window.addEventListener("resize", updateHeight);
 
     // 確保初始設定正確
     updateHeight();
 
-    return () => window.removeEventListener('resize', updateHeight);
+    return () => window.removeEventListener("resize", updateHeight);
   }, [isMobile]);
 
   useEffect(() => {
@@ -21,11 +21,11 @@ export const useIsMobile = () => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 767);
     };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return {
-    isMobile
+    isMobile,
   };
 };

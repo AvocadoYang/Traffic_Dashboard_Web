@@ -1,24 +1,26 @@
-import { array, object, string, date, boolean, mixed } from 'yup';
-import { InferType } from 'yup';
-import { useQuery } from '@tanstack/react-query';
-import client from './axiosClient';
+import { array, object, string, date, boolean, mixed } from "yup";
+import { InferType } from "yup";
+import { useQuery } from "@tanstack/react-query";
+import client from "./axiosClient";
 
 const historySchema = array(
   object({
     id: string().required(),
     cargo_id: string().required(),
-    action: string().oneOf(['CREATED','TRANSFER', 'LOAD', 'OFFLOAD', 'SHIFTED', 'UPDATED']).required(),
+    action: string()
+      .oneOf(["CREATED", "TRANSFER", "LOAD", "OFFLOAD", "SHIFTED", "UPDATED"])
+      .required(),
     description: string().nullable(),
     actor: string().nullable(),
-    timestamp: date().required()
-  })
+    timestamp: date().required(),
+  }),
 ).required();
 
 const customCargoMetadataSchema = object({
   id: string().required(),
   is_default: boolean().required(),
   custom_name: string().required(),
-  format: mixed().optional().nullable()
+  format: mixed().optional().nullable(),
 })
   .optional()
   .nullable();
@@ -26,7 +28,7 @@ const customCargoMetadataSchema = object({
 const schema = array(
   object({
     id: string().required(),
-    status: string().oneOf(['ON_AMR', 'AT_LOCATION', 'SHIFT']).required(),
+    status: string().oneOf(["ON_AMR", "AT_LOCATION", "SHIFT"]).required(),
     metadata: mixed().optional().nullable(),
     createdAt: date().required(),
     updatedAt: date().required(),
@@ -36,27 +38,34 @@ const schema = array(
     custom_cargo_metadata_id: string().nullable(),
 
     history: historySchema,
-    custom_cargo_metadata: customCargoMetadataSchema
-  })
+    custom_cargo_metadata: customCargoMetadataSchema,
+  }),
 ).required();
 
 export type CargoListData = InferType<typeof schema>;
 
 const getCargoHistory = async (metadata: string) => {
-  if (metadata.trim() === '') return { data: [], total: 0 };
+  if (metadata.trim() === "") return { data: [], total: 0 };
 
-  const { data } = await client.get('api/cargo-history/search-metadata-history', {
-    params: { metadata }
-  });
+  const { data } = await client.get(
+    "api/cargo-history/search-metadata-history",
+    {
+      params: { metadata },
+    },
+  );
 
-  return schema.validate(data.data, { stripUnknown: true }).then((validated) => ({
-    data: validated,
-    total: data.total
-  }));
+  return schema
+    .validate(data.data, { stripUnknown: true })
+    .then((validated) => ({
+      data: validated,
+      total: data.total,
+    }));
 };
 
 const useSearchCargoMetadata = (metadata: string) => {
-  return useQuery(['cargo-history-metadata', metadata], () => getCargoHistory(metadata));
+  return useQuery(["cargo-history-metadata", metadata], () =>
+    getCargoHistory(metadata),
+  );
 };
 
 export default useSearchCargoMetadata;

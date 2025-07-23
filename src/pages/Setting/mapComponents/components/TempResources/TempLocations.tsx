@@ -1,10 +1,13 @@
-import useMap from '@/api/useMap';
-import { TempStoredLocationsForQuickEditPanel, tooltipProp } from '@/utils/gloable';
-import { rosCoord2DisplayCoord } from '@/utils/utils';
-import { useAtom, useSetAtom } from 'jotai';
-import { FC, memo, useEffect } from 'react';
-import { nanoid } from 'nanoid';
-import styled from 'styled-components';
+import useMap from "@/api/useMap";
+import {
+  TempStoredLocationsForQuickEditPanel,
+  tooltipProp,
+} from "@/utils/gloable";
+import { rosCoord2DisplayCoord } from "@/utils/utils";
+import { useAtom, useSetAtom } from "jotai";
+import { FC, memo, useEffect } from "react";
+import { nanoid } from "nanoid";
+import styled from "styled-components";
 
 const PointDiv = styled.div.attrs<{
   left: number;
@@ -12,7 +15,7 @@ const PointDiv = styled.div.attrs<{
   canrotate: string;
   hoverLoc?: boolean;
 }>(({ left, top, canrotate, hoverLoc }) => ({
-  style: { left, top, canrotate, hoverLoc }
+  style: { left, top, canrotate, hoverLoc },
 }))<{
   left: number;
   top: number;
@@ -27,7 +30,7 @@ const PointDiv = styled.div.attrs<{
   z-index: 10;
   transition-duration: 200ms;
 
-  border: ${(props) => (props.hoverLoc ? '5px solid orange' : 'none')};
+  border: ${(props) => (props.hoverLoc ? "5px solid orange" : "none")};
   &:hover {
     background: green;
     scale: 1.8;
@@ -37,14 +40,16 @@ const PointDiv = styled.div.attrs<{
 export const Point = memo(PointDiv);
 
 const TempLocations: FC = () => {
-  const [tempStoredLocationsForQuickEditPanel] = useAtom(TempStoredLocationsForQuickEditPanel);
+  const [tempStoredLocationsForQuickEditPanel] = useAtom(
+    TempStoredLocationsForQuickEditPanel,
+  );
   const { data } = useMap();
   const setTooltip = useSetAtom(tooltipProp);
   const handleEnter = (locationId: string, x: number, y: number) => {
     setTooltip({
       x,
       y,
-      locationId
+      locationId,
     });
   };
 
@@ -65,7 +70,7 @@ const TempLocations: FC = () => {
           mapHeight: data?.mapHeight,
           mapOriginX: data?.mapOriginX,
           mapOriginY: data.mapOriginY,
-          mapResolution: data.mapResolution
+          mapResolution: data.mapResolution,
         });
         return (
           <div
@@ -74,7 +79,7 @@ const TempLocations: FC = () => {
             onDragStart={(event) => {
               event.preventDefault();
             }}
-            style={{ borderRadius: '50%' }}
+            style={{ borderRadius: "50%" }}
           >
             <Point
               id={loc.locationId.toString()}

@@ -1,4 +1,4 @@
-import { FC, memo } from 'react';
+import { FC, memo } from "react";
 import {
   AllLocationTable,
   EditLocationPanel,
@@ -6,9 +6,9 @@ import {
   EditZonePanel,
   QuickEditLocationPanel,
   RoadList,
-  ZoneTable
-} from '../formComponent/forms';
-import { Card, FormInstance } from 'antd';
+  ZoneTable,
+} from "../formComponent/forms";
+import { Card, FormInstance } from "antd";
 import {
   EditLocationListTableSwitch,
   EditLocationPanelSwitch,
@@ -35,32 +35,32 @@ import {
   QuickEditLocationPanelSwitch,
   QuickEditRoadSwitch,
   RoadListTableSwitch,
-  showZonesTableSwitch
-} from '@/utils/siderGloble';
-import { useAtomValue } from 'jotai';
-import { ToolBarItemType, ToolBarType } from './siderElement';
-import { useSortable } from '@dnd-kit/sortable';
-import cardStyle from '../utils/cardStyle';
-import { ShelfPanel } from '../formComponent/forms/shelfComponents/editShelf';
-import { ShelfCategoryPanel } from '../formComponent/forms/shelfComponents/category';
-import { YawPanel } from '../formComponent/forms/shelfComponents/yaw';
-import FormCloseBtn from '../utils/FormCloseBtn';
-import EditMissionPanel from '../formComponent/forms/missionComponents/editMission/MissionPanel';
-import { ChargePanel } from '../formComponent/forms/missionComponents/chargeMission';
-import { CycleMIssionPanel } from '../formComponent/forms/missionComponents/cycleMission';
-import { BeforeLeftChargeStationPanel } from '../formComponent/forms/missionComponents/beforLeftChargeStationMission';
-import { SchedulePanel } from '../formComponent/forms/missionComponents/scheduleMission';
-import { IdleMissionPanel } from '../formComponent/forms/missionComponents/idleMission';
-import { TopicMissionPanel } from '../formComponent/forms/missionComponents/topicMission';
-import { EditTagPanel } from '../formComponent/forms/other/editTag';
-import { EditWarningListPanel } from '../formComponent/forms/file/warningId';
-import { BackupPanel } from '../formComponent/forms/file/backup';
-import { RegisterAmrPanel } from '../formComponent/forms/amrSetting/registerAmr';
-import AmrConfigPanel from '../formComponent/forms/amrSetting/amrConfig/AmrConfigPanel';
-import QuickEditRoadPanel from '../formComponent/QuickEditRoadPanel';
-import { AbortCargoMissionPanel } from '../formComponent/forms/missionComponents/abortCargoMission';
-import CustomCargoInfoPanel from '../formComponent/forms/other/customCargoInfo/CustomCargoInfoPanel';
-import EditPeripheralIcon from '../formComponent/forms/other/editPeripheralIcon/EditPeripheralIcon';
+  showZonesTableSwitch,
+} from "@/utils/siderGloble";
+import { useAtomValue } from "jotai";
+import { ToolBarItemType, ToolBarType } from "./siderElement";
+import { useSortable } from "@dnd-kit/sortable";
+import cardStyle from "../utils/cardStyle";
+import { ShelfPanel } from "../formComponent/forms/shelfComponents/editShelf";
+import { ShelfCategoryPanel } from "../formComponent/forms/shelfComponents/category";
+import { YawPanel } from "../formComponent/forms/shelfComponents/yaw";
+import FormCloseBtn from "../utils/FormCloseBtn";
+import EditMissionPanel from "../formComponent/forms/missionComponents/editMission/MissionPanel";
+import { ChargePanel } from "../formComponent/forms/missionComponents/chargeMission";
+import { CycleMIssionPanel } from "../formComponent/forms/missionComponents/cycleMission";
+import { BeforeLeftChargeStationPanel } from "../formComponent/forms/missionComponents/beforLeftChargeStationMission";
+import { SchedulePanel } from "../formComponent/forms/missionComponents/scheduleMission";
+import { IdleMissionPanel } from "../formComponent/forms/missionComponents/idleMission";
+import { TopicMissionPanel } from "../formComponent/forms/missionComponents/topicMission";
+import { EditTagPanel } from "../formComponent/forms/other/editTag";
+import { EditWarningListPanel } from "../formComponent/forms/file/warningId";
+import { BackupPanel } from "../formComponent/forms/file/backup";
+import { RegisterAmrPanel } from "../formComponent/forms/amrSetting/registerAmr";
+import AmrConfigPanel from "../formComponent/forms/amrSetting/amrConfig/AmrConfigPanel";
+import QuickEditRoadPanel from "../formComponent/QuickEditRoadPanel";
+import { AbortCargoMissionPanel } from "../formComponent/forms/missionComponents/abortCargoMission";
+import CustomCargoInfoPanel from "../formComponent/forms/other/customCargoInfo/CustomCargoInfoPanel";
+import EditPeripheralIcon from "../formComponent/forms/other/editPeripheralIcon/EditPeripheralIcon";
 
 const SortableWrap: FC<{
   sortableId: ToolBarItemType;
@@ -68,23 +68,27 @@ const SortableWrap: FC<{
   roadPanelForm?: FormInstance<unknown>;
   zonePanelForm?: FormInstance<unknown>;
 }> = ({ sortableId, locationPanelForm, roadPanelForm, zonePanelForm }) => {
-  const { setNodeRef, attributes, listeners, transform, transition } = useSortable({
-    id: sortableId, //這裡的id必須和SortableContext的item裡的id對應
-    transition: {
-      duration: 500,
-      easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
-    }
-  });
+  const { setNodeRef, attributes, listeners, transform, transition } =
+    useSortable({
+      id: sortableId, //這裡的id必須和SortableContext的item裡的id對應
+      transition: {
+        duration: 500,
+        easing: "cubic-bezier(0.25, 1, 0.5, 1)",
+      },
+    });
   const styles = cardStyle(transform, transition, sortableId);
   return (
     <>
       {(() => {
         switch (sortableId) {
           // 1-1 編輯點位的彈跳視窗
-          case 'location_panel':
+          case "location_panel":
             return (
               <Card style={styles} ref={setNodeRef} key={sortableId}>
-                <FormCloseBtn sortableId={sortableId} panelName="location_panel" />
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="location_panel"
+                />
                 <EditLocationPanel
                   sortableId={sortableId}
                   locationPanelForm={locationPanelForm as FormInstance<unknown>}
@@ -94,10 +98,13 @@ const SortableWrap: FC<{
               </Card>
             );
           // 1-2 快速編輯點位的彈跳視窗
-          case 'quick_location_panel':
+          case "quick_location_panel":
             return (
               <Card style={styles} ref={setNodeRef} key={sortableId}>
-                <FormCloseBtn sortableId={sortableId} panelName="quick_location_panel" />
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="quick_location_panel"
+                />
                 <QuickEditLocationPanel
                   sortableId={sortableId}
                   locationPanelForm={locationPanelForm as FormInstance<unknown>}
@@ -107,10 +114,13 @@ const SortableWrap: FC<{
               </Card>
             );
           // 1-3 顯示地點列表
-          case 'location_list':
+          case "location_list":
             return (
               <Card style={styles} ref={setNodeRef} key={sortableId}>
-                <FormCloseBtn sortableId={sortableId} panelName="location_list" />
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="location_list"
+                />
                 <AllLocationTable
                   sortableId={sortableId}
                   attributes={attributes}
@@ -119,7 +129,7 @@ const SortableWrap: FC<{
               </Card>
             );
           // 2-1 編輯路徑
-          case 'road_panel':
+          case "road_panel":
             return (
               <Card style={styles} ref={setNodeRef} key={sortableId}>
                 <FormCloseBtn sortableId={sortableId} panelName="road_panel" />
@@ -132,19 +142,29 @@ const SortableWrap: FC<{
               </Card>
             );
           // 2-2 顯示路徑列表
-          case 'show_roads_table':
+          case "show_roads_table":
             return (
               <Card style={styles} ref={setNodeRef} key={sortableId}>
-                <FormCloseBtn sortableId={sortableId} panelName="show_roads_table" />
-                <RoadList sortableId={sortableId} attributes={attributes} listeners={listeners} />
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="show_roads_table"
+                />
+                <RoadList
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
               </Card>
             );
 
           // 2-3 顯示快速拉路線
-          case 'quick_road_panel':
+          case "quick_road_panel":
             return (
               <Card style={styles} ref={setNodeRef} key={sortableId}>
-                <FormCloseBtn sortableId={sortableId} panelName="quick_road_panel" />
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="quick_road_panel"
+                />
                 <QuickEditRoadPanel
                   sortableId={sortableId}
                   attributes={attributes}
@@ -154,7 +174,7 @@ const SortableWrap: FC<{
             );
 
           // 3-1 編輯區域
-          case 'edit_zone':
+          case "edit_zone":
             return (
               <Card style={styles} ref={setNodeRef} key={sortableId}>
                 <FormCloseBtn sortableId={sortableId} panelName="edit_zone" />
@@ -167,26 +187,40 @@ const SortableWrap: FC<{
               </Card>
             );
           // 3-3 顯示區域表
-          case 'show_zone_table':
+          case "show_zone_table":
             return (
               <Card style={styles} ref={setNodeRef} key={sortableId}>
-                <FormCloseBtn sortableId={sortableId} panelName="show_zone_table" />
-                <ZoneTable sortableId={sortableId} attributes={attributes} listeners={listeners} />
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="show_zone_table"
+                />
+                <ZoneTable
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
               </Card>
             );
           // 4-1 顯示編輯貨架
-          case 'edit_shelve':
+          case "edit_shelve":
             return (
               <Card style={styles} ref={setNodeRef} key={sortableId}>
                 <FormCloseBtn sortableId={sortableId} panelName="edit_shelve" />
-                <ShelfPanel sortableId={sortableId} attributes={attributes} listeners={listeners} />
+                <ShelfPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
               </Card>
             );
           // 4-2 顯示編輯類型
-          case 'edit_shelve_type':
+          case "edit_shelve_type":
             return (
               <Card style={styles} ref={setNodeRef} key={sortableId}>
-                <FormCloseBtn sortableId={sortableId} panelName="edit_shelve_type" />
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="edit_shelve_type"
+                />
                 <ShelfCategoryPanel
                   sortableId={sortableId}
                   attributes={attributes}
@@ -195,19 +229,26 @@ const SortableWrap: FC<{
               </Card>
             );
           // 4-3 顯示編輯類型
-          case 'edit_yaw':
+          case "edit_yaw":
             return (
               <Card style={styles} ref={setNodeRef} key={sortableId}>
                 <FormCloseBtn sortableId={sortableId} panelName="edit_yaw" />
-                <YawPanel sortableId={sortableId} attributes={attributes} listeners={listeners} />
+                <YawPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
               </Card>
             );
 
           // 5-1 顯示編輯註冊車輛
-          case 'edit_register_amr':
+          case "edit_register_amr":
             return (
               <Card style={styles} ref={setNodeRef} key={sortableId}>
-                <FormCloseBtn sortableId={sortableId} panelName="edit_register_amr" />
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="edit_register_amr"
+                />
                 <RegisterAmrPanel
                   sortableId={sortableId}
                   attributes={attributes}
@@ -217,10 +258,13 @@ const SortableWrap: FC<{
             );
 
           // 5-2 顯示編輯類型
-          case 'edit_amr_config':
+          case "edit_amr_config":
             return (
               <Card style={styles} ref={setNodeRef} key={sortableId}>
-                <FormCloseBtn sortableId={sortableId} panelName="edit_amr_config" />
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="edit_amr_config"
+                />
                 <AmrConfigPanel
                   sortableId={sortableId}
                   attributes={attributes}
@@ -230,10 +274,13 @@ const SortableWrap: FC<{
             );
 
           // 6-1 顯示編輯任務
-          case 'edit_mission':
+          case "edit_mission":
             return (
               <Card style={styles} ref={setNodeRef}>
-                <FormCloseBtn sortableId={sortableId} panelName="edit_mission" />
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="edit_mission"
+                />
                 <EditMissionPanel
                   sortableId={sortableId}
                   attributes={attributes}
@@ -242,10 +289,13 @@ const SortableWrap: FC<{
               </Card>
             );
           // 6-2 顯示充電任務
-          case 'charge_mission':
+          case "charge_mission":
             return (
               <Card style={styles} ref={setNodeRef}>
-                <FormCloseBtn sortableId={sortableId} panelName="charge_mission" />
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="charge_mission"
+                />
                 <ChargePanel
                   sortableId={sortableId}
                   attributes={attributes}
@@ -254,10 +304,13 @@ const SortableWrap: FC<{
               </Card>
             );
           // 6-3 顯示循環任務
-          case 'cycle_mission':
+          case "cycle_mission":
             return (
               <Card style={styles} ref={setNodeRef}>
-                <FormCloseBtn sortableId={sortableId} panelName="cycle_mission" />
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="cycle_mission"
+                />
                 <CycleMIssionPanel
                   sortableId={sortableId}
                   attributes={attributes}
@@ -266,10 +319,13 @@ const SortableWrap: FC<{
               </Card>
             );
           // 6-4 顯示離開充電站前任務
-          case 'before_left_charge_station_task':
+          case "before_left_charge_station_task":
             return (
               <Card style={styles} ref={setNodeRef}>
-                <FormCloseBtn sortableId={sortableId} panelName="before_left_charge_station_task" />
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="before_left_charge_station_task"
+                />
                 <BeforeLeftChargeStationPanel
                   sortableId={sortableId}
                   attributes={attributes}
@@ -278,10 +334,13 @@ const SortableWrap: FC<{
               </Card>
             );
           // 6-5 顯示定時任務
-          case 'schedule_mission':
+          case "schedule_mission":
             return (
               <Card style={styles} ref={setNodeRef}>
-                <FormCloseBtn sortableId={sortableId} panelName="schedule_mission" />
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="schedule_mission"
+                />
                 <SchedulePanel
                   sortableId={sortableId}
                   attributes={attributes}
@@ -290,10 +349,13 @@ const SortableWrap: FC<{
               </Card>
             );
           // 6-6 顯示閒置任務
-          case 'idle_mission':
+          case "idle_mission":
             return (
               <Card style={styles} ref={setNodeRef}>
-                <FormCloseBtn sortableId={sortableId} panelName="idle_mission" />
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="idle_mission"
+                />
                 <IdleMissionPanel
                   sortableId={sortableId}
                   attributes={attributes}
@@ -302,10 +364,13 @@ const SortableWrap: FC<{
               </Card>
             );
           // 6-7 顯示主題任務
-          case 'topic_mission':
+          case "topic_mission":
             return (
               <Card style={styles} ref={setNodeRef}>
-                <FormCloseBtn sortableId={sortableId} panelName="topic_mission" />
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="topic_mission"
+                />
                 <TopicMissionPanel
                   sortableId={sortableId}
                   attributes={attributes}
@@ -314,10 +379,13 @@ const SortableWrap: FC<{
               </Card>
             );
           //6-8 縣市刪除任務身上有貨處理機制
-          case 'abort_cargo_mission':
+          case "abort_cargo_mission":
             return (
               <Card style={styles} ref={setNodeRef}>
-                <FormCloseBtn sortableId={sortableId} panelName="topic_mission" />
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="topic_mission"
+                />
                 <AbortCargoMissionPanel
                   sortableId={sortableId}
                   attributes={attributes}
@@ -327,7 +395,7 @@ const SortableWrap: FC<{
             );
 
           // 7-1 顯示編輯標籤
-          case 'edit_tag':
+          case "edit_tag":
             return (
               <Card style={styles} ref={setNodeRef}>
                 <FormCloseBtn sortableId={sortableId} panelName="edit_tag" />
@@ -339,10 +407,13 @@ const SortableWrap: FC<{
               </Card>
             );
           // 7-2 顯示編輯充電站圖標樣式
-          case 'edit_icon_style':
+          case "edit_icon_style":
             return (
               <Card style={styles} ref={setNodeRef}>
-                <FormCloseBtn sortableId={sortableId} panelName="edit_icon_style" />
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="edit_icon_style"
+                />
                 <EditPeripheralIcon
                   sortableId={sortableId}
                   attributes={attributes}
@@ -351,10 +422,13 @@ const SortableWrap: FC<{
               </Card>
             );
           // 7-3 顯示自定義貨物格式
-          case 'custom_cargo_info':
+          case "custom_cargo_info":
             return (
               <Card style={styles} ref={setNodeRef}>
-                <FormCloseBtn sortableId={sortableId} panelName="custom_cargo_info" />
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="custom_cargo_info"
+                />
                 <CustomCargoInfoPanel
                   sortableId={sortableId}
                   attributes={attributes}
@@ -363,7 +437,7 @@ const SortableWrap: FC<{
               </Card>
             );
           // 8-1 顯示編輯warning id
-          case 'warning_id':
+          case "warning_id":
             return (
               <Card style={styles} ref={setNodeRef}>
                 <FormCloseBtn sortableId={sortableId} panelName="warning_id" />
@@ -375,7 +449,7 @@ const SortableWrap: FC<{
               </Card>
             );
           // 8-2 顯示編輯備份檔案
-          case 'backup_file':
+          case "backup_file":
             return (
               <Card style={styles} ref={setNodeRef}>
                 <FormCloseBtn sortableId={sortableId} panelName="backup_file" />
@@ -423,7 +497,9 @@ const ToolComponents: FC<{
   const openSchedulePanel = useAtomValue(isShowEditScheduleMission);
   const openIdlePanel = useAtomValue(isShowEditIdleMission);
   const openTopicPanel = useAtomValue(isShowEditTopicMission);
-  const openAbortCargoMission = useAtomValue(isShowEditAbortMissionWhenHasCargoMission);
+  const openAbortCargoMission = useAtomValue(
+    isShowEditAbortMissionWhenHasCargoMission,
+  );
   const openTagPanel = useAtomValue(isShowEditMissionTag);
   const openChargeStylePanel = useAtomValue(isShowEditChargeStationPosition);
   const openCargoFormatPanel = useAtomValue(isShowEditCustomCargoFormat);
@@ -433,7 +509,7 @@ const ToolComponents: FC<{
   return dataList.map((form) => {
     const { key: formKey } = form;
 
-    if (formKey === 'location_panel' && showEditLocationPanel) {
+    if (formKey === "location_panel" && showEditLocationPanel) {
       return (
         <SortableWrap
           sortableId={formKey}
@@ -442,7 +518,7 @@ const ToolComponents: FC<{
         ></SortableWrap>
       );
     }
-    if (formKey === 'location_list' && showAllLocationListTable) {
+    if (formKey === "location_list" && showAllLocationListTable) {
       return (
         <SortableWrap
           sortableId={formKey}
@@ -451,7 +527,7 @@ const ToolComponents: FC<{
         ></SortableWrap>
       );
     }
-    if (formKey === 'quick_location_panel' && showQuickEditLocationPanel) {
+    if (formKey === "quick_location_panel" && showQuickEditLocationPanel) {
       return (
         <SortableWrap
           sortableId={formKey}
@@ -460,17 +536,7 @@ const ToolComponents: FC<{
         ></SortableWrap>
       );
     }
-    if (formKey === 'road_panel' && openEditRoadPanel) {
-      return (
-        <SortableWrap
-          sortableId={formKey}
-          key={formKey}
-          locationPanelForm={locationPanelForm}
-          roadPanelForm={roadPanelForm}
-        ></SortableWrap>
-      );
-    }
-    if (formKey === 'show_roads_table' && showRoadList) {
+    if (formKey === "road_panel" && openEditRoadPanel) {
       return (
         <SortableWrap
           sortableId={formKey}
@@ -480,7 +546,7 @@ const ToolComponents: FC<{
         ></SortableWrap>
       );
     }
-    if (formKey === 'quick_road_panel' && showQuickEditRoad) {
+    if (formKey === "show_roads_table" && showRoadList) {
       return (
         <SortableWrap
           sortableId={formKey}
@@ -490,7 +556,17 @@ const ToolComponents: FC<{
         ></SortableWrap>
       );
     }
-    if (formKey === 'edit_zone' && openZonePanel) {
+    if (formKey === "quick_road_panel" && showQuickEditRoad) {
+      return (
+        <SortableWrap
+          sortableId={formKey}
+          key={formKey}
+          locationPanelForm={locationPanelForm}
+          roadPanelForm={roadPanelForm}
+        ></SortableWrap>
+      );
+    }
+    if (formKey === "edit_zone" && openZonePanel) {
       return (
         <SortableWrap
           sortableId={formKey}
@@ -499,66 +575,66 @@ const ToolComponents: FC<{
         ></SortableWrap>
       );
     }
-    if (formKey === 'show_zone_table' && openZoneTable) {
+    if (formKey === "show_zone_table" && openZoneTable) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
-    if (formKey === 'edit_shelve' && openEditShelf) {
-      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
-    }
-
-    if (formKey === 'edit_shelve_type' && openEditShelfCategory) {
+    if (formKey === "edit_shelve" && openEditShelf) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
 
-    if (formKey === 'edit_yaw' && openEditShelfYaw) {
+    if (formKey === "edit_shelve_type" && openEditShelfCategory) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
 
-    if (formKey === 'edit_register_amr' && openRegisterAmrPanel) {
-      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
-    }
-    if (formKey === 'edit_amr_config' && openAMRConfigPanel) {
+    if (formKey === "edit_yaw" && openEditShelfYaw) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
 
-    if (formKey === 'edit_mission' && openMissionPanel) {
+    if (formKey === "edit_register_amr" && openRegisterAmrPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "edit_amr_config" && openAMRConfigPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
 
-    if (formKey === 'charge_mission' && openChargePanel) {
+    if (formKey === "edit_mission" && openMissionPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
-    if (formKey === 'cycle_mission' && openCyclePanel) {
+
+    if (formKey === "charge_mission" && openChargePanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
-    if (formKey === 'before_left_charge_station_task' && openBLCSPanel) {
+    if (formKey === "cycle_mission" && openCyclePanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
-    if (formKey === 'schedule_mission' && openSchedulePanel) {
+    if (formKey === "before_left_charge_station_task" && openBLCSPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
-    if (formKey === 'idle_mission' && openIdlePanel) {
+    if (formKey === "schedule_mission" && openSchedulePanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
-    if (formKey === 'topic_mission' && openTopicPanel) {
+    if (formKey === "idle_mission" && openIdlePanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
-    if (formKey === 'abort_cargo_mission' && openAbortCargoMission) {
+    if (formKey === "topic_mission" && openTopicPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
-    if (formKey === 'edit_tag' && openTagPanel) {
+    if (formKey === "abort_cargo_mission" && openAbortCargoMission) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
-    if (formKey === 'edit_icon_style' && openChargeStylePanel) {
+    if (formKey === "edit_tag" && openTagPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
-    if (formKey === 'custom_cargo_info' && openCargoFormatPanel) {
+    if (formKey === "edit_icon_style" && openChargeStylePanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
-    if (formKey === 'warning_id' && openWarningPanel) {
+    if (formKey === "custom_cargo_info" && openCargoFormatPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
-    if (formKey === 'backup_file' && openBackupPanel) {
+    if (formKey === "warning_id" && openWarningPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "backup_file" && openBackupPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     return [];

@@ -1,1 +1,1 @@
-export { default as ShelfCategoryPanel } from './ShelfCategoryPanel';
+export { default as ShelfCategoryPanel } from "./ShelfCategoryPanel";

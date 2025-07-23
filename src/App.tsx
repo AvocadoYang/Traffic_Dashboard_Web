@@ -1,17 +1,17 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Routes, Route, HashRouter, BrowserRouter } from 'react-router-dom';
-import { Main, LogIn, Setting, Register, Simulate } from './pages';
-import MissionAnalysis from './pages/MissionAnalysis/MissionAnalysis';
-import CargoHistory from './pages/CargoHistory/CargoHistory';
-import AmrDetail from './pages/AmrDetail/AmrDetail';
-import AmrList from './pages/AmrDetail/AmrList';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Routes, Route, HashRouter, BrowserRouter } from "react-router-dom";
+import { Main, LogIn, Setting, Register, Simulate } from "./pages";
+import MissionAnalysis from "./pages/MissionAnalysis/MissionAnalysis";
+import CargoHistory from "./pages/CargoHistory/CargoHistory";
+import AmrDetail from "./pages/AmrDetail/AmrDetail";
+import AmrList from "./pages/AmrDetail/AmrList";
 
 const client = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false
-    }
-  }
+      refetchOnWindowFocus: false,
+    },
+  },
 });
 
 function App() {

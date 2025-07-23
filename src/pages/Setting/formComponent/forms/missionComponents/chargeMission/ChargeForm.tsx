@@ -1,13 +1,13 @@
-import { Form, FormInstance, InputNumber, Select } from 'antd';
-import { FC, useEffect, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
-import { array, boolean, number, object, string } from 'yup';
-import client from '@/api/axiosClient';
-import useAllMissionTitles from '@/api/useMissionTitle';
-import useName from '@/api/useAmrName';
-import GlobalLoading from '@/utils/GlobalLoading';
-import styled from 'styled-components';
+import { Form, FormInstance, InputNumber, Select } from "antd";
+import { FC, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
+import { array, boolean, number, object, string } from "yup";
+import client from "@/api/axiosClient";
+import useAllMissionTitles from "@/api/useMissionTitle";
+import useName from "@/api/useAmrName";
+import GlobalLoading from "@/utils/GlobalLoading";
+import styled from "styled-components";
 
 // Styled container for the form
 const FormContainer = styled.div`
@@ -50,7 +50,9 @@ const StyledForm = styled(Form)`
 `;
 
 const getSelectedCharge = async (id: string) => {
-  const { data } = await client.get<unknown>(`api/setting/selected-charge?id=${id}`);
+  const { data } = await client.get<unknown>(
+    `api/setting/selected-charge?id=${id}`,
+  );
 
   const schema = () =>
     object({
@@ -63,7 +65,7 @@ const getSelectedCharge = async (id: string) => {
       passiveWaitTime: number().optional().nullable(),
       availableGetTaskThreshold: number().optional().nullable(),
       autoTimeZone: string().optional().nullable(),
-      missionTitleId: string().optional().nullable()
+      missionTitleId: string().optional().nullable(),
     }).required();
 
   return schema().validate(data, { stripUnknown: true });
@@ -71,28 +73,33 @@ const getSelectedCharge = async (id: string) => {
 
 const ChargeForm: FC<{ form: FormInstance<unknown>; selectKey: string }> = ({
   form,
-  selectKey
+  selectKey,
 }) => {
   const { data: selectedCharge, isLoading } = useQuery(
-    ['select-charge', selectKey],
+    ["select-charge", selectKey],
     () => getSelectedCharge(selectKey),
     {
-      enabled: !!selectKey
-    }
+      enabled: !!selectKey,
+    },
   );
   const { data: missionTitle } = useAllMissionTitles();
   const { t } = useTranslation();
   const { data: name } = useName();
 
-  const AmrOption: { value: null | string; label: string }[] | undefined = useMemo(() => {
-    return name?.amrs.map((m) => ({
-      label: `${m.amrId} ${m.isReal ? '' : t('simulate')}`,
-      value: m.amrId
-    }));
-  }, [name, t]);
+  const AmrOption: { value: null | string; label: string }[] | undefined =
+    useMemo(() => {
+      return name?.amrs.map((m) => ({
+        label: `${m.amrId} ${m.isReal ? "" : t("simulate")}`,
+        value: m.amrId,
+      }));
+    }, [name, t]);
 
   const taskOption = missionTitle
-    ?.filter((g) => g.MissionTitleBridgeCategory.some((s) => s.Category?.tagName === 'charge'))
+    ?.filter((g) =>
+      g.MissionTitleBridgeCategory.some(
+        (s) => s.Category?.tagName === "charge",
+      ),
+    )
     .map((v) => {
       return { value: v.id, label: v.name };
     });
@@ -100,67 +107,84 @@ const ChargeForm: FC<{ form: FormInstance<unknown>; selectKey: string }> = ({
   useEffect(() => {
     if (!selectKey || !selectedCharge) return;
 
-    form.setFieldValue('amrId', selectedCharge?.amrIds);
-    form.setFieldValue('taskId', selectedCharge.missionTitleId);
-    form.setFieldValue('aggressiveThreshold', selectedCharge?.aggressiveThreshold);
-    form.setFieldValue('fullThreshold', selectedCharge?.fullThreshold);
-    form.setFieldValue('availableGetTaskThreshold', selectedCharge?.availableGetTaskThreshold);
+    form.setFieldValue("amrId", selectedCharge?.amrIds);
+    form.setFieldValue("taskId", selectedCharge.missionTitleId);
+    form.setFieldValue(
+      "aggressiveThreshold",
+      selectedCharge?.aggressiveThreshold,
+    );
+    form.setFieldValue("fullThreshold", selectedCharge?.fullThreshold);
+    form.setFieldValue(
+      "availableGetTaskThreshold",
+      selectedCharge?.availableGetTaskThreshold,
+    );
   }, [form, selectKey, selectedCharge]);
 
   if (isLoading) return <GlobalLoading />;
 
   return (
     <FormContainer>
-      <StyledForm form={form} labelCol={{ span: 6 }} wrapperCol={{ span: 18 }} initialValues={{}}>
+      <StyledForm
+        form={form}
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+        initialValues={{}}
+      >
         <Form.Item
-          label={t('charge.amrId')}
+          label={t("charge.amrId")}
           name="amrId"
-          rules={[{ required: true, message: t('charge.amrId_required') }]}
+          rules={[{ required: true, message: t("charge.amrId_required") }]}
         >
           <Select
             mode="multiple"
             options={AmrOption}
-            placeholder={t('charge.select_amr')}
+            placeholder={t("charge.select_amr")}
             showSearch
             optionFilterProp="label"
           />
         </Form.Item>
 
         <Form.Item
-          label={t('charge.name')}
+          label={t("charge.name")}
           name="taskId"
-          rules={[{ required: true, message: t('charge.task_required') }]}
+          rules={[{ required: true, message: t("charge.task_required") }]}
         >
           <Select
             options={taskOption}
-            placeholder={t('charge.select_task')}
+            placeholder={t("charge.select_task")}
             showSearch
             optionFilterProp="label"
           />
         </Form.Item>
 
         <Form.Item
-          label={t('charge.aggressive')}
+          label={t("charge.aggressive")}
           name="aggressiveThreshold"
-          rules={[{ type: 'number', max: 70, message: t('charge.aggressive_max') }]}
+          rules={[
+            { type: "number", max: 70, message: t("charge.aggressive_max") },
+          ]}
         >
-          <InputNumber min={0} max={70} style={{ width: '100%' }} />
+          <InputNumber min={0} max={70} style={{ width: "100%" }} />
         </Form.Item>
 
         <Form.Item
-          label={t('charge.full_rate')}
+          label={t("charge.full_rate")}
           name="fullThreshold"
-          rules={[{ type: 'number', min: 70, message: t('charge.full_rate_min') }]}
+          rules={[
+            { type: "number", min: 70, message: t("charge.full_rate_min") },
+          ]}
         >
-          <InputNumber min={70} max={100} style={{ width: '100%' }} />
+          <InputNumber min={70} max={100} style={{ width: "100%" }} />
         </Form.Item>
 
         <Form.Item
-          label={t('charge.available_get_task')}
+          label={t("charge.available_get_task")}
           name="availableGetTaskThreshold"
-          rules={[{ type: 'number', min: 11, message: t('charge.available_min') }]}
+          rules={[
+            { type: "number", min: 11, message: t("charge.available_min") },
+          ]}
         >
-          <InputNumber min={11} max={100} style={{ width: '100%' }} />
+          <InputNumber min={11} max={100} style={{ width: "100%" }} />
         </Form.Item>
       </StyledForm>
     </FormContainer>

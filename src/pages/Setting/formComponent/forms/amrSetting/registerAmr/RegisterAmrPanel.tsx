@@ -1,9 +1,9 @@
-import FormHr from '@/pages/Setting/utils/FormHr';
-import { Flex } from 'antd';
-import { FC, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import RegisterForm from './RegisterForm';
-import RegisterTable from './RegisterTable';
+import FormHr from "@/pages/Setting/utils/FormHr";
+import { Flex } from "antd";
+import { FC, useState } from "react";
+import { useTranslation } from "react-i18next";
+import RegisterForm from "./RegisterForm";
+import RegisterTable from "./RegisterTable";
 
 type When_Finish = {
   robot_type: string;
@@ -13,8 +13,10 @@ type When_Finish = {
 
 const RegisterAmrPanel: FC<{
   sortableId: string;
-  attributes: import('@dnd-kit/core').DraggableAttributes;
-  listeners: import('@dnd-kit/core/dist/hooks/utilities').SyntheticListenerMap | undefined;
+  attributes: import("@dnd-kit/core").DraggableAttributes;
+  listeners:
+    | import("@dnd-kit/core/dist/hooks/utilities").SyntheticListenerMap
+    | undefined;
 }> = ({ attributes, listeners }) => {
   const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
@@ -24,13 +26,13 @@ const RegisterAmrPanel: FC<{
     editData,
     setEditData,
     isEdit,
-    setIsEdit
+    setIsEdit,
   };
   return (
     <>
       <div>
         <h3 className="drop_button_style" {...listeners} {...attributes}>
-          {t('setting_amr.register_amr.title_name')}
+          {t("setting_amr.register_amr.title_name")}
         </h3>
         <FormHr />
 

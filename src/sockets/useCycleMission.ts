@@ -1,8 +1,22 @@
-import { distinctUntilChanged, filter, from, fromEventPattern, share, switchMap } from 'rxjs';
-import { isDefined } from 'ts-extras';
-import { io } from './socketConnect';
-import { useState, useEffect } from 'react';
-import { object, ValidationError, boolean, array, string, InferType } from 'yup';
+import {
+  distinctUntilChanged,
+  filter,
+  from,
+  fromEventPattern,
+  share,
+  switchMap,
+} from "rxjs";
+import { isDefined } from "ts-extras";
+import { io } from "./socketConnect";
+import { useState, useEffect } from "react";
+import {
+  object,
+  ValidationError,
+  boolean,
+  array,
+  string,
+  InferType,
+} from "yup";
 
 const schema = array(
   object({
@@ -10,30 +24,32 @@ const schema = array(
     missionName: string().required(),
     amrId: string().optional().nullable(),
     cycle_relate_id: string().required(),
-    mission_id: string().required()
-  }).optional()
+    mission_id: string().required(),
+  }).optional(),
 ).required();
 
 const getC$ = fromEventPattern(
   (next) => {
-    io.on('cycle-mission', next);
+    io.on("cycle-mission", next);
     return next;
   },
   (next) => {
-    io.off('cycle-mission', next);
-  }
+    io.off("cycle-mission", next);
+  },
 ).pipe(
   switchMap((msg) =>
     from(
-      schema.validate(msg, { stripUnknown: true }).catch((err: ValidationError) => {
-        console.error(err.message);
-        console.error('script mismatch: ', err.value);
-        return undefined;
-      })
-    )
+      schema
+        .validate(msg, { stripUnknown: true })
+        .catch((err: ValidationError) => {
+          console.error(err.message);
+          console.error("script mismatch: ", err.value);
+          return undefined;
+        }),
+    ),
   ),
   filter(isDefined),
-  share()
+  share(),
 );
 
 export type Cycle_Mission = InferType<typeof schema>;
@@ -43,7 +59,11 @@ export const useCycleMission = () => {
 
   useEffect(() => {
     const scriptStatus = getC$
-      .pipe(distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)))
+      .pipe(
+        distinctUntilChanged(
+          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
+        ),
+      )
       .subscribe((data) => {
         setCycleData(data);
       });

@@ -7,11 +7,11 @@ import {
   Input,
   InputNumber,
   message,
-  Radio
-} from 'antd';
-import { Dispatch, FC, memo, SetStateAction, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import useAllMapInfo from '@/api/useAllMapInfo';
+  Radio,
+} from "antd";
+import { Dispatch, FC, memo, SetStateAction, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import useAllMapInfo from "@/api/useAllMapInfo";
 import {
   FormButtonGroup,
   ImageContainer,
@@ -20,13 +20,13 @@ import {
   ShowImageText,
   StyledButton,
   StyledForm,
-  Map_Info
-} from './style';
-import './style.css';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import client from '@/api/axiosClient';
-import { ErrorResponse } from '@/utils/globalType';
-import { errorHandler } from '@/utils/utils';
+  Map_Info,
+} from "./style";
+import "./style.css";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import client from "@/api/axiosClient";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
 
 const MapViewer: FC = () => {
   const { data, refetch } = useAllMapInfo();
@@ -36,42 +36,42 @@ const MapViewer: FC = () => {
   const [selectId, setSelectId] = useState<string | null>(null);
   const deleteMutation = useMutation({
     mutationFn: (id: string) => {
-      return client.delete('api/setting/map-delete', {
-        data: { id }
+      return client.delete("api/setting/map-delete", {
+        data: { id },
       });
     },
     onSuccess: () => {
-      void messageApi.success('success');
+      void messageApi.success("success");
       refetch();
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
   const queryClient = useQueryClient();
 
   const editMutation = useMutation({
     mutationFn: (payload: FormData) => {
-      return client.patch('api/setting/map-update', payload);
+      return client.patch("api/setting/map-update", payload);
     },
     onSuccess: () => {
-      void messageApi.success('success');
+      void messageApi.success("success");
       setIsEdit(false);
-      queryClient.refetchQueries({ queryKey: ['map'] });
+      queryClient.refetchQueries({ queryKey: ["map"] });
       refetch();
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const handleEdit = async () => {
     const payload = {
       ...form.getFieldsValue(),
-      id: selectId
+      id: selectId,
     };
 
     editMutation.mutate(payload);
   };
 
   const handleDelete = (id: string) => {
-    console.log('work', id);
+    console.log("work", id);
     deleteMutation.mutate(id);
   };
 
@@ -82,10 +82,10 @@ const MapViewer: FC = () => {
 
     if (!target) return;
 
-    form.setFieldValue('fileName', target.fileName.split('.')[0]);
-    form.setFieldValue('isUsing', target.isUsing);
-    form.setFieldValue('mapOriginX', target.mapOriginX);
-    form.setFieldValue('mapOriginY', target.mapOriginY);
+    form.setFieldValue("fileName", target.fileName.split(".")[0]);
+    form.setFieldValue("isUsing", target.isUsing);
+    form.setFieldValue("mapOriginX", target.mapOriginX);
+    form.setFieldValue("mapOriginY", target.mapOriginY);
   }, [form, selectId, data]);
   if (!data || data.length === 0) return <NoImageFound />;
   return (
@@ -95,7 +95,7 @@ const MapViewer: FC = () => {
         {data.map((v) => {
           return (
             <ShowImageContainer
-              url={`https://${location.host.split(':')[0]}:4000/static/images/${v.fileName}`}
+              url={`https://${location.host.split(":")[0]}:4000/static/images/${v.fileName}`}
               key={v.fileName}
             >
               <ShowImageText is_edit={isEdit.toString()}>
@@ -146,27 +146,34 @@ const ShowInfo: FC<{
       align="center"
       gap="16px"
       style={{
-        padding: '20px',
-        backgroundColor: '#fff',
-        borderRadius: '8px',
-        boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)'
+        padding: "20px",
+        backgroundColor: "#fff",
+        borderRadius: "8px",
+        boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
       }}
     >
-      <Flex vertical align="flex-start" gap="12px" style={{ width: '100%', maxWidth: '400px' }}>
-        <Flex gap="small" justify="space-between" style={{ width: '100%' }}>
-          <span>{t('upload.filename')}:</span>
+      <Flex
+        vertical
+        align="flex-start"
+        gap="12px"
+        style={{ width: "100%", maxWidth: "400px" }}
+      >
+        <Flex gap="small" justify="space-between" style={{ width: "100%" }}>
+          <span>{t("upload.filename")}:</span>
           <span>{info.fileName}</span>
         </Flex>
-        <Flex gap="small" justify="space-between" style={{ width: '100%' }}>
-          <span>{t('upload.status')}:</span>
-          <span>{info.isUsing ? t('upload.using') : t('upload.not_using')}</span>
+        <Flex gap="small" justify="space-between" style={{ width: "100%" }}>
+          <span>{t("upload.status")}:</span>
+          <span>
+            {info.isUsing ? t("upload.using") : t("upload.not_using")}
+          </span>
         </Flex>
-        <Flex gap="small" justify="space-between" style={{ width: '100%' }}>
-          <span>{t('upload.map_origin_x')}:</span>
+        <Flex gap="small" justify="space-between" style={{ width: "100%" }}>
+          <span>{t("upload.map_origin_x")}:</span>
           <span>{info.mapOriginX}</span>
         </Flex>
-        <Flex gap="small" justify="space-between" style={{ width: '100%' }}>
-          <span>{t('upload.map_origin_y')}:</span>
+        <Flex gap="small" justify="space-between" style={{ width: "100%" }}>
+          <span>{t("upload.map_origin_y")}:</span>
           <span>{info.mapOriginY}</span>
         </Flex>
       </Flex>
@@ -174,13 +181,13 @@ const ShowInfo: FC<{
       <Flex gap="12px">
         <Button
           style={{
-            backgroundColor: 'rgba(109, 108, 108, 0.1)',
-            color: '#7b7b7b',
-            width: '100px'
+            backgroundColor: "rgba(109, 108, 108, 0.1)",
+            color: "#7b7b7b",
+            width: "100px",
           }}
           onClick={() => handleClick(info.id)}
         >
-          {t('utils.edit')}
+          {t("utils.edit")}
         </Button>
 
         <Button
@@ -188,12 +195,12 @@ const ShowInfo: FC<{
           danger
           onClick={() => handleDelete(info.id)}
           style={{
-            backgroundColor: 'rgba(255, 0, 0, 0.8)',
-            border: 'none',
-            width: '100px'
+            backgroundColor: "rgba(255, 0, 0, 0.8)",
+            border: "none",
+            width: "100px",
           }}
         >
-          {t('utils.delete')}
+          {t("utils.delete")}
         </Button>
       </Flex>
     </Flex>
@@ -215,58 +222,58 @@ const EditOrigin: FC<{
     <>
       <StyledForm form={form} layout="inline">
         <Form.Item
-          label={t('upload.filename')}
+          label={t("upload.filename")}
           name="fileName"
           rules={[
             {
               required: true,
-              message: 'Please input a value!'
-            }
+              message: "Please input a value!",
+            },
           ]}
         >
-          <Input disabled style={{ width: '100px' }} />
+          <Input disabled style={{ width: "100px" }} />
         </Form.Item>
 
-        <Form.Item label={t('upload.status')} name="isUsing">
+        <Form.Item label={t("upload.status")} name="isUsing">
           <Radio.Group>
-            <Radio value={false}>{t('utils.no')}</Radio>
-            <Radio value>{t('utils.yes')}</Radio>
+            <Radio value={false}>{t("utils.no")}</Radio>
+            <Radio value>{t("utils.yes")}</Radio>
           </Radio.Group>
         </Form.Item>
 
         <Form.Item
-          label={t('upload.map_origin_x')}
+          label={t("upload.map_origin_x")}
           name="mapOriginX"
           rules={[
             {
               required: true,
-              message: 'Please input a value!'
-            }
+              message: "Please input a value!",
+            },
           ]}
         >
-          <InputNumber style={{ width: '100px' }} />
+          <InputNumber style={{ width: "100px" }} />
         </Form.Item>
         <Form.Item
-          label={t('upload.map_origin_y')}
+          label={t("upload.map_origin_y")}
           name="mapOriginY"
           rules={[
             {
               required: true,
-              message: 'Please input a value!'
-            }
+              message: "Please input a value!",
+            },
           ]}
         >
-          <InputNumber style={{ width: '100px' }} />
+          <InputNumber style={{ width: "100px" }} />
         </Form.Item>
         <FormButtonGroup>
           <StyledButton
             onClick={handleCancel}
-            style={{ backgroundColor: '#ffadad', color: 'white' }}
+            style={{ backgroundColor: "#ffadad", color: "white" }}
           >
-            {t('utils.cancel')}
+            {t("utils.cancel")}
           </StyledButton>
           <StyledButton onClick={handleEdit} type="primary">
-            {t('utils.submit')}
+            {t("utils.submit")}
           </StyledButton>
         </FormButtonGroup>
       </StyledForm>
@@ -279,7 +286,7 @@ const NoImageFound = () => {
   return (
     <>
       <ImageContainer url="/Ideas_Surprised_Pikachu_HD.png"></ImageContainer>
-      <ImageText>{t('change_map.no_img_found')}</ImageText>
+      <ImageText>{t("change_map.no_img_found")}</ImageText>
     </>
   );
 };
