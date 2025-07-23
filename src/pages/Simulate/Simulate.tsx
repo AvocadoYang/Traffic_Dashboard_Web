@@ -9,6 +9,7 @@ import SelectScript from "./components/SelectScript";
 import WcsPad from "./components/WCS/WcsPad";
 import Header from "../../components/Header";
 import { useIsMobile } from "../../hooks/useIsMoblie";
+import Timeline from "./components/Timeline/Timeline";
 
 const Simulate: FC = () => {
   const { isMobile } = useIsMobile();
@@ -42,6 +43,8 @@ const Simulate: FC = () => {
           {/* 左側未放置到地圖的車輛表 */}
           <IdleRobotPanel mapRef={mapRef} mapWrapRef={mapWrapRef} />
           <ZoomPad></ZoomPad>
+
+          <Timeline />
         </Layout>
       </Content>
     </Layout>

@@ -16,7 +16,7 @@ import { globalScale } from "../utils/mapStatus";
 const ZoomPadWrap = styled.div`
   position: absolute;
   z-index: 4;
-  bottom: 20px;
+  top: 6em;
   left: 50%;
   transform: translateX(-50%);
   background-color: #f5f5f5;

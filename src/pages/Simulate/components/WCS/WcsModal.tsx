@@ -86,9 +86,6 @@ const WcsModal: FC<{
       allConveyor?.map((station, _index) => ({
         locationId: station!.locationId,
         isEnable: values[`enable_${station!.locationId}`] ?? station!.isEnable,
-        isEnableNotifyMission:
-          values[`enable_notify_mission_${station!.locationId}`] ??
-          station!.isEnabledNotifyMission,
       })) ?? [];
 
     handleOk(updates);
@@ -138,29 +135,8 @@ const WcsModal: FC<{
                         <Switch />
                       </Form.Item>
 
-                      <Divider type="vertical" />
+                    
 
-                      <Form.Item
-                        label={
-                          <span>
-                            {t("sim.conveyor.active_notify_mission")}{" "}
-                            <Tooltip
-                              title={t(
-                                "sim.conveyor.active_notify_mission_desc",
-                              )}
-                            >
-                              <QuestionCircleOutlined
-                                style={{ color: "#999" }}
-                              />
-                            </Tooltip>
-                          </span>
-                        }
-                        name={`enable_notify_mission_${station.locationId}`}
-                        valuePropName="checked"
-                        initialValue={station.isEnabledNotifyMission}
-                      >
-                        <Switch />
-                      </Form.Item>
                     </Flex>
 
                     <Descriptions column={2} size="small" bordered>
