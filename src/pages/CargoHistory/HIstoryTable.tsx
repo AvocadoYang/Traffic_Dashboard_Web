@@ -76,6 +76,7 @@ export enum CargoCurrentStatus {
 
 export enum CargoAction {
   CREATED = 'CREATED',
+  TRANSFER="TRANSFER",
   LOAD = 'LOAD',
   OFFLOAD = 'OFFLOAD',
   SHIFTED = 'SHIFTED',
@@ -101,6 +102,8 @@ const HistoryTable: FC = () => {
     switch (action) {
       case CargoAction.CREATED:
         return 'blue';
+      case CargoAction.TRANSFER:
+        return 'magenta';
       case CargoAction.LOAD:
         return 'gold';
       case CargoAction.OFFLOAD:

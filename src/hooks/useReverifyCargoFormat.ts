@@ -18,5 +18,5 @@ export function useReverifyCargoFormat(refetch?: () => void) {
     onError: (e: ErrorResponse) => errorHandler(e, messageApi)
   });
 
-  return { ...mutation, contextHolder };
+  return { ...mutation, contextHolder, messageApi };
 }

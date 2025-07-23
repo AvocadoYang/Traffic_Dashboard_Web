@@ -8,7 +8,8 @@ import { IsEditPeripheralModal, IsOpenCargoEditorModal } from './jotai';
 const { Title } = Typography;
 
 const prefixLevelName = (word: string | null | undefined) => {
-  if (!word) return null;
+  if (!word) return '';
+  if(word ==='null') return '';
   const parts = word.split('-');
   parts.pop();
   return parts.join('-');
@@ -25,9 +26,11 @@ const CargoInfoAtPeripheral: FC<{ form: FormInstance<unknown> }> = ({ form }) =>
 
   useEffect(() => {
     if (!openModal || !openModal.cargo) return;
+    // console.log(openModal)
+    // console.log(prefixLevelName(openModal.name), 'asdas')
 
     form.setFieldValue('hasCargo', openModal.cargo.length > 0);
- form.setFieldValue('name', prefixLevelName(openModal.name));
+    form.setFieldValue('name', prefixLevelName(openModal.name));
     form.setFieldValue('disable', openModal.disable);
   }, []);
 

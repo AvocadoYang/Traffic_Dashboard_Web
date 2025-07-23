@@ -160,7 +160,7 @@ const schema = () =>
           customCargoMetadataId: string().nullable(),
           metadata: string().nullable()
         }).optional()
-      ).required(),
+      ).optional(),
       networkDelay: number().optional(),
       isOverdue: boolean().optional(),
       maintenanceLevel: number().optional()

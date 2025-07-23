@@ -7,7 +7,7 @@ const historySchema = array(
   object({
     id: string().required(),
     cargo_id: string().required(),
-    action: string().oneOf(['CREATED', 'LOAD', 'OFFLOAD', 'SHIFTED', 'UPDATED']).required(),
+    action: string().oneOf(['CREATED','TRANSFER', 'LOAD', 'OFFLOAD', 'SHIFTED', 'UPDATED']).required(),
     description: string().nullable(),
     actor: string().nullable(),
     timestamp: date().required()

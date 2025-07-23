@@ -29,10 +29,9 @@ const EditCargoCarrier: FC<{
     Record<number, { name: string; type: string }[]>
   >({});
   const [form] = Form.useForm();
-  const [messageApi, contextHolder] = message.useMessage();
   const [hasCargo, setHasCargo] = useState(false);
   const { isCarry, cargo } = useIsCarry(amrId);
-  const { mutate, isLoading, contextHolder: reContextHolder } = useReverifyCargoFormat();
+  const { mutate, isLoading, contextHolder: reContextHolder, messageApi } = useReverifyCargoFormat();
 
   const reVerityCargoFormat = (cargoInfoId: string) => {
     mutate(cargoInfoId);
@@ -48,7 +47,6 @@ const EditCargoCarrier: FC<{
     mutationFn: (payload: { amrId: string; hasCargo: boolean; cargo: any }) =>
       client.post('/api/amr/update-cargo-info', payload),
     onSuccess: () => {
-      messageApi.success(t('utils.success'));
       setIsModalOpen(false);
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi)
@@ -175,7 +173,7 @@ const EditCargoCarrier: FC<{
   return (
     <>
       {reContextHolder}
-      {contextHolder}
+      
       <Modal
         title={t('amr_card.update_cargo')}
         open={isModalOpen}

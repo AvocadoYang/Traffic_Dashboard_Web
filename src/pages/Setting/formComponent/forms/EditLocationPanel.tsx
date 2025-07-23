@@ -1,16 +1,16 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import { LocationType } from '@/utils/jotai';
 import './form.css';
 import { openNotificationWithIcon } from '../../utils/notification';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Form, Input, Radio, Button, FormInstance, Checkbox, message, Space } from 'antd';
+import { Form, Input, Radio, Button, FormInstance, Checkbox, message, Space, Tooltip } from 'antd';
 import { initialLocationFormValue } from './formInitValue';
 import client from '@/api/axiosClient';
 import { ErrorResponse } from '@/utils/globalType';
 import { errorHandler } from '@/utils/utils';
 import FormHr from '../../utils/FormHr';
-import { SaveOutlined } from '@ant-design/icons';
+import { MinusOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons';
 import useAllAreaTypes from '@/api/useAllAreaTypes';
 import { locationOption } from '../../utils/func';
 
@@ -73,6 +73,25 @@ const EditLocationPanel: React.FC<{
     saveLocationMutation.mutate(sanitizedPayload);
   };
 
+  useEffect(() => {
+  const handleKeyDown = (e: KeyboardEvent) => {
+    const currentId = locationPanelForm.getFieldValue('locationId') || 0;
+    if (document.activeElement?.tagName === 'INPUT') return; // ignore if focused on input
+
+    if (e.key === 'q' || e.key === 'Q') {
+      locationPanelForm.setFieldsValue({ locationId: Number(currentId) + 1 });
+    } else if (e.key === 'w' || e.key === 'W') {
+      locationPanelForm.setFieldsValue({ locationId: Math.max(1, Number(currentId) - 1) });
+    } else if (e.key === 'e' || e.key === 'E') {
+      savePose();
+    }
+  };
+
+  window.addEventListener('keydown', handleKeyDown);
+  return () => window.removeEventListener('keydown', handleKeyDown);
+}, [locationPanelForm, savePose]);
+
+
   return (
     <>
       {contextHolders}
@@ -81,6 +100,12 @@ const EditLocationPanel: React.FC<{
           {t('sider_output_form_name.locationPanel')}
         </h3>
         <FormHr></FormHr>
+<Space style={{ marginBottom: 12 }}>
+  <Tooltip title="Q: Increase ID"><PlusOutlined /></Tooltip>
+  <Tooltip title="W: Decrease ID"><MinusOutlined /></Tooltip>
+  <Tooltip title="E: Save Location"><SaveOutlined /></Tooltip>
+</Space>
+
         <Form
           layout="vertical"
           initialValues={initialLocationFormValue}

@@ -9,6 +9,7 @@ import {
   Row,
   Space,
   Switch,
+  Tooltip,
   Typography
 } from 'antd';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +21,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import client from '@/api/axiosClient';
 import { errorHandler } from '@/utils/utils';
 import { ErrorResponse } from '@/utils/globalType';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 
 type RoadFormData = {
   validYawList?: string | number[];
@@ -57,14 +59,19 @@ const QuickEditRoadPanel: React.FC<{
     onError: (e: ErrorResponse) => errorHandler(e, messageApi)
   });
 
-  const handleEditing = () => {
-    setQuickRoad(!quickRoad);
-    if (quickRoad) {
+const handleEditing = () => {
+  setQuickRoad((prev) => {
+    if (prev) {
       setQuickRoadArr([]);
     }
-  };
+    return !prev;
+  });
+};
 
-  const submit = (formData: RoadFormData) => {
+  const submit = () => {
+
+    const formData = form.getFieldsValue()
+
     if (quickRoadArr.length < 2) {
       void messageApi.error(t('quick_edit_road_panel.error_min_spots'));
       return;
@@ -84,6 +91,41 @@ const QuickEditRoadPanel: React.FC<{
     form.setFieldValue('priority', 3);
   }, []);
 
+    useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      console.log(e.key)
+      if (e.key.toLowerCase() === 'a' && !e.repeat) {
+        console.log('user has press A')
+        e.preventDefault(); // prevent browser default (e.g., "Save")
+        handleEditing();
+      }
+
+      if(e.key.toLocaleLowerCase() === 's' && !e.repeat && quickRoadArr.length  > 1){
+        // console.log('user has press S')
+        submit();
+        e.preventDefault()
+      
+      }
+
+      if(e.key.toLocaleLowerCase() === 'q' && !e.repeat ){
+        //console.log('user has press Q') 
+        e.preventDefault()
+         setQuickRoadArr([])
+      }
+
+       if(e.key.toLocaleLowerCase() === 'escape' && !e.repeat ){
+        //console.log('user has press ESC') 
+        e.preventDefault()
+        setQuickRoadArr([]);
+        setQuickRoad(false)
+        }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+
   return (
     <>
       {contextHolder}
@@ -96,24 +138,40 @@ const QuickEditRoadPanel: React.FC<{
           boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
         }}
       >
-        <h3
-          className="drop_button_style"
-          {...listeners}
-          {...attributes}
-          style={{
-            margin: 0,
-            padding: '8px 0',
-            cursor: 'grab',
-            fontSize: '16px',
-            color: '#1f1f1f'
-          }}
-        >
-          {t('quick_edit_road_panel.title')}
-        </h3>
+   <Space
+  className="drop_button_style"
+  {...listeners}
+  {...attributes}
+  style={{
+    margin: 0,
+    padding: '8px 0',
+    cursor: 'grab',
+    fontSize: '16px',
+    color: '#1f1f1f',
+    width: '100%',
+    justifyContent: 'space-between',
+    display: 'flex'
+  }}
+>
+  <span>{t('quick_edit_road_panel.title')}</span>
+  <Tooltip
+    title={
+      <>
+        <div><b>A</b>: Start/Stop Editing</div>
+        <div><b>S</b>: Save</div>
+        <div><b>Q</b>: Clear Selected</div>
+        <div><b>ESC</b>: Cancel</div>
+      </>
+    }
+    placement="left"
+  >
+    <QuestionCircleOutlined style={{ color: '#8c8c8c', fontSize: 18, cursor: 'pointer' }} />
+  </Tooltip>
+</Space>
+
         <FormHr />
         <Form
           form={form}
-          onFinish={submit}
           layout="vertical"
           style={{ fontWeight: 'bold' }}
           initialValues={{ roadType: 'oneWayRoad', disabled: false, limit: false }}
@@ -221,7 +279,7 @@ const QuickEditRoadPanel: React.FC<{
           <Form.Item style={{ marginTop: '16px' }}>
             <Button
               type="primary"
-              htmlType="submit"
+              onClick={()=>submit()}
               loading={saveRoadMutation.isLoading}
               disabled={quickRoadArr.length < 2}
               style={{ width: '100%' }}
