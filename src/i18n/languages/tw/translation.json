@@ -956,6 +956,32 @@
     "stop_sim": "停止模擬",
     "reset_sim": "重新模擬",
 
+    "timeline": {
+      "name": "名稱",
+      "location": "位置",
+      "type": "類型",
+      "level": "樓層",
+      "no_set": "未設定"
+    },
+    "insert_modal": {
+      "dynamic": "取放貨任務（動態任務）",
+      "normal": "普通任務",
+      "notify": "關係級別任務",
+      "title": "插入任務事件",
+      "amr": "車輛",
+      "priority": "任務優先順序",
+      "type": "任務類型",
+      "type_dynamic": "動態任務",
+      "type_normal": "一般任務",
+      "type_notify": "通知任務",
+      "normal_mission": "選擇一般任務",
+      "notify_mission": "選擇通知地點",
+      "load_from": "載貨來源",
+      "offload_to": "卸貨地點",
+      "add_field": "新增欄位",
+      "submit": "送出"
+    },
+
     "cargo": {
       "already_exist": "已選定在列表",
       "input": {

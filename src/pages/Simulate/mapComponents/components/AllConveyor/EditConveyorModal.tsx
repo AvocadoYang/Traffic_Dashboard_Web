@@ -152,7 +152,6 @@ const EditConveyorModal: FC = () => {
               <Switch />
             </Form.Item>
 
-
             <Form.Item
               label={t("conveyor.mock_spawn_cargo")}
               name="isSpawnCargo"

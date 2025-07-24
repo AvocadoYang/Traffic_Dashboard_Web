@@ -1,4 +1,4 @@
-import { FC, memo } from "react";
+import { Dispatch, FC, memo, SetStateAction } from "react";
 import CustomTooltip from "./CustomTooltip";
 import styled from "styled-components";
 
@@ -64,13 +64,18 @@ const EachBlock: FC<{
   isHour: boolean;
   minute: number;
   index: number;
+  setSelectTime: Dispatch<SetStateAction<string | null>>;
   handleMarkerClick: (index: number) => void;
-}> = ({ time, isHour, minute, index, handleMarkerClick }) => {
+}> = ({ time, isHour, minute, index, setSelectTime, handleMarkerClick }) => {
   const zoom = 3;
+
+  const handleSelect = () => {
+    setSelectTime(time);
+  };
 
   return (
     <CustomTooltip title={time}>
-      <Block>
+      <Block onClick={handleSelect}>
         {/* {index} */}
         {isHour ? (
           <HourMarker onClick={() => handleMarkerClick(index)} zoom={zoom}>

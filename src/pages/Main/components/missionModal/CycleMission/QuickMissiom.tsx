@@ -9,13 +9,8 @@ import { useMutation } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { errorHandler } from "@/utils/utils";
 import { ErrorResponse } from "@/utils/globalType";
+import { MissionPriority } from "@/types/mission";
 
-enum MissionPriority {
-  TRIVIAL, //沒差最後再做
-  NORMAL, //普通
-  PIVOTAL, //特別優先
-  CRITICAL, // 緊急
-}
 type AssignPayload = {
   missionType: "normal" | "load" | "offload";
   columnName: string;

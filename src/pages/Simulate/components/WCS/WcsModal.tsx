@@ -134,9 +134,6 @@ const WcsModal: FC<{
                       >
                         <Switch />
                       </Form.Item>
-
-                    
-
                     </Flex>
 
                     <Descriptions column={2} size="small" bordered>

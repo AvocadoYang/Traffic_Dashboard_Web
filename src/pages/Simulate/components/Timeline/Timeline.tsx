@@ -70,6 +70,7 @@ const Timeline: FC = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const timelineRef = useRef<HTMLDivElement>(null);
+  const [selectTime, setSelectTime] = useState<string | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -130,6 +131,7 @@ const Timeline: FC = () => {
             isHour={isHour}
             minute={minute}
             index={index}
+            setSelectTime={setSelectTime}
             handleMarkerClick={handleMarkerClick}
           />
         ))}
@@ -148,6 +150,7 @@ const Timeline: FC = () => {
 
       <InsertModal
         isOpen={isModalOpen}
+        selectTime={selectTime}
         setIsOpen={setIsModalOpen}
         handleClose={handleClose}
       />
