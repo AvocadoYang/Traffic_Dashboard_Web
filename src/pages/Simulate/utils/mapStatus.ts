@@ -5,3 +5,5 @@ export const globalScale = atom<number>(1);
 export const EditConveyorConfig = atom<{
   stationId: string;
 } | null>(null);
+
+export const TimelineHeight = atom<"mini" | "normal" | "full">("normal");

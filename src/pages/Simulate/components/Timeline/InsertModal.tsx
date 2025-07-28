@@ -1,8 +1,8 @@
 import client from "@/api/axiosClient";
 import useName from "@/api/useAmrName";
-import useMap from "@/api/useMap";
 import useAllMissionTitles from "@/api/useMissionTitle";
 import usePeripheralName from "@/api/usePeripheralName";
+import { Mission_Schedule } from "@/sockets/useTimelineScheduleSocket";
 import { MissionPriority } from "@/types/mission";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
@@ -20,7 +20,14 @@ import {
   Select,
   Space,
 } from "antd";
-import { Dispatch, FC, SetStateAction, useMemo, useState } from "react";
+import {
+  Dispatch,
+  FC,
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 
@@ -34,16 +41,16 @@ type Mission_Type = "DYNAMIC" | "NORMAL" | "NOTIFY";
 
 const InsertModal: FC<{
   isOpen: boolean;
+  isEdit: boolean;
   selectTime: string | null;
-  setIsOpen: Dispatch<SetStateAction<boolean>>;
   handleClose: () => void;
-}> = ({ isOpen, selectTime, setIsOpen, handleClose }) => {
+  editTask: Mission_Schedule | null;
+}> = ({ isOpen, isEdit, editTask, selectTime, handleClose }) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const { data: name } = useName();
   const [missionType, setMissionType] = useState<Mission_Type>("DYNAMIC");
   const { data: missionTitle } = useAllMissionTitles();
-  const mapData = useMap();
   const { data: peripheralName } = usePeripheralName();
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -98,6 +105,26 @@ const InsertModal: FC<{
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
+  const editMutation = useMutation({
+    mutationFn: (payload) => {
+      return client.post("api/simulate/edit-timeline-mission", payload);
+    },
+    onSuccess: () => {
+      void messageApi.success("success");
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: (payload: { id: string; time: string }) => {
+      return client.post("api/simulate/remove-timeline-mission", payload);
+    },
+    onSuccess: () => {
+      void messageApi.success("success");
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
   const handleChangeMissionType = (type: Mission_Type) => {
     setMissionType(type);
     form.setFieldsValue({
@@ -109,9 +136,61 @@ const InsertModal: FC<{
 
   const save = () => {
     const data = form.getFieldsValue();
-    saveMutation.mutate({ ...data, timestamp: selectTime });
-    console.log(data);
+
+    if (isEdit) {
+      if (!selectTime) return;
+
+      editMutation.mutate({
+        ...data,
+        timestamp: selectTime,
+        id: editTask?.id,
+      });
+    } else {
+      saveMutation.mutate({
+        ...data,
+        timestamp: selectTime,
+      });
+    }
+
+    handleClose();
   };
+
+  const removeSchedule = () => {
+    if (!editTask) {
+      messageApi.error("mission id not found");
+      return;
+    }
+
+    removeMutation.mutate({ id: editTask?.id, time: editTask?.time });
+     handleClose();
+  };
+
+  useEffect(() => {
+    if (!isEdit || !editTask) return;
+
+    const {
+      type,
+      amrId,
+      priority,
+      dynamicMission,
+      normalMissionId,
+      notifyMissionSourcePointName,
+    } = editTask;
+
+    form.setFieldsValue({
+      type,
+      amrId,
+      priority,
+      dynamic: dynamicMission?.map((d) => ({
+        loadFrom: d.loadFrom,
+        offloadTo: d.offloadTo,
+      })),
+      normal: normalMissionId || null,
+      notify: notifyMissionSourcePointName || null,
+    });
+
+    setMissionType(type as Mission_Type);
+  }, [editTask, isEdit, form]);
 
   return (
     <>
@@ -258,11 +337,23 @@ const InsertModal: FC<{
                 []
               )}
 
-              <Form.Item>
-                <Button onClick={save} type="primary">
-                  {t("utils.submit")}
-                </Button>
-              </Form.Item>
+              <Flex gap="middle">
+                <Form.Item>
+                  <Button onClick={save} type="primary">
+                    {t("utils.submit")}
+                  </Button>
+                </Form.Item>
+
+                {isEdit ? (
+                  <Form.Item>
+                    <Button danger onClick={removeSchedule} type="default">
+                      {t("utils.delete")}
+                    </Button>
+                  </Form.Item>
+                ) : (
+                  []
+                )}
+              </Flex>
             </Form>
           </Wrapper>
         </Modal>

@@ -14,6 +14,7 @@ import { MissionPriority } from "@/types/mission";
 
 const schema = array(
   object({
+    id: string().required(),
     time: string().required(),
     priority: number().required(),
     amrId: string().required(),
@@ -57,6 +58,7 @@ const getC$ = fromEventPattern(
 );
 
 export type Mission_Schedule = {
+  id: string;
   time: string; // e.g 15:10
   priority: MissionPriority;
   amrId: string;

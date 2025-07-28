@@ -10,6 +10,7 @@ import WcsPad from "./components/WCS/WcsPad";
 import Header from "../../components/Header";
 import { useIsMobile } from "../../hooks/useIsMoblie";
 import Timeline from "./components/Timeline/Timeline";
+import SwitchPanelHeightBtn from "./components/Timeline/SwitchPanelHeightBtn";
 
 const Simulate: FC = () => {
   const { isMobile } = useIsMobile();
@@ -39,6 +40,8 @@ const Simulate: FC = () => {
           {/* 左上圓形 切換腳本  */}
           <SelectScript />
           <WcsPad />
+
+          <SwitchPanelHeightBtn />
 
           {/* 左側未放置到地圖的車輛表 */}
           <IdleRobotPanel mapRef={mapRef} mapWrapRef={mapWrapRef} />
