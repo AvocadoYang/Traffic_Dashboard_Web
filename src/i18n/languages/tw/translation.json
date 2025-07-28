@@ -961,7 +961,8 @@
       "location": "位置",
       "type": "類型",
       "level": "樓層",
-      "no_set": "未設定"
+      "no_set": "未設定",
+      "change_timeline_height": "改變時間軸大小"
     },
     "insert_modal": {
       "dynamic": "取放貨任務（動態任務）",

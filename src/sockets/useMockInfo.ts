@@ -29,7 +29,7 @@ const schema = object({
   ).optional(),
   isSimulate: boolean().required(),
   scriptName: string().required(),
-  duration: number().required(),
+  scale: number().required(),
   result: string().required(),
 }).optional();
 

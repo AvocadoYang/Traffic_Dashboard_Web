@@ -16,7 +16,7 @@ export type PeripheralTypes =
   | "GENERAL_STATION"
   | "STANDBY_LOCATION"
   | "OUTPUT_STATION"
-  | "CARGO_AREA"
+  | "STORAGE"
   | "FORKLIFT_LOAD_STATION"
   | "CONVEYOR";
 
@@ -39,7 +39,6 @@ export type Cargo = {
 
 export type Mock_Conveyor_Config = {
   isEnable: boolean;
-  isEnabledNotifyMission: boolean;
   isSpawnCargo: boolean;
   spawnTimeMs: number;
   activeShift: boolean;

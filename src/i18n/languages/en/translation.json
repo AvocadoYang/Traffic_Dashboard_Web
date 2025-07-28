@@ -960,7 +960,8 @@
       "location": "Location",
       "type": "Type",
       "level": "Level",
-      "no_set": "Not set"
+      "no_set": "Not set",
+      "change_timeline_height": "Change timeline height"
     },
     "insert_modal": {
       "dynamic": "Pick up and release mission (dynamic mission)",

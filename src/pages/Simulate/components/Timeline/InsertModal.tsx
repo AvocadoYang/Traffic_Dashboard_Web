@@ -47,15 +47,17 @@ const InsertModal: FC<{
   const { data: peripheralName } = usePeripheralName();
   const [messageApi, contextHolder] = message.useMessage();
 
-  const peripheralOption = peripheralName?.map((v) => ({
-    label: `
+  const peripheralOption = peripheralName
+    ?.filter((v) => v.name)
+    .map((v) => ({
+      label: `
     ${t("sim.timeline.name")}:${v.name ? v.name : t("sim.timeline.no_set")} 
     ${t("sim.timeline.location")}:${v.locationId} 
     ${t("sim.timeline.type")}:${v.type} 
     ${t("sim.timeline.level")}:${v.level !== null && v.level !== undefined ? v.level + 1 : t("sim.timeline.no_set")}
     `,
-    value: v.peripheralNameId,
-  }));
+      value: v.peripheralNameId,
+    }));
 
   const AmrOption: { value: null | string; label: string }[] | undefined =
     useMemo(() => {

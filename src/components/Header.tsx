@@ -27,6 +27,7 @@ import StartSimModal from "@/pages/Main/components/simulateModal/StartSimModal";
 import SimulationResultsModal from "@/pages/Main/components/simulateModal/SimulationResultsModal";
 import { useMockInfo } from "@/sockets/useMockInfo";
 import styled from "styled-components";
+import { useTimelineSocket } from "@/sockets/useTimelineSocket";
 const { Header: AntdHeader } = Layout;
 
 const RemainText = styled.span`
@@ -60,6 +61,7 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
   const [hintAmrId, setHintAmrId] = useAtom(AmrFilterCarCard);
   //點擊地圖AMR時篩選卡片
   const script = useMockInfo();
+  const timeline = useTimelineSocket();
   const { refetch: amrNameRefetch } = useName();
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -281,7 +283,7 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
               {script?.isSimulate ? (
                 <Flex align="center">
                   <RemainText>{t("sim.start_sim_modal.remainTime")}</RemainText>
-                  <Timer>{formatDuration(script.duration)}</Timer>
+                  <Timer>{timeline}</Timer>
                 </Flex>
               ) : null}
 

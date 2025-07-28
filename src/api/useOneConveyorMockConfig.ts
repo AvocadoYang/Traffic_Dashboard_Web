@@ -13,7 +13,6 @@ const getData = async (locationId: string) => {
   const schema = () =>
     object({
       locationId: string().required(),
-      isEnabledNotifyMission: boolean().required(),
       isEnable: boolean().required(),
       isSpawnCargo: boolean().required(),
       spawnTimeMs: number().required(),

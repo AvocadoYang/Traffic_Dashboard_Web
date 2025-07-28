@@ -11,7 +11,6 @@ const getData = async () => {
     array(
       object({
         locationId: string().required(),
-        isEnabledNotifyMission: boolean().required(),
         isEnable: boolean().required(),
         isSpawnCargo: boolean().required(),
         spawnTimeMs: number().required(),

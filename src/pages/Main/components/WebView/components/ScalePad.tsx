@@ -162,6 +162,9 @@ const ScalePad = () => {
     if (script?.isSimulate === false) {
       setScale(1);
     }
+
+    setScale(script?.scale || 1);
+
     return;
   }, [script]);
 
