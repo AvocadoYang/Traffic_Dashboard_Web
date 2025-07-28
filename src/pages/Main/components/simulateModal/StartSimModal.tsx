@@ -7,6 +7,7 @@ import {
   Space,
   Switch,
   Tag,
+  TimePicker,
   Typography,
 } from "antd";
 import { Dispatch, FC, SetStateAction, useState } from "react";
@@ -19,18 +20,29 @@ import {
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { useMockInfo } from "@/sockets/useMockInfo";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 
+dayjs.extend(customParseFormat);
 const { Title, Text } = Typography;
 
 const StartSimModal: FC<{
   isSimulateOpen: boolean;
   setIsSimulateOpen: Dispatch<SetStateAction<boolean>>;
-  handleSim: (duration: number, activeStationTask: boolean) => void;
+  handleSim: (
+    timeRange: [dayjs.Dayjs, dayjs.Dayjs],
+    activeStationTask: boolean,
+  ) => void;
   canSim: boolean;
 }> = ({ isSimulateOpen, setIsSimulateOpen, handleSim, canSim }) => {
   const { t } = useTranslation();
   const script = useMockInfo();
-  const [min, setMin] = useState(10);
+  const startTime = dayjs("08:00", "HH:mm");
+  const endTime = dayjs("17:00", "HH:mm");
+  const [timeRange, setTimeRange] = useState<[dayjs.Dayjs, dayjs.Dayjs]>([
+    startTime,
+    endTime,
+  ]);
   const [isActiveStation, setIsActiveStation] = useState(true);
 
   return (
@@ -108,11 +120,13 @@ const StartSimModal: FC<{
         <Text strong style={{ display: "block", marginBottom: "8px" }}>
           {t("sim.start_sim_modal.duration")}
         </Text>
-        <InputNumber
-          onChange={(v) => setMin(v as number)}
-          min={1}
-          defaultValue={10}
-          addonAfter={t("utils.minutes")}
+        <TimePicker.RangePicker
+          value={timeRange}
+          onChange={(values) => {
+            if (values) setTimeRange(values as [dayjs.Dayjs, dayjs.Dayjs]);
+          }}
+          needConfirm={false}
+          format="HH:mm"
         />
       </div>
 
@@ -132,10 +146,10 @@ const StartSimModal: FC<{
 
       <Space style={{ display: "flex", justifyContent: "center" }}>
         <Button
-          disabled={!canSim && min !== 0}
+          disabled={!canSim}
           type="primary"
           icon={<CheckCircleOutlined />}
-          onClick={() => handleSim(min, isActiveStation)}
+          onClick={() => handleSim(timeRange, isActiveStation)}
           style={{
             background: canSim ? "#1d39c4" : "#fff",
             borderColor: "#1d39c4",

@@ -28,6 +28,7 @@ import SimulationResultsModal from "@/pages/Main/components/simulateModal/Simula
 import { useMockInfo } from "@/sockets/useMockInfo";
 import styled from "styled-components";
 import { useTimelineSocket } from "@/sockets/useTimelineSocket";
+import dayjs from "dayjs";
 const { Header: AntdHeader } = Layout;
 
 const RemainText = styled.span`
@@ -68,7 +69,8 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
   const simMutation = useMutation({
     mutationFn: (data: {
       isSimulate: boolean;
-      duration: number;
+      startTime: string;
+      endTime: string;
       activeStationTask: boolean;
     }) => {
       return client.post("api/simulate/simulate", data);
@@ -88,15 +90,28 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
-  const handleSim = (duration: number, activeStationTask: boolean) => {
+  const handleSim = (
+    timeRange: [dayjs.Dayjs, dayjs.Dayjs],
+    activeStationTask: boolean,
+  ) => {
     localStorage.setItem("seem-mock-result", "false");
-    simMutation.mutate({ duration, isSimulate: true, activeStationTask });
+
+    const startTime = timeRange[0].format("HH:mm");
+    const endTime = timeRange[1].format("HH:mm");
+
+    simMutation.mutate({
+      startTime,
+      endTime,
+      isSimulate: true,
+      activeStationTask,
+    });
   };
 
   const handleAbortSim = () => {
     simMutation.mutate({
       isSimulate: false,
-      duration: 0,
+      startTime: "00:00",
+      endTime: "00:00",
       activeStationTask: false,
     });
   };
@@ -282,7 +297,9 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
               </Badge> */}
               {script?.isSimulate ? (
                 <Flex align="center">
-                  <RemainText>{t("sim.start_sim_modal.remainTime")}</RemainText>
+                  <RemainText>
+                    {t("sim.start_sim_modal.current_time")}
+                  </RemainText>
                   <Timer>{timeline}</Timer>
                 </Flex>
               ) : null}
@@ -316,7 +333,15 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
                 </Tooltip>
               )}
               <Tooltip title={t("sim.results.title")}>
-                <Button onClick={() => setIsOpenResultModal(true)}>R</Button>
+                <svg
+                  width={30}
+                  onClick={() => setIsOpenResultModal(true)}
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                >
+                  <title>tablet-dashboard</title>
+                  <path d="M19,18H5V6H19M21,4H3C1.89,4 1,4.89 1,6V18A2,2 0 0,0 3,20H21A2,2 0 0,0 23,18V6C23,4.89 22.1,4 21,4M7,8H13V13H7V8M14,8H17V10H14V8M17,11V16H14V11H17M7,14H13V16H7V14Z" />
+                </svg>
               </Tooltip>
 
               {/* {isDark ? (

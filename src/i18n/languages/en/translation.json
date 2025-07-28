@@ -1054,7 +1054,8 @@
       "cancel": "Cancel",
       "duration": "Simulation duration",
       "station_mission": "Active each station task",
-      "remainTime": "Simulation remaining time"
+      "remainTime": "Simulation remaining time",
+      "current_time": "Current Time"
     },
 
     "results": {
