@@ -46,4 +46,9 @@ const TaskBar: FC<{
   );
 };
 
-export default memo(TaskBar, (prev, next) => prev.task === next.task || prev.barMainColor === next.barMainColor);
+export default memo(
+  TaskBar,
+  (prev, next) =>
+    prev.task.time === next.task.time &&
+    prev.barMainColor === next.barMainColor,
+);

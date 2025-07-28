@@ -20,7 +20,7 @@ const TimeLayer: FC<{
     index: number;
   }[];
   setSelectTime: Dispatch<SetStateAction<string | null>>;
-  handleMarkerClick: (index: number) => void;
+  handleMarkerClick: () => void;
 }> = ({ hours, setSelectTime, handleMarkerClick }) => {
   return (
     <TimeLayerWrapper>

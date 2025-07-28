@@ -13,13 +13,16 @@ import {
   Card,
   Flex,
   Form,
+  FormInstance,
   Input,
   message,
   Modal,
   Radio,
   Select,
   Space,
+  TimePicker,
 } from "antd";
+import dayjs from "dayjs";
 import {
   Dispatch,
   FC,
@@ -30,6 +33,9 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+dayjs.extend(customParseFormat);
 
 const Wrapper = styled.div`
   max-height: 72vh;
@@ -43,7 +49,7 @@ const InsertModal: FC<{
   isOpen: boolean;
   isEdit: boolean;
   selectTime: string | null;
-  handleClose: () => void;
+  handleClose: (form: FormInstance<unknown>) => void;
   editTask: Mission_Schedule | null;
 }> = ({ isOpen, isEdit, editTask, selectTime, handleClose }) => {
   const { t } = useTranslation();
@@ -137,22 +143,24 @@ const InsertModal: FC<{
   const save = () => {
     const data = form.getFieldsValue();
 
+    const formattedTimestamp = data.timestamp?.format("HH:mm");
     if (isEdit) {
       if (!selectTime) return;
 
       editMutation.mutate({
         ...data,
-        timestamp: selectTime,
         id: editTask?.id,
+        timestamp: formattedTimestamp,
+        oldTimestamp: selectTime,
       });
     } else {
       saveMutation.mutate({
         ...data,
-        timestamp: selectTime,
+        timestamp: formattedTimestamp,
       });
     }
 
-    handleClose();
+    handleClose(form);
   };
 
   const removeSchedule = () => {
@@ -162,7 +170,7 @@ const InsertModal: FC<{
     }
 
     removeMutation.mutate({ id: editTask?.id, time: editTask?.time });
-     handleClose();
+    handleClose(form);
   };
 
   useEffect(() => {
@@ -178,6 +186,7 @@ const InsertModal: FC<{
     } = editTask;
 
     form.setFieldsValue({
+      timestamp: dayjs(selectTime, "HH:mm"),
       type,
       amrId,
       priority,
@@ -192,11 +201,17 @@ const InsertModal: FC<{
     setMissionType(type as Mission_Type);
   }, [editTask, isEdit, form]);
 
+  useEffect(() => {
+    if (isEdit) return;
+
+    form.setFieldValue("timestamp", dayjs(selectTime, "HH:mm"));
+  }, [selectTime, isEdit, form]);
+
   return (
     <>
       {contextHolder}
       {isOpen ? (
-        <Modal open={isOpen} onCancel={handleClose} footer={[]}>
+        <Modal open={isOpen} onCancel={() => handleClose(form)} footer={[]}>
           <Wrapper>
             <h1>{t("sim.insert_modal.title")}</h1>
 
@@ -206,8 +221,17 @@ const InsertModal: FC<{
               initialValues={{
                 type: "DYNAMIC",
                 priority: 1,
+                timestamp: dayjs(selectTime, "HH:mm"),
               }}
             >
+              <Form.Item
+                label={t("sim.insert_modal.time")}
+                name="timestamp"
+                rules={[{ required: true, message: "Please select a time" }]}
+              >
+                <TimePicker needConfirm={false} format="HH:mm" />
+              </Form.Item>
+
               <Form.Item label={t("sim.insert_modal.amr")} name="amrId">
                 <Select
                   showSearch

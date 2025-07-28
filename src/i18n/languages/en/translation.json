@@ -979,6 +979,7 @@
       "load_from": "Load From",
       "offload_to": "Offload To",
       "add_field": "Add Field",
+      "time": "Time",
       "submit": "Submit"
     },
     "cargo": {

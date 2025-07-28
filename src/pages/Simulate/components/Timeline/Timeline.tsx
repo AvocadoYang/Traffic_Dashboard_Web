@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { message } from "antd";
+import { FormInstance, message } from "antd";
 import { FC, useState, useRef, useEffect, MouseEvent } from "react";
 import InsertModal from "./InsertModal";
 import {
@@ -11,6 +11,7 @@ import TaskBar from "./TaskBar";
 import { useAtomValue } from "jotai";
 import { TimelineHeight } from "../../utils/mapStatus";
 import TimeLayer from "./TimeLayer";
+import { PlusOutlined } from "@ant-design/icons";
 
 type TaskType = {
   startMinute: number;
@@ -26,7 +27,7 @@ const TimelineWrapper = styled.div<{ heightMode: string; isDragging: boolean }>`
   width: 95%;
   height: ${(props) =>
     props.heightMode === "full"
-      ? "100vh"
+      ? "90vh"
       : props.heightMode === "mini"
         ? "5em"
         : "10em"};
@@ -50,6 +51,7 @@ const TimelineWrapper = styled.div<{ heightMode: string; isDragging: boolean }>`
   box-sizing: border-box;
   position: fixed;
   user-select: ${(props) => (props.isDragging ? "none" : "auto")};
+  display: flex;
   &:hover {
     opacity: 1;
   }
@@ -61,13 +63,38 @@ const TimelineWrapper = styled.div<{ heightMode: string; isDragging: boolean }>`
 
 const TaskLayer = styled.div<{ height: number; wrapperHeight: string }>`
   position: absolute;
-  bottom: ${(props) => (props.wrapperHeight === "100vh" ? "50px" : "45px")};
+  bottom: ${(props) => (props.wrapperHeight === "90vh" ? "50px" : "45px")};
   left: 15px;
   height: ${(props) => props.height}px;
   pointer-events: none;
   z-index: 10;
   display: flex;
   flex-direction: column;
+`;
+
+const AddSchedule = styled.div<{ scrollLeft: number }>`
+  width: 2em;
+  height: 2em;
+  background-color: #f5f5f5;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  z-index: 5;
+  transition: opacity 0.3s ease-in-out;
+  opacity: 0.9;
+  position: absolute;
+  top: 10px;
+  left: ${(props) => props.scrollLeft + 15}px;
+  transition:
+    left 0.1s ease-in-out,
+    opacity 0.1s ease-in-out;
+
+  &:hover {
+    opacity: 1;
+  }
 `;
 
 const timeToMinutes = (time: string): number => {
@@ -130,6 +157,7 @@ const Timeline: FC = () => {
   const [editTask, setEditTask] = useState<null | Mission_Schedule>(null);
   const scheduleData = useTimelineScheduleSocket(); // 即時任務socket
   const heightMode = useAtomValue(TimelineHeight);
+  const [scrollLeft, setScrollLeft] = useState(0);
 
   const taskBarMainColor = (type: string) => {
     switch (type.toUpperCase()) {
@@ -152,7 +180,7 @@ const Timeline: FC = () => {
       type: mission.type,
       duration: 10,
     }));
-    console.log('change')
+    // console.log('change')
     setTasks(updatedTasks);
   }, [scheduleData]);
 
@@ -175,14 +203,15 @@ const Timeline: FC = () => {
 
   const { rowAssignments, rowCount } = assignTaskRows(tasks);
 
-  const handleMarkerClick = (minute: number) => {
+  const handleMarkerClick = () => {
     setIsModalOpen(true);
   };
 
-  const handleClose = () => {
+  const handleClose = (form: FormInstance<unknown>) => {
     setIsModalOpen(false);
     setIsEdit(false);
     setSelectTime(null);
+    form.resetFields();
   };
 
   const handleMouseDown = (event: MouseEvent<HTMLDivElement>) => {
@@ -208,6 +237,31 @@ const Timeline: FC = () => {
     setSelectTime(time);
   };
 
+  const directAddSchedule = () => {
+    setIsEdit(false);
+    setIsModalOpen(true);
+    setSelectTime("08:00");
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (timelineRef.current) {
+        setScrollLeft(timelineRef.current.scrollLeft);
+      }
+    };
+
+    const timelineElement = timelineRef.current;
+    if (timelineElement) {
+      timelineElement.addEventListener("scroll", handleScroll);
+    }
+
+    return () => {
+      if (timelineElement) {
+        timelineElement.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, []);
+
   return (
     <>
       <TimelineWrapper
@@ -219,6 +273,10 @@ const Timeline: FC = () => {
         heightMode={heightMode}
         isDragging={isDragging}
       >
+        <AddSchedule scrollLeft={scrollLeft}>
+          <PlusOutlined onClick={directAddSchedule} />
+        </AddSchedule>
+
         <TimeLayer
           hours={hours}
           setSelectTime={setSelectTime}
@@ -236,15 +294,14 @@ const Timeline: FC = () => {
             />
           ))}
         </TaskLayer>
-
-        <InsertModal
-          isOpen={isModalOpen}
-          isEdit={isEdit}
-          selectTime={selectTime}
-          handleClose={handleClose}
-          editTask={editTask}
-        />
       </TimelineWrapper>
+      <InsertModal
+        isOpen={isModalOpen}
+        isEdit={isEdit}
+        selectTime={selectTime}
+        handleClose={handleClose}
+        editTask={editTask}
+      />
     </>
   );
 };
