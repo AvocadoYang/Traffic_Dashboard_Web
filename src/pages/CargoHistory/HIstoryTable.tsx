@@ -213,7 +213,7 @@ const HistoryTable: FC = () => {
               : {
                   pageSize,
                   total: data?.total,
-                  onChange: (page) => setCurrentPage(page),
+                  onChange: (page: number) => setCurrentPage(page),
                 }
           }
           rowKey="id"

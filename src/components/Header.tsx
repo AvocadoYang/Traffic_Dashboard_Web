@@ -10,7 +10,7 @@ import {
   Tooltip,
 } from "antd";
 import "./component.css";
-import { useNavigate, useNavigation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Select } from "antd";
 import { memo, useEffect, useState } from "react";
 import { MenuOutlined } from "@ant-design/icons";
@@ -23,8 +23,7 @@ import client from "@/api/axiosClient";
 import { errorHandler } from "@/utils/utils";
 import { ErrorResponse } from "@/utils/globalType";
 import useName from "@/api/useAmrName";
-import StartSimModal from "@/pages/Main/components/simulateModal/StartSimModal";
-import SimulationResultsModal from "@/pages/Main/components/simulateModal/SimulationResultsModal";
+import StartSimModal from "@/pages/SimulateResult/StartSimModal";
 import { useMockInfo } from "@/sockets/useMockInfo";
 import styled from "styled-components";
 import { useTimelineSocket } from "@/sockets/useTimelineSocket";
@@ -55,7 +54,6 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
   const navigate = useNavigate();
   const [isDark] = useAtom(darkMode);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isOpenResultModal, setIsOpenResultModal] = useState(false);
   const [canSim, setCanSim] = useState(false);
   const [isSimulateOpen, setIsSimulateOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -123,6 +121,7 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
     `${t("page_cargo_history")}`,
     `${t("page_setting")}`,
     `${t("page_simulate")}`,
+    `${t("page_simulate_result")}`,
   ].map((name, index) => ({
     key: index + 1,
     label: name,
@@ -148,6 +147,9 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
       case "6":
         navigate("/simulate");
         break;
+      case "7":
+        navigate("/simulate-result");
+        break;
       default:
         break;
     }
@@ -163,10 +165,6 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
     }
   };
 
-  const handleCloseResult = () => {
-    setIsOpenResultModal(false);
-  };
-
   useEffect(() => {
     if (!script) return;
     const inUseAmr = script.robot?.filter(
@@ -180,27 +178,6 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
 
     setCanSim(false);
   }, [script]);
-
-  useEffect(() => {
-    const seemStatus = localStorage.getItem("seem-mock-result");
-    if (script?.result === "done") {
-      if (seemStatus === "true") return;
-      localStorage.setItem("seem-mock-result", "true");
-      setIsOpenResultModal(true);
-      return;
-    }
-
-    if (script?.result === "executing" || script?.result === "pending") {
-      localStorage.setItem("seem-mock-result", "false");
-      return;
-    }
-  }, [script]);
-  const formatDuration = (ms: number): string => {
-    const totalSeconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-  };
 
   return (
     <>
@@ -332,17 +309,6 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
                   </svg>
                 </Tooltip>
               )}
-              <Tooltip title={t("sim.results.title")}>
-                <svg
-                  width={30}
-                  onClick={() => setIsOpenResultModal(true)}
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                >
-                  <title>tablet-dashboard</title>
-                  <path d="M19,18H5V6H19M21,4H3C1.89,4 1,4.89 1,6V18A2,2 0 0,0 3,20H21A2,2 0 0,0 23,18V6C23,4.89 22.1,4 21,4M7,8H13V13H7V8M14,8H17V10H14V8M17,11V16H14V11H17M7,14H13V16H7V14Z" />
-                </svg>
-              </Tooltip>
 
               {/* {isDark ? (
                 <SunOutlined className="light-mode-icon" onClick={() => setIsDark(false)} />
@@ -378,14 +344,6 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
         handleSim={handleSim}
         setIsSimulateOpen={setIsSimulateOpen}
       />
-      {isOpenResultModal ? (
-        <SimulationResultsModal
-          visible={isOpenResultModal}
-          onClose={handleCloseResult}
-        />
-      ) : (
-        []
-      )}
 
       <Modal
         mask={false}
