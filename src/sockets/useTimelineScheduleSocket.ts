@@ -24,7 +24,9 @@ const schema = array(
     notifyMissionSourcePointName: string().optional().nullable(),
     dynamicMission: array(
       object({
+           loadFromId: string().required(),
         loadFrom: string().required(),
+        offloadToId: string().required(),
         offloadTo: string().required(),
       }),
     )
@@ -68,7 +70,9 @@ export type Mission_Schedule = {
   notifyMissionSourcePointName?: string | null;
   dynamicMission?:
     | {
+        loadFromId: string;
         loadFrom: string;
+        offloadToId: string;
         offloadTo: string;
       }[]
     | null;

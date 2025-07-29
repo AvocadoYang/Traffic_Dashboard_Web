@@ -194,8 +194,8 @@ const InsertModal: FC = () => {
       amrId,
       priority,
       dynamic: dynamicMission?.map((d) => ({
-        loadFrom: d.loadFrom,
-        offloadTo: d.offloadTo,
+        loadFrom: d.loadFromId,
+        offloadTo: d.offloadToId,
       })),
       normal: normalMissionId || null,
       notify: notifyMissionSourcePointName || null,

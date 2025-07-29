@@ -14,7 +14,7 @@ import {
 } from "antd";
 import { useTranslation } from "react-i18next";
 import FormHr from "../utils/FormHr";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAtom } from "jotai";
 import { IsEditingQuickRoads, QuickRoadsArray } from "../utils/settingJotai";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -56,7 +56,6 @@ const QuickEditRoadPanel: React.FC<{
       queryClient.refetchQueries({ queryKey: ["map"] });
       setQuickRoadArr([]);
       setQuickRoad(false);
-      // form.resetFields();
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
@@ -65,15 +64,18 @@ const QuickEditRoadPanel: React.FC<{
     setQuickRoad((prev) => {
       if (prev) {
         setQuickRoadArr([]);
+        setQuickRoad(false);
       }
       return !prev;
     });
   };
 
-  const submit = () => {
+  // Debounced submit function to prevent rapid calls
+  const submit = useCallback(() => {
+    const currentQuickRoadArr = [...quickRoadArr]; // Capture the current state
+    console.log("Submitting with quickRoadArr:", currentQuickRoadArr);
     const formData = form.getFieldsValue();
-
-    if (quickRoadArr.length < 2) {
+    if (currentQuickRoadArr.length < 2) {
       void messageApi.error(t("quick_edit_road_panel.error_min_spots"));
       return;
     }
@@ -82,11 +84,11 @@ const QuickEditRoadPanel: React.FC<{
       ...formData,
       disabled: formData.disabled ?? false,
       limit: formData.limit ?? false,
-      roadArr: quickRoadArr,
+      roadArr: currentQuickRoadArr,
     };
 
     saveRoadMutation.mutate(payload);
-  };
+  }, [quickRoadArr, form, messageApi, t, saveRoadMutation]);
 
   useEffect(() => {
     form.setFieldValue("priority", 3);
@@ -94,31 +96,21 @@ const QuickEditRoadPanel: React.FC<{
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      console.log(e.key);
+      console.log("Key pressed:", e.key);
       if (e.key.toLowerCase() === "a" && !e.repeat) {
         console.log("user has press A");
-        e.preventDefault(); // prevent browser default (e.g., "Save")
+        e.preventDefault();
         handleEditing();
       }
 
-      if (
-        e.key.toLocaleLowerCase() === "s" &&
-        !e.repeat &&
-        quickRoadArr.length > 1
-      ) {
-        // console.log('user has press S')
-        submit();
+      if (e.key.toLowerCase() === "s" && !e.repeat) {
+        console.log("user has press S");
         e.preventDefault();
+        submit(); // Use debounced submit
       }
 
-      if (e.key.toLocaleLowerCase() === "q" && !e.repeat) {
-        //console.log('user has press Q')
-        e.preventDefault();
-        setQuickRoadArr([]);
-      }
-
-      if (e.key.toLocaleLowerCase() === "escape" && !e.repeat) {
-        //console.log('user has press ESC')
+      if (e.key.toLowerCase() === "escape" && !e.repeat) {
+        console.log("user has press ESC");
         e.preventDefault();
         setQuickRoadArr([]);
         setQuickRoad(false);
@@ -127,7 +119,7 @@ const QuickEditRoadPanel: React.FC<{
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [submit]); // Dependency on submit to use the latest function
 
   return (
     <>
@@ -165,9 +157,6 @@ const QuickEditRoadPanel: React.FC<{
                 </div>
                 <div>
                   <b>S</b>: Save
-                </div>
-                <div>
-                  <b>Q</b>: Clear Selected
                 </div>
                 <div>
                   <b>ESC</b>: Cancel
