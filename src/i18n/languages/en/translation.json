@@ -51,6 +51,7 @@
     "none": "noneA",
     "floor": "floor",
     "overdue": "overdue",
+    "action": "Action",
     "location_property": {
       "none": "Normal",
       "charge_station": "Charge Station",
@@ -962,7 +963,8 @@
       "type": "Type",
       "level": "Level",
       "no_set": "Not set",
-      "change_timeline_height": "Change timeline height"
+      "change_timeline_height": "Change timeline height",
+      "table_view": "Table view"
     },
     "insert_modal": {
       "dynamic": "Pick up and release mission (dynamic mission)",
@@ -981,7 +983,8 @@
       "offload_to": "Offload To",
       "add_field": "Add Field",
       "time": "Time",
-      "submit": "Submit"
+      "submit": "Submit",
+      "edit": "Edit"
     },
     "sim_result": {
       "title": "Simulation Result",

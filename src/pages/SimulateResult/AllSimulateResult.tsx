@@ -1,6 +1,6 @@
 import { useState } from "react";
 import styled from "styled-components";
-import { Table, Typography, Tag, Card, Flex, Layout } from "antd";
+import { Table, Typography, Layout } from "antd";
 import moment from "moment";
 import useSimResult, { SimulationResult } from "@/api/useSimResult";
 import Header from "@/components/Header";
@@ -21,10 +21,6 @@ const StyledTable = styled(Table)`
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-`;
-
-const DetailCard = styled(Card)`
-  margin-top: 12px;
 `;
 
 const AllSimulateResult = () => {

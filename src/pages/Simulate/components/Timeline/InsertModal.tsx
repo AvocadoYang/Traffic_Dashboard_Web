@@ -2,7 +2,6 @@ import client from "@/api/axiosClient";
 import useName from "@/api/useAmrName";
 import useAllMissionTitles from "@/api/useMissionTitle";
 import usePeripheralName from "@/api/usePeripheralName";
-import { Mission_Schedule } from "@/sockets/useTimelineScheduleSocket";
 import { MissionPriority } from "@/types/mission";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
@@ -13,27 +12,25 @@ import {
   Card,
   Flex,
   Form,
-  FormInstance,
-  Input,
   message,
   Modal,
   Radio,
   Select,
-  Space,
   TimePicker,
 } from "antd";
 import dayjs from "dayjs";
-import {
-  Dispatch,
-  FC,
-  SetStateAction,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import { useAtom, useAtomValue } from "jotai";
+import {
+  EditTask,
+  IsEditSchedule,
+  OpenEditModal,
+  OpenScheduleTable,
+  SelectTime,
+} from "../../utils/mapStatus";
 
 dayjs.extend(customParseFormat);
 
@@ -45,13 +42,7 @@ const Wrapper = styled.div`
 
 type Mission_Type = "DYNAMIC" | "NORMAL" | "NOTIFY";
 
-const InsertModal: FC<{
-  isOpen: boolean;
-  isEdit: boolean;
-  selectTime: string | null;
-  handleClose: (form: FormInstance<unknown>) => void;
-  editTask: Mission_Schedule | null;
-}> = ({ isOpen, isEdit, editTask, selectTime, handleClose }) => {
+const InsertModal: FC = () => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const { data: name } = useName();
@@ -59,6 +50,18 @@ const InsertModal: FC<{
   const { data: missionTitle } = useAllMissionTitles();
   const { data: peripheralName } = usePeripheralName();
   const [messageApi, contextHolder] = message.useMessage();
+
+  const [isOpen, setIsOpen] = useAtom(OpenEditModal);
+  const [isEdit, setIsEdit] = useAtom(IsEditSchedule);
+  const [selectTime, setSelectTime] = useAtom(SelectTime);
+  const editTask = useAtomValue(EditTask);
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setIsEdit(false);
+    setSelectTime(null);
+    form.resetFields();
+  };
 
   const peripheralOption = peripheralName
     ?.filter((v) => v.name)
@@ -160,7 +163,7 @@ const InsertModal: FC<{
       });
     }
 
-    handleClose(form);
+    handleClose();
   };
 
   const removeSchedule = () => {
@@ -170,7 +173,7 @@ const InsertModal: FC<{
     }
 
     removeMutation.mutate({ id: editTask?.id, time: editTask?.time });
-    handleClose(form);
+    handleClose();
   };
 
   useEffect(() => {
@@ -211,7 +214,7 @@ const InsertModal: FC<{
     <>
       {contextHolder}
       {isOpen ? (
-        <Modal open={isOpen} onCancel={() => handleClose(form)} footer={[]}>
+        <Modal open={isOpen} onCancel={() => handleClose()} footer={[]}>
           <Wrapper>
             <h1>{t("sim.insert_modal.title")}</h1>
 

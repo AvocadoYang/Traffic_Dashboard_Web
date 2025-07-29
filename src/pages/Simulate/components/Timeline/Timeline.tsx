@@ -8,8 +8,14 @@ import {
 } from "@/sockets/useTimelineScheduleSocket";
 import { useTranslation } from "react-i18next";
 import TaskBar from "./TaskBar";
-import { useAtomValue } from "jotai";
-import { TimelineHeight } from "../../utils/mapStatus";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import {
+  EditTask,
+  IsEditSchedule,
+  OpenEditModal,
+  SelectTime,
+  TimelineHeight,
+} from "../../utils/mapStatus";
 import TimeLayer from "./TimeLayer";
 import { PlusOutlined } from "@ant-design/icons";
 
@@ -33,7 +39,7 @@ const TimelineWrapper = styled.div<{ heightMode: string; isDragging: boolean }>`
         : "10em"};
   bottom: 20px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-48%);
   background-color: #f5f5f5;
   border-radius: 20px;
   padding: 10px 15px 23px;
@@ -148,13 +154,13 @@ const hours = Array.from({ length: 24 * 60 }, (_, i) => {
 const Timeline: FC = () => {
   const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState(false);
-  const [isEdit, setIsEdit] = useState(false);
+  const [isEdit, setIsEdit] = useAtom(IsEditSchedule);
   const [startX, setStartX] = useState(0);
   const timelineRef = useRef<HTMLDivElement>(null);
-  const [selectTime, setSelectTime] = useState<string | null>(null); //給編輯貨新增用
-  const [isModalOpen, setIsModalOpen] = useState(false); // 編輯任務或是新增任務的
+  const [selectTime, setSelectTime] = useAtom(SelectTime); //給編輯貨新增用
+  const setIsModalOpen = useSetAtom(OpenEditModal); // 編輯任務或是新增任務的
   const [tasks, setTasks] = useState<TaskType[]>([]); // 把socket資料轉換後show在前端
-  const [editTask, setEditTask] = useState<null | Mission_Schedule>(null);
+  const setEditTask = useSetAtom(EditTask);
   const scheduleData = useTimelineScheduleSocket(); // 即時任務socket
   const heightMode = useAtomValue(TimelineHeight);
   const [scrollLeft, setScrollLeft] = useState(0);
@@ -205,13 +211,6 @@ const Timeline: FC = () => {
 
   const handleMarkerClick = () => {
     setIsModalOpen(true);
-  };
-
-  const handleClose = (form: FormInstance<unknown>) => {
-    setIsModalOpen(false);
-    setIsEdit(false);
-    setSelectTime(null);
-    form.resetFields();
   };
 
   const handleMouseDown = (event: MouseEvent<HTMLDivElement>) => {
@@ -295,13 +294,6 @@ const Timeline: FC = () => {
           ))}
         </TaskLayer>
       </TimelineWrapper>
-      <InsertModal
-        isOpen={isModalOpen}
-        isEdit={isEdit}
-        selectTime={selectTime}
-        handleClose={handleClose}
-        editTask={editTask}
-      />
     </>
   );
 };

@@ -51,6 +51,7 @@
     "none": "無",
     "floor": "層",
     "overdue": "逾時",
+    "action": "操作",
     "location_property": {
       "none": "點位",
       "charge_station": "充電站",
@@ -963,7 +964,8 @@
       "type": "類型",
       "level": "樓層",
       "no_set": "未設定",
-      "change_timeline_height": "改變時間軸大小"
+      "change_timeline_height": "改變時間軸大小",
+      "table_view": "Table顯示任務"
     },
     "insert_modal": {
       "dynamic": "取放貨任務（動態任務）",
@@ -982,7 +984,8 @@
       "offload_to": "卸貨地點",
       "add_field": "新增欄位",
       "time": "時間",
-      "submit": "送出"
+      "submit": "送出",
+      "edit": "編輯"
     },
     "sim_result": {
       "title": "模擬結果",

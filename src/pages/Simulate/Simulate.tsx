@@ -11,6 +11,9 @@ import Header from "../../components/Header";
 import { useIsMobile } from "../../hooks/useIsMoblie";
 import Timeline from "./components/Timeline/Timeline";
 import SwitchPanelHeightBtn from "./components/Timeline/SwitchPanelHeightBtn";
+import TableSchedule from "./components/Timeline/TableSchedule";
+import OpenScheduleTableBtn from "./components/Timeline/OpenScheduleTableBtn";
+import InsertModal from "./components/Timeline/InsertModal";
 
 const Simulate: FC = () => {
   const { isMobile } = useIsMobile();
@@ -41,7 +44,16 @@ const Simulate: FC = () => {
           <SelectScript />
           <WcsPad />
 
+          {/**編輯或是新增任務的modal */}
+          <InsertModal />
+
+          {/**時間軸改變高度 */}
           <SwitchPanelHeightBtn />
+
+          <OpenScheduleTableBtn />
+
+          {/* 時間軸任務用table表示 */}
+          <TableSchedule></TableSchedule>
 
           {/* 左側未放置到地圖的車輛表 */}
           <IdleRobotPanel mapRef={mapRef} mapWrapRef={mapWrapRef} />
