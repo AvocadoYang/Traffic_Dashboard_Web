@@ -1,5 +1,14 @@
 import { useTimelineScheduleSocket } from "@/sockets/useTimelineScheduleSocket";
-import { Button, Card, Modal, Table, Tag, Typography } from "antd";
+import {
+  Button,
+  Card,
+  message,
+  Modal,
+  Switch,
+  Table,
+  Tag,
+  Typography,
+} from "antd";
 import React, { FC } from "react";
 import { Mission_Schedule } from "@/sockets/useTimelineScheduleSocket";
 import { useAtom, useSetAtom } from "jotai";
@@ -12,6 +21,10 @@ import {
 } from "../../utils/mapStatus";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
+import { useMutation } from "@tanstack/react-query";
+import client from "@/api/axiosClient";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
 
 const { Text } = Typography;
 
@@ -100,6 +113,7 @@ const TableSchedule: FC = () => {
   const setIsModalOpen = useSetAtom(OpenEditModal);
   const setEditTask = useSetAtom(EditTask);
   const setIsEdit = useSetAtom(IsEditSchedule);
+  const [messageApi, contextHolder] = message.useMessage();
 
   const handleCancel = () => {
     setIsOpenScheduleTable(false);
@@ -110,6 +124,20 @@ const TableSchedule: FC = () => {
     setIsModalOpen(true);
     setEditTask(task);
     setIsEdit(true);
+  };
+
+  const editMutation = useMutation({
+    mutationFn: (payload: { id: string; isEnable: boolean }) => {
+      return client.post("api/simulate/enable-timeline-mission", payload);
+    },
+    onSuccess: () => {
+      void messageApi.success("success");
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
+  const handleEnable = (id: string, isEnable: boolean) => {
+    editMutation.mutate({ id, isEnable });
   };
 
   const columns = [
@@ -169,13 +197,20 @@ const TableSchedule: FC = () => {
       },
     },
     {
-      title: t("utils.action"), // Make sure this key exists in your i18n utils
+      title: t("utils.action"),
       key: "actions",
       render: (_: any, record: Mission_Schedule) => (
         <div style={{ display: "flex", gap: 8 }}>
           <Button size="small" onClick={() => handleEdit(record)}>
             {t("utils.edit")}
           </Button>
+
+          <Switch
+            checkedChildren="ON"
+            unCheckedChildren="OFF"
+            onClick={() => handleEnable(record.id, !record.isEnable)}
+            checked={record.isEnable}
+          />
         </div>
       ),
     },
@@ -184,22 +219,25 @@ const TableSchedule: FC = () => {
   if (!isOpenScheduleTable) return null;
 
   return (
-    <StyledModal
-      open={isOpenScheduleTable}
-      onCancel={handleCancel}
-      footer={null} // Use null instead of empty array for Ant Design Modal
-      width={2400}
-    >
-      <StyledCard>
-        <StyledTable
-          columns={columns as []}
-          dataSource={scheduleData}
-          rowKey="id"
-          pagination={false}
-          scroll={{ x: 1000 }} // Enable horizontal scroll for wide content
-        />
-      </StyledCard>
-    </StyledModal>
+    <>
+      {contextHolder}
+      <StyledModal
+        open={isOpenScheduleTable}
+        onCancel={handleCancel}
+        footer={null} // Use null instead of empty array for Ant Design Modal
+        width={2400}
+      >
+        <StyledCard>
+          <StyledTable
+            columns={columns as []}
+            dataSource={scheduleData}
+            rowKey="id"
+            pagination={false}
+            scroll={{ x: 1000 }}
+          />
+        </StyledCard>
+      </StyledModal>
+    </>
   );
 };
 

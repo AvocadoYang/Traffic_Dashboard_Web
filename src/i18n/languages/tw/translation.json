@@ -985,7 +985,9 @@
       "add_field": "新增欄位",
       "time": "時間",
       "submit": "送出",
-      "edit": "編輯"
+      "edit": "編輯",
+      "style_row": "顯示第幾列",
+      "is_enable": "啟動 / 停用"
     },
     "sim_result": {
       "title": "模擬結果",

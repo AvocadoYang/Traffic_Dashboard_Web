@@ -984,7 +984,9 @@
       "add_field": "Add Field",
       "time": "Time",
       "submit": "Submit",
-      "edit": "Edit"
+      "edit": "Edit",
+      "style_row": "Show at which Row",
+      "is_enable": "Enable / Disable"
     },
     "sim_result": {
       "title": "Simulation Result",

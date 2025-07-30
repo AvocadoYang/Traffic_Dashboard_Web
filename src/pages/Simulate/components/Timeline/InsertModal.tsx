@@ -12,10 +12,12 @@ import {
   Card,
   Flex,
   Form,
+  InputNumber,
   message,
   Modal,
   Radio,
   Select,
+  Switch,
   TimePicker,
 } from "antd";
 import dayjs from "dayjs";
@@ -110,6 +112,7 @@ const InsertModal: FC = () => {
     },
     onSuccess: () => {
       void messageApi.success("success");
+      handleClose();
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
@@ -120,6 +123,7 @@ const InsertModal: FC = () => {
     },
     onSuccess: () => {
       void messageApi.success("success");
+      handleClose();
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
@@ -162,8 +166,6 @@ const InsertModal: FC = () => {
         timestamp: formattedTimestamp,
       });
     }
-
-    handleClose();
   };
 
   const removeSchedule = () => {
@@ -183,6 +185,8 @@ const InsertModal: FC = () => {
       type,
       amrId,
       priority,
+      isEnable,
+      styleRow,
       dynamicMission,
       normalMissionId,
       notifyMissionSourcePointName,
@@ -193,6 +197,8 @@ const InsertModal: FC = () => {
       type,
       amrId,
       priority,
+      isEnable,
+      styleRow,
       dynamic: dynamicMission?.map((d) => ({
         loadFrom: d.loadFromId,
         offloadTo: d.offloadToId,
@@ -227,13 +233,32 @@ const InsertModal: FC = () => {
                 timestamp: dayjs(selectTime, "HH:mm"),
               }}
             >
-              <Form.Item
-                label={t("sim.insert_modal.time")}
-                name="timestamp"
-                rules={[{ required: true, message: "Please select a time" }]}
-              >
-                <TimePicker needConfirm={false} format="HH:mm" />
-              </Form.Item>
+              <Flex gap="large" justify="space-between">
+                <Form.Item
+                  label={t("sim.insert_modal.time")}
+                  name="timestamp"
+                  rules={[{ required: true, message: "Please select a time" }]}
+                >
+                  <TimePicker needConfirm={false} format="HH:mm" />
+                </Form.Item>
+
+                <Form.Item
+                  label={t("sim.insert_modal.style_row")}
+                  name="styleRow"
+                  rules={[{ required: true, message: "Please select row" }]}
+                >
+                  <InputNumber min={0} max={10} />
+                </Form.Item>
+
+                {isEdit ? (
+                  <Form.Item
+                    label={t("sim.insert_modal.is_enable")}
+                    name="isEnable"
+                  >
+                    <Switch />
+                  </Form.Item>
+                ) : null}
+              </Flex>
 
               <Form.Item label={t("sim.insert_modal.amr")} name="amrId">
                 <Select

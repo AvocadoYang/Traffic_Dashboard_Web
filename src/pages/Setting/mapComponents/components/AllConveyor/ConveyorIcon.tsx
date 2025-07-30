@@ -1,9 +1,13 @@
 import React from "react";
 import styled from "styled-components";
 import { LoadingStation } from "../AllCargo.tsx/LoadingStation";
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { IsEditPeripheralModal } from "../../../formComponent/forms/peripheralModal/jotai";
 import { Conveyor_Info } from "@/types/peripheral";
+import {
+  IsEditingQuickRoads,
+  QuickRoadsArray,
+} from "@/pages/Setting/utils/settingJotai";
 
 type ConveyorStyle = {
   translate_x?: number;
@@ -83,6 +87,31 @@ const ConveyorIcon: React.FC<{
   info: Conveyor_Info | null;
 }> = ({ translateX, translateY, rotate, scale, info }) => {
   const setIsEdit = useSetAtom(IsEditPeripheralModal);
+  const quickRoad = useAtomValue(IsEditingQuickRoads);
+  const setQuickRoadArr = useSetAtom(QuickRoadsArray);
+
+  const handleCon = () => {
+    if (!info) return;
+    if (quickRoad) {
+      setQuickRoadArr((prev) => [...prev, info.locationId]);
+      return;
+    }
+
+    setIsEdit({
+      stationType: "CONVEYOR",
+      name: info.name,
+      disable: info.disable,
+      stationId: info.locationId,
+      forkHeight: info.forkHeight,
+      activeLoad: info.activeLoad,
+      activeOffload: info.activeOffload,
+      loadMissionId: info.loadMissionId,
+      offloadMissionId: info.offloadMissionId,
+      placement_priority: info.placement_priority,
+      relationships: info.relationships,
+      cargo: info.cargo,
+    });
+  };
 
   if (!info) return <LoadingStation />;
   return (
@@ -94,24 +123,7 @@ const ConveyorIcon: React.FC<{
       {info.activeLoad && <Arrow direction="load" />}
       {info.activeOffload && <Arrow direction="offload" />}
 
-      <ConveyorWrapper
-        onClick={() =>
-          setIsEdit({
-            stationType: "CONVEYOR",
-            name: info.name,
-            disable: info.disable,
-            stationId: info.locationId,
-            forkHeight: info.forkHeight,
-            activeLoad: info.activeLoad,
-            activeOffload: info.activeOffload,
-            loadMissionId: info.loadMissionId,
-            offloadMissionId: info.offloadMissionId,
-            placement_priority: info.placement_priority,
-            relationships: info.relationships,
-            cargo: info.cargo,
-          })
-        }
-      >
+      <ConveyorWrapper onClick={handleCon}>
         <Belt>{info.cargo.length > 0 ? <Box /> : []}</Belt>
       </ConveyorWrapper>
     </ConveyorContainer>

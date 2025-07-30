@@ -9,7 +9,7 @@ import {
 import { isDefined } from "ts-extras";
 import { io } from "./socketConnect";
 import { useState, useEffect } from "react";
-import { ValidationError, array, number, object, string } from "yup";
+import { ValidationError, array, boolean, number, object, string } from "yup";
 import { MissionPriority } from "@/types/mission";
 
 const schema = array(
@@ -19,12 +19,14 @@ const schema = array(
     priority: number().required(),
     amrId: string().required(),
     type: string().required(),
+    isEnable: boolean().required(),
+    styleRow: number().required(),
 
     normalMissionId: string().optional().nullable(),
     notifyMissionSourcePointName: string().optional().nullable(),
     dynamicMission: array(
       object({
-           loadFromId: string().required(),
+        loadFromId: string().required(),
         loadFrom: string().required(),
         offloadToId: string().required(),
         offloadTo: string().required(),
@@ -65,6 +67,8 @@ export type Mission_Schedule = {
   priority: MissionPriority;
   amrId: string;
   type: string;
+  isEnable: boolean;
+  styleRow: number;
 
   normalMissionId?: string | null;
   notifyMissionSourcePointName?: string | null;

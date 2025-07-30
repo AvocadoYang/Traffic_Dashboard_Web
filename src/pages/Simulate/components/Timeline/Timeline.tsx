@@ -20,11 +20,14 @@ import TimeLayer from "./TimeLayer";
 import { PlusOutlined } from "@ant-design/icons";
 
 type TaskType = {
+  id: string;
   startMinute: number;
   duration: number;
   priority: number;
   time: string;
   type: string;
+  styleRow: number;
+  isEnable: boolean;
 };
 
 const TimelineWrapper = styled.div<{ heightMode: string; isDragging: boolean }>`
@@ -165,7 +168,9 @@ const Timeline: FC = () => {
   const heightMode = useAtomValue(TimelineHeight);
   const [scrollLeft, setScrollLeft] = useState(0);
 
-  const taskBarMainColor = (type: string) => {
+  const taskBarMainColor = (type: string, isEnable: boolean) => {
+    if (isEnable === false) return "#c2c2c2";
+
     switch (type.toUpperCase()) {
       case "DYNAMIC":
         return "#4CAF50";
@@ -180,10 +185,13 @@ const Timeline: FC = () => {
 
   useEffect(() => {
     const updatedTasks = scheduleData.map((mission: Mission_Schedule) => ({
+      id: mission.id,
       startMinute: timeToMinutes(mission.time),
       priority: mission.priority,
       time: mission.time,
       type: mission.type,
+      isEnable: mission.isEnable,
+      styleRow: mission.styleRow,
       duration: 10,
     }));
     // console.log('change')
@@ -272,8 +280,8 @@ const Timeline: FC = () => {
         heightMode={heightMode}
         isDragging={isDragging}
       >
-        <AddSchedule scrollLeft={scrollLeft}>
-          <PlusOutlined onClick={directAddSchedule} />
+        <AddSchedule scrollLeft={scrollLeft} onClick={directAddSchedule}>
+          <PlusOutlined />
         </AddSchedule>
 
         <TimeLayer
@@ -288,7 +296,7 @@ const Timeline: FC = () => {
               key={idx}
               task={task}
               top={rowAssignments[idx] * 25}
-              barMainColor={taskBarMainColor(task.type)}
+              barMainColor={taskBarMainColor(task.type, task.isEnable)}
               handleEditTimeline={handleEditTimeline}
             />
           ))}

@@ -1,12 +1,20 @@
+import client from "@/api/axiosClient";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
+import { useMutation } from "@tanstack/react-query";
+import { Checkbox, Flex, message } from "antd";
 import { FC, memo } from "react";
 import styled from "styled-components";
 
 type TaskType = {
+  id: string;
   startMinute: number;
   duration: number;
   priority: number;
   time: string;
   type: string;
+  styleRow: number;
+  isEnable: boolean;
 };
 
 const TaskBarSty = styled.div<{
@@ -25,6 +33,17 @@ const TaskBarSty = styled.div<{
   pointer-events: auto;
   z-index: 9;
   cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 0.3em;
+  align-items: center;
+`;
+
+const EditSection = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
 `;
 
 const TaskBar: FC<{
@@ -33,16 +52,39 @@ const TaskBar: FC<{
   handleEditTimeline: (time: string) => void;
   task: TaskType;
 }> = ({ task, top, barMainColor, handleEditTimeline }) => {
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const editMutation = useMutation({
+    mutationFn: (payload: { id: string; isEnable: boolean }) => {
+      return client.post("api/simulate/enable-timeline-mission", payload);
+    },
+    onSuccess: () => {
+      void messageApi.success("success");
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
+  const handleEnable = () => {
+    editMutation.mutate({ id: task.id, isEnable: !task.isEnable });
+  };
+
   return (
-    <TaskBarSty
-      left={task.startMinute * 10}
-      width={task.duration * 20}
-      top={top}
-      barMainColor={barMainColor}
-      onClick={() => handleEditTimeline(task.time)}
-    >
-      {task.time}
-    </TaskBarSty>
+    <>
+      {contextHolder}
+
+      <TaskBarSty
+        left={task.startMinute * 10}
+        width={task.duration * 20}
+        top={top}
+        barMainColor={barMainColor}
+      >
+        <EditSection onClick={() => handleEditTimeline(task.time)}>
+          {task.time}
+        </EditSection>
+
+        <Checkbox checked={task.isEnable} onClick={handleEnable} />
+      </TaskBarSty>
+    </>
   );
 };
 
