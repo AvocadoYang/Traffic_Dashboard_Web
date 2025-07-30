@@ -17,6 +17,7 @@ const getData = async () => {
         activeShift: boolean().required(),
         shiftTimeMs: number().required(),
         shiftLocationId: string().nullable(),
+        shiftLocationDBId: string().nullable(),
       }).optional(),
     ).required();
 

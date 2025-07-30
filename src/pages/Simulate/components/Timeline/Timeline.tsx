@@ -187,9 +187,9 @@ const Timeline: FC = () => {
     const updatedTasks = scheduleData.map((mission: Mission_Schedule) => ({
       id: mission.id,
       startMinute: timeToMinutes(mission.time),
-      priority: mission.priority,
+      priority: mission.timelineMission?.priority as number,
       time: mission.time,
-      type: mission.type,
+      type: mission.timelineMission?.type as string,
       isEnable: mission.isEnable,
       styleRow: mission.styleRow,
       duration: 10,

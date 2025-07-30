@@ -108,7 +108,6 @@ const TableSchedule: FC = () => {
   const scheduleData = useTimelineScheduleSocket();
   const [isOpenScheduleTable, setIsOpenScheduleTable] =
     useAtom(OpenScheduleTable);
-
   const setSelectTime = useSetAtom(SelectTime);
   const setIsModalOpen = useSetAtom(OpenEditModal);
   const setEditTask = useSetAtom(EditTask);
@@ -155,8 +154,10 @@ const TableSchedule: FC = () => {
       title: t("sim.insert_modal.amr"),
       dataIndex: "amrId",
       key: "amrId",
-      render: (amrId: string) => (
-        <Text style={{ color: "#52c41a" }}>{amrId}</Text>
+      render: (_: string, record: Mission_Schedule) => (
+        <Text style={{ color: "#52c41a" }}>
+          {record.timelineMission?.amrId}
+        </Text>
       ),
     },
     {
@@ -226,6 +227,7 @@ const TableSchedule: FC = () => {
         onCancel={handleCancel}
         footer={null} // Use null instead of empty array for Ant Design Modal
         width={2400}
+        zIndex={9}
       >
         <StyledCard>
           <StyledTable
