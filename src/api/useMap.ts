@@ -82,9 +82,6 @@ const getMap = async () => {
 
   parsed.imageUrl = `${baseUrl}/${path}`;
 }
-
-  console.log(parsed.imageUrl,'papsappsa')
-
   return parsed;
 };
 

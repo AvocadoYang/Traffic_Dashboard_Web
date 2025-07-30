@@ -1,0 +1,1 @@
+export { default as TabOne } from './TabOne'
