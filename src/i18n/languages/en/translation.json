@@ -966,6 +966,50 @@
       "change_timeline_height": "Change timeline height",
       "table_view": "Table view"
     },
+
+    "table_schedule": {
+      "title": "Table Schedule",
+      "detail": "Detail"
+    },
+
+    "spawn_cargo_modal": {
+      "title": "Spawn Cargo",
+      "time": "Time",
+      "style_row": "Display Row",
+      "enable": "Enable",
+      "peripheral_id": "Spawn location",
+      "cargo_metadata_id": "Cargo Metadata ID",
+      "metadata": "Metadata",
+      "metadata_desc": "Enter metadata in JSON format if no cargo metadata schema is selected.",
+      "name": "Name",
+      "location": "Location",
+      "type": "Type",
+      "level": "Level",
+      "no_set": "Not Set",
+      "select_notify": "Select a peripheral",
+      "select": "Select",
+      "yes": "Yes",
+      "no": "No",
+      "cancel": "Cancel",
+      "save": "Save",
+      "update": "Update",
+      "success": "Saved successfully",
+      "updated": "Updated successfully",
+      "required": "This field is required"
+    },
+
+    "shift_cargo_modal": {
+      "title": "Shift Cargo",
+      "time": "Time",
+      "style_row": "Row Style",
+      "enable": "Enable",
+      "peripheral_id": "Peripheral",
+      "select_notify": "Select Peripheral",
+      "save": "Save",
+      "update": "Update",
+      "required": "This field is required"
+    },
+
     "insert_modal": {
       "dynamic": "Pick-and-Place Task (Dynamic Task)",
       "normal": "Normal Task",

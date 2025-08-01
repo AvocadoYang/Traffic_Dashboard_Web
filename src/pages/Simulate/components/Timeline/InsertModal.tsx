@@ -62,8 +62,7 @@ export interface EditTimelineMissionPayload {
   type: "MISSION";
   isEnable: boolean;
   styleRow: number;
-  spawnCargoInfo_id: string | null;
-  shiftPeripheral_id: string | null;
+
   timelineMission: {
     amrId: string;
     priority: number;
@@ -246,11 +245,9 @@ const InsertModal: FC = () => {
                     }))
                   : null,
             },
-            spawnCargoInfo_id: editTask.spawnCargoInfo_id || null,
-            shiftPeripheral_id: editTask.shiftPeripheral_id || null,
           });
         } else {
-          saveMutation.mutate(base as any); // type matches backend `insert-timeline-mission`
+          saveMutation.mutate(base as any);
         }
       })
       .catch(() => {

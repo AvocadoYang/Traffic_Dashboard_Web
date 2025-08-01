@@ -81,6 +81,7 @@ export enum CargoCurrentStatus {
   ON_AMR = "ON_AMR",
   AT_LOCATION = "AT_LOCATION",
   SHIFT = "SHIFT",
+  PRE_SPAWN = "PRE_SPAWN",
 }
 
 export enum CargoAction {
@@ -145,6 +146,8 @@ const HistoryTable: FC = () => {
             return <Tag color="green">{status}</Tag>;
           case CargoCurrentStatus.SHIFT:
             return <Tag>{status}</Tag>;
+          case CargoCurrentStatus.PRE_SPAWN:
+            return <Tag color="cyan">{status}</Tag>;
           default:
             return <Tag>{status}</Tag>;
         }
@@ -177,8 +180,9 @@ const HistoryTable: FC = () => {
       title: t("cargo_history.createdAt"),
       dataIndex: "createdAt",
       key: "createdAt",
-      sorter: (a, b) => moment(a.createdAt).unix() - moment(b.createdAt).unix(),
-      render: (_v, record: CargoData) =>
+      sorter: (a: CargoData, b: CargoData) =>
+        moment(a.createdAt).unix() - moment(b.createdAt).unix(),
+      render: (_v: string, record: CargoData) =>
         new Date(record.createdAt).toLocaleString(),
     },
   ];

@@ -11,7 +11,14 @@ export const TimelineHeight = atom<"mini" | "normal" | "full">("normal");
 
 export const OpenScheduleTable = atom<boolean>(false);
 
+//**新增編輯任務 */
 export const OpenEditModal = atom<boolean>(false);
+
+/**新增編輯Shift貨物 */
+export const OpenEditShiftCargoModal = atom<boolean>(false);
+
+//** 新增編輯Spawn貨物*/
+export const OpenEditSpawnCargoModal = atom<boolean>(false);
 
 export const IsEditSchedule = atom<boolean>(false);
 

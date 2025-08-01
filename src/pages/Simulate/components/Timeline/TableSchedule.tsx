@@ -2,8 +2,10 @@ import { useTimelineScheduleSocket } from "@/sockets/useTimelineScheduleSocket";
 import {
   Button,
   Card,
+  Flex,
   message,
   Modal,
+  Popconfirm,
   Switch,
   Table,
   Tag,
@@ -16,6 +18,8 @@ import {
   EditTask,
   IsEditSchedule,
   OpenEditModal,
+  OpenEditShiftCargoModal,
+  OpenEditSpawnCargoModal,
   OpenScheduleTable,
   SelectTime,
 } from "../../utils/mapStatus";
@@ -25,6 +29,7 @@ import { useMutation } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
+import dayjs from "dayjs";
 
 const { Text } = Typography;
 
@@ -33,6 +38,7 @@ const StyledCard = styled(Card)`
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
   transition: all 0.3s ease;
+  min-height: 70vh;
 
   .ant-card-head {
     background: #f0f2f5;
@@ -110,6 +116,8 @@ const TableSchedule: FC = () => {
     useAtom(OpenScheduleTable);
   const setSelectTime = useSetAtom(SelectTime);
   const setIsModalOpen = useSetAtom(OpenEditModal);
+  const setIsShiftCargoModalOpen = useSetAtom(OpenEditShiftCargoModal); // 編輯任務或是新增任務的
+  const setIsSpawnCargoModalOpen = useSetAtom(OpenEditSpawnCargoModal); // 編輯任務或是新增任務的
   const setEditTask = useSetAtom(EditTask);
   const setIsEdit = useSetAtom(IsEditSchedule);
   const [messageApi, contextHolder] = message.useMessage();
@@ -120,9 +128,22 @@ const TableSchedule: FC = () => {
 
   const handleEdit = (task: Mission_Schedule) => {
     setSelectTime(task.time);
-    setIsModalOpen(true);
-    setEditTask(task);
     setIsEdit(true);
+    setEditTask(task);
+    if (task.type === "MISSION") {
+      setIsModalOpen(true);
+      return;
+    }
+
+    if (task.type === "SPAWN_CARGO") {
+      setIsSpawnCargoModalOpen(true);
+      return;
+    }
+
+    if (task.type === "SHIFT_CARGO") {
+      setIsShiftCargoModalOpen(true);
+      return;
+    }
   };
 
   const editMutation = useMutation({
@@ -135,8 +156,52 @@ const TableSchedule: FC = () => {
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
+  const removeMutation = useMutation({
+    mutationFn: (payload: { id: string; time: string }) => {
+      return client.post("api/simulate/remove-timeline-mission", payload);
+    },
+    onSuccess: () => {
+      void messageApi.success(t("utils.success"));
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
+  const removeSchedule = (id: string, time: string) => {
+    removeMutation.mutate({ id, time });
+  };
+
   const handleEnable = (id: string, isEnable: boolean) => {
     editMutation.mutate({ id, isEnable });
+  };
+
+  const detail = (task: Mission_Schedule) => {
+    if (task.type === "MISSION") {
+      switch (task.timelineMission?.type) {
+        case "DYNAMIC":
+          const dynamicMissions =
+            task.timelineMission.dynamicMission
+              ?.map((e) => `${e.loadFrom} -> ${e.offloadTo}`)
+              .join(", ") || "";
+          return dynamicMissions.length > 20
+            ? `${dynamicMissions.slice(0, 20)}...`
+            : dynamicMissions;
+        case "NOTIFY":
+          return task.timelineMission.notifyMissionSourcePointName || "";
+        case "NORMAL":
+          return task.timelineMission.normalMissionName || "";
+      }
+    }
+
+    if (task.type === "SPAWN_CARGO") {
+      const text = `spawn at ${task.timelineSpawnCargo?.peripheralType} ${task.timelineSpawnCargo?.peripheralName}`;
+      return text.length > 20 ? `${text.slice(0, 20)}...` : text;
+    }
+
+    if (task.type === "SHIFT_CARGO") {
+      const text = `shift to ${task.timelineShiftCargo?.peripheralType} ${task.timelineShiftCargo?.shiftPeripheralName}`;
+      return text.length > 20 ? `${text.slice(0, 20)}...` : text;
+    }
+    return "";
   };
 
   const columns = [
@@ -149,33 +214,14 @@ const TableSchedule: FC = () => {
           {time}
         </Text>
       ),
-    },
-    {
-      title: t("sim.insert_modal.amr"),
-      dataIndex: "amrId",
-      key: "amrId",
-      render: (_: string, record: Mission_Schedule) => (
-        <Text style={{ color: "#52c41a" }}>
-          {record.timelineMission?.amrId}
-        </Text>
-      ),
-    },
-    {
-      title: t("sim.insert_modal.priority"),
-      dataIndex: "priority",
-      key: "priority",
-      render: (p: number) => {
-        const color = p === 1 ? "red" : p === 2 ? "orange" : "blue";
-        return (
-          <Tag color={color} style={{ borderRadius: "12px" }}>
-            P{p}
-          </Tag>
-        );
-      },
+      sorter: (a: Mission_Schedule, b: Mission_Schedule) =>
+        dayjs(a.time, "HH:mm").unix() - dayjs(b.time, "HH:mm").unix(),
     },
     {
       title: t("sim.insert_modal.type"),
       dataIndex: "type",
+      sorter: (a: Mission_Schedule, b: Mission_Schedule) =>
+        a.type.localeCompare(b.type),
       key: "type",
       render: (type: string) => {
         let label = type;
@@ -198,10 +244,20 @@ const TableSchedule: FC = () => {
       },
     },
     {
+      title: t("sim.table_schedule.detail"),
+      dataIndex: "type",
+      sorter: (a: Mission_Schedule, b: Mission_Schedule) =>
+        a.type.localeCompare(b.type),
+      key: "type",
+      render: (_: unknown, record: Mission_Schedule) => {
+        return detail(record);
+      },
+    },
+    {
       title: t("utils.action"),
       key: "actions",
       render: (_: any, record: Mission_Schedule) => (
-        <div style={{ display: "flex", gap: 8 }}>
+        <Flex gap="middle">
           <Button size="small" onClick={() => handleEdit(record)}>
             {t("utils.edit")}
           </Button>
@@ -212,7 +268,16 @@ const TableSchedule: FC = () => {
             onClick={() => handleEnable(record.id, !record.isEnable)}
             checked={record.isEnable}
           />
-        </div>
+
+          <Popconfirm
+            title="are you sure?"
+            onConfirm={() => removeSchedule(record.id, record.time)}
+          >
+            <Button size="small" danger>
+              {t("utils.delete")}
+            </Button>
+          </Popconfirm>
+        </Flex>
       ),
     },
   ];
@@ -225,9 +290,10 @@ const TableSchedule: FC = () => {
       <StyledModal
         open={isOpenScheduleTable}
         onCancel={handleCancel}
-        footer={null} // Use null instead of empty array for Ant Design Modal
+        footer={null}
         width={2400}
         zIndex={9}
+        title={t("sim.table_schedule.title")}
       >
         <StyledCard>
           <StyledTable

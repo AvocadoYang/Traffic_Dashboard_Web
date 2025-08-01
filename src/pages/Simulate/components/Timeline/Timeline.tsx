@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { FormInstance, message } from "antd";
+import { FormInstance, message, Tooltip } from "antd";
 import { FC, useState, useRef, useEffect, MouseEvent } from "react";
 import InsertModal from "./InsertModal";
 import {
@@ -13,22 +13,14 @@ import {
   EditTask,
   IsEditSchedule,
   OpenEditModal,
+  OpenEditShiftCargoModal,
+  OpenEditSpawnCargoModal,
   SelectTime,
   TimelineHeight,
 } from "../../utils/mapStatus";
 import TimeLayer from "./TimeLayer";
 import { PlusOutlined } from "@ant-design/icons";
-
-type TaskType = {
-  id: string;
-  startMinute: number;
-  duration: number;
-  priority: number;
-  time: string;
-  type: string;
-  styleRow: number;
-  isEnable: boolean;
-};
+import { TaskType } from "@/types/timeline";
 
 const TimelineWrapper = styled.div<{ heightMode: string; isDragging: boolean }>`
   position: absolute;
@@ -91,12 +83,62 @@ const AddSchedule = styled.div<{ scrollLeft: number }>`
   align-items: center;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   cursor: pointer;
-  z-index: 5;
+  z-index: 15;
   transition: opacity 0.3s ease-in-out;
   opacity: 0.9;
   position: absolute;
   top: 10px;
   left: ${(props) => props.scrollLeft + 15}px;
+  transition:
+    left 0.1s ease-in-out,
+    opacity 0.1s ease-in-out;
+
+  &:hover {
+    opacity: 1;
+  }
+`;
+
+const AddSpawnCargoSchedule = styled.div<{ scrollLeft: number }>`
+  width: 2em;
+  height: 2em;
+  background-color: #f5f5f5;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  z-index: 15;
+  transition: opacity 0.3s ease-in-out;
+  opacity: 0.9;
+  position: absolute;
+  top: 10px;
+  left: ${(props) => props.scrollLeft + 60}px;
+  transition:
+    left 0.1s ease-in-out,
+    opacity 0.1s ease-in-out;
+
+  &:hover {
+    opacity: 1;
+  }
+`;
+
+const AddShiftCargoSchedule = styled.div<{ scrollLeft: number }>`
+  width: 2em;
+  height: 2em;
+  background-color: #f5f5f5;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  z-index: 15;
+  transition: opacity 0.3s ease-in-out;
+  opacity: 0.9;
+  position: absolute;
+  top: 10px;
+  left: ${(props) => props.scrollLeft + 100}px;
   transition:
     left 0.1s ease-in-out,
     opacity 0.1s ease-in-out;
@@ -162,38 +204,77 @@ const Timeline: FC = () => {
   const timelineRef = useRef<HTMLDivElement>(null);
   const [selectTime, setSelectTime] = useAtom(SelectTime); //給編輯貨新增用
   const setIsModalOpen = useSetAtom(OpenEditModal); // 編輯任務或是新增任務的
+  const setIsShiftCargoModalOpen = useSetAtom(OpenEditShiftCargoModal); // 編輯任務或是新增任務的
+  const setIsSpawnCargoModalOpen = useSetAtom(OpenEditSpawnCargoModal); // 編輯任務或是新增任務的
   const [tasks, setTasks] = useState<TaskType[]>([]); // 把socket資料轉換後show在前端
   const setEditTask = useSetAtom(EditTask);
   const scheduleData = useTimelineScheduleSocket(); // 即時任務socket
   const heightMode = useAtomValue(TimelineHeight);
   const [scrollLeft, setScrollLeft] = useState(0);
-
-  const taskBarMainColor = (type: string, isEnable: boolean) => {
+  //console.log(tasks)
+  const taskBarMainColor = (
+    type: string,
+    missionType: string | null,
+    isEnable: boolean,
+  ) => {
     if (isEnable === false) return "#c2c2c2";
 
+    if (type === "MISSION") {
+      if (!missionType) return "#6b6b6b";
+      switch (missionType.toUpperCase()) {
+        case "DYNAMIC":
+          return "#4CAF50";
+        case "NOTIFY":
+          return "#FBC02D";
+        case "NORMAL":
+          return "#1976D2";
+        default:
+          return "#757575";
+      }
+    }
+
     switch (type.toUpperCase()) {
-      case "DYNAMIC":
-        return "#4CAF50";
-      case "NOTIFY":
-        return "#FBC02D";
-      case "NORMAL":
-        return "#1976D2";
+      case "SPAWN_CARGO":
+        return "#f066eb";
+      case "SHIFT_CARGO":
+        return "#2dc3fd";
       default:
         return "#757575";
     }
   };
 
   useEffect(() => {
-    const updatedTasks = scheduleData.map((mission: Mission_Schedule) => ({
-      id: mission.id,
-      startMinute: timeToMinutes(mission.time),
-      priority: mission.timelineMission?.priority as number,
-      time: mission.time,
-      type: mission.timelineMission?.type as string,
-      isEnable: mission.isEnable,
-      styleRow: mission.styleRow,
-      duration: 10,
-    }));
+    const updatedTasks: TaskType[] = scheduleData.map(
+      (mission: Mission_Schedule) => ({
+        id: mission.id,
+        startMinute: timeToMinutes(mission.time),
+        time: mission.time,
+        type: mission.type,
+        missionType: mission.timelineMission?.type as string,
+        isEnable: mission.isEnable,
+        styleRow: mission.styleRow,
+        duration: 10,
+
+        timelineMission: {
+          type: mission.timelineMission?.type,
+          normalMissionName: mission.timelineMission?.normalMissionName || null,
+          notifyMissionSourcePointName:
+            mission.timelineMission?.notifyMissionSourcePointName || null,
+          dynamicMission: mission.timelineMission?.dynamicMission || null,
+        },
+
+        timelineShiftCargo: {
+          shiftPeripheralName: mission.timelineShiftCargo?.shiftPeripheralName,
+          peripheralType: mission.timelineShiftCargo?.peripheralType,
+        },
+
+        timelineSpawnCargo: {
+          peripheralType: mission.timelineSpawnCargo?.peripheralType,
+          peripheralName: mission.timelineSpawnCargo?.peripheralName,
+        },
+      }),
+    );
+    //console.log(updatedTasks)
     // console.log('change')
     setTasks(updatedTasks);
   }, [scheduleData]);
@@ -203,7 +284,7 @@ const Timeline: FC = () => {
       setEditTask(null);
       return;
     }
-
+    // console.log("editing =========");
     const target = scheduleData.find((v) => {
       return v.time === selectTime;
     });
@@ -211,7 +292,7 @@ const Timeline: FC = () => {
       message.error("can not found mission data!!");
       return;
     }
-    setIsModalOpen(true);
+    //  console.log(target);
     setEditTask(target);
   }, [isEdit]);
 
@@ -239,14 +320,43 @@ const Timeline: FC = () => {
     setIsDragging(false);
   };
 
-  const handleEditTimeline = (time: string) => {
-    setIsEdit(true);
+  const handleEditTimeline = (time: string, type: string) => {
+    // console.log(time, type);
     setSelectTime(time);
+    if (type === "MISSION") {
+      setIsEdit(true);
+      setIsModalOpen(true);
+      return;
+    }
+
+    if (type === "SPAWN_CARGO") {
+      setIsEdit(true);
+      setIsSpawnCargoModalOpen(true);
+      return;
+    }
+
+    if (type === "SHIFT_CARGO") {
+      setIsEdit(true);
+      setIsShiftCargoModalOpen(true);
+      return;
+    }
   };
 
   const directAddSchedule = () => {
     setIsEdit(false);
     setIsModalOpen(true);
+    setSelectTime("08:00");
+  };
+
+  const directSpawnCargoSchedule = () => {
+    setIsEdit(false);
+    setIsSpawnCargoModalOpen(true);
+    setSelectTime("08:00");
+  };
+
+  const directShiftSchedule = () => {
+    setIsEdit(false);
+    setIsShiftCargoModalOpen(true);
     setSelectTime("08:00");
   };
 
@@ -280,9 +390,29 @@ const Timeline: FC = () => {
         heightMode={heightMode}
         isDragging={isDragging}
       >
-        <AddSchedule scrollLeft={scrollLeft} onClick={directAddSchedule}>
-          <PlusOutlined />
-        </AddSchedule>
+        <Tooltip title="add mission event">
+          <AddSchedule scrollLeft={scrollLeft} onClick={directAddSchedule}>
+            <PlusOutlined />
+          </AddSchedule>
+        </Tooltip>
+
+        <Tooltip title="add shift cargo event">
+          <AddShiftCargoSchedule
+            scrollLeft={scrollLeft}
+            onClick={directShiftSchedule}
+          >
+            <PlusOutlined />
+          </AddShiftCargoSchedule>
+        </Tooltip>
+
+        <Tooltip title="add spawn cargo event">
+          <AddSpawnCargoSchedule
+            scrollLeft={scrollLeft}
+            onClick={directSpawnCargoSchedule}
+          >
+            <PlusOutlined />
+          </AddSpawnCargoSchedule>
+        </Tooltip>
 
         <TimeLayer
           hours={hours}
@@ -296,7 +426,11 @@ const Timeline: FC = () => {
               key={idx}
               task={task}
               top={rowAssignments[idx] * 25}
-              barMainColor={taskBarMainColor(task.type, task.isEnable)}
+              barMainColor={taskBarMainColor(
+                task.type,
+                task.missionType,
+                task.isEnable,
+              )}
               handleEditTimeline={handleEditTimeline}
             />
           ))}

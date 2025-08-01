@@ -14,6 +14,8 @@ import SwitchPanelHeightBtn from "./components/Timeline/SwitchPanelHeightBtn";
 import TableSchedule from "./components/Timeline/TableSchedule";
 import OpenScheduleTableBtn from "./components/Timeline/OpenScheduleTableBtn";
 import InsertModal from "./components/Timeline/InsertModal";
+import { ShiftCargoModal } from "./components/Timeline/ShiftCargoModal";
+import { SpawnCargoModal } from "./components/Timeline/SpawnCargoModal";
 
 const Simulate: FC = () => {
   const { isMobile } = useIsMobile();
@@ -46,6 +48,12 @@ const Simulate: FC = () => {
 
           {/**編輯或是新增任務的modal */}
           <InsertModal />
+
+          {/**時間軸插入生成或是轉移貨物 */}
+          <ShiftCargoModal />
+
+          {/**時間軸插入生成或是轉移貨物 */}
+          <SpawnCargoModal />
 
           {/**時間軸改變高度 */}
           <SwitchPanelHeightBtn />

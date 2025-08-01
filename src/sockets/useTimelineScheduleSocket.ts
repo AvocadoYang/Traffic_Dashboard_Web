@@ -9,36 +9,57 @@ import {
 import { isDefined } from "ts-extras";
 import { io } from "./socketConnect";
 import { useState, useEffect } from "react";
-import { ValidationError, array, boolean, number, object, string } from "yup";
+import {
+  ValidationError,
+  array,
+  boolean,
+  mixed,
+  number,
+  object,
+  string,
+} from "yup";
 import { MissionPriority } from "@/types/mission";
 import { Cargo } from "@/types/peripheral";
 
-const schema = array(
+export const schema = array(
   object({
     id: string().required(),
     time: string().required(),
-    type: string().required(),
+    type: string().oneOf(["MISSION", "SPAWN_CARGO", "SHIFT_CARGO"]).required(),
     isEnable: boolean().required(),
     styleRow: number().required(),
 
-    spawnCargoInfo_id: string().nullable().optional(),
-    shiftPeripheral_id: string().nullable().optional(),
-    shiftPeripheralName: string().nullable().optional(),
+    timelineShiftCargo: object({
+      peripheralType: string().nullable().optional(),
+      shiftPeripheralId: string().nullable().optional(),
+      shiftPeripheralName: string().nullable().optional(),
+    })
+      .nullable()
+      .optional(),
 
-    spawnCargoInfo: object({
-      cargoInfoId: string().nullable(),
-      customCargoMetadataId: string().nullable(),
-      metadata: string().nullable(),
+    timelineSpawnCargo: object({
+      peripheralType: string().nullable().optional(),
+      peripheralNameId: string().nullable().optional(),
+      peripheralName: string().nullable().optional(),
+      spawnCargoInfo: object({
+        cargoInfoId: string().nullable(),
+        customCargoMetadataId: string().nullable(),
+        metadata: mixed().nullable(),
+      })
+        .nullable()
+        .optional(),
     })
       .nullable()
       .optional(),
 
     timelineMission: object({
-      type: string().required(),
-      priority: number().required(),
-      amrId: string().required(),
+      type: string().optional().nullable(),
+      priority: number().optional().nullable(),
+      amrId: string().optional().nullable(),
 
+      normalMissionName: string().nullable().optional(),
       normalMissionId: string().nullable().optional(),
+      notifyMissionSourcePointNameId: string().nullable().optional(),
       notifyMissionSourcePointName: string().nullable().optional(),
 
       dynamicMission: array(
@@ -88,16 +109,31 @@ export type Mission_Schedule = {
   isEnable: boolean;
   styleRow: number;
 
-  spawnCargoInfo_id?: string;
-  spawnCargoInfo?: Cargo | null;
-  shiftPeripheral_id?: string;
-  shiftPeripheralName?: string;
+  timelineShiftCargo?: {
+    shiftPeripheralId?: string;
+    shiftPeripheralName?: string; // 這邊有關peripheral 的name都應該先預先處理好 把字尾的script name刪掉
+    peripheralType?: string;
+  } | null;
+
+  timelineSpawnCargo?: {
+    spawnCargoInfo?: {
+      cargoInfoId: string | null;
+      customCargoMetadataId: string | null;
+      metadata: Record<string, unknown>;
+    } | null;
+
+    peripheralType?: string;
+    peripheralNameId?: string;
+    peripheralName?: string;
+  };
 
   timelineMission?: {
     type: string;
     priority: MissionPriority;
     amrId: string;
     normalMissionId?: string | null;
+    normalMissionName?: string | null;
+    notifyMissionSourcePointNameId?: string | null;
     notifyMissionSourcePointName?: string | null;
     dynamicMission?:
       | {

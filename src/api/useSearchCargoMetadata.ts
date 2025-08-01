@@ -28,7 +28,9 @@ const customCargoMetadataSchema = object({
 const schema = array(
   object({
     id: string().required(),
-    status: string().oneOf(["ON_AMR", "AT_LOCATION", "SHIFT"]).required(),
+    status: string()
+      .oneOf(["ON_AMR", "AT_LOCATION", "SHIFT", "PRE_SPAWN"])
+      .required(),
     metadata: mixed().optional().nullable(),
     createdAt: date().required(),
     updatedAt: date().required(),

@@ -1005,6 +1005,50 @@
       "error_missing_id": "任務ID或時間未找到",
       "validation_error": "表單驗證失敗，請檢查輸入"
     },
+
+    "table_schedule": {
+      "title": "排程表",
+      "detail": "詳情"
+    },
+
+    "spawn_cargo_modal": {
+      "title": "生成貨物",
+      "time": "時間",
+      "style_row": "顯示第幾列",
+      "enable": "啟用",
+      "peripheral_id": "生成貨物位置",
+      "cargo_metadata_id": "貨物元資料ID",
+      "metadata": "元資料",
+      "metadata_desc": "如果未選擇貨物元資料模式，請以JSON格式輸入元資料。",
+      "name": "名稱",
+      "location": "位置",
+      "type": "型別",
+      "level": "等級",
+      "no_set": "未設定",
+      "select_notify": "選擇一個週邊",
+      "select": "選擇",
+      "yes": "是",
+      "no": "否",
+      "cancel": "取消",
+      "save": "儲存",
+      "update": "更新",
+      "success": "保存成功",
+      "updated": "更新成功",
+      "required": "此欄位為必填項"
+    },
+
+    "shift_cargo_modal": {
+      "title": "轉移貨物",
+      "time": "時間",
+      "style_row": "顯示第幾列",
+      "enable": "啟用",
+      "peripheral_id": "轉移貨物位置",
+      "select_notify": "選擇設備",
+      "save": "儲存",
+      "update": "更新",
+      "required": "此欄位為必填"
+    },
+
     "sim_result": {
       "title": "模擬結果",
       "simulation_id": "模擬 ID",
