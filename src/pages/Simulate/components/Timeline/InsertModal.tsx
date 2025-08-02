@@ -265,7 +265,7 @@ const InsertModal: FC = () => {
 
   useEffect(() => {
     if (!isEdit || !editTask) return;
-
+    // console.log(editTask,' edit===')
     form.setFieldsValue({
       timestamp: dayjs(editTask.time, "HH:mm"),
       styleRow: editTask.styleRow,
@@ -281,7 +281,7 @@ const InsertModal: FC = () => {
       notify: editTask.timelineMission?.notifyMissionSourcePointName,
     });
     setMissionType(editTask.timelineMission?.type as Mission_Type);
-  }, [editTask, isEdit, form]);
+  }, [isEdit, form]);
 
   useEffect(() => {
     if (!isEdit && selectTime) {

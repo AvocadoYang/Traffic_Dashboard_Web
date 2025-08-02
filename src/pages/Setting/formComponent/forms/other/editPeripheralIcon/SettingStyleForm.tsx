@@ -91,7 +91,7 @@ const SettingStyleForm: FC = () => {
       await queryClient.refetchQueries({
         queryKey: ["loc-only"],
       });
-
+      await queryClient.refetchQueries({ queryKey: ["peripheral-style"] });
       void messageApi.success(t("utils.success"));
     },
     onError: () => {

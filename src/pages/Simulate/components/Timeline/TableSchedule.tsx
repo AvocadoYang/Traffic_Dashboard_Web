@@ -130,6 +130,7 @@ const TableSchedule: FC = () => {
     setSelectTime(task.time);
     setIsEdit(true);
     setEditTask(task);
+    // console.log(task)
     if (task.type === "MISSION") {
       setIsModalOpen(true);
       return;
@@ -182,9 +183,7 @@ const TableSchedule: FC = () => {
             task.timelineMission.dynamicMission
               ?.map((e) => `${e.loadFrom} -> ${e.offloadTo}`)
               .join(", ") || "";
-          return dynamicMissions.length > 20
-            ? `${dynamicMissions.slice(0, 20)}...`
-            : dynamicMissions;
+          return dynamicMissions;
         case "NOTIFY":
           return task.timelineMission.notifyMissionSourcePointName || "";
         case "NORMAL":
@@ -194,12 +193,12 @@ const TableSchedule: FC = () => {
 
     if (task.type === "SPAWN_CARGO") {
       const text = `spawn at ${task.timelineSpawnCargo?.peripheralType} ${task.timelineSpawnCargo?.peripheralName}`;
-      return text.length > 20 ? `${text.slice(0, 20)}...` : text;
+      return text.length;
     }
 
     if (task.type === "SHIFT_CARGO") {
       const text = `shift to ${task.timelineShiftCargo?.peripheralType} ${task.timelineShiftCargo?.shiftPeripheralName}`;
-      return text.length > 20 ? `${text.slice(0, 20)}...` : text;
+      return text.length;
     }
     return "";
   };

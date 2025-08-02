@@ -73,36 +73,36 @@ const TaskLayer = styled.div<{ height: number; wrapperHeight: string }>`
   flex-direction: column;
 `;
 
-const AddSchedule = styled.div<{ scrollLeft: number }>`
-  width: 2em;
-  height: 2em;
-  background-color: #f5f5f5;
-  border-radius: 50%;
+const FixItemWrapper = styled.div<{ scrollLeft: number }>`
   display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  cursor: pointer;
-  z-index: 15;
-  transition: opacity 0.3s ease-in-out;
-  opacity: 0.9;
   position: absolute;
   top: 10px;
   left: ${(props) => props.scrollLeft + 15}px;
   transition:
     left 0.1s ease-in-out,
     opacity 0.1s ease-in-out;
-
+  z-index: 15;
+  gap: 2em;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
   &:hover {
     opacity: 1;
   }
 `;
 
-const AddSpawnCargoSchedule = styled.div<{ scrollLeft: number }>`
-  width: 2em;
+const BtnWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2em;
+`;
+
+const AddSchedule = styled.div`
+  width: auto;
   height: 2em;
   background-color: #f5f5f5;
-  border-radius: 50%;
+  border-radius: 3%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -111,23 +111,24 @@ const AddSpawnCargoSchedule = styled.div<{ scrollLeft: number }>`
   z-index: 15;
   transition: opacity 0.3s ease-in-out;
   opacity: 0.9;
-  position: absolute;
-  top: 10px;
-  left: ${(props) => props.scrollLeft + 60}px;
+  padding: 0 0.4em;
+  display: flex;
+  gap: 0.3em;
+  align-items: center;
+  justify-content: center;
   transition:
     left 0.1s ease-in-out,
     opacity 0.1s ease-in-out;
-
   &:hover {
     opacity: 1;
   }
 `;
 
-const AddShiftCargoSchedule = styled.div<{ scrollLeft: number }>`
-  width: 2em;
+const AddSpawnCargoSchedule = styled.div`
+  width: auto;
   height: 2em;
   background-color: #f5f5f5;
-  border-radius: 50%;
+  border-radius: 3%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -136,15 +137,64 @@ const AddShiftCargoSchedule = styled.div<{ scrollLeft: number }>`
   z-index: 15;
   transition: opacity 0.3s ease-in-out;
   opacity: 0.9;
-  position: absolute;
-  top: 10px;
-  left: ${(props) => props.scrollLeft + 100}px;
+  padding: 0 0.4em;
+  display: flex;
+  gap: 0.3em;
+  align-items: center;
+  justify-content: center;
   transition:
     left 0.1s ease-in-out,
     opacity 0.1s ease-in-out;
-
   &:hover {
     opacity: 1;
+  }
+`;
+
+const AddShiftCargoSchedule = styled.div`
+  width: auto;
+  height: 2em;
+  background-color: #f5f5f5;
+  border-radius: 3%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  z-index: 15;
+  transition: opacity 0.3s ease-in-out;
+  opacity: 0.9;
+  padding: 0 0.4em;
+  transition:
+    left 0.1s ease-in-out,
+    opacity 0.1s ease-in-out;
+  display: flex;
+  gap: 0.3em;
+  align-items: center;
+  justify-content: center;
+  &:hover {
+    opacity: 1;
+  }
+`;
+
+const ColorBlockWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.3em;
+  padding-right: 4em;
+`;
+
+const ColorBlock = styled.div<{ color: string }>`
+  width: 1em;
+  height: 1em;
+  background-color: ${(props) => props.color};
+  border-radius: 2px;
+  cursor: help;
+  margin-left: 0.5em;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
   }
 `;
 
@@ -202,16 +252,16 @@ const Timeline: FC = () => {
   const [isEdit, setIsEdit] = useAtom(IsEditSchedule);
   const [startX, setStartX] = useState(0);
   const timelineRef = useRef<HTMLDivElement>(null);
-  const [selectTime, setSelectTime] = useAtom(SelectTime); //給編輯貨新增用
-  const setIsModalOpen = useSetAtom(OpenEditModal); // 編輯任務或是新增任務的
-  const setIsShiftCargoModalOpen = useSetAtom(OpenEditShiftCargoModal); // 編輯任務或是新增任務的
-  const setIsSpawnCargoModalOpen = useSetAtom(OpenEditSpawnCargoModal); // 編輯任務或是新增任務的
-  const [tasks, setTasks] = useState<TaskType[]>([]); // 把socket資料轉換後show在前端
+  const [selectTime, setSelectTime] = useAtom(SelectTime);
+  const setIsModalOpen = useSetAtom(OpenEditModal);
+  const setIsShiftCargoModalOpen = useSetAtom(OpenEditShiftCargoModal);
+  const setIsSpawnCargoModalOpen = useSetAtom(OpenEditSpawnCargoModal);
+  const [tasks, setTasks] = useState<TaskType[]>([]);
   const setEditTask = useSetAtom(EditTask);
-  const scheduleData = useTimelineScheduleSocket(); // 即時任務socket
+  const scheduleData = useTimelineScheduleSocket();
   const heightMode = useAtomValue(TimelineHeight);
   const [scrollLeft, setScrollLeft] = useState(0);
-  //console.log(tasks)
+
   const taskBarMainColor = (
     type: string,
     missionType: string | null,
@@ -243,6 +293,25 @@ const Timeline: FC = () => {
     }
   };
 
+  const getColorMeaning = (color: string) => {
+    switch (color.toUpperCase()) {
+      case "#4CAF50":
+        return t("sim.timeline.dynamic_mission");
+      case "#FBC02D":
+        return t("sim.timeline.notify_mission");
+      case "#1976D2":
+        return t("sim.timeline.normal_mission");
+      case "#F066EB":
+        return t("sim.timeline.spawn_cargo");
+      case "#2DC3FD":
+        return t("sim.timeline.shift_cargo");
+      case "#C2C2C2":
+        return t("sim.timeline.disabled");
+      default:
+        return t("sim.timeline.unknown");
+    }
+  };
+
   useEffect(() => {
     const updatedTasks: TaskType[] = scheduleData.map(
       (mission: Mission_Schedule) => ({
@@ -254,7 +323,6 @@ const Timeline: FC = () => {
         isEnable: mission.isEnable,
         styleRow: mission.styleRow,
         duration: 10,
-
         timelineMission: {
           type: mission.timelineMission?.type,
           normalMissionName: mission.timelineMission?.normalMissionName || null,
@@ -262,20 +330,16 @@ const Timeline: FC = () => {
             mission.timelineMission?.notifyMissionSourcePointName || null,
           dynamicMission: mission.timelineMission?.dynamicMission || null,
         },
-
         timelineShiftCargo: {
           shiftPeripheralName: mission.timelineShiftCargo?.shiftPeripheralName,
           peripheralType: mission.timelineShiftCargo?.peripheralType,
         },
-
         timelineSpawnCargo: {
           peripheralType: mission.timelineSpawnCargo?.peripheralType,
           peripheralName: mission.timelineSpawnCargo?.peripheralName,
         },
       }),
     );
-    //console.log(updatedTasks)
-    // console.log('change')
     setTasks(updatedTasks);
   }, [scheduleData]);
 
@@ -284,15 +348,11 @@ const Timeline: FC = () => {
       setEditTask(null);
       return;
     }
-    // console.log("editing =========");
-    const target = scheduleData.find((v) => {
-      return v.time === selectTime;
-    });
+    const target = scheduleData.find((v) => v.time === selectTime);
     if (!target) {
       message.error("can not found mission data!!");
       return;
     }
-    //  console.log(target);
     setEditTask(target);
   }, [isEdit]);
 
@@ -321,20 +381,17 @@ const Timeline: FC = () => {
   };
 
   const handleEditTimeline = (time: string, type: string) => {
-    // console.log(time, type);
     setSelectTime(time);
     if (type === "MISSION") {
       setIsEdit(true);
       setIsModalOpen(true);
       return;
     }
-
     if (type === "SPAWN_CARGO") {
       setIsEdit(true);
       setIsSpawnCargoModalOpen(true);
       return;
     }
-
     if (type === "SHIFT_CARGO") {
       setIsEdit(true);
       setIsShiftCargoModalOpen(true);
@@ -390,29 +447,52 @@ const Timeline: FC = () => {
         heightMode={heightMode}
         isDragging={isDragging}
       >
-        <Tooltip title="add mission event">
-          <AddSchedule scrollLeft={scrollLeft} onClick={directAddSchedule}>
-            <PlusOutlined />
-          </AddSchedule>
-        </Tooltip>
+        <FixItemWrapper scrollLeft={scrollLeft}>
+          <BtnWrapper>
+            <Tooltip title="add mission event">
+              <AddSchedule onClick={directAddSchedule}>
+                <PlusOutlined />
+                {t("sim.timeline.add_mission")}
+              </AddSchedule>
+            </Tooltip>
 
-        <Tooltip title="add shift cargo event">
-          <AddShiftCargoSchedule
-            scrollLeft={scrollLeft}
-            onClick={directShiftSchedule}
-          >
-            <PlusOutlined />
-          </AddShiftCargoSchedule>
-        </Tooltip>
+            <Tooltip title="add shift cargo event">
+              <AddShiftCargoSchedule onClick={directShiftSchedule}>
+                <PlusOutlined />
+                {t("sim.timeline.add_shift_cargo")}
+              </AddShiftCargoSchedule>
+            </Tooltip>
 
-        <Tooltip title="add spawn cargo event">
-          <AddSpawnCargoSchedule
-            scrollLeft={scrollLeft}
-            onClick={directSpawnCargoSchedule}
-          >
-            <PlusOutlined />
-          </AddSpawnCargoSchedule>
-        </Tooltip>
+            <Tooltip title="add spawn cargo event">
+              <AddSpawnCargoSchedule onClick={directSpawnCargoSchedule}>
+                <PlusOutlined />
+                {t("sim.timeline.add_spawn_cargo")}
+              </AddSpawnCargoSchedule>
+            </Tooltip>
+          </BtnWrapper>
+
+          {/* Color Blocks */}
+          <ColorBlockWrapper>
+            <Tooltip title={getColorMeaning("#4CAF50")}>
+              <ColorBlock color="#4CAF50" />
+            </Tooltip>
+            <Tooltip title={getColorMeaning("#FBC02D")}>
+              <ColorBlock color="#FBC02D" />
+            </Tooltip>
+            <Tooltip title={getColorMeaning("#1976D2")}>
+              <ColorBlock color="#1976D2" />
+            </Tooltip>
+            <Tooltip title={getColorMeaning("#F066EB")}>
+              <ColorBlock color="#F066EB" />
+            </Tooltip>
+            <Tooltip title={getColorMeaning("#2DC3FD")}>
+              <ColorBlock color="#2DC3FD" />
+            </Tooltip>
+            <Tooltip title={getColorMeaning("#C2C2C2")}>
+              <ColorBlock color="#C2C2C2" />
+            </Tooltip>
+          </ColorBlockWrapper>
+        </FixItemWrapper>
 
         <TimeLayer
           hours={hours}

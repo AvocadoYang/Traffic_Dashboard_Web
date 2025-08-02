@@ -1,13 +1,14 @@
 import { SingleChargeStation } from "@/api/useAllCharge";
 import FormHr from "@/pages/Setting/utils/FormHr";
 import { PeripheralEditData, IsEditPeripheralStyle } from "@/utils/gloable";
-import { Button, Select, Table } from "antd";
+import { Button, Drawer, Select, Table } from "antd";
 import { useAtom, useSetAtom } from "jotai";
 import { FC, useState } from "react";
 import { useTranslation } from "react-i18next";
 import SettingStyleForm from "./SettingStyleForm";
 import { FormatPainterOutlined } from "@ant-design/icons";
 import usePeripheralStyle from "@/api/usePeripheralStyle";
+import SettingMultiStyleForm from "./SettingMultiStyleForm";
 
 const EditPeripheralIcon: FC<{
   sortableId: string;
@@ -21,7 +22,8 @@ const EditPeripheralIcon: FC<{
   const [isEditStation, setIsEditStation] = useAtom(IsEditPeripheralStyle);
   const [filterType, setFilterType] = useState<string | null>(null);
   const { data } = usePeripheralStyle(filterType);
-
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [openDrawer, setOpenDrawer] = useState(false);
   const uniqueAreaTypes = Array.from(
     new Set((data ?? []).map((item) => item?.areaType)),
   );
@@ -57,6 +59,7 @@ const EditPeripheralIcon: FC<{
       title: t("other.edit_mission_tag.location"),
       dataIndex: "locationId",
       key: "locationId",
+      sorter: (a, b) => Number(a.locationId) - Number(b.locationId),
     },
     {
       title: t("peripheral_style.areaType"),
@@ -117,6 +120,24 @@ const EditPeripheralIcon: FC<{
     },
   ];
 
+  const onclose = () => {
+    setOpenDrawer(false);
+  };
+
+  const handleEditMulti = () => {
+    setOpenDrawer(true);
+  };
+
+  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
+    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+  };
+
   return (
     <div>
       <h3 className="drop_button_style" {...listeners} {...attributes}>
@@ -124,6 +145,9 @@ const EditPeripheralIcon: FC<{
       </h3>
       <FormHr />
 
+      <Button disabled={selectedRowKeys.length === 0} onClick={handleEditMulti}>
+        {t("utils.edit")}
+      </Button>
       {isEditStation ? (
         <SettingStyleForm />
       ) : (
@@ -140,12 +164,22 @@ const EditPeripheralIcon: FC<{
             value={filterType ?? undefined}
           />
           <Table
+            rowSelection={rowSelection}
             dataSource={data as SingleChargeStation[]}
             columns={columns as []}
             rowKey={(record: SingleChargeStation) => record.locationId}
           />
         </>
       )}
+      {openDrawer ? (
+        <Drawer
+          closable={{ "aria-label": "Close Button" }}
+          onClose={onclose}
+          open={openDrawer}
+        >
+          <SettingMultiStyleForm locations={selectedRowKeys as string[]} />
+        </Drawer>
+      ) : null}
     </div>
   );
 };

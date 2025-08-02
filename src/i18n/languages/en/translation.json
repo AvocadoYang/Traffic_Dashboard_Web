@@ -964,7 +964,17 @@
       "level": "Level",
       "no_set": "Not set",
       "change_timeline_height": "Change timeline height",
-      "table_view": "Table view"
+      "table_view": "Table view",
+      "add_mission": "Add Mission",
+      "add_spawn_cargo": "Add Spawn Cargo",
+      "add_shift_cargo": "Add Shift Cargo",
+      "dynamic_mission": "DYNAMIC mission",
+      "notify_mission": "NOTIFY mission",
+      "normal_mission": "NORMAL mission",
+      "spawn_cargo": "SPAWN cargo",
+      "shift_cargo": "SHIFT cargo",
+      "disabled": "DISABLED",
+      "unknown": "UNKNOWN"
     },
 
     "table_schedule": {
@@ -978,7 +988,7 @@
       "style_row": "Display Row",
       "enable": "Enable",
       "peripheral_id": "Spawn location",
-      "cargo_metadata_id": "Cargo Metadata ID",
+      "cargo_metadata_id": "Cargo Metadata Format",
       "metadata": "Metadata",
       "metadata_desc": "Enter metadata in JSON format if no cargo metadata schema is selected.",
       "name": "Name",

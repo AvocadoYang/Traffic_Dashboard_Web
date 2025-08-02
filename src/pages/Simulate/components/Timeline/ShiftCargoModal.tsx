@@ -138,6 +138,7 @@ export const ShiftCargoModal: FC = () => {
         isEnable: editTask.isEnable,
         shiftPeripheralId: editTask.timelineShiftCargo?.shiftPeripheralId,
       });
+      // console.log(editTask)
     } else if (!isEdit && selectTime) {
       form.setFieldValue("timestamp", dayjs(selectTime, "HH:mm"));
     }

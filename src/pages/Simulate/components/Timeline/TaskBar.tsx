@@ -113,7 +113,7 @@ const TaskBar: FC<{
     }
 
     if (task.type === "SHIFT_CARGO") {
-      const text = `shift to ${task.timelineShiftCargo?.peripheralType} ${task.timelineShiftCargo?.shiftPeripheralName}`;
+      const text = `shift alway ${task.timelineShiftCargo?.peripheralType} ${task.timelineShiftCargo?.shiftPeripheralName}`;
       return text.length > 20 ? `${text.slice(0, 20)}...` : text;
     }
     return "";
@@ -131,7 +131,7 @@ const TaskBar: FC<{
       return `spawn at ${task.timelineSpawnCargo?.peripheralType} ${task.timelineSpawnCargo?.peripheralName}`;
     }
     if (task.type === "SHIFT_CARGO") {
-      return `shift to ${task.timelineShiftCargo?.peripheralType} ${task.timelineShiftCargo?.shiftPeripheralName}`;
+      return `shift alway ${task.timelineShiftCargo?.peripheralType} ${task.timelineShiftCargo?.shiftPeripheralName}`;
     }
     return "";
   }, [task]);

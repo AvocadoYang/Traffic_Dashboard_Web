@@ -207,7 +207,7 @@ export const SpawnCargoModal: FC = () => {
   };
 
   useEffect(() => {
-    if (isEdit && editTask?.type === "SPAWN_CARGO") {
+    if (isEdit && editTask?.type === "SPAWN_CARGO" && isOpen) {
       const metadata = editTask.timelineSpawnCargo?.spawnCargoInfo?.metadata
         ? typeof editTask.timelineSpawnCargo.spawnCargoInfo.metadata ===
           "string"
@@ -216,7 +216,7 @@ export const SpawnCargoModal: FC = () => {
         : {};
       const customCargoMetadataId =
         editTask.timelineSpawnCargo?.spawnCargoInfo?.customCargoMetadataId;
-      console.log(editTask);
+      //  console.log(editTask);
       form.setFieldsValue({
         timestamp: dayjs(editTask.time, "HH:mm"),
         styleRow: editTask.styleRow,
@@ -341,17 +341,7 @@ export const SpawnCargoModal: FC = () => {
             ))
           ) : (
             <Form.Item
-              label={
-                <>
-                  {t("sim.spawn_cargo_modal.metadata")}
-                  <Tooltip
-                    placement="right"
-                    title={t("sim.spawn_cargo_modal.metadata_desc")}
-                  >
-                    <QuestionCircleOutlined />
-                  </Tooltip>
-                </>
-              }
+              label={<>{t("sim.spawn_cargo_modal.metadata")}</>}
               name="metadata"
             >
               <StyledJsonPreview>
