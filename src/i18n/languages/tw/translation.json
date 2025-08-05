@@ -424,6 +424,20 @@
     "tmp_loc": "尚未儲存點位"
   },
 
+  "multiStyle": {
+    "editX": "編輯 X？",
+    "editY": "編輯 Y？",
+    "editScale": "編輯縮放？",
+    "editRotate": "編輯旋轉？",
+    "editDirection": "編輯方向？",
+    "x": "X",
+    "y": "Y",
+    "scale": "縮放",
+    "rotate": "旋轉",
+    "flexDirection": "Flex 方向",
+    "selectDirection": "選擇方向"
+  },
+
   "shelf": {
     "shelf": "貨架",
     "cargo_mission": {
@@ -978,6 +992,9 @@
       "unknown": "未知"
     },
     "insert_modal": {
+      "mission": "任務",
+      "spawn_cargo": "生成貨物",
+      "shift_cargo": "轉移貨物",
       "dynamic": "取放貨任務（動態任務）",
       "normal": "普通任務",
       "notify": "關係級別任務",

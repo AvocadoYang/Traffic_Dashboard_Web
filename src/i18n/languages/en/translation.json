@@ -427,6 +427,20 @@
     "zone_color": "Zone color"
   },
 
+  "multiStyle": {
+    "editX": "Edit X?",
+    "editY": "Edit Y?",
+    "editScale": "Edit Scale?",
+    "editRotate": "Edit Rotate?",
+    "editDirection": "Edit Direction?",
+    "x": "X",
+    "y": "Y",
+    "scale": "Scale",
+    "rotate": "Rotate",
+    "flexDirection": "Flex Direction",
+    "selectDirection": "Select direction"
+  },
+
   "shelf": {
     "shelf": "Shelf",
     "cargo_mission": {
@@ -1021,6 +1035,9 @@
     },
 
     "insert_modal": {
+      "mission": "Mission",
+      "spawn_cargo": "SPAWN cargo",
+      "shift_cargo": "SHIFT cargo",
       "dynamic": "Pick-and-Place Task (Dynamic Task)",
       "normal": "Normal Task",
       "notify": "Notify Task",

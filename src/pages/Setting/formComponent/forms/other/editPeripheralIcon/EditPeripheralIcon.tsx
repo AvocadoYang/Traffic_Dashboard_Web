@@ -1,7 +1,7 @@
 import { SingleChargeStation } from "@/api/useAllCharge";
 import FormHr from "@/pages/Setting/utils/FormHr";
 import { PeripheralEditData, IsEditPeripheralStyle } from "@/utils/gloable";
-import { Button, Drawer, Select, Table } from "antd";
+import { Button, Drawer, Flex, Select, Table } from "antd";
 import { useAtom, useSetAtom } from "jotai";
 import { FC, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -129,7 +129,7 @@ const EditPeripheralIcon: FC<{
   };
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
+    //  console.log("selectedRowKeys changed: ", newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
 
@@ -145,24 +145,30 @@ const EditPeripheralIcon: FC<{
       </h3>
       <FormHr />
 
-      <Button disabled={selectedRowKeys.length === 0} onClick={handleEditMulti}>
-        {t("utils.edit")}
-      </Button>
       {isEditStation ? (
         <SettingStyleForm />
       ) : (
         <>
-          <Select
-            allowClear
-            style={{ width: 200, marginBottom: 16 }}
-            placeholder="Filter by areaType"
-            onChange={(value) => onChangeAreaType(value)}
-            options={uniqueAreaTypes.map((type) => ({
-              label: type,
-              value: type,
-            }))}
-            value={filterType ?? undefined}
-          />
+          <Flex gap="middle">
+            <Button
+              disabled={selectedRowKeys.length === 0}
+              onClick={handleEditMulti}
+            >
+              {t("utils.edit")}
+            </Button>
+            <Select
+              allowClear
+              style={{ width: 200, marginBottom: 16 }}
+              placeholder="Filter by areaType"
+              onChange={(value) => onChangeAreaType(value)}
+              options={uniqueAreaTypes.map((type) => ({
+                label: type,
+                value: type,
+              }))}
+              value={filterType ?? undefined}
+            />
+          </Flex>
+
           <Table
             rowSelection={rowSelection}
             dataSource={data as SingleChargeStation[]}

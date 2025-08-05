@@ -91,11 +91,15 @@ const InsertModal: FC = () => {
   const [isEdit, setIsEdit] = useAtom(IsEditSchedule);
   const [selectTime, setSelectTime] = useAtom(SelectTime);
   const editTask = useAtomValue(EditTask);
+  const [localEditTask, setLocalEditTask] = useState<Mission_Schedule | null>(
+    null,
+  ); // 沒有它會暴 id 會不正確
 
   const handleClose = () => {
     setIsOpen(false);
     setIsEdit(false);
     setSelectTime(null);
+    setLocalEditTask(null);
     form.resetFields();
   };
 
@@ -115,7 +119,8 @@ const InsertModal: FC = () => {
             }
           `,
           value: v.peripheralNameId,
-        })) || [],
+        }))
+        .sort((a, b) => a.label.localeCompare(b.label)) || [],
     [peripheralName, t],
   );
 
@@ -217,13 +222,13 @@ const InsertModal: FC = () => {
         };
 
         if (isEdit) {
-          if (!editTask?.id || !selectTime) {
+          if (!localEditTask?.id || !selectTime) {
             void messageApi.error(t("sim.insert_modal.error_missing_id"));
             return;
           }
 
           editMutation.mutate({
-            id: editTask.id,
+            id: localEditTask.id,
             oldTimestamp: selectTime,
             timestamp: formattedTimestamp,
             type: "MISSION",
@@ -265,7 +270,9 @@ const InsertModal: FC = () => {
 
   useEffect(() => {
     if (!isEdit || !editTask) return;
-    // console.log(editTask,' edit===')
+    //console.log(editTask,' edit===')
+    setLocalEditTask(editTask);
+
     form.setFieldsValue({
       timestamp: dayjs(editTask.time, "HH:mm"),
       styleRow: editTask.styleRow,

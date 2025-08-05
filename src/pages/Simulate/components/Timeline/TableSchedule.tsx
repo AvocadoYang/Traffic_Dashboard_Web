@@ -130,7 +130,7 @@ const TableSchedule: FC = () => {
     setSelectTime(task.time);
     setIsEdit(true);
     setEditTask(task);
-    // console.log(task)
+    // console.log(task, 'at table')
     if (task.type === "MISSION") {
       setIsModalOpen(true);
       return;
@@ -193,12 +193,12 @@ const TableSchedule: FC = () => {
 
     if (task.type === "SPAWN_CARGO") {
       const text = `spawn at ${task.timelineSpawnCargo?.peripheralType} ${task.timelineSpawnCargo?.peripheralName}`;
-      return text.length;
+      return text;
     }
 
     if (task.type === "SHIFT_CARGO") {
       const text = `shift to ${task.timelineShiftCargo?.peripheralType} ${task.timelineShiftCargo?.shiftPeripheralName}`;
-      return text.length;
+      return text;
     }
     return "";
   };
@@ -224,19 +224,22 @@ const TableSchedule: FC = () => {
       key: "type",
       render: (type: string) => {
         let label = type;
+        let tagColor = "default";
         switch (type) {
-          case "NORMAL":
-            label = t("sim.insert_modal.type_normal");
+          case "MISSION":
+            label = t("sim.insert_modal.mission");
+            tagColor = "blue";
             break;
-          case "DYNAMIC":
-            label = t("sim.insert_modal.type_dynamic");
+          case "SPAWN_CARGO":
+            label = t("sim.insert_modal.spawn_cargo");
+            tagColor = "green";
             break;
-          case "NOTIFY":
-            label = t("sim.insert_modal.type_notify");
+          case "SHIFT_CARGO":
+            label = t("sim.insert_modal.shift_cargo");
             break;
         }
         return (
-          <Tag color="geekblue" style={{ borderRadius: "12px" }}>
+          <Tag color={tagColor} style={{ borderRadius: "12px" }}>
             {label}
           </Tag>
         );
@@ -299,7 +302,6 @@ const TableSchedule: FC = () => {
             columns={columns as []}
             dataSource={scheduleData}
             rowKey="id"
-            pagination={false}
             scroll={{ x: 1000 }}
           />
         </StyledCard>

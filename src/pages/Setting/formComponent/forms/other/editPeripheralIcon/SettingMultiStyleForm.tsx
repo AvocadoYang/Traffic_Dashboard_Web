@@ -83,18 +83,26 @@ const SettingMultiStyleForm: FC<{ locations: string[] }> = ({ locations }) => {
         <Form form={form} layout="vertical" onFinish={onFinish}>
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item label="Edit X?" name="isEditX" valuePropName="checked">
+              <Form.Item
+                label={t("multiStyle.editX")}
+                name="isEditTranslateX"
+                valuePropName="checked"
+              >
                 <Switch />
               </Form.Item>
-              <Form.Item label="X" name="x">
+              <Form.Item label={t("multiStyle.x")} name="translateX">
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label="Edit Y?" name="isEditY" valuePropName="checked">
+              <Form.Item
+                label={t("multiStyle.editY")}
+                name="isEditTranslateY"
+                valuePropName="checked"
+              >
                 <Switch />
               </Form.Item>
-              <Form.Item label="Y" name="y">
+              <Form.Item label={t("multiStyle.y")} name="translateY">
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>
             </Col>
@@ -103,40 +111,46 @@ const SettingMultiStyleForm: FC<{ locations: string[] }> = ({ locations }) => {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                label="Edit Scale?"
+                label={t("multiStyle.editScale")}
                 name="isEditScale"
                 valuePropName="checked"
               >
                 <Switch />
               </Form.Item>
-              <Form.Item label="Scale" name="scale">
+              <Form.Item label={t("multiStyle.scale")} name="scale">
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
-                label="Edit Rotate?"
+                label={t("multiStyle.editRotate")}
                 name="isEditRotate"
                 valuePropName="checked"
               >
                 <Switch />
               </Form.Item>
-              <Form.Item label="Rotate" name="rotate">
+              <Form.Item label={t("multiStyle.rotate")} name="rotate">
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>
             </Col>
           </Row>
 
           <Form.Item
-            label="Edit Direction?"
+            label={t("multiStyle.editDirection")}
             name="isEditDirection"
             valuePropName="checked"
           >
             <Switch />
           </Form.Item>
 
-          <Form.Item label="Flex Direction" name="flex_direction">
-            <Select options={flexOption} placeholder="Select direction" />
+          <Form.Item
+            label={t("multiStyle.flexDirection")}
+            name="flex_direction"
+          >
+            <Select
+              options={flexOption}
+              placeholder={t("multiStyle.selectDirection")}
+            />
           </Form.Item>
 
           <StyledButton type="primary" htmlType="submit">
