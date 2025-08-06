@@ -68,13 +68,19 @@ export const isShowEditTopicMission = atom<boolean>(false);
 /** 6-8 顯示刪除任務身上有貨處理機制任務 */
 export const isShowEditAbortMissionWhenHasCargoMission = atom<boolean>(false);
 
-/** 7-1 顯示編輯標籤 */
+/** 7-1 顯示設備名稱表 */
+export const isShowPeripheralNameTable = atom<boolean>(false);
+
+/** 7-2 顯示設備群組表 */
+export const isShowPeripheralGroupTable = atom<boolean>(false);
+
+/** 8-1 顯示編輯標籤 */
 export const isShowEditMissionTag = atom<boolean>(false);
 
-/** 7-2 顯示編輯充電站icon位置 */
+/** 8-2 顯示編輯充電站icon位置 */
 export const isShowEditChargeStationPosition = atom<boolean>(false);
 
-/** 7-3 顯示自定義貨物格式 */
+/** 8-3 顯示自定義貨物格式 */
 export const isShowEditCustomCargoFormat = atom<boolean>(false);
 
 /** 9-1 顯示編輯warning id */

@@ -71,10 +71,12 @@ export const rad2Deg = (rad: number) => sanitizeDeg((rad / Math.PI) * 180);
 export const deg2Rad = (deg: number) => (sanitizeDeg(deg) / 180) * Math.PI;
 
 export const errorHandler = (e: ErrorResponse, messageApi: MessageInstance) => {
-  console.log(e);
+  console.log(e.response?.data);
 
   const errorMessage =
-    e?.response?.data?.message || "An unknown error occurred";
+    e?.response?.data?.message ||
+    e?.response?.data?.error.message ||
+    "An unknown error occurred";
 
   void messageApi.error(errorMessage, 5);
 };

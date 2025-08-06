@@ -30,6 +30,8 @@ import {
   isShowRegisterAMR,
   isShowEditAbortMissionWhenHasCargoMission,
   isShowEditCustomCargoFormat,
+  isShowPeripheralNameTable,
+  isShowPeripheralGroupTable,
 } from "@/utils/siderGloble";
 import { ToolBarItemType } from "../components/siderElement";
 
@@ -65,10 +67,15 @@ const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({
   const setOpenAbortMissionPanel = useSetAtom(
     isShowEditAbortMissionWhenHasCargoMission,
   );
-  const setOpenTagMissionPanel = useSetAtom(isShowEditMissionTag); // 6-1
+
+  const setOpenPeripheralNamePanel = useSetAtom(isShowPeripheralNameTable); // 7-1
+  const setOpenPeripheralGroupPanel = useSetAtom(isShowPeripheralGroupTable); // 7-2
   const setOpenEditChargeStationIconPanel = useSetAtom(
     isShowEditChargeStationPosition,
-  ); // 6-2
+  ); // 7-3
+
+  const setOpenTagMissionPanel = useSetAtom(isShowEditMissionTag); // 6-1
+
   const setOpenCustomCargoInfoPanel = useSetAtom(isShowEditCustomCargoFormat); // 6-3
   const setOpenWarningId = useSetAtom(isShowEditWarningId); // 7-1
   const setOpenUploadWarningIDModal = useSetAtom(isOpenUploadWarningIDModal); //7-2
@@ -136,6 +143,12 @@ const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({
         break;
       case "abort_cargo_mission":
         setOpenAbortMissionPanel(false);
+        break;
+      case "peripheral_name_table":
+        setOpenPeripheralNamePanel(false);
+        break;
+      case "peripheral_group_table":
+        setOpenPeripheralGroupPanel(false);
         break;
       case "edit_tag":
         setOpenTagMissionPanel(false);

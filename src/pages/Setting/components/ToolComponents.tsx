@@ -31,6 +31,8 @@ import {
   isShowEditScheduleMission,
   isShowEditTopicMission,
   isShowEditWarningId,
+  isShowPeripheralGroupTable,
+  isShowPeripheralNameTable,
   isShowRegisterAMR,
   QuickEditLocationPanelSwitch,
   QuickEditRoadSwitch,
@@ -61,6 +63,7 @@ import QuickEditRoadPanel from "../formComponent/QuickEditRoadPanel";
 import { AbortCargoMissionPanel } from "../formComponent/forms/missionComponents/abortCargoMission";
 import CustomCargoInfoPanel from "../formComponent/forms/other/customCargoInfo/CustomCargoInfoPanel";
 import EditPeripheralIcon from "../formComponent/forms/other/editPeripheralIcon/EditPeripheralIcon";
+import { PeripheralGroupPanel, PeripheralNamePanel } from "./peripherals";
 
 const SortableWrap: FC<{
   sortableId: ToolBarItemType;
@@ -384,9 +387,39 @@ const SortableWrap: FC<{
               <Card style={styles} ref={setNodeRef}>
                 <FormCloseBtn
                   sortableId={sortableId}
-                  panelName="topic_mission"
+                  panelName="abort_cargo_mission"
                 />
                 <AbortCargoMissionPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
+
+          case "peripheral_name_table":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="peripheral_name_table"
+                />
+                <PeripheralNamePanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
+
+          case "peripheral_group_table":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="peripheral_group_table"
+                />
+                <PeripheralGroupPanel
                   sortableId={sortableId}
                   attributes={attributes}
                   listeners={listeners}
@@ -500,6 +533,10 @@ const ToolComponents: FC<{
   const openAbortCargoMission = useAtomValue(
     isShowEditAbortMissionWhenHasCargoMission,
   );
+
+  const openPeripheralNamePanel = useAtomValue(isShowPeripheralNameTable);
+  const openPeripheralGroupPanel = useAtomValue(isShowPeripheralGroupTable);
+
   const openTagPanel = useAtomValue(isShowEditMissionTag);
   const openChargeStylePanel = useAtomValue(isShowEditChargeStationPosition);
   const openCargoFormatPanel = useAtomValue(isShowEditCustomCargoFormat);
@@ -622,6 +659,15 @@ const ToolComponents: FC<{
     if (formKey === "abort_cargo_mission" && openAbortCargoMission) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
+
+    if (formKey === "peripheral_name_table" && openPeripheralNamePanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+
+    if (formKey === "peripheral_group_table" && openPeripheralGroupPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+
     if (formKey === "edit_tag" && openTagPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }

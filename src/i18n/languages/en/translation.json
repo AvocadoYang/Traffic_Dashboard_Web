@@ -251,6 +251,11 @@
       "topic_mission": "Topic mission",
       "abort_mission_when_has_cargo_mission": "Delete mission when there is cargo to process"
     },
+    "peripheral": {
+      "title": "Device",
+      "name_table": "Device Name Table",
+      "group_table": "Device Area Table"
+    },
     "others": {
       "others": "Others",
       "edit_gauge": "Edit Gauge",
@@ -1320,5 +1325,41 @@
 
   "peripheral_style": {
     "areaType": "地點功能"
+  },
+
+  "peripheral_name_table": {
+    "locationId": "Location ID",
+    "type": "Type",
+    "level": "Level",
+    "name": "Name",
+    "operation": "Operation",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "reload": "Reload",
+    "updatedSuccess": "Name updated successfully",
+    "updateFail": "Failed to save changes",
+    "inputPlaceholder": "Enter name"
+  },
+  "peripheral_group_table": {
+    "add_title": "Add Group",
+    "edit_title": "Edit Group",
+    "available_peripherals": "Available peripherals",
+    "selected_peripherals": "Selected Peripheral",
+    "search_peripherals": "search",
+    "peripherals": "peripherals",
+    "description": "description",
+    "locationId": "Location ID",
+    "type": "Type",
+    "level": "Level",
+    "name": "Name",
+    "operation": "Operation",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "reload": "Reload",
+    "updatedSuccess": "Name updated successfully",
+    "updateFail": "Failed to save changes",
+    "inputPlaceholder": "Enter name"
   }
 }

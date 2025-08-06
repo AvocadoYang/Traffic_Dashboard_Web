@@ -249,6 +249,11 @@
       "topic_mission": "Topic任務",
       "abort_mission_when_has_cargo_mission": "刪除任務有貨處理"
     },
+    "peripheral": {
+      "title": "設備",
+      "name_table": "設備名稱表",
+      "group_table": "設備群組表"
+    },
     "others": {
       "others": "其它",
       "edit_gauge": "編輯錶頭",
@@ -1323,5 +1328,42 @@
 
   "peripheral_style": {
     "areaType": "地點功能"
+  },
+
+  "peripheral_name_table": {
+    "locationId": "位置編號",
+    "type": "類型",
+    "level": "層級",
+    "name": "名稱",
+    "operation": "操作",
+    "edit": "編輯",
+    "save": "儲存",
+    "cancel": "取消",
+    "reload": "重新載入",
+    "updatedSuccess": "名稱更新成功",
+    "updateFail": "儲存失敗",
+    "inputPlaceholder": "輸入名稱"
+  },
+  "peripheral_group_table": {
+    "add_title": "新增群組",
+    "edit_title": "編輯群組",
+    "available_peripherals": "可用的設備",
+    "selected_peripherals": "已選擇的設備",
+    "search_peripherals": "search",
+
+    "peripherals": "設備",
+    "description": "說明",
+    "locationId": "位置編號",
+    "type": "類型",
+    "level": "層級",
+    "name": "名稱",
+    "operation": "操作",
+    "edit": "編輯",
+    "save": "儲存",
+    "cancel": "取消",
+    "reload": "重新載入",
+    "updatedSuccess": "名稱更新成功",
+    "updateFail": "儲存失敗",
+    "inputPlaceholder": "輸入名稱"
   }
 }

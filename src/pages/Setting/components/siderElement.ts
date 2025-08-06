@@ -37,6 +37,10 @@ export const formList = [
   { key: "topic_mission" },
   { key: "abort_cargo_mission" },
   // ===================
+  // === peripheral ===
+  { key: "peripheral_name_table" },
+  { key: "peripheral_group_table" },
+
   // === other ===
   { key: "edit_tag" },
   { key: "edit_icon_style" },

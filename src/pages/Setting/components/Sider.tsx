@@ -34,6 +34,8 @@ import {
   QuickEditRoadSwitch,
   isShowEditAbortMissionWhenHasCargoMission,
   isShowEditCustomCargoFormat,
+  isShowPeripheralNameTable,
+  isShowPeripheralGroupTable,
 } from "@/utils/siderGloble";
 import {
   AimOutlined,
@@ -154,6 +156,14 @@ const Sider: React.FC<{
   const setOpenSwitchMap = useSetAtom(isOpenSwitchMap);
 
   const setShowLocationToolTip = useSetAtom(isShowLocationTooltip);
+
+  const [openPeripheralNameMap, setOpenPeripheralNameMap] = useAtom(
+    isShowPeripheralNameTable,
+  );
+  const [openPeripheralGroupMap, setOpenPeripheralGroupMap] = useAtom(
+    isShowPeripheralGroupTable,
+  );
+
   const [collapsed, setCollapsed] = useState(true);
   const { t } = useTranslation();
   useEffect(() => {
@@ -184,6 +194,8 @@ const Sider: React.FC<{
       openWarningId,
       openBackup,
       quickEditRoad,
+      openPeripheralNameMap,
+      openPeripheralGroupMap,
     ].some((item) => item);
 
     setHasOpenTool(isOpen);
@@ -214,6 +226,8 @@ const Sider: React.FC<{
     openWarningId,
     openBackup,
     quickEditRoad,
+    openPeripheralNameMap,
+    openPeripheralGroupMap,
   ]);
 
   const handleShowPanel = async (check: boolean, itemType: ToolBarItemType) => {
@@ -309,6 +323,15 @@ const Sider: React.FC<{
         break;
 
       // ===================
+      // === peripheral ===
+      case "peripheral_name_table":
+        setOpenPeripheralNameMap(check);
+        break;
+
+      case "peripheral_group_table":
+        setOpenPeripheralGroupMap(check);
+        break;
+
       // ===================
       // === amr robot ===
 
@@ -578,36 +601,62 @@ const Sider: React.FC<{
         />,
       ),
     ]),
-    getItem(t("toolbar.others.others"), "7", <DeploymentUnitOutlined />, [
+
+    getItem(t("toolbar.peripheral.title"), "7", <DeploymentUnitOutlined />, [
       getItem(
-        t("toolbar.others.edit_tag"),
+        t("toolbar.peripheral.name_table"),
         "7-1",
         <Switch
-          checked={openTagMissionPanel}
-          onChange={(checked) => handleShowPanel(checked, "edit_tag")}
+          checked={openPeripheralNameMap}
+          onChange={(checked) =>
+            handleShowPanel(checked, "peripheral_name_table")
+          }
         />,
       ),
       getItem(
-        t("toolbar.others.edit_peripheral_style"),
+        t("toolbar.peripheral.group_table"),
         "7-2",
+        <Switch
+          checked={openPeripheralGroupMap}
+          onChange={(checked) =>
+            handleShowPanel(checked, "peripheral_group_table")
+          }
+        />,
+      ),
+
+      getItem(
+        t("toolbar.others.edit_peripheral_style"),
+        "7-3",
         <Switch
           checked={openEditChargeStationIconPanel}
           onChange={(checked) => handleShowPanel(checked, "edit_icon_style")}
         />,
       ),
+    ]),
+
+    getItem(t("toolbar.others.others"), "8", <DeploymentUnitOutlined />, [
+      getItem(
+        t("toolbar.others.edit_tag"),
+        "8-1",
+        <Switch
+          checked={openTagMissionPanel}
+          onChange={(checked) => handleShowPanel(checked, "edit_tag")}
+        />,
+      ),
+
       getItem(
         t("toolbar.others.custom_cargo_info"),
-        "7-3",
+        "8-2",
         <Switch
           checked={openCustomCargoFormat}
           onChange={(checked) => handleShowPanel(checked, "custom_cargo_info")}
         />,
       ),
     ]),
-    getItem(t("toolbar.file_setting.file_setting"), "8", <FileOutlined />, [
+    getItem(t("toolbar.file_setting.file_setting"), "9", <FileOutlined />, [
       getItem(
         t("toolbar.file_setting.warning_id"),
-        "8-1",
+        "9-1",
         <Switch
           checked={openWarningId}
           onChange={(checked) => handleShowPanel(checked, "warning_id")}
@@ -615,7 +664,7 @@ const Sider: React.FC<{
       ),
       getItem(
         t("toolbar.file_setting.upload_warning_file"),
-        "8-2",
+        "9-2",
         <Switch
           checked={OpenUploadWarningIDModal}
           onChange={(checked) =>
@@ -625,7 +674,7 @@ const Sider: React.FC<{
       ),
       getItem(
         t("toolbar.file_setting.backup_file"),
-        "8-3",
+        "9-3",
         <Switch
           checked={openBackup}
           onChange={(checked) => handleShowPanel(checked, "backup_file")}
@@ -633,15 +682,15 @@ const Sider: React.FC<{
       ),
       getItem(
         t("toolbar.file_setting.switch_map"),
-        "8-4",
+        "9-4",
         <DeliveredProcedureOutlined />,
       ),
       getItem(
         t("toolbar.file_setting.import_map"),
-        "8-5",
+        "9-5",
         <DeliveredProcedureOutlined />,
       ),
-      getItem(t("toolbar.restart.restart"), "8-6", <RedoOutlined />),
+      getItem(t("toolbar.restart.restart"), "9-6", <RedoOutlined />),
     ]),
   ];
 
