@@ -127,7 +127,7 @@ const AddModal: React.FC<AddModalProps> = ({
         return;
       }
       const values = await form.validateFields();
-      
+
       if (!values.name) {
         messageApi.error("name is require !");
         return;

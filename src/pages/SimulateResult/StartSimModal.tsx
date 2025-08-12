@@ -1,6 +1,7 @@
 import {
   Button,
   Divider,
+  Flex,
   InputNumber,
   List,
   Modal,
@@ -8,6 +9,7 @@ import {
   Switch,
   Tag,
   TimePicker,
+  Tooltip,
   Typography,
 } from "antd";
 import { Dispatch, FC, SetStateAction, useState } from "react";
@@ -32,6 +34,7 @@ const StartSimModal: FC<{
   handleSim: (
     timeRange: [dayjs.Dayjs, dayjs.Dayjs],
     activeStationTask: boolean,
+    runningScale: number,
   ) => void;
   canSim: boolean;
 }> = ({ isSimulateOpen, setIsSimulateOpen, handleSim, canSim }) => {
@@ -44,7 +47,12 @@ const StartSimModal: FC<{
     endTime,
   ]);
   const [isActiveStation, setIsActiveStation] = useState(true);
-
+  const [scale, setScale] = useState(10);
+  const durationMinutes = Math.max(
+    0,
+    dayjs(timeRange[1]).diff(dayjs(timeRange[0]), "minute"),
+  );
+  const simMinutes = durationMinutes / (scale || 1);
   return (
     <Modal
       open={isSimulateOpen}
@@ -130,6 +138,38 @@ const StartSimModal: FC<{
         />
       </div>
 
+      <div style={{ marginBottom: "24px", maxWidth: "600px" }}>
+        <Flex vertical gap="small">
+          {/* First row: Labels */}
+          <Flex justify="space-between" wrap="wrap" gap="middle">
+            <Text strong style={{ marginBottom: 8 }}>
+              {t("sim.start_sim_modal.scale")}
+            </Text>
+          </Flex>
+
+          {/* Second row: Input and Tag */}
+          <Flex gap="middle" align="center" wrap="wrap">
+            <label htmlFor="scale-input" style={{ display: "none" }}>
+              {t("sim.start_sim_modal.scale")}
+            </label>
+            <InputNumber
+              id="scale-input"
+              max={10}
+              min={1}
+              value={scale}
+              onChange={(value) => setScale(value ?? 10)} // Explicit nullish coalescing
+              style={{ width: "100px" }} // Constrain width for consistency
+              aria-label={t("sim.start_sim_modal.scale")} // Accessibility
+            />
+            <Tooltip title={t("sim.start_sim_modal.spend_time")}>
+              <Tag color="purple">
+                {simMinutes.toFixed(1)} {t("utils.minutes")}
+              </Tag>
+            </Tooltip>
+          </Flex>
+        </Flex>
+      </div>
+
       <div style={{ marginBottom: "24px" }}>
         <Text strong style={{ display: "block", marginBottom: "8px" }}>
           {t("sim.start_sim_modal.station_mission")}
@@ -149,7 +189,7 @@ const StartSimModal: FC<{
           disabled={!canSim}
           type="primary"
           icon={<CheckCircleOutlined />}
-          onClick={() => handleSim(timeRange, isActiveStation)}
+          onClick={() => handleSim(timeRange, isActiveStation, scale)}
           style={{
             background: canSim ? "#1d39c4" : "#fff",
             borderColor: "#1d39c4",

@@ -124,16 +124,19 @@ const InsertModal: FC = () => {
     [peripheralName, t],
   );
 
-  const amrOption = useMemo(
-    () =>
+  const amrOption = useMemo(() => {
+    const options =
       name?.amrs
         .filter((c) => c.isReal === false)
         .map((m) => ({
           label: `${m.amrId} ${m.isReal ? "" : t("simulate")}`,
           value: m.amrId,
-        })) || [],
-    [name, t],
-  );
+        })) || [];
+
+    return options
+      ? [...options, { value: "none", label: t("utils.random") }]
+      : [];
+  }, [name, t]);
 
   const missionOption = useMemo(
     () => [
@@ -270,7 +273,7 @@ const InsertModal: FC = () => {
 
   useEffect(() => {
     if (!isEdit || !editTask) return;
-    //console.log(editTask,' edit===')
+    // console.log(editTask,' edit===')
     setLocalEditTask(editTask);
 
     form.setFieldsValue({
@@ -288,13 +291,13 @@ const InsertModal: FC = () => {
       notify: editTask.timelineMission?.notifyMissionSourcePointName,
     });
     setMissionType(editTask.timelineMission?.type as Mission_Type);
-  }, [isEdit, form]);
+  }, [isEdit, form, editTask]);
 
-  useEffect(() => {
-    if (!isEdit && selectTime) {
-      form.setFieldValue("timestamp", dayjs(selectTime, "HH:mm"));
-    }
-  }, [selectTime, isEdit, form]);
+  // useEffect(() => {
+  //   if (!isEdit && selectTime) {
+  //     form.setFieldValue("timestamp", dayjs(selectTime, "HH:mm"));
+  //   }
+  // }, [selectTime, isEdit, form]);
 
   return (
     <>
@@ -433,6 +436,13 @@ const InsertModal: FC = () => {
                           >
                             <Select
                               options={peripheralOption}
+                              showSearch
+                              filterOption={(input, option) =>
+                                (option?.label ?? "")
+                                  .toString()
+                                  .toLowerCase()
+                                  .includes(input.toLowerCase())
+                              }
                               placeholder={t("sim.insert_modal.load_from")}
                             />
                           </Form.Item>
@@ -449,6 +459,13 @@ const InsertModal: FC = () => {
                             style={{ minWidth: 280, flex: 1 }}
                           >
                             <Select
+                              showSearch
+                              filterOption={(input, option) =>
+                                (option?.label ?? "")
+                                  .toString()
+                                  .toLowerCase()
+                                  .includes(input.toLowerCase())
+                              }
                               options={peripheralOption}
                               placeholder={t("sim.insert_modal.offload_to")}
                             />

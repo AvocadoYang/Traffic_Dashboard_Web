@@ -32,7 +32,7 @@ const HourMarkerBar = styled.div`
   height: 40px;
   background-color: #666;
   border-radius: 1px;
-  cursor: pointer;
+  /* cursor: pointer; */
 `;
 
 const MinuteMarkerBar = styled.div`
@@ -40,7 +40,7 @@ const MinuteMarkerBar = styled.div`
   height: 20px;
   background-color: #999;
   border-radius: 0.5px;
-  cursor: pointer;
+  /* cursor: pointer; */
 `;
 
 const HourLabel = styled.span<{ zoom: number }>`
@@ -65,8 +65,7 @@ const EachBlock: FC<{
   minute: number;
   index: number;
   setSelectTime: Dispatch<SetStateAction<string | null>>;
-  handleMarkerClick: (index: number) => void;
-}> = ({ time, isHour, minute, index, setSelectTime, handleMarkerClick }) => {
+}> = ({ time, isHour, minute, setSelectTime }) => {
   const zoom = 3;
 
   const handleSelect = () => {
@@ -78,12 +77,12 @@ const EachBlock: FC<{
       <Block onClick={handleSelect}>
         {/* {index} */}
         {isHour ? (
-          <HourMarker onClick={() => handleMarkerClick(index)} zoom={zoom}>
+          <HourMarker zoom={zoom}>
             <HourLabel zoom={zoom}>{time}</HourLabel>
             <HourMarkerBar />
           </HourMarker>
         ) : (
-          <MinuteMarker onClick={() => handleMarkerClick(index)} zoom={zoom}>
+          <MinuteMarker zoom={zoom}>
             {zoom > 1.5 && minute % 5 === 0 && (
               <MinuteLabel zoom={zoom}>{time}</MinuteLabel>
             )}

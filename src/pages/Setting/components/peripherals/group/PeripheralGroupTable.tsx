@@ -26,7 +26,12 @@ import { errorHandler } from "@/utils/utils";
 import styled from "styled-components";
 import AddModal from "./AddModal";
 import { prefixLevelName } from "@/utils/globalFunction";
-import { DeleteOutlined, EditOutlined, EditTwoTone, PlusOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  EditTwoTone,
+  PlusOutlined,
+} from "@ant-design/icons";
 
 const PeripheralGroupTable: React.FC = () => {
   const { t } = useTranslation();
@@ -142,7 +147,9 @@ const PeripheralGroupTable: React.FC = () => {
     <>
       {contextHolder}
       <Flex>
-        <Button icon={<PlusOutlined />} onClick={handleOpenAddModal}>{t('utils.add')}</Button>
+        <Button icon={<PlusOutlined />} onClick={handleOpenAddModal}>
+          {t("utils.add")}
+        </Button>
       </Flex>
 
       <Table<PeripheralGroupName>

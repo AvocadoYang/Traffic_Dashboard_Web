@@ -19,6 +19,7 @@ export type TaskType = {
   };
 
   timelineMission?: {
+    amrId?: string | null;
     type?: string;
     normalMissionName?: string | null;
     notifyMissionSourcePointName?: string | null;

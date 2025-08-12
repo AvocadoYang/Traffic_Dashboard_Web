@@ -88,7 +88,8 @@ const TaskBar: FC<{
   const handleEnable = () => {
     editMutation.mutate({ id: task.id, isEnable: !task.isEnable });
   };
-
+  // console.log('==============')
+  // console.log(task)
   const RenderText = useMemo(() => {
     if (task.type === "MISSION") {
       switch (task.timelineMission?.type) {
@@ -121,12 +122,22 @@ const TaskBar: FC<{
 
   const fullText = useMemo(() => {
     if (task.type === "MISSION" && task.timelineMission?.type === "DYNAMIC") {
-      return (
+      const content =
         task.timelineMission.dynamicMission
           ?.map((e) => `${e.loadFrom} -> ${e.offloadTo}`)
-          .join(", ") || ""
-      );
+          .join(", ") || "";
+
+      return `${task.timelineMission.amrId} | ${content}`;
     }
+
+    if (task.type === "MISSION" && task.timelineMission?.type === "NOTIFY") {
+      return `${task.timelineMission.amrId} | ${task.timelineMission.notifyMissionSourcePointName}`;
+    }
+
+    if (task.type === "MISSION" && task.timelineMission?.type === "NORMAL") {
+      return `${task.timelineMission.amrId} | ${task.timelineMission.normalMissionName}`;
+    }
+
     if (task.type === "SPAWN_CARGO") {
       return `spawn at ${task.timelineSpawnCargo?.peripheralType} ${task.timelineSpawnCargo?.peripheralName}`;
     }
@@ -159,9 +170,11 @@ const TaskBar: FC<{
   );
 };
 
-export default memo(
-  TaskBar,
-  (prev, next) =>
-    prev.task.time === next.task.time &&
-    prev.barMainColor === next.barMainColor,
-);
+// export default memo(
+//   TaskBar,
+//   (prev, next) =>
+//     prev.task.time === next.task.time &&
+//     prev.barMainColor === next.barMainColor,
+// );
+
+export default TaskBar;

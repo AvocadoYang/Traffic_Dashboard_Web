@@ -1174,6 +1174,8 @@
     "start_sim_modal": {
       "inactive_sim": "中止模擬",
       "active_sim": "啟動模擬",
+      "spend_time": "模擬總時長",
+      "scale": "運行倍數",
       "please_confirm_info": "請確認以下模擬詳情",
       "sim_script": "模擬腳本：",
       "no_script_select": "未指定腳本",

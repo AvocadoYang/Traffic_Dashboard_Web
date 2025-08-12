@@ -2,6 +2,7 @@ import { useTimelineScheduleSocket } from "@/sockets/useTimelineScheduleSocket";
 import {
   Button,
   Card,
+  Divider,
   Flex,
   message,
   Modal,
@@ -11,7 +12,7 @@ import {
   Tag,
   Typography,
 } from "antd";
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import { Mission_Schedule } from "@/sockets/useTimelineScheduleSocket";
 import { useAtom, useSetAtom } from "jotai";
 import {
@@ -121,7 +122,7 @@ const TableSchedule: FC = () => {
   const setEditTask = useSetAtom(EditTask);
   const setIsEdit = useSetAtom(IsEditSchedule);
   const [messageApi, contextHolder] = message.useMessage();
-
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const handleCancel = () => {
     setIsOpenScheduleTable(false);
   };
@@ -167,6 +168,17 @@ const TableSchedule: FC = () => {
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
+  const removeMultiMutation = useMutation({
+    mutationFn: (payload: { id: string[] }) => {
+      return client.post("api/simulate/remove-multi-timeline-mission", payload);
+    },
+    onSuccess: () => {
+      void messageApi.success(t("utils.success"));
+      setSelectedRowKeys([]);
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
   const removeSchedule = (id: string, time: string) => {
     removeMutation.mutate({ id, time });
   };
@@ -183,11 +195,11 @@ const TableSchedule: FC = () => {
             task.timelineMission.dynamicMission
               ?.map((e) => `${e.loadFrom} -> ${e.offloadTo}`)
               .join(", ") || "";
-          return dynamicMissions;
+          return `${task.timelineMission.amrId} | ${dynamicMissions}`;
         case "NOTIFY":
-          return task.timelineMission.notifyMissionSourcePointName || "";
+          return `${task.timelineMission.amrId} | ${task.timelineMission.notifyMissionSourcePointName || ""}`;
         case "NORMAL":
-          return task.timelineMission.normalMissionName || "";
+          return `${task.timelineMission.amrId} | ${task.timelineMission.normalMissionName || ""}`;
       }
     }
 
@@ -284,6 +296,20 @@ const TableSchedule: FC = () => {
     },
   ];
 
+  const deleteMulti = () => {
+    removeMultiMutation.mutate({ id: selectedRowKeys as string[] });
+  };
+
+  const onSelectChange = (newSelectedRowKeys: string[]) => {
+    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+  };
+
   if (!isOpenScheduleTable) return null;
 
   return (
@@ -297,8 +323,21 @@ const TableSchedule: FC = () => {
         zIndex={9}
         title={t("sim.table_schedule.title")}
       >
+        <Flex>
+          <Button
+            onClick={deleteMulti}
+            disabled={selectedRowKeys.length === 0}
+            danger
+          >
+            {t("utils.delete")}
+          </Button>
+        </Flex>
+
+        <Divider />
+
         <StyledCard>
           <StyledTable
+            rowSelection={{ type: "checkbox", ...rowSelection }}
             columns={columns as []}
             dataSource={scheduleData}
             rowKey="id"

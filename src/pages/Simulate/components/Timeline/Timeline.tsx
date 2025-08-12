@@ -261,7 +261,7 @@ const Timeline: FC = () => {
   const scheduleData = useTimelineScheduleSocket();
   const heightMode = useAtomValue(TimelineHeight);
   const [scrollLeft, setScrollLeft] = useState(0);
-
+  // console.log(scheduleData,'sche')
   const taskBarMainColor = (
     type: string,
     missionType: string | null,
@@ -324,6 +324,7 @@ const Timeline: FC = () => {
         styleRow: mission.styleRow,
         duration: 10,
         timelineMission: {
+          amrId: mission.timelineMission?.amrId || null,
           type: mission.timelineMission?.type,
           normalMissionName: mission.timelineMission?.normalMissionName || null,
           notifyMissionSourcePointName:
@@ -357,10 +358,6 @@ const Timeline: FC = () => {
   }, [isEdit]);
 
   const { rowAssignments, rowCount } = assignTaskRows(tasks);
-
-  const handleMarkerClick = () => {
-    setIsModalOpen(true);
-  };
 
   const handleMouseDown = (event: MouseEvent<HTMLDivElement>) => {
     if (event.button === 0) {
@@ -494,11 +491,7 @@ const Timeline: FC = () => {
           </ColorBlockWrapper>
         </FixItemWrapper>
 
-        <TimeLayer
-          hours={hours}
-          setSelectTime={setSelectTime}
-          handleMarkerClick={handleMarkerClick}
-        />
+        <TimeLayer hours={hours} setSelectTime={setSelectTime} />
 
         <TaskLayer height={rowCount * 25} wrapperHeight={heightMode}>
           {tasks.map((task, idx) => (

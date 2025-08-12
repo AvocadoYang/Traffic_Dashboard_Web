@@ -128,7 +128,6 @@ const DialogMission = () => {
     <Modal
       title={t("main.card_name.new_mission")}
       open={openDialogMission}
-      onClose={handleCancel}
       footer={[
         <Button
           key="submit"

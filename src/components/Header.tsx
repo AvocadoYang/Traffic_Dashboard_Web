@@ -69,6 +69,7 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
       isSimulate: boolean;
       startTime: string;
       endTime: string;
+      runningScale: number;
       activeStationTask: boolean;
     }) => {
       return client.post("api/simulate/simulate", data);
@@ -91,8 +92,8 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
   const handleSim = (
     timeRange: [dayjs.Dayjs, dayjs.Dayjs],
     activeStationTask: boolean,
+    runningScale: number,
   ) => {
-    localStorage.setItem("seem-mock-result", "false");
 
     const startTime = timeRange[0].format("HH:mm");
     const endTime = timeRange[1].format("HH:mm");
@@ -100,6 +101,7 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
     simMutation.mutate({
       startTime,
       endTime,
+      runningScale,
       isSimulate: true,
       activeStationTask,
     });
@@ -110,6 +112,7 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
       isSimulate: false,
       startTime: "00:00",
       endTime: "00:00",
+      runningScale: 1,
       activeStationTask: false,
     });
   };
