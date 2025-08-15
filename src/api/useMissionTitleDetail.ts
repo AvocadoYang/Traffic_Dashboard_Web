@@ -32,7 +32,6 @@ const schema = array(
         id: string().required(),
         process_order: number().required(),
         disable: boolean().required(),
-        detail: string().required(),
       })
         .required()
         .nullable(),

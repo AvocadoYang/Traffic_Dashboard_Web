@@ -276,22 +276,25 @@ const InsertModal: FC = () => {
     // console.log(editTask,' edit===')
     setLocalEditTask(editTask);
 
-    form.setFieldsValue({
-      timestamp: dayjs(editTask.time, "HH:mm"),
-      styleRow: editTask.styleRow,
-      isEnable: editTask.isEnable,
-      amrId: editTask.timelineMission?.amrId,
-      priority: editTask.timelineMission?.priority,
-      missionType: editTask.timelineMission?.type as Mission_Type,
-      dynamic: editTask.timelineMission?.dynamicMission?.map((d) => ({
-        loadFrom: d.loadFromId,
-        offloadTo: d.offloadToId,
-      })),
-      normal: editTask.timelineMission?.normalMissionId,
-      notify: editTask.timelineMission?.notifyMissionSourcePointName,
-    });
-    setMissionType(editTask.timelineMission?.type as Mission_Type);
-  }, [isEdit, form, editTask]);
+    if (!localEditTask) {
+      setLocalEditTask(editTask);
+      form.setFieldsValue({
+        timestamp: dayjs(editTask.time, "HH:mm"),
+        styleRow: editTask.styleRow,
+        isEnable: editTask.isEnable,
+        amrId: editTask.timelineMission?.amrId,
+        priority: editTask.timelineMission?.priority,
+        missionType: editTask.timelineMission?.type as Mission_Type,
+        dynamic: editTask.timelineMission?.dynamicMission?.map((d) => ({
+          loadFrom: d.loadFromId,
+          offloadTo: d.offloadToId,
+        })),
+        normal: editTask.timelineMission?.normalMissionId,
+        notify: editTask.timelineMission?.notifyMissionSourcePointName,
+      });
+      setMissionType(editTask.timelineMission?.type as Mission_Type);
+    }
+  }, [isEdit, form, localEditTask]);
 
   // useEffect(() => {
   //   if (!isEdit && selectTime) {

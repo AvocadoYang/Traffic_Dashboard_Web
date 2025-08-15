@@ -459,7 +459,11 @@ const TaskFormFork: FC<{
               },
             ]}
           >
-            <Select style={{ width: 210 }} options={locationsOption} />
+            <Select
+              showSearch
+              style={{ width: 210 }}
+              options={locationsOption}
+            />
           </Form.Item>
         )}
 

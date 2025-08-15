@@ -127,22 +127,24 @@ const TableSchedule: FC = () => {
     setIsOpenScheduleTable(false);
   };
 
-  const handleEdit = (task: Mission_Schedule) => {
-    setSelectTime(task.time);
+  const handleEdit = (id: string) => {
+    const taskIndex = scheduleData.findIndex((v) => v.id === id);
+
+    setSelectTime(scheduleData[taskIndex].time);
+    setEditTask(scheduleData[taskIndex]);
     setIsEdit(true);
-    setEditTask(task);
-    // console.log(task, 'at table')
-    if (task.type === "MISSION") {
+    console.log(scheduleData[taskIndex], "at table");
+    if (scheduleData[taskIndex].type === "MISSION") {
       setIsModalOpen(true);
       return;
     }
 
-    if (task.type === "SPAWN_CARGO") {
+    if (scheduleData[taskIndex].type === "SPAWN_CARGO") {
       setIsSpawnCargoModalOpen(true);
       return;
     }
 
-    if (task.type === "SHIFT_CARGO") {
+    if (scheduleData[taskIndex].type === "SHIFT_CARGO") {
       setIsShiftCargoModalOpen(true);
       return;
     }
@@ -272,7 +274,7 @@ const TableSchedule: FC = () => {
       key: "actions",
       render: (_: any, record: Mission_Schedule) => (
         <Flex gap="middle">
-          <Button size="small" onClick={() => handleEdit(record)}>
+          <Button size="small" onClick={() => handleEdit(record.id)}>
             {t("utils.edit")}
           </Button>
 

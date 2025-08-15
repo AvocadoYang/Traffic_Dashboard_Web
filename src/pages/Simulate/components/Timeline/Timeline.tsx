@@ -377,8 +377,12 @@ const Timeline: FC = () => {
     setIsDragging(false);
   };
 
-  const handleEditTimeline = (time: string, type: string) => {
+  const handleEditTimeline = (time: string, type: string, id: string) => {
+    const dataIndex = scheduleData.findIndex((v) => v.id === id);
+
+    setEditTask(scheduleData[dataIndex]);
     setSelectTime(time);
+
     if (type === "MISSION") {
       setIsEdit(true);
       setIsModalOpen(true);

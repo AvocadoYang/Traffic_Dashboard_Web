@@ -71,7 +71,7 @@ const getTextColor = (bgColor: string) => {
 const TaskBar: FC<{
   top: number;
   barMainColor: string;
-  handleEditTimeline: (time: string, type: string) => void;
+  handleEditTimeline: (time: string, type: string, id: string) => void;
   task: TaskType;
 }> = ({ task, top, barMainColor, handleEditTimeline }) => {
   const [messageApi, contextHolder] = message.useMessage();
@@ -159,7 +159,7 @@ const TaskBar: FC<{
         <Tooltip title={fullText}>
           <EditSection
             barMainColor={barMainColor}
-            onClick={() => handleEditTimeline(task.time, task.type)}
+            onClick={() => handleEditTimeline(task.time, task.type, task.id)}
           >
             {RenderText}
           </EditSection>

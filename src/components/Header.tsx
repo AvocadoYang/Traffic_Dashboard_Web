@@ -94,7 +94,6 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
     activeStationTask: boolean,
     runningScale: number,
   ) => {
-
     const startTime = timeRange[0].format("HH:mm");
     const endTime = timeRange[1].format("HH:mm");
 
