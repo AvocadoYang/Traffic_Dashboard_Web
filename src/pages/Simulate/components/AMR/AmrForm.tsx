@@ -1,6 +1,6 @@
 import useMap from "@/api/useMap";
 import SubmitButton from "@/utils/SubmitButton";
-import { Button, Form, Input, message, Modal, Select } from "antd";
+import { Button, Form, Input, InputNumber, message, Modal, Select } from "antd";
 import { Dispatch, FC, SetStateAction, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { EditFormType } from "./amr";
@@ -55,10 +55,14 @@ const AmrForm: FC<{
     const script_placement_location = form.getFieldValue(
       "script_placement_location",
     ) as string;
+    const loadSpeed = form.getFieldValue("loadSpeed") as number;
+    const offloadSpeed = form.getFieldValue("offloadSpeed") as number
 
     const payload = {
       full_name,
       script_placement_location,
+      loadSpeed,
+      offloadSpeed
     };
 
     handleEditMutation(payload);
@@ -68,12 +72,14 @@ const AmrForm: FC<{
     if (!isOpen) return;
 
     const info = robot?.find((v) => v?.id === id);
-
+    console.log(info)
     form.setFieldValue("full_name", info?.full_name);
     form.setFieldValue(
       "script_placement_location",
       info?.script_placement_location,
     );
+    form.setFieldValue("loadSpeed", info?.load_speed);
+    form.setFieldValue("offloadSpeed", info?.offload_speed);
   }, [isOpen]);
 
   return (
@@ -113,6 +119,23 @@ const AmrForm: FC<{
           >
             <Select options={locationOptions} />
           </Form.Item>
+
+          <Form.Item
+            name="loadSpeed"
+            label={"load speed"}
+            rules={[{ required: true }]}
+          >
+            <InputNumber />
+          </Form.Item>
+
+               <Form.Item
+            name="offloadSpeed"
+            label={"offload speed"}
+            rules={[{ required: true }]}
+          >
+            <InputNumber />
+          </Form.Item>
+
         </Form>
       </Modal>
     </>

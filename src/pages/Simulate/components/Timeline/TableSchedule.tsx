@@ -13,6 +13,7 @@ import {
   Table,
   Tag,
   TimePicker,
+  Tooltip,
   Typography,
 } from "antd";
 import React, { FC, useEffect, useState } from "react";
@@ -34,6 +35,7 @@ import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import dayjs, { Dayjs } from "dayjs";
+import { PlusOutlined } from "@ant-design/icons";
 const { RangePicker } = TimePicker;
 const { Text } = Typography;
 
@@ -144,6 +146,24 @@ const TableSchedule: FC = () => {
   const [localTableValue, setLocalTableValue] = useState<Local_Table_Value[]>();
   const handleCancel = () => {
     setIsOpenScheduleTable(false);
+  };
+
+  const directAddSchedule = () => {
+    setIsEdit(false);
+    setIsModalOpen(true);
+    setSelectTime("08:00");
+  };
+
+  const directSpawnCargoSchedule = () => {
+    setIsEdit(false);
+    setIsSpawnCargoModalOpen(true);
+    setSelectTime("08:00");
+  };
+
+  const directShiftSchedule = () => {
+    setIsEdit(false);
+    setIsShiftCargoModalOpen(true);
+    setSelectTime("08:00");
   };
 
   const handleEdit = (id: string) => {
@@ -408,13 +428,36 @@ const TableSchedule: FC = () => {
         title={t("sim.table_schedule.title")}
       >
         <Flex gap="small" justify="space-between">
-          <Button
-            onClick={deleteMulti}
-            disabled={selectedRowKeys.length === 0}
-            danger
-          >
-            {t("utils.delete")}
-          </Button>
+          <Flex gap="middle">
+            <Button
+              onClick={deleteMulti}
+              disabled={selectedRowKeys.length === 0}
+              danger
+            >
+              {t("utils.delete")}
+            </Button>
+
+            <Tooltip title="add mission event">
+              <Button onClick={directAddSchedule}>
+                <PlusOutlined />
+                {t("sim.timeline.add_mission")}
+              </Button>
+            </Tooltip>
+
+            <Tooltip title="add shift cargo event">
+              <Button onClick={directShiftSchedule}>
+                <PlusOutlined />
+                {t("sim.timeline.add_shift_cargo")}
+              </Button>
+            </Tooltip>
+
+            <Tooltip title="add spawn cargo event">
+              <Button onClick={directSpawnCargoSchedule}>
+                <PlusOutlined />
+                {t("sim.timeline.add_spawn_cargo")}
+              </Button>
+            </Tooltip>
+          </Flex>
 
           <Flex gap="middle">
             <RangePicker
