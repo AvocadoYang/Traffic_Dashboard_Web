@@ -1,19 +1,19 @@
-import { atom } from 'jotai';
-import { LocationType } from './jotai';
-import { mouseLocation } from '@/pages/Setting/hooks/hook';
-import { SelectStation } from '@/api/type/useLocation';
-import { SelectProps } from 'antd';
+import { atom } from "jotai";
+import { LocationType } from "./jotai";
+import { mouseLocation } from "@/pages/Setting/hooks/hook";
+import { SelectStation } from "@/api/type/useLocation";
+import { SelectProps } from "antd";
 
 // record the version of map's points
 export const sameVersion = atom(true);
 
 // control which ID of draggableLine can be use.
-export const showBlockId = atom<string>('');
+export const showBlockId = atom<string>("");
 
 // record the drag line information
 export const DragLineInfo = atom<mouseLocation>({});
 
-export const hoverRoad = atom<string>('');
+export const hoverRoad = atom<string>("");
 
 // ** 貨架樣式 */
 export const cargoStyle = atom<{
@@ -24,7 +24,7 @@ export const cargoStyle = atom<{
   flex_direction: string;
 } | null>(null);
 
-export const shelfSelectedStyleLocationId = atom<string>('');
+export const shelfSelectedStyleLocationId = atom<string>("");
 
 export const darkMode = atom<boolean>(false);
 
@@ -56,10 +56,10 @@ export const chargeStationEditData = atom<null | SelectStation>(null);
 export const IsEditPeripheralStyle = atom(false);
 export const PeripheralEditData = atom<null | SelectStation>(null);
 
-export const hintAmr = atom('');
+export const hintAmr = atom("");
 export const AmrFilterCarCard = atom<Set<string>>(new Set([]));
 export const showZoneForbidden = atom<Set<string>>(new Set([]));
 // export const AmrFilterCarCard = atom('');
-export const AmrCarSelectFilter = atom<SelectProps['options']>([]);
+export const AmrCarSelectFilter = atom<SelectProps["options"]>([]);
 
-export const QuickMissionSelectParam = atom<string>('');
+export const QuickMissionSelectParam = atom<string>("");

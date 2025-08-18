@@ -1,13 +1,13 @@
-import { message } from 'antd';
-import { FC, memo, useCallback } from 'react';
+import { message } from "antd";
+import { FC, memo, useCallback } from "react";
 
-import { WrapperType } from './types';
-import styled from 'styled-components';
-import CargoDisplay from './CargoDisplay';
-import { CargoInfo } from '@/sockets/useCargoInfo';
-import { LoadingStation } from './LoadingStation';
-import { useCargoMutations } from '@/api/useCargoMutations';
-import { prefixLevelName } from '@/utils/globalFunction';
+import { WrapperType } from "./types";
+import styled from "styled-components";
+import CargoDisplay from "./CargoDisplay";
+import { CargoInfo } from "@/sockets/useCargoInfo";
+import { LoadingStation } from "./LoadingStation";
+import { useCargoMutations } from "@/api/useCargoMutations";
+import { prefixLevelName } from "@/utils/globalFunction";
 
 const Wrapper = styled.div<WrapperType>`
   position: relative;
@@ -44,16 +44,33 @@ const Cargo: FC<{
   scale: number;
   flex_direction: string;
   shelfInfo: CargoInfo | undefined;
-}> = ({ id, locId, translateX, translateY, rotate, scale, flex_direction, shelfInfo }) => {
+}> = ({
+  id,
+  locId,
+  translateX,
+  translateY,
+  rotate,
+  scale,
+  flex_direction,
+  shelfInfo,
+}) => {
   const [messageApi, contextHolder] = message.useMessage();
 
   const { editColumnMutation } = useCargoMutations(messageApi);
   const handleMouseDown = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>, targetId: string, targetLevel: number) => {
+    (
+      event: React.MouseEvent<HTMLDivElement>,
+      targetId: string,
+      targetLevel: number,
+    ) => {
       if (event.button !== 1) return;
-      editColumnMutation.mutate({ id, locationId: targetId, level: targetLevel });
+      editColumnMutation.mutate({
+        id,
+        locationId: targetId,
+        level: targetLevel,
+      });
     },
-    [editColumnMutation]
+    [editColumnMutation],
   );
 
   if (!shelfInfo || !shelfInfo.layer) return <LoadingStation />;
@@ -67,7 +84,7 @@ const Cargo: FC<{
         scale={scale}
         rotate={rotate}
       >
-        {' '}
+        {" "}
         {Object.entries(shelfInfo.layer).map(([levelStr, info]) => {
           const level = Number(levelStr);
           const cargoValue = info.hasCargo || false;
@@ -85,7 +102,11 @@ const Cargo: FC<{
               rotate={0}
               isHaveAction={isHaveAction}
               handleMouseDown={(e) =>
-                handleMouseDown(e as React.MouseEvent<HTMLDivElement>, locId, level)
+                handleMouseDown(
+                  e as React.MouseEvent<HTMLDivElement>,
+                  locId,
+                  level,
+                )
               }
             />
           );
@@ -96,5 +117,7 @@ const Cargo: FC<{
 };
 
 export default memo(Cargo, (prev, next) => {
-  return prev.locId !== next.locId && prev.flex_direction !== next.flex_direction;
+  return (
+    prev.locId !== next.locId && prev.flex_direction !== next.flex_direction
+  );
 });

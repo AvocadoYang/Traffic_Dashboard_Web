@@ -1,13 +1,17 @@
-import { FC } from 'react';
-import { Button, Flex, Popconfirm, Skeleton, Table, message } from 'antd';
-import { useTranslation } from 'react-i18next';
-import styled from 'styled-components';
-import { useMutation } from '@tanstack/react-query';
-import useBLCS from '@/api/useBeforeleftChargeStation';
-import client from '@/api/axiosClient';
-import { ErrorResponse } from '@/utils/globalType';
-import { errorHandler } from '@/utils/utils';
-import { CloseCircleOutlined, DeleteTwoTone, PlayCircleOutlined } from '@ant-design/icons';
+import { FC } from "react";
+import { Button, Flex, Popconfirm, Skeleton, Table, message } from "antd";
+import { useTranslation } from "react-i18next";
+import styled from "styled-components";
+import { useMutation } from "@tanstack/react-query";
+import useBLCS from "@/api/useBeforeleftChargeStation";
+import client from "@/api/axiosClient";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
+import {
+  CloseCircleOutlined,
+  DeleteTwoTone,
+  PlayCircleOutlined,
+} from "@ant-design/icons";
 
 interface DataType {
   id: string;
@@ -33,7 +37,7 @@ const Dot = styled.div<DotStyle>`
   border-radius: 99%;
   width: 7px;
   height: 7px;
-  background-color: ${(prop) => (prop.$active ? '#2bea00' : '#979797')};
+  background-color: ${(prop) => (prop.$active ? "#2bea00" : "#979797")};
 `;
 
 const AmrBox = styled.div`
@@ -54,24 +58,24 @@ const BeforeLeftChargeStationTable: FC = () => {
 
   const activeMutation = useMutation({
     mutationFn: (payload: { id: string; isActive: boolean }) => {
-      return client.post('api/setting/active-BLCS', payload);
+      return client.post("api/setting/active-BLCS", payload);
     },
     onSuccess: () => {
-      void messageApi.success(t('utils.success'));
+      void messageApi.success(t("utils.success"));
       void refetch();
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (payload: { id: string }) => {
-      return client.post('api/setting/delete-BLCS', payload);
+      return client.post("api/setting/delete-BLCS", payload);
     },
     onSuccess: () => {
-      void messageApi.success(t('utils.success'));
+      void messageApi.success(t("utils.success"));
       void refetch();
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const handleActive = (isActive: boolean, id: string) => {
@@ -84,46 +88,46 @@ const BeforeLeftChargeStationTable: FC = () => {
 
   const columns = [
     {
-      title: t('mission.before_left_charge_station_mission.status'),
-      key: 'active',
-      dataIndex: 'active',
+      title: t("mission.before_left_charge_station_mission.status"),
+      key: "active",
+      dataIndex: "active",
       width: 100,
       render: (_v: unknown, record: DataType) => {
         return (
           <ActiveBox>
-            <Dot $active={record.active as boolean} />{' '}
+            <Dot $active={record.active as boolean} />{" "}
             <>
               {record.active
-                ? t('mission.before_left_charge_station_mission.executing')
-                : t('mission.before_left_charge_station_mission.stale')}
+                ? t("mission.before_left_charge_station_mission.executing")
+                : t("mission.before_left_charge_station_mission.stale")}
             </>
           </ActiveBox>
         );
-      }
+      },
     },
     {
-      title: t('mission.before_left_charge_station_mission.mission'),
-      dataIndex: 'name',
-      key: 'name'
+      title: t("mission.before_left_charge_station_mission.mission"),
+      dataIndex: "name",
+      key: "name",
     },
     {
-      title: t('mission.before_left_charge_station_mission.car'),
-      dataIndex: 'amrId',
-      key: 'amrId',
+      title: t("mission.before_left_charge_station_mission.car"),
+      dataIndex: "amrId",
+      key: "amrId",
       render: (_v: unknown, record: DataType) => {
         const da = record.amrId.map((s, i) => {
-          const subName = s.split('-').slice(1).join('-');
+          const subName = s.split("-").slice(1).join("-");
 
           return <AmrText key={`${subName}-${i}`}>{subName}</AmrText>;
         });
 
         return <AmrBox>{da}</AmrBox>;
-      }
+      },
     },
     {
-      title: '',
-      dataIndex: 'option',
-      key: 'option',
+      title: "",
+      dataIndex: "option",
+      key: "option",
       width: 50,
       render: (_v: unknown, record: DataType) => {
         return (
@@ -137,7 +141,7 @@ const BeforeLeftChargeStationTable: FC = () => {
                   variant="filled"
                   type="link"
                 >
-                  {t('utils.inactive')}
+                  {t("utils.inactive")}
                 </Button>
               ) : (
                 <Button
@@ -147,24 +151,27 @@ const BeforeLeftChargeStationTable: FC = () => {
                   variant="filled"
                   type="link"
                 >
-                  {t('utils.active')}
+                  {t("utils.active")}
                 </Button>
               )}
-              <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.id)}>
+              <Popconfirm
+                title="Sure to delete?"
+                onConfirm={() => handleDelete(record.id)}
+              >
                 <Button
                   icon={<DeleteTwoTone twoToneColor="#f30303" />}
                   color="danger"
                   variant="filled"
                   type="link"
                 >
-                  {t('utils.delete')}
+                  {t("utils.delete")}
                 </Button>
               </Popconfirm>
             </Flex>
           </>
         );
-      }
-    }
+      },
+    },
   ];
 
   if (isLoading) return <Skeleton />;

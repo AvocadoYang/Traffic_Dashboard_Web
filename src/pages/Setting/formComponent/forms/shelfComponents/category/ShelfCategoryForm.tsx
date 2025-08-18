@@ -8,18 +8,22 @@ import {
   Modal,
   Popconfirm,
   Row,
-  Select
-} from 'antd';
-import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { CheckCircleOutlined, DeleteTwoTone, FormOutlined } from '@ant-design/icons';
-import { useTranslation } from 'react-i18next';
-import { useMutation } from '@tanstack/react-query';
-import useShelfCategory from '@/api/useShelfCategory';
-import client from '@/api/axiosClient';
-import { ErrorResponse } from '@/utils/globalType';
-import { errorHandler } from '@/utils/utils';
-import SubmitButton from '@/utils/SubmitButton';
+  Select,
+} from "antd";
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
+import styled from "styled-components";
+import {
+  CheckCircleOutlined,
+  DeleteTwoTone,
+  FormOutlined,
+} from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
+import { useMutation } from "@tanstack/react-query";
+import useShelfCategory from "@/api/useShelfCategory";
+import client from "@/api/axiosClient";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
+import SubmitButton from "@/utils/SubmitButton";
 
 const { Search } = Input;
 
@@ -77,7 +81,7 @@ const ShelfCategoryForm: FC<{
   setHasDelete,
   editHandler,
   openModel,
-  setOpenModel
+  setOpenModel,
 }) => {
   const { data, refetch } = useShelfCategory();
   const [messageApi, contextHolders] = message.useMessage();
@@ -85,18 +89,18 @@ const ShelfCategoryForm: FC<{
   const { t } = useTranslation();
 
   const options = [
-    { value: 'type_1', label: t('edit_shelf_category.type_1') },
-    { value: 'type_2', label: t('edit_shelf_category.type_2') }
+    { value: "type_1", label: t("edit_shelf_category.type_1") },
+    { value: "type_2", label: t("edit_shelf_category.type_2") },
   ];
 
   const editMutation = useMutation({
     mutationFn: (payload: EditType) => {
-      return client.post('api/setting/edit-shelf-height', payload);
+      return client.post("api/setting/edit-shelf-height", payload);
     },
     onSuccess() {
       void refetch();
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const onAdd = (value: string) => {
@@ -104,7 +108,7 @@ const ShelfCategoryForm: FC<{
 
     // Check if the value contains only numbers
     if (!numberRegex.test(value)) {
-      messageApi.warning(t('edit_shelf_category.add_number_warning'));
+      messageApi.warning(t("edit_shelf_category.add_number_warning"));
       return;
     }
 
@@ -118,7 +122,7 @@ const ShelfCategoryForm: FC<{
       setCateHeight([...cateHeight, convertValue].sort((a, b) => a - b));
       setHasDelete(true);
     } else {
-      messageApi.error(t('utils.error'));
+      messageApi.error(t("utils.error"));
     }
   };
 
@@ -126,7 +130,7 @@ const ShelfCategoryForm: FC<{
     editMutation.mutate({
       newHeight,
       index,
-      shelfId: selectId
+      shelfId: selectId,
     });
   };
 
@@ -137,12 +141,12 @@ const ShelfCategoryForm: FC<{
   };
   const onGenderChange = (value: string) => {
     switch (value) {
-      case 'type_1':
-        form.setFieldValue('shelf_style', 'type_1');
+      case "type_1":
+        form.setFieldValue("shelf_style", "type_1");
         break;
 
-      case 'type_2':
-        form.setFieldValue('shelf_style', 'type_2');
+      case "type_2":
+        form.setFieldValue("shelf_style", "type_2");
         break;
 
       default:
@@ -151,9 +155,9 @@ const ShelfCategoryForm: FC<{
   };
   useEffect(() => {
     if (!targetCategory) return;
-    form.setFieldValue('name', targetCategory.name);
-    form.setFieldValue('height', cateHeight);
-    form.setFieldValue('shelfStyle', targetCategory.shelf_style);
+    form.setFieldValue("name", targetCategory.name);
+    form.setFieldValue("height", cateHeight);
+    form.setFieldValue("shelfStyle", targetCategory.shelf_style);
     const heightOnly = targetCategory.Height?.map((v) => v?.height || 0);
     setCateHeight(heightOnly);
   }, [targetCategory]);
@@ -162,7 +166,7 @@ const ShelfCategoryForm: FC<{
     <>
       {contextHolders}
       <Modal
-        title={t('edit_shelf_category.edit_shelf_category')}
+        title={t("edit_shelf_category.edit_shelf_category")}
         open={openModel}
         onCancel={() => setOpenModel(false)}
         footer={() => (
@@ -175,38 +179,42 @@ const ShelfCategoryForm: FC<{
           <Col span={24}>
             <Form form={form} labelCol={{ span: 6 }} autoComplete="off">
               <Form.Item
-                label={t('edit_shelf_category.name')}
+                label={t("edit_shelf_category.name")}
                 name="name"
                 hasFeedback
                 rules={[
                   {
                     required: true,
-                    message: t('utils.required')
-                  }
+                    message: t("utils.required"),
+                  },
                 ]}
               >
                 <Input />
               </Form.Item>
 
               <Form.Item
-                label={t('edit_shelf_category.style')}
+                label={t("edit_shelf_category.style")}
                 name="shelfStyle"
                 hasFeedback
                 rules={[
                   {
                     required: true,
-                    message: t('utils.required')
-                  }
+                    message: t("utils.required"),
+                  },
                 ]}
               >
-                <Select onChange={onGenderChange} allowClear options={options} />
+                <Select
+                  onChange={onGenderChange}
+                  allowClear
+                  options={options}
+                />
               </Form.Item>
 
-              <Form.Item label={t('edit_shelf_category.every_level')}>
+              <Form.Item label={t("edit_shelf_category.every_level")}>
                 <Search
                   placeholder="0"
                   allowClear
-                  enterButton={t('utils.add')}
+                  enterButton={t("utils.add")}
                   size="large"
                   onSearch={onAdd}
                 />
@@ -218,7 +226,13 @@ const ShelfCategoryForm: FC<{
             <ListWrapper>
               {cateHeight?.map((v, i) => {
                 return (
-                  <LevelStrip key={`level-${i}`} v={v} i={i} onDelete={onDelete} onEdit={onEdit} />
+                  <LevelStrip
+                    key={`level-${i}`}
+                    v={v}
+                    i={i}
+                    onDelete={onDelete}
+                    onEdit={onEdit}
+                  />
                 );
               })}
             </ListWrapper>
@@ -251,9 +265,9 @@ const LevelStrip: FC<{
   return (
     <Item key={i}>
       <WordTitle>
-        {t('edit_shelf_category.f1')}
+        {t("edit_shelf_category.f1")}
         {i + 1}
-        {t('edit_shelf_category.f2')}
+        {t("edit_shelf_category.f2")}
       </WordTitle>
 
       {isEdit ? (
@@ -282,7 +296,7 @@ const LevelStrip: FC<{
       {isEdit ? [] : <FormOutlined onClick={() => handleShowEdit()} />}
 
       <Popconfirm
-        title={t('edit_shelf_category.delete_warning')}
+        title={t("edit_shelf_category.delete_warning")}
         onConfirm={() => onDelete(Number(v))}
       >
         <DeleteTwoTone twoToneColor="#a61d24" />

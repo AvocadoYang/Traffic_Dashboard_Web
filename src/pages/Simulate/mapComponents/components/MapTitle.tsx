@@ -1,14 +1,14 @@
-import useSimulateScript from '@/api/useSimulateScript';
-import { Typography } from 'antd';
-import { FC, memo } from 'react';
-import { useTranslation } from 'react-i18next';
-import styled from 'styled-components';
+import useSimulateScript from "@/api/useSimulateScript";
+import { Typography } from "antd";
+import { FC, memo } from "react";
+import { useTranslation } from "react-i18next";
+import styled from "styled-components";
 
 const FloatTitle = styled.div<{ $isMobile: boolean }>`
   position: fixed;
   left: 2em;
-  top: ${(props) => (props.$isMobile ? 'unset' : '6em')};
-  bottom: ${(props) => (props.$isMobile ? '2em' : 'unset')};
+  top: ${(props) => (props.$isMobile ? "unset" : "6em")};
+  bottom: ${(props) => (props.$isMobile ? "2em" : "unset")};
 `;
 
 const MapTitle: FC<{ isMobile: boolean }> = ({ isMobile }) => {
@@ -19,7 +19,7 @@ const MapTitle: FC<{ isMobile: boolean }> = ({ isMobile }) => {
     <>
       <FloatTitle $isMobile={isMobile}>
         <Typography.Text type="secondary">
-          {t('sim.modal.current')}：{data?.name}
+          {t("sim.modal.current")}：{data?.name}
         </Typography.Text>
       </FloatTitle>
     </>

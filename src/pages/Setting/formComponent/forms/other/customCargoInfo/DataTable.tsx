@@ -1,13 +1,20 @@
-import useCustomCargoFormat from '@/api/useCustomCargoFormat';
-import { Button, Flex, message, Popconfirm, Table, TableColumnsType } from 'antd';
-import { DeleteTwoTone, EditOutlined } from '@ant-design/icons';
-import { FC, useState } from 'react';
-import ReactJsonView from '@uiw/react-json-view';
-import { useTranslation } from 'react-i18next';
-import { useMutation } from '@tanstack/react-query';
-import { ErrorResponse } from '@/utils/globalType';
-import { errorHandler } from '@/utils/utils';
-import client from '@/api/axiosClient';
+import useCustomCargoFormat from "@/api/useCustomCargoFormat";
+import {
+  Button,
+  Flex,
+  message,
+  Popconfirm,
+  Table,
+  TableColumnsType,
+} from "antd";
+import { DeleteTwoTone, EditOutlined } from "@ant-design/icons";
+import { FC, useState } from "react";
+import ReactJsonView from "@uiw/react-json-view";
+import { useTranslation } from "react-i18next";
+import { useMutation } from "@tanstack/react-query";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
+import client from "@/api/axiosClient";
 
 interface DataType {
   id: string;
@@ -16,7 +23,7 @@ interface DataType {
   format: string;
 }
 
-import CargoFormatModal from './CargoFormatModal'; // import the shared modal
+import CargoFormatModal from "./CargoFormatModal"; // import the shared modal
 
 const DataTable: FC = () => {
   const { data, refetch } = useCustomCargoFormat();
@@ -30,23 +37,23 @@ const DataTable: FC = () => {
       is_default: boolean;
       custom_name: string;
       format: string;
-    }) => client.post('/api/setting/edit-custom-cargo-format', payload),
+    }) => client.post("/api/setting/edit-custom-cargo-format", payload),
     onSuccess: () => {
-      messageApi.success(t('utils.success'));
+      messageApi.success(t("utils.success"));
       setEditingRecord(null);
       refetch();
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (payload: { id: string }) =>
-      client.post('/api/setting/delete-custom-cargo-format', payload),
+      client.post("/api/setting/delete-custom-cargo-format", payload),
     onSuccess: () => {
-      messageApi.success(t('utils.success'));
+      messageApi.success(t("utils.success"));
       refetch();
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const handleDelete = (id: string) => {
@@ -59,20 +66,20 @@ const DataTable: FC = () => {
 
   const columns: TableColumnsType<DataType> = [
     {
-      title: t('customCargo.name'),
-      dataIndex: 'custom_name',
-      key: 'custom_name',
-      width: 200
+      title: t("customCargo.name"),
+      dataIndex: "custom_name",
+      key: "custom_name",
+      width: 200,
     },
     {
-      title: t('customCargo.isDefault'),
-      dataIndex: 'is_default',
-      key: 'is_default',
+      title: t("customCargo.isDefault"),
+      dataIndex: "is_default",
+      key: "is_default",
       width: 100,
-      render: (isDefault: boolean) => (isDefault ? '✅' : '-')
+      render: (isDefault: boolean) => (isDefault ? "✅" : "-"),
     },
     {
-      title: '',
+      title: "",
       render: (_v, record) => (
         <>
           <Flex gap="small">
@@ -83,14 +90,14 @@ const DataTable: FC = () => {
               variant="filled"
               onClick={() => handleEdit(record)}
             >
-              {t('utils.edit')}
+              {t("utils.edit")}
             </Button>
             <Popconfirm
-              title={t('customCargo.warn')}
-              description={t('customCargo.delete_desc')}
+              title={t("customCargo.warn")}
+              description={t("customCargo.delete_desc")}
               onConfirm={() => handleDelete(record.id)}
-              okText={t('utils.yes')}
-              cancelText={t('utils.no')}
+              okText={t("utils.yes")}
+              cancelText={t("utils.no")}
             >
               <Button
                 icon={<DeleteTwoTone twoToneColor="#f30303" />}
@@ -98,13 +105,13 @@ const DataTable: FC = () => {
                 variant="filled"
                 type="link"
               >
-                {t('utils.delete')}
+                {t("utils.delete")}
               </Button>
             </Popconfirm>
           </Flex>
         </>
-      )
-    }
+      ),
+    },
   ];
 
   return (
@@ -123,7 +130,7 @@ const DataTable: FC = () => {
               style={{ fontSize: 14 }}
             />
           ),
-          rowExpandable: (record) => record.custom_name !== 'Not Expandable'
+          rowExpandable: (record) => record.custom_name !== "Not Expandable",
         }}
         dataSource={data as DataType[]}
       />
@@ -135,12 +142,12 @@ const DataTable: FC = () => {
           initialValues={{
             custom_name: editingRecord.custom_name,
             is_default: editingRecord.is_default,
-            format: JSON.parse(editingRecord.format)
+            format: JSON.parse(editingRecord.format),
           }}
           onSubmit={(values) =>
             editMutation.mutate({
               id: editingRecord.id,
-              ...values
+              ...values,
             })
           }
           loading={editMutation.isLoading}

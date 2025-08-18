@@ -51,6 +51,7 @@
     "none": "無",
     "floor": "層",
     "overdue": "逾時",
+    "action": "操作",
     "location_property": {
       "none": "點位",
       "charge_station": "充電站",
@@ -186,6 +187,7 @@
   "page_setting": "點位設定",
   "page_dashboard": "控制中心",
   "page_simulate": "模擬任務",
+  "page_simulate_result": "模擬任務統計表",
   "simulate": "模擬的",
   "page_analysis": "任務統計",
   "page_cargo_history": "貨物紀錄",
@@ -246,6 +248,11 @@
       "idle_mission": "閒置任務",
       "topic_mission": "Topic任務",
       "abort_mission_when_has_cargo_mission": "刪除任務有貨處理"
+    },
+    "peripheral": {
+      "title": "設備",
+      "name_table": "設備名稱表",
+      "group_table": "設備群組表"
     },
     "others": {
       "others": "其它",
@@ -420,6 +427,20 @@
     "all_loc": "所有點位",
     "stored_loc": "已儲存點位",
     "tmp_loc": "尚未儲存點位"
+  },
+
+  "multiStyle": {
+    "editX": "編輯 X？",
+    "editY": "編輯 Y？",
+    "editScale": "編輯縮放？",
+    "editRotate": "編輯旋轉？",
+    "editDirection": "編輯方向？",
+    "x": "X",
+    "y": "Y",
+    "scale": "縮放",
+    "rotate": "旋轉",
+    "flexDirection": "Flex 方向",
+    "selectDirection": "選擇方向"
   },
 
   "shelf": {
@@ -956,6 +977,140 @@
     "stop_sim": "停止模擬",
     "reset_sim": "重新模擬",
 
+    "timeline": {
+      "name": "名稱",
+      "location": "位置",
+      "type": "類型",
+      "level": "樓層",
+      "no_set": "未設定",
+      "change_timeline_height": "改變時間軸大小",
+      "table_view": "Table顯示任務",
+      "add_mission": "新增任務",
+      "add_spawn_cargo": "新增貨物",
+      "add_shift_cargo": "新增轉移貨物",
+      "dynamic_mission": "動態任務",
+      "notify_mission": "通知任務",
+      "normal_mission": "正常任務",
+      "spawn_cargo": "生成貨物",
+      "shift_cargo": "轉移貨物",
+      "disabled": "已停用",
+      "unknown": "未知"
+    },
+    "insert_modal": {
+      "mission": "任務",
+      "spawn_cargo": "生成貨物",
+      "shift_cargo": "轉移貨物",
+      "dynamic": "取放貨任務（動態任務）",
+      "normal": "普通任務",
+      "notify": "關係級別任務",
+      "title": "插入任務事件",
+      "edit_title": "編輯任務事件",
+      "amr": "車輛",
+      "priority": "任務優先順序",
+
+      "type": "任務類型",
+      "type_dynamic": "動態任務",
+
+      "type_normal": "一般任務",
+      "type_notify": "通知任務",
+      "normal_mission": "選擇一般任務",
+      "notify_mission": "選擇通知地點",
+      "load_from": "載貨來源",
+      "offload_to": "卸貨地點",
+      "add_field": "新增欄位",
+      "time": "時間",
+      "style_row": "顯示第幾列",
+      "is_enable": "啟動 / 停用",
+      "time_required": "請選擇時間",
+      "row_required": "請選擇顯示列",
+      "amr_required": "請選擇車輛",
+      "priority_required": "請選擇任務優先順序",
+      "type_required": "請選擇任務類型",
+      "dynamic_required": "動態任務至少需要一個載貨和卸貨欄位",
+      "load_required": "請選擇載貨來源",
+      "offload_required": "請選擇卸貨地點",
+      "normal_required": "請選擇一般任務",
+      "notify_required": "請選擇通知地點",
+      "select_amr": "選擇車輛",
+      "select_normal": "選擇一般任務",
+      "select_notify": "選擇通知地點",
+      "error_missing_id": "任務ID或時間未找到",
+      "validation_error": "表單驗證失敗，請檢查輸入"
+    },
+
+    "table_schedule": {
+      "title": "排程表",
+      "detail": "詳情"
+    },
+
+    "spawn_cargo_modal": {
+      "title": "生成貨物",
+      "time": "時間",
+      "style_row": "顯示第幾列",
+      "enable": "啟用",
+      "peripheral_id": "生成貨物位置",
+      "cargo_metadata_id": "貨物中繼資料格式",
+      "metadata": "中繼資料",
+      "metadata_desc": "如果未選擇貨物元資料模式，請以JSON格式輸入元資料。",
+      "name": "名稱",
+      "location": "位置",
+      "type": "型別",
+      "level": "等級",
+      "no_set": "未設定",
+      "select_notify": "選擇一個週邊",
+      "select": "選擇",
+      "yes": "是",
+      "no": "否",
+      "cancel": "取消",
+      "save": "儲存",
+      "update": "更新",
+      "success": "保存成功",
+      "updated": "更新成功",
+      "required": "此欄位為必填項"
+    },
+
+    "shift_cargo_modal": {
+      "title": "轉移貨物",
+      "time": "時間",
+      "style_row": "顯示第幾列",
+      "enable": "啟用",
+      "peripheral_id": "轉移貨物位置",
+      "select_notify": "選擇設備",
+      "save": "儲存",
+      "update": "更新",
+      "required": "此欄位為必填"
+    },
+
+    "sim_result": {
+      "title": "模擬結果",
+      "simulation_id": "模擬 ID",
+      "start_time": "開始時間",
+      "end_time": "結束時間",
+      "total_cargos": "總搬運貨物數",
+      "success_rate": "任務成功率",
+      "completed_missions": "完成任務",
+      "total_missions": "總任務數",
+      "amr_stats_title": "AMR 數據",
+      "amr_name": "機器人",
+      "distance": "移動距離（公尺）",
+      "createdAt": "建立時間",
+      "amr_stats": "AMR 統計資料",
+      "amr": "AMR",
+      "missions": "任務數",
+      "carry": "搬運數",
+      "battery_cost": "電量消耗",
+      "working_time": "工作時間（秒）",
+      "idle_time": "閒置時間（秒）",
+      "total_distance": "距離（公尺）",
+      "idle_vs_working": "工作與閒置比例",
+      "battery_cost_per_amr": "各 AMR 電量消耗",
+      "missions_vs_cargos": "任務與搬運數",
+      "total_distance_traveled": "總行駛距離",
+      "working": "工作中",
+      "idle": "閒置中",
+      "cargos": "貨物數"
+    },
+
     "cargo": {
       "already_exist": "已選定在列表",
       "input": {
@@ -1019,6 +1174,8 @@
     "start_sim_modal": {
       "inactive_sim": "中止模擬",
       "active_sim": "啟動模擬",
+      "spend_time": "模擬總時長",
+      "scale": "運行倍數",
       "please_confirm_info": "請確認以下模擬詳情",
       "sim_script": "模擬腳本：",
       "no_script_select": "未指定腳本",
@@ -1028,7 +1185,8 @@
       "cancel": "取消",
       "duration": "模擬時長",
       "station_mission": "啟動各站點任務",
-      "remainTime": "模擬剩餘時間"
+      "remainTime": "模擬剩餘時間",
+      "current_time": "目前模擬時間"
     },
 
     "results": {
@@ -1172,5 +1330,42 @@
 
   "peripheral_style": {
     "areaType": "地點功能"
+  },
+
+  "peripheral_name_table": {
+    "locationId": "位置編號",
+    "type": "類型",
+    "level": "層級",
+    "name": "名稱",
+    "operation": "操作",
+    "edit": "編輯",
+    "save": "儲存",
+    "cancel": "取消",
+    "reload": "重新載入",
+    "updatedSuccess": "名稱更新成功",
+    "updateFail": "儲存失敗",
+    "inputPlaceholder": "輸入名稱"
+  },
+  "peripheral_group_table": {
+    "add_title": "新增群組",
+    "edit_title": "編輯群組",
+    "available_peripherals": "可用的設備",
+    "selected_peripherals": "已選擇的設備",
+    "search_peripherals": "search",
+
+    "peripherals": "設備",
+    "description": "說明",
+    "locationId": "位置編號",
+    "type": "類型",
+    "level": "層級",
+    "name": "名稱",
+    "operation": "操作",
+    "edit": "編輯",
+    "save": "儲存",
+    "cancel": "取消",
+    "reload": "重新載入",
+    "updatedSuccess": "名稱更新成功",
+    "updateFail": "儲存失敗",
+    "inputPlaceholder": "輸入名稱"
   }
 }

@@ -1,5 +1,5 @@
-import { Button } from 'antd';
-import styled from 'styled-components';
+import { Button } from "antd";
+import styled from "styled-components";
 
 export const PeripheralIcon = styled.svg`
   width: 20px;
@@ -45,9 +45,11 @@ export const ChargingStation = styled.div<StationTransform>`
     `translate(${props.translate_x}em, ${props.translate_y}em) scale(${props.scale}) rotate(${props.rotate}deg)`};
 `;
 
-export const ConveyorStationContainer = styled.div.attrs<StationPosition>(({ left, top }) => ({
-  style: { left, top }
-}))<StationPosition>`
+export const ConveyorStationContainer = styled.div.attrs<StationPosition>(
+  ({ left, top }) => ({
+    style: { left, top },
+  }),
+)<StationPosition>`
   position: absolute;
   width: 5px;
   height: 5px;
@@ -67,7 +69,13 @@ export const ConveyorWrapper = styled.div`
 export const ConveyorBelt = styled.div`
   width: 50px;
   height: 16px;
-  background: repeating-linear-gradient(90deg, #fc6565, #fc6565 4px, #dca2a2 4px, #dca2a2 8px);
+  background: repeating-linear-gradient(
+    90deg,
+    #fc6565,
+    #fc6565 4px,
+    #dca2a2 4px,
+    #dca2a2 8px
+  );
   border-radius: 8px;
   position: relative;
 `;
@@ -84,11 +92,11 @@ export const ConveyorCargoBox = styled.div`
   transform: translateX(-50%);
 `;
 
-export const ConveyorArrow = styled.div<{ direction: 'load' | 'offload' }>`
+export const ConveyorArrow = styled.div<{ direction: "load" | "offload" }>`
   position: absolute;
   top: -6px;
   ${({ direction }) =>
-    direction === 'load'
+    direction === "load"
       ? `
         left: 18%;
         transform: translate(-50%, -100%) rotate(0deg);
@@ -101,12 +109,15 @@ export const ConveyorArrow = styled.div<{ direction: 'load' | 'offload' }>`
   height: 0;
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
-  border-bottom: 8px solid ${({ direction }) => (direction === 'load' ? '#10b981' : '#ef4444')};
+  border-bottom: 8px solid
+    ${({ direction }) => (direction === "load" ? "#10b981" : "#ef4444")};
 `;
 
-export const StorageStationContainer = styled.div.attrs<StationPosition>(({ left, top }) => ({
-  style: { left, top }
-}))<StationPosition>`
+export const StorageStationContainer = styled.div.attrs<StationPosition>(
+  ({ left, top }) => ({
+    style: { left, top },
+  }),
+)<StationPosition>`
   position: absolute;
   width: 5px;
   height: 5px;

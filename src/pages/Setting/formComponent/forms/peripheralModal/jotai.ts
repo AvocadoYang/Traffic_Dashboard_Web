@@ -1,6 +1,6 @@
-import { Relation } from '@/api/useLoc';
-import { Cargo, PeripheralTypes } from '@/types/peripheral';
-import { atom } from 'jotai';
+import { Relation } from "@/api/useLoc";
+import { Cargo, PeripheralTypes } from "@/types/peripheral";
+import { atom } from "jotai";
 
 export const IsEditPeripheralModal = atom<{
   stationType: PeripheralTypes;

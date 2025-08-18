@@ -1,11 +1,11 @@
-import client from '@/api/axiosClient';
-import useAllMissionTitlesDetail from '@/api/useMissionTitleDetail';
-import { isFork, isHumanRobot } from '@/utils/globalFunction';
-import { Err } from '@/utils/responseErr';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Form, message, Modal, Select } from 'antd';
-import { FC } from 'react';
-import { useTranslation } from 'react-i18next';
+import client from "@/api/axiosClient";
+import useAllMissionTitlesDetail from "@/api/useMissionTitleDetail";
+import { isFork, isHumanRobot } from "@/utils/globalFunction";
+import { Err } from "@/utils/responseErr";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Form, message, Modal, Select } from "antd";
+import { FC } from "react";
+import { useTranslation } from "react-i18next";
 
 type ImportTask = {
   order: number;
@@ -21,7 +21,12 @@ const ImportMissionForm: FC<{
     order: number;
     key: string;
   } | null;
-}> = ({ showImportMission, setShowImportMission, importConfig, selectedMissionCar }) => {
+}> = ({
+  showImportMission,
+  setShowImportMission,
+  importConfig,
+  selectedMissionCar,
+}) => {
   const [formImportMission] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
   const queryClient = useQueryClient();
@@ -29,26 +34,26 @@ const ImportMissionForm: FC<{
   const { t } = useTranslation();
   const importMutation = useMutation({
     mutationFn: (payload: ImportTask) => {
-      return client.post('api/setting/import-task', payload);
+      return client.post("api/setting/import-task", payload);
     },
     onSuccess: async () => {
-      void messageApi.success(t('utils.success'));
+      void messageApi.success(t("utils.success"));
       await queryClient.refetchQueries({
-        queryKey: ['all-relate-all-relate-task-fork', importConfig?.key]
+        queryKey: ["all-relate-all-relate-task-fork", importConfig?.key],
       });
       await queryClient.refetchQueries({
-        queryKey: ['all-relate-task-human-robot', importConfig?.key]
+        queryKey: ["all-relate-task-human-robot", importConfig?.key],
       });
-      await queryClient.refetchQueries({ queryKey: ['all-relate-task'] });
+      await queryClient.refetchQueries({ queryKey: ["all-relate-task"] });
     },
     onError(error: Err) {
       messageApi.error(error.response.data.message);
-    }
+    },
   });
 
   const handleImportMissionOk = () => {
     if (!importConfig) {
-      messageApi.warning(t('utils.error'));
+      messageApi.warning(t("utils.error"));
       return;
     }
 
@@ -56,15 +61,15 @@ const ImportMissionForm: FC<{
 
     const payload = formImportMission.getFieldsValue() as ImportTask;
 
-    if (!payload.importTaskId || payload.importTaskId.trim() === '') {
-      messageApi.warning(t('mission.add_mission.name_warn'));
+    if (!payload.importTaskId || payload.importTaskId.trim() === "") {
+      messageApi.warning(t("mission.add_mission.name_warn"));
       return;
     }
 
     const newPayload = {
       ...payload,
       currentTaskId: importConfig?.key,
-      order: importConfig?.order
+      order: importConfig?.order,
     };
 
     importMutation.mutate(newPayload);
@@ -80,11 +85,11 @@ const ImportMissionForm: FC<{
   const options = data
     ?.filter((v) => {
       if (isFork(selectedMissionCar)) {
-        return isFork(v.Robot_types?.value || '');
+        return isFork(v.Robot_types?.value || "");
       }
 
       if (isHumanRobot(selectedMissionCar)) {
-        return isHumanRobot(v.Robot_types?.value || '');
+        return isHumanRobot(v.Robot_types?.value || "");
       }
 
       return false;
@@ -112,7 +117,9 @@ const ImportMissionForm: FC<{
         >
           <Form.Item
             hasFeedback
-            rules={[{ required: true, message: t('mission.add_mission.name_warn') }]}
+            rules={[
+              { required: true, message: t("mission.add_mission.name_warn") },
+            ]}
             label="任務"
             name="importTaskId"
           >

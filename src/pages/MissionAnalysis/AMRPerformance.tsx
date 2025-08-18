@@ -1,6 +1,6 @@
-import React from 'react';
-import { Card, Progress, Space, Typography } from 'antd';
-import styled from 'styled-components';
+import React from "react";
+import { Card, Progress, Space, Typography } from "antd";
+import styled from "styled-components";
 
 const { Text } = Typography;
 
@@ -18,8 +18,8 @@ interface AMRInfo {
 }
 
 const amrs: AMRInfo[] = [
-  { id: 'AMR_001', battery: 78, totalDistanceTraveled: 104.5, batteryCost: 12 },
-  { id: 'AMR_002', battery: 45, totalDistanceTraveled: 67.3, batteryCost: 20 }
+  { id: "AMR_001", battery: 78, totalDistanceTraveled: 104.5, batteryCost: 12 },
+  { id: "AMR_002", battery: 45, totalDistanceTraveled: 67.3, batteryCost: 20 },
 ];
 
 const AMRPerformance: React.FC = () => {
@@ -27,7 +27,7 @@ const AMRPerformance: React.FC = () => {
     <AMRGrid>
       {amrs.map((amr) => (
         <Card key={amr.id} title={amr.id}>
-          <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+          <Space direction="vertical" size="middle" style={{ width: "100%" }}>
             <div>
               <Text strong>Battery Level</Text>
               <Progress percent={amr.battery} status="active" />

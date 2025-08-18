@@ -1,13 +1,13 @@
-import { FC, memo, RefObject } from 'react';
-import styled from 'styled-components';
-import { amrId2Color } from '@/utils/utils';
-import { Button, message, Tooltip } from 'antd';
-import { PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import useScriptRobot from '@/api/useScriptRobot';
-import { useTranslation } from 'react-i18next';
-import client from '@/api/axiosClient';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import AmrIcon from './AmrIcon';
+import { FC, memo, RefObject } from "react";
+import styled from "styled-components";
+import { amrId2Color } from "@/utils/utils";
+import { Button, message, Tooltip } from "antd";
+import { PlusOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import useScriptRobot from "@/api/useScriptRobot";
+import { useTranslation } from "react-i18next";
+import client from "@/api/axiosClient";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import AmrIcon from "./AmrIcon";
 
 const AMRPadWrap = styled.div`
   position: absolute;
@@ -71,16 +71,16 @@ const IdleRobotPanel: FC<{
   const queryClient = useQueryClient();
   const addMutation = useMutation({
     mutationFn: () => {
-      return client.post('api/simulate/add-robot');
+      return client.post("api/simulate/add-robot");
     },
     onSuccess: () => {
       refetch();
-      queryClient.refetchQueries({ queryKey: ['mock-robot'] });
-      void messageApi.success(t('utils.success'));
+      queryClient.refetchQueries({ queryKey: ["mock-robot"] });
+      void messageApi.success(t("utils.success"));
     },
     onError: () => {
-      void messageApi.error(t('utils.error'));
-    }
+      void messageApi.error(t("utils.error"));
+    },
   });
 
   const handleAdd = () => {
@@ -88,7 +88,7 @@ const IdleRobotPanel: FC<{
   };
 
   function onDrop(event) {
-    const data = event.dataTransfer.getData('text/plain');
+    const data = event.dataTransfer.getData("text/plain");
     event.target.textContent = data;
     event.preventDefault();
   }
@@ -97,14 +97,14 @@ const IdleRobotPanel: FC<{
     <>
       {contextHolder}
       <AMRPadWrap onDrop={(e) => onDrop(e)}>
-        <Tooltip placement="right" title={t('sim.robot.no_add_warn')}>
+        <Tooltip placement="right" title={t("sim.robot.no_add_warn")}>
           <QuestionCircleOutlined />
         </Tooltip>
 
         <Box>
           {robot && robot.length !== 0
             ? robot
-                .filter((r) => r?.script_placement_location === 'unset')
+                .filter((r) => r?.script_placement_location === "unset")
                 .map((v) => {
                   return (
                     <AmrIconStyled
@@ -123,7 +123,7 @@ const IdleRobotPanel: FC<{
             : []}
         </Box>
 
-        <Tooltip placement="right" title={t('utils.add')}>
+        <Tooltip placement="right" title={t("utils.add")}>
           <Button
             onClick={() => handleAdd()}
             loading={addMutation.isLoading}

@@ -1,1 +1,1 @@
-export { default as ChargePanel } from './ChargePanel';
+export { default as ChargePanel } from "./ChargePanel";

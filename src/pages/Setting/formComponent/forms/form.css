@@ -1,8 +1,3 @@
-
-
-
-
-
 .table-wrap::-webkit-scrollbar {
   height: 10px !important;
   /* display: none !important; */
@@ -77,8 +72,6 @@
   transition: 1s;
 }
 
-
-
 .close-table-icon svg:hover {
   fill: red;
   transform: scale(1.2);
@@ -112,16 +105,15 @@
   width: 50%;
   min-width: 350px;
   padding: 15px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   border-radius: 5px;
 }
-
 
 .drop_button_style {
   cursor: grab;
   padding: 8px;
   font-weight: bold;
-  margin-bottom: 2px
+  margin-bottom: 2px;
 }
 
 .tag-setting-wrap {
@@ -144,10 +136,10 @@
 }
 
 .tag-setting-wrap-show {
-/* transition: all 0.3s ease-in-out; */
+  /* transition: all 0.3s ease-in-out; */
   top: 50%;
 
-visibility: visible;
+  visibility: visible;
 }
 
 /* 隱藏時（可以加動畫） */

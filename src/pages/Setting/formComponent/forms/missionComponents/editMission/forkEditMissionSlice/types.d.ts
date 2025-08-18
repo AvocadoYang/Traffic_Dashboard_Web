@@ -4,8 +4,8 @@ import {
   selectLocationOption,
   yawOption,
   forkHeightOption,
-  waitRobotOption
-} from './params';
+  waitRobotOption,
+} from "./params";
 
 export type Fork_Action = {
   operation: {
@@ -61,4 +61,4 @@ export type Select_Active_Robot_Type = (typeof activeWaitRobot)[number];
 
 export type Select_Robot_Wait_Type = (typeof waitRobotOption)[number];
 
-export type Control_Types = 'F' | 'H' | 'S' | 'B' | 'W';
+export type Control_Types = "F" | "H" | "S" | "B" | "W";

@@ -1,10 +1,10 @@
-import { Card, Layout, List, Typography } from 'antd';
-import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-import Header from '@/components/Header';
-import { useIsMobile } from '@/hooks/useIsMoblie';
-import { useAllAmrStatus } from '@/sockets/useAMRInfo';
-import { useTranslation } from 'react-i18next';
+import { Card, Layout, List, Typography } from "antd";
+import styled from "styled-components";
+import { Link } from "react-router-dom";
+import Header from "@/components/Header";
+import { useIsMobile } from "@/hooks/useIsMoblie";
+import { useAllAmrStatus } from "@/sockets/useAMRInfo";
+import { useTranslation } from "react-i18next";
 
 const { Title } = Typography;
 
@@ -48,7 +48,11 @@ const StyledCard = styled(Card)`
 
 const Status = styled.span<{ status: string }>`
   color: ${({ status }) =>
-    status === 'Active' ? '#52c41a' : status === 'Charging' ? '#faad14' : '#bfbfbf'};
+    status === "Active"
+      ? "#52c41a"
+      : status === "Charging"
+        ? "#faad14"
+        : "#bfbfbf"};
   font-weight: bold;
 `;
 
@@ -61,65 +65,90 @@ const AmrList = () => {
   const columns = isMobile ? 1 : 2;
 
   return (
-    <Layout style={{ height: `${isMobile ? '100dvh' : '100%'}` }}>
+    <Layout style={{ height: `${isMobile ? "100dvh" : "100%"}` }}>
       <Header isMobile={isMobile}></Header>
       <Container>
         <Title
           level={2}
-          style={{ textAlign: 'center', marginBottom: 32, fontSize: isMobile ? 22 : 28 }}
+          style={{
+            textAlign: "center",
+            marginBottom: 32,
+            fontSize: isMobile ? 22 : 28,
+          }}
         >
-          {t('page_amr')}
+          {t("page_amr")}
         </Title>
         <List
           grid={{ gutter: 24, column: columns }}
           dataSource={data}
-          locale={{ emptyText: t('utils.none') }}
+          locale={{ emptyText: t("utils.none") }}
           renderItem={(amr) => {
             let amrId = amr.amrId;
-            if (amrId.startsWith('/#')) {
-              amrId = 'mock-' + amrId.slice(2);
-            } else if (amrId.startsWith('#')) {
-              amrId = 'mock-' + amrId.slice(1);
+            if (amrId.startsWith("/#")) {
+              amrId = "mock-" + amrId.slice(2);
+            } else if (amrId.startsWith("#")) {
+              amrId = "mock-" + amrId.slice(1);
             }
             return (
               <List.Item
                 style={
                   data.length === 1
-                    ? { width: '100%', display: 'flex', justifyContent: 'center' }
+                    ? {
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                      }
                     : undefined
                 }
               >
-                <Link to={`/amr/${amrId}`} style={{ width: '100%', display: 'block' }}>
+                <Link
+                  to={`/amr/${amrId}`}
+                  style={{ width: "100%", display: "block" }}
+                >
                   <StyledCard
                     hoverable
-                    style={data.length === 1 ? { width: '100%', maxWidth: 340 } : undefined}
+                    style={
+                      data.length === 1
+                        ? { width: "100%", maxWidth: 340 }
+                        : undefined
+                    }
                   >
                     <Title level={4} style={{ fontSize: isMobile ? 18 : 22 }}>
                       {amr.amrId}
                     </Title>
                     <div>
-                      {t('utils.status')}:{' '}
-                      <Status status={amr.isOnline ? (amr.isOverdue ? 'Error' : 'Active') : 'Idle'}>
+                      {t("utils.status")}:{" "}
+                      <Status
+                        status={
+                          amr.isOnline
+                            ? amr.isOverdue
+                              ? "Error"
+                              : "Active"
+                            : "Idle"
+                        }
+                      >
                         {amr.isOnline
                           ? amr.isOverdue
-                            ? t('utils.error')
-                            : t('utils.active')
-                          : t('utils.inactive')}
+                            ? t("utils.error")
+                            : t("utils.active")
+                          : t("utils.inactive")}
                       </Status>
                     </div>
                     <div>
-                      {t('utils.online')}/{t('utils.offline')}:&nbsp;
-                      <Status status={amr.isOnline ? 'Active' : 'Idle'}>
-                        {amr.isOnline ? t('utils.online') : t('utils.offline')}
+                      {t("utils.online")}/{t("utils.offline")}:&nbsp;
+                      <Status status={amr.isOnline ? "Active" : "Idle"}>
+                        {amr.isOnline ? t("utils.online") : t("utils.offline")}
                       </Status>
                     </div>
                     <div>
-                      {t('utils.road_conditions')}: <b>{amr.networkDelay} ms</b>
+                      {t("utils.road_conditions")}: <b>{amr.networkDelay} ms</b>
                     </div>
                     <div>
-                      {t('utils.maintenance_level')}:{' '}
-                      <Status status={amr.isPosAccurate ? 'Active' : 'Idle'}>
-                        {amr.isPosAccurate ? t('utils.active') : t('utils.inactive')}
+                      {t("utils.maintenance_level")}:{" "}
+                      <Status status={amr.isPosAccurate ? "Active" : "Idle"}>
+                        {amr.isPosAccurate
+                          ? t("utils.active")
+                          : t("utils.inactive")}
                       </Status>
                     </div>
                   </StyledCard>

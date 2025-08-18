@@ -1,4 +1,4 @@
-import { InfoWrap } from './components/InfoWrap';
+import { InfoWrap } from "./components/InfoWrap";
 import {
   RowOne,
   RowThread,
@@ -8,17 +8,22 @@ import {
   DropDown,
   RowFourth,
   RowFifth,
-  EmergencyIcon
-} from './components/Lists';
-import './car_info.css';
-import { useMemo, useState } from 'react';
-import { ConfigProvider, Popover, Modal } from 'antd';
-import BtnGroup from './components/BtnGroup';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { AmrCarSelectFilter, AmrFilterCarCard, darkMode, hintAmr } from '@/utils/gloable';
-import { amrId2ColorRainbow } from '@/utils/utils';
-import { useWarningId } from '@/sockets/useWarning';
-import { useTranslation } from 'react-i18next';
+  EmergencyIcon,
+} from "./components/Lists";
+import "./car_info.css";
+import { useMemo, useState } from "react";
+import { ConfigProvider, Popover, Modal } from "antd";
+import BtnGroup from "./components/BtnGroup";
+import { useAtomValue, useSetAtom } from "jotai";
+import {
+  AmrCarSelectFilter,
+  AmrFilterCarCard,
+  darkMode,
+  hintAmr,
+} from "@/utils/gloable";
+import { amrId2ColorRainbow } from "@/utils/utils";
+import { useWarningId } from "@/sockets/useWarning";
+import { useTranslation } from "react-i18next";
 
 const Card: React.FC<{ id: string }> = ({ id }) => {
   const [openHiddenRow, setOpenHiddenRow] = useState(false);
@@ -50,7 +55,7 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
     if (!selectedOption) return false;
     if (selectedOption?.length) {
       const filter = new Set(selectedOption.map((item) => item.value));
-      const AMRCategory = id.split('-').slice(0, 3).join('-');
+      const AMRCategory = id.split("-").slice(0, 3).join("-");
       return filter.has(AMRCategory) ? false : true;
     }
     return false;
@@ -61,13 +66,13 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
       <ConfigProvider
         theme={{
           token: {
-            colorBgElevated: 'rgb(255, 255, 255)'
+            colorBgElevated: "rgb(255, 255, 255)",
           },
           components: {
             Popover: {
-              titleMinWidth: 110
-            }
-          }
+              titleMinWidth: 110,
+            },
+          },
         }}
       >
         <Popover
@@ -80,28 +85,27 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
           }}
         >
           <InfoWrap
-            className={`${hide ? 'hide-car-info-wrap' : ''}`}
+            className={`${hide ? "hide-car-info-wrap" : ""}`}
             randomcolor={amrId2ColorRainbow(id)}
             is_dark={isDark.toString()}
-            is_warn={(errorMessage?.length) ? "true" : "false"}
+            is_warn={errorMessage?.length ? "true" : "false"}
             onMouseEnter={() => {
               setHintAmr(id);
             }}
             onMouseLeave={() => {
-              setHintAmr('');
+              setHintAmr("");
             }}
           >
-            {
-              errorMessage?.length
-                ? <EmergencyIcon
-
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenModal(true)
-                  }}
-                >⚠️</EmergencyIcon>
-                : null
-            }
+            {errorMessage?.length ? (
+              <EmergencyIcon
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenModal(true);
+                }}
+              >
+                ⚠️
+              </EmergencyIcon>
+            ) : null}
             <DropDown
               color={amrId2ColorRainbow(id)}
               openFullInfo={openFullInfo}
@@ -114,7 +118,11 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
               isDark={isDark}
               amrId={id}
             ></RowSecond>
-            <HiddenRow openHiddenRow={openHiddenRow} isDark={isDark} amrId={id}></HiddenRow>
+            <HiddenRow
+              openHiddenRow={openHiddenRow}
+              isDark={isDark}
+              amrId={id}
+            ></HiddenRow>
             <RowThread amrId={id} isDark={isDark}></RowThread>
             <RowFourth amrId={id} isDark={isDark}></RowFourth>
             <RowFifth amrId={id} isDark={isDark}></RowFifth>
@@ -124,25 +132,37 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
       </ConfigProvider>
       <Modal
         title={id}
-        closable={{ 'aria-label': 'Custom Close Button' }}
+        closable={{ "aria-label": "Custom Close Button" }}
         open={openModal}
         onCancel={handleCancel}
         footer={null}
         mask={false}
       >
         {errorMessage?.map((warn) => {
-          return <>
-            <h4>{`${t('file.warning_list.error_code')}: ${warn.warningId}`}</h4>
-            <div style={{ marginTop: "5px" }}>
-              <h5>{`${t('file.warning_list.info')}- `}</h5>
-              <p style={{ color: "red", fontSize: "0.8em", fontWeight: "bold" }}>{warn.info}</p>
-            </div>
-            <div style={{ marginTop: "5px" }}>
-              <h5>{`${t('file.warning_list.solution')}- `}</h5>
-              <p style={{ fontSize: "0.8em", fontWeight: "bold" }}>{warn.debug ? warn.debug : "---"}</p>
-            </div>
-            <hr style={{ marginBottom: "5px" }} />
-          </>
+          return (
+            <>
+              <h4>{`${t("file.warning_list.error_code")}: ${warn.warningId}`}</h4>
+              <div style={{ marginTop: "5px" }}>
+                <h5>{`${t("file.warning_list.info")}- `}</h5>
+                <p
+                  style={{
+                    color: "red",
+                    fontSize: "0.8em",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {warn.info}
+                </p>
+              </div>
+              <div style={{ marginTop: "5px" }}>
+                <h5>{`${t("file.warning_list.solution")}- `}</h5>
+                <p style={{ fontSize: "0.8em", fontWeight: "bold" }}>
+                  {warn.debug ? warn.debug : "---"}
+                </p>
+              </div>
+              <hr style={{ marginBottom: "5px" }} />
+            </>
+          );
         })}
       </Modal>
     </>

@@ -1,20 +1,22 @@
-import { FC, useState } from 'react';
-import { Form } from 'antd';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
-import client from '@/api/axiosClient';
-import ShelfCategoryTable from './ShelfCategoryTable';
-import ShelfCategoryForm from './ShelfCategoryForm';
-import { borderColor } from '../../../../utils/utils';
+import { FC, useState } from "react";
+import { Form } from "antd";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import client from "@/api/axiosClient";
+import ShelfCategoryTable from "./ShelfCategoryTable";
+import ShelfCategoryForm from "./ShelfCategoryForm";
+import { borderColor } from "../../../../utils/utils";
 
 const ShelfCategoryPanel: FC<{
   sortableId: string;
-  attributes: import('@dnd-kit/core').DraggableAttributes;
-  listeners: import('@dnd-kit/core/dist/hooks/utilities').SyntheticListenerMap | undefined;
+  attributes: import("@dnd-kit/core").DraggableAttributes;
+  listeners:
+    | import("@dnd-kit/core/dist/hooks/utilities").SyntheticListenerMap
+    | undefined;
 }> = ({ sortableId, attributes, listeners }) => {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [selectId, setSelectId] = useState('');
+  const [selectId, setSelectId] = useState("");
   const [cateHeight, setCateHeight] = useState<number[] | undefined>([]);
   const [form] = Form.useForm();
   const { t } = useTranslation();
@@ -29,29 +31,29 @@ const ShelfCategoryPanel: FC<{
       hasDelete: boolean;
     }) => {
       const result = Promise.all([
-        client.post<unknown>('api/setting/edit-shelf-category', payload)
+        client.post<unknown>("api/setting/edit-shelf-category", payload),
       ]);
       return result;
     },
     onSuccess: async () => {
       await queryClient.refetchQueries({
-        queryKey: ['all-shelf-category']
+        queryKey: ["all-shelf-category"],
       });
       await queryClient.refetchQueries({
-        queryKey: ['shelf']
+        queryKey: ["shelf"],
       });
-    }
+    },
   });
 
   const editHandler = () => {
-    const fieldName = form.getFieldValue('name') as string;
-    const style = form.getFieldValue('shelfStyle') as string;
+    const fieldName = form.getFieldValue("name") as string;
+    const style = form.getFieldValue("shelfStyle") as string;
     const payload = {
       id: selectId,
       shelf_style: style,
       name: fieldName,
       height: cateHeight,
-      hasDelete
+      hasDelete,
     };
 
     editMutation.mutate(payload);
@@ -66,14 +68,14 @@ const ShelfCategoryPanel: FC<{
       {/* 4-2 編輯貨架種類 */}
 
       <h3 className="drop_button_style" {...listeners} {...attributes}>
-        {t('edit_shelf_category.edit_shelf_category')}
+        {t("edit_shelf_category.edit_shelf_category")}
       </h3>
 
       <hr
         style={{
-          marginTop: '1px',
-          marginBottom: '10px',
-          border: `4px solid ${borderColor(sortableId)}`
+          marginTop: "1px",
+          marginBottom: "10px",
+          border: `4px solid ${borderColor(sortableId)}`,
         }}
       ></hr>
       <ShelfCategoryTable setOpen={setOpen} setSelectId={setSelectId} />

@@ -1,15 +1,15 @@
-import { ChargeStationResponseObj } from '@/api/type/useLocation';
-import { FC, memo, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
-import styled from 'styled-components';
-import { CloseCircleOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
-import { useAtom } from 'jotai';
-import { chargeStationModelProp } from '@/utils/gloable';
-import { rosCoord2DisplayCoord } from '@/utils/utils';
-import useMap from '@/api/useMap';
-import useLocation from '@/api/useLocation';
-import Draggable from 'react-draggable';
+import { ChargeStationResponseObj } from "@/api/type/useLocation";
+import { FC, memo, useRef } from "react";
+import { useTranslation } from "react-i18next";
+import styled from "styled-components";
+import { CloseCircleOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
+import { useAtom } from "jotai";
+import { chargeStationModelProp } from "@/utils/gloable";
+import { rosCoord2DisplayCoord } from "@/utils/utils";
+import useMap from "@/api/useMap";
+import useLocation from "@/api/useLocation";
+import Draggable from "react-draggable";
 
 // Define types for styled components
 type Open = {
@@ -29,7 +29,7 @@ const Box = styled.div`
 `;
 
 const ModelStyle = styled.div<Open>`
-  display: ${({ $isOpen }) => ($isOpen ? 'flex' : 'none')};
+  display: ${({ $isOpen }) => ($isOpen ? "flex" : "none")};
   min-width: 25rem;
 
   flex-direction: column;
@@ -71,8 +71,8 @@ const StatusItem = styled.div<HasTrigger>`
   width: 100%;
   padding: 0.5rem;
   border-radius: 6px;
-  background: ${({ $isActive }) => ($isActive ? '#e6f3ff' : '#f3f4f6')};
-  color: ${({ $isActive }) => ($isActive ? '#1d4ed8' : '#6b7280')};
+  background: ${({ $isActive }) => ($isActive ? "#e6f3ff" : "#f3f4f6")};
+  color: ${({ $isActive }) => ($isActive ? "#1d4ed8" : "#6b7280")};
   font-size: 0.9rem;
   font-weight: 500;
   transition:
@@ -80,7 +80,7 @@ const StatusItem = styled.div<HasTrigger>`
     color 0.2s ease;
 
   &:hover {
-    background: ${({ $isActive }) => ($isActive ? '#bfdbfe' : '#e5e7eb')};
+    background: ${({ $isActive }) => ($isActive ? "#bfdbfe" : "#e5e7eb")};
   }
 `;
 
@@ -151,17 +151,22 @@ const PointDiv = styled.div.attrs<{
   top: number;
   canRotate: string;
 }>(({ left, top, canRotate }) => ({
-  style: { left, top, transform: canRotate === 'true' ? 'rotate(45deg)' : 'none' }
+  style: {
+    left,
+    top,
+    transform: canRotate === "true" ? "rotate(45deg)" : "none",
+  },
 }))<{
   left: number;
   top: number;
   canRotate: string;
 }>`
   position: absolute;
-  width: ${({ canRotate }) => (canRotate === 'true' ? '8px' : '6px')};
-  height: ${({ canRotate }) => (canRotate === 'true' ? '8px' : '6px')};
-  background: ${({ canRotate }) => (canRotate === 'true' ? '#d946ef' : '#2563eb')};
-  border-radius: ${({ canRotate }) => (canRotate === 'true' ? '2px' : '50%')};
+  width: ${({ canRotate }) => (canRotate === "true" ? "8px" : "6px")};
+  height: ${({ canRotate }) => (canRotate === "true" ? "8px" : "6px")};
+  background: ${({ canRotate }) =>
+    canRotate === "true" ? "#d946ef" : "#2563eb"};
+  border-radius: ${({ canRotate }) => (canRotate === "true" ? "2px" : "50%")};
   z-index: 10;
   transition: all 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -189,7 +194,7 @@ const ChargeStationModel: FC = () => {
     mapHeight: data?.mapHeight,
     mapOriginX: data?.mapOriginX,
     mapOriginY: data?.mapOriginY,
-    mapResolution: data.mapResolution
+    mapResolution: data.mapResolution,
   });
 
   return (
@@ -199,84 +204,100 @@ const ChargeStationModel: FC = () => {
           {info ? (
             <>
               <MyIcon onClick={() => setOpen(null)}>
-                <CloseCircleOutlined style={{ fontSize: '1.2rem' }} />
+                <CloseCircleOutlined style={{ fontSize: "1.2rem" }} />
               </MyIcon>
 
               <Box>
                 <InfoWrapper>
-                  <Title>{t('charge.current')}</Title>
+                  <Title>{t("charge.current")}</Title>
                   <StatusItem $isActive={info.current.AUTO_MODE}>
-                    {t('charge.auto_mode')}
+                    {t("charge.auto_mode")}
                   </StatusItem>
-                  <StatusItem $isActive={info.current.COMPLETE}>{t('charge.complete')}</StatusItem>
-                  <StatusItem $isActive={info.current.FAULT}>{t('charge.fault')}</StatusItem>
-                  <StatusItem $isActive={info.current.PROCESS}>{t('charge.process')}</StatusItem>
-                  <StatusItem $isActive={info.current.STANDBY}>{t('charge.standby')}</StatusItem>
+                  <StatusItem $isActive={info.current.COMPLETE}>
+                    {t("charge.complete")}
+                  </StatusItem>
+                  <StatusItem $isActive={info.current.FAULT}>
+                    {t("charge.fault")}
+                  </StatusItem>
+                  <StatusItem $isActive={info.current.PROCESS}>
+                    {t("charge.process")}
+                  </StatusItem>
+                  <StatusItem $isActive={info.current.STANDBY}>
+                    {t("charge.standby")}
+                  </StatusItem>
                 </InfoWrapper>
 
                 <InfoWrapper>
-                  <Title>{t('charge.error')}</Title>
-                  <StatusItem $isActive={info.error.MODULE_COMMUNICATION_FAILURE}>
-                    {t('charge.moduleCommunicationFailure')}
+                  <Title>{t("charge.error")}</Title>
+                  <StatusItem
+                    $isActive={info.error.MODULE_COMMUNICATION_FAILURE}
+                  >
+                    {t("charge.moduleCommunicationFailure")}
                   </StatusItem>
                   <StatusItem $isActive={info.error.REVERSE_BATTERY_CONNECTION}>
-                    {t('charge.reverseBetterConnection')}
+                    {t("charge.reverseBetterConnection")}
                   </StatusItem>
                   <StatusItem $isActive={info.error.BATTERY_NOT_CONNECTED}>
-                    {t('charge.batteryNotConnected')}
+                    {t("charge.batteryNotConnected")}
                   </StatusItem>
                   <StatusItem $isActive={info.error.SHORT_CIRCUIT}>
-                    {t('charge.shortCircuit')}
+                    {t("charge.shortCircuit")}
                   </StatusItem>
                   <StatusItem $isActive={info.error.OVER_VOLTAGE}>
-                    {t('charge.overVoltage')}
+                    {t("charge.overVoltage")}
                   </StatusItem>
                   <StatusItem $isActive={info.error.OVER_CURRENT}>
-                    {t('charge.overCurrent')}
+                    {t("charge.overCurrent")}
                   </StatusItem>
                   <StatusItem $isActive={info.error.TOTAL_FAULT}>
-                    {t('charge.totalFault')}
+                    {t("charge.totalFault")}
                   </StatusItem>
                 </InfoWrapper>
 
                 <InfoWrapper>
-                  <Title>{t('charge.other')}</Title>
+                  <Title>{t("charge.other")}</Title>
                   <StatusItem $isActive={info.other.INFRARED_IN_PLACE}>
-                    {t('charge.infraredInPlace')}
+                    {t("charge.infraredInPlace")}
                   </StatusItem>
-                  <StatusItem $isActive={info.other.COMPRESS}>{t('charge.compress')}</StatusItem>
+                  <StatusItem $isActive={info.other.COMPRESS}>
+                    {t("charge.compress")}
+                  </StatusItem>
                   <StatusItem $isActive={info.other.SCALING_FAILURE}>
-                    {t('charge.scalingFault')}
+                    {t("charge.scalingFault")}
                   </StatusItem>
                   <StatusItem $isActive={info.other.REACH_OUT_CHARGE}>
-                    {t('charge.reachOutCharge')}
+                    {t("charge.reachOutCharge")}
                   </StatusItem>
-                  <StatusItem $isActive={info.other.RETURNING}>{t('charge.returning')}</StatusItem>
+                  <StatusItem $isActive={info.other.RETURNING}>
+                    {t("charge.returning")}
+                  </StatusItem>
                   <StatusItem $isActive={info.other.IS_STRETCHING_OUT}>
-                    {t('charge.isStretching')}
+                    {t("charge.isStretching")}
                   </StatusItem>
-                  <StatusItem $isActive={info.other.RESET}>{t('charge.reset')}</StatusItem>
+                  <StatusItem $isActive={info.other.RESET}>
+                    {t("charge.reset")}
+                  </StatusItem>
                 </InfoWrapper>
               </Box>
 
               <TextWrapper>
                 <SubText>{`充電站標號： ${open.location.slice(-2)}`}</SubText>
                 <SubText>
-                  {t('charge.updateTime')}
-                  {`: ${dayjs(info.responseTime).format('YYYY/M/D HH:mm:ss')}`}
+                  {t("charge.updateTime")}
+                  {`: ${dayjs(info.responseTime).format("YYYY/M/D HH:mm:ss")}`}
                 </SubText>
               </TextWrapper>
             </>
           ) : (
             <>
               <MyIcon onClick={() => setOpen(null)}>
-                <CloseCircleOutlined style={{ fontSize: '1.2rem' }} />
+                <CloseCircleOutlined style={{ fontSize: "1.2rem" }} />
               </MyIcon>
               <NoConnectBlock>
                 <ErrorIcon>
                   <CloseCircleOutlined />
                 </ErrorIcon>
-                <BlurText>{t('charge.coreFail')}</BlurText>
+                <BlurText>{t("charge.coreFail")}</BlurText>
               </NoConnectBlock>
             </>
           )}

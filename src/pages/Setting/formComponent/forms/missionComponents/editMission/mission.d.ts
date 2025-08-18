@@ -1,4 +1,4 @@
-import { WriteAction } from '~/configs/dispatcher';
+import { WriteAction } from "~/configs/dispatcher";
 
 export interface MissionListType {
   key: string;
@@ -142,7 +142,13 @@ export type MissionData = {
   loc?: string;
   times: number;
   tasks: WriteAction[];
-  [levelLoc: string]: number | string | boolean | Array<string> | WriteAction[] | undefined;
+  [levelLoc: string]:
+    | number
+    | string
+    | boolean
+    | Array<string>
+    | WriteAction[]
+    | undefined;
 };
 
 interface CarControl {
@@ -209,7 +215,7 @@ interface MissionTitleBridgeCategory {
 export enum YawGenre {
   CUSTOM,
   SELECT,
-  CALCULATE_BY_AGV_AND_SHELF_ANGLE
+  CALCULATE_BY_AGV_AND_SHELF_ANGLE,
 }
 
 export type Mission_Title = {

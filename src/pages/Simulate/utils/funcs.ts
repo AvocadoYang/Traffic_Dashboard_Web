@@ -1,4 +1,4 @@
-import { MapType } from '@/api/useMap';
+import { MapType } from "@/api/useMap";
 
 export const findClosestLocation = (rx: number, ry: number, map: MapType) => {
   if (!map || !map.locations.length) return null;

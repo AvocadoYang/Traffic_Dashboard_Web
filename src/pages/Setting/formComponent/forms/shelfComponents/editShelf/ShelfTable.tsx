@@ -1,4 +1,4 @@
-import { FormatPainterOutlined, SearchOutlined } from '@ant-design/icons';
+import { FormatPainterOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -11,22 +11,22 @@ import {
   Table,
   TableColumnType,
   Tag,
-  Tooltip
-} from 'antd';
-import { ColumnsType } from 'antd/es/table';
-import { FC, useRef, useState } from 'react';
-import styled from 'styled-components';
-import { useSetAtom } from 'jotai';
-import { InfoCircleOutlined } from '@ant-design/icons';
-import { useTranslation } from 'react-i18next';
-import useYaw from '@/api/useYaw';
-import { cargoStyle, shelfSelectedStyleLocationId } from '@/utils/gloable';
-import useShelf from '@/api/useShelf';
-import { ShelfWithoutList } from '@/api/type/useShelf';
-import SettingCargoStyleForm from './SettingCargoStyleForm';
-import { DataIndex } from '../../antd';
-import { FilterDropdownProps } from 'antd/es/table/interface';
-import useLoc, { LocWithoutArr } from '@/api/useLoc';
+  Tooltip,
+} from "antd";
+import { ColumnsType } from "antd/es/table";
+import { FC, useRef, useState } from "react";
+import styled from "styled-components";
+import { useSetAtom } from "jotai";
+import { InfoCircleOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
+import useYaw from "@/api/useYaw";
+import { cargoStyle, shelfSelectedStyleLocationId } from "@/utils/gloable";
+import useShelf from "@/api/useShelf";
+import { ShelfWithoutList } from "@/api/type/useShelf";
+import SettingCargoStyleForm from "./SettingCargoStyleForm";
+import { DataIndex } from "../../antd";
+import { FilterDropdownProps } from "antd/es/table/interface";
+import useLoc, { LocWithoutArr } from "@/api/useLoc";
 
 const ExpandedRowWrapper = styled.div`
   padding: 16px;
@@ -55,7 +55,7 @@ const LevelTag = styled(Tag)`
 const Wrapper = styled.div<{ $hasSelect: boolean }>`
   display: flex;
   align-items: center;
-  display: ${(prop) => (prop.$hasSelect ? 'none' : 'flex')};
+  display: ${(prop) => (prop.$hasSelect ? "none" : "flex")};
 `;
 
 type ShelfCell = {
@@ -73,7 +73,10 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   children: React.ReactNode;
 }
 
-const EditableCell: React.FC<EditableCellProps> = ({ children, ...restProps }) => {
+const EditableCell: React.FC<EditableCellProps> = ({
+  children,
+  ...restProps
+}) => {
   return <td {...restProps}>{children}</td>;
 };
 
@@ -95,7 +98,7 @@ const ShelfTable: FC<{
     setSelectId(id);
   };
 
-  const handleSearch = (confirm: FilterDropdownProps['confirm']) => {
+  const handleSearch = (confirm: FilterDropdownProps["confirm"]) => {
     confirm();
   };
 
@@ -103,16 +106,26 @@ const ShelfTable: FC<{
     clearFilters();
   };
 
-  const getColumnSearchProps = (dataIndex: DataIndex): TableColumnType<ShelfWithoutList> => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+  const getColumnSearchProps = (
+    dataIndex: DataIndex,
+  ): TableColumnType<ShelfWithoutList> => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+      close,
+    }) => (
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <Input
           ref={searchInput}
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
           onPressEnter={() => handleSearch(confirm)}
-          style={{ marginBottom: 8, display: 'block' }}
+          style={{ marginBottom: 8, display: "block" }}
         />
         <Space>
           <Button
@@ -123,7 +136,7 @@ const ShelfTable: FC<{
             size="small"
             style={{ width: 90 }}
           >
-            {t('utils.search')}
+            {t("utils.search")}
           </Button>
           <Button
             color="default"
@@ -132,7 +145,7 @@ const ShelfTable: FC<{
             size="small"
             style={{ width: 90 }}
           >
-            {t('utils.reset')}
+            {t("utils.reset")}
           </Button>
           <Button
             type="link"
@@ -141,7 +154,7 @@ const ShelfTable: FC<{
               confirm({ closeDropdown: false });
             }}
           >
-            {t('utils.filter')}
+            {t("utils.filter")}
           </Button>
           <Button
             type="link"
@@ -150,13 +163,13 @@ const ShelfTable: FC<{
               close();
             }}
           >
-            {t('utils.cancel')}
+            {t("utils.cancel")}
           </Button>
         </Space>
       </div>
     ),
     filterIcon: (filtered: boolean) => (
-      <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
     ),
     onFilter: (value, record) => {
       return record.Loc.locationId
@@ -169,68 +182,68 @@ const ShelfTable: FC<{
         if (visible) {
           setTimeout(() => searchInput.current?.select(), 100);
         }
-      }
+      },
     },
-    render: (text: string) => text
+    render: (text: string) => text,
   });
 
   const columns: ColumnsType<ShelfWithoutList> = [
     {
-      title: t('edit_shelf_panel.location_id'),
-      dataIndex: 'locationId',
-      key: 'locationId',
-      sortDirections: ['ascend', 'descend'],
-      defaultSortOrder: 'ascend',
+      title: t("edit_shelf_panel.location_id"),
+      dataIndex: "locationId",
+      key: "locationId",
+      sortDirections: ["ascend", "descend"],
+      defaultSortOrder: "ascend",
       sorter: (a, b) => Number(a.Loc.locationId) - Number(b.Loc.locationId),
-      ...getColumnSearchProps('locationId'),
+      ...getColumnSearchProps("locationId"),
       render: (_v, recorder) => {
         const { locationId } = recorder.Loc;
         return locationId;
-      }
+      },
     },
     {
-      title: t('edit_shelf_panel.category'),
-      dataIndex: 'type',
-      key: 'type',
+      title: t("edit_shelf_panel.category"),
+      dataIndex: "type",
+      key: "type",
       render: (_c, recorder) => {
-        if (!recorder.ShelfCategory) return t('utils.no');
+        if (!recorder.ShelfCategory) return t("utils.no");
         const type = recorder.ShelfCategory.name;
         return type;
-      }
+      },
     },
     {
-      title: t('edit_shelf_panel.level'),
-      dataIndex: 'level',
-      key: 'level',
+      title: t("edit_shelf_panel.level"),
+      dataIndex: "level",
+      key: "level",
       render: (_v, recorder) => {
         if (!recorder.ShelfConfig) return 0;
         const level = recorder.ShelfCategory.Height?.length;
         return level;
-      }
+      },
     },
     {
-      title: t('edit_shelf_panel.yaw'),
-      dataIndex: 'yaw',
-      key: 'yaw',
+      title: t("edit_shelf_panel.yaw"),
+      dataIndex: "yaw",
+      key: "yaw",
       render: (_v, recorder) => {
-        if (!yaw) return '-';
+        if (!yaw) return "-";
         const yawIndex = yaw?.findIndex((s) => s.id === recorder.Loc.dirId);
-        if (yawIndex === -1) return '-';
+        if (yawIndex === -1) return "-";
         return yaw[yawIndex].yaw;
-      }
+      },
     },
     {
-      title: t('edit_shelf_panel.region_name'),
-      dataIndex: 'region_name',
-      key: 'region_name',
+      title: t("edit_shelf_panel.region_name"),
+      dataIndex: "region_name",
+      key: "region_name",
       render: (_v, recorder) => {
-        return recorder.Loc?.loc_regions?.name || '';
-      }
+        return recorder.Loc?.loc_regions?.name || "";
+      },
     },
     {
-      title: t('edit_shelf_panel.setting'),
-      dataIndex: 'operation',
-      key: 'operation',
+      title: t("edit_shelf_panel.setting"),
+      dataIndex: "operation",
+      key: "operation",
       render: (_v, recorder) => {
         return (
           <Button
@@ -239,11 +252,11 @@ const ShelfTable: FC<{
             color="primary"
             variant="filled"
           >
-            {t('edit_shelf_panel.edit_position')}
+            {t("edit_shelf_panel.edit_position")}
           </Button>
         );
-      }
-    }
+      },
+    },
   ];
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
@@ -253,20 +266,20 @@ const ShelfTable: FC<{
   const cancelEditStyle = () => {
     setSelectId(null);
     setCStyle(null);
-    setShelfSelectedStyle('');
+    setShelfSelectedStyle("");
   };
 
   const rowSelection = {
     selectedRowKeys,
-    onChange: onSelectChange
+    onChange: onSelectChange,
   };
 
   const mergedColumns = columns.map((col) => {
     return {
       ...col,
       onCell: (record: ShelfWithoutList) => ({
-        record
-      })
+        record,
+      }),
     };
   });
 
@@ -278,8 +291,8 @@ const ShelfTable: FC<{
         <Table
           components={{
             body: {
-              cell: EditableCell
-            }
+              cell: EditableCell,
+            },
           }}
           rowSelection={rowSelection}
           dataSource={shelfDataSource as []}
@@ -288,47 +301,55 @@ const ShelfTable: FC<{
           pagination={{ pageSize: 8 }}
           expandable={{
             expandedRowRender: (record) => {
-              const sortedConfig = record.ShelfConfig.sort((a, b) => a.level - b.level);
+              const sortedConfig = record.ShelfConfig.sort(
+                (a, b) => a.level - b.level,
+              );
               const thisLocationInfo = (locData as LocWithoutArr[]).find(
-                (v) => v.locationId === record.Loc.locationId
+                (v) => v.locationId === record.Loc.locationId,
               );
 
               const relationshipsDisplay = thisLocationInfo?.relationships
                 ? Object.entries(thisLocationInfo.relationships)
                     .map(
                       ([locId, type]) =>
-                        `${locId}: ${type === 'fixed' ? t('shelf.cargo_mission.relationship_fixed') : t('shelf.cargo_mission.relationship_non_fixed')}`
+                        `${locId}: ${type === "fixed" ? t("shelf.cargo_mission.relationship_fixed") : t("shelf.cargo_mission.relationship_non_fixed")}`,
                     )
-                    .join(', ')
-                : t('utils.none');
+                    .join(", ")
+                : t("utils.none");
 
               return (
                 <ExpandedRowWrapper>
                   <ConfigCard
                     title={
                       <Flex align="center" gap="small">
-                        <span>{t('edit_shelf_panel.shelf_config')}</span>
-                        <Tooltip title={t('edit_shelf_panel.config_tooltip')}>
-                          <InfoCircleOutlined style={{ color: '#1890ff' }} />
+                        <span>{t("edit_shelf_panel.shelf_config")}</span>
+                        <Tooltip title={t("edit_shelf_panel.config_tooltip")}>
+                          <InfoCircleOutlined style={{ color: "#1890ff" }} />
                         </Tooltip>
                       </Flex>
                     }
                   >
                     <Descriptions column={2} bordered size="small">
                       {sortedConfig.map((item) => {
-                        const itemArr = item?.name?.split('-') || [];
+                        const itemArr = item?.name?.split("-") || [];
                         return (
                           <Descriptions.Item
                             key={item.id}
                             label={
                               <Flex align="center" gap="small">
                                 <LevelTag color="blue">
-                                  {t('edit_shelf_panel.level')} {item.level + 1}
+                                  {t("edit_shelf_panel.level")} {item.level + 1}
                                 </LevelTag>
                                 {item?.name ? (
-                                  <span>({itemArr.slice(0, itemArr.length - 1).join('-')})</span>
+                                  <span>
+                                    (
+                                    {itemArr
+                                      .slice(0, itemArr.length - 1)
+                                      .join("-")}
+                                    )
+                                  </span>
                                 ) : (
-                                  '-'
+                                  "-"
                                 )}
                               </Flex>
                             }
@@ -336,13 +357,16 @@ const ShelfTable: FC<{
                           >
                             <Flex vertical gap="small">
                               <span>
-                                {t('edit_shelf_panel.disabled')}:{' '}
-                                <Tag color={item.disable ? 'red' : 'green'}>
-                                  {item.disable ? t('utils.yes') : t('utils.no')}
+                                {t("edit_shelf_panel.disabled")}:{" "}
+                                <Tag color={item.disable ? "red" : "green"}>
+                                  {item.disable
+                                    ? t("utils.yes")
+                                    : t("utils.no")}
                                 </Tag>
                               </span>
                               <span>
-                                {t('edit_shelf_panel.height')}: {item.cargo_limit} mm
+                                {t("edit_shelf_panel.height")}:{" "}
+                                {item.cargo_limit} mm
                               </span>
                             </Flex>
                           </Descriptions.Item>
@@ -351,22 +375,35 @@ const ShelfTable: FC<{
                       <Descriptions.Item
                         label={
                           <Flex align="center" gap="small">
-                            <span>{t('edit_shelf_panel.placement_priority')}</span>
-                            <Tooltip title={t('shelf.cargo_mission.priority_desc')}>
-                              <InfoCircleOutlined style={{ color: '#1890ff' }} />
+                            <span>
+                              {t("edit_shelf_panel.placement_priority")}
+                            </span>
+                            <Tooltip
+                              title={t("shelf.cargo_mission.priority_desc")}
+                            >
+                              <InfoCircleOutlined
+                                style={{ color: "#1890ff" }}
+                              />
                             </Tooltip>
                           </Flex>
                         }
                         span={2}
                       >
-                        {thisLocationInfo?.placement_priority ?? t('utils.none')}
+                        {thisLocationInfo?.placement_priority ??
+                          t("utils.none")}
                       </Descriptions.Item>
                       <Descriptions.Item
                         label={
                           <Flex align="center" gap="small">
-                            <span>{t('edit_shelf_panel.relationships')}</span>
-                            <Tooltip title={t('shelf.cargo_mission.relationships_desc')}>
-                              <InfoCircleOutlined style={{ color: '#1890ff' }} />
+                            <span>{t("edit_shelf_panel.relationships")}</span>
+                            <Tooltip
+                              title={t(
+                                "shelf.cargo_mission.relationships_desc",
+                              )}
+                            >
+                              <InfoCircleOutlined
+                                style={{ color: "#1890ff" }}
+                              />
                             </Tooltip>
                           </Flex>
                         }
@@ -378,12 +415,15 @@ const ShelfTable: FC<{
                   </ConfigCard>
                 </ExpandedRowWrapper>
               );
-            }
+            },
           }}
         />
       </Wrapper>
       {selectId ? (
-        <SettingCargoStyleForm selectId={selectId} cancelEditStyle={cancelEditStyle} />
+        <SettingCargoStyleForm
+          selectId={selectId}
+          cancelEditStyle={cancelEditStyle}
+        />
       ) : (
         []
       )}

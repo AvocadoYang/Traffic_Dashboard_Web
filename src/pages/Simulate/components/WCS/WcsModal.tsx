@@ -1,4 +1,4 @@
-import { useAllConveyorMockConfig } from '@/api/useAllConveyorMockConfig';
+import { useAllConveyorMockConfig } from "@/api/useAllConveyorMockConfig";
 import {
   Modal,
   Form,
@@ -9,12 +9,12 @@ import {
   Descriptions,
   Flex,
   Tooltip,
-  Divider
-} from 'antd';
-import { FC } from 'react';
-import { useTranslation } from 'react-i18next';
-import styled from 'styled-components';
-import { QuestionCircleOutlined } from '@ant-design/icons';
+  Divider,
+} from "antd";
+import { FC } from "react";
+import { useTranslation } from "react-i18next";
+import styled from "styled-components";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 
 const StyledModal = styled(Modal)`
   .ant-modal-content {
@@ -86,8 +86,6 @@ const WcsModal: FC<{
       allConveyor?.map((station, _index) => ({
         locationId: station!.locationId,
         isEnable: values[`enable_${station!.locationId}`] ?? station!.isEnable,
-        isEnableNotifyMission:
-          values[`enable_notify_mission_${station!.locationId}`] ?? station!.isEnabledNotifyMission
       })) ?? [];
 
     handleOk(updates);
@@ -95,7 +93,7 @@ const WcsModal: FC<{
 
   return (
     <StyledModal
-      title={t('sim.conveyor.title')}
+      title={t("sim.conveyor.title")}
       open={isOpen}
       onOk={() => form.submit()}
       onCancel={handleCancel}
@@ -104,23 +102,29 @@ const WcsModal: FC<{
     >
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <StyledSpace direction="vertical" size="large">
-          <StyledCard title={t('sim.conveyor.card_title')}>
+          <StyledCard title={t("sim.conveyor.card_title")}>
             <StyledSpace direction="vertical" size="middle">
               {allConveyor?.map((station) => {
                 if (!station) return null;
                 return (
                   <StyledCard
                     key={station.locationId}
-                    title={t('sim.conveyor.station', { id: station.locationId })}
+                    title={t("sim.conveyor.station", {
+                      id: station.locationId,
+                    })}
                     size="small"
                   >
                     <Flex>
                       <Form.Item
                         label={
                           <span>
-                            {t('sim.conveyor.active_config')}{' '}
-                            <Tooltip title={t('sim.conveyor.active_config_desc')}>
-                              <QuestionCircleOutlined style={{ color: '#999' }} />
+                            {t("sim.conveyor.active_config")}{" "}
+                            <Tooltip
+                              title={t("sim.conveyor.active_config_desc")}
+                            >
+                              <QuestionCircleOutlined
+                                style={{ color: "#999" }}
+                              />
                             </Tooltip>
                           </span>
                         }
@@ -130,41 +134,26 @@ const WcsModal: FC<{
                       >
                         <Switch />
                       </Form.Item>
-
-                      <Divider type="vertical" />
-
-                      <Form.Item
-                        label={
-                          <span>
-                            {t('sim.conveyor.active_notify_mission')}{' '}
-                            <Tooltip title={t('sim.conveyor.active_notify_mission_desc')}>
-                              <QuestionCircleOutlined style={{ color: '#999' }} />
-                            </Tooltip>
-                          </span>
-                        }
-                        name={`enable_notify_mission_${station.locationId}`}
-                        valuePropName="checked"
-                        initialValue={station.isEnabledNotifyMission}
-                      >
-                        <Switch />
-                      </Form.Item>
                     </Flex>
 
                     <Descriptions column={2} size="small" bordered>
-                      <Descriptions.Item label={t('sim.conveyor.spawn_cargo')}>
-                        {station.isSpawnCargo ? t('utils.yes') : t('utils.no')}
+                      <Descriptions.Item label={t("sim.conveyor.spawn_cargo")}>
+                        {station.isSpawnCargo ? t("utils.yes") : t("utils.no")}
                       </Descriptions.Item>
-                      <Descriptions.Item label={t('sim.conveyor.spawn_time')}>
+                      <Descriptions.Item label={t("sim.conveyor.spawn_time")}>
                         {station.spawnTimeMs} ms
                       </Descriptions.Item>
-                      <Descriptions.Item label={t('sim.conveyor.active_shift')}>
-                        {station.activeShift ? t('utils.yes') : t('utils.no')}
+                      <Descriptions.Item label={t("sim.conveyor.active_shift")}>
+                        {station.activeShift ? t("utils.yes") : t("utils.no")}
                       </Descriptions.Item>
-                      <Descriptions.Item label={t('sim.conveyor.shift_time')}>
+                      <Descriptions.Item label={t("sim.conveyor.shift_time")}>
                         {station.shiftTimeMs} ms
                       </Descriptions.Item>
-                      <Descriptions.Item label={t('sim.conveyor.shift_target')} span={2}>
-                        {station.shiftLocationId || t('sim.conveyor.none')}
+                      <Descriptions.Item
+                        label={t("sim.conveyor.shift_target")}
+                        span={2}
+                      >
+                        {station.shiftLocationId || t("sim.conveyor.none")}
                       </Descriptions.Item>
                     </Descriptions>
                   </StyledCard>
@@ -174,7 +163,7 @@ const WcsModal: FC<{
           </StyledCard>
 
           <StyledButton type="primary" htmlType="submit">
-            {t('sim.conveyor.save')}
+            {t("sim.conveyor.save")}
           </StyledButton>
         </StyledSpace>
       </Form>

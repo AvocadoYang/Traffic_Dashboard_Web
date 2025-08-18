@@ -1,14 +1,24 @@
-import client from '@/api/axiosClient';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Flex, Form, Input, message, Modal, Table, Tooltip, Typography } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
-import { FC, memo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import styled from 'styled-components';
-import { array, boolean, object, string } from 'yup';
-import { ErrorResponse } from '@/utils/globalType';
-import { errorHandler } from '@/utils/utils';
-import { QuestionCircleOutlined } from '@ant-design/icons';
+import client from "@/api/axiosClient";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Button,
+  Flex,
+  Form,
+  Input,
+  message,
+  Modal,
+  Table,
+  Tooltip,
+  Typography,
+} from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import { FC, memo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import styled from "styled-components";
+import { array, boolean, object, string } from "yup";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 
 type FieldType = {
   name: string;
@@ -41,12 +51,12 @@ const schema = array(
   object({
     id: string().required(),
     name: string().required(),
-    isUsing: boolean().required()
-  }).optional()
+    isUsing: boolean().required(),
+  }).optional(),
 ).required();
 
 const getAllScript = async () => {
-  const { data } = await client.get<unknown>('api/simulate/all-script');
+  const { data } = await client.get<unknown>("api/simulate/all-script");
   const result = await schema.validate(data, { stripUnknown: true });
   return result;
 };
@@ -63,46 +73,46 @@ const SelectScript: FC = () => {
   const [formNewScript] = Form.useForm();
   const [messageApi, contextHolders] = message.useMessage();
   const queryClient = useQueryClient();
-  const { data, refetch } = useQuery(['_'], {
+  const { data, refetch } = useQuery(["_"], {
     queryFn: () => {
       return getAllScript();
-    }
+    },
   });
 
   const createMutation = useMutation({
     mutationFn: (payload: FieldType) => {
-      return client.post('api/simulate/create-script', payload);
+      return client.post("api/simulate/create-script", payload);
     },
     onSuccess: () => {
-      void messageApi.success(t('utils.success'));
+      void messageApi.success(t("utils.success"));
       refetch();
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const changeScriptMutation = useMutation({
     mutationFn: (id: string) => {
-      return client.post('api/simulate/change-script', { id });
+      return client.post("api/simulate/change-script", { id });
     },
     onSuccess: () => {
-      void messageApi.success(t('utils.success'));
+      void messageApi.success(t("utils.success"));
       refetch();
-      queryClient.refetchQueries({ queryKey: ['simulate-script'] });
-      queryClient.refetchQueries({ queryKey: ['script-robot'] });
-      queryClient.refetchQueries({ queryKey: ['mock-robot'] });
+      queryClient.refetchQueries({ queryKey: ["simulate-script"] });
+      queryClient.refetchQueries({ queryKey: ["script-robot"] });
+      queryClient.refetchQueries({ queryKey: ["mock-robot"] });
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => {
-      return client.post('api/simulate/delete-script', { id });
+      return client.post("api/simulate/delete-script", { id });
     },
     onSuccess: () => {
-      void messageApi.success(t('utils.success'));
+      void messageApi.success(t("utils.success"));
       refetch();
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const showModal = () => {
@@ -118,36 +128,40 @@ const SelectScript: FC = () => {
   };
 
   const onFinishAddScript = () => {
-    const name = formNewScript.getFieldValue('name') as string;
+    const name = formNewScript.getFieldValue("name") as string;
 
     createMutation.mutate({ name });
   };
 
   const columns = [
     {
-      title: t('sim.select_script.script'),
-      dataIndex: 'scriptName',
-      key: 'scriptName',
+      title: t("sim.select_script.script"),
+      dataIndex: "scriptName",
+      key: "scriptName",
       render: (_, record: DataType) => {
         return <Typography.Text>{record.name}</Typography.Text>;
-      }
+      },
     },
     {
-      title: t('sim.select_script.status'),
-      dataIndex: 'status',
-      key: 'status',
+      title: t("sim.select_script.status"),
+      dataIndex: "status",
+      key: "status",
       render: (_, record: DataType) => {
         return record.isUsing ? (
-          <Typography.Text type="success">{t('sim.select_script.using')}</Typography.Text>
+          <Typography.Text type="success">
+            {t("sim.select_script.using")}
+          </Typography.Text>
         ) : (
-          <Typography.Text type="secondary">{t('sim.select_script.no_using')}</Typography.Text>
+          <Typography.Text type="secondary">
+            {t("sim.select_script.no_using")}
+          </Typography.Text>
         );
-      }
+      },
     },
     {
-      title: '',
-      dataIndex: 'action',
-      key: 'action',
+      title: "",
+      dataIndex: "action",
+      key: "action",
       render: (_, record: DataType) => {
         return (
           <Flex justify="end" gap="large">
@@ -159,7 +173,7 @@ const SelectScript: FC = () => {
                 type="primary"
                 loading={changeScriptMutation.isLoading}
               >
-                {t('sim.select_script.using_this')}
+                {t("sim.select_script.using_this")}
               </Button>
             )}
             <Button
@@ -168,18 +182,18 @@ const SelectScript: FC = () => {
               onClick={() => deleteMutation.mutate(record.id)}
               loading={deleteMutation.isLoading}
             >
-              {t('utils.delete')}
+              {t("utils.delete")}
             </Button>
           </Flex>
         );
-      }
-    }
+      },
+    },
   ];
 
   return (
     <>
       {contextHolders}
-      <Tooltip title={t('sim.select_script.change')} placement="right">
+      <Tooltip title={t("sim.select_script.change")} placement="right">
         <FloatBtn onClick={showModal}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <title>script-text-outline</title>
@@ -190,7 +204,7 @@ const SelectScript: FC = () => {
 
       {isOpen ? (
         <Modal
-          title={t('sim.select_script.add_or_change')}
+          title={t("sim.select_script.add_or_change")}
           open={isOpen}
           onOk={handleOk}
           onCancel={handleCancel}
@@ -198,23 +212,27 @@ const SelectScript: FC = () => {
           <Form form={formNewScript} onFinish={onFinishAddScript}>
             <Flex gap="large">
               <Form.Item
-                label={t('utils.add')}
+                label={t("utils.add")}
                 name="name"
-                rules={[{ required: true, message: t('utils.required') }]}
+                rules={[{ required: true, message: t("utils.required") }]}
               >
                 <Input />
               </Form.Item>
 
               <Form.Item>
-                <Tooltip title={t('utils.add')}>
-                  <Button type="primary" htmlType="submit" icon={<PlusOutlined />} />
+                <Tooltip title={t("utils.add")}>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    icon={<PlusOutlined />}
+                  />
                 </Tooltip>
               </Form.Item>
             </Flex>
           </Form>
 
           <Flex vertical gap="large">
-            <Tooltip placement="left" title={t('sim.select_script.info')}>
+            <Tooltip placement="left" title={t("sim.select_script.info")}>
               <QuestionCircleOutlined />
             </Tooltip>
 

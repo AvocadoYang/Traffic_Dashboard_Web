@@ -37,7 +37,7 @@ export type RoadListType = {
   y1: number;
   x2: number;
   y2: number;
-  roadType: 'oneWayRoad' | 'twoWayRoad';
+  roadType: "oneWayRoad" | "twoWayRoad";
   checkboxGroup?: string[];
   disabled: boolean;
   limit: boolean;

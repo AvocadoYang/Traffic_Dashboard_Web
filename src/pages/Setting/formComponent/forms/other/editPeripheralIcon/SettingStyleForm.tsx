@@ -6,18 +6,24 @@ import {
   RedoOutlined,
   UndoOutlined,
   FullscreenOutlined,
-  FullscreenExitOutlined
-} from '@ant-design/icons';
-import { Button, Col, Form, InputNumber, message, Row, Select } from 'antd';
-import { FC, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
-import { useAtom, useSetAtom } from 'jotai';
-import client from '@/api/axiosClient';
-import { IsEditPeripheralStyle, PeripheralEditData } from '@/utils/gloable';
+  FullscreenExitOutlined,
+} from "@ant-design/icons";
+import { Button, Col, Form, InputNumber, message, Row, Select } from "antd";
+import { FC, useEffect, useRef } from "react";
+import styled from "styled-components";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { useAtom, useSetAtom } from "jotai";
+import client from "@/api/axiosClient";
+import { IsEditPeripheralStyle, PeripheralEditData } from "@/utils/gloable";
 
-type Options = 'areaType' | 'translateX' | 'translateY' | 'rotate' | 'scale' | 'flex_direction';
+type Options =
+  | "areaType"
+  | "translateX"
+  | "translateY"
+  | "rotate"
+  | "scale"
+  | "flex_direction";
 
 type Val = {
   input: Options;
@@ -34,21 +40,21 @@ export type SubmitValue = {
 };
 
 type Event =
-  | 'up'
-  | 'down'
-  | 'left'
-  | 'right'
-  | 'r-rotate'
-  | 'l-rotate'
-  | 'scale-up'
-  | 'scale-down'
-  | '';
+  | "up"
+  | "down"
+  | "left"
+  | "right"
+  | "r-rotate"
+  | "l-rotate"
+  | "scale-up"
+  | "scale-down"
+  | "";
 
 const flexOption = [
-  { value: 'row' },
-  { value: 'column' },
-  { value: 'row-reverse' },
-  { value: 'column-reverse' }
+  { value: "row" },
+  { value: "column" },
+  { value: "row-reverse" },
+  { value: "column-reverse" },
 ];
 
 const Wrapper = styled.div`
@@ -73,21 +79,24 @@ const SettingStyleForm: FC = () => {
 
   const submitMutation = useMutation({
     mutationFn: (payload: SubmitValue) => {
-      return client.post('api/peripherals/edit-peripheral-station-style', payload);
+      return client.post(
+        "api/peripherals/edit-peripheral-station-style",
+        payload,
+      );
     },
     onSuccess: async () => {
       // await queryClient.refetchQueries({
       //   queryKey: ['all-charge-station']
       // });
       await queryClient.refetchQueries({
-        queryKey: ['loc-only']
+        queryKey: ["loc-only"],
       });
-
-      void messageApi.success(t('utils.success'));
+      await queryClient.refetchQueries({ queryKey: ["peripheral-style"] });
+      void messageApi.success(t("utils.success"));
     },
     onError: () => {
-      void messageApi.error('無法排除 聯絡FAE工程師');
-    }
+      void messageApi.error("無法排除 聯絡FAE工程師");
+    },
   });
 
   const saveStyle = () => {
@@ -102,11 +111,11 @@ const SettingStyleForm: FC = () => {
       return {
         loc: prev.loc,
         peripheralType: prev.peripheralType,
-        translateX: val.input === 'translateX' ? val.value : prev.translateX,
-        translateY: val.input === 'translateY' ? val.value : prev.translateY,
-        rotate: val.input === 'rotate' ? val.value : prev.rotate,
-        scale: val.input === 'scale' ? val.value : prev.scale,
-        flex_direction: prev.flex_direction
+        translateX: val.input === "translateX" ? val.value : prev.translateX,
+        translateY: val.input === "translateY" ? val.value : prev.translateY,
+        rotate: val.input === "rotate" ? val.value : prev.rotate,
+        scale: val.input === "scale" ? val.value : prev.scale,
+        flex_direction: prev.flex_direction,
       };
     });
   };
@@ -116,7 +125,7 @@ const SettingStyleForm: FC = () => {
       if (!prev) return null;
       return {
         ...prev,
-        flex_direction: val
+        flex_direction: val,
       };
     });
   };
@@ -129,47 +138,53 @@ const SettingStyleForm: FC = () => {
         peripheralType: prev.peripheralType,
         flex_direction: prev.flex_direction,
         translateX:
-          val.input === 'translateX'
+          val.input === "translateX"
             ? Number((val.value + prev.translateX).toFixed(1))
             : prev.translateX,
         translateY:
-          val.input === 'translateY'
+          val.input === "translateY"
             ? Number((val.value + prev.translateY).toFixed(1))
             : prev.translateY,
-        rotate: val.input === 'rotate' ? Number((val.value + prev.rotate).toFixed(1)) : prev.rotate,
-        scale: val.input === 'scale' ? Number((val.value + prev.scale).toFixed(1)) : prev.scale
+        rotate:
+          val.input === "rotate"
+            ? Number((val.value + prev.rotate).toFixed(1))
+            : prev.rotate,
+        scale:
+          val.input === "scale"
+            ? Number((val.value + prev.scale).toFixed(1))
+            : prev.scale,
       };
     });
   };
 
   const transformStyle = (event: Event) => {
     switch (event) {
-      case 'up':
-        handleBtnChange({ input: 'translateY', value: -0.1 });
+      case "up":
+        handleBtnChange({ input: "translateY", value: -0.1 });
         break;
-      case 'down':
-        handleBtnChange({ input: 'translateY', value: +0.1 });
+      case "down":
+        handleBtnChange({ input: "translateY", value: +0.1 });
         break;
-      case 'left':
-        handleBtnChange({ input: 'translateX', value: -0.1 });
+      case "left":
+        handleBtnChange({ input: "translateX", value: -0.1 });
         break;
-      case 'right':
-        handleBtnChange({ input: 'translateX', value: 0.1 });
+      case "right":
+        handleBtnChange({ input: "translateX", value: 0.1 });
         break;
-      case 'r-rotate':
-        handleBtnChange({ input: 'rotate', value: -1 });
+      case "r-rotate":
+        handleBtnChange({ input: "rotate", value: -1 });
         break;
-      case 'l-rotate':
-        handleBtnChange({ input: 'rotate', value: 1 });
+      case "l-rotate":
+        handleBtnChange({ input: "rotate", value: 1 });
         break;
-      case 'scale-up':
-        handleBtnChange({ input: 'scale', value: 0.1 });
+      case "scale-up":
+        handleBtnChange({ input: "scale", value: 0.1 });
         break;
-      case 'scale-down':
-        handleBtnChange({ input: 'scale', value: -0.1 });
+      case "scale-down":
+        handleBtnChange({ input: "scale", value: -0.1 });
         break;
       default:
-        console.log('error');
+        console.log("error");
     }
   };
 
@@ -190,11 +205,11 @@ const SettingStyleForm: FC = () => {
 
   useEffect(() => {
     if (!selectStation) return;
-    form.setFieldValue('translateX', selectStation.translateX);
-    form.setFieldValue('translateY', selectStation.translateY);
-    form.setFieldValue('scale', selectStation.scale);
-    form.setFieldValue('rotate', selectStation.rotate);
-    form.setFieldValue('flex_direction', selectStation.flex_direction);
+    form.setFieldValue("translateX", selectStation.translateX);
+    form.setFieldValue("translateY", selectStation.translateY);
+    form.setFieldValue("scale", selectStation.scale);
+    form.setFieldValue("rotate", selectStation.rotate);
+    form.setFieldValue("flex_direction", selectStation.flex_direction);
   }, [selectStation]);
 
   useEffect(() => {
@@ -208,66 +223,75 @@ const SettingStyleForm: FC = () => {
       <Wrapper>
         <Row gutter={[12, 24]}>
           <Col span={24}>
-            {' '}
+            {" "}
             <BtnWrapper>
-              <Button color="default" variant="filled" onClick={() => setIsEditStation(false)}>
-                {t('utils.cancel')}
-              </Button>
-              <Button color="primary" variant="filled" onClick={() => saveStyle()} type="primary">
-                {t('utils.save')}
+              <Button
+                color="default"
+                variant="filled"
+                onClick={() => setIsEditStation(false)}
+              >
+                {t("utils.cancel")}
               </Button>
               <Button
-                onMouseDown={() => handleButtonPress('up')}
+                color="primary"
+                variant="filled"
+                onClick={() => saveStyle()}
+                type="primary"
+              >
+                {t("utils.save")}
+              </Button>
+              <Button
+                onMouseDown={() => handleButtonPress("up")}
                 onMouseUp={stopCounter}
-                onClick={() => transformStyle('up')}
+                onClick={() => transformStyle("up")}
                 icon={<ArrowUpOutlined />}
               />
               <Button
-                onMouseDown={() => handleButtonPress('down')}
+                onMouseDown={() => handleButtonPress("down")}
                 onMouseUp={stopCounter}
-                onClick={() => transformStyle('down')}
+                onClick={() => transformStyle("down")}
                 icon={<ArrowDownOutlined />}
               />
               <Button
-                onMouseDown={() => handleButtonPress('left')}
+                onMouseDown={() => handleButtonPress("left")}
                 onMouseUp={stopCounter}
-                onClick={() => transformStyle('left')}
+                onClick={() => transformStyle("left")}
                 icon={<ArrowLeftOutlined />}
               />
               <Button
-                onMouseDown={() => handleButtonPress('right')}
+                onMouseDown={() => handleButtonPress("right")}
                 onMouseUp={stopCounter}
-                onClick={() => transformStyle('right')}
+                onClick={() => transformStyle("right")}
                 icon={<ArrowRightOutlined />}
               />
               <Button
-                onMouseDown={() => handleButtonPress('l-rotate')}
+                onMouseDown={() => handleButtonPress("l-rotate")}
                 onMouseUp={stopCounter}
-                onClick={() => transformStyle('l-rotate')}
+                onClick={() => transformStyle("l-rotate")}
                 icon={<RedoOutlined />}
               />
               <Button
-                onMouseDown={() => handleButtonPress('r-rotate')}
+                onMouseDown={() => handleButtonPress("r-rotate")}
                 onMouseUp={stopCounter}
-                onClick={() => transformStyle('r-rotate')}
+                onClick={() => transformStyle("r-rotate")}
                 icon={<UndoOutlined />}
               />
               <Button
-                onMouseDown={() => handleButtonPress('scale-up')}
+                onMouseDown={() => handleButtonPress("scale-up")}
                 onMouseUp={stopCounter}
-                onClick={() => transformStyle('scale-up')}
+                onClick={() => transformStyle("scale-up")}
                 icon={<FullscreenOutlined />}
               />
               <Button
-                onMouseDown={() => handleButtonPress('scale-down')}
+                onMouseDown={() => handleButtonPress("scale-down")}
                 onMouseUp={stopCounter}
-                onClick={() => transformStyle('scale-down')}
+                onClick={() => transformStyle("scale-down")}
                 icon={<FullscreenExitOutlined />}
               />
             </BtnWrapper>
           </Col>
           <Col span={24}>
-            {' '}
+            {" "}
             <Form form={form} labelCol={{ span: 3 }} autoComplete="off">
               <Form.Item label="x" name="translateX">
                 <InputNumber
@@ -275,8 +299,8 @@ const SettingStyleForm: FC = () => {
                   type="number"
                   onChange={(e) =>
                     handChange({
-                      input: 'translateX',
-                      value: Number(e)
+                      input: "translateX",
+                      value: Number(e),
                     })
                   }
                 />
@@ -288,8 +312,8 @@ const SettingStyleForm: FC = () => {
                   type="number"
                   onChange={(e) =>
                     handChange({
-                      input: 'translateY',
-                      value: Number(e)
+                      input: "translateY",
+                      value: Number(e),
                     })
                   }
                 />
@@ -301,8 +325,8 @@ const SettingStyleForm: FC = () => {
                   type="number"
                   onChange={(e) =>
                     handChange({
-                      input: 'scale',
-                      value: Number(e)
+                      input: "scale",
+                      value: Number(e),
                     })
                   }
                 />
@@ -314,8 +338,8 @@ const SettingStyleForm: FC = () => {
                   type="number"
                   onChange={(e) =>
                     handChange({
-                      input: 'rotate',
-                      value: Number(e)
+                      input: "rotate",
+                      value: Number(e),
                     })
                   }
                 />

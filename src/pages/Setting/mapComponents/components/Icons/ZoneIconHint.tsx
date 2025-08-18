@@ -1,12 +1,14 @@
-import { FC, memo, RefObject, useEffect, useState } from 'react';
-import useMap from '@/api/useMap';
-import styled from 'styled-components';
-import { useAtomValue } from 'jotai';
-import { EditZoneSwitch } from '@/utils/siderGloble';
+import { FC, memo, RefObject, useEffect, useState } from "react";
+import useMap from "@/api/useMap";
+import styled from "styled-components";
+import { useAtomValue } from "jotai";
+import { EditZoneSwitch } from "@/utils/siderGloble";
 
-const Container = styled.div.attrs<{ left: number; top: number }>(({ left, top }) => ({
-  style: { left, top }
-}))<{ left: number; top: number }>`
+const Container = styled.div.attrs<{ left: number; top: number }>(
+  ({ left, top }) => ({
+    style: { left, top },
+  }),
+)<{ left: number; top: number }>`
   position: absolute;
 `;
 
@@ -58,7 +60,7 @@ const ZoneIconHint: FC<{
   const openEditZone = useAtomValue(EditZoneSwitch);
   const [mouseMoveLocationForFrame, setMouseMoveLocationForFrame] = useState({
     displayX: -1000,
-    displayY: -1000
+    displayY: -1000,
   });
 
   useEffect(() => {
@@ -71,7 +73,10 @@ const ZoneIconHint: FC<{
       const adjustX = clientX - mapRef.current.offsetLeft + Left;
       const adjustY = clientY - mapRef.current.offsetTop + Top;
 
-      setMouseMoveLocationForFrame({ displayX: adjustX / scale, displayY: adjustY / scale });
+      setMouseMoveLocationForFrame({
+        displayX: adjustX / scale,
+        displayY: adjustY / scale,
+      });
     };
 
     // 當鼠標離開地圖時，隱藏 Icon
@@ -79,19 +84,25 @@ const ZoneIconHint: FC<{
       setMouseMoveLocationForFrame({ displayX: -1000, displayY: -1000 });
     };
 
-    if (!mapWrapRef.current || !mapRef.current || !mapImageRef.current || !data || !openEditZone)
+    if (
+      !mapWrapRef.current ||
+      !mapRef.current ||
+      !mapImageRef.current ||
+      !data ||
+      !openEditZone
+    )
       return;
     if (isDragging) {
       setMouseMoveLocationForFrame({ displayX: -1000, displayY: -1000 });
     }
     const mapPanel = mapRef.current;
     // 綁定滑鼠移動事件
-    mapPanel.addEventListener('mousemove', mouseMoveEventForMapRef);
-    mapPanel.addEventListener('mouseleave', mouseLeaveEventForMapRef);
+    mapPanel.addEventListener("mousemove", mouseMoveEventForMapRef);
+    mapPanel.addEventListener("mouseleave", mouseLeaveEventForMapRef);
 
     return () => {
-      mapPanel.removeEventListener('mousemove', mouseMoveEventForMapRef);
-      mapPanel.removeEventListener('mouseleave', mouseLeaveEventForMapRef);
+      mapPanel.removeEventListener("mousemove", mouseMoveEventForMapRef);
+      mapPanel.removeEventListener("mouseleave", mouseLeaveEventForMapRef);
     };
   }, [isDragging, scale]);
 

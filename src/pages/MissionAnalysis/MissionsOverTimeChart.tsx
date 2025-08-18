@@ -1,9 +1,16 @@
 // MissionsOverTimeChart.tsx
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 const aggregatedByTime = [
-  { date: '2025-06-05', count: 3 },
-  { date: '2025-06-06', count: 7 }
+  { date: "2025-06-05", count: 3 },
+  { date: "2025-06-06", count: 7 },
 ];
 
 export const MissionsOverTimeChart = () => (

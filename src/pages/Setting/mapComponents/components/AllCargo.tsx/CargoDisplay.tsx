@@ -2,12 +2,12 @@ import {
   QuickMissionLoad,
   QuickMissionOffload,
   QuickMissionSettingMode,
-  StartQuickMissionSetting
-} from '@/pages/Main/global/jotai';
-import { useAtom, useSetAtom } from 'jotai';
-import { FC } from 'react';
-import styled from 'styled-components';
-import { Button } from 'antd';
+  StartQuickMissionSetting,
+} from "@/pages/Main/global/jotai";
+import { useAtom, useSetAtom } from "jotai";
+import { FC } from "react";
+import styled from "styled-components";
+import { Button } from "antd";
 
 // Styled components for enhanced UI
 const Block = styled(Button)<{
@@ -19,9 +19,10 @@ const Block = styled(Button)<{
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: ${({ $hasCargo }) => ($hasCargo ? '#ffe73c80' : '#f5f5f580')};
+  background-color: ${({ $hasCargo }) =>
+    $hasCargo ? "#ffe73c80" : "#f5f5f580"};
   border: ${({ $isSelecting, $canBeClick }) =>
-    $isSelecting && $canBeClick ? '2px solid #1890ff' : '1px dashed #727272'};
+    $isSelecting && $canBeClick ? "2px solid #1890ff" : "1px dashed #727272"};
   border-radius: 3px;
   min-width: 15px;
   max-height: 15px;
@@ -31,18 +32,23 @@ const Block = styled(Button)<{
   position: relative;
   z-index: ${({ $isSelecting }) => ($isSelecting ? 50 : 1)};
   cursor: ${({ $isDisable, $isSelecting, $canBeClick }) =>
-    $isDisable ? 'not-allowed' : $isSelecting && !$canBeClick ? 'not-allowed' : 'pointer'};
+    $isDisable
+      ? "not-allowed"
+      : $isSelecting && !$canBeClick
+        ? "not-allowed"
+        : "pointer"};
   opacity: ${({ $isDisable }) => ($isDisable ? 0.6 : 1)};
   box-shadow: ${({ $isSelecting, $canBeClick }) =>
-    $isSelecting && $canBeClick ? '0 0 8px rgba(24, 144, 255, 0.3)' : 'none'};
+    $isSelecting && $canBeClick ? "0 0 8px rgba(24, 144, 255, 0.3)" : "none"};
 
   &:hover:not(:disabled) {
-    background-color: ${({ $hasCargo }) => ($hasCargo ? '#ffe73cb3' : '#e8e8e8b3')};
+    background-color: ${({ $hasCargo }) =>
+      $hasCargo ? "#ffe73cb3" : "#e8e8e8b3"};
     transform: scale(1.05);
   }
 
   &:disabled::after {
-    content: 'X';
+    content: "X";
     position: absolute;
     top: 50%;
     left: 50%;
@@ -63,7 +69,7 @@ const Block = styled(Button)<{
 const BlockSpan = styled.span<{ rotate: number; $hasCargo: boolean }>`
   font-size: 12px;
   font-weight: 500;
-  color: ${({ $hasCargo }) => ($hasCargo ? '#000' : '#333')};
+  color: ${({ $hasCargo }) => ($hasCargo ? "#000" : "#333")};
   transform: ${({ rotate }) => `rotate(${-rotate}deg)`};
   white-space: nowrap;
   user-select: none;
@@ -77,7 +83,11 @@ interface CargoDisplayProps {
   isDisable: boolean;
   locId: string;
   rotate: number;
-  handleMouseDown: (e: React.MouseEvent<HTMLElement>, locId: string, level: number) => void;
+  handleMouseDown: (
+    e: React.MouseEvent<HTMLElement>,
+    locId: string,
+    level: number,
+  ) => void;
 }
 
 const CargoDisplay: FC<CargoDisplayProps> = ({
@@ -87,34 +97,38 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
   isDisable,
   locId,
   rotate,
-  handleMouseDown
+  handleMouseDown,
 }) => {
   const [selectMode, setQuickSettingMode] = useAtom(QuickMissionSettingMode);
-  const [isStartSelecting, setStartQuickSetting] = useAtom(StartQuickMissionSetting);
+  const [isStartSelecting, setStartQuickSetting] = useAtom(
+    StartQuickMissionSetting,
+  );
   const setLoad = useSetAtom(QuickMissionLoad);
   const setOffload = useSetAtom(QuickMissionOffload);
 
   const canBeClickInSelection =
     isStartSelecting &&
     !isDisable &&
-    ((selectMode === 'load' && cargoValue) || (selectMode === 'offload' && !cargoValue));
+    ((selectMode === "load" && cargoValue) ||
+      (selectMode === "offload" && !cargoValue));
 
   const handleQuickMissionPayload = () => {
-    if (!isStartSelecting || !canBeClickInSelection || selectMode === null) return;
+    if (!isStartSelecting || !canBeClickInSelection || selectMode === null)
+      return;
 
-    if (selectMode === 'load') {
+    if (selectMode === "load") {
       setLoad({
-        missionType: 'load',
+        missionType: "load",
         columnName: levelName,
         locationId: locId,
-        level
+        level,
       });
-    } else if (selectMode === 'offload') {
+    } else if (selectMode === "offload") {
       setOffload({
-        missionType: 'offload',
+        missionType: "offload",
         columnName: levelName,
         locationId: locId,
-        level
+        level,
       });
     }
 

@@ -1,18 +1,36 @@
-import { Additional_Mission_Info, MissionInfo, useMissions } from '../../../../sockets/useMissions';
-import { TableColumnsType, Table, Spin, ConfigProvider, Button, Flex } from 'antd';
-import { memo, useEffect, useState } from 'react';
-import '../mission_info.css';
-import { useTranslation } from 'react-i18next';
-import styled from 'styled-components';
-import { translate } from '@/i18n';
-import { darkMode } from '@/utils/gloable';
-import { useAtomValue } from 'jotai';
-import client from '@/api/axiosClient';
-import { useMutation } from '@tanstack/react-query';
-import useName from '@/api/useAmrName';
-import MissionHistory from './MissionHistory';
+import {
+  Additional_Mission_Info,
+  MissionInfo,
+  useMissions,
+} from "../../../../sockets/useMissions";
+import {
+  TableColumnsType,
+  Table,
+  Spin,
+  ConfigProvider,
+  Button,
+  Flex,
+} from "antd";
+import { memo, useEffect, useState } from "react";
+import "../mission_info.css";
+import { useTranslation } from "react-i18next";
+import styled from "styled-components";
+import { translate } from "@/i18n";
+import { darkMode } from "@/utils/gloable";
+import { useAtomValue } from "jotai";
+import client from "@/api/axiosClient";
+import { useMutation } from "@tanstack/react-query";
+import useName from "@/api/useAmrName";
+import MissionHistory from "./MissionHistory";
 
-const MISSION_SORT = ['executing', 'assigned', 'pending', 'completed', 'aborting', 'canceled'];
+const MISSION_SORT = [
+  "executing",
+  "assigned",
+  "pending",
+  "completed",
+  "aborting",
+  "canceled",
+];
 
 const TaskInfo = styled.div`
   display: flex;
@@ -38,7 +56,7 @@ const SubTitle = styled.div`
   align-items: center;
   gap: 6px;
   &::before {
-    content: '→';
+    content: "→";
     color: #1890ff;
     font-weight: bold;
   }
@@ -60,7 +78,7 @@ const MissionTable = () => {
   const { t } = useTranslation();
   const isDark = useAtomValue(darkMode);
   const { data: name } = useName();
-  const [selectionType] = useState<'checkbox' | 'radio'>('checkbox');
+  const [selectionType] = useState<"checkbox" | "radio">("checkbox");
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [selectInfo, setSelectInfo] = useState<MissionInfo[]>([]);
   const { missions } = useMissions();
@@ -74,86 +92,91 @@ const MissionTable = () => {
 
   useEffect(() => {
     const updateHeight = () => setWindowHeight(window.innerHeight);
-    window.addEventListener('resize', updateHeight);
+    window.addEventListener("resize", updateHeight);
 
     // 確保初始設定正確
     updateHeight();
 
-    return () => window.removeEventListener('resize', updateHeight);
+    return () => window.removeEventListener("resize", updateHeight);
   }, [isMobile]);
 
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 767);
     };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const columns: TableColumnsType<MissionInfo> = [
     {
-      title: 'AMR',
-      dataIndex: 'amrId',
-      key: 'amrId',
+      title: "AMR",
+      dataIndex: "amrId",
+      key: "amrId",
       render: (code: string) =>
-        code ? code.replace('amr-0', '#') : t('main_task_list.wait_suitable'),
+        code ? code.replace("amr-0", "#") : t("main_task_list.wait_suitable"),
       filters: (() => {
         return name?.amrs.map((amrInfo) => ({
           text: `${amrInfo.amrId}`,
-          value: `${amrInfo.amrId}`
+          value: `${amrInfo.amrId}`,
         }));
       })(),
       onFilter: (value, record) => {
         return record.amrId === value;
-      }
+      },
     },
     {
-      title: t('mission.task_table.status'),
-      dataIndex: 'missionStatus',
+      title: t("mission.task_table.status"),
+      dataIndex: "missionStatus",
       filters: (() => {
         return MISSION_SORT.map((state) => ({
-          text: `${translate('normal', state)}`,
-          value: `${translate('normal', state)}`
+          text: `${translate("normal", state)}`,
+          value: `${translate("normal", state)}`,
         }));
       })(),
       onFilter: (value, record) => {
         // console.log(record);
         return record.missionStatus === value;
       },
-      key: 'missionStatus'
+      key: "missionStatus",
     },
 
     {
-      title: t('toolbar.mission.mission'),
-      dataIndex: 'taskInfo',
-      key: 'taskInfo',
+      title: t("toolbar.mission.mission"),
+      dataIndex: "taskInfo",
+      key: "taskInfo",
       render: (_value, record: MissionInfo) => {
-        if (typeof record.info === 'string') {
+        if (typeof record.info === "string") {
           const parseData = JSON.parse(record.info) as Additional_Mission_Info;
-          const fullName = parseData.missionFullName === null ? '-' : parseData.missionFullName;
+          const fullName =
+            parseData.missionFullName === null
+              ? "-"
+              : parseData.missionFullName;
           // const from = parseData.loadLocationId === null ? '' : parseData.loadLocationId;
           // const to = parseData.offloadLocationId === null ? '' : parseData.offloadLocationId;
 
           return (
             <TaskInfo>
               <TaskTitle>
-                {typeof fullName === 'string' ? '-' : fullName?.join(' - ') || '-'}
+                {typeof fullName === "string"
+                  ? "-"
+                  : fullName?.join(" - ") || "-"}
               </TaskTitle>
               <SubTitle>{record.sub_name}</SubTitle>
             </TaskInfo>
           );
         }
         return <span>-</span>;
-      }
+      },
     },
     {
-      title: t('utils.cost_time'),
-      dataIndex: 'totalTime',
-      key: 'totalTime'
-    }
+      title: t("utils.cost_time"),
+      dataIndex: "totalTime",
+      key: "totalTime",
+    },
   ].filter((item) => {
     if (!isMobile) return true;
-    return item.key !== 'taskInfo';
+    return item.key !== "taskInfo";
   });
 
   const rowSelection = {
@@ -163,25 +186,25 @@ const MissionTable = () => {
       setSelectedRowKeys(selectedRowKey);
     },
     getCheckboxProps: (record: MissionInfo) => ({
-      disabled: record.amrId === 'Disabled User' // Column configuration not to be checked
-    })
+      disabled: record.amrId === "Disabled User", // Column configuration not to be checked
+    }),
   };
   const deleteMissionMutation = useMutation({
     mutationFn: (deleteList: SelectMissionT[]) => {
       return client.post(
-        '/api/missions/delete-mission',
+        "/api/missions/delete-mission",
         {
-          selectedMission: deleteList
+          selectedMission: deleteList,
         },
         {
-          headers: { authorization: `Bearer ${localStorage.getItem('_KMT')}` }
-        }
+          headers: { authorization: `Bearer ${localStorage.getItem("_KMT")}` },
+        },
       );
     },
     onSuccess: () => {
       setSelectedRowKeys([]);
       setSelectInfo([]);
-    }
+    },
   });
 
   const handleDeleteMission = () => {
@@ -192,7 +215,7 @@ const MissionTable = () => {
       .map((v) => ({
         amrId: v.amrId,
         missionId: v.missionId,
-        status: v.missionStatus
+        status: v.missionStatus,
       }));
 
     deleteMissionMutation.mutate(convertArr);
@@ -202,10 +225,10 @@ const MissionTable = () => {
     return (
       <div
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginTop: '100%'
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          marginTop: "100%",
         }}
       >
         <Spin size="large" />
@@ -216,9 +239,9 @@ const MissionTable = () => {
       theme={{
         components: {
           Table: {
-            rowHoverBg: isDark ? '#313131' : '#fafafa'
-          }
-        }
+            rowHoverBg: isDark ? "#313131" : "#fafafa",
+          },
+        },
       }}
     >
       <MissionHistory
@@ -237,7 +260,7 @@ const MissionTable = () => {
             color="danger"
             variant="filled"
           >
-            {t('utils.delete')}
+            {t("utils.delete")}
           </Button>
           <Button
             onClick={() => {
@@ -245,24 +268,24 @@ const MissionTable = () => {
             }}
             variant="filled"
           >
-            {t('mission_history.open')}
+            {t("mission_history.open")}
           </Button>
         </Flex>
       </BtnWrapper>
 
       <Table
         columns={columns}
-        style={{ width: '100%' }}
-        className={`custom-table ${isDark ? 'custom-table-dark' : ''}`}
+        style={{ width: "100%" }}
+        className={`custom-table ${isDark ? "custom-table-dark" : ""}`}
         rowSelection={{
           type: selectionType,
-          ...rowSelection
+          ...rowSelection,
         }}
         dataSource={
           missions
             .sort((a, b) => {
-              const isCompleteA = a.missionStatus === 'completed';
-              const isCompleteB = b.missionStatus === 'completed';
+              const isCompleteA = a.missionStatus === "completed";
+              const isCompleteB = b.missionStatus === "completed";
               const typeDiff =
                 MISSION_SORT.indexOf(a.missionStatus as string) -
                 MISSION_SORT.indexOf(b.missionStatus as string);
@@ -275,21 +298,27 @@ const MissionTable = () => {
                 return a.order - b.order;
               }
 
-              return MISSION_SORT.indexOf(a.missionStatus) - MISSION_SORT.indexOf(b.missionStatus);
+              return (
+                MISSION_SORT.indexOf(a.missionStatus) -
+                MISSION_SORT.indexOf(b.missionStatus)
+              );
             })
             .map((m) => ({
               ...m,
-              missionStatus: translate('normal', m.missionStatus) || '',
-              missionType: translate('normal', m.missionType) || '',
-              manualMode: m.manualMode ? t('utils.yes') : t('utils.no'),
-              emergencyBtn: m.emergencyBtn ? t('utils.yes') : t('utils.no'),
-              recoveryBtn: m.recoveryBtn ? t('utils.yes') : t('utils.no'),
+              missionStatus: translate("normal", m.missionStatus) || "",
+              missionType: translate("normal", m.missionType) || "",
+              manualMode: m.manualMode ? t("utils.yes") : t("utils.no"),
+              emergencyBtn: m.emergencyBtn ? t("utils.yes") : t("utils.no"),
+              recoveryBtn: m.recoveryBtn ? t("utils.yes") : t("utils.no"),
 
               totalTime:
                 m.completedAt && m.createdAt
-                  ? Math.round((m.completedAt.getTime() - (m.startedAt?.getTime() || 0)) / 6000) /
-                    10
-                  : ''
+                  ? Math.round(
+                      (m.completedAt.getTime() -
+                        (m.startedAt?.getTime() || 0)) /
+                        6000,
+                    ) / 10
+                  : "",
             })) as []
         }
       />

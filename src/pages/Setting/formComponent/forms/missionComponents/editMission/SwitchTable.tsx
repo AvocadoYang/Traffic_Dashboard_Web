@@ -1,7 +1,7 @@
-import { MTType } from '@/api/useMissionTitle';
-import React, { FC } from 'react';
-import MissionTable from './MissionTable';
-import MissionList from './MissionList';
+import { MTType } from "@/api/useMissionTitle";
+import React, { FC } from "react";
+import MissionTable from "./MissionTable";
+import MissionList from "./MissionList";
 
 interface SwitchTableProps {
   selectedMissionKey: string;
@@ -26,9 +26,9 @@ const SwitchTable: FC<SwitchTableProps> = ({
   selectedMissionCar,
   filterMissionData,
   setMissionName,
-  children
+  children,
 }) =>
-  selectedMissionKey === '' ? (
+  selectedMissionKey === "" ? (
     <>
       {children}
       <MissionTable

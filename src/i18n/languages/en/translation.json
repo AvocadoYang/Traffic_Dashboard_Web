@@ -51,6 +51,7 @@
     "none": "noneA",
     "floor": "floor",
     "overdue": "overdue",
+    "action": "Action",
     "location_property": {
       "none": "Normal",
       "charge_station": "Charge Station",
@@ -188,6 +189,7 @@
   "page_setting": "Setting",
   "page_dashboard": "Dashboard",
   "page_simulate": "Simulate",
+  "page_simulate_result": "Simulation task statistics table",
   "simulate": "simulate",
   "page_analysis": "Mission analysis",
   "page_cargo_history": "Cargo History",
@@ -248,6 +250,11 @@
       "idle_mission": "Idle mission",
       "topic_mission": "Topic mission",
       "abort_mission_when_has_cargo_mission": "Delete mission when there is cargo to process"
+    },
+    "peripheral": {
+      "title": "Device",
+      "name_table": "Device Name Table",
+      "group_table": "Device Area Table"
     },
     "others": {
       "others": "Others",
@@ -423,6 +430,20 @@
     "end_point": "End point",
     "zone_attr": "Zone label",
     "zone_color": "Zone color"
+  },
+
+  "multiStyle": {
+    "editX": "Edit X?",
+    "editY": "Edit Y?",
+    "editScale": "Edit Scale?",
+    "editRotate": "Edit Rotate?",
+    "editDirection": "Edit Direction?",
+    "x": "X",
+    "y": "Y",
+    "scale": "Scale",
+    "rotate": "Rotate",
+    "flexDirection": "Flex Direction",
+    "selectDirection": "Select direction"
   },
 
   "shelf": {
@@ -954,6 +975,140 @@
     "start_sim": "Start simulate",
     "stop_sim": "Stop simulate",
     "reset_sim": "Reset simulate",
+
+    "timeline": {
+      "name": "Name",
+      "location": "Location",
+      "type": "Type",
+      "level": "Level",
+      "no_set": "Not set",
+      "change_timeline_height": "Change timeline height",
+      "table_view": "Table view",
+      "add_mission": "Add Mission",
+      "add_spawn_cargo": "Add Spawn Cargo",
+      "add_shift_cargo": "Add Shift Cargo",
+      "dynamic_mission": "DYNAMIC mission",
+      "notify_mission": "NOTIFY mission",
+      "normal_mission": "NORMAL mission",
+      "spawn_cargo": "SPAWN cargo",
+      "shift_cargo": "SHIFT cargo",
+      "disabled": "DISABLED",
+      "unknown": "UNKNOWN"
+    },
+
+    "table_schedule": {
+      "title": "Table Schedule",
+      "detail": "Detail"
+    },
+
+    "spawn_cargo_modal": {
+      "title": "Spawn Cargo",
+      "time": "Time",
+      "style_row": "Display Row",
+      "enable": "Enable",
+      "peripheral_id": "Spawn location",
+      "cargo_metadata_id": "Cargo Metadata Format",
+      "metadata": "Metadata",
+      "metadata_desc": "Enter metadata in JSON format if no cargo metadata schema is selected.",
+      "name": "Name",
+      "location": "Location",
+      "type": "Type",
+      "level": "Level",
+      "no_set": "Not Set",
+      "select_notify": "Select a peripheral",
+      "select": "Select",
+      "yes": "Yes",
+      "no": "No",
+      "cancel": "Cancel",
+      "save": "Save",
+      "update": "Update",
+      "success": "Saved successfully",
+      "updated": "Updated successfully",
+      "required": "This field is required"
+    },
+
+    "shift_cargo_modal": {
+      "title": "Shift Cargo",
+      "time": "Time",
+      "style_row": "Row Style",
+      "enable": "Enable",
+      "peripheral_id": "Peripheral",
+      "select_notify": "Select Peripheral",
+      "save": "Save",
+      "update": "Update",
+      "required": "This field is required"
+    },
+
+    "insert_modal": {
+      "mission": "Mission",
+      "spawn_cargo": "SPAWN cargo",
+      "shift_cargo": "SHIFT cargo",
+      "dynamic": "Pick-and-Place Task (Dynamic Task)",
+      "normal": "Normal Task",
+      "notify": "Notify Task",
+      "title": "Insert Task Event",
+      "edit_title": "Edit Task Event",
+      "amr": "Vehicle",
+      "priority": "Priority",
+
+      "type": "Mission type",
+      "type_dynamic": "Dynamic",
+
+      "type_normal": "Normal Task",
+      "type_notify": "Notify Task",
+      "normal_mission": "Select Normal Task",
+      "notify_mission": "Select Notify Location",
+      "load_from": "Load From",
+      "offload_to": "Offload To",
+      "add_field": "Add Field",
+      "time": "Time",
+      "style_row": "Display Row",
+      "is_enable": "Enable / Disable",
+      "time_required": "Please select a time",
+      "row_required": "Please select a display row",
+      "amr_required": "Please select a vehicle",
+      "priority_required": "Please select a task priority",
+      "type_required": "Please select a task type",
+      "dynamic_required": "Dynamic task requires at least one load and offload field",
+      "load_required": "Please select a load source",
+      "offload_required": "Please select an offload destination",
+      "normal_required": "Please select a normal task",
+      "notify_required": "Please select a notify location",
+      "select_amr": "Select a vehicle",
+      "select_normal": "Select a normal task",
+      "select_notify": "Select a notify location",
+      "error_missing_id": "Task ID or time not found",
+      "validation_error": "Form validation failed, please check your inputs"
+    },
+    "sim_result": {
+      "title": "Simulation Result",
+      "simulation_id": "Simulation ID",
+      "start_time": "Start Time",
+      "end_time": "End Time",
+      "total_cargos": "Total Cargos",
+      "success_rate": "Success Rate",
+      "completed_missions": "Completed",
+      "total_missions": "Total Missions",
+      "amr_stats_title": "AMR Stats",
+      "amr_name": "AMR",
+      "distance": "Distance (m)",
+      "createdAt": "Created At",
+      "amr_stats": "AMR Stats",
+      "amr": "AMR",
+      "missions": "Missions",
+      "carry": "Carry",
+      "battery_cost": "Battery Cost",
+      "working_time": "Working Time (s)",
+      "idle_time": "Idle Time (s)",
+      "total_distance": "Distance (m)",
+      "idle_vs_working": "Idle vs Working Time",
+      "battery_cost_per_amr": "Battery Cost per AMR",
+      "missions_vs_cargos": "Missions vs Cargo Carried",
+      "total_distance_traveled": "Total Distance Traveled",
+      "working": "Working",
+      "idle": "Idle",
+      "cargos": "Cargos"
+    },
     "cargo": {
       "already_exist": "already exist in table",
       "input": {
@@ -1017,6 +1172,8 @@
     "start_sim_modal": {
       "inactive_sim": "Stop simulate",
       "active_sim": "Start simulation",
+      "spend_time": "Total simulation time",
+      "scale": "Running multiple",
       "please_confirm_info": "Please confirm the following simulation details",
       "sim_script": "Simulation script:",
       "no_script_select": "No script selected",
@@ -1026,7 +1183,8 @@
       "cancel": "Cancel",
       "duration": "Simulation duration",
       "station_mission": "Active each station task",
-      "remainTime": "Simulation remaining time"
+      "remainTime": "Simulation remaining time",
+      "current_time": "Current Time"
     },
 
     "results": {
@@ -1169,5 +1327,41 @@
 
   "peripheral_style": {
     "areaType": "地點功能"
+  },
+
+  "peripheral_name_table": {
+    "locationId": "Location ID",
+    "type": "Type",
+    "level": "Level",
+    "name": "Name",
+    "operation": "Operation",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "reload": "Reload",
+    "updatedSuccess": "Name updated successfully",
+    "updateFail": "Failed to save changes",
+    "inputPlaceholder": "Enter name"
+  },
+  "peripheral_group_table": {
+    "add_title": "Add Group",
+    "edit_title": "Edit Group",
+    "available_peripherals": "Available peripherals",
+    "selected_peripherals": "Selected Peripheral",
+    "search_peripherals": "search",
+    "peripherals": "peripherals",
+    "description": "description",
+    "locationId": "Location ID",
+    "type": "Type",
+    "level": "Level",
+    "name": "Name",
+    "operation": "Operation",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "reload": "Reload",
+    "updatedSuccess": "Name updated successfully",
+    "updateFail": "Failed to save changes",
+    "inputPlaceholder": "Enter name"
   }
 }

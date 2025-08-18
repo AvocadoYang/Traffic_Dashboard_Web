@@ -1,23 +1,33 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { Layout, Menu, Flex, Button, Drawer, Modal, message, Tooltip } from 'antd';
-import './component.css';
-import { useNavigate, useNavigation } from 'react-router-dom';
-import { Select } from 'antd';
-import { memo, useEffect, useState } from 'react';
-import { MenuOutlined } from '@ant-design/icons';
-import { useTranslation } from 'react-i18next';
-import { UserOutlined } from '@ant-design/icons';
-import { useAtom } from 'jotai';
-import { AmrFilterCarCard, darkMode } from '@/utils/gloable';
-import { useMutation } from '@tanstack/react-query';
-import client from '@/api/axiosClient';
-import { errorHandler } from '@/utils/utils';
-import { ErrorResponse } from '@/utils/globalType';
-import useName from '@/api/useAmrName';
-import StartSimModal from '@/pages/Main/components/simulateModal/StartSimModal';
-import SimulationResultsModal from '@/pages/Main/components/simulateModal/SimulationResultsModal';
-import { useMockInfo } from '@/sockets/useMockInfo';
-import styled from 'styled-components';
+import {
+  Layout,
+  Menu,
+  Flex,
+  Button,
+  Drawer,
+  Modal,
+  message,
+  Tooltip,
+} from "antd";
+import "./component.css";
+import { useNavigate } from "react-router-dom";
+import { Select } from "antd";
+import { memo, useEffect, useState } from "react";
+import { MenuOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
+import { UserOutlined } from "@ant-design/icons";
+import { useAtom } from "jotai";
+import { AmrFilterCarCard, darkMode } from "@/utils/gloable";
+import { useMutation } from "@tanstack/react-query";
+import client from "@/api/axiosClient";
+import { errorHandler } from "@/utils/utils";
+import { ErrorResponse } from "@/utils/globalType";
+import useName from "@/api/useAmrName";
+import StartSimModal from "@/pages/SimulateResult/StartSimModal";
+import { useMockInfo } from "@/sockets/useMockInfo";
+import styled from "styled-components";
+import { useTimelineSocket } from "@/sockets/useTimelineSocket";
+import dayjs from "dayjs";
 const { Header: AntdHeader } = Layout;
 
 const RemainText = styled.span`
@@ -36,7 +46,7 @@ const Timer = styled.span`
   display: inline-block;
   min-width: 60px;
   text-align: center;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
 `;
 
 const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
@@ -44,22 +54,28 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
   const navigate = useNavigate();
   const [isDark] = useAtom(darkMode);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isOpenResultModal, setIsOpenResultModal] = useState(false);
   const [canSim, setCanSim] = useState(false);
   const [isSimulateOpen, setIsSimulateOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [hintAmrId, setHintAmrId] = useAtom(AmrFilterCarCard);
   //點擊地圖AMR時篩選卡片
   const script = useMockInfo();
+  const timeline = useTimelineSocket();
   const { refetch: amrNameRefetch } = useName();
   const [messageApi, contextHolder] = message.useMessage();
 
   const simMutation = useMutation({
-    mutationFn: (data: { isSimulate: boolean; duration: number; activeStationTask: boolean }) => {
-      return client.post('api/simulate/simulate', data);
+    mutationFn: (data: {
+      isSimulate: boolean;
+      startTime: string;
+      endTime: string;
+      runningScale: number;
+      activeStationTask: boolean;
+    }) => {
+      return client.post("api/simulate/simulate", data);
     },
     onSuccess: () => {
-      messageApi.success(t('utils.success'));
+      messageApi.success(t("utils.success"));
       amrNameRefetch();
       setIsSimulateOpen(false);
       if (!hintAmrId.size) {
@@ -70,49 +86,71 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
         return new Set([...pre]);
       });
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
-  const handleSim = (duration: number, activeStationTask: boolean) => {
-    localStorage.setItem('seem-mock-result', 'false');
-    simMutation.mutate({ duration, isSimulate: true, activeStationTask });
+  const handleSim = (
+    timeRange: [dayjs.Dayjs, dayjs.Dayjs],
+    activeStationTask: boolean,
+    runningScale: number,
+  ) => {
+    const startTime = timeRange[0].format("HH:mm");
+    const endTime = timeRange[1].format("HH:mm");
+
+    simMutation.mutate({
+      startTime,
+      endTime,
+      runningScale,
+      isSimulate: true,
+      activeStationTask,
+    });
   };
 
   const handleAbortSim = () => {
-    simMutation.mutate({ isSimulate: false, duration: 0, activeStationTask: false });
+    simMutation.mutate({
+      isSimulate: false,
+      startTime: "00:00",
+      endTime: "00:00",
+      runningScale: 1,
+      activeStationTask: false,
+    });
   };
 
   const items = [
-    `${t('page_view')}`,
-    `${t('page_amr')}`,
-    `${t('page_analysis')}`,
-    `${t('page_cargo_history')}`,
-    `${t('page_setting')}`,
-    `${t('page_simulate')}`
+    `${t("page_view")}`,
+    `${t("page_amr")}`,
+    `${t("page_analysis")}`,
+    `${t("page_cargo_history")}`,
+    `${t("page_setting")}`,
+    `${t("page_simulate")}`,
+    `${t("page_simulate_result")}`,
   ].map((name, index) => ({
     key: index + 1,
-    label: name
+    label: name,
   }));
 
   const handleMenuClick = (e: { key: string }) => {
     switch (e.key) {
-      case '1':
-        navigate('/');
+      case "1":
+        navigate("/");
         break;
-      case '2':
-        navigate('/amr');
+      case "2":
+        navigate("/amr");
         break;
-      case '3':
-        navigate('/mission-analysis');
+      case "3":
+        navigate("/mission-analysis");
         break;
-      case '4':
-        navigate('/cargo-history');
+      case "4":
+        navigate("/cargo-history");
         break;
-      case '5':
-        navigate('/setting');
+      case "5":
+        navigate("/setting");
         break;
-      case '6':
-        navigate('/simulate');
+      case "6":
+        navigate("/simulate");
+        break;
+      case "7":
+        navigate("/simulate-result");
         break;
       default:
         break;
@@ -122,20 +160,18 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
   const handleChineseItemClick = (value: string) => {
     // eslint-disable-next-line no-void
 
-    if (value === 'en') {
-      void i18n.changeLanguage('en');
+    if (value === "en") {
+      void i18n.changeLanguage("en");
     } else {
-      void i18n.changeLanguage('tw');
+      void i18n.changeLanguage("tw");
     }
-  };
-
-  const handleCloseResult = () => {
-    setIsOpenResultModal(false);
   };
 
   useEffect(() => {
     if (!script) return;
-    const inUseAmr = script.robot?.filter((v) => v.script_placement_location !== 'unset');
+    const inUseAmr = script.robot?.filter(
+      (v) => v.script_placement_location !== "unset",
+    );
 
     if (inUseAmr?.length !== 0) {
       setCanSim(true);
@@ -145,63 +181,50 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
     setCanSim(false);
   }, [script]);
 
-  useEffect(() => {
-    const seemStatus = localStorage.getItem('seem-mock-result');
-    if (script?.result === 'done') {
-      if (seemStatus === 'true') return;
-      localStorage.setItem('seem-mock-result', 'true');
-      setIsOpenResultModal(true);
-      return;
-    }
-
-    if (script?.result === 'executing' || script?.result === 'pending') {
-      localStorage.setItem('seem-mock-result', 'false');
-      return;
-    }
-  }, [script]);
-  const formatDuration = (ms: number): string => {
-    const totalSeconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-  };
-
-
-
   return (
     <>
       {contextHolder}
       <AntdHeader
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 16px'
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 16px",
         }}
-        className={`custom-header ${isDark ? 'dark-mode' : ''}`}
+        className={`custom-header ${isDark ? "dark-mode" : ""}`}
       >
-        <div onClick={()=> navigate('/') } className={`demo-logo ${isDark ? 'dark-mode' : ''}`} />
+        <div
+          onClick={() => navigate("/")}
+          className={`demo-logo ${isDark ? "dark-mode" : ""}`}
+        />
 
         {/* 行動裝置顯示 Drawer 按鈕 */}
         {isMobile ? (
           <>
-            <Flex gap="middle" align="start" style={{ marginRight: '10px' }}>
+            <Flex gap="middle" align="start" style={{ marginRight: "10px" }}>
               <Select
                 defaultValue="ch.tw"
                 style={{ width: 120 }}
                 onChange={(e) => console.log(e)}
                 options={[
-                  { value: 'en', label: 'English' },
-                  { value: 'ch.tw', label: 'Chinese' }
+                  { value: "en", label: "English" },
+                  { value: "ch.tw", label: "Chinese" },
                 ]}
               />
               <Button
                 type="text"
-                icon={<MenuOutlined style={{ fontSize: '20px', color: 'white' }} />}
+                icon={
+                  <MenuOutlined style={{ fontSize: "20px", color: "white" }} />
+                }
                 onClick={() => setDrawerOpen(true)}
               />
               <UserOutlined
-                style={{ color: 'blue', textAlign: 'center', fontSize: '150%', marginTop: '5px' }}
+                style={{
+                  color: "blue",
+                  textAlign: "center",
+                  fontSize: "150%",
+                  marginTop: "5px",
+                }}
               />
             </Flex>
             <Drawer
@@ -225,7 +248,12 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
               onClick={handleMenuClick}
               className="custom-menu"
             />
-            <Flex gap="middle" align="center" justify="center" style={{ marginRight: '10px' }}>
+            <Flex
+              gap="middle"
+              align="center"
+              justify="center"
+              style={{ marginRight: "10px" }}
+            >
               {/* <Badge count={3} className={`alert-icon`} onClick={() => setIsModalOpen(true)}>
                 <svg
                   onClick={() => {
@@ -248,13 +276,15 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
               </Badge> */}
               {script?.isSimulate ? (
                 <Flex align="center">
-                  <RemainText>{t('sim.start_sim_modal.remainTime')}</RemainText>
-                  <Timer>{formatDuration(script.duration)}</Timer>
+                  <RemainText>
+                    {t("sim.start_sim_modal.current_time")}
+                  </RemainText>
+                  <Timer>{timeline}</Timer>
                 </Flex>
               ) : null}
 
               {script?.isSimulate ? (
-                <Tooltip title={t('sim.start_sim_modal.inactive_sim')}>
+                <Tooltip title={t("sim.start_sim_modal.inactive_sim")}>
                   <svg
                     onClick={() => handleAbortSim()}
                     width={30}
@@ -268,7 +298,7 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
                   </svg>
                 </Tooltip>
               ) : (
-                <Tooltip title={t('page_simulate')}>
+                <Tooltip title={t("page_simulate")}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width={30}
@@ -281,9 +311,6 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
                   </svg>
                 </Tooltip>
               )}
-              <Tooltip title={t('sim.results.title')}>
-                <Button onClick={() => setIsOpenResultModal(true)}>R</Button>
-              </Tooltip>
 
               {/* {isDark ? (
                 <SunOutlined className="light-mode-icon" onClick={() => setIsDark(false)} />
@@ -295,13 +322,18 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
                 style={{ width: 120 }}
                 onChange={(e) => handleChineseItemClick(e)}
                 options={[
-                  { value: 'en', label: 'English' },
-                  { value: 'ch.tw', label: 'Chinese' }
+                  { value: "en", label: "English" },
+                  { value: "ch.tw", label: "Chinese" },
                 ]}
-                className={`${isDark ? 'select-lang' : ''}`}
+                className={`${isDark ? "select-lang" : ""}`}
               />
               <UserOutlined
-                style={{ color: 'blue', textAlign: 'center', fontSize: '150%', marginTop: '5px' }}
+                style={{
+                  color: "blue",
+                  textAlign: "center",
+                  fontSize: "150%",
+                  marginTop: "5px",
+                }}
               />
             </Flex>
           </>
@@ -314,11 +346,6 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
         handleSim={handleSim}
         setIsSimulateOpen={setIsSimulateOpen}
       />
-      {isOpenResultModal ? (
-        <SimulationResultsModal visible={isOpenResultModal} onClose={handleCloseResult} />
-      ) : (
-        []
-      )}
 
       <Modal
         mask={false}

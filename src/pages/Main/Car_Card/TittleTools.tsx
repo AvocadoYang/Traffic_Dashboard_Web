@@ -1,29 +1,34 @@
-import { memo, useCallback, useEffect, useState } from 'react';
-import { DownOutlined, UpOutlined, CloseOutlined } from '@ant-design/icons';
-import { ConfigProvider, Select, SelectProps } from 'antd';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { AmrCarSelectFilter, AmrFilterCarCard, darkMode } from '@/utils/gloable';
-import useName from '@/api/useAmrName';
-import { DefaultOptionType } from 'antd/es/select';
+import { memo, useCallback, useEffect, useState } from "react";
+import { DownOutlined, UpOutlined, CloseOutlined } from "@ant-design/icons";
+import { ConfigProvider, Select, SelectProps } from "antd";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import {
+  AmrCarSelectFilter,
+  AmrFilterCarCard,
+  darkMode,
+} from "@/utils/gloable";
+import useName from "@/api/useAmrName";
+import { DefaultOptionType } from "antd/es/select";
 
-const UpDownIcon: React.FC<{ isDrop: boolean; setIsDrop: React.Dispatch<boolean> }> = memo(
-  ({ isDrop, setIsDrop }) => {
-    return (
-      <>
-        {isDrop ? (
-          <UpOutlined className="drop-icon" onClick={() => setIsDrop(false)} />
-        ) : (
-          <DownOutlined className="drop-icon" onClick={() => setIsDrop(true)} />
-        )}
-      </>
-    );
-  }
-);
+const UpDownIcon: React.FC<{
+  isDrop: boolean;
+  setIsDrop: React.Dispatch<boolean>;
+}> = memo(({ isDrop, setIsDrop }) => {
+  return (
+    <>
+      {isDrop ? (
+        <UpOutlined className="drop-icon" onClick={() => setIsDrop(false)} />
+      ) : (
+        <DownOutlined className="drop-icon" onClick={() => setIsDrop(true)} />
+      )}
+    </>
+  );
+});
 
 const TittleTools: React.FC<{}> = () => {
   const isDark = useAtomValue(darkMode);
   const setSelectedOption = useSetAtom(AmrCarSelectFilter);
-  const [selectOption, setSelectOption] = useState<SelectProps['options']>([]);
+  const [selectOption, setSelectOption] = useState<SelectProps["options"]>([]);
 
   const { data: names } = useName();
   const [hintAmrId, setHintAmrId] = useAtom(AmrFilterCarCard);
@@ -34,7 +39,7 @@ const TittleTools: React.FC<{}> = () => {
     const AMRCategories = new Set<string>();
     for (let name of names.amrs) {
       const { amrId } = name;
-      const category = amrId.split('-').slice(0, 3).join('-');
+      const category = amrId.split("-").slice(0, 3).join("-");
       AMRCategories.add(category);
     }
     const allAMRCategory = [...AMRCategories].map((amrCategory) => {
@@ -45,15 +50,20 @@ const TittleTools: React.FC<{}> = () => {
 
   const handleChange = useCallback(
     (value: string[]) => {
-      setSelectedOption(value.map((amrCategory) => ({ value: amrCategory, label: amrCategory })));
+      setSelectedOption(
+        value.map((amrCategory) => ({
+          value: amrCategory,
+          label: amrCategory,
+        })),
+      );
     },
-    [setSelectedOption]
+    [setSelectedOption],
   );
 
   return (
     <>
       <span
-        className={`card-wrap-title ${isDark ? 'dark-mode-title' : ''}`}
+        className={`card-wrap-title ${isDark ? "dark-mode-title" : ""}`}
         onClick={() => {
           if (hintAmrId.size) {
             setHintAmrId((pre) => {
@@ -87,21 +97,21 @@ const TittleTools: React.FC<{}> = () => {
           theme={{
             components: {
               Input: {
-                activeBorderColor: `${isDark ? '#ff9900' : '#1677ff'}`,
-                hoverBorderColor: `${isDark ? '#ff9900' : '#1677ff'}`
+                activeBorderColor: `${isDark ? "#ff9900" : "#1677ff"}`,
+                hoverBorderColor: `${isDark ? "#ff9900" : "#1677ff"}`,
               },
               Select: {
-                activeBorderColor: `${isDark ? '#ff9900' : '#1677ff'}`,
-                hoverBorderColor: `${isDark ? '#ff9900' : '#1677ff'}`
-              }
-            }
+                activeBorderColor: `${isDark ? "#ff9900" : "#1677ff"}`,
+                hoverBorderColor: `${isDark ? "#ff9900" : "#1677ff"}`,
+              },
+            },
           }}
         >
           <Select
             mode="multiple"
             placeholder="AMR category"
             onChange={handleChange}
-            style={{ width: '82%', margin: '3% 0 3% 0' }}
+            style={{ width: "82%", margin: "3% 0 3% 0" }}
             options={selectOption}
             onMouseDown={(e) => e.preventDefault()}
             onPopupScroll={(e) => {
@@ -109,9 +119,9 @@ const TittleTools: React.FC<{}> = () => {
             }}
             onDropdownVisibleChange={(open) => {
               if (open) {
-                document.body.style.overflow = 'hidden';
+                document.body.style.overflow = "hidden";
               } else {
-                document.body.style.overflow = 'auto';
+                document.body.style.overflow = "auto";
               }
             }}
           />

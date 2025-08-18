@@ -1,6 +1,6 @@
-import React from 'react';
-import { Card, Statistic } from 'antd';
-import styled from 'styled-components';
+import React from "react";
+import { Card, Statistic } from "antd";
+import styled from "styled-components";
 
 const SummaryGrid = styled.div`
   display: grid;
@@ -37,10 +37,19 @@ const MissionSummary: React.FC = () => {
         <Statistic title="Aborted / Canceled" value={failed + canceled} />
       </Card>
       <Card>
-        <Statistic title="Avg. Battery Cost" value={avgBatteryCost} suffix="%" />
+        <Statistic
+          title="Avg. Battery Cost"
+          value={avgBatteryCost}
+          suffix="%"
+        />
       </Card>
       <Card>
-        <Statistic title="Avg. Distance" value={avgDistance} suffix="m" precision={1} />
+        <Statistic
+          title="Avg. Distance"
+          value={avgDistance}
+          suffix="m"
+          precision={1}
+        />
       </Card>
     </SummaryGrid>
   );

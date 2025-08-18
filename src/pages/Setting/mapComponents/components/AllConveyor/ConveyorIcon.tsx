@@ -1,9 +1,13 @@
-import React from 'react';
-import styled from 'styled-components';
-import { LoadingStation } from '../AllCargo.tsx/LoadingStation';
-import { useSetAtom } from 'jotai';
-import { IsEditPeripheralModal } from '../../../formComponent/forms/peripheralModal/jotai';
-import { Conveyor_Info } from '@/types/peripheral';
+import React from "react";
+import styled from "styled-components";
+import { LoadingStation } from "../AllCargo.tsx/LoadingStation";
+import { useAtomValue, useSetAtom } from "jotai";
+import { IsEditPeripheralModal } from "../../../formComponent/forms/peripheralModal/jotai";
+import { Conveyor_Info } from "@/types/peripheral";
+import {
+  IsEditingQuickRoads,
+  QuickRoadsArray,
+} from "@/pages/Setting/utils/settingJotai";
 
 type ConveyorStyle = {
   translate_x?: number;
@@ -26,7 +30,13 @@ const ConveyorWrapper = styled.div<ConveyorStyle>`
 const Belt = styled.div`
   width: 50px;
   height: 16px;
-  background: repeating-linear-gradient(90deg, #888, #888 4px, #ccc 4px, #ccc 8px);
+  background: repeating-linear-gradient(
+    90deg,
+    #888,
+    #888 4px,
+    #ccc 4px,
+    #ccc 8px
+  );
   border-radius: 8px;
   position: relative;
 `;
@@ -48,11 +58,11 @@ const ConveyorContainer = styled.div`
   display: inline-block;
 `;
 
-const Arrow = styled.div<{ direction: 'load' | 'offload' }>`
+const Arrow = styled.div<{ direction: "load" | "offload" }>`
   position: absolute;
   top: -6px; /* Position above the conveyor */
   ${({ direction }) =>
-    direction === 'load'
+    direction === "load"
       ? `
         left: 18%; /* Offset to the left of center */
         transform: translate(-50%, -100%) rotate(0deg);
@@ -65,7 +75,8 @@ const Arrow = styled.div<{ direction: 'load' | 'offload' }>`
   height: 0;
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
-  border-bottom: 8px solid ${({ direction }) => (direction === 'load' ? '#10b981' : '#ef4444')};
+  border-bottom: 8px solid
+    ${({ direction }) => (direction === "load" ? "#10b981" : "#ef4444")};
 `;
 
 const ConveyorIcon: React.FC<{
@@ -76,35 +87,43 @@ const ConveyorIcon: React.FC<{
   info: Conveyor_Info | null;
 }> = ({ translateX, translateY, rotate, scale, info }) => {
   const setIsEdit = useSetAtom(IsEditPeripheralModal);
+  const quickRoad = useAtomValue(IsEditingQuickRoads);
+  const setQuickRoadArr = useSetAtom(QuickRoadsArray);
+
+  const handleCon = () => {
+    if (!info) return;
+    if (quickRoad) {
+      setQuickRoadArr((prev) => [...prev, info.locationId]);
+      return;
+    }
+
+    setIsEdit({
+      stationType: "CONVEYOR",
+      name: info.name,
+      disable: info.disable,
+      stationId: info.locationId,
+      forkHeight: info.forkHeight,
+      activeLoad: info.activeLoad,
+      activeOffload: info.activeOffload,
+      loadMissionId: info.loadMissionId,
+      offloadMissionId: info.offloadMissionId,
+      placement_priority: info.placement_priority,
+      relationships: info.relationships,
+      cargo: info.cargo,
+    });
+  };
 
   if (!info) return <LoadingStation />;
   return (
     <ConveyorContainer
       style={{
-        transform: `translate(${translateX}px, ${translateY}px) scale(${scale}) rotate(${rotate}deg)`
+        transform: `translate(${translateX}px, ${translateY}px) scale(${scale}) rotate(${rotate}deg)`,
       }}
     >
       {info.activeLoad && <Arrow direction="load" />}
       {info.activeOffload && <Arrow direction="offload" />}
 
-      <ConveyorWrapper
-        onClick={() =>
-          setIsEdit({
-            stationType: 'CONVEYOR',
-            name: info.name,
-            disable: info.disable,
-            stationId: info.locationId,
-            forkHeight: info.forkHeight,
-            activeLoad: info.activeLoad,
-            activeOffload: info.activeOffload,
-            loadMissionId: info.loadMissionId,
-            offloadMissionId: info.offloadMissionId,
-            placement_priority: info.placement_priority,
-            relationships: info.relationships,
-            cargo: info.cargo
-          })
-        }
-      >
+      <ConveyorWrapper onClick={handleCon}>
         <Belt>{info.cargo.length > 0 ? <Box /> : []}</Belt>
       </ConveyorWrapper>
     </ConveyorContainer>

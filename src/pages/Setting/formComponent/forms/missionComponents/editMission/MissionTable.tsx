@@ -1,13 +1,21 @@
-import { ControlTwoTone, DeleteTwoTone, EditOutlined } from '@ant-design/icons';
-import client from '@/api/axiosClient';
-import { MTType } from '@/api/useMissionTitle';
-import { Err } from '@/utils/responseErr';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button, Flex, message, Popconfirm, Table, TableColumnsType, Tag } from 'antd';
-import { FC } from 'react';
-import { useTranslation } from 'react-i18next';
-import styled from 'styled-components';
-import { Mission_Title } from './mission';
+import { ControlTwoTone, DeleteTwoTone, EditOutlined } from "@ant-design/icons";
+import client from "@/api/axiosClient";
+import { MTType } from "@/api/useMissionTitle";
+import { Err } from "@/utils/responseErr";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  Button,
+  Flex,
+  message,
+  Popconfirm,
+  Table,
+  TableColumnsType,
+  Tag,
+} from "antd";
+import { FC } from "react";
+import { useTranslation } from "react-i18next";
+import styled from "styled-components";
+import { Mission_Title } from "./mission";
 
 const TagWrapper = styled.div`
   display: flex;
@@ -28,7 +36,7 @@ const MissionTable: FC<{
   setSelectedMissionKey,
   setSelectedMissionCar,
   allMissionTitle,
-  setMissionName
+  setMissionName,
 }) => {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
@@ -36,28 +44,28 @@ const MissionTable: FC<{
   const deleteMutation = useMutation({
     mutationFn: (deleteId: string) => {
       return client.post(
-        'api/setting/delete-mission-title',
+        "api/setting/delete-mission-title",
         {
-          id: deleteId
+          id: deleteId,
         },
         {
-          headers: { authorization: `Bearer ${localStorage.getItem('_KMT')}` }
-        }
+          headers: { authorization: `Bearer ${localStorage.getItem("_KMT")}` },
+        },
       );
     },
     onSuccess: async () => {
       await queryClient.refetchQueries({
-        queryKey: ['all-mission-title-detail']
+        queryKey: ["all-mission-title-detail"],
       });
       await queryClient.refetchQueries({
-        queryKey: ['all-relate-task']
+        queryKey: ["all-relate-task"],
       });
 
-      setSelectedMissionKey('');
+      setSelectedMissionKey("");
     },
     onError(error: Err) {
       messageApi.error(error.response.data.message);
-    }
+    },
   });
 
   const handleDelete = (key: string) => {
@@ -71,7 +79,7 @@ const MissionTable: FC<{
     setSelectedMissionKey(record.id);
     setMissionName(record.name);
     try {
-      await queryClient.refetchQueries({ queryKey: ['all-relate-task'] });
+      await queryClient.refetchQueries({ queryKey: ["all-relate-task"] });
     } catch (e) {
       console.log(e);
     }
@@ -80,31 +88,31 @@ const MissionTable: FC<{
   const showModal = (key: string) => {
     setEditMissionKey(key);
     setOpenMissionModel(true);
-    setSelectedMissionKey('');
+    setSelectedMissionKey("");
   };
 
   const columns: TableColumnsType<Mission_Title> = [
     {
-      title: t('mission.add_mission.name'),
-      dataIndex: 'name',
-      key: 'name',
+      title: t("mission.add_mission.name"),
+      dataIndex: "name",
+      key: "name",
       render: (text: string) => <p>{text}</p>,
       // sorter: (a, b) => a.name.localeCompare(b.name),
-      defaultSortOrder: 'ascend'
+      defaultSortOrder: "ascend",
     },
     {
-      title: t('mission.add_mission.car'),
-      dataIndex: 'car_type',
-      key: 'car_type',
+      title: t("mission.add_mission.car"),
+      dataIndex: "car_type",
+      key: "car_type",
       render: (_, record) => {
         return <p>{record.Robot_types?.name}</p>;
       },
-      sorter: (a, b) => a.name.localeCompare(b.name)
+      sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
-      title: t('mission.add_mission.tag'),
-      dataIndex: 'tag',
-      key: 'tag',
+      title: t("mission.add_mission.tag"),
+      dataIndex: "tag",
+      key: "tag",
       render: (_, record) => {
         const tags = record.MissionTitleBridgeCategory?.map((c, idx) => (
           <Tag key={c.Category?.id || idx} color={c.Category?.color}>
@@ -112,24 +120,27 @@ const MissionTable: FC<{
           </Tag>
         ));
         return <TagWrapper>{tags || <></>}</TagWrapper>;
-      }
+      },
     },
     {
-      title: '',
-      dataIndex: 'operation',
-      key: 'operation',
+      title: "",
+      dataIndex: "operation",
+      key: "operation",
       render: (_, record) => {
         return (
           <>
             <Flex gap="small">
-              <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.id)}>
+              <Popconfirm
+                title="Sure to delete?"
+                onConfirm={() => handleDelete(record.id)}
+              >
                 <Button
                   icon={<DeleteTwoTone twoToneColor="#f30303" />}
                   color="danger"
                   variant="filled"
                   type="link"
                 >
-                  {t('utils.delete')}
+                  {t("utils.delete")}
                 </Button>
               </Popconfirm>
 
@@ -139,7 +150,7 @@ const MissionTable: FC<{
                 variant="filled"
                 icon={<EditOutlined />}
               >
-                {t('mission.add_mission.edit_info')}
+                {t("mission.add_mission.edit_info")}
               </Button>
 
               <Button
@@ -148,13 +159,13 @@ const MissionTable: FC<{
                 variant="filled"
                 icon={<ControlTwoTone twoToneColor="#5273e0" />}
               >
-                {t('mission.add_mission.edit_detail')}
+                {t("mission.add_mission.edit_detail")}
               </Button>
             </Flex>
           </>
         );
-      }
-    }
+      },
+    },
   ];
 
   return (

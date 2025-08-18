@@ -1,5 +1,5 @@
 .demo-logo {
-  background-image: url('../assets/kenmec_without_background.png');
+  background-image: url("../assets/kenmec_without_background.png");
   background-size: contain;
   background-repeat: no-repeat;
   height: 100%;
@@ -9,7 +9,8 @@
   background-position: center;
 }
 
-.light-mode-icon, .dark-mode-icon {
+.light-mode-icon,
+.dark-mode-icon {
   color: blue;
   text-align: center;
   font-size: 150%;
@@ -18,21 +19,17 @@
   cursor: pointer;
 }
 
-
-
 .light-mode-icon svg {
   fill: rgb(248, 232, 7);
 }
 
-@media(max-width: 767px){
-  .demo-logo{
-    width: 30%
+@media (max-width: 767px) {
+  .demo-logo {
+    width: 30%;
   }
-
 }
 
-@media(min-width: 767px){
-
+@media (min-width: 767px) {
 }
 .custom-header {
   /* background-color: rgba(240, 202, 167, 0.925); */
@@ -47,9 +44,7 @@
 }
 
 .custom-header > ul {
-
   background-color: #f5f5f5;
-
 }
 
 .dark-mode > ul {
@@ -73,7 +68,6 @@
 }
 
 @keyframes move {
-
   0%,
   65% {
     -webkit-transform: rotate(0deg);
@@ -134,4 +128,3 @@
 /* .custom-header svg {
   fill: rgb(29, 83, 246);
 } */
-

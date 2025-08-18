@@ -1,7 +1,7 @@
-import { FC, memo } from 'react';
-import { CloseOutlined } from '@ant-design/icons';
-import './utils.css';
-import { useSetAtom } from 'jotai';
+import { FC, memo } from "react";
+import { CloseOutlined } from "@ant-design/icons";
+import "./utils.css";
+import { useSetAtom } from "jotai";
 import {
   EditLocationPanelSwitch,
   QuickEditLocationPanelSwitch,
@@ -29,11 +29,15 @@ import {
   QuickEditRoadSwitch,
   isShowRegisterAMR,
   isShowEditAbortMissionWhenHasCargoMission,
-  isShowEditCustomCargoFormat
-} from '@/utils/siderGloble';
-import { ToolBarItemType } from '../components/siderElement';
+  isShowEditCustomCargoFormat,
+  isShowPeripheralNameTable,
+  isShowPeripheralGroupTable,
+} from "@/utils/siderGloble";
+import { ToolBarItemType } from "../components/siderElement";
 
-const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({ panelName }) => {
+const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({
+  panelName,
+}) => {
   const setOpenEditLocationPanel = useSetAtom(EditLocationPanelSwitch); // 1-1
   const setQuickEditLocationPanel = useSetAtom(QuickEditLocationPanelSwitch); // 1-2
   const setShowAllLocationListTable = useSetAtom(EditLocationListTableSwitch); // 1-4
@@ -54,13 +58,24 @@ const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({ 
   const setOpenMissionPanel = useSetAtom(isShowEditMission); // 5-1
   const setOpenChargeMissionPanel = useSetAtom(isShowEditChargeMission); // 5-2
   const setOpenCycleMissionPanel = useSetAtom(isShowEditCycleMission); // 5-3
-  const setOpenBeforeLeftStationMissionPanel = useSetAtom(isShowEditBeforeLeftChargeStationMission); // 5-4
+  const setOpenBeforeLeftStationMissionPanel = useSetAtom(
+    isShowEditBeforeLeftChargeStationMission,
+  ); // 5-4
   const setOpenScheduleMissionPanel = useSetAtom(isShowEditScheduleMission); // 5-5
   const setOpenIdleMissionPanel = useSetAtom(isShowEditIdleMission); // 5-6
   const setOpenTopicMissionPanel = useSetAtom(isShowEditTopicMission); // 5-7
-  const setOpenAbortMissionPanel = useSetAtom(isShowEditAbortMissionWhenHasCargoMission);
+  const setOpenAbortMissionPanel = useSetAtom(
+    isShowEditAbortMissionWhenHasCargoMission,
+  );
+
+  const setOpenPeripheralNamePanel = useSetAtom(isShowPeripheralNameTable); // 7-1
+  const setOpenPeripheralGroupPanel = useSetAtom(isShowPeripheralGroupTable); // 7-2
+  const setOpenEditChargeStationIconPanel = useSetAtom(
+    isShowEditChargeStationPosition,
+  ); // 7-3
+
   const setOpenTagMissionPanel = useSetAtom(isShowEditMissionTag); // 6-1
-  const setOpenEditChargeStationIconPanel = useSetAtom(isShowEditChargeStationPosition); // 6-2
+
   const setOpenCustomCargoInfoPanel = useSetAtom(isShowEditCustomCargoFormat); // 6-3
   const setOpenWarningId = useSetAtom(isShowEditWarningId); // 7-1
   const setOpenUploadWarningIDModal = useSetAtom(isOpenUploadWarningIDModal); //7-2
@@ -68,92 +83,98 @@ const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({ 
 
   const handleClose = () => {
     switch (panelName) {
-      case 'location_panel':
+      case "location_panel":
         setOpenEditLocationPanel(false);
         break;
-      case 'quick_location_panel':
+      case "quick_location_panel":
         setQuickEditLocationPanel(false);
         break;
-      case 'location_list':
+      case "location_list":
         setShowAllLocationListTable(false);
         break;
-      case 'road_panel':
+      case "road_panel":
         setOpenEditRoadPanel(false);
         break;
-      case 'show_roads_table':
+      case "show_roads_table":
         setShowAllRoadListTable(false);
         break;
-      case 'quick_road_panel':
+      case "quick_road_panel":
         setQuickEditRoadPanel(false);
         break;
-      case 'edit_zone':
+      case "edit_zone":
         setOpenEditZone(false);
         break;
-      case 'show_zone_list':
+      case "show_zone_list":
         setShowAllZones(false);
         break;
-      case 'show_zone_table':
+      case "show_zone_table":
         setShowZonesTable(false);
         break;
-      case 'edit_shelve':
+      case "edit_shelve":
         setOpenEditShelf(false);
         break;
-      case 'edit_shelve_type':
+      case "edit_shelve_type":
         setOpenEditShelfCategory(false);
         break;
-      case 'edit_yaw':
+      case "edit_yaw":
         setOpenYawTable(false);
         break;
 
-      case 'edit_mission':
+      case "edit_mission":
         setOpenMissionPanel(false);
         break;
-      case 'charge_mission':
+      case "charge_mission":
         setOpenChargeMissionPanel(false);
         break;
-      case 'cycle_mission':
+      case "cycle_mission":
         setOpenCycleMissionPanel(false);
         break;
-      case 'before_left_charge_station_task':
+      case "before_left_charge_station_task":
         setOpenBeforeLeftStationMissionPanel(false);
         break;
-      case 'schedule_mission':
+      case "schedule_mission":
         setOpenScheduleMissionPanel(false);
         break;
-      case 'idle_mission':
+      case "idle_mission":
         setOpenIdleMissionPanel(false);
         break;
-      case 'topic_mission':
+      case "topic_mission":
         setOpenTopicMissionPanel(false);
         break;
-      case 'abort_cargo_mission':
+      case "abort_cargo_mission":
         setOpenAbortMissionPanel(false);
         break;
-      case 'edit_tag':
+      case "peripheral_name_table":
+        setOpenPeripheralNamePanel(false);
+        break;
+      case "peripheral_group_table":
+        setOpenPeripheralGroupPanel(false);
+        break;
+      case "edit_tag":
         setOpenTagMissionPanel(false);
         break;
-      case 'edit_icon_style':
+      case "edit_icon_style":
         setOpenEditChargeStationIconPanel(false);
         break;
-      case 'warning_id':
+      case "warning_id":
         setOpenWarningId(false);
         break;
-      case 'upload_warning_file':
+      case "upload_warning_file":
         setOpenUploadWarningIDModal(false);
         break;
-      case 'backup_file':
+      case "backup_file":
         setOpenBackup(false);
         break;
-      case 'edit_register_amr':
+      case "edit_register_amr":
         setOpenRegisterAmr(false);
         break;
-      case 'custom_cargo_info':
+      case "custom_cargo_info":
         setOpenCustomCargoInfoPanel(false);
         break;
-      case 'edit_amr_config':
-      case 'shelf_mission':
-      case 'todo_dependent_on_return_id_task':
-      case 'edit_region_name':
+      case "edit_amr_config":
+      case "shelf_mission":
+      case "todo_dependent_on_return_id_task":
+      case "edit_region_name":
         // No corresponding setters provided for these cases
         console.warn(`No handler for panel: ${panelName}`);
         break;
@@ -168,7 +189,7 @@ const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({ 
       <CloseOutlined
         onClick={() => handleClose()}
         className="form-close-btn"
-        style={{ position: 'absolute', right: '1em', top: '1em' }}
+        style={{ position: "absolute", right: "1em", top: "1em" }}
       />
     </>
   );

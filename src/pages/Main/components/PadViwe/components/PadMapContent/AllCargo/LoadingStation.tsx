@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const LoadingStation = styled.div`
   width: 15px;
@@ -9,14 +9,16 @@ export const LoadingStation = styled.div`
   bottom: 6px;
   border-radius: 50%;
   background:
-    linear-gradient(0deg, rgb(0 0 0/50%) 30%, #0000 0 70%, rgb(0 0 0/100%) 0) 50%/8% 100%,
-    linear-gradient(90deg, rgb(0 0 0/25%) 30%, #0000 0 70%, rgb(0 0 0/75%) 0) 50%/100% 8%;
+    linear-gradient(0deg, rgb(0 0 0/50%) 30%, #0000 0 70%, rgb(0 0 0/100%) 0)
+      50%/8% 100%,
+    linear-gradient(90deg, rgb(0 0 0/25%) 30%, #0000 0 70%, rgb(0 0 0/75%) 0)
+      50%/100% 8%;
   background-repeat: no-repeat;
   animation: l23 1s infinite steps(12);
 
   ::before,
   ::after {
-    content: '';
+    content: "";
     grid-area: 1/1;
     border-radius: 50%;
     background: inherit;

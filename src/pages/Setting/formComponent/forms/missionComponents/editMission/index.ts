@@ -1,1 +1,1 @@
-export { default as MissionPanel } from './MissionPanel';
+export { default as MissionPanel } from "./MissionPanel";

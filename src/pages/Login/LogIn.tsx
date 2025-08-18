@@ -1,14 +1,20 @@
-import React from 'react';
-import './login.css';
-import { Col, Row } from 'antd';
-import { EyeInvisibleOutlined, EyeTwoTone, UserOutlined } from '@ant-design/icons';
-import { Button, Input, Space } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import "./login.css";
+import { Col, Row } from "antd";
+import {
+  EyeInvisibleOutlined,
+  EyeTwoTone,
+  UserOutlined,
+} from "@ant-design/icons";
+import { Button, Input, Space } from "antd";
+import { useNavigate } from "react-router-dom";
 const Login: React.FC = () => {
   const navigate = useNavigate();
   return (
     <div className="background">
-      <p style={{ position: 'fixed', right: '10px', bottom: '1px' }}>version: 1.0.0</p>
+      <p style={{ position: "fixed", right: "10px", bottom: "1px" }}>
+        version: 1.0.0
+      </p>
       <Row>
         <Col span={12}></Col>
         <Col span={12}>
@@ -16,14 +22,16 @@ const Login: React.FC = () => {
             <div className="Tittle"></div>
             <div className="wrapper">
               <h1>LogIn</h1>
-              <Space direction="vertical" style={{ width: '80%' }}>
+              <Space direction="vertical" style={{ width: "80%" }}>
                 <Input
                   placeholder="User ID"
-                  prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
+                  prefix={<UserOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
                 />
                 <Input.Password
                   placeholder="input password"
-                  iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+                  iconRender={(visible) =>
+                    visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                  }
                 />
               </Space>
 
@@ -34,7 +42,7 @@ const Login: React.FC = () => {
               <Button
                 size="large"
                 onClick={() => {
-                  navigate('/Setting');
+                  navigate("/Setting");
                 }}
               >
                 LogIn

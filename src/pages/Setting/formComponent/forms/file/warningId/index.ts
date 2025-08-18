@@ -1,1 +1,1 @@
-export { default as EditWarningListPanel } from './EditWarningListPanel';
+export { default as EditWarningListPanel } from "./EditWarningListPanel";

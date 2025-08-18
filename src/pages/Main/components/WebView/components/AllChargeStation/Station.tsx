@@ -1,7 +1,7 @@
-import { chargeStationModelProp } from '@/utils/gloable';
-import { useSetAtom } from 'jotai';
-import { FC } from 'react';
-import styled, { keyframes } from 'styled-components';
+import { chargeStationModelProp } from "@/utils/gloable";
+import { useSetAtom } from "jotai";
+import { FC } from "react";
+import styled, { keyframes } from "styled-components";
 
 type ChargeStyle = {
   $is_in_service: boolean;
@@ -20,7 +20,8 @@ const pulse = keyframes`
 const CStation = styled.div<ChargeStyle>`
   width: 21px;
   height: 26px;
-  background-color: ${({ $is_in_service }) => ($is_in_service ? '#2581ffc2' : '#3d3d3d')};
+  background-color: ${({ $is_in_service }) =>
+    $is_in_service ? "#2581ffc2" : "#3d3d3d"};
   z-index: 20;
   text-align: center;
   position: absolute;
@@ -33,7 +34,8 @@ const CStation = styled.div<ChargeStyle>`
   opacity: ${({ $is_in_service }) => ($is_in_service ? 1 : 0.5)};
   transform: ${({ translate_x, translate_y, scale, rotate }) =>
     `translate(${translate_x}em, ${translate_y}em) scale(${scale || 1}) rotate(${rotate || 0}deg)`};
-  animation: ${({ $is_in_service }) => ($is_in_service ? 'none' : `${pulse} 1.5s infinite`)};
+  animation: ${({ $is_in_service }) =>
+    $is_in_service ? "none" : `${pulse} 1.5s infinite`};
   cursor: pointer; /* Indicate clickability */
 `;
 
@@ -43,7 +45,7 @@ const Svg = styled.svg`
 `;
 
 const PathStyle = styled.path<ChargeStyle>`
-  fill: ${({ $is_in_service }) => ($is_in_service ? '#ffffff' : '#b30000')};
+  fill: ${({ $is_in_service }) => ($is_in_service ? "#ffffff" : "#b30000")};
 `;
 
 const Station: FC<{

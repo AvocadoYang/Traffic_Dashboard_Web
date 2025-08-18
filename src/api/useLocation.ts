@@ -1,22 +1,22 @@
-import { useQuery } from '@tanstack/react-query';
-import { array, object, string, boolean, date, number } from 'yup';
-import api from './axiosClient';
+import { useQuery } from "@tanstack/react-query";
+import { array, object, string, boolean, date, number } from "yup";
+import api from "./axiosClient";
 
 const levelSchema = object({
   levelName: string().optional().nullable(),
   booked: boolean().optional().nullable(),
   cargo_limit: number().optional(),
   disable: boolean().optional(),
-  hasCargo: boolean().optional()
+  hasCargo: boolean().optional(),
 });
 
 export const layerSchema = object().test(
-  'is-layer-type',
-  'useLocationInvalid layer format',
+  "is-layer-type",
+  "useLocationInvalid layer format",
   (value) => {
     if (!value || Object.keys(value).length === 0) return true;
 
-    if (typeof value !== 'object' || Array.isArray(value)) return false;
+    if (typeof value !== "object" || Array.isArray(value)) return false;
 
     for (const key in value) {
       const levelValue = value[key];
@@ -25,16 +25,16 @@ export const layerSchema = object().test(
     }
 
     return true;
-  }
+  },
 );
 const strSchema = string().optional().nullable();
 const relationshipSchema = object().test(
-  'relation-type',
-  'relationship has format error',
+  "relation-type",
+  "relationship has format error",
   (value) => {
     if (!value || Object.keys(value).length === 0) return true;
 
-    if (typeof value !== 'object' || Array.isArray(value)) return false;
+    if (typeof value !== "object" || Array.isArray(value)) return false;
 
     for (const key in value) {
       const levelValue = value[key];
@@ -43,11 +43,11 @@ const relationshipSchema = object().test(
     }
 
     return true;
-  }
+  },
 );
 
 const getLocations = async () => {
-  const { data } = await api.get<unknown>('api/test/locations');
+  const { data } = await api.get<unknown>("api/test/locations");
   const schema = () =>
     object({
       chargingStations: array(
@@ -62,7 +62,7 @@ const getLocations = async () => {
               COMPLETE: boolean().optional(),
               FAULT: boolean().optional(),
               PROCESS: boolean().optional(),
-              STANDBY: boolean().optional()
+              STANDBY: boolean().optional(),
             }).optional(),
             error: object({
               MODULE_COMMUNICATION_FAILURE: boolean().optional(),
@@ -71,7 +71,7 @@ const getLocations = async () => {
               SHORT_CIRCUIT: boolean().optional(),
               OVER_VOLTAGE: boolean().optional(),
               OVER_CURRENT: boolean().optional(),
-              TOTAL_FAULT: boolean().optional()
+              TOTAL_FAULT: boolean().optional(),
             }).optional(),
             other: object({
               INFRARED_IN_PLACE: boolean().optional(),
@@ -80,12 +80,12 @@ const getLocations = async () => {
               REACH_OUT_CHARGE: boolean().optional(),
               RETURNING: boolean().optional(),
               IS_STRETCHING_OUT: boolean().optional(),
-              RESET: boolean().optional()
-            }).optional()
+              RESET: boolean().optional(),
+            }).optional(),
           })
             .optional()
-            .nullable()
-        }).required()
+            .nullable(),
+        }).required(),
       ).required(),
       cargoArea: array(
         object({
@@ -96,14 +96,14 @@ const getLocations = async () => {
           isDropping: boolean().optional(),
           placement_priority: number().required(),
           relationships: relationshipSchema.optional().nullable(),
-          lastUpdated: string().required()
-        }).required()
-      ).required()
+          lastUpdated: string().required(),
+        }).required(),
+      ).required(),
     }).required();
   try {
     await schema().validate(data);
   } catch (error) {
-    console.log('use loaction has error');
+    console.log("use loaction has error");
     console.log(error);
     // 這邊如果有報錯 可以把require 改optional
   }
@@ -111,8 +111,8 @@ const getLocations = async () => {
   return result;
 };
 const useLocation = () => {
-  return useQuery(['locations'], getLocations, {
-    refetchInterval: 3000
+  return useQuery(["locations"], getLocations, {
+    refetchInterval: 3000,
   });
 };
 

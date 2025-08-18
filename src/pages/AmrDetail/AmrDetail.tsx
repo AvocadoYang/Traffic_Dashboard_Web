@@ -1,27 +1,37 @@
-import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Card, Typography, Tag, Progress, Descriptions, Table, Button, Modal, Flex } from 'antd';
-import styled from 'styled-components';
-import ReactJsonView from '@uiw/react-json-view';
+import { useState } from "react";
+import { useParams, Link } from "react-router-dom";
 import {
-  ArrowLeftOutlined
+  Card,
+  Typography,
+  Tag,
+  Progress,
+  Descriptions,
+  Table,
+  Button,
+  Modal,
+  Flex,
+} from "antd";
+import styled from "styled-components";
+import ReactJsonView from "@uiw/react-json-view";
+import {
+  ArrowLeftOutlined,
   // UpOutlined,
   // DownOutlined,
   // LeftOutlined,
   // RightOutlined,
-} from '@ant-design/icons';
+} from "@ant-design/icons";
 import {
   useAMRAllIO,
   useAmrDetail,
   useAmrPose,
   useIsCarry,
   useIsLogIn,
-  useMaintenanceStatus
-} from '@/sockets/useAMRInfo';
-import { useRecentMission } from '@/sockets/useMissions';
-import { useTranslation } from 'react-i18next';
-import DPad from './DPad';
-import EditCargoCarrier from '../Main/Car_Card/components/EditCargoCarrier';
+  useMaintenanceStatus,
+} from "@/sockets/useAMRInfo";
+import { useRecentMission } from "@/sockets/useMissions";
+import { useTranslation } from "react-i18next";
+import DPad from "./DPad";
+import EditCargoCarrier from "../Main/Car_Card/components/EditCargoCarrier";
 
 const { Title, Text } = Typography;
 
@@ -90,20 +100,20 @@ const StatusWrapper = styled.div`
 
 const AmrDetail = () => {
   const { amrId } = useParams<{ amrId: string }>();
-  let prefixAmrId = '';
-  if (amrId?.startsWith('mock')) {
+  let prefixAmrId = "";
+  if (amrId?.startsWith("mock")) {
     prefixAmrId = `#` + amrId.slice(5);
   } else {
-    prefixAmrId = amrId || '';
+    prefixAmrId = amrId || "";
   }
 
-  const amr = useAmrDetail(prefixAmrId || '');
-  const currier = useIsCarry(prefixAmrId || '');
-  const maintenance = useMaintenanceStatus(prefixAmrId || '');
-  const { pose } = useAmrPose(prefixAmrId || '');
-  const { recentMission } = useRecentMission(prefixAmrId || '');
-  const connectionStatus = useIsLogIn(prefixAmrId || '');
-  const io = useAMRAllIO(prefixAmrId || '');
+  const amr = useAmrDetail(prefixAmrId || "");
+  const currier = useIsCarry(prefixAmrId || "");
+  const maintenance = useMaintenanceStatus(prefixAmrId || "");
+  const { pose } = useAmrPose(prefixAmrId || "");
+  const { recentMission } = useRecentMission(prefixAmrId || "");
+  const connectionStatus = useIsLogIn(prefixAmrId || "");
+  const io = useAMRAllIO(prefixAmrId || "");
   const [showControlPanel, setShowControlPanel] = useState(false);
   const [showCargoMetadata, setShowCargoMetadata] = useState(false);
   const [showIO, setShowIO] = useState(false);
@@ -116,12 +126,15 @@ const AmrDetail = () => {
         {
           key: recentMission.missionId,
           id: recentMission.missionId,
-          desc: recentMission.full_name?.join(' / ') || recentMission.sub_name || '-',
+          desc:
+            recentMission.full_name?.join(" / ") ||
+            recentMission.sub_name ||
+            "-",
           status: recentMission.missionStatus,
           time: recentMission.startedAt
             ? new Date(recentMission.startedAt).toLocaleTimeString()
-            : '-'
-        }
+            : "-",
+        },
       ]
     : [];
 
@@ -129,77 +142,88 @@ const AmrDetail = () => {
     <>
       <Container>
         <Link to="/amr">
-          <Button icon={<ArrowLeftOutlined />}>{t('amr_detail.back')}</Button>
+          <Button icon={<ArrowLeftOutlined />}>{t("amr_detail.back")}</Button>
         </Link>
         {amr ? (
           <>
             <Flex vertical gap="small">
-              <Title level={2} style={{ marginBottom: 0, fontSize: '2rem' }}>
+              <Title level={2} style={{ marginBottom: 0, fontSize: "2rem" }}>
                 {prefixAmrId}
               </Title>
               <div
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
+                  display: "flex",
+                  alignItems: "center",
                   gap: 16,
-                  flexWrap: 'wrap',
-                  marginBottom: 16
+                  flexWrap: "wrap",
+                  marginBottom: 16,
                 }}
               >
-                <Tag color={connectionStatus.isOnline ? 'green' : 'red'}>
-                  {connectionStatus.isOnline ? t('amr_detail.online') : t('amr_detail.offline')}
+                <Tag color={connectionStatus.isOnline ? "green" : "red"}>
+                  {connectionStatus.isOnline
+                    ? t("amr_detail.online")
+                    : t("amr_detail.offline")}
                 </Tag>
-                <Tag color={connectionStatus.isOverdue ? 'red' : 'blue'}>
-                  {connectionStatus.isOverdue ? t('amr_detail.overdue') : t('amr_detail.normal')}
+                <Tag color={connectionStatus.isOverdue ? "red" : "blue"}>
+                  {connectionStatus.isOverdue
+                    ? t("amr_detail.overdue")
+                    : t("amr_detail.normal")}
                 </Tag>
-                <Tag color={connectionStatus.isPosAccurate ? 'green' : 'orange'}>
+                <Tag
+                  color={connectionStatus.isPosAccurate ? "green" : "orange"}
+                >
                   {connectionStatus.isPosAccurate
-                    ? t('amr_detail.accurate')
-                    : t('amr_detail.inaccurate')}
+                    ? t("amr_detail.accurate")
+                    : t("amr_detail.inaccurate")}
                 </Tag>
                 <Tag color="default">
-                  {t('amr_detail.delay', { ms: connectionStatus.networkDelay })}
+                  {t("amr_detail.delay", { ms: connectionStatus.networkDelay })}
                 </Tag>
               </div>
             </Flex>
             <FixedDescWrapper>
-              <Descriptions bordered column={1} size="middle" style={{ marginBottom: 24 }}>
-                <Descriptions.Item label={t('amr_detail.battery')}>
+              <Descriptions
+                bordered
+                column={1}
+                size="middle"
+                style={{ marginBottom: 24 }}
+              >
+                <Descriptions.Item label={t("amr_detail.battery")}>
                   <Progress
                     percent={amr.battery}
                     size="small"
-                    status={amr.battery < 20 ? 'exception' : 'active'}
+                    status={amr.battery < 20 ? "exception" : "active"}
                   />
                 </Descriptions.Item>
 
-                <Descriptions.Item label={t('amr_detail.status')}>
-                  <StatusWrapper>{amr.status || '-'}</StatusWrapper>
+                <Descriptions.Item label={t("amr_detail.status")}>
+                  <StatusWrapper>{amr.status || "-"}</StatusWrapper>
                 </Descriptions.Item>
 
-                <Descriptions.Item label={t('amr_detail.location')}>
-                  <Text>{amr.locationId || '-'}</Text>
+                <Descriptions.Item label={t("amr_detail.location")}>
+                  <Text>{amr.locationId || "-"}</Text>
                 </Descriptions.Item>
-                <Descriptions.Item label={t('amr_detail.current_position')}>
+                <Descriptions.Item label={t("amr_detail.current_position")}>
                   <Text>
-                    {pose && typeof pose === 'object' ? (
+                    {pose && typeof pose === "object" ? (
                       <PoseWrapper>
-                        {`x: ${pose.x ?? '-'}, y: ${pose.y ?? '-'}, θ: ${pose.yaw ?? '-'}`}
+                        {`x: ${pose.x ?? "-"}, y: ${pose.y ?? "-"}, θ: ${pose.yaw ?? "-"}`}
                       </PoseWrapper>
                     ) : (
                       <PoseWrapper>-</PoseWrapper>
                     )}
                   </Text>
                 </Descriptions.Item>
-                <Descriptions.Item label={t('amr_detail.carrying_cargo')}>
+                <Descriptions.Item label={t("amr_detail.carrying_cargo")}>
                   {currier.isCarry ? (
                     <>
-                      <Tag color="volcano">{t('utils.yes')}</Tag>
+                      <Tag color="volcano">{t("utils.yes")}</Tag>
                       <Button
                         size="small"
                         style={{ marginLeft: 8 }}
                         onClick={() => setShowCargoMetadata(true)}
                       >
-                        {t('amr_detail.show_cargo_metadata')}
+                        {t("amr_detail.show_cargo_metadata")}
                       </Button>
                       <Button
                         size="small"
@@ -207,20 +231,20 @@ const AmrDetail = () => {
                         style={{ marginLeft: 8 }}
                         onClick={() => setEditCargoModalOpen(true)}
                       >
-                        {t('amr_card.update_cargo')}
+                        {t("amr_card.update_cargo")}
                       </Button>
                     </>
                   ) : (
-                    t('utils.no')
+                    t("utils.no")
                   )}
                 </Descriptions.Item>
-                <Descriptions.Item label={t('amr_detail.maintenance')}>
+                <Descriptions.Item label={t("amr_detail.maintenance")}>
                   <Text>
-                    {maintenance && typeof maintenance === 'object'
+                    {maintenance && typeof maintenance === "object"
                       ? maintenance.status || JSON.stringify(maintenance)
                       : maintenance
                         ? String(maintenance)
-                        : '-'}
+                        : "-"}
                   </Text>
                 </Descriptions.Item>
               </Descriptions>
@@ -228,25 +252,38 @@ const AmrDetail = () => {
             <Button
               type="primary"
               onClick={() => setShowControlPanel((v) => !v)}
-              style={{ marginBottom: showControlPanel ? 0 : 24, width: '100%', maxWidth: 300 }}
+              style={{
+                marginBottom: showControlPanel ? 0 : 24,
+                width: "100%",
+                maxWidth: 300,
+              }}
             >
-              {showControlPanel ? t('amr_detail.hide_manual') : t('amr_detail.show_manual')}
+              {showControlPanel
+                ? t("amr_detail.hide_manual")
+                : t("amr_detail.show_manual")}
             </Button>
             {showControlPanel && <DPad amrId={prefixAmrId} />}
 
             <Button
               type="primary"
               onClick={() => setShowIO((v) => !v)}
-              style={{ marginBottom: 12, width: '100%', maxWidth: 300, marginLeft: 8 }}
+              style={{
+                marginBottom: 12,
+                width: "100%",
+                maxWidth: 300,
+                marginLeft: 8,
+              }}
             >
-              {showIO ? t('amr_detail.hide_io', '隱藏 IO') : t('amr_detail.show_io', '顯示 IO')}
+              {showIO
+                ? t("amr_detail.hide_io", "隱藏 IO")
+                : t("amr_detail.show_io", "顯示 IO")}
             </Button>
             {showIO && (
               <Card style={{ marginTop: 16, padding: 16 }}>
-                <Title level={4} style={{ fontSize: '1.1em' }}>
-                  {t('amr_detail.io')}
+                <Title level={4} style={{ fontSize: "1.1em" }}>
+                  {t("amr_detail.io")}
                 </Title>
-                <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
                   {io && Object.keys(io).length > 0 ? (
                     <ReactJsonView
                       displayDataTypes={false}
@@ -256,13 +293,13 @@ const AmrDetail = () => {
                       style={{ fontSize: 14 }}
                     />
                   ) : (
-                    t('amr_detail.no_io')
+                    t("amr_detail.no_io")
                   )}
                 </pre>
               </Card>
             )}
-            <Title level={4} style={{ fontSize: '1.1em' }}>
-              {t('amr_detail.recent_tasks')}
+            <Title level={4} style={{ fontSize: "1.1em" }}>
+              {t("amr_detail.recent_tasks")}
             </Title>
             <TableWrapper>
               <Table
@@ -271,43 +308,51 @@ const AmrDetail = () => {
                 size="small"
                 columns={[
                   {
-                    title: t('amr_detail.task_id'),
-                    dataIndex: 'id',
-                    key: 'id',
+                    title: t("amr_detail.task_id"),
+                    dataIndex: "id",
+                    key: "id",
                     render(value: string) {
                       return `${value.slice(0, 5)}...`;
-                    }
+                    },
                   },
-                  { title: t('amr_detail.desc'), dataIndex: 'desc', key: 'desc' },
                   {
-                    title: t('amr_detail.status'),
-                    dataIndex: 'status',
-                    key: 'status',
+                    title: t("amr_detail.desc"),
+                    dataIndex: "desc",
+                    key: "desc",
+                  },
+                  {
+                    title: t("amr_detail.status"),
+                    dataIndex: "status",
+                    key: "status",
                     render: (status) => (
                       <Tag
                         color={
-                          status === 'Completed'
-                            ? 'green'
-                            : status === 'In Progress'
-                              ? 'blue'
-                              : 'default'
+                          status === "Completed"
+                            ? "green"
+                            : status === "In Progress"
+                              ? "blue"
+                              : "default"
                         }
                       >
-                        {t('amr_detail.status')}: {status}
+                        {t("amr_detail.status")}: {status}
                       </Tag>
-                    )
+                    ),
                   },
-                  { title: t('amr_detail.time'), dataIndex: 'time', key: 'time' }
+                  {
+                    title: t("amr_detail.time"),
+                    dataIndex: "time",
+                    key: "time",
+                  },
                 ]}
                 style={{ marginTop: 12 }}
-                locale={{ emptyText: t('amr_detail.no_mission') }}
+                locale={{ emptyText: t("amr_detail.no_mission") }}
               />
             </TableWrapper>
           </>
         ) : (
           <Card>
-            <Title level={4}>{t('amr_detail.amr_not_found')}</Title>
-            <Text type="secondary">{t('amr_detail.no_data')}</Text>
+            <Title level={4}>{t("amr_detail.amr_not_found")}</Title>
+            <Text type="secondary">{t("amr_detail.no_data")}</Text>
           </Card>
         )}
       </Container>
@@ -315,20 +360,20 @@ const AmrDetail = () => {
         open={showCargoMetadata}
         onCancel={() => setShowCargoMetadata(false)}
         footer={null}
-        title={t('amr_detail.cargo_metadata')}
+        title={t("amr_detail.cargo_metadata")}
       >
-        <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+        <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
           {Array.isArray(currier.cargo) && currier.cargo.length > 0
             ? currier.cargo.map((cargo, idx) =>
-                cargo.metadata && cargo.metadata !== 'null' ? (
+                cargo.metadata && cargo.metadata !== "null" ? (
                   <div key={idx} style={{ marginBottom: 16 }}>
                     <b>
-                      {t('amr_detail.carrying_cargo')} #{idx + 1}
+                      {t("amr_detail.carrying_cargo")} #{idx + 1}
                     </b>
                     <ReactJsonView
                       displayDataTypes={false}
                       value={
-                        typeof cargo.metadata === 'string'
+                        typeof cargo.metadata === "string"
                           ? JSON.parse(cargo.metadata)
                           : cargo.metadata
                       }
@@ -340,13 +385,13 @@ const AmrDetail = () => {
                 ) : (
                   <div key={idx}>
                     <b>
-                      {t('amr_detail.carrying_cargo')} #{idx + 1}
+                      {t("amr_detail.carrying_cargo")} #{idx + 1}
                     </b>
-                    <div>{t('amr_detail.no_metadata')}</div>
+                    <div>{t("amr_detail.no_metadata")}</div>
                   </div>
-                )
+                ),
               )
-            : t('amr_detail.no_metadata')}
+            : t("amr_detail.no_metadata")}
         </pre>
       </Modal>
       <EditCargoCarrier

@@ -1,27 +1,37 @@
-import { Select, Radio, Form, Button, Flex, Typography, Space, Card, message } from 'antd';
-import { CloseOutlined } from '@ant-design/icons';
-import useName from '@/api/useAmrName';
-import { useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useAtom, useSetAtom } from 'jotai';
+import {
+  Select,
+  Radio,
+  Form,
+  Button,
+  Flex,
+  Typography,
+  Space,
+  Card,
+  message,
+} from "antd";
+import { CloseOutlined } from "@ant-design/icons";
+import useName from "@/api/useAmrName";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useAtom, useSetAtom } from "jotai";
 import {
   Quick_Mission,
   QuickMissionLoad,
   QuickMissionOffload,
   QuickMissionSettingMode,
-  StartQuickMissionSetting
-} from '../../global/jotai';
-import styled, { keyframes, css } from 'styled-components';
-import { useMutation } from '@tanstack/react-query';
-import client from '@/api/axiosClient';
-import { ErrorResponse } from '@/utils/globalType';
-import { errorHandler } from '@/utils/utils';
+  StartQuickMissionSetting,
+} from "../../global/jotai";
+import styled, { keyframes, css } from "styled-components";
+import { useMutation } from "@tanstack/react-query";
+import client from "@/api/axiosClient";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
 
 enum MissionPriority {
   TRIVIAL, // 沒差最後再做
   NORMAL, // 普通
   PIVOTAL, // 特別優先
-  CRITICAL // 緊急
+  CRITICAL, // 緊急
 }
 
 const fadeIn = keyframes`
@@ -49,7 +59,7 @@ const fadeOut = keyframes`
 const QuickMissionContainer = styled.div<{ $visible: boolean }>`
   position: fixed;
   bottom: 1%;
-  right: ${(props) => `${props.$visible ? '1%' : '-90%'}`};
+  right: ${(props) => `${props.$visible ? "1%" : "-90%"}`};
   width: 100%;
   max-width: 450px;
   z-index: 1000;
@@ -142,27 +152,32 @@ const QuickMissionWebView: React.FC<{
   const { data: names } = useName();
   const [loadValue, setLoad] = useAtom(QuickMissionLoad);
   const [offloadValue, setOffload] = useAtom(QuickMissionOffload);
-  const [startQuickSetting, setStartQuickSetting] = useAtom(StartQuickMissionSetting);
+  const [startQuickSetting, setStartQuickSetting] = useAtom(
+    StartQuickMissionSetting,
+  );
   const setQuickSettingMode = useSetAtom(QuickMissionSettingMode);
   const { t } = useTranslation();
   const [, setAmrGenre] = useState<string | null>(null);
   const [messageApi, contextHolder] = message.useMessage();
 
-  const AmrOption: { value: string; label: string }[] | undefined = useMemo(() => {
-    let options;
-    if (names?.isSim) {
-      options = names.amrs
-        .filter((a) => a.isReal === false)
-        .map((m) => ({ label: m.amrId, value: m.amrId }));
-    } else {
-      options = names?.amrs
-        .filter((a) => a.isReal === true)
-        .map((m) => ({ label: m.amrId, value: m.amrId }));
-    }
-    return options ? [...options, { value: 'none', label: t('utils.random') }] : undefined;
-  }, [names, t]);
+  const AmrOption: { value: string; label: string }[] | undefined =
+    useMemo(() => {
+      let options;
+      if (names?.isSim) {
+        options = names.amrs
+          .filter((a) => a.isReal === false)
+          .map((m) => ({ label: m.amrId, value: m.amrId }));
+      } else {
+        options = names?.amrs
+          .filter((a) => a.isReal === true)
+          .map((m) => ({ label: m.amrId, value: m.amrId }));
+      }
+      return options
+        ? [...options, { value: "none", label: t("utils.random") }]
+        : undefined;
+    }, [names, t]);
 
-  const handlePayload = (action: 'load' | 'offload') => {
+  const handlePayload = (action: "load" | "offload") => {
     setStartQuickSetting(true);
     setQuickSettingMode(action);
   };
@@ -176,25 +191,25 @@ const QuickMissionWebView: React.FC<{
 
   const submitMutation = useMutation({
     mutationFn: (payload: Submit) => {
-      return client.post('api/missions/fast-mission', payload);
+      return client.post("api/missions/fast-mission", payload);
     },
     onSuccess: () => {
-      void messageApi.success(t('utils.success'));
+      void messageApi.success(t("utils.success"));
       handleCancel();
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && startQuickSetting) {
+      if (e.key === "Escape" && startQuickSetting) {
         handleCancel();
-        console.log('press esc');
+        console.log("press esc");
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [startQuickSetting]);
 
   const handleSubmit = () => {
@@ -206,7 +221,7 @@ const QuickMissionWebView: React.FC<{
     const payload: Submit = {
       amrId: [values.amrId],
       priority: values.priority,
-      task: prefixTask
+      task: prefixTask,
     };
 
     submitMutation.mutate(payload);
@@ -214,8 +229,8 @@ const QuickMissionWebView: React.FC<{
 
   useEffect(() => {
     form.setFieldsValue({
-      amrId: 'none',
-      priority: MissionPriority.NORMAL
+      amrId: "none",
+      priority: MissionPriority.NORMAL,
     });
   }, []);
 
@@ -225,82 +240,87 @@ const QuickMissionWebView: React.FC<{
       <QuickMissionContainer $visible={showQuickMission}>
         <StyledCard>
           <Header>
-            <Title level={4}>{t('main.card_name.quick_mission')}</Title>
-            <CloseIcon onClick={() => setShowQuickMission(false)} aria-label="Close" />
+            <Title level={4}>{t("main.card_name.quick_mission")}</Title>
+            <CloseIcon
+              onClick={() => setShowQuickMission(false)}
+              aria-label="Close"
+            />
           </Header>
 
           <Form form={form} layout="vertical">
             <Form.Item
-              label={t('mission.cycle_mission.car')}
+              label={t("mission.cycle_mission.car")}
               name="amrId"
-              rules={[{ required: true, message: t('utils.required') }]}
+              rules={[{ required: true, message: t("utils.required") }]}
             >
               <Select
                 options={AmrOption}
                 onChange={(v: string) => setAmrGenre(v)}
-                placeholder={t('utils.required')}
+                placeholder={t("utils.required")}
                 size="large"
-                style={{ borderRadius: '8px' }}
+                style={{ borderRadius: "8px" }}
               />
             </Form.Item>
 
             <Form.Item
-              label={t('main.mission_modal.dialog_mission.task_priority')}
+              label={t("main.mission_modal.dialog_mission.task_priority")}
               name="priority"
-              rules={[{ required: true, message: t('utils.required') }]}
+              rules={[{ required: true, message: t("utils.required") }]}
             >
               <Radio.Group>
                 <Radio.Button value={MissionPriority.CRITICAL}>
-                  {t('main.mission_modal.dialog_mission.priority.CRITICAL')}
+                  {t("main.mission_modal.dialog_mission.priority.CRITICAL")}
                 </Radio.Button>
                 <Radio.Button value={MissionPriority.PIVOTAL}>
-                  {t('main.mission_modal.dialog_mission.priority.PIVOTAL')}
+                  {t("main.mission_modal.dialog_mission.priority.PIVOTAL")}
                 </Radio.Button>
                 <Radio.Button value={MissionPriority.NORMAL}>
-                  {t('main.mission_modal.dialog_mission.priority.NORMAL')}
+                  {t("main.mission_modal.dialog_mission.priority.NORMAL")}
                 </Radio.Button>
                 <Radio.Button value={MissionPriority.TRIVIAL}>
-                  {t('main.mission_modal.dialog_mission.priority.TRIVIAL')}
+                  {t("main.mission_modal.dialog_mission.priority.TRIVIAL")}
                 </Radio.Button>
               </Radio.Group>
             </Form.Item>
 
-            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+            <Space direction="vertical" size="middle" style={{ width: "100%" }}>
               {startQuickSetting ? (
                 <InstructionText>
-                  {t('main.quick_mission.click_shelves_or_cancel')} (ESC to cancel)
+                  {t("main.quick_mission.click_shelves_or_cancel")} (ESC to
+                  cancel)
                 </InstructionText>
               ) : (
                 <>
                   {loadValue ? (
                     <SelectedLocation>
-                      {t('main.quick_mission.load')}: {loadValue.locationId}
+                      {t("main.quick_mission.load")}: {loadValue.locationId}
                     </SelectedLocation>
                   ) : (
                     <ActionButton
                       type="primary"
                       size="large"
                       block
-                      onClick={() => handlePayload('load')}
-                      style={{ background: '#1890ff', borderColor: '#1890ff' }}
+                      onClick={() => handlePayload("load")}
+                      style={{ background: "#1890ff", borderColor: "#1890ff" }}
                     >
-                      {t('main.quick_mission.load')}
+                      {t("main.quick_mission.load")}
                     </ActionButton>
                   )}
 
                   {offloadValue ? (
                     <SelectedLocation>
-                      {t('main.quick_mission.offload')}: {offloadValue.locationId}
+                      {t("main.quick_mission.offload")}:{" "}
+                      {offloadValue.locationId}
                     </SelectedLocation>
                   ) : (
                     <ActionButton
                       type="primary"
                       size="large"
                       block
-                      onClick={() => handlePayload('offload')}
-                      style={{ background: '#52c41a', borderColor: '#52c41a' }}
+                      onClick={() => handlePayload("offload")}
+                      style={{ background: "#52c41a", borderColor: "#52c41a" }}
                     >
-                      {t('main.quick_mission.offload')}
+                      {t("main.quick_mission.offload")}
                     </ActionButton>
                   )}
                 </>
@@ -308,7 +328,7 @@ const QuickMissionWebView: React.FC<{
 
               <Flex gap="middle" justify="space-between">
                 <ActionButton size="large" block onClick={handleCancel} danger>
-                  {t('utils.cancel')}
+                  {t("utils.cancel")}
                 </ActionButton>
                 {(loadValue || offloadValue) && !startQuickSetting && (
                   <ActionButton
@@ -316,9 +336,9 @@ const QuickMissionWebView: React.FC<{
                     size="large"
                     block
                     onClick={handleSubmit}
-                    style={{ background: '#faad14', borderColor: '#faad14' }}
+                    style={{ background: "#faad14", borderColor: "#faad14" }}
                   >
-                    {t('utils.submit')}
+                    {t("utils.submit")}
                   </ActionButton>
                 )}
               </Flex>
