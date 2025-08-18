@@ -123,6 +123,8 @@ const AmrIcon: FC<{
     handleEditMutation({
       full_name: info?.full_name as string,
       script_placement_location: locationId === null ? "unset" : locationId,
+      loadSpeed: info?.load_speed || 30,
+      offloadSpeed: info?.offload_speed || 30,
     });
   };
 

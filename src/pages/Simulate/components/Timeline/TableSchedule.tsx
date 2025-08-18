@@ -2,17 +2,21 @@ import { useTimelineScheduleSocket } from "@/sockets/useTimelineScheduleSocket";
 import {
   Button,
   Card,
+  Checkbox,
   Divider,
   Flex,
+  Input,
   message,
   Modal,
   Popconfirm,
   Switch,
   Table,
   Tag,
+  TimePicker,
+  Tooltip,
   Typography,
 } from "antd";
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { Mission_Schedule } from "@/sockets/useTimelineScheduleSocket";
 import { useAtom, useSetAtom } from "jotai";
 import {
@@ -30,8 +34,9 @@ import { useMutation } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import dayjs from "dayjs";
-
+import dayjs, { Dayjs } from "dayjs";
+import { PlusOutlined } from "@ant-design/icons";
+const { RangePicker } = TimePicker;
 const { Text } = Typography;
 
 const StyledCard = styled(Card)`
@@ -39,7 +44,9 @@ const StyledCard = styled(Card)`
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
   transition: all 0.3s ease;
-  min-height: 70vh;
+  min-height: 65vh;
+  max-height: 65vh;
+  overflow-y: scroll;
 
   .ant-card-head {
     background: #f0f2f5;
@@ -110,6 +117,13 @@ const StyledTable = styled(Table)`
   }
 `;
 
+type Local_Table_Value = {
+  id: string;
+  time: string;
+  type: string;
+  detail: string;
+};
+
 const TableSchedule: FC = () => {
   const { t } = useTranslation();
   const scheduleData = useTimelineScheduleSocket();
@@ -123,8 +137,33 @@ const TableSchedule: FC = () => {
   const setIsEdit = useSetAtom(IsEditSchedule);
   const [messageApi, contextHolder] = message.useMessage();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [isFilterMission, setIsFilterMission] = useState(true);
+  const [isFilterSpawnCargo, setIsFilterSpawnCargo] = useState(true);
+  const [isFilterShiftCargo, setIsFilterShiftCargo] = useState(true);
+  const [timeRange, setTimeRange] = useState<
+    [Dayjs | null, Dayjs | null] | null
+  >(null);
+  const [localTableValue, setLocalTableValue] = useState<Local_Table_Value[]>();
   const handleCancel = () => {
     setIsOpenScheduleTable(false);
+  };
+
+  const directAddSchedule = () => {
+    setIsEdit(false);
+    setIsModalOpen(true);
+    setSelectTime("08:00");
+  };
+
+  const directSpawnCargoSchedule = () => {
+    setIsEdit(false);
+    setIsSpawnCargoModalOpen(true);
+    setSelectTime("08:00");
+  };
+
+  const directShiftSchedule = () => {
+    setIsEdit(false);
+    setIsShiftCargoModalOpen(true);
+    setSelectTime("08:00");
   };
 
   const handleEdit = (id: string) => {
@@ -229,6 +268,7 @@ const TableSchedule: FC = () => {
       ),
       sorter: (a: Mission_Schedule, b: Mission_Schedule) =>
         dayjs(a.time, "HH:mm").unix() - dayjs(b.time, "HH:mm").unix(),
+      defaultSortOrder: "ascend", // ✅ set default ascending order
     },
     {
       title: t("sim.insert_modal.type"),
@@ -261,13 +301,10 @@ const TableSchedule: FC = () => {
     },
     {
       title: t("sim.table_schedule.detail"),
-      dataIndex: "type",
+      dataIndex: "detail",
       sorter: (a: Mission_Schedule, b: Mission_Schedule) =>
         a.type.localeCompare(b.type),
-      key: "type",
-      render: (_: unknown, record: Mission_Schedule) => {
-        return detail(record);
-      },
+      key: "detail",
     },
     {
       title: t("utils.action"),
@@ -312,6 +349,71 @@ const TableSchedule: FC = () => {
     onChange: onSelectChange,
   };
 
+  const handleSearch = (searchText: string) => {
+    if (!scheduleData) return;
+
+    if (searchText.trim() === "") {
+      setLocalTableValue(
+        scheduleData.map((v) => ({
+          id: v.id,
+          time: v.time,
+          type: v.type,
+          detail: detail(v),
+        })),
+      );
+      return;
+    }
+
+    const filtered = scheduleData
+      .map((v) => ({
+        id: v.id,
+        time: v.time,
+        type: v.type,
+        detail: detail(v),
+      }))
+      .filter(
+        (v) =>
+          v.time.includes(searchText) ||
+          v.type.includes(searchText) ||
+          v.detail.includes(searchText),
+      );
+
+    setLocalTableValue(filtered);
+  };
+
+  useEffect(() => {
+    if (!scheduleData) return;
+
+    let filtered = scheduleData.map((v) => ({
+      id: v.id,
+      time: v.time, // e.g. "14:35"
+      type: v.type,
+      detail: detail(v),
+    }));
+
+    filtered = filtered.filter((v) => {
+      if (v.type === "MISSION" && !isFilterMission) return false;
+      if (v.type === "SPAWN_CARGO" && !isFilterSpawnCargo) return false;
+      if (v.type === "SHIFT_CARGO" && !isFilterShiftCargo) return false;
+      return true;
+    });
+
+    if (timeRange && timeRange[0] && timeRange[1]) {
+      filtered = filtered.filter((v) => {
+        const t = dayjs(v.time, "HH:mm");
+        return t.isAfter(timeRange[0]) && t.isBefore(timeRange[1]);
+      });
+    }
+
+    setLocalTableValue(filtered);
+  }, [
+    scheduleData,
+    isFilterMission,
+    isFilterSpawnCargo,
+    isFilterShiftCargo,
+    timeRange,
+  ]);
+
   if (!isOpenScheduleTable) return null;
 
   return (
@@ -325,14 +427,74 @@ const TableSchedule: FC = () => {
         zIndex={9}
         title={t("sim.table_schedule.title")}
       >
-        <Flex>
-          <Button
-            onClick={deleteMulti}
-            disabled={selectedRowKeys.length === 0}
-            danger
-          >
-            {t("utils.delete")}
-          </Button>
+        <Flex gap="small" justify="space-between">
+          <Flex gap="middle">
+            <Button
+              onClick={deleteMulti}
+              disabled={selectedRowKeys.length === 0}
+              danger
+            >
+              {t("utils.delete")}
+            </Button>
+
+            <Tooltip title="add mission event">
+              <Button onClick={directAddSchedule}>
+                <PlusOutlined />
+                {t("sim.timeline.add_mission")}
+              </Button>
+            </Tooltip>
+
+            <Tooltip title="add shift cargo event">
+              <Button onClick={directShiftSchedule}>
+                <PlusOutlined />
+                {t("sim.timeline.add_shift_cargo")}
+              </Button>
+            </Tooltip>
+
+            <Tooltip title="add spawn cargo event">
+              <Button onClick={directSpawnCargoSchedule}>
+                <PlusOutlined />
+                {t("sim.timeline.add_spawn_cargo")}
+              </Button>
+            </Tooltip>
+          </Flex>
+
+          <Flex gap="middle">
+            <RangePicker
+              format="HH:mm"
+              onChange={(values) => setTimeRange(values)}
+            />
+
+            <Flex gap="middle" align="center">
+              <Checkbox
+                checked={isFilterMission}
+                onChange={(e) => setIsFilterMission(e.target.checked)}
+              >
+                {t("sim.table_schedule.mission")}
+              </Checkbox>
+
+              <Checkbox
+                checked={isFilterSpawnCargo}
+                onChange={(e) => setIsFilterSpawnCargo(e.target.checked)}
+              >
+                {t("sim.table_schedule.spawn_cargo")}
+              </Checkbox>
+
+              <Checkbox
+                checked={isFilterShiftCargo}
+                onChange={(e) => setIsFilterShiftCargo(e.target.checked)}
+              >
+                {t("sim.table_schedule.shift_cargo")}
+              </Checkbox>
+            </Flex>
+
+            <Input
+              placeholder={t("sim.table_schedule.detail_search")}
+              onChange={(e) => handleSearch(e.target.value)}
+              style={{ width: 300 }}
+              allowClear
+            />
+          </Flex>
         </Flex>
 
         <Divider />
@@ -341,9 +503,12 @@ const TableSchedule: FC = () => {
           <StyledTable
             rowSelection={{ type: "checkbox", ...rowSelection }}
             columns={columns as []}
-            dataSource={scheduleData}
-            rowKey="id"
+            dataSource={localTableValue}
+            rowKey={(record: any) =>
+              record.id ?? `${record.time}-${record.detail}`
+            }
             scroll={{ x: 1000 }}
+            pagination={false}
           />
         </StyledCard>
       </StyledModal>

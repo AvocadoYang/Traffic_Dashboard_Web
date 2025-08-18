@@ -998,7 +998,11 @@
 
     "table_schedule": {
       "title": "Table Schedule",
-      "detail": "Detail"
+      "detail": "Details",
+      "detail_search": "Search time type details",
+      "mission": "🚀 Mission",
+      "spawn_cargo": "📦 Generate cargo",
+      "shift_cargo": "🔄 Transfer cargo"
     },
 
     "spawn_cargo_modal": {
