@@ -56,15 +56,17 @@ const AmrForm: FC<{
       "script_placement_location",
     ) as string;
     const loadSpeed = form.getFieldValue("loadSpeed") as number;
-    const offloadSpeed = form.getFieldValue("offloadSpeed") as number
+    const offloadSpeed = form.getFieldValue("offloadSpeed") as number;
+    const move_speed = form.getFieldValue("move_speed") as number;
 
     const payload = {
       full_name,
       script_placement_location,
       loadSpeed,
-      offloadSpeed
+      offloadSpeed,
+      move_speed,
     };
-
+    console.log(payload);
     handleEditMutation(payload);
   };
 
@@ -72,7 +74,7 @@ const AmrForm: FC<{
     if (!isOpen) return;
 
     const info = robot?.find((v) => v?.id === id);
-    console.log(info)
+    console.log(info);
     form.setFieldValue("full_name", info?.full_name);
     form.setFieldValue(
       "script_placement_location",
@@ -80,6 +82,7 @@ const AmrForm: FC<{
     );
     form.setFieldValue("loadSpeed", info?.load_speed);
     form.setFieldValue("offloadSpeed", info?.offload_speed);
+    form.setFieldValue("move_speed", info?.move_speed);
   }, [isOpen]);
 
   return (
@@ -114,7 +117,7 @@ const AmrForm: FC<{
 
           <Form.Item
             name="script_placement_location"
-            label={t("sim.robot.modal.placement")}
+            label={"initital location"}
             rules={[{ required: true }]}
           >
             <Select options={locationOptions} />
@@ -128,7 +131,7 @@ const AmrForm: FC<{
             <InputNumber />
           </Form.Item>
 
-               <Form.Item
+          <Form.Item
             name="offloadSpeed"
             label={"offload speed"}
             rules={[{ required: true }]}
@@ -136,6 +139,13 @@ const AmrForm: FC<{
             <InputNumber />
           </Form.Item>
 
+          <Form.Item
+            name="move_speed"
+            label={"move speed"}
+            rules={[{ required: true }]}
+          >
+            <InputNumber />
+          </Form.Item>
         </Form>
       </Modal>
     </>

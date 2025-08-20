@@ -66,9 +66,9 @@ const AddModal: React.FC<AddModalProps> = ({
     direction,
     moveKeys,
   ) => {
-    // console.log("targetKeys:", nextTargetKeys);
-    // console.log("direction:", direction);
-    // console.log("moveKeys:", moveKeys);
+    //  console.log("targetKeys:", nextTargetKeys);
+    //   console.log("direction:", direction);
+    //   console.log("moveKeys:", moveKeys);
     setTargetKeys(nextTargetKeys);
   };
 
@@ -119,7 +119,7 @@ const AddModal: React.FC<AddModalProps> = ({
       errorHandler(e, messageApi);
     },
   });
-
+  // console.log(targetKeys)
   const handleSubmit = async () => {
     try {
       if (!targetKeys || targetKeys.length == 0) {
@@ -167,7 +167,7 @@ const AddModal: React.FC<AddModalProps> = ({
     }
 
     form.setFieldsValue({
-      name: prefixLevelName(editValue.name),
+      name: editValue.name,
       description: editValue.description,
       peripherals: editValue.peripherals || [],
     });

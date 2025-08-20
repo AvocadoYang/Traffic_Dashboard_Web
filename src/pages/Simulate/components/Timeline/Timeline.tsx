@@ -330,6 +330,20 @@ const Timeline: FC = () => {
           notifyMissionSourcePointName:
             mission.timelineMission?.notifyMissionSourcePointName || null,
           dynamicMission: mission.timelineMission?.dynamicMission || null,
+          dynamicMissionPeripheralGroup: {
+            range:
+              mission.timelineMission?.dynamicMissionPeripheralGroup?.range ||
+              null,
+            activeInterval:
+              mission.timelineMission?.dynamicMissionPeripheralGroup
+                ?.activeInterval || -1,
+            task: mission.timelineMission?.dynamicMissionPeripheralGroup?.task?.map(
+              (v) => ({
+                loadGroupName: v.loadGroupName,
+                offloadGroupName: v.offloadGroupName,
+              }),
+            ) || [],
+          },
         },
         timelineShiftCargo: {
           shiftPeripheralName: mission.timelineShiftCargo?.shiftPeripheralName,
@@ -338,6 +352,27 @@ const Timeline: FC = () => {
         timelineSpawnCargo: {
           peripheralType: mission.timelineSpawnCargo?.peripheralType,
           peripheralName: mission.timelineSpawnCargo?.peripheralName,
+        },
+
+        timelineShiftCargoGroup: {
+          groupId: mission.timelineShiftCargoGroup?.groupId || null,
+          range: mission.timelineShiftCargoGroup?.range || null,
+          activeInterval: mission.timelineShiftCargoGroup?.activeInterval || -1,
+          isShiftAll: mission.timelineShiftCargoGroup?.shiftNumber,
+          shiftNumber: mission.timelineShiftCargoGroup?.shiftNumber,
+          shiftGroupId: mission.timelineShiftCargoGroup?.shiftGroupId,
+          shiftGroupname: mission.timelineShiftCargoGroup?.shiftGroupname,
+        },
+
+        timelineSpawnCargoGroup: {
+          groupId: mission.timelineSpawnCargoGroup || null,
+          range: mission.timelineSpawnCargoGroup?.range || null,
+          activeInterval: mission.timelineSpawnCargoGroup?.activeInterval || -1,
+          isSpawnAll: mission.timelineSpawnCargoGroup?.isSpawnAll,
+          spawnNumber: mission.timelineSpawnCargoGroup,
+          spawnGroupId: mission.timelineSpawnCargoGroup?.spawnGroupId || null,
+          spawnGroupname:
+            mission.timelineSpawnCargoGroup?.spawnGroupname || null,
         },
       }),
     );
@@ -498,19 +533,26 @@ const Timeline: FC = () => {
         <TimeLayer hours={hours} setSelectTime={setSelectTime} />
 
         <TaskLayer height={rowCount * 25} wrapperHeight={heightMode}>
-          {tasks.map((task, idx) => (
-            <TaskBar
-              key={idx}
-              task={task}
-              top={rowAssignments[idx] * 25}
-              barMainColor={taskBarMainColor(
-                task.type,
-                task.missionType,
-                task.isEnable,
-              )}
-              handleEditTimeline={handleEditTimeline}
-            />
-          ))}
+          {tasks
+            .filter(
+              ({ type, timelineMission }) =>
+                (type === "MISSION" && timelineMission?.type !== "GROUP_TO_GROUP") ||
+                type === "SPAWN_CARGO" ||
+                type === "SHIFT_CARGO",
+            )
+            .map((task, idx) => (
+              <TaskBar
+                key={idx}
+                task={task}
+                top={rowAssignments[idx] * 25}
+                barMainColor={taskBarMainColor(
+                  task.type,
+                  task.missionType,
+                  task.isEnable,
+                )}
+                handleEditTimeline={handleEditTimeline}
+              />
+            ))}
         </TaskLayer>
       </TimelineWrapper>
     </>

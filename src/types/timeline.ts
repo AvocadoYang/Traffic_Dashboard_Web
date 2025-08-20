@@ -18,11 +18,39 @@ export type TaskType = {
     peripheralName?: string;
   };
 
+  timelineSpawnCargoGroup?: {
+    groupId: string; // new, unique id for this group
+    range?: string; // e.g. "00:00-01:00"
+    activeInterval: number;
+    isSpawnAll?: boolean;
+    spawnNumber?: number;
+    spawnGroupId?: string;
+    spawnGroupname?: string;
+  };
+
+  timelineShiftCargoGroup?: {
+    groupId: string; // new, unique id for this group
+    range?: string; // e.g. "00:00-01:00"
+    activeInterval: number;
+    isShiftAll?: boolean;
+    shiftNumber?: number;
+    shiftGroupId?: string;
+    shiftGroupname?: string;
+  };
+
   timelineMission?: {
     amrId?: string | null;
     type?: string;
     normalMissionName?: string | null;
     notifyMissionSourcePointName?: string | null;
+    dynamicMissionPeripheralGroup?: {
+      range?: string; // e.g. "00:00-01:00"
+      activeInterval: number; // minutes
+      task: {
+        loadGroupName: string;
+        offloadGroupName: string;
+      }[];
+    } | null;
     dynamicMission?:
       | {
           loadFrom: string;

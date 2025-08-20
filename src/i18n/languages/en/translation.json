@@ -1002,7 +1002,11 @@
       "detail_search": "Search time type details",
       "mission": "🚀 Mission",
       "spawn_cargo": "📦 Generate cargo",
-      "shift_cargo": "🔄 Transfer cargo"
+      "shift_cargo": "🔄 Transfer cargo",
+      "add_range_event": "Add a new range event",
+      "range_time_event": "Range time event",
+
+      "fixed_event": "Fixed event"
     },
 
     "spawn_cargo_modal": {
@@ -1029,6 +1033,32 @@
       "success": "Saved successfully",
       "updated": "Updated successfully",
       "required": "This field is required"
+    },
+
+    "spawn_cargo_group": {
+      "add": "Add Spawn Cargo Random By Group",
+      "insert_random_spawn_cargo_group": "Insert Random Spawn Cargo Group",
+      "peripheral_group": "Peripheral Group",
+      "spawn_all": "Spawn All?",
+      "spawn_number": "Spawn Number",
+      "success_spawn": "Spawn cargo group added successfully!",
+      "failed_spawn": "Failed to add spawn cargo group.",
+      "gap_time": "Interval time (minutes)",
+      "range_end_time": "range end time",
+      "time": "Time"
+    },
+
+    "shift_cargo_group": {
+      "add": "Add Shift Cargo Random By Group",
+      "insert_random_shift_cargo_group": "Insert Random Shift Cargo Group",
+      "shift_all": "Shift All?",
+      "peripheral_group": "Peripheral Group",
+      "shift_number": "Shift Number",
+      "success_shift": "Shift cargo group added successfully!",
+      "failed_shift": "Failed to add shift cargo group.",
+      "gap_time": "Interval time (minutes)",
+      "range_end_time": "range end time",
+      "time": "Time"
     },
 
     "shift_cargo_modal": {
@@ -1082,7 +1112,9 @@
       "select_normal": "Select a normal task",
       "select_notify": "Select a notify location",
       "error_missing_id": "Task ID or time not found",
-      "validation_error": "Form validation failed, please check your inputs"
+      "validation_error": "Form validation failed, please check your inputs",
+      "gap_time": "Interval time (minutes)",
+      "range_end_time": "range end time"
     },
     "sim_result": {
       "title": "Simulation Result",

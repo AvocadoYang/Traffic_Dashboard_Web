@@ -1035,7 +1035,9 @@
       "select_normal": "選擇一般任務",
       "select_notify": "選擇通知地點",
       "error_missing_id": "任務ID或時間未找到",
-      "validation_error": "表單驗證失敗，請檢查輸入"
+      "validation_error": "表單驗證失敗，請檢查輸入",
+      "gap_time": "間隔時間(分鐘)",
+      "range_end_time": "結束時間"
     },
 
     "table_schedule": {
@@ -1044,7 +1046,11 @@
       "detail_search": "搜尋 時間 類型 詳情",
       "mission": "🚀 任務",
       "spawn_cargo": "📦 生成貨物",
-      "shift_cargo": "🔄 轉移貨物"
+      "shift_cargo": "🔄 轉移貨物",
+      "add_range_event": "新增區間事件",
+      "range_time_event": "區間時間事件",
+
+      "fixed_event": "固定事件"
     },
 
     "spawn_cargo_modal": {
@@ -1071,6 +1077,32 @@
       "success": "保存成功",
       "updated": "更新成功",
       "required": "此欄位為必填項"
+    },
+
+    "spawn_cargo_group": {
+      "add": "新增群組隨機生成貨物",
+      "insert_random_spawn_cargo_group": "插入隨機生成貨物群組",
+      "peripheral_group": "設備群組",
+      "spawn_all": "全部生成？",
+      "spawn_number": "生成數量",
+      "success_spawn": "成功新增生成貨物群組！",
+      "failed_spawn": "新增生成貨物群組失敗。",
+      "time": "時間",
+      "gap_time": "間隔時間(分鐘)",
+      "range_end_time": "結束時間"
+    },
+
+    "shift_cargo_group": {
+      "add": "新增群組隨機轉移貨物",
+      "insert_random_shift_cargo_group": "插入隨機搬移貨物群組",
+      "shift_all": "全部搬移？",
+      "peripheral_group": "設備群組",
+      "shift_number": "搬移數量",
+      "success_shift": "成功新增搬移貨物群組！",
+      "failed_shift": "新增搬移貨物群組失敗。",
+      "time": "時間",
+      "gap_time": "間隔時間(分鐘)",
+      "range_end_time": "結束時間"
     },
 
     "shift_cargo_modal": {

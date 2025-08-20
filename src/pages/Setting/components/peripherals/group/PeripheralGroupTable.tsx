@@ -87,8 +87,6 @@ const PeripheralGroupTable: React.FC = () => {
       title: t("peripheral_group_table.name"),
       dataIndex: "name",
       width: "25%",
-
-      render: (n: string) => prefixLevelName(n),
     },
     {
       title: t("peripheral_group_table.description"),

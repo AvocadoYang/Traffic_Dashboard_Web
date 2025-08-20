@@ -709,16 +709,16 @@ const Sider: React.FC<{
   const handleRestart = (keyPath: Array<string>) => {
     const key = keyPath[0];
     switch (key) {
-      case "8-6":
+      case "9-6":
         restartMutate.mutate();
         setTimeout(() => {
           window.location.reload();
         }, 6000);
         return;
-      case "8-5":
+      case "9-5":
         setImportMapConfig(true);
         break;
-      case "8-4":
+      case "9-4":
         setOpenSwitchMap(true);
         console.log("open");
         break;

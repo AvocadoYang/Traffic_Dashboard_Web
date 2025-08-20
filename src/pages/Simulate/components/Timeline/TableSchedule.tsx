@@ -9,6 +9,7 @@ import {
   message,
   Modal,
   Popconfirm,
+  Splitter,
   Switch,
   Table,
   Tag,
@@ -25,6 +26,9 @@ import {
   OpenEditModal,
   OpenEditShiftCargoModal,
   OpenEditSpawnCargoModal,
+  OpenFixedEventMissionEditModal,
+  OpenRangeShiftModal,
+  OpenRangeSpawnModal,
   OpenScheduleTable,
   SelectTime,
 } from "../../utils/mapStatus";
@@ -39,7 +43,7 @@ import { PlusOutlined } from "@ant-design/icons";
 const { RangePicker } = TimePicker;
 const { Text } = Typography;
 
-const StyledCard = styled(Card)`
+const StyledCard = styled.div`
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
@@ -47,24 +51,8 @@ const StyledCard = styled(Card)`
   min-height: 65vh;
   max-height: 65vh;
   overflow-y: scroll;
-
-  .ant-card-head {
-    background: #f0f2f5;
-    border-bottom: 1px solid #e8e8e8;
-    border-radius: 12px 12px 0 0;
-    padding: 12px 24px;
-    font-size: 16px;
-    font-weight: 500;
-    color: #1890ff;
-  }
-
-  .ant-card-body {
-    padding: 16px 24px;
-  }
-
-  &:hover {
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-  }
+  display: flex; /* Make it a flex container */
+  flex-direction: column; /* Stack children vertically */
 `;
 
 const StyledModal = styled(Modal)`
@@ -100,6 +88,7 @@ const StyledModal = styled(Modal)`
 `;
 
 const StyledTable = styled(Table)`
+  height: 100%;
   .ant-table-thead > tr > th {
     background: #f0f2f5;
     font-weight: 500;
@@ -117,6 +106,11 @@ const StyledTable = styled(Table)`
   }
 `;
 
+const CustomSpitter = styled(Splitter)`
+  flex: 1; /* This will now work */
+  min-height: 0; /* Important to prevent overflow */
+`;
+
 type Local_Table_Value = {
   id: string;
   time: string;
@@ -131,6 +125,9 @@ const TableSchedule: FC = () => {
     useAtom(OpenScheduleTable);
   const setSelectTime = useSetAtom(SelectTime);
   const setIsModalOpen = useSetAtom(OpenEditModal);
+  const setIsFixMissionModalOpen = useSetAtom(OpenFixedEventMissionEditModal);
+  const setIsRangeSpawnModalOpen = useSetAtom(OpenRangeSpawnModal);
+  const setIsRangeShiftModalOpen = useSetAtom(OpenRangeShiftModal);
   const setIsShiftCargoModalOpen = useSetAtom(OpenEditShiftCargoModal); // 編輯任務或是新增任務的
   const setIsSpawnCargoModalOpen = useSetAtom(OpenEditSpawnCargoModal); // 編輯任務或是新增任務的
   const setEditTask = useSetAtom(EditTask);
@@ -143,9 +140,28 @@ const TableSchedule: FC = () => {
   const [timeRange, setTimeRange] = useState<
     [Dayjs | null, Dayjs | null] | null
   >(null);
-  const [localTableValue, setLocalTableValue] = useState<Local_Table_Value[]>();
+  const [localFixEvent, setLocalFixEvent] = useState<Local_Table_Value[]>();
+  const [localRangeEvent, setLocalRangeEvent] = useState<Local_Table_Value[]>();
   const handleCancel = () => {
     setIsOpenScheduleTable(false);
+  };
+
+  const directAddFixedSchedule = () => {
+    setIsEdit(false);
+    setIsFixMissionModalOpen(true);
+    setSelectTime("08:00");
+  };
+
+  const directAddRangeGroupSpawnSchedule = () => {
+    setIsEdit(false);
+    setIsRangeSpawnModalOpen(true);
+    setSelectTime("08:00");
+  };
+
+  const directAddRangeGroupShiftSchedule = () => {
+    setIsEdit(false);
+    setIsRangeShiftModalOpen(true);
+    setSelectTime("08:00");
   };
 
   const directAddSchedule = () => {
@@ -241,6 +257,13 @@ const TableSchedule: FC = () => {
           return `${task.timelineMission.amrId} | ${task.timelineMission.notifyMissionSourcePointName || ""}`;
         case "NORMAL":
           return `${task.timelineMission.amrId} | ${task.timelineMission.normalMissionName || ""}`;
+        case "GROUP_TO_GROUP":
+          const group = task.timelineMission.dynamicMissionPeripheralGroup;
+          return `${group?.activeInterval} | ${group?.range} | ${group?.task.map((s) => `${s.loadGroupName} -> ${s.offloadGroupName}`)}`;
+
+        case "SPAWN_CARGO_GROUP":
+          const sg = task.timelineSpawnCargoGroup;
+          return `${sg?.activeInterval} | ${sg?.range} | ${sg?.spawnGroupname})}`;
       }
     }
 
@@ -335,6 +358,72 @@ const TableSchedule: FC = () => {
     },
   ];
 
+  const columnsFixLogic = [
+    {
+      title: t("sim.insert_modal.time"),
+      dataIndex: "time",
+      key: "time",
+      render: (time: string) => (
+        <Text code style={{ color: "#1890ff" }}>
+          {time}
+        </Text>
+      ),
+      sorter: (a: Mission_Schedule, b: Mission_Schedule) =>
+        dayjs(a.time, "HH:mm").unix() - dayjs(b.time, "HH:mm").unix(),
+      defaultSortOrder: "ascend", // ✅ set default ascending order
+    },
+    {
+      title: t("sim.insert_modal.type"),
+      dataIndex: "type",
+      sorter: (a: Mission_Schedule, b: Mission_Schedule) =>
+        a.type.localeCompare(b.type),
+      key: "type",
+      render: (type: string) => {
+        let label = type;
+        let tagColor = "default";
+        switch (type) {
+          case "MISSION":
+            label = t("sim.insert_modal.mission");
+            tagColor = "blue";
+            break;
+          case "SPAWN_CARGO":
+            label = t("sim.insert_modal.spawn_cargo");
+            tagColor = "green";
+            break;
+          case "SHIFT_CARGO":
+            label = t("sim.insert_modal.shift_cargo");
+            break;
+        }
+        return (
+          <Tag color={tagColor} style={{ borderRadius: "12px" }}>
+            {label}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: t("sim.table_schedule.detail"),
+      dataIndex: "detail",
+      key: "detail",
+    },
+    {
+      title: t("utils.action"),
+      key: "actions",
+      render: (_: any, record: Mission_Schedule) => (
+        <Flex gap="middle">
+          <Popconfirm
+            title="are you sure?"
+            onConfirm={() => removeSchedule(record.id, record.time)}
+          >
+            <Button size="small" danger>
+              {t("utils.delete")}
+            </Button>
+          </Popconfirm>
+        </Flex>
+      ),
+    },
+  ];
+
   const deleteMulti = () => {
     removeMultiMutation.mutate({ id: selectedRowKeys as string[] });
   };
@@ -349,11 +438,43 @@ const TableSchedule: FC = () => {
     onChange: onSelectChange,
   };
 
+  const defaultRangeEventLocalValue = () => {
+    let filteredFixLogic: Local_Table_Value[] = [];
+    const seenIds = new Set();
+
+    scheduleData
+      .filter((v) => {
+        if (
+          (v.type === "MISSION" &&
+            v.timelineMission?.type === "GROUP_TO_GROUP") ||
+          v.type === "SPAWN_CARGO_GROUP" ||
+          v.type === "SHIFT_CARGO_GROUP"
+        )
+          return true;
+        return false;
+      })
+      .forEach((v) => {
+        const newObject = {
+          id: v.id,
+          time: v.time,
+          type: v.type,
+          detail: detail(v),
+        };
+
+        if (!seenIds.has(v.id)) {
+          seenIds.add(v.id);
+          filteredFixLogic.push(newObject);
+        }
+      });
+
+    setLocalRangeEvent(filteredFixLogic);
+  };
+
   const handleSearch = (searchText: string) => {
     if (!scheduleData) return;
 
     if (searchText.trim() === "") {
-      setLocalTableValue(
+      setLocalFixEvent(
         scheduleData.map((v) => ({
           id: v.id,
           time: v.time,
@@ -361,6 +482,7 @@ const TableSchedule: FC = () => {
           detail: detail(v),
         })),
       );
+      defaultRangeEventLocalValue();
       return;
     }
 
@@ -378,18 +500,39 @@ const TableSchedule: FC = () => {
           v.detail.includes(searchText),
       );
 
-    setLocalTableValue(filtered);
+    setLocalFixEvent(filtered);
+
+    const filterRange = localRangeEvent?.filter(
+      (v) =>
+        v.time.includes(searchText) ||
+        v.type.includes(searchText) ||
+        v.detail.includes(searchText),
+    );
+    setLocalRangeEvent(filterRange);
   };
 
   useEffect(() => {
     if (!scheduleData) return;
 
-    let filtered = scheduleData.map((v) => ({
-      id: v.id,
-      time: v.time, // e.g. "14:35"
-      type: v.type,
-      detail: detail(v),
-    }));
+    defaultRangeEventLocalValue();
+
+    let filtered = scheduleData
+      .filter((v) => {
+        if (
+          (v.type === "MISSION" &&
+            v.timelineMission?.type === "GROUP_TO_GROUP") ||
+          v.type === "SPAWN_CARGO_GROUP" ||
+          v.type === "SHIFT_CARGO_GROUP"
+        )
+          return false;
+        return true;
+      })
+      .map((v) => ({
+        id: v.id,
+        time: v.time, // e.g. "14:35"
+        type: v.type,
+        detail: detail(v),
+      }));
 
     filtered = filtered.filter((v) => {
       if (v.type === "MISSION" && !isFilterMission) return false;
@@ -405,7 +548,7 @@ const TableSchedule: FC = () => {
       });
     }
 
-    setLocalTableValue(filtered);
+    setLocalFixEvent(filtered);
   }, [
     scheduleData,
     isFilterMission,
@@ -436,6 +579,27 @@ const TableSchedule: FC = () => {
             >
               {t("utils.delete")}
             </Button>
+
+            <Tooltip title="add mission fix event">
+              <Button onClick={directAddFixedSchedule}>
+                <PlusOutlined />
+                {t("sim.table_schedule.add_range_event")}
+              </Button>
+            </Tooltip>
+
+            <Tooltip title="add spawn event">
+              <Button onClick={directAddRangeGroupSpawnSchedule}>
+                <PlusOutlined />
+                {t("sim.spawn_cargo_group.add")}
+              </Button>
+            </Tooltip>
+
+            <Tooltip title="add shift cargo event">
+              <Button onClick={directAddRangeGroupShiftSchedule}>
+                <PlusOutlined />
+                {t("sim.shift_cargo_group.add")}
+              </Button>
+            </Tooltip>
 
             <Tooltip title="add mission event">
               <Button onClick={directAddSchedule}>
@@ -500,16 +664,35 @@ const TableSchedule: FC = () => {
         <Divider />
 
         <StyledCard>
-          <StyledTable
-            rowSelection={{ type: "checkbox", ...rowSelection }}
-            columns={columns as []}
-            dataSource={localTableValue}
-            rowKey={(record: any) =>
-              record.id ?? `${record.time}-${record.detail}`
-            }
-            scroll={{ x: 1000 }}
-            pagination={false}
-          />
+          <CustomSpitter layout="vertical">
+            <Splitter.Panel>
+              <Card title={t("sim.table_schedule.range_time_event")}>
+                <Table
+                  dataSource={localRangeEvent}
+                  columns={columnsFixLogic as []}
+                  scroll={{ x: 1000 }}
+                  rowKey={(record: any) =>
+                    record.id ?? `${record.time}-${record.detail}`
+                  }
+                  pagination={false}
+                />
+              </Card>
+            </Splitter.Panel>
+            <Splitter.Panel>
+              <Card title={t("sim.table_schedule.fixed_event")}>
+                <StyledTable
+                  rowSelection={{ type: "checkbox", ...rowSelection } as {}}
+                  columns={columns as []}
+                  dataSource={localFixEvent}
+                  rowKey={(record: any) =>
+                    record.id ?? `${record.time}-${record.detail}`
+                  }
+                  scroll={{ x: 1000 }}
+                  pagination={false}
+                />
+              </Card>
+            </Splitter.Panel>
+          </CustomSpitter>
         </StyledCard>
       </StyledModal>
     </>

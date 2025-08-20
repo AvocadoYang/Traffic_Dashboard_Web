@@ -125,6 +125,7 @@ const AmrIcon: FC<{
       script_placement_location: locationId === null ? "unset" : locationId,
       loadSpeed: info?.load_speed || 30,
       offloadSpeed: info?.offload_speed || 30,
+      move_speed: info?.move_speed || 1.5,
     });
   };
 

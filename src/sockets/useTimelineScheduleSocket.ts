@@ -25,7 +25,15 @@ export const schema = array(
   object({
     id: string().required(),
     time: string().required(),
-    type: string().oneOf(["MISSION", "SPAWN_CARGO", "SHIFT_CARGO"]).required(),
+    type: string()
+      .oneOf([
+        "MISSION",
+        "SPAWN_CARGO",
+        "SHIFT_CARGO",
+        "SPAWN_CARGO_GROUP",
+        "SHIFT_CARGO_GROUP",
+      ])
+      .required(),
     isEnable: boolean().required(),
     styleRow: number().required(),
 
@@ -52,6 +60,32 @@ export const schema = array(
       .nullable()
       .optional(),
 
+    // ✅ NEW: timelineSpawnCargoGroup
+    timelineSpawnCargoGroup: object({
+      groupId: string().nullable().optional(),
+      range: string().nullable().optional(),
+      activeInterval: number().nullable().optional(),
+      isSpawnAll: boolean().nullable().optional(),
+      spawnNumber: number().nullable().optional(),
+      spawnGroupId: string().nullable().optional(),
+      spawnGroupname: string().nullable().optional(),
+    })
+      .nullable()
+      .optional(),
+
+    // ✅ NEW: timelineShiftCargoGroup
+    timelineShiftCargoGroup: object({
+      groupId: string().nullable().optional(),
+      range: string().nullable().optional(),
+      activeInterval: number().nullable().optional(),
+      isShiftAll: boolean().nullable().optional(),
+      shiftNumber: number().nullable().optional(),
+      shiftGroupId: string().nullable().optional(),
+      shiftGroupname: string().nullable().optional(),
+    })
+      .nullable()
+      .optional(),
+
     timelineMission: object({
       type: string().optional().nullable(),
       priority: number().optional().nullable(),
@@ -61,13 +95,29 @@ export const schema = array(
       normalMissionId: string().nullable().optional(),
       notifyMissionSourcePointNameId: string().nullable().optional(),
       notifyMissionSourcePointName: string().nullable().optional(),
-
+      dynamicMissionPeripheralGroup: object({
+        groupId: string().nullable().optional(),
+        range: string().nullable().optional(),
+        activeInterval: number().nullable().optional(),
+        task: array(
+          object({
+            loadGroupName: string().nullable().optional(),
+            loadGroupId: string().nullable().optional(),
+            offloadGroupName: string().nullable().optional(),
+            offloadGroupId: string().nullable().optional(),
+          }),
+        )
+          .nullable()
+          .optional(),
+      })
+        .nullable()
+        .optional(),
       dynamicMission: array(
         object({
-          loadFromId: string().required(),
-          loadFrom: string().required(),
-          offloadToId: string().required(),
-          offloadTo: string().required(),
+          loadFromId: string().nullable().optional(),
+          loadFrom: string().nullable().optional(),
+          offloadToId: string().nullable().optional(),
+          offloadTo: string().nullable().optional(),
         }),
       )
         .nullable()
@@ -126,6 +176,25 @@ export type Mission_Schedule = {
     peripheralNameId?: string;
     peripheralName?: string;
   };
+  timelineSpawnCargoGroup?: {
+    groupId: string; // new, unique id for this group
+    range?: string; // e.g. "00:00-01:00"
+    activeInterval: number;
+    isSpawnAll?: boolean;
+    spawnNumber?: number;
+    spawnGroupId?: string;
+    spawnGroupname?: string;
+  };
+
+  timelineShiftCargoGroup?: {
+    groupId: string; // new, unique id for this group
+    range?: string; // e.g. "00:00-01:00"
+    activeInterval: number;
+    isShiftAll?: boolean;
+    shiftNumber?: number;
+    shiftGroupId?: string;
+    shiftGroupname?: string;
+  };
 
   timelineMission?: {
     type: string;
@@ -135,6 +204,17 @@ export type Mission_Schedule = {
     normalMissionName?: string | null;
     notifyMissionSourcePointNameId?: string | null;
     notifyMissionSourcePointName?: string | null;
+    dynamicMissionPeripheralGroup?: {
+      groupId: string; // new, unique id for this group
+      range?: string; // e.g. "00:00-01:00"
+      activeInterval: number; // minutes
+      task: {
+        loadGroupName: string;
+        loadGroupId: string;
+        offloadGroupName: string;
+        offloadGroupId: string;
+      }[];
+    } | null;
     dynamicMission?:
       | {
           loadFromId: string;

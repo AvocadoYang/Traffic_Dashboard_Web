@@ -16,6 +16,9 @@ import OpenScheduleTableBtn from "./components/Timeline/OpenScheduleTableBtn";
 import InsertModal from "./components/Timeline/InsertModal";
 import { ShiftCargoModal } from "./components/Timeline/ShiftCargoModal";
 import { SpawnCargoModal } from "./components/Timeline/SpawnCargoModal";
+import InsertFixMissionModal from "./components/Timeline/InsertFixMissionModal";
+import InsertRangeGroupSpawnCargoModal from "./components/Timeline/InsertRangeGroupSpawnCargoModal";
+import InsertRangeGroupShiftCargoModal from "./components/Timeline/InsertRangeGroupShiftCargoModal";
 
 const Simulate: FC = () => {
   const { isMobile } = useIsMobile();
@@ -45,6 +48,15 @@ const Simulate: FC = () => {
           {/* 左上圓形 切換腳本  */}
           <SelectScript />
           <WcsPad />
+
+          {/**試定區域生成貨物 */}
+          <InsertRangeGroupSpawnCargoModal />
+
+          {/**試定區域轉移貨物 */}
+          <InsertRangeGroupShiftCargoModal />
+
+          {/**設並固定range的區域隨機任務 */}
+          <InsertFixMissionModal />
 
           {/**編輯或是新增任務的modal */}
           <InsertModal />
