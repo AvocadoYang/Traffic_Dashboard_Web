@@ -1,4 +1,4 @@
-import { Mission_Schedule } from "@/sockets/useTimelineScheduleSocket";
+import { Mission_Schedule } from "@/types/timeline";
 import { atom } from "jotai";
 
 export const globalScale = atom<number>(1);

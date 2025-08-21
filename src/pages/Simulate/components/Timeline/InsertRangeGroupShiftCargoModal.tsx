@@ -74,8 +74,10 @@ const InsertRangeGroupShiftCargoModal: FC = () => {
           messageApi.warning("End time must be after start time.");
           return;
         }
+        const { isShiftAll, ...otherValues } = values;
         saveMutation.mutate({
-          ...values,
+          ...otherValues,
+          isShiftAll: isShiftAll === undefined ? false : true,
           timestamp: values.timestamp.format("HH:mm") as string,
           end_timestamp: values.end_timestamp.format("HH:mm"),
         });

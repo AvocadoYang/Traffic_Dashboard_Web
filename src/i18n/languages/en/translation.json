@@ -1045,7 +1045,9 @@
       "failed_spawn": "Failed to add spawn cargo group.",
       "gap_time": "Interval time (minutes)",
       "range_end_time": "range end time",
-      "time": "Time"
+      "time": "Time",
+      "range": "range",
+      "spawn_group": "Spawn cargo at group"
     },
 
     "shift_cargo_group": {
@@ -1058,7 +1060,14 @@
       "failed_shift": "Failed to add shift cargo group.",
       "gap_time": "Interval time (minutes)",
       "range_end_time": "range end time",
-      "time": "Time"
+      "time": "Time",
+      "range": "range",
+      "shift_group": "Shift cargo at group"
+    },
+
+    "dynamic_mission_group": {
+      "mission_group": "Mission group",
+      "range": "range"
     },
 
     "shift_cargo_modal": {

@@ -18,13 +18,13 @@ import {
   object,
   string,
 } from "yup";
-import { MissionPriority } from "@/types/mission";
-import { Cargo } from "@/types/peripheral";
+import { Mission_Schedule } from "@/types/timeline";
 
 export const schema = array(
   object({
     id: string().required(),
     time: string().required(),
+    eventType: string().oneOf(["GROUP", "FIXED"]),
     type: string()
       .oneOf([
         "MISSION",
@@ -151,80 +151,6 @@ const getC$ = fromEventPattern(
   filter(isDefined),
   share(),
 );
-
-export type Mission_Schedule = {
-  id: string;
-  time: string; // e.g 15:10
-  type: string;
-  isEnable: boolean;
-  styleRow: number;
-
-  timelineShiftCargo?: {
-    shiftPeripheralId?: string;
-    shiftPeripheralName?: string; // 這邊有關peripheral 的name都應該先預先處理好 把字尾的script name刪掉
-    peripheralType?: string;
-  } | null;
-
-  timelineSpawnCargo?: {
-    spawnCargoInfo?: {
-      cargoInfoId: string | null;
-      customCargoMetadataId: string | null;
-      metadata: Record<string, unknown>;
-    } | null;
-
-    peripheralType?: string;
-    peripheralNameId?: string;
-    peripheralName?: string;
-  };
-  timelineSpawnCargoGroup?: {
-    groupId: string; // new, unique id for this group
-    range?: string; // e.g. "00:00-01:00"
-    activeInterval: number;
-    isSpawnAll?: boolean;
-    spawnNumber?: number;
-    spawnGroupId?: string;
-    spawnGroupname?: string;
-  };
-
-  timelineShiftCargoGroup?: {
-    groupId: string; // new, unique id for this group
-    range?: string; // e.g. "00:00-01:00"
-    activeInterval: number;
-    isShiftAll?: boolean;
-    shiftNumber?: number;
-    shiftGroupId?: string;
-    shiftGroupname?: string;
-  };
-
-  timelineMission?: {
-    type: string;
-    priority: MissionPriority;
-    amrId: string;
-    normalMissionId?: string | null;
-    normalMissionName?: string | null;
-    notifyMissionSourcePointNameId?: string | null;
-    notifyMissionSourcePointName?: string | null;
-    dynamicMissionPeripheralGroup?: {
-      groupId: string; // new, unique id for this group
-      range?: string; // e.g. "00:00-01:00"
-      activeInterval: number; // minutes
-      task: {
-        loadGroupName: string;
-        loadGroupId: string;
-        offloadGroupName: string;
-        offloadGroupId: string;
-      }[];
-    } | null;
-    dynamicMission?:
-      | {
-          loadFromId: string;
-          loadFrom: string;
-          offloadToId: string;
-          offloadTo: string;
-        }[]
-      | null;
-  } | null;
-};
 
 export const useTimelineScheduleSocket = () => {
   const [data, setData] = useState<Mission_Schedule[]>([]);

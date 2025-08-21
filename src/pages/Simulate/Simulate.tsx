@@ -11,7 +11,7 @@ import Header from "../../components/Header";
 import { useIsMobile } from "../../hooks/useIsMoblie";
 import Timeline from "./components/Timeline/Timeline";
 import SwitchPanelHeightBtn from "./components/Timeline/SwitchPanelHeightBtn";
-import TableSchedule from "./components/Timeline/TableSchedule";
+import TableSchedule from "./components/Timeline/TableView/TableSchedule";
 import OpenScheduleTableBtn from "./components/Timeline/OpenScheduleTableBtn";
 import InsertModal from "./components/Timeline/InsertModal";
 import { ShiftCargoModal } from "./components/Timeline/ShiftCargoModal";

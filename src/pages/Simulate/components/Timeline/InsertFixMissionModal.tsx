@@ -33,8 +33,8 @@ import {
   OpenFixedEventMissionEditModal,
   SelectTime,
 } from "../../utils/mapStatus";
-import { Mission_Schedule } from "@/sockets/useTimelineScheduleSocket";
 import usePeripheralGroup from "@/api/usePeripheralGroup";
+import { Mission_Schedule } from "@/types/timeline";
 
 dayjs.extend(customParseFormat);
 
@@ -172,7 +172,7 @@ const InsertFixMissionModal: FC = () => {
           activeInterval: data.activeInterval,
           task: data.task,
         };
-        console.log(base);
+        // console.log(base);
 
         saveMutation.mutate(base as any);
       })

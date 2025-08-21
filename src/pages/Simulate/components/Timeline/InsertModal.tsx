@@ -32,7 +32,7 @@ import {
   OpenEditModal,
   SelectTime,
 } from "../../utils/mapStatus";
-import { Mission_Schedule } from "@/sockets/useTimelineScheduleSocket";
+import { Mission_Schedule } from "@/types/timeline";
 
 dayjs.extend(customParseFormat);
 
