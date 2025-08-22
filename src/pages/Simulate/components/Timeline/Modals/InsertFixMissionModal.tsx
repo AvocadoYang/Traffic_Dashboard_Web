@@ -32,7 +32,7 @@ import {
   OpenEditModal,
   OpenFixedEventMissionEditModal,
   SelectTime,
-} from "../../utils/mapStatus";
+} from "../../../utils/mapStatus";
 import usePeripheralGroup from "@/api/usePeripheralGroup";
 import { Mission_Schedule } from "@/types/timeline";
 

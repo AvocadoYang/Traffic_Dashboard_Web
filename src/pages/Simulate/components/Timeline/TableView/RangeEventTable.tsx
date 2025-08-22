@@ -1,16 +1,17 @@
 import { Typography, Tag, Flex, Popconfirm, Button, Table, Switch } from "antd";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
-import { Local_Table_Value } from "./type";
-import { Mission_Schedule } from "@/sockets/useTimelineScheduleSocket";
+import { Local_Range_Table_Value } from "./type";
+import { Mission_Schedule } from "@/types/timeline";
 
 const { Text } = Typography;
 
 interface RangeEventTableProps {
-  dataSource: Local_Table_Value[] | undefined;
+  dataSource: Local_Range_Table_Value[] | undefined;
   onEnable: (id: string, isEnable: boolean) => void;
   onRemove: (id: string, time: string) => void;
   scheduleData: Mission_Schedule[];
+  rowSelection: any;
 }
 
 const RangeEventTable: React.FC<RangeEventTableProps> = ({
@@ -18,6 +19,7 @@ const RangeEventTable: React.FC<RangeEventTableProps> = ({
   onRemove,
   onEnable,
   scheduleData,
+  rowSelection,
 }) => {
   const { t } = useTranslation();
 
@@ -35,14 +37,14 @@ const RangeEventTable: React.FC<RangeEventTableProps> = ({
           {time}
         </Text>
       ),
-      sorter: (a: Local_Table_Value, b: Local_Table_Value) =>
+      sorter: (a: Local_Range_Table_Value, b: Local_Range_Table_Value) =>
         dayjs(a.time, "HH:mm").unix() - dayjs(b.time, "HH:mm").unix(),
       defaultSortOrder: "ascend" as const,
     },
     {
       title: t("sim.insert_modal.type"),
       dataIndex: "type",
-      sorter: (a: Local_Table_Value, b: Local_Table_Value) =>
+      sorter: (a: Local_Range_Table_Value, b: Local_Range_Table_Value) =>
         a.type.localeCompare(b.type),
       key: "type",
       render: (type: string) => {
@@ -70,6 +72,21 @@ const RangeEventTable: React.FC<RangeEventTableProps> = ({
       },
     },
     {
+      title: t("sim.range_table.range"),
+      dataIndex: "range",
+      key: "range",
+    },
+    {
+      title: t("sim.range_table.gap_time"),
+      dataIndex: "intervalTime",
+      key: "intervalTime",
+    },
+    {
+      title: t("sim.range_table.activeTimes"),
+      dataIndex: "activeTimes",
+      key: "activeTimes",
+    },
+    {
       title: t("sim.table_schedule.detail"),
       dataIndex: "detail",
       key: "detail",
@@ -77,7 +94,7 @@ const RangeEventTable: React.FC<RangeEventTableProps> = ({
     {
       title: t("utils.action"),
       key: "actions",
-      render: (_: any, record: Local_Table_Value) => {
+      render: (_: any, record: Local_Range_Table_Value) => {
         const scheduleRecord = getScheduleRecord(record.id);
 
         return (
@@ -107,11 +124,14 @@ const RangeEventTable: React.FC<RangeEventTableProps> = ({
     },
   ];
 
+  console.log(dataSource, "asd");
+
   return (
     <Table
+      rowSelection={{ type: "checkbox", ...rowSelection }}
       columns={columns}
       dataSource={dataSource}
-      rowKey={(record: Local_Table_Value) =>
+      rowKey={(record: Local_Range_Table_Value) =>
         record.id ?? `${record.time}-${record.detail}`
       }
       scroll={{ x: 1000 }}

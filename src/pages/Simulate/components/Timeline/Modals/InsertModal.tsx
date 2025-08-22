@@ -31,7 +31,7 @@ import {
   IsEditSchedule,
   OpenEditModal,
   SelectTime,
-} from "../../utils/mapStatus";
+} from "../../../utils/mapStatus";
 import { Mission_Schedule } from "@/types/timeline";
 
 dayjs.extend(customParseFormat);

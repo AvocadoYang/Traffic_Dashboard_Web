@@ -7,6 +7,15 @@ export type Local_Table_Value = {
   type: string;
   detail: string;
 };
+export type Local_Range_Table_Value = {
+  id: string;
+  time: string;
+  type: string;
+  intervalTime: string;
+  range: string;
+  activeTimes: number;
+  detail: string;
+};
 export const StyledCard = styled.div`
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -20,6 +29,10 @@ export const StyledCard = styled.div`
 `;
 
 export const StyledModal = styled(Modal)`
+  .ant-modal {
+    top: 15px;
+  }
+
   .ant-modal-content {
     border-radius: 12px;
     overflow: hidden;

@@ -1,6 +1,6 @@
 // components/TableSchedule/index.tsx
 import React, { useState } from "react";
-import { Card, Divider, Flex, message, Splitter } from "antd";
+import { Card, Divider, Flex, message, Splitter, Tabs, TabsProps } from "antd";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@tanstack/react-query";
 import { useAtom, useSetAtom } from "jotai";
@@ -174,6 +174,40 @@ const TableSchedule: React.FC = () => {
     setSelectTime("08:00");
   };
 
+  const items: TabsProps["items"] = [
+    {
+      key: "1",
+      label: t("sim.table_schedule.range_time_event"),
+      children: (
+        <Card title={t("sim.table_schedule.range_time_event")}>
+          <RangeEventTable
+            rowSelection={rowSelection}
+            dataSource={localRangeEvent}
+            onRemove={removeSchedule}
+            scheduleData={scheduleData || []}
+            onEnable={handleEnable}
+          />
+        </Card>
+      ),
+    },
+    {
+      key: "2",
+      label: t("sim.table_schedule.fixed_event"),
+      children: (
+        <Card title={t("sim.table_schedule.fixed_event")}>
+          <FixedEventTable
+            dataSource={localFixEvent}
+            onEdit={handleEdit}
+            onEnable={handleEnable}
+            onRemove={removeSchedule}
+            rowSelection={rowSelection}
+            scheduleData={scheduleData || []}
+          />
+        </Card>
+      ),
+    },
+  ];
+
   if (!isOpenScheduleTable) return null;
 
   return (
@@ -214,30 +248,7 @@ const TableSchedule: React.FC = () => {
         <Divider />
 
         <StyledCard>
-          <Splitter layout="vertical">
-            <Splitter.Panel>
-              <Card title={t("sim.table_schedule.range_time_event")}>
-                <RangeEventTable
-                  dataSource={localRangeEvent}
-                  onRemove={removeSchedule}
-                  scheduleData={scheduleData || []}
-                  onEnable={handleEnable}
-                />
-              </Card>
-            </Splitter.Panel>
-            <Splitter.Panel>
-              <Card title={t("sim.table_schedule.fixed_event")}>
-                <FixedEventTable
-                  dataSource={localFixEvent}
-                  onEdit={handleEdit}
-                  onEnable={handleEnable}
-                  onRemove={removeSchedule}
-                  rowSelection={rowSelection}
-                  scheduleData={scheduleData || []}
-                />
-              </Card>
-            </Splitter.Panel>
-          </Splitter>
+          <Tabs defaultActiveKey="1" type="card" items={items} />
         </StyledCard>
       </StyledModal>
     </>

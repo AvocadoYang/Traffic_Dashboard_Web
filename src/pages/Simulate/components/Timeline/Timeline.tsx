@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { FormInstance, message, Tooltip } from "antd";
 import { FC, useState, useRef, useEffect, MouseEvent } from "react";
-import InsertModal from "./InsertModal";
+import InsertModal from "./Modals/InsertModal";
 import { useTimelineScheduleSocket } from "@/sockets/useTimelineScheduleSocket";
 import { useTranslation } from "react-i18next";
 import TaskBar from "./TaskBar";

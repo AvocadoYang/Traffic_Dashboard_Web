@@ -1,4 +1,4 @@
-import { FC, useMemo } from "react";
+import { FC, useMemo, useState } from "react";
 import { useAtom } from "jotai";
 import {
   Modal,
@@ -16,7 +16,7 @@ import { useMutation } from "@tanstack/react-query";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import client from "@/api/axiosClient";
 import usePeripheralGroup from "@/api/usePeripheralGroup";
-import { OpenRangeSpawnModal } from "../../utils/mapStatus";
+import { OpenRangeSpawnModal } from "../../../utils/mapStatus";
 import { useTranslation } from "react-i18next";
 
 interface FormValues {
@@ -34,10 +34,17 @@ const InsertRangeGroupSpawnCargoModal: FC = () => {
   const [isOpen, setIsOpen] = useAtom(OpenRangeSpawnModal);
   const { data: peripheralGroups } = usePeripheralGroup();
   const [messageApi, contextHolder] = message.useMessage();
+  const [isSpawnAll, setIsSpawnAll] = useState(false);
   const { t } = useTranslation();
   const handleClose = () => {
     setIsOpen(false);
     form.resetFields();
+  };
+  const handleSpawnAll = (isShifted: boolean) => {
+    setIsSpawnAll(isShifted);
+    if (isShifted) {
+      form.setFieldValue("spawnNumber", 1);
+    }
   };
 
   const peripheralOptions = useMemo(
@@ -94,7 +101,7 @@ const InsertRangeGroupSpawnCargoModal: FC = () => {
         <Form
           form={form}
           layout="vertical"
-          initialValues={{ styleRow: 0, activeInterval: 5, isSpawnAll: true }}
+          initialValues={{ styleRow: 0, activeInterval: 5 }}
         >
           <Flex justify="space-between">
             <Form.Item
@@ -137,16 +144,19 @@ const InsertRangeGroupSpawnCargoModal: FC = () => {
           <Form.Item
             label={t("sim.spawn_cargo_group.spawn_all")}
             name="isSpawnAll"
-            valuePropName="checked"
           >
-            <Switch />
+            <Switch
+              value={isSpawnAll}
+              onClick={() => setIsSpawnAll(!isSpawnAll)}
+              onChange={(v) => handleSpawnAll(v)}
+            />
           </Form.Item>
           <Form.Item
             label={t("sim.spawn_cargo_group.spawn_number")}
             name="spawnNumber"
             rules={[{ required: true }]}
           >
-            <InputNumber min={1} />
+            <InputNumber min={1} disabled={isSpawnAll} />
           </Form.Item>
 
           <Form.Item>

@@ -22,7 +22,7 @@ import {
   SelectTime,
   EditTask,
   OpenEditShiftCargoModal,
-} from "../../utils/mapStatus";
+} from "../../../utils/mapStatus";
 import { ErrorResponse } from "@/utils/globalType";
 import { useTranslation } from "react-i18next";
 import usePeripheralName from "@/api/usePeripheralName";

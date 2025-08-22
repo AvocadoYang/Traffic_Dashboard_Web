@@ -1,4 +1,4 @@
-import { FC, useMemo } from "react";
+import { FC, useMemo, useState } from "react";
 import { useAtom } from "jotai";
 import {
   Modal,
@@ -16,7 +16,7 @@ import { useMutation } from "@tanstack/react-query";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import client from "@/api/axiosClient";
 import usePeripheralGroup from "@/api/usePeripheralGroup";
-import { OpenRangeShiftModal } from "../../utils/mapStatus";
+import { OpenRangeShiftModal } from "../../../utils/mapStatus";
 import { useTranslation } from "react-i18next";
 
 interface FormValues {
@@ -34,11 +34,13 @@ const InsertRangeGroupShiftCargoModal: FC = () => {
   const [isOpen, setIsOpen] = useAtom(OpenRangeShiftModal);
   const { data: peripheralGroups } = usePeripheralGroup();
   const [messageApi, contextHolder] = message.useMessage();
+  const [isShiftAll, setIsShiftAll] = useState(false);
   const { t } = useTranslation();
 
   const handleClose = () => {
     setIsOpen(false);
     form.resetFields();
+    setIsShiftAll(false);
   };
 
   const peripheralOptions = useMemo(
@@ -49,6 +51,13 @@ const InsertRangeGroupShiftCargoModal: FC = () => {
       })) || [],
     [peripheralGroups],
   );
+
+  const handleShiftAll = (isShifted: boolean) => {
+    setIsShiftAll(isShifted);
+    if (isShifted) {
+      form.setFieldValue("shiftNumber", 1);
+    }
+  };
 
   const saveMutation = useMutation({
     mutationFn: (payload: any) =>
@@ -75,6 +84,7 @@ const InsertRangeGroupShiftCargoModal: FC = () => {
           return;
         }
         const { isShiftAll, ...otherValues } = values;
+        console.log(otherValues);
         saveMutation.mutate({
           ...otherValues,
           isShiftAll: isShiftAll === undefined ? false : true,
@@ -142,14 +152,18 @@ const InsertRangeGroupShiftCargoModal: FC = () => {
             name="isShiftAll"
             valuePropName="checked"
           >
-            <Switch />
+            <Switch
+              value={isShiftAll}
+              onClick={() => setIsShiftAll(!isShiftAll)}
+              onChange={(v) => handleShiftAll(v)}
+            />
           </Form.Item>
           <Form.Item
             label={t("sim.shift_cargo_group.shift_number")}
             name="shiftNumber"
             rules={[{ required: true }]}
           >
-            <InputNumber min={1} />
+            <InputNumber min={1} disabled={isShiftAll} />
           </Form.Item>
 
           <Form.Item>

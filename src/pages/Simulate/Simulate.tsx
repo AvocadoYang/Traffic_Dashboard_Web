@@ -13,12 +13,12 @@ import Timeline from "./components/Timeline/Timeline";
 import SwitchPanelHeightBtn from "./components/Timeline/SwitchPanelHeightBtn";
 import TableSchedule from "./components/Timeline/TableView/TableSchedule";
 import OpenScheduleTableBtn from "./components/Timeline/OpenScheduleTableBtn";
-import InsertModal from "./components/Timeline/InsertModal";
-import { ShiftCargoModal } from "./components/Timeline/ShiftCargoModal";
-import { SpawnCargoModal } from "./components/Timeline/SpawnCargoModal";
-import InsertFixMissionModal from "./components/Timeline/InsertFixMissionModal";
-import InsertRangeGroupSpawnCargoModal from "./components/Timeline/InsertRangeGroupSpawnCargoModal";
-import InsertRangeGroupShiftCargoModal from "./components/Timeline/InsertRangeGroupShiftCargoModal";
+import InsertModal from "./components/Timeline/Modals/InsertModal";
+import { ShiftCargoModal } from "./components/Timeline/Modals/ShiftCargoModal";
+import { SpawnCargoModal } from "./components/Timeline/Modals/SpawnCargoModal";
+import InsertFixMissionModal from "./components/Timeline/Modals/InsertFixMissionModal";
+import InsertRangeGroupSpawnCargoModal from "./components/Timeline/Modals/InsertRangeGroupSpawnCargoModal";
+import InsertRangeGroupShiftCargoModal from "./components/Timeline/Modals/InsertRangeGroupShiftCargoModal";
 
 const Simulate: FC = () => {
   const { isMobile } = useIsMobile();

@@ -1009,6 +1009,12 @@
       "fixed_event": "Fixed event"
     },
 
+    "range_table": {
+      "range": "range",
+      "gap_time": "Interval time (minutes)",
+      "activeTimes": "event active times"
+    },
+
     "spawn_cargo_modal": {
       "title": "Spawn Cargo",
       "time": "Time",

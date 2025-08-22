@@ -1,8 +1,8 @@
-import { Mission_Schedule } from "@/sockets/useTimelineScheduleSocket";
 import { Typography, Tag, Flex, Button, Switch, Popconfirm, Table } from "antd";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import { Local_Table_Value } from "./type";
+import { Mission_Schedule } from "@/types/timeline";
 
 const { Text } = Typography;
 

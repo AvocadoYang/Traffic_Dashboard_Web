@@ -1053,6 +1053,12 @@
       "fixed_event": "固定事件"
     },
 
+    "range_table": {
+      "range": "區間",
+      "gap_time": "間隔時間(分鐘)",
+      "activeTimes": "事件次數"
+    },
+
     "spawn_cargo_modal": {
       "title": "生成貨物",
       "time": "時間",

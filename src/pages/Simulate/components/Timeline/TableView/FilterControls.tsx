@@ -29,10 +29,10 @@ const FilterControls: React.FC<FilterControlsProps> = ({
   const { t } = useTranslation();
 
   return (
-    <Flex gap="middle">
-      <RangePicker format="HH:mm" onChange={onTimeRangeChange} />
+    <Flex gap="middle" justify="flex-start" align="center">
+      <RangePicker needConfirm={false} format="HH:mm" onChange={onTimeRangeChange} />
 
-      <Flex gap="middle" align="center">
+      <Flex gap="middle" align="flex-start" justify="start">
         <Checkbox
           checked={isFilterMission}
           onChange={(e) => onFilterMissionChange(e.target.checked)}

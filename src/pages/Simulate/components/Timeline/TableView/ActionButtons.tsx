@@ -35,48 +35,53 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
       >
         {t("utils.delete")}
       </Button>
+      <Flex vertical gap="middle">
+        <Flex gap="middle">
+          <Tooltip title="add mission fix event">
+            <Button onClick={onAddFixedSchedule}>
+              <PlusOutlined />
+              {t("sim.table_schedule.add_range_event")}
+            </Button>
+          </Tooltip>
 
-      <Tooltip title="add mission fix event">
-        <Button onClick={onAddFixedSchedule}>
-          <PlusOutlined />
-          {t("sim.table_schedule.add_range_event")}
-        </Button>
-      </Tooltip>
+          <Tooltip title="add spawn event">
+            <Button onClick={onAddRangeGroupSpawnSchedule}>
+              <PlusOutlined />
+              {t("sim.spawn_cargo_group.add")}
+            </Button>
+          </Tooltip>
 
-      <Tooltip title="add spawn event">
-        <Button onClick={onAddRangeGroupSpawnSchedule}>
-          <PlusOutlined />
-          {t("sim.spawn_cargo_group.add")}
-        </Button>
-      </Tooltip>
+          <Tooltip title="add shift cargo event">
+            <Button onClick={onAddRangeGroupShiftSchedule}>
+              <PlusOutlined />
+              {t("sim.shift_cargo_group.add")}
+            </Button>
+          </Tooltip>
+        </Flex>
 
-      <Tooltip title="add shift cargo event">
-        <Button onClick={onAddRangeGroupShiftSchedule}>
-          <PlusOutlined />
-          {t("sim.shift_cargo_group.add")}
-        </Button>
-      </Tooltip>
+        <Flex gap="middle">
+          <Tooltip title="add mission event">
+            <Button onClick={onAddSchedule}>
+              <PlusOutlined />
+              {t("sim.timeline.add_mission")}
+            </Button>
+          </Tooltip>
 
-      <Tooltip title="add mission event">
-        <Button onClick={onAddSchedule}>
-          <PlusOutlined />
-          {t("sim.timeline.add_mission")}
-        </Button>
-      </Tooltip>
+          <Tooltip title="add shift cargo event">
+            <Button onClick={onAddShiftSchedule}>
+              <PlusOutlined />
+              {t("sim.timeline.add_shift_cargo")}
+            </Button>
+          </Tooltip>
 
-      <Tooltip title="add shift cargo event">
-        <Button onClick={onAddShiftSchedule}>
-          <PlusOutlined />
-          {t("sim.timeline.add_shift_cargo")}
-        </Button>
-      </Tooltip>
-
-      <Tooltip title="add spawn cargo event">
-        <Button onClick={onAddSpawnCargoSchedule}>
-          <PlusOutlined />
-          {t("sim.timeline.add_spawn_cargo")}
-        </Button>
-      </Tooltip>
+          <Tooltip title="add spawn cargo event">
+            <Button onClick={onAddSpawnCargoSchedule}>
+              <PlusOutlined />
+              {t("sim.timeline.add_spawn_cargo")}
+            </Button>
+          </Tooltip>
+        </Flex>
+      </Flex>
     </Flex>
   );
 };
