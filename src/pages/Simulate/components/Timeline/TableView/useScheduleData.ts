@@ -184,7 +184,8 @@ const useScheduleData = (scheduleData: Mission_Schedule[]) => {
     switch (task.type) {
       case "MISSION":
         if (task.timelineMission?.type === "GROUP_TO_GROUP") {
-          return `${t("utils.amr_id")}: ${task.timelineMission.amrId}`;
+                  const tasks = task.timelineMission.dynamicMissionPeripheralGroup?.task?.map((s) => `${s.loadGroupName} -> ${s.offloadGroupName}`) || [];
+          return `${t("utils.amr_id")}: ${task.timelineMission.amrId} | Task: ${tasks}`;
         }
         break;
       case "SPAWN_CARGO_GROUP":

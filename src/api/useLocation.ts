@@ -90,8 +90,8 @@ const getLocations = async () => {
       cargoArea: array(
         object({
           locationId: string().optional(),
-          booker: string().optional(),
-          occupier: string().optional(),
+          booker: string().optional().nullable(),
+          occupier: string().optional().nullable(),
           layer: layerSchema.optional(),
           isDropping: boolean().optional(),
           placement_priority: number().required(),

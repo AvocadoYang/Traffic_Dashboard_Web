@@ -8,6 +8,7 @@ import {
   Modal,
   message,
   Tooltip,
+  Switch,
 } from "antd";
 import "./component.css";
 import { useNavigate } from "react-router-dom";
@@ -327,14 +328,15 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
                 ]}
                 className={`${isDark ? "select-lang" : ""}`}
               />
-              <UserOutlined
+              <Switch title="show ecs" />
+              {/* <UserOutlined
                 style={{
                   color: "blue",
                   textAlign: "center",
                   fontSize: "150%",
                   marginTop: "5px",
                 }}
-              />
+              /> */}
             </Flex>
           </>
         )}
