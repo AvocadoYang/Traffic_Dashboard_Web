@@ -30,7 +30,11 @@ const FilterControls: React.FC<FilterControlsProps> = ({
 
   return (
     <Flex gap="middle" justify="flex-start" align="center">
-      <RangePicker needConfirm={false} format="HH:mm" onChange={onTimeRangeChange} />
+      <RangePicker
+        needConfirm={false}
+        format="HH:mm"
+        onChange={onTimeRangeChange}
+      />
 
       <Flex gap="middle" align="flex-start" justify="start">
         <Checkbox

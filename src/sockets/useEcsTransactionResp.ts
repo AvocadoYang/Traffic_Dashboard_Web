@@ -19,7 +19,7 @@ import {
   number,
 } from "yup";
 
-const schema =  string().required()
+const schema = string().required();
 
 const getC$ = fromEventPattern(
   (next) => {
@@ -45,9 +45,8 @@ const getC$ = fromEventPattern(
   share(),
 );
 
-
 export const useEcsTransactionResp = () => {
-  const [data, setData] = useState<string>('');
+  const [data, setData] = useState<string>("");
 
   useEffect(() => {
     const scriptStatus = getC$

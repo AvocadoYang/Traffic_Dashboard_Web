@@ -18,58 +18,51 @@ const client = new QueryClient({
     },
   },
 });
-type NotificationType = 'success' | 'info' | 'warning' | 'error';
+type NotificationType = "success" | "info" | "warning" | "error";
 
 function App() {
-  const esc = useEcsTransaction()
-  const ecsResp = useEcsTransactionResp()
+  const esc = useEcsTransaction();
+  const ecsResp = useEcsTransactionResp();
   const [api, contextHolder] = notification.useNotification();
-  
 
-  const openNotificationWithIconEcsReq = (type: NotificationType,msg: string) => {
+  const openNotificationWithIconEcsReq = (
+    type: NotificationType,
+    msg: string,
+  ) => {
     api[type]({
-      message: 'ECS Requests',
-      description: msg
+      message: "ECS Requests",
+      description: msg,
     });
   };
 
-    const openNotificationWithIconResp = (type: NotificationType,msg: string) => {
+  const openNotificationWithIconResp = (
+    type: NotificationType,
+    msg: string,
+  ) => {
     api[type]({
-           showProgress: true,
+      showProgress: true,
       pauseOnHover: true,
-      message: 'ECS Response',
-      description: msg
+      message: "ECS Response",
+      description: msg,
     });
   };
 
+  useEffect(() => {
+    if (ecsResp !== "") {
+      openNotificationWithIconResp("error", ecsResp);
+    }
+  }, [ecsResp]);
 
+  useEffect(() => {
+    if (esc !== "") {
+      openNotificationWithIconEcsReq("info", esc);
+    }
+  }, [esc]);
 
-useEffect(()=>{
-
-  if(ecsResp !== ''){
-  openNotificationWithIconResp('error', ecsResp)
-  }
-
-
-}, [ ecsResp])
-
-useEffect(()=>{
-
-  if(esc !== '') {
-  openNotificationWithIconEcsReq('info', esc)
-  }
-
-
-
-
-}, [esc])
-
-
-  
   // const ipcHandle = (): void => window.electron.ipc.send('ping')
   return (
     <QueryClientProvider client={client}>
-           {contextHolder}
+      {contextHolder}
       <BrowserRouter>
         <Routes>
           {/* <Route path="/" element={<LogIn />}></Route> */}

@@ -3,7 +3,6 @@ import { FC, memo, useCallback } from "react";
 
 import { WrapperType } from "./types";
 import styled from "styled-components";
-import { useCargoMutations } from "./hook/useCargoMutations";
 import CargoDisplay from "./CargoDisplay";
 import { CargoInfo } from "@/sockets/useCargoInfo";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -15,6 +14,7 @@ import {
 } from "@/pages/Setting/utils/settingJotai";
 import { prefixLevelName } from "@/utils/globalFunction";
 import { BaseGlobalCargoInfoModal, GlobalCargoData } from "./jotaiState";
+import { useCargoMutations } from "@/api/useCargoMutations";
 
 const Wrapper = styled.div<WrapperType>`
   position: relative;

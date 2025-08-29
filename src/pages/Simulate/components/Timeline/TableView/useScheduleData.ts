@@ -15,14 +15,14 @@ const getIntervalCount = (range: string, activeInterval: number): number => {
   if (!range || !range.includes("-") || activeInterval <= 0) {
     return 0;
   }
-  
+
   try {
     const [startStr, endStr] = range.split("-");
     const start = toMinutes(startStr.trim());
     const end = toMinutes(endStr.trim());
-    
+
     if (end <= start) return 0;
-    
+
     const diff = end - start;
     return Math.floor(diff / activeInterval);
   } catch (error) {
@@ -41,17 +41,21 @@ const getIntervalValue = (interval: number | undefined): string => {
 
 const useScheduleData = (scheduleData: Mission_Schedule[]) => {
   const { t } = useTranslation();
-  
+
   // Filter states
   const [isFilterMission, setIsFilterMission] = useState(true);
   const [isFilterSpawnCargo, setIsFilterSpawnCargo] = useState(true);
   const [isFilterShiftCargo, setIsFilterShiftCargo] = useState(true);
-  const [timeRange, setTimeRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
+  const [timeRange, setTimeRange] = useState<
+    [Dayjs | null, Dayjs | null] | null
+  >(null);
   const [searchText, setSearchText] = useState("");
-  
+
   // Local state for processed data
   const [localFixEvent, setLocalFixEvent] = useState<Local_Table_Value[]>([]);
-  const [localRangeEvent, setLocalRangeEvent] = useState<Local_Range_Table_Value[]>([]);
+  const [localRangeEvent, setLocalRangeEvent] = useState<
+    Local_Range_Table_Value[]
+  >([]);
 
   // Task detail generators
   const getFixedTaskDetail = (task: Mission_Schedule): string => {
@@ -72,17 +76,18 @@ const useScheduleData = (scheduleData: Mission_Schedule[]) => {
 
     switch (task.timelineMission.type) {
       case "DYNAMIC":
-        const dynamicMissions = task.timelineMission.dynamicMission
-          ?.map((e) => `${e.loadFrom} -> ${e.offloadTo}`)
-          .join(", ") || "";
+        const dynamicMissions =
+          task.timelineMission.dynamicMission
+            ?.map((e) => `${e.loadFrom} -> ${e.offloadTo}`)
+            .join(", ") || "";
         return `${task.timelineMission.amrId} | ${dynamicMissions}`;
-      
+
       case "NOTIFY":
         return `${task.timelineMission.amrId} | ${task.timelineMission.notifyMissionSourcePointName || ""}`;
-      
+
       case "NORMAL":
         return `${task.timelineMission.amrId} | ${task.timelineMission.normalMissionName || ""}`;
-      
+
       default:
         return "Unknown mission type";
     }
@@ -98,25 +103,28 @@ const useScheduleData = (scheduleData: Mission_Schedule[]) => {
         if (task.timelineMission?.type !== "GROUP_TO_GROUP") return "";
         const group = task.timelineMission.dynamicMissionPeripheralGroup;
         const intervalTime = getIntervalValue(group?.activeInterval);
-        const tasks = group?.task?.map((s) => `${s.loadGroupName} -> ${s.offloadGroupName}`) || [];
-        
+        const tasks =
+          group?.task?.map(
+            (s) => `${s.loadGroupName} -> ${s.offloadGroupName}`,
+          ) || [];
+
         return `${intervalTitle}: ${intervalTime} | ${rangeTitle}: ${group?.range || ""} | Tasks: ${tasks.join(", ")}`;
       }
-      
+
       case "SPAWN_CARGO_GROUP": {
         const sg = task.timelineSpawnCargoGroup;
         const intervalTime = getIntervalValue(sg?.activeInterval);
-        
+
         return `${intervalTitle}: ${intervalTime} | ${rangeTitle}: ${sg?.range || ""} | ${peripheralTitle}: ${sg?.spawnGroupname || ""}`;
       }
-      
+
       case "SHIFT_CARGO_GROUP": {
         const sg = task.timelineShiftCargoGroup;
         const intervalTime = getIntervalValue(sg?.activeInterval);
-        
+
         return `${intervalTitle}: ${intervalTime} | ${rangeTitle}: ${sg?.range || ""} | ${peripheralTitle}: ${sg?.shiftGroupname || ""}`;
       }
-      
+
       default:
         return "";
     }
@@ -126,7 +134,9 @@ const useScheduleData = (scheduleData: Mission_Schedule[]) => {
     switch (task.type) {
       case "MISSION":
         if (task.timelineMission?.type === "GROUP_TO_GROUP") {
-          return getIntervalValue(task.timelineMission.dynamicMissionPeripheralGroup?.activeInterval);
+          return getIntervalValue(
+            task.timelineMission.dynamicMissionPeripheralGroup?.activeInterval,
+          );
         }
         break;
       case "SPAWN_CARGO_GROUP":
@@ -141,7 +151,9 @@ const useScheduleData = (scheduleData: Mission_Schedule[]) => {
     switch (task.type) {
       case "MISSION":
         if (task.timelineMission?.type === "GROUP_TO_GROUP") {
-          return task.timelineMission.dynamicMissionPeripheralGroup?.range || "";
+          return (
+            task.timelineMission.dynamicMissionPeripheralGroup?.range || ""
+          );
         }
         break;
       case "SPAWN_CARGO_GROUP":
@@ -184,7 +196,10 @@ const useScheduleData = (scheduleData: Mission_Schedule[]) => {
     switch (task.type) {
       case "MISSION":
         if (task.timelineMission?.type === "GROUP_TO_GROUP") {
-                  const tasks = task.timelineMission.dynamicMissionPeripheralGroup?.task?.map((s) => `${s.loadGroupName} -> ${s.offloadGroupName}`) || [];
+          const tasks =
+            task.timelineMission.dynamicMissionPeripheralGroup?.task?.map(
+              (s) => `${s.loadGroupName} -> ${s.offloadGroupName}`,
+            ) || [];
           return `${t("utils.amr_id")}: ${task.timelineMission.amrId} | Task: ${tasks}`;
         }
         break;
@@ -206,23 +221,30 @@ const useScheduleData = (scheduleData: Mission_Schedule[]) => {
     });
   };
 
-  const applyTimeRangeFilter = <T extends { time: string }>(items: T[]): T[] => {
+  const applyTimeRangeFilter = <T extends { time: string }>(
+    items: T[],
+  ): T[] => {
     if (!timeRange || !timeRange[0] || !timeRange[1]) return items;
-    
+
     return items.filter((v) => {
       const t = dayjs(v.time, "HH:mm");
       return t.isAfter(timeRange[0]) && t.isBefore(timeRange[1]);
     });
   };
 
-  const applySearchFilter = <T extends { time: string; type: string; detail: string }>(items: T[]): T[] => {
+  const applySearchFilter = <
+    T extends { time: string; type: string; detail: string },
+  >(
+    items: T[],
+  ): T[] => {
     if (!searchText.trim()) return items;
-    
+
     const searchLower = searchText.toLowerCase();
-    return items.filter((v) =>
-      v.time.toLowerCase().includes(searchLower) ||
-      v.type.toLowerCase().includes(searchLower) ||
-      v.detail.toLowerCase().includes(searchLower)
+    return items.filter(
+      (v) =>
+        v.time.toLowerCase().includes(searchLower) ||
+        v.type.toLowerCase().includes(searchLower) ||
+        v.detail.toLowerCase().includes(searchLower),
     );
   };
 
@@ -266,7 +288,7 @@ const useScheduleData = (scheduleData: Mission_Schedule[]) => {
       .filter((v) => v.eventType === "GROUP")
       .forEach((v) => {
         if (seenIds.has(v.id)) return; // Skip duplicates early
-        
+
         const newObject: Local_Range_Table_Value = {
           id: v.id,
           time: v.time,
@@ -299,20 +321,20 @@ const useScheduleData = (scheduleData: Mission_Schedule[]) => {
     // Data
     localFixEvent,
     localRangeEvent,
-    
+
     // Filter states
     isFilterMission,
     isFilterSpawnCargo,
     isFilterShiftCargo,
     timeRange,
-    
+
     // Filter setters
     setIsFilterMission,
     setIsFilterSpawnCargo,
     setIsFilterShiftCargo,
     setTimeRange,
     setSearchText,
-    
+
     // Additional utilities (if needed)
     searchText,
     hasData: scheduleData?.length > 0,
