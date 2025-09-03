@@ -66,6 +66,7 @@ const LayerForm: FC<{
       const levelName = prefixLevelName(info?.levelName);
       form.setFieldsValue({
         [`levelName${indexStr}`]: levelName,
+        [`description${indexStr}`]: info.description,
         [`disable${indexStr}`]: info.disable || false,
         [`cargo_limit${indexStr}`]: info.cargo_limit || false,
       });
@@ -117,6 +118,13 @@ const LayerForm: FC<{
                   name={`levelName${index}`}
                 >
                   <Input placeholder={t("shelf.layer_form.enter_level_name")} />
+                </Form.Item>
+
+                <Form.Item
+                  label={t("shelf.layer_form.description")}
+                  name={`description${index}`}
+                >
+                  <Input placeholder={t("shelf.layer_form.description")} />
                 </Form.Item>
 
                 <Button

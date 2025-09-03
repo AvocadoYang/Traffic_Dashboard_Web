@@ -494,7 +494,8 @@
       "cargo_name": "貨名",
       "edit_detail": "編輯貨物詳細資訊",
       "cargo_limit": "貨架高度鎖定",
-      "pallet": "板"
+      "pallet": "板",
+      "description": "說明"
     },
     "error": {
       "info_error": "貨架讀取錯誤"
@@ -1418,5 +1419,15 @@
     "updatedSuccess": "名稱更新成功",
     "updateFail": "儲存失敗",
     "inputPlaceholder": "輸入名稱"
+  },
+
+  "elevator": {
+    "fork_height": "枒杈高度",
+    "name": "名稱",
+    "description": "說明",
+    "disable": "停用",
+    "edit_cargo_detail": "編輯貨物資訊",
+    "fork_height_desc": "取放貨時枒杈高度",
+    "other_config": "其他"
   }
 }

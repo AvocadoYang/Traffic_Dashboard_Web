@@ -12,6 +12,7 @@ import { Cargo } from "@/types/peripheral";
 
 export const levelSchema = object({
   levelName: string().optional().nullable(),
+  description: string().optional().nullable(),
   booked: boolean().optional().nullable(),
   cargo_limit: number().optional(),
   disable: boolean().optional(),
@@ -43,6 +44,7 @@ export type LayerType = {
     dbId: string;
     height: number;
     levelName: string;
+    description: string;
     booked: boolean;
     cargo_limit: number;
     disable: boolean;

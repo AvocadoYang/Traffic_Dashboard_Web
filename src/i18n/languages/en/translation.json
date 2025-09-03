@@ -497,7 +497,8 @@
       "cargo_name": "Cargo Name",
       "edit_detail": "edit cargo detail info",
       "cargo_limit": "Cargo Limit",
-      "pallet": "Pallet"
+      "pallet": "Pallet",
+      "description": "Description"
     },
     "error": {
       "info_error": "error read info error"
@@ -1414,5 +1415,14 @@
     "updatedSuccess": "Name updated successfully",
     "updateFail": "Failed to save changes",
     "inputPlaceholder": "Enter name"
+  },
+  "elevator": {
+    "fork_height": "Fork height",
+    "name": "Name",
+    "description": "Description",
+    "disable": "Disable",
+    "edit_cargo_detail": "Edit cargo detail",
+    "fork_height_desc": "Fork height when load or offload",
+    "other_config": "Other"
   }
 }
