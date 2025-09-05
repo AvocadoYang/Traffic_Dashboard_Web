@@ -1,9 +1,9 @@
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import useMap from "@/api/useMap";
-import { EEM } from "@/pages/Setting/utils/settingJotai";
+import { EEM, IsEditingQuickRoads, QuickRoadsArray } from "@/pages/Setting/utils/settingJotai";
 import useElevatorSocket from "@/sockets/useElevatorSocket";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { FC, memo } from "react";
 import styled, { keyframes } from "styled-components";
 
@@ -85,8 +85,22 @@ const AllElevator: FC = () => {
   const { data: locInfo } = useLoc(undefined);
   const eleSocket = useElevatorSocket()
   const setElevatorModal = useSetAtom(EEM);
+  const quickRoad = useAtomValue(IsEditingQuickRoads);
+  const setQuickRoadArr = useSetAtom(QuickRoadsArray);
+
+  
+  const handleQuickRoad = (locationId: string) => {
+    if (!quickRoad) return;
+
+    setQuickRoadArr((prev) => [...prev, locationId]);
+  };
+  
 
   const handleEdit = (locationId: string) => {
+        if (quickRoad) {
+      handleQuickRoad(locationId);
+      return;
+    }
     setElevatorModal({ locationId, isOpen: true });
   };
 
@@ -94,7 +108,7 @@ const AllElevator: FC = () => {
   return (
     <>
       {data.locations
-        .filter(({ areaType }) => areaType === "Elevator")
+        .filter(({ areaType }) => areaType === "ELEVATOR")
         .map((loc) => {
           const [displayX, displayY] = rosCoord2DisplayCoord({
             x: loc.x,
@@ -116,7 +130,7 @@ const AllElevator: FC = () => {
           const LocScale =
             info?.find((i) => i.locationId === loc.locationId)?.scale || 1;
 
-            const cargo = eleSocket[loc.locationId].cargo
+            const cargo = eleSocket[loc.locationId]?.cargo || []
 
           return (
             <div

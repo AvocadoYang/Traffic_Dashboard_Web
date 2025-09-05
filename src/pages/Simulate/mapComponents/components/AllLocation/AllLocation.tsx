@@ -32,7 +32,7 @@ const AllLocation: FC = () => {
     <>
       {data.locations
         .filter(
-          ({ areaType }) => areaType === "Extra" || areaType === "Dispatch",
+          ({ areaType }) => areaType === "EXTRA" || areaType === "Dispatch",
         )
         .map((loc) => {
           const [displayX, displayY] = rosCoord2DisplayCoord({

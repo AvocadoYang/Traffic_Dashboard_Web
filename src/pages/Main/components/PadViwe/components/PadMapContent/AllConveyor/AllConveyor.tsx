@@ -70,7 +70,7 @@ const AllConveyor: FC = () => {
   return (
     <>
       {data.locations
-        .filter(({ areaType }) => areaType === "Conveyor")
+        .filter(({ areaType }) => areaType === "CONVEYOR")
         .map((loc) => {
           const [displayX, displayY] = rosCoord2DisplayCoord({
             x: loc.x,

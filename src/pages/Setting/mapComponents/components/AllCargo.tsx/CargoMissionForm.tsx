@@ -53,7 +53,7 @@ const CargoMissionForm: FC<{
     const mixData = info
       .filter(
         (v) =>
-          (v.areaType === "Storage" || v.areaType === "Conveyor") &&
+          (v.areaType === "STORAGE" || v.areaType === "CONVEYOR") &&
           v.id !== locId,
       )
       .sort((a, b) => Number(a.locationId) - Number(b.locationId))

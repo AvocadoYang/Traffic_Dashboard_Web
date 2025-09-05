@@ -44,7 +44,7 @@ const AmrForm: FC<{
   const locationOptions = useMemo(() => {
     const items =
       map?.locations
-        .filter((v) => v.areaType !== "Storage")
+        .filter((v) => v.areaType !== "STORAGE")
         .map((v) => ({ label: v.locationId, value: v.locationId })) || [];
 
     return [{ label: t("sim.robot.unset"), value: "unset" }, ...items];

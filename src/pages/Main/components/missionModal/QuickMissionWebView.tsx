@@ -219,7 +219,7 @@ const QuickMissionWebView: React.FC<{
     const prefixTask = [loadValue, offloadValue].filter((v) => v !== null);
 
     const payload: Submit = {
-      amrId: [values.amrId],
+      amrId: values.amrId,
       priority: values.priority,
       task: prefixTask,
     };
