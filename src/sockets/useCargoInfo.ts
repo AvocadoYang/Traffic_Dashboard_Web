@@ -49,7 +49,8 @@ export type LayerType = {
     cargo_limit: number;
     disable: boolean;
     hasCargo: boolean;
-
+    loadPriority: number;
+    offloadPriority: number;
     cargo: Cargo[];
   };
 };

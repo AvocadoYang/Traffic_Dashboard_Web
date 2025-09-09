@@ -32,6 +32,8 @@ const EditElevatorModal: FC = () => {
     name: string;
     description: string;
     disable: boolean;
+    loadPriority: number;
+    offloadPriority: number;
   };
 
   const editMutation = useMutation({
@@ -55,6 +57,8 @@ const EditElevatorModal: FC = () => {
         name: elevator.name,
         description: elevator.description,
         disable: elevator.disable,
+        loadPriority: elevator.loadPriority,
+        offloadPriority: elevator.offloadPriority,
       });
     }
   }, [open.isOpen, elevator, formLeft, formRight]);
@@ -73,6 +77,8 @@ const EditElevatorModal: FC = () => {
         name: rightValues.name || null,
         description: rightValues.description || null,
         disable: rightValues.disable,
+        loadPriority: rightValues.loadPriority,
+        offloadPriority: rightValues.offloadPriority,
       };
 
       editMutation.mutate(payload);

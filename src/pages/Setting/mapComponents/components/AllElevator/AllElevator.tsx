@@ -1,11 +1,18 @@
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import useMap from "@/api/useMap";
-import { EEM, IsEditingQuickRoads, QuickRoadsArray } from "@/pages/Setting/utils/settingJotai";
+import ToolTip from "@/pages/Setting/components/ToolTip";
+import {
+  EEM,
+  IsEditingQuickRoads,
+  QuickRoadsArray,
+} from "@/pages/Setting/utils/settingJotai";
 import useElevatorSocket from "@/sockets/useElevatorSocket";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
+import { Tooltip } from "antd";
 import { useAtomValue, useSetAtom } from "jotai";
 import { FC, memo } from "react";
 import styled, { keyframes } from "styled-components";
+import Elevator from "./Elevator";
 
 const PointDiv = styled.div.attrs<{
   left: number;
@@ -32,8 +39,6 @@ const PointDiv = styled.div.attrs<{
   }
 `;
 
-export const Point = memo(PointDiv);
-
 const WrapperStation = styled.div.attrs<{
   left: number;
   top: number;
@@ -59,20 +64,13 @@ const CargoLight = styled.div`
 
   /* 3D Box effect start */
   background-color: #ff5555; /* Base color for the front face */
-  
+
   box-shadow:
     /* Top face highlight (light source from top-left) */
     inset 2px 2px 5px rgba(255, 255, 255, 0.7),
-    
-    /* Right face shadow */
-    5px 5px 10px rgba(0, 0, 0, 0.5),
-    
-    /* Bottom face shadow */
-    -5px -5px 10px rgba(0, 0, 0, 0.3);
+    /* Right face shadow */ 5px 5px 10px rgba(0, 0, 0, 0.5),
+    /* Bottom face shadow */ -5px -5px 10px rgba(0, 0, 0, 0.3);
   /* 3D Box effect end */
-
-
-  
 `;
 
 const ContainerElevator = styled.div`
@@ -83,21 +81,19 @@ const ContainerElevator = styled.div`
 const AllElevator: FC = () => {
   const { data } = useMap();
   const { data: locInfo } = useLoc(undefined);
-  const eleSocket = useElevatorSocket()
+  const eleSocket = useElevatorSocket();
   const setElevatorModal = useSetAtom(EEM);
   const quickRoad = useAtomValue(IsEditingQuickRoads);
   const setQuickRoadArr = useSetAtom(QuickRoadsArray);
 
-  
   const handleQuickRoad = (locationId: string) => {
     if (!quickRoad) return;
 
     setQuickRoadArr((prev) => [...prev, locationId]);
   };
-  
 
   const handleEdit = (locationId: string) => {
-        if (quickRoad) {
+    if (quickRoad) {
       handleQuickRoad(locationId);
       return;
     }
@@ -130,7 +126,9 @@ const AllElevator: FC = () => {
           const LocScale =
             info?.find((i) => i.locationId === loc.locationId)?.scale || 1;
 
-            const cargo = eleSocket[loc.locationId]?.cargo || []
+          const cargo = eleSocket[loc.locationId]?.cargo || [];
+          const customName = eleSocket[loc.locationId].name || "";
+          const isDisable = eleSocket[loc.locationId].disable;
 
           return (
             <div
@@ -141,30 +139,25 @@ const AllElevator: FC = () => {
               }}
               style={{ borderRadius: "50%" }}
             >
-              <Point
+              <PointDiv
                 id={loc.locationId.toString()}
                 canrotate={`${loc.canRotate}`}
                 left={displayX}
                 top={displayY}
                 key={loc.locationId}
-              ></Point>
+              ></PointDiv>
               <WrapperStation left={displayX} top={displayY}>
                 <ContainerElevator
                   style={{
                     transform: `translate(${translateX}px, ${translateY}px) scale(${LocScale}) rotate(${rotate}deg)`,
                   }}
                 >
-                  {cargo.length > 0 ? (  <CargoLight></CargoLight>):null}
-                
-                  <svg
-                    width={20}
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    onClick={() => handleEdit(loc.locationId.toString())}
-                  >
-                    <title>fence-electric</title>
-                    <path d="M9 9V11H7V9H5V11H3V9H1V21H3V19H5V21H7V19H9V21H11V19H13V21H15V19H17V21H19V19H21V21H23V9H21V11H19V9H17V11H15V9H13V11H11V9H9M3 13H5V17H3V13M7 13H9V17H7V13M11 13H13V17H11V13M15 13H17V17H15V13M19 13H21V17H19V13M7 4H11V2L17 5H13V7L7 4Z" />
-                  </svg>
+                  <Elevator
+                    locationId={loc.locationId}
+                    hasCargo={cargo.length > 0}
+                    isDisable={isDisable}
+                    customName={customName}
+                  />
                 </ContainerElevator>
               </WrapperStation>
             </div>

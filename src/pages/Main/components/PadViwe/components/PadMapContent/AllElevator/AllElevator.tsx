@@ -1,14 +1,20 @@
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import useMap from "@/api/useMap";
-import { tooltipProp } from "@/utils/gloable";
+import ToolTip from "@/pages/Setting/components/ToolTip";
+import {
+  EEM,
+  IsEditingQuickRoads,
+  QuickRoadsArray,
+} from "@/pages/Setting/utils/settingJotai";
+import useElevatorSocket from "@/sockets/useElevatorSocket";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
-import { useSetAtom } from "jotai";
+import { Tooltip } from "antd";
+import { useAtomValue, useSetAtom } from "jotai";
 import { FC, memo } from "react";
-import styled from "styled-components";
-import ConveyorIcon from "./ConveyorIcon";
-import useConveyorSocket from "@/sockets/useConveyorSocket";
+import styled, { keyframes } from "styled-components";
+import Elevator from "./Elevator";
 
-const Point = styled.div.attrs<{
+const PointDiv = styled.div.attrs<{
   left: number;
   top: number;
   canrotate: string;
@@ -47,28 +53,21 @@ const WrapperStation = styled.div.attrs<{
   height: 5px;
 `;
 
-const AllConveyor: FC = () => {
+const ContainerElevator = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+const AllElevator: FC = () => {
   const { data } = useMap();
   const { data: locInfo } = useLoc(undefined);
-  const conveyorData = useConveyorSocket();
-  const setTooltip = useSetAtom(tooltipProp);
+  const eleSocket = useElevatorSocket();
 
-  const handleEnter = (locationId: string, x: number, y: number) => {
-    setTooltip({
-      x,
-      y,
-      locationId,
-    });
-  };
-  // console.log(conveyorData, 'kkk');
-  const handleLeave = () => {
-    setTooltip(null);
-  };
-  if (!data) return [];
+  if (!data || !eleSocket) return [];
   return (
     <>
       {data.locations
-        .filter(({ areaType }) => areaType === "CONVEYOR")
+        .filter(({ areaType }) => areaType === "ELEVATOR")
         .map((loc) => {
           const [displayX, displayY] = rosCoord2DisplayCoord({
             x: loc.x,
@@ -90,6 +89,10 @@ const AllConveyor: FC = () => {
           const LocScale =
             info?.find((i) => i.locationId === loc.locationId)?.scale || 1;
 
+          const cargo = eleSocket[loc.locationId]?.cargo || [];
+          const customName = eleSocket[loc.locationId].name || "";
+          const isDisable = eleSocket[loc.locationId].disable;
+          const isBook = eleSocket[loc.locationId].booker;
           return (
             <div
               draggable={false}
@@ -99,27 +102,27 @@ const AllConveyor: FC = () => {
               }}
               style={{ borderRadius: "50%" }}
             >
-              <Point
+              <PointDiv
                 id={loc.locationId.toString()}
                 canrotate={`${loc.canRotate}`}
                 left={displayX}
                 top={displayY}
                 key={loc.locationId}
-                onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
-                onMouseLeave={() => handleLeave()}
-              ></Point>
+              ></PointDiv>
               <WrapperStation left={displayX} top={displayY}>
-                <ConveyorIcon
-                  translateX={translateX}
-                  translateY={translateY}
-                  rotate={rotate}
-                  scale={LocScale}
-                  info={
-                    conveyorData?.find(
-                      (s) => s.locationId === loc.locationId,
-                    ) || null
-                  }
-                />
+                <ContainerElevator
+                  style={{
+                    transform: `translate(${translateX}px, ${translateY}px) scale(${LocScale}) rotate(${rotate}deg)`,
+                  }}
+                >
+                  <Elevator
+                    locationId={loc.locationId}
+                    hasCargo={cargo.length > 0}
+                    isDisable={isDisable}
+                    isBook={isBook}
+                    customName={customName}
+                  />
+                </ContainerElevator>
               </WrapperStation>
             </div>
           );
@@ -128,4 +131,4 @@ const AllConveyor: FC = () => {
   );
 };
 
-export default AllConveyor;
+export default AllElevator;

@@ -448,6 +448,8 @@
 
   "shelf": {
     "shelf": "Shelf",
+    "load_priority": "Load priority",
+    "offload_priority": "Offload priority",
     "cargo_mission": {
       "default_title": "Cargo Mission Configuration",
       "load_mission": "Load Mission",

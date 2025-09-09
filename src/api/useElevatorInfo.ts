@@ -17,6 +17,8 @@ const schema = object({
   offloadMissionId: string().nullable(),
   booker: string().nullable(),
   occupier: string().nullable(),
+  loadPriority: number().required(),
+  offloadPriority: number().required(),
 }).optional();
 
 const getData = async (locationId: string) => {

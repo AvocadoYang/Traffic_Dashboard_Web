@@ -30,6 +30,8 @@ const EditPeripheralModal: FC = () => {
       offloadMissionId: string;
       placement_priority: number;
       relationships: Relation;
+      loadPriority: number;
+      offloadPriority: number;
     }) => {
       return client.post(`/api/peripherals/update-config`, data);
     },
@@ -59,6 +61,8 @@ const EditPeripheralModal: FC = () => {
         offloadMissionId: openModal.offloadMissionId,
         placement_priority: openModal.placement_priority,
         relationships: relationshipArray,
+        loadPriority: openModal.loadPriority,
+        offloadPriority: openModal.offloadPriority,
       });
     }
   }, [openModal, formConfig]);

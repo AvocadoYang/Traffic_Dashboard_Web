@@ -9,74 +9,34 @@ import {
   QuickRoadsArray,
 } from "@/pages/Setting/utils/settingJotai";
 
-type ConveyorStyle = {
-  translate_x?: number;
-  translate_y?: number;
-  scale?: number;
-  rotate?: number;
-};
-
-const ConveyorWrapper = styled.div<ConveyorStyle>`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 1px 2px;
-  background-color: #f0f0f0;
-  border: 2px solid #555;
-  border-radius: 12px;
-  width: fit-content;
-`;
-
-const Belt = styled.div`
-  width: 50px;
-  height: 16px;
-  background: repeating-linear-gradient(
-    90deg,
-    #888,
-    #888 4px,
-    #ccc 4px,
-    #ccc 8px
-  );
-  border-radius: 8px;
-  position: relative;
-`;
-
-const Box = styled.div`
-  width: 20px; /* Reduced size for better proportion */
-  height: 20px;
-  background-color: #ffd9ad;
-  border: 2px solid #92400e;
-  border-radius: 4px;
-  position: absolute;
-  top: -18px; /* Slightly closer to the belt */
-  left: 50%; /* Center horizontally */
-  transform: translateX(-50%); /* Adjust for true centering */
-`;
-
 const ConveyorContainer = styled.div`
   position: relative;
   display: inline-block;
 `;
 
-const Arrow = styled.div<{ direction: "load" | "offload" }>`
-  position: absolute;
-  top: -6px; /* Position above the conveyor */
-  ${({ direction }) =>
-    direction === "load"
-      ? `
-        left: 18%; /* Offset to the left of center */
-        transform: translate(-50%, -100%) rotate(0deg);
-      `
-      : `
-        left: 82%; /* Offset to the right of center */
-        transform: translate(-50%, -100%) rotate(180deg);
-      `}
-  width: 0;
-  height: 0;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-bottom: 8px solid
-    ${({ direction }) => (direction === "load" ? "#10b981" : "#ef4444")};
+const SvgStyle = styled.svg<{
+  $hasCargo: boolean;
+  $isDisable: boolean;
+}>`
+  width: 24px;
+  height: 24px;
+  padding: 2px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  opacity: ${({ $isDisable }) => ($isDisable ? 0.6 : 1)};
+  fill: ${({ $hasCargo }) => ($hasCargo ? "#ffe73c" : "#999")};
+
+  border: ${({ $isDisable }) =>
+    $isDisable ? "2px solid #1890ff" : "1px dashed #727272"};
+
+  box-shadow: ${({ $isDisable }) =>
+    $isDisable ? "0 0 8px rgba(24, 144, 255, 0.3)" : "none"};
+
+  &:hover {
+    transform: scale(1.05);
+    background-color: ${({ $hasCargo }) =>
+      $hasCargo ? "rgba(255, 231, 60, 0.5)" : "rgba(200,200,200,0.3)"};
+  }
 `;
 
 const ConveyorIcon: React.FC<{
@@ -110,6 +70,8 @@ const ConveyorIcon: React.FC<{
       placement_priority: info.placement_priority,
       relationships: info.relationships,
       cargo: info.cargo,
+      loadPriority: info.loadPriority,
+      offloadPriority: info.offloadPriority,
     });
   };
 
@@ -120,12 +82,16 @@ const ConveyorIcon: React.FC<{
         transform: `translate(${translateX}px, ${translateY}px) scale(${scale}) rotate(${rotate}deg)`,
       }}
     >
-      {info.activeLoad && <Arrow direction="load" />}
-      {info.activeOffload && <Arrow direction="offload" />}
-
-      <ConveyorWrapper onClick={handleCon}>
-        <Belt>{info.cargo.length > 0 ? <Box /> : []}</Belt>
-      </ConveyorWrapper>
+      <SvgStyle
+        onClick={() => handleCon()}
+        $hasCargo={info.cargo.length > 0}
+        $isDisable={info.disable}
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+      >
+        <title>aurora</title>
+        <path d="M2 3C2.55 3 3 3.45 3 4V13H5V5C5 4.45 5.45 4 6 4C6.55 4 7 4.45 7 5V13H9V6C9 5.45 9.45 5 10 5C10.55 5 11 5.45 11 6V13H12.5C12.67 13 12.84 13 13 13.05V7C13 6.45 13.45 6 14 6C14.55 6 15 6.45 15 7V15.5C15 16.88 13.88 18 12.5 18H11.5C11.22 18 11 18.22 11 18.5C11 18.78 11.22 19 11.5 19H17V8C17 7.45 17.45 7 18 7C18.55 7 19 7.45 19 8V19H21V9C21 8.45 21.45 8 22 8C22.55 8 23 8.45 23 9V20C23 20.55 22.55 21 22 21H11.5C10.12 21 9 19.88 9 18.5C9 17.12 10.12 16 11.5 16H12.5C12.78 16 13 15.78 13 15.5C13 15.22 12.78 15 12.5 15H2C1.45 15 1 14.55 1 14V4C1 3.45 1.45 3 2 3Z" />
+      </SvgStyle>
     </ConveyorContainer>
   );
 };

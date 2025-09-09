@@ -445,6 +445,8 @@
 
   "shelf": {
     "shelf": "貨架",
+    "load_priority": "取貨優先度",
+    "offload_priority": "放貨優先度",
     "cargo_mission": {
       "default_title": "貨物任務配置",
       "load_mission": "裝載任務",

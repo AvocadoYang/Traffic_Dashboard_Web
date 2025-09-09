@@ -22,8 +22,6 @@ const Wrapper = styled.div<WrapperType>`
     `translate(${props.translatex}em, ${props.translatey}em) scale(${props.scale}) rotate(${props.rotate}deg)`};
 `;
 
-const WrapperDiv = memo(Wrapper);
-
 const MemoizedCargo = memo(CargoDisplay, (prevProps, nextProps) => {
   return (
     prevProps.level == nextProps.level &&
@@ -77,7 +75,7 @@ const Cargo: FC<{
   return (
     <>
       {contextHolder}
-      <WrapperDiv
+      <Wrapper
         flex_direction={flex_direction}
         translatex={translateX}
         translatey={translateY}
@@ -111,7 +109,7 @@ const Cargo: FC<{
             />
           );
         })}
-      </WrapperDiv>
+      </Wrapper>
     </>
   );
 };

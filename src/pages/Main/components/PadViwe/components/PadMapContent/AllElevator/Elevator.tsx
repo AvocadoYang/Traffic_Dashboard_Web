@@ -1,19 +1,21 @@
-import React from "react";
-import styled from "styled-components";
-import { LoadingStation } from "../AllCargo/LoadingStation";
-import { Conveyor_Info } from "@/types/peripheral";
-import { useAtom, useSetAtom } from "jotai";
 import {
   QuickMissionLoad,
   QuickMissionOffload,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
 } from "@/pages/Main/global/jotai";
+import { Tooltip } from "antd";
+import { useAtom, useSetAtom } from "jotai";
+import React, { FC } from "react";
+import styled from "styled-components";
 
-const ConveyorContainer = styled.div`
-  position: relative;
-  display: inline-block;
-`;
+interface ElevatorProps {
+  locationId: string;
+  hasCargo: boolean;
+  isDisable: boolean;
+  customName: string;
+  isHaveAction?: boolean; // optional: for pulse effect
+}
 
 const SvgStyle = styled.svg<{
   $hasCargo: boolean;
@@ -67,13 +69,33 @@ const SvgStyle = styled.svg<{
   }
 `;
 
-const ConveyorIcon: React.FC<{
-  translateX: number;
-  translateY: number;
-  rotate: number;
-  scale: number;
-  info: Conveyor_Info | null;
-}> = ({ translateX, translateY, rotate, scale, info }) => {
+const CargoLight = styled.div`
+  width: 1em;
+  height: 1em;
+  /* Use a small border-radius for a slightly rounded cube edge */
+  border-radius: 4px;
+  position: absolute;
+  left: 15px;
+  bottom: 15px;
+
+  /* 3D Box effect start */
+  background-color: #ff5555; /* Base color for the front face */
+
+  box-shadow:
+    /* Top face highlight (light source from top-left) */
+    inset 2px 2px 5px rgba(255, 255, 255, 0.7),
+    /* Right face shadow */ 5px 5px 10px rgba(0, 0, 0, 0.5),
+    /* Bottom face shadow */ -5px -5px 10px rgba(0, 0, 0, 0.3);
+  /* 3D Box effect end */
+`;
+
+const Elevator: FC<{
+  locationId: string;
+  hasCargo: boolean;
+  isDisable: boolean;
+  isBook: boolean;
+  customName: string;
+}> = ({ locationId, hasCargo, isDisable, isBook, customName }) => {
   const [selectMode, setQuickSettingMode] = useAtom(QuickMissionSettingMode);
   const [isStartSelecting, setStartQuickSetting] = useAtom(
     StartQuickMissionSetting,
@@ -82,12 +104,10 @@ const ConveyorIcon: React.FC<{
   const setOffload = useSetAtom(QuickMissionOffload);
 
   const canBeClickInSelection =
-    (isStartSelecting &&
-      info &&
-      !info?.disable &&
-      selectMode === "load" &&
-      info?.cargo.length > 0) ||
-    (selectMode === "offload" && info?.cargo.length === 0);
+    isStartSelecting &&
+    !isDisable &&
+    ((selectMode === "load" && hasCargo) ||
+      (selectMode === "offload" && !hasCargo));
 
   const handleQuickMissionPayload = () => {
     if (!isStartSelecting || !canBeClickInSelection || selectMode === null)
@@ -96,15 +116,15 @@ const ConveyorIcon: React.FC<{
     if (selectMode === "load") {
       setLoad({
         missionType: "load",
-        columnName: info.name,
-        locationId: info.locationId,
+        columnName: customName,
+        locationId: locationId,
         level: 0,
       });
     } else if (selectMode === "offload") {
       setOffload({
         missionType: "offload",
-        columnName: info.name,
-        locationId: info.locationId,
+        columnName: customName,
+        locationId: locationId,
         level: 0,
       });
     }
@@ -113,28 +133,25 @@ const ConveyorIcon: React.FC<{
     setQuickSettingMode(null);
   };
 
-  if (!info) return <LoadingStation />;
   return (
-    <ConveyorContainer
-      style={{
-        transform: `translate(${translateX}px, ${translateY}px) scale(${scale}) rotate(${rotate}deg)`,
-      }}
-    >
-      <SvgStyle
-        $isSelecting={isStartSelecting}
-        $canBeClick={isStartSelecting ? canBeClickInSelection : true}
-        $isHaveAction={info.booker as boolean}
-        onClick={() => handleQuickMissionPayload()}
-        $hasCargo={info.cargo.length > 0}
-        $isDisable={info.disable}
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-      >
-        <title>aurora</title>
-        <path d="M2 3C2.55 3 3 3.45 3 4V13H5V5C5 4.45 5.45 4 6 4C6.55 4 7 4.45 7 5V13H9V6C9 5.45 9.45 5 10 5C10.55 5 11 5.45 11 6V13H12.5C12.67 13 12.84 13 13 13.05V7C13 6.45 13.45 6 14 6C14.55 6 15 6.45 15 7V15.5C15 16.88 13.88 18 12.5 18H11.5C11.22 18 11 18.22 11 18.5C11 18.78 11.22 19 11.5 19H17V8C17 7.45 17.45 7 18 7C18.55 7 19 7.45 19 8V19H21V9C21 8.45 21.45 8 22 8C22.55 8 23 8.45 23 9V20C23 20.55 22.55 21 22 21H11.5C10.12 21 9 19.88 9 18.5C9 17.12 10.12 16 11.5 16H12.5C12.78 16 13 15.78 13 15.5C13 15.22 12.78 15 12.5 15H2C1.45 15 1 14.55 1 14V4C1 3.45 1.45 3 2 3Z" />
-      </SvgStyle>
-    </ConveyorContainer>
+    <>
+      {/* {hasCargo ? <CargoLight></CargoLight> : null} */}
+      <Tooltip title={customName}>
+        <SvgStyle
+          $hasCargo={hasCargo}
+          $isDisable={isDisable}
+          $isSelecting={isStartSelecting}
+          $canBeClick={isStartSelecting ? canBeClickInSelection : true}
+          $isHaveAction={isBook} // or pass some condition
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          onClick={() => handleQuickMissionPayload()}
+        >
+          <path d="M9 9V11H7V9H5V11H3V9H1V21H3V19H5V21H7V19H9V21H11V19H13V21H15V19H17V21H19V19H21V21H23V9H21V11H19V9H17V11H15V9H13V11H11V9H9M3 13H5V17H3V13M7 13H9V17H7V13M11 13H13V17H11V13M15 13H17V17H15V13M19 13H21V17H19V13M7 4H11V2L17 5H13V7L7 4Z" />
+        </SvgStyle>
+      </Tooltip>
+    </>
   );
 };
 
-export default ConveyorIcon;
+export default Elevator;

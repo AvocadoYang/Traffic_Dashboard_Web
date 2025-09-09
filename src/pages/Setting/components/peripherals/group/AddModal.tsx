@@ -271,6 +271,13 @@ const AddModal: React.FC<AddModalProps> = ({
                 t("peripheral_group_table.available_peripherals"),
                 t("peripheral_group_table.selected_peripherals"),
               ]}
+              showSearch
+              filterOption={(inputValue, item) =>
+                item.title.toLowerCase().includes(inputValue.toLowerCase()) ||
+                item.description
+                  .toLowerCase()
+                  .includes(inputValue.toLowerCase())
+              }
             />
           </Form.Item>
         </Form>

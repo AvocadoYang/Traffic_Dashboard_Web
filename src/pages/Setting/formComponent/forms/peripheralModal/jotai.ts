@@ -15,6 +15,8 @@ export const IsEditPeripheralModal = atom<{
   placement_priority?: number;
   relationships?: Relation;
   cargo: Cargo[];
+  loadPriority: number;
+  offloadPriority: number;
 } | null>(null);
 
 export const IsOpenCargoEditorModal = atom(false);

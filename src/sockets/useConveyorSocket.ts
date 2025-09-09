@@ -42,10 +42,12 @@ const schema = () =>
       activeOffload: boolean().required(),
       loadMissionId: string().nullable(),
       offloadMissionId: string().nullable(),
-      booker: string().nullable(),
+      booker: boolean().nullable(),
       occupier: string().nullable(),
       placement_priority: number().required(),
       relationships: relationshipSchema.optional().nullable(),
+      loadPriority: number().required(),
+      offloadPriority: number().required(),
       cargo: array(
         object({
           cargoInfoId: string().optional().nullable(),

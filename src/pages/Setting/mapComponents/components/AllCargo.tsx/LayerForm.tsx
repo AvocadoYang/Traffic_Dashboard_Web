@@ -4,6 +4,7 @@ import {
   Form,
   FormInstance,
   Input,
+  InputNumber,
   Switch,
   Typography,
 } from "antd";
@@ -69,6 +70,8 @@ const LayerForm: FC<{
         [`description${indexStr}`]: info.description,
         [`disable${indexStr}`]: info.disable || false,
         [`cargo_limit${indexStr}`]: info.cargo_limit || false,
+        [`loadPriority${indexStr}`]: info.loadPriority || 0,
+        [`offloadPriority${indexStr}`]: info.offloadPriority || 0,
       });
     });
   }, [form, layer]);
@@ -153,6 +156,20 @@ const LayerForm: FC<{
                   name={`cargo_limit${index}`}
                 >
                   <Switch />
+                </Form.Item>
+
+                <Form.Item
+                  label={t("shelf.load_priority")}
+                  name={`loadPriority${index}`}
+                >
+                  <InputNumber min={0} />
+                </Form.Item>
+
+                <Form.Item
+                  label={t("shelf.offload_priority")}
+                  name={`offloadPriority${index}`}
+                >
+                  <InputNumber min={0} />
                 </Form.Item>
               </div>
             );

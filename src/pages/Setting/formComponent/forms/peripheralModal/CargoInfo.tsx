@@ -1,4 +1,12 @@
-import { Button, Flex, Form, Input, Switch, Typography } from "antd";
+import {
+  Button,
+  Flex,
+  Form,
+  Input,
+  InputNumber,
+  Switch,
+  Typography,
+} from "antd";
 import { FormInstance } from "antd/es/form/Form";
 import { FC, useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -34,6 +42,8 @@ const CargoInfoAtPeripheral: FC<{ form: FormInstance<unknown> }> = ({
     form.setFieldValue("hasCargo", openModal.cargo.length > 0);
     form.setFieldValue("name", prefixLevelName(openModal.name));
     form.setFieldValue("disable", openModal.disable);
+    form.setFieldValue("loadPriority", openModal.loadPriority);
+    form.setFieldValue("offloadPriority", openModal.offloadPriority);
   }, []);
 
   return (
@@ -102,6 +112,17 @@ const CargoInfoAtPeripheral: FC<{ form: FormInstance<unknown> }> = ({
                 }
               </Form.Item>
             </Flex>
+
+            <Form.Item label={t("shelf.load_priority")} name={`loadPriority`}>
+              <InputNumber min={0} />
+            </Form.Item>
+
+            <Form.Item
+              label={t("shelf.offload_priority")}
+              name={`offloadPriority`}
+            >
+              <InputNumber min={0} />
+            </Form.Item>
           </div>
         </Form>
       </div>

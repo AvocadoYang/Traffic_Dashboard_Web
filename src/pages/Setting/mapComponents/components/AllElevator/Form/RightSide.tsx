@@ -4,7 +4,15 @@ import {
   IsEditingQuickRoads,
   QuickRoadsArray,
 } from "@/pages/Setting/utils/settingJotai";
-import { Button, Form, FormInstance, Input, Switch, Typography } from "antd";
+import {
+  Button,
+  Form,
+  FormInstance,
+  Input,
+  InputNumber,
+  Switch,
+  Typography,
+} from "antd";
 import { useAtomValue, useSetAtom } from "jotai";
 import { FC } from "react";
 import { useTranslation } from "react-i18next";
@@ -70,6 +78,14 @@ const RightSide: FC<{
           valuePropName="checked"
         >
           <Switch checkedChildren="On" unCheckedChildren="Off" />
+        </Form.Item>
+
+        <Form.Item label={t("shelf.load_priority")} name={`loadPriority`}>
+          <InputNumber min={0} />
+        </Form.Item>
+
+        <Form.Item label={t("shelf.offload_priority")} name={`offloadPriority`}>
+          <InputNumber min={0} />
         </Form.Item>
       </Form>
     </div>
