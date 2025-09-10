@@ -7,6 +7,7 @@ const schema = array(
     locationId: number().required(),
     x: number().required(),
     y: number().required(),
+    name: string().optional().nullable(),
     areaType: string().required(),
     translateX: number().required(),
     translateY: number().required(),

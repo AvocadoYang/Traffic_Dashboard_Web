@@ -1388,6 +1388,8 @@
     "type": "Type",
     "level": "Level",
     "name": "Name",
+    "description": "Description",
+    "group": "Group",
     "operation": "Operation",
     "edit": "Edit",
     "save": "Save",

@@ -7,6 +7,16 @@ const schema = array(
     peripheralNameId: string().required(),
     locationId: string().required(),
     name: string().optional().nullable(),
+    description: string().optional().nullable(),
+    quantity: number().optional().nullable(),
+    group: array(
+      object({
+        id: string().optional().nullable(),
+        name: string().optional().nullable(),
+      }),
+    )
+      .optional()
+      .nullable(),
     type: string().required(),
     level: number().optional().nullable(),
   }).required(),

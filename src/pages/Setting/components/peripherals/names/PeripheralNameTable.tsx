@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Button,
+  Flex,
   Form,
   Input,
   Popconfirm,
+  Select,
   Table,
   Typography,
   message,
@@ -16,11 +18,18 @@ import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
+import usePeripheralGroup from "@/api/usePeripheralGroup";
 
 interface PeripheralData {
   peripheralNameId: string;
   locationId: string;
   name: string | null;
+  description: string | null;
+  quantity: number;
+  group: {
+    id: string;
+    name: string;
+  }[];
   type: string;
   level: number | null;
 }
@@ -60,6 +69,16 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   children,
   ...restProps
 }) => {
+  const { data: peripheralGroups } = usePeripheralGroup();
+  const peripheralOptions = useMemo(
+    () =>
+      peripheralGroups?.map((pg) => ({
+        label: pg.name,
+        value: pg.id,
+      })) || [],
+    [peripheralGroups],
+  );
+
   return (
     <td {...restProps}>
       {editing ? (
@@ -68,12 +87,19 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
           style={{ margin: 0 }}
           rules={[
             {
-              required: false, // Name is optional as per schema
-              message: `Please Input ${title}!`,
+              required: false,
+              message: `Please input ${title}!`,
             },
           ]}
         >
-          <Input placeholder="Enter name" />
+          {dataIndex === "group" ? (
+            <Select
+              options={peripheralOptions}
+              placeholder="Select group"
+            ></Select>
+          ) : (
+            <Input placeholder={`Enter ${title}`} />
+          )}
         </Form.Item>
       ) : (
         children
@@ -93,13 +119,15 @@ const PeripheralNameTable: React.FC = () => {
   const isEditing = (record: PeripheralData) =>
     record.peripheralNameId === editingKey;
 
-  // Mutation to update peripheral name
   const updateMutation = useMutation({
     mutationFn: (payload: {
       locationId: string;
       level: number | null;
       peripheralNameId: string;
       name: string | null;
+      description: string | null;
+      group: string;
+      quantity: number;
     }) => {
       return client.post("/api/setting/update-peripheral-name", payload);
     },
@@ -111,8 +139,25 @@ const PeripheralNameTable: React.FC = () => {
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
+  const syncMutation = useMutation({
+    mutationFn: () => {
+      return client.post("/api/wcs/sync-with-corning");
+    },
+    onSuccess: () => {
+      messageApi.success("sync successfully");
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
+  const handleSync = () => {
+    syncMutation.mutate();
+  };
+
   const edit = (record: PeripheralData) => {
     form.setFieldsValue({ name: record.name || "" });
+    form.setFieldsValue({ description: record.description || "" });
+    form.setFieldsValue({ quantity: record.quantity });
+    form.setFieldsValue({ group: record.group[0]?.id || null });
     setEditingKey(record.peripheralNameId);
   };
 
@@ -131,12 +176,20 @@ const PeripheralNameTable: React.FC = () => {
     level: number | null,
   ) => {
     try {
-      const row = (await form.validateFields()) as { name: string };
+      const row = (await form.validateFields()) as {
+        name: string;
+        description: string;
+        quantity: number;
+        group: string;
+      };
       updateMutation.mutate({
         peripheralNameId,
         name: row.name || null,
         locationId,
         level,
+        description: row.description,
+        group: row.group,
+        quantity: row.quantity,
       });
     } catch (errInfo) {
       console.log("Validate Failed:", errInfo);
@@ -150,25 +203,47 @@ const PeripheralNameTable: React.FC = () => {
       dataIndex: "locationId",
       sorter: (a, b) => Number(a.locationId) - Number(b.locationId),
       render: (text: string) => <Typography.Text code>{text}</Typography.Text>,
+      width: 120,
     },
     {
       title: t("peripheral_name_table.type"),
       dataIndex: "type",
+      width: 100,
     },
     {
       title: t("peripheral_name_table.level"),
       dataIndex: "level",
-
       render: (text: number | null) => (text !== null ? text + 1 : "-"),
+      width: 80,
     },
     {
       title: t("peripheral_name_table.name"),
       dataIndex: "name",
-
       editable: true,
       render: (text: string | null) => text || "-",
+      width: 200,
     },
-
+    {
+      title: t("peripheral_name_table.description"),
+      dataIndex: "description",
+      editable: true,
+      render: (text: string | null) => text || "-",
+      width: 250,
+    },
+    {
+      title: t("peripheral_name_table.group"),
+      dataIndex: "group",
+      editable: true,
+      render: (text: { id: string; name: string }[]) =>
+        text.map((v) => v.name).join(",") || "-",
+      width: 250,
+    },
+    {
+      title: "quantity",
+      dataIndex: "quantity",
+      editable: true,
+      width: 50,
+    },
     {
       title: t("peripheral_name_table.operation"),
       dataIndex: "operation",
@@ -184,7 +259,6 @@ const PeripheralNameTable: React.FC = () => {
             >
               {t("utils.save")}
             </Typography.Link>
-
             <a onClick={cancel}>{t("utils.cancel")}</a>
           </span>
         ) : (
@@ -196,6 +270,7 @@ const PeripheralNameTable: React.FC = () => {
           </Typography.Link>
         );
       },
+      width: 150,
     },
   ];
 
@@ -223,9 +298,17 @@ const PeripheralNameTable: React.FC = () => {
   return (
     <>
       {contextHolder}
-      <Button onClick={reload} style={{ marginBottom: 16 }}>
-        {t("peripheral_name_table.reload")}
-      </Button>
+
+      <Flex gap="middle">
+        <Button onClick={reload} style={{ marginBottom: 16 }}>
+          {t("peripheral_name_table.reload")}
+        </Button>
+
+        <Button onClick={handleSync} style={{ marginBottom: 16 }}>
+          SYNC WITH CORNING
+        </Button>
+      </Flex>
+
       <Form form={form} component={false}>
         <StyledTable
           components={{

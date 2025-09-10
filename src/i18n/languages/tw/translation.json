@@ -1391,6 +1391,8 @@
     "type": "類型",
     "level": "層級",
     "name": "名稱",
+    "description": "說明",
+    "group": "群組",
     "operation": "操作",
     "edit": "編輯",
     "save": "儲存",
