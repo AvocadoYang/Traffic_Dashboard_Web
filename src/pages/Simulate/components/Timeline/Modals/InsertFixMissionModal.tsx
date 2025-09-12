@@ -1,7 +1,5 @@
 import client from "@/api/axiosClient";
 import useName from "@/api/useAmrName";
-import useAllMissionTitles from "@/api/useMissionTitle";
-import usePeripheralName from "@/api/usePeripheralName";
 import { MissionPriority } from "@/types/mission";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
@@ -17,19 +15,16 @@ import {
   Modal,
   Radio,
   Select,
-  Switch,
   TimePicker,
 } from "antd";
 import dayjs from "dayjs";
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom } from "jotai";
 import {
-  EditTask,
   IsEditSchedule,
-  OpenEditModal,
   OpenFixedEventMissionEditModal,
   SelectTime,
 } from "../../../utils/mapStatus";

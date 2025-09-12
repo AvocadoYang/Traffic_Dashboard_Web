@@ -160,6 +160,7 @@ const AddModal: React.FC<AddModalProps> = ({
     resetEdit();
   };
 
+  // Corrected useEffect hook
   useEffect(() => {
     if (!isEdit || !editValue) {
       form.resetFields();
@@ -172,6 +173,7 @@ const AddModal: React.FC<AddModalProps> = ({
       peripherals: editValue.peripherals || [],
     });
 
+    // Fix: Change v.id to v.key to correctly access the unique identifier
     setTargetKeys(editValue.peripherals.map((v) => v.id));
   }, [form, isEdit, editValue]);
 
