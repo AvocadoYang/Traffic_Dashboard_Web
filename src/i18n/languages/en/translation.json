@@ -956,7 +956,8 @@
     "B": "backward",
     "S": "spin",
     "H": "fork movement",
-    "W": "wait"
+    "W": "wait",
+        "verity_cargo":"verity cargo via camera"
   },
 
   "customCargo": {

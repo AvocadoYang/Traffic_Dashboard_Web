@@ -87,7 +87,7 @@ const Cargo: FC<{
           const level = Number(levelStr);
           const cargoValue = info.hasCargo || false;
           const isDisable = info.disable;
-          const isHaveAction = info.booked;
+          const isHaveAction = info.booker !== null;
 
           return (
             <MemoizedCargo
@@ -96,6 +96,7 @@ const Cargo: FC<{
               levelName={prefixLevelName(info.levelName)}
               cargoValue={cargoValue}
               isDisable={isDisable}
+              booker={info.booker === null ? "nobody": info.booker}
               locId={locId}
               rotate={0}
               isHaveAction={isHaveAction}

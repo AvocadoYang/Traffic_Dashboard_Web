@@ -45,7 +45,7 @@ export type LayerType = {
     height: number;
     levelName: string;
     description: string;
-    booked: boolean;
+    booker: string;
     cargo_limit: number;
     disable: boolean;
     hasCargo: boolean;

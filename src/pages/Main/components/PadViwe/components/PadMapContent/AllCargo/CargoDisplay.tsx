@@ -9,7 +9,26 @@ import { FC } from "react";
 import styled from "styled-components";
 import { Button } from "antd";
 
-// Styled components for enhanced UI
+// Styled component for the info block, initially hidden
+const InfoBlock = styled.div`
+  /* Position the info block absolutely */
+  position: absolute;
+  /* Make sure it's above other elements */
+  z-index: 100;
+  top: -5px; /* Adjust as needed */
+  left: 125px;
+  transform: translateX(-50%);
+  width: auto;
+  padding: 8px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: none; /* Initially hide the info block */
+  pointer-events: none; /* Do not block mouse events */
+`;
+
+// Styled component for the main block, now with a new hover behavior
 const Block = styled(Button)<{
   $hasCargo: boolean;
   $isDisable: boolean;
@@ -37,8 +56,8 @@ const Block = styled(Button)<{
     $isDisable
       ? "not-allowed"
       : $isSelecting && !$canBeClick
-        ? "not-allowed"
-        : "pointer"};
+      ? "not-allowed"
+      : "pointer"};
   opacity: ${({ $isDisable }) => ($isDisable ? 0.6 : 1)};
   box-shadow: ${({ $isSelecting, $canBeClick }) =>
     $isSelecting && $canBeClick ? "0 0 8px rgba(24, 144, 255, 0.3)" : "none"};
@@ -60,6 +79,11 @@ const Block = styled(Button)<{
         }
       `
       : ""}
+
+  /* Show the InfoBlock when hovering over the Block */
+  &:hover + ${InfoBlock} {
+    display: block;
+  }
 
   &:hover:not(:disabled) {
     background-color: ${({ $hasCargo }) =>
@@ -96,12 +120,19 @@ const BlockSpan = styled.span<{ rotate: number; $hasCargo: boolean }>`
   text-align: center;
 `;
 
+// A container to hold both Block and InfoBlock
+const BlockContainer = styled.div`
+  position: relative; /* This is crucial for positioning the InfoBlock */
+  display: inline-block;
+`;
+
 interface CargoDisplayProps {
   level: number;
   levelName: string;
   cargoValue: boolean;
   isDisable: boolean;
   isHaveAction: boolean;
+  booker: string
   locId: string;
   rotate: number;
   handleMouseDown: (
@@ -117,6 +148,7 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
   cargoValue,
   isDisable,
   isHaveAction,
+  booker,
   locId,
   rotate,
   handleMouseDown,
@@ -159,21 +191,27 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
   };
 
   return (
-    <Block
-      $hasCargo={cargoValue}
-      $isDisable={isDisable}
-      $isSelecting={isStartSelecting}
-      $canBeClick={isStartSelecting ? canBeClickInSelection : true}
-      $isHaveAction={isHaveAction}
-      disabled={isDisable}
-      onMouseDown={(e) => handleMouseDown(e, locId, level)}
-      onClick={isStartSelecting ? handleQuickMissionPayload : undefined}
-      role="button"
-    >
-      <BlockSpan $hasCargo={cargoValue} rotate={rotate} id={locId}>
-        {levelName}
-      </BlockSpan>
-    </Block>
+    <BlockContainer>
+      <Block
+        $hasCargo={cargoValue}
+        $isDisable={isDisable}
+        $isSelecting={isStartSelecting}
+        $canBeClick={isStartSelecting ? canBeClickInSelection : true}
+        $isHaveAction={isHaveAction}
+        disabled={isDisable}
+        onMouseDown={(e) => handleMouseDown(e, locId, level)}
+        onClick={isStartSelecting ? handleQuickMissionPayload : undefined}
+        role="button"
+      >
+        <BlockSpan $hasCargo={cargoValue} rotate={rotate} id={locId}>
+          {levelName}
+        </BlockSpan>
+      </Block>
+      <InfoBlock>
+        {/* You can add dynamic content here based on props */}
+        Booker:{booker}
+      </InfoBlock>
+    </BlockContainer>
   );
 };
 

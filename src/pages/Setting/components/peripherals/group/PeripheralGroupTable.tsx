@@ -50,7 +50,7 @@ const PeripheralGroupTable: React.FC = () => {
     onSuccess: () => {
       messageApi.success("success");
       queryClient.invalidateQueries({ queryKey: ["peripheral-group"] });
-
+    queryClient.invalidateQueries({ queryKey: ["peripheral-corning"] });
       setIsOpenModal(false);
     },
     onError: (e: ErrorResponse) => {

@@ -92,6 +92,7 @@ const AddModal: React.FC<AddModalProps> = ({
     onSuccess: () => {
       messageApi.success("success");
       queryClient.invalidateQueries({ queryKey: ["peripheral-group"] });
+          queryClient.invalidateQueries({ queryKey: ["peripheral-corning"] });
       form.resetFields();
       handleCancel();
     },
@@ -112,6 +113,7 @@ const AddModal: React.FC<AddModalProps> = ({
     onSuccess: () => {
       messageApi.success("Updated successfully");
       queryClient.invalidateQueries({ queryKey: ["peripheral-group"] });
+          queryClient.invalidateQueries({ queryKey: ["peripheral-corning"] });
       form.resetFields();
       handleCancel();
     },

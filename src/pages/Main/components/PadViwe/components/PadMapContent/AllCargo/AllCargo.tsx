@@ -10,7 +10,7 @@ import useCargoInfo from "@/sockets/useCargoInfo";
 import styled from "styled-components";
 import { tooltipProp } from "@/utils/gloable";
 
-const PointDiv = styled.div.attrs<{
+const Point = styled.div.attrs<{
   left: number;
   top: number;
   canrotate: string;
@@ -49,7 +49,7 @@ const WrapperForCargo = styled.div.attrs<{
   height: 5px;
 `;
 
-export const Point = memo(PointDiv);
+
 
 const AllCargo: React.FC = () => {
   const shelfInfo = useCargoInfo();
