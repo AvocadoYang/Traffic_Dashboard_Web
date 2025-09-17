@@ -134,19 +134,21 @@ const AddModal: React.FC<AddModalProps> = ({
         messageApi.error("name is require !");
         return;
       }
-
+const safeTargetKeys = targetKeys.filter(
+  (k): k is string => typeof k === "string"
+);
       if (isEdit && editValue?.id) {
         editMutation.mutate({
           id: editValue.id,
           name: values.name,
           description: values.description || null,
-          peripheralNameIds: targetKeys as string[],
+       peripheralNameIds: safeTargetKeys,
         });
       } else {
         addMutation.mutate({
           name: values.name,
           description: values.description || null,
-          peripheralNameIds: targetKeys as string[],
+         peripheralNameIds: safeTargetKeys,
         });
       }
     } catch (errInfo) {

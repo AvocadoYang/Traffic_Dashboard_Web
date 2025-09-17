@@ -1,17 +1,9 @@
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import useMap from "@/api/useMap";
-import ToolTip from "@/pages/Setting/components/ToolTip";
-import {
-  EEM,
-  IsEditingQuickRoads,
-  QuickRoadsArray,
-} from "@/pages/Setting/utils/settingJotai";
 import useElevatorSocket from "@/sockets/useElevatorSocket";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
-import { Tooltip } from "antd";
-import { useAtomValue, useSetAtom } from "jotai";
-import { FC, memo } from "react";
-import styled, { keyframes } from "styled-components";
+import { FC } from "react";
+import styled from "styled-components";
 import Elevator from "./Elevator";
 
 const PointDiv = styled.div.attrs<{
@@ -90,9 +82,9 @@ const AllElevator: FC = () => {
             info?.find((i) => i.locationId === loc.locationId)?.scale || 1;
 
           const cargo = eleSocket[loc.locationId]?.cargo || [];
-          const customName = eleSocket[loc.locationId].name || "";
-          const isDisable = eleSocket[loc.locationId].disable;
-          const isBook = eleSocket[loc.locationId].booker;
+          const customName = eleSocket[loc.locationId]?.name || "";
+          const isDisable = eleSocket[loc.locationId]?.disable;
+          const isBook = eleSocket[loc.locationId]?.booker;
           return (
             <div
               draggable={false}

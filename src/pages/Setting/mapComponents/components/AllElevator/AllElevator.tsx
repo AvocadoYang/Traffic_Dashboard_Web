@@ -127,8 +127,8 @@ const AllElevator: FC = () => {
             info?.find((i) => i.locationId === loc.locationId)?.scale || 1;
 
           const cargo = eleSocket[loc.locationId]?.cargo || [];
-          const customName = eleSocket[loc.locationId].name || "";
-          const isDisable = eleSocket[loc.locationId].disable;
+          const customName = eleSocket[loc.locationId]?.name || "";
+          const isDisable = eleSocket[loc.locationId]?.disable;
 
           return (
             <div

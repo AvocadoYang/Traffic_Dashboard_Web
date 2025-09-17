@@ -497,7 +497,9 @@
       "edit_detail": "編輯貨物詳細資訊",
       "cargo_limit": "貨架高度鎖定",
       "pallet": "板",
-      "description": "說明"
+      "description": "說明",
+      "level_name_required":"名稱為必填",
+      "invalid_level_name":"名稱不可包含'-'或是空白鍵"
     },
     "error": {
       "info_error": "貨架讀取錯誤"

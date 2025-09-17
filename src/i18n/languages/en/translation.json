@@ -500,7 +500,9 @@
       "edit_detail": "edit cargo detail info",
       "cargo_limit": "Cargo Limit",
       "pallet": "Pallet",
-      "description": "Description"
+      "description": "Description",
+           "level_name_required":"name is require",
+      "invalid_level_name":"Name cannot contain spaces or hyphens; Level name can only contain letters, numbers, and underscores."
     },
     "error": {
       "info_error": "error read info error"
