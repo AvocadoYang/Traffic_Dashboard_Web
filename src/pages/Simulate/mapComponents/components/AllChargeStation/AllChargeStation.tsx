@@ -5,15 +5,34 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { tooltipProp } from "@/utils/gloable";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
 import { isShowLocation } from "@/utils/siderGloble";
-import { Point } from "../AllLocation/components/PointAndLine";
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
-import Station from "./Station";
+
+import styled from "styled-components";
+import ChargeStation from "./ChargeStation";
+import { Point } from "@/pages/Setting/mapComponents/components/AllLocation/components/PointAndLine";
+import StatusPanel from "./StatusPanel";
+import useChargeStationSocket from "@/sockets/useChargeStationSocket";
+
+const WrapperStation = styled.div.attrs<{
+  left: number;
+  top: number;
+}>(({ left, top }) => ({
+  style: { left, top },
+}))<{
+  left: number;
+  top: number;
+}>`
+  position: absolute;
+  width: 5px;
+  height: 5px;
+`;
 
 const AllChargeStation: FC = () => {
   const showLocation = useAtomValue(isShowLocation);
   const setTooltip = useSetAtom(tooltipProp);
   const { data } = useMap();
   const { data: locInfo } = useLoc(undefined);
+
   const handleEnter = useCallback(
     (locationId: string, x: number, y: number) => {
       setTooltip({
@@ -22,7 +41,7 @@ const AllChargeStation: FC = () => {
         locationId,
       });
     },
-    [],
+    []
   );
 
   const handleLeave = useCallback(() => {
@@ -73,15 +92,20 @@ const AllChargeStation: FC = () => {
                 key={nanoid()}
                 onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
                 onMouseLeave={() => handleLeave()}
-              >
-                <Station
+              ></Point>
+
+              <WrapperStation left={displayX} top={displayY}>
+                <ChargeStation
                   locationId={loc.locationId}
+                  isAlive={true}
+                  isDisable={false}
+                  customName={""}
                   translateX={translateX}
                   translateY={translateY}
                   rotate={rotate}
                   scale={LocScale}
                 />
-              </Point>
+              </WrapperStation>
             </div>
           );
         })}

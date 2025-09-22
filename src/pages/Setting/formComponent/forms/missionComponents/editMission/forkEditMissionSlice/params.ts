@@ -8,7 +8,7 @@ export const actonList = [
   "cargo_limit",
   "load_from_other",
   "offload_from_other",
-  "verity_cargo"
+  "verity_cargo",
 ] as const;
 
 export const controlList = {
@@ -21,7 +21,7 @@ export const controlList = {
   cargo_limit: ["H"],
   load_from_other: ["F", "H", "S", "B", "W"],
   offload_from_other: ["F", "H", "S", "B", "W"],
-  verity_cargo: ["C"]
+  verity_cargo: ["C"],
 } as const;
 
 export const selectLocationOption = [

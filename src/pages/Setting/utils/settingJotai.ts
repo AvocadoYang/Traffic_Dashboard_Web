@@ -11,3 +11,9 @@ export const EEM = atom<{ locationId: string | null; isOpen: boolean }>({
 });
 //Edit elevator carog
 export const EEC = atom<boolean>(false);
+
+// EditChargeStationModal
+export const ECSM = atom<{ locationId: string | null; isOpen: boolean }>({
+  locationId: null,
+  isOpen: false,
+});

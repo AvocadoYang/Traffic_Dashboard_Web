@@ -498,8 +498,8 @@
       "cargo_limit": "貨架高度鎖定",
       "pallet": "板",
       "description": "說明",
-      "level_name_required":"名稱為必填",
-      "invalid_level_name":"名稱不可包含'-'或是空白鍵"
+      "level_name_required": "名稱為必填",
+      "invalid_level_name": "名稱不可包含'-'或是空白鍵"
     },
     "error": {
       "info_error": "貨架讀取錯誤"
@@ -589,6 +589,7 @@
     "time_zone": "定時充電時區",
     "mins": "分鐘",
     "charge": "充電",
+    "disable": "停用",
 
     "updateTime": "更新時間",
 
@@ -625,7 +626,19 @@
     "aggressive_max": "激進門檻最多為70%",
     "full_rate_min": "滿載充電閾值至少為70%",
     "available_min": "可用任務閾值至少為11%",
-    "submit": "提交"
+    "submit": "提交",
+
+    "model": {
+      "ip": "IP",
+      "station_id": "站點 ID",
+      "ip_address": "IP 位址",
+      "port": "端口",
+      "name": "名稱",
+      "description": "描述",
+      "ip_invalid": "輸入的IP位址無效！",
+      "ip_required": "請輸入IP位址！",
+      "edit_charge_station_config": "編輯充電站配置"
+    }
   },
 
   "main": {
@@ -960,7 +973,7 @@
     "S": "自轉",
     "H": "枒杈升降",
     "W": "等待",
-    "verity_cargo":"相機辨識貨物"
+    "verity_cargo": "相機辨識貨物"
   },
 
   "customCargo": {

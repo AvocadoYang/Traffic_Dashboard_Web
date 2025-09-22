@@ -30,7 +30,7 @@ interface PeripheralData {
   status: EndpointStatus;
   quantity: number;
   peripheralNameDBId: string;
-  level: number
+  level: number;
 }
 
 const StyledTable = styled(Table)`
@@ -58,22 +58,22 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   record: PeripheralData;
   index: number;
 }
-  const options = [
-    { value: 0, label: "UNDEFINED" },
-    { value: 10, label: "OFFLINE" },
-    { value: 20, label: "EMPTY_AVAILABLE_FOR_RECEIVING"  },
-    { value: 30, label: "EMPTY_ITEM_RESERVED" ,disabled: true },
-    { value: 31, label: "EMPTY_DEFECT_ITEM_RESERVED",disabled: true  },
-    { value: 40, label: "EMPTY_NOT_AVAILABLE"  },
-    { value: 50, label: "OCCUPIED_AVAILABLE_FOR_PICKUP"  },
-    { value: 60, label: "OCCUPIED_ITEM_PICKUP_RESERVED" ,disabled: true },
-    { value: 70, label: "OCCUPIED_NOT_AVAILABLE" },
-  ];
+const options = [
+  { value: 0, label: "UNDEFINED" },
+  { value: 10, label: "OFFLINE" },
+  { value: 20, label: "EMPTY_AVAILABLE_FOR_RECEIVING" },
+  { value: 30, label: "EMPTY_ITEM_RESERVED", disabled: true },
+  { value: 31, label: "EMPTY_DEFECT_ITEM_RESERVED", disabled: true },
+  { value: 40, label: "EMPTY_NOT_AVAILABLE" },
+  { value: 50, label: "OCCUPIED_AVAILABLE_FOR_PICKUP" },
+  { value: 60, label: "OCCUPIED_ITEM_PICKUP_RESERVED", disabled: true },
+  { value: 70, label: "OCCUPIED_NOT_AVAILABLE" },
+];
 
-  const statusRecord = options.reduce<Record<number, string>>((acc, option) => {
-    acc[option.value] = option.label;
-    return acc;
-  }, {});
+const statusRecord = options.reduce<Record<number, string>>((acc, option) => {
+  acc[option.value] = option.label;
+  return acc;
+}, {});
 
 const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   editing,
@@ -89,12 +89,10 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
     () =>
       peripheralGroups?.map((pg) => ({
         label: pg.name,
-        value:  pg.name,
+        value: pg.name,
       })) || [],
     [peripheralGroups],
   );
-
-
 
   let inputNode;
 
@@ -103,9 +101,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
       <Select options={peripheralOptions} placeholder="Select group"></Select>
     );
   } else if (dataIndex === "status") {
-    inputNode = (
-      <Select options={options} placeholder="Select status"></Select>
-    );
+    inputNode = <Select options={options} placeholder="Select status"></Select>;
   } else if (dataIndex === "quantity") {
     inputNode = <Input type="number" placeholder={`Enter ${title}`} />;
   } else {
@@ -142,8 +138,6 @@ const PeripheralNameTable: React.FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const { t } = useTranslation();
 
-
-
   const isEditing = (record: PeripheralData) => record.id === editingKey;
 
   const updateMutation = useMutation({
@@ -153,7 +147,7 @@ const PeripheralNameTable: React.FC = () => {
     onSuccess: () => {
       messageApi.success("Name updated successfully");
       queryClient.invalidateQueries({ queryKey: ["peripheral-name"] });
-      refetch()
+      refetch();
       setEditingKey("");
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
@@ -179,7 +173,7 @@ const PeripheralNameTable: React.FC = () => {
     form.setFieldsValue({ quantity: record.quantity });
     form.setFieldsValue({ group: record.group || null });
     form.setFieldsValue({ status: record.status });
-    setEditingKey(record.id)
+    setEditingKey(record.id);
   };
 
   const cancel = () => {
@@ -191,7 +185,11 @@ const PeripheralNameTable: React.FC = () => {
     messageApi.success("ok");
   };
 
-  const save = async ( peripheralNameDBId: string,locationId: string, level: number) => {
+  const save = async (
+    peripheralNameDBId: string,
+    locationId: string,
+    level: number,
+  ) => {
     try {
       const row = (await form.validateFields()) as {
         name: string;
@@ -200,7 +198,7 @@ const PeripheralNameTable: React.FC = () => {
         group: string;
         status: EndpointStatus;
       };
-     // console.log(peripheralNameDBId,locationId)
+      // console.log(peripheralNameDBId,locationId)
       updateMutation.mutate({
         id: locationId,
         name: row.name,
@@ -230,7 +228,9 @@ const PeripheralNameTable: React.FC = () => {
       dataIndex: "status",
       editable: true,
       width: 270,
-          render: (text: number) => <Typography.Text code>{statusRecord[text]}</Typography.Text>,
+      render: (text: number) => (
+        <Typography.Text code>{statusRecord[text]}</Typography.Text>
+      ),
     },
     {
       title: t("peripheral_name_table.name"),
@@ -250,7 +250,7 @@ const PeripheralNameTable: React.FC = () => {
       title: t("peripheral_name_table.group"),
       dataIndex: "group",
       editable: true,
-       render: (text: string) => <Typography.Text code>{text}</Typography.Text>,
+      render: (text: string) => <Typography.Text code>{text}</Typography.Text>,
       width: 250,
     },
     {
@@ -267,7 +267,9 @@ const PeripheralNameTable: React.FC = () => {
         return editable ? (
           <span>
             <Typography.Link
-              onClick={() => save( record.peripheralNameDBId,record.id, record.level)}
+              onClick={() =>
+                save(record.peripheralNameDBId, record.id, record.level)
+              }
               style={{ marginInlineEnd: 8 }}
             >
               {t("utils.save")}
@@ -333,7 +335,7 @@ const PeripheralNameTable: React.FC = () => {
           columns={mergedColumns as []}
           rowClassName="editable-row"
           pagination={{ pageSize: 10 }}
-          rowKey={(record:PeripheralData)=> record.id }
+          rowKey={(record: PeripheralData) => record.id}
         />
       </Form>
     </>

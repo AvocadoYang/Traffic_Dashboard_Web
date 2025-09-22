@@ -6,10 +6,14 @@ import { tooltipProp } from "@/utils/gloable";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
 import { isShowLocation } from "@/utils/siderGloble";
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
-import Station from "./Station";
-import styled from "styled-components";
 
-const WrapperForCargo = styled.div.attrs<{
+import styled from "styled-components";
+import ChargeStation from "./ChargeStation";
+import { Point } from "@/pages/Setting/mapComponents/components/AllLocation/components/PointAndLine";
+import StatusPanel from "./StatusPanel";
+import useChargeStationSocket from "@/sockets/useChargeStationSocket";
+
+const WrapperStation = styled.div.attrs<{
   left: number;
   top: number;
 }>(({ left, top }) => ({
@@ -23,42 +27,12 @@ const WrapperForCargo = styled.div.attrs<{
   height: 5px;
 `;
 
-const PointDiv = styled.div.attrs<{
-  left: number;
-  top: number;
-  canrotate: string;
-  hoverLoc?: boolean;
-}>(({ left, top, canrotate, hoverLoc }) => ({
-  style: { left, top, canrotate, hoverLoc },
-}))<{
-  left: number;
-  top: number;
-  canrotate: string;
-  hoverLoc?: boolean;
-}>`
-  position: absolute;
-  width: 5px;
-  height: 5px;
-  background: ${(props) =>
-    props.canrotate === "true" ? "#ebac5b" : "#1b00ce"};
-  border-radius: 50%;
-  z-index: 10;
-  transition-duration: 200ms;
-
-  border: ${(props) => (props.hoverLoc ? "5px solid #ff0000" : "none")};
-  &:hover {
-    background: red;
-    scale: 1.8;
-  }
-`;
-
-export const Point = memo(PointDiv);
-
 const AllChargeStation: FC = () => {
   const showLocation = useAtomValue(isShowLocation);
   const setTooltip = useSetAtom(tooltipProp);
   const { data } = useMap();
   const { data: locInfo } = useLoc(undefined);
+
   const handleEnter = useCallback(
     (locationId: string, x: number, y: number) => {
       setTooltip({
@@ -67,7 +41,7 @@ const AllChargeStation: FC = () => {
         locationId,
       });
     },
-    [],
+    []
   );
 
   const handleLeave = useCallback(() => {
@@ -119,15 +93,19 @@ const AllChargeStation: FC = () => {
                 onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
                 onMouseLeave={() => handleLeave()}
               ></Point>
-              <WrapperForCargo left={displayX} top={displayY}>
-                <Station
+
+              <WrapperStation left={displayX} top={displayY}>
+                <ChargeStation
                   locationId={loc.locationId}
+                  isAlive={true}
+                  isDisable={false}
+                  customName={""}
                   translateX={translateX}
                   translateY={translateY}
                   rotate={rotate}
                   scale={LocScale}
                 />
-              </WrapperForCargo>
+              </WrapperStation>
             </div>
           );
         })}

@@ -52,9 +52,10 @@ import EditPeripheralModal from "../formComponent/forms/peripheralModal/EditPeri
 import CargoEditor from "../formComponent/forms/peripheralModal/CargoEditor";
 import { SudoPeripheral } from "../formComponent/forms/other/editPeripheralIcon";
 import AllElevator from "./components/AllElevator/AllElevator";
-import { EEC, EEM } from "../utils/settingJotai";
+import { ECSM, EEC, EEM } from "../utils/settingJotai";
 import EditElevatorModal from "./components/AllElevator/EditElevatorModal";
 import CargoEditorElevator from "./components/AllElevator/Form/CargoEditorElevator";
+import EditChargeStationConfigModal from "./components/AllChargeStation/EditChargeStationConfigModal";
 
 const MapView: React.FC<{
   scale: number;
@@ -115,6 +116,7 @@ const MapView: React.FC<{
   const openPeripheralCargoEditorModal = useAtomValue(IsOpenCargoEditorModal);
   const openElevatorModal = useAtomValue(EEM);
   const openModalElevatorCargoEditor = useAtomValue(EEC);
+  const openEditChargeStationModal = useAtomValue(ECSM);
 
   if (currentVersion) {
     const defaultCookie = Cookies.get("version");
@@ -249,6 +251,10 @@ const MapView: React.FC<{
       )}
 
       {openElevatorModal?.isOpen ? <EditElevatorModal /> : null}
+
+      {openEditChargeStationModal.isOpen ? (
+        <EditChargeStationConfigModal />
+      ) : null}
 
       {showRoad ? <AllRoads /> : []}
 

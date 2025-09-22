@@ -119,16 +119,16 @@ const LayerForm: FC<{
                 <Form.Item
                   label={t("shelf.layer_form.column_name")}
                   name={`levelName${index}`}
-                    rules={[
-    {
-      required: true,
-      message: t("shelf.layer_form.level_name_required"),
-    },
-    {
-      pattern: /^[a-zA-Z0-9_]+$/,
-      message: t("shelf.layer_form.invalid_level_name"),
-    },
-  ]}
+                  rules={[
+                    {
+                      required: true,
+                      message: t("shelf.layer_form.level_name_required"),
+                    },
+                    {
+                      pattern: /^[a-zA-Z0-9_]+$/,
+                      message: t("shelf.layer_form.invalid_level_name"),
+                    },
+                  ]}
                 >
                   <Input placeholder={t("shelf.layer_form.enter_level_name")} />
                 </Form.Item>

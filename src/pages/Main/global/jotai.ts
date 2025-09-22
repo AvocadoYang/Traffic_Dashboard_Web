@@ -36,3 +36,5 @@ export const QuickMissionLoad = atom<Quick_Mission | null>(null);
 export const QuickMissionOffload = atom<Quick_Mission | null>(null);
 export const StartQuickMissionSetting = atom<boolean>(false);
 export const QuickMissionSettingMode = atom<"load" | "offload" | null>(null);
+
+export const OpenChargeStationModal = atom<string | null>(null);

@@ -6,12 +6,13 @@ import { useAtomValue } from "jotai";
 import { isShowLocationTooltip, isShowRoad } from "@/utils/siderGloble";
 import AllRoads from "./components/AllRoads/AllRoads";
 import AllCargo from "./components/AllCargo.tsx/AllCargo";
-import { AllChargeStation } from "./components/AllChargeStation";
 import CreateScriptForm from "../components/CreateScriptForm";
 import AllInMapAMRs from "../components/AMR/AllInMapAMRs";
 import { globalScale } from "../utils/mapStatus";
 import AllConveyor from "./components/AllConveyor/AllConveyor";
 import EditConveyorModal from "./components/AllConveyor/EditConveyorModal";
+import { AllElevator } from "./components/AllElevator";
+import AllChargeStation from "./components/AllChargeStation/AllChargeStation";
 
 const MapView: React.FC<{
   mapRef: RefObject<HTMLDivElement>;
@@ -40,7 +41,7 @@ const MapView: React.FC<{
       <AllCargo />
 
       <AllChargeStation />
-
+      <AllElevator />
       <AllConveyor />
       <EditConveyorModal />
 

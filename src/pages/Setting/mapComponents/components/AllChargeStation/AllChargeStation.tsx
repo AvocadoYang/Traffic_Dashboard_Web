@@ -12,11 +12,26 @@ import {
 } from "@/utils/siderGloble";
 import { DraggableLine, Point } from "../AllLocation/components/PointAndLine";
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
-import Station from "./Station";
 import {
   IsEditingQuickRoads,
   QuickRoadsArray,
 } from "@/pages/Setting/utils/settingJotai";
+import styled from "styled-components";
+import ChargeStation from "./ChargeStation";
+
+const WrapperStation = styled.div.attrs<{
+  left: number;
+  top: number;
+}>(({ left, top }) => ({
+  style: { left, top },
+}))<{
+  left: number;
+  top: number;
+}>`
+  position: absolute;
+  width: 5px;
+  height: 5px;
+`;
 
 const AllChargeStation: FC<{
   setInitPoint: React.Dispatch<draggableLineInitialPoint>;
@@ -45,7 +60,7 @@ const AllChargeStation: FC<{
         locationId,
       });
     },
-    [],
+    []
   );
 
   const handleLeave = useCallback(() => {
@@ -99,20 +114,26 @@ const AllChargeStation: FC<{
                 key={nanoid()}
                 onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
                 onMouseLeave={() => handleLeave()}
-                onMouseDown={(e) => {
+                onMouseDown={(e: React.MouseEvent<HTMLDivElement>) => {
                   if (!openEditRoadPanel || openEditZone) return;
                   setInitPoint({ clientX: e.clientX, clientY: e.clientY });
                   handleMouseDown((e.target as HTMLInputElement).id);
                 }}
-              >
-                <Station
+              ></Point>
+
+              <WrapperStation left={displayX} top={displayY}>
+                <ChargeStation
                   locationId={loc.locationId}
+                  isAlive={true}
+                  isDisable={false}
+                  customName={""}
                   translateX={translateX}
                   translateY={translateY}
                   rotate={rotate}
                   scale={LocScale}
                 />
-              </Point>
+              </WrapperStation>
+
               <DraggableLine
                 locId={loc.locationId.toString()}
                 left={displayX}

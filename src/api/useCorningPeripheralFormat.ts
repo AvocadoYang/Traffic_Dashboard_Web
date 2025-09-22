@@ -13,7 +13,7 @@ const schema = object({
       status: number().required(),
       quantity: number().required(),
       peripheralNameDBId: string().required(),
-      level: number().required()
+      level: number().required(),
     }).optional(),
   ),
 }).required();

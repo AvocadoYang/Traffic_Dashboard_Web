@@ -15,11 +15,12 @@ import {
   isShowLocationTooltip,
   isShowRoad,
 } from "@/utils/siderGloble";
-import { AllChargeStation } from "./AllChargeStation";
 import useMap from "@/api/useMap";
-import ChargeStationModel from "./AllChargeStation/ChargeStationModel";
 import AllConveyor from "../../PadViwe/components/PadMapContent/AllConveyor/AllConveyor";
 import { AllElevator } from "../../PadViwe/components/PadMapContent/AllElevator";
+import AllChargeStation from "../../PadViwe/components/PadMapContent/AllChargeStation/AllChargeStation";
+import { OpenChargeStationModal } from "@/pages/Main/global/jotai";
+import StatusPanel from "../../PadViwe/components/PadMapContent/AllChargeStation/StatusPanel";
 
 const WebMapView: React.FC<{
   mapRef: RefObject<HTMLDivElement>;
@@ -30,6 +31,7 @@ const WebMapView: React.FC<{
   const showLocationToolTip = useAtomValue(isShowLocationTooltip);
   const showLocation = useAtomValue(isShowLocation);
   const showRoad = useAtomValue(isShowRoad);
+  const showChargeConfig = useAtomValue(OpenChargeStationModal);
   const { isError } = useMap();
 
   return (
@@ -67,8 +69,8 @@ const WebMapView: React.FC<{
           {showRoad ? <AllRoads></AllRoads> : null}
           {showLocationToolTip ? <ToolTip /> : []}
           <AllZones scale={scale}></AllZones>
-          <AllChargeStation />
-          <ChargeStationModel />
+          <AllChargeStation></AllChargeStation>
+          {showChargeConfig ? <StatusPanel locId={showChargeConfig} /> : null}
         </>
       )}
     </div>

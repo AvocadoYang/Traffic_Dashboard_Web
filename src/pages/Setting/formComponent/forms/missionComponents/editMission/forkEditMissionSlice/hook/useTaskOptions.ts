@@ -61,7 +61,7 @@ const useTaskOptions = (action: Action_Type) => {
         text = t("car_control_translate.verity_cargo");
         break;
       default:
-        text 
+        text;
     }
     return text;
   };

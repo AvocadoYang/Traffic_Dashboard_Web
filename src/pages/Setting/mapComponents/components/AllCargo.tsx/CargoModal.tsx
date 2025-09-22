@@ -25,13 +25,15 @@ const CargoModal: FC = () => {
     const payload = settingForm.getFieldsValue() as FormCargo;
     const layerPayload = layerForm.getFieldsValue() as [];
 
-  const errors = layerForm.getFieldsError().filter(({ errors }) => errors.length > 0);
+    const errors = layerForm
+      .getFieldsError()
+      .filter(({ errors }) => errors.length > 0);
 
-  if (errors.length > 0) {
-    // 2. Show first error with message API
-    messageApi.error(errors[0].errors[0]);
-    return; // 3. Stop execution
-  }
+    if (errors.length > 0) {
+      // 2. Show first error with message API
+      messageApi.error(errors[0].errors[0]);
+      return; // 3. Stop execution
+    }
 
     layerForm.resetFields();
     setIsEditLayer(false);

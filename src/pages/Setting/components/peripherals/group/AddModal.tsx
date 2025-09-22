@@ -92,7 +92,7 @@ const AddModal: React.FC<AddModalProps> = ({
     onSuccess: () => {
       messageApi.success("success");
       queryClient.invalidateQueries({ queryKey: ["peripheral-group"] });
-          queryClient.invalidateQueries({ queryKey: ["peripheral-corning"] });
+      queryClient.invalidateQueries({ queryKey: ["peripheral-corning"] });
       form.resetFields();
       handleCancel();
     },
@@ -113,7 +113,7 @@ const AddModal: React.FC<AddModalProps> = ({
     onSuccess: () => {
       messageApi.success("Updated successfully");
       queryClient.invalidateQueries({ queryKey: ["peripheral-group"] });
-          queryClient.invalidateQueries({ queryKey: ["peripheral-corning"] });
+      queryClient.invalidateQueries({ queryKey: ["peripheral-corning"] });
       form.resetFields();
       handleCancel();
     },
@@ -134,21 +134,21 @@ const AddModal: React.FC<AddModalProps> = ({
         messageApi.error("name is require !");
         return;
       }
-const safeTargetKeys = targetKeys.filter(
-  (k): k is string => typeof k === "string"
-);
+      const safeTargetKeys = targetKeys.filter(
+        (k): k is string => typeof k === "string",
+      );
       if (isEdit && editValue?.id) {
         editMutation.mutate({
           id: editValue.id,
           name: values.name,
           description: values.description || null,
-       peripheralNameIds: safeTargetKeys,
+          peripheralNameIds: safeTargetKeys,
         });
       } else {
         addMutation.mutate({
           name: values.name,
           description: values.description || null,
-         peripheralNameIds: safeTargetKeys,
+          peripheralNameIds: safeTargetKeys,
         });
       }
     } catch (errInfo) {

@@ -1,10 +1,4 @@
 import {
-  QuickMissionLoad,
-  QuickMissionOffload,
-  QuickMissionSettingMode,
-  StartQuickMissionSetting,
-} from "@/pages/Main/global/jotai";
-import {
   EEM,
   IsEditingQuickRoads,
   QuickRoadsArray,
@@ -13,14 +7,6 @@ import { Tooltip } from "antd";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import React, { FC } from "react";
 import styled from "styled-components";
-
-interface ElevatorProps {
-  locationId: string;
-  hasCargo: boolean;
-  isDisable: boolean;
-  customName: string;
-  isHaveAction?: boolean; // optional: for pulse effect
-}
 
 const SvgStyle = styled.svg<{
   $hasCargo: boolean;
@@ -45,26 +31,6 @@ const SvgStyle = styled.svg<{
     background-color: ${({ $hasCargo }) =>
       $hasCargo ? "rgba(255, 231, 60, 0.5)" : "rgba(200,200,200,0.3)"};
   }
-`;
-
-const CargoLight = styled.div`
-  width: 1em;
-  height: 1em;
-  /* Use a small border-radius for a slightly rounded cube edge */
-  border-radius: 4px;
-  position: absolute;
-  left: 15px;
-  bottom: 15px;
-
-  /* 3D Box effect start */
-  background-color: #ff5555; /* Base color for the front face */
-
-  box-shadow:
-    /* Top face highlight (light source from top-left) */
-    inset 2px 2px 5px rgba(255, 255, 255, 0.7),
-    /* Right face shadow */ 5px 5px 10px rgba(0, 0, 0, 0.5),
-    /* Bottom face shadow */ -5px -5px 10px rgba(0, 0, 0, 0.3);
-  /* 3D Box effect end */
 `;
 
 const Elevator: FC<{

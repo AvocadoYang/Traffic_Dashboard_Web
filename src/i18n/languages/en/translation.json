@@ -501,8 +501,8 @@
       "cargo_limit": "Cargo Limit",
       "pallet": "Pallet",
       "description": "Description",
-           "level_name_required":"name is require",
-      "invalid_level_name":"Name cannot contain spaces or hyphens; Level name can only contain letters, numbers, and underscores."
+      "level_name_required": "name is require",
+      "invalid_level_name": "Name cannot contain spaces or hyphens; Level name can only contain letters, numbers, and underscores."
     },
     "error": {
       "info_error": "error read info error"
@@ -593,6 +593,7 @@
     "time_zone": "time zone charge",
     "mins": "mins",
     "charge": "charge",
+    "disable": "disable",
 
     "updateTime": "update time",
 
@@ -628,7 +629,19 @@
     "aggressive_max": "Aggressive threshold must be at most 70%",
     "full_rate_min": "Full charge threshold must be at least 70%",
     "available_min": "Available task threshold must be at least 11%",
-    "submit": "Submit"
+    "submit": "Submit",
+
+    "model": {
+      "station_id": "Station ID",
+      "ip_address": "IP Address",
+      "port": "Port",
+      "name": "Name",
+      "description": "Description",
+      "ip_invalid": "The input is not a valid IP address!",
+      "ip_required": "Please input an IP address!",
+      "edit_charge_station_config": "Edit Charge Station Config",
+      "ip": "IP"
+    }
   },
 
   "main": {
@@ -959,7 +972,7 @@
     "S": "spin",
     "H": "fork movement",
     "W": "wait",
-        "verity_cargo":"verity cargo via camera"
+    "verity_cargo": "verity cargo via camera"
   },
 
   "customCargo": {

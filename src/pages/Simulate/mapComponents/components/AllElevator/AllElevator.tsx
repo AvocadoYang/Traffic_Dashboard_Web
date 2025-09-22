@@ -1,16 +1,12 @@
-import useMap from "@/api/useMap";
-import { rosCoord2DisplayCoord } from "@/utils/utils";
-import { memo } from "react";
-import Cargo from "./Cargo";
-import { useAtomValue, useSetAtom } from "jotai";
-import { isShowLocation } from "@/utils/siderGloble";
-import { nanoid } from "nanoid";
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
-import useCargoInfo from "@/sockets/useCargoInfo";
+import useMap from "@/api/useMap";
+import useElevatorSocket from "@/sockets/useElevatorSocket";
+import { rosCoord2DisplayCoord } from "@/utils/utils";
+import { FC } from "react";
 import styled from "styled-components";
-import { tooltipProp } from "@/utils/gloable";
+import Elevator from "./Elevator";
 
-const Point = styled.div.attrs<{
+const PointDiv = styled.div.attrs<{
   left: number;
   top: number;
   canrotate: string;
@@ -25,7 +21,7 @@ const Point = styled.div.attrs<{
   width: 5px;
   height: 5px;
   background: ${(props) =>
-    props.canrotate === "true" ? "#ebac5b" : "#1b00ce"};
+    props.canrotate === "true" ? "#ebac5b" : "#71ce00"};
   border-radius: 50%;
   z-index: 10;
   transition-duration: 200ms;
@@ -35,7 +31,7 @@ const Point = styled.div.attrs<{
   }
 `;
 
-const WrapperForCargo = styled.div.attrs<{
+const WrapperStation = styled.div.attrs<{
   left: number;
   top: number;
 }>(({ left, top }) => ({
@@ -49,30 +45,21 @@ const WrapperForCargo = styled.div.attrs<{
   height: 5px;
 `;
 
-const AllCargo: React.FC = () => {
-  const shelfInfo = useCargoInfo();
-  const showLocation = useAtomValue(isShowLocation);
+const ContainerElevator = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+const AllElevator: FC = () => {
   const { data } = useMap();
-  const setTooltip = useSetAtom(tooltipProp);
-
-  const handleEnter = (locationId: string, x: number, y: number) => {
-    setTooltip({
-      x,
-      y,
-      locationId,
-    });
-  };
-
-  const handleLeave = () => {
-    setTooltip(null);
-  };
   const { data: locInfo } = useLoc(undefined);
+  const eleSocket = useElevatorSocket();
 
-  if (!data || !showLocation) return;
+  if (!data || !eleSocket) return [];
   return (
     <>
       {data.locations
-        .filter(({ areaType }) => areaType === "STORAGE")
+        .filter(({ areaType }) => areaType === "ELEVATOR")
         .map((loc) => {
           const [displayX, displayY] = rosCoord2DisplayCoord({
             x: loc.x,
@@ -93,9 +80,11 @@ const AllCargo: React.FC = () => {
             info?.find((i) => i.locationId === loc.locationId)?.rotate || 0.1;
           const LocScale =
             info?.find((i) => i.locationId === loc.locationId)?.scale || 1;
-          const flex_direction =
-            info?.find((i) => i.locationId === loc.locationId)
-              ?.flex_direction || "row";
+
+          const cargo = eleSocket[loc.locationId]?.cargo || [];
+          const customName = eleSocket[loc.locationId]?.name || "";
+          const isDisable = eleSocket[loc.locationId]?.disable;
+          const isBook = eleSocket[loc.locationId]?.booker;
           return (
             <div
               draggable={false}
@@ -105,29 +94,28 @@ const AllCargo: React.FC = () => {
               }}
               style={{ borderRadius: "50%" }}
             >
-              <Point
+              <PointDiv
                 id={loc.locationId.toString()}
                 canrotate={`${loc.canRotate}`}
                 left={displayX}
                 top={displayY}
-                key={nanoid()}
-                onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
-                onMouseLeave={() => handleLeave()}
-              ></Point>
-              <WrapperForCargo left={displayX} top={displayY}>
-                <Cargo
-                  id={loc.id}
-                  locId={loc.locationId}
-                  translateX={translateX}
-                  translateY={translateY}
-                  scale={LocScale}
-                  rotate={rotate}
-                  flex_direction={flex_direction}
-                  shelfInfo={shelfInfo?.find(
-                    (s) => s.locationId === loc.locationId,
-                  )}
-                />
-              </WrapperForCargo>
+                key={loc.locationId}
+              ></PointDiv>
+              <WrapperStation left={displayX} top={displayY}>
+                <ContainerElevator
+                  style={{
+                    transform: `translate(${translateX}px, ${translateY}px) scale(${LocScale}) rotate(${rotate}deg)`,
+                  }}
+                >
+                  <Elevator
+                    locationId={loc.locationId}
+                    hasCargo={cargo.length > 0}
+                    isDisable={isDisable}
+                    isBook={isBook}
+                    customName={customName}
+                  />
+                </ContainerElevator>
+              </WrapperStation>
             </div>
           );
         })}
@@ -135,4 +123,4 @@ const AllCargo: React.FC = () => {
   );
 };
 
-export default memo(AllCargo);
+export default AllElevator;

@@ -96,7 +96,7 @@ const Cargo: FC<{
               levelName={prefixLevelName(info.levelName)}
               cargoValue={cargoValue}
               isDisable={isDisable}
-              booker={info.booker === null ? "nobody": info.booker}
+              booker={info.booker === null ? "nobody" : info.booker}
               locId={locId}
               rotate={0}
               isHaveAction={isHaveAction}

@@ -56,8 +56,8 @@ const Block = styled(Button)<{
     $isDisable
       ? "not-allowed"
       : $isSelecting && !$canBeClick
-      ? "not-allowed"
-      : "pointer"};
+        ? "not-allowed"
+        : "pointer"};
   opacity: ${({ $isDisable }) => ($isDisable ? 0.6 : 1)};
   box-shadow: ${({ $isSelecting, $canBeClick }) =>
     $isSelecting && $canBeClick ? "0 0 8px rgba(24, 144, 255, 0.3)" : "none"};
@@ -132,7 +132,7 @@ interface CargoDisplayProps {
   cargoValue: boolean;
   isDisable: boolean;
   isHaveAction: boolean;
-  booker: string
+  booker: string;
   locId: string;
   rotate: number;
   handleMouseDown: (
