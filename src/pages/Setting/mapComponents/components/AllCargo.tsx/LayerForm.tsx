@@ -11,10 +11,10 @@ import {
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { nanoid } from "nanoid";
-import { LayerType } from "@/sockets/useCargoInfo";
 import { useSetAtom } from "jotai";
 import { GlobalCargoInfo, GlobalCargoInfoModal } from "./jotaiState";
 import { Cargo } from "@/types/peripheral";
+import { LayerType } from "@/api/type/useLocation";
 
 const prefixLevelName = (word: string | null | undefined) => {
   if (!word) return null;
@@ -36,10 +36,6 @@ const LayerForm: FC<{
   const [isClickBtn, setIsClickBtn] = useState(false);
 
   const setOpenCargoInfo = useSetAtom(GlobalCargoInfoModal);
-
-  const clearCargoField = (index: number) => {
-    form.setFieldValue(`cargoName${index}`, null);
-  };
 
   const userHasChangeData = () => {
     setIsEditLayer(true);

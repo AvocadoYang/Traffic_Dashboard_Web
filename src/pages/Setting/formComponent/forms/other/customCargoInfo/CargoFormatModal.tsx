@@ -16,6 +16,7 @@ interface Props {
     custom_name: string;
     is_default: boolean;
     format: Record<string, string>;
+    unique_key: string;
   };
   loading?: boolean;
 }
@@ -29,7 +30,7 @@ const CargoFormatModal: FC<Props> = ({
 }) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
-
+  console.log(initialValues);
   useEffect(() => {
     if (initialValues) {
       form.setFieldsValue({
@@ -55,7 +56,7 @@ const CargoFormatModal: FC<Props> = ({
         if (item.key) acc[item.key] = item.value;
         return acc;
       },
-      {},
+      {}
     );
     onSubmit({
       custom_name: values.custom_name,
@@ -97,39 +98,60 @@ const CargoFormatModal: FC<Props> = ({
         <Form.List name="format">
           {(fields, { add, remove }) => (
             <>
-              {fields.map(({ key, name, ...restField }) => (
-                <Space key={key} align="baseline" style={{ marginBottom: 8 }}>
-                  <Form.Item
-                    {...restField}
-                    name={[name, "key"]}
-                    rules={[
-                      { required: true, message: t("customCargo.keyRequired") },
-                    ]}
-                  >
-                    <Input placeholder="e.g., container_id" />
-                  </Form.Item>
-                  <Form.Item
-                    {...restField}
-                    name={[name, "value"]}
-                    rules={[
-                      {
-                        required: true,
-                        message: t("customCargo.valueRequired"),
-                      },
-                    ]}
-                  >
-                    <Select
-                      options={[
-                        { value: "string", label: "string" },
-                        { value: "number", label: "number" },
-                        { value: "boolean", label: "boolean" },
+              {fields.map(({ key, name, ...restField }) => {
+                const currentKey = form.getFieldValue(["format", name, "key"]);
+                // Only lock if editing existing data AND this row is the unique_key
+                const isUniqueKey =
+                  !!initialValues && currentKey === initialValues?.unique_key;
+
+                return (
+                  <Space key={key} align="baseline" style={{ marginBottom: 8 }}>
+                    {/* Key input */}
+                    <Form.Item
+                      {...restField}
+                      name={[name, "key"]}
+                      rules={[
+                        {
+                          required: true,
+                          message: t("customCargo.keyRequired"),
+                        },
                       ]}
-                      style={{ width: 120 }}
-                    />
-                  </Form.Item>
-                  <MinusCircleOutlined onClick={() => remove(name)} />
-                </Space>
-              ))}
+                    >
+                      <Input
+                        disabled={isUniqueKey} // lock unique_key only in edit mode
+                        placeholder="e.g., container_id"
+                      />
+                    </Form.Item>
+
+                    {/* Type select */}
+                    <Form.Item
+                      {...restField}
+                      name={[name, "value"]}
+                      rules={[
+                        {
+                          required: true,
+                          message: t("customCargo.valueRequired"),
+                        },
+                      ]}
+                    >
+                      <Select
+                        disabled={isUniqueKey} // lock type if it’s the unique_key
+                        options={[
+                          { value: "string", label: "string" },
+                          { value: "number", label: "number" },
+                          { value: "boolean", label: "boolean" },
+                        ]}
+                        style={{ width: 120 }}
+                      />
+                    </Form.Item>
+
+                    {/* Remove button only if not unique_key */}
+                    {(!isUniqueKey || !initialValues) && (
+                      <MinusCircleOutlined onClick={() => remove(name)} />
+                    )}
+                  </Space>
+                );
+              })}
               <Form.Item>
                 <Button
                   onClick={() => add()}

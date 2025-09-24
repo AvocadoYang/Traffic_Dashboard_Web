@@ -32,6 +32,7 @@ const AllChargeStation: FC = () => {
   const setTooltip = useSetAtom(tooltipProp);
   const { data } = useMap();
   const { data: locInfo } = useLoc(undefined);
+  const charSocket = useChargeStationSocket();
 
   const handleEnter = useCallback(
     (locationId: string, x: number, y: number) => {
@@ -48,7 +49,7 @@ const AllChargeStation: FC = () => {
     setTooltip(null);
   }, []);
 
-  if (!data || !showLocation) return;
+  if (!data || !showLocation || !charSocket) return;
   return (
     <>
       {data.locations
@@ -74,6 +75,8 @@ const AllChargeStation: FC = () => {
           const LocScale =
             info?.find((i) => i.locationId === loc.locationId)?.scale || 1;
 
+          const booker = charSocket[loc.locationId]?.booker || false;
+
           return (
             <div
               draggable={false}
@@ -98,6 +101,7 @@ const AllChargeStation: FC = () => {
                 <ChargeStation
                   locationId={loc.locationId}
                   isAlive={true}
+                  booker={booker}
                   isDisable={false}
                   customName={""}
                   translateX={translateX}

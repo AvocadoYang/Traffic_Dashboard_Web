@@ -12,7 +12,7 @@ import styled from "styled-components";
 const SvgStyle = styled.svg<{
   $isDisable: boolean;
   $isAlive: boolean;
-
+  $booker: string;
   translate_x: number;
   translate_y: number;
   scale: number;
@@ -37,6 +37,24 @@ const SvgStyle = styled.svg<{
   transform: ${(props) =>
     `translate(${props.translate_x}em, ${props.translate_y}em) scale(${props.scale}) rotate(${props.rotate}deg)`};
 
+  ${({ $booker, $isDisable }) =>
+    $booker && !$isDisable
+      ? `
+        animation: pulse 2s infinite;
+        @keyframes pulse {
+          0% {
+            box-shadow: 0 0 0 0 rgba(82, 196, 26, 0.7);
+          }
+          70% {
+            box-shadow: 0 0 0 8px rgba(82, 196, 26, 0);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(82, 196, 26, 0);
+          }
+        }
+      `
+      : ""}
+
   &:hover {
     transform: ${(props) =>
       `translate(${props.translate_x}em, ${props.translate_y}em) scale(${props.scale * 1.1}) rotate(${props.rotate}deg)`};
@@ -50,7 +68,7 @@ const ChargeStation: FC<{
   isAlive: boolean;
   isDisable: boolean;
   customName: string;
-
+  booker: string;
   translateX: number;
   translateY: number;
   rotate: number;
@@ -58,6 +76,7 @@ const ChargeStation: FC<{
 }> = ({
   locationId,
   isAlive,
+  booker,
   isDisable,
   customName,
   translateX,
@@ -75,6 +94,7 @@ const ChargeStation: FC<{
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
         onClick={() => setLoc(locationId)}
+        $booker={booker} // or pass some condition
         translate_x={translateX}
         translate_y={translateY}
         scale={scale}

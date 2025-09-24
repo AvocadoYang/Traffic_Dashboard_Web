@@ -215,28 +215,31 @@ const AmrDetail = () => {
                   </Text>
                 </Descriptions.Item>
                 <Descriptions.Item label={t("amr_detail.carrying_cargo")}>
-                  {currier.isCarry ? (
-                    <>
-                      <Tag color="volcano">{t("utils.yes")}</Tag>
-                      <Button
-                        size="small"
-                        style={{ marginLeft: 8 }}
-                        onClick={() => setShowCargoMetadata(true)}
-                      >
-                        {t("amr_detail.show_cargo_metadata")}
-                      </Button>
-                      <Button
-                        size="small"
-                        type="primary"
-                        style={{ marginLeft: 8 }}
-                        onClick={() => setEditCargoModalOpen(true)}
-                      >
-                        {t("amr_card.update_cargo")}
-                      </Button>
-                    </>
-                  ) : (
-                    t("utils.no")
-                  )}
+                  <Flex gap="middle">
+                    {currier.isCarry ? (
+                      <>
+                        <Tag color="volcano">{t("utils.yes")}</Tag>
+                        <Button
+                          size="small"
+                          style={{ marginLeft: 8 }}
+                          onClick={() => setShowCargoMetadata(true)}
+                        >
+                          {t("amr_detail.show_cargo_metadata")}
+                        </Button>
+                      </>
+                    ) : (
+                      t("utils.no")
+                    )}
+
+                    <Button
+                      size="small"
+                      type="primary"
+                      style={{ marginLeft: 8 }}
+                      onClick={() => setEditCargoModalOpen(true)}
+                    >
+                      {t("amr_card.update_cargo")}
+                    </Button>
+                  </Flex>
                 </Descriptions.Item>
                 <Descriptions.Item label={t("amr_detail.maintenance")}>
                   <Text>
@@ -389,7 +392,7 @@ const AmrDetail = () => {
                     </b>
                     <div>{t("amr_detail.no_metadata")}</div>
                   </div>
-                ),
+                )
               )
             : t("amr_detail.no_metadata")}
         </pre>

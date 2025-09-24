@@ -31,8 +31,6 @@ const CargoDetail: FC = () => {
     Record<number, { name: string; type: string }[]>
   >({});
 
-  // console.log(cargo);
-
   const options = data?.map((v) => ({
     label: v?.custom_name,
     value: v?.id,
@@ -75,7 +73,7 @@ const CargoDetail: FC = () => {
               ([name, type]) => ({
                 name,
                 type: typeof type === "string" ? type : "string",
-              }),
+              })
             );
             newMap[index] = fields;
           } catch (err) {
@@ -103,7 +101,7 @@ const CargoDetail: FC = () => {
           ([name, type]) => ({
             name,
             type: typeof type === "string" ? type : "string",
-          }),
+          })
         )
       : [];
 
@@ -122,21 +120,29 @@ const CargoDetail: FC = () => {
     form.setFieldsValue({ cargo: existingCargo });
   };
 
-  const renderInput = (type: string, _name: string) => {
+  const renderInput = (
+    type: string,
+    fieldName: string,
+    uniqueKey: string | undefined,
+    isExisting: boolean
+  ) => {
+    // 🚫 disable only if editing existing cargo & field is unique_key
+    const disabled = isExisting && uniqueKey === fieldName;
+
     switch (type.toLowerCase()) {
       case "string":
-        return <Input />;
+        return <Input disabled={disabled} />;
       case "number":
-        return <Input type="number" />;
+        return <Input type="number" disabled={disabled} />;
       case "boolean":
         return (
-          <Select>
+          <Select disabled={disabled}>
             <Select.Option value="true">{t("utils.yes")}</Select.Option>
             <Select.Option value="false">{t("utils.no")}</Select.Option>
           </Select>
         );
       default:
-        return <Input />;
+        return <Input disabled={disabled} />;
     }
   };
 
@@ -185,8 +191,13 @@ const CargoDetail: FC = () => {
                     const hasMetadataSchema =
                       !!currentCargo.custom_cargo_metadata_id;
                     const metadata = currentCargo.metadata || {};
-                    // console.log(metadata);
-                    // console.log(hasMetadataSchema);
+
+                    const matched = data?.find(
+                      (v) => v.id === currentCargo.custom_cargo_metadata_id
+                    );
+                    const uniqueKey = matched?.unique_key;
+                    const isExisting = !!currentCargo.cargoInfoId;
+
                     return (
                       <div
                         key={`${index}-form`}
@@ -219,10 +230,21 @@ const CargoDetail: FC = () => {
                           (formatFieldMap[name] || []).map((field) => (
                             <Form.Item
                               key={`${name}-${field.name}`}
-                              label={field.name}
+                              label={
+                                field.name === uniqueKey ? (
+                                  <>{field.name} 🔒</>
+                                ) : (
+                                  field.name
+                                )
+                              }
                               name={[name, "metadata", field.name]}
                             >
-                              {renderInput(field.type, field.name)}
+                              {renderInput(
+                                field.type,
+                                field.name,
+                                uniqueKey,
+                                isExisting
+                              )}
                             </Form.Item>
                           ))
                         ) : (

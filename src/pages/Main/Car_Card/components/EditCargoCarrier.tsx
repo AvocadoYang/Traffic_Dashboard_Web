@@ -21,11 +21,20 @@ import { useTranslation } from "react-i18next";
 import ReactJsonView from "@uiw/react-json-view";
 import styled from "styled-components";
 import { useReverifyCargoFormat } from "@/hooks/useReverifyCargoFormat";
+import { Cargo } from "@/types/peripheral";
 
 const Wrapper = styled.div`
   max-height: 72vh;
   overflow-y: auto;
   padding-right: 8px;
+`;
+
+export const StyledJsonPreview = styled.div`
+  padding: 12px;
+  border: 1px dashed #ccc;
+  border-radius: 8px;
+  background-color: #fafafa;
+  font-size: 13px;
 `;
 
 const EditCargoCarrier: FC<{
@@ -39,11 +48,9 @@ const EditCargoCarrier: FC<{
     Record<number, { name: string; type: string }[]>
   >({});
   const [form] = Form.useForm();
-  const [hasCargo, setHasCargo] = useState(false);
   const { isCarry, cargo } = useIsCarry(amrId);
   const {
     mutate,
-    isLoading,
     contextHolder: reContextHolder,
     messageApi,
   } = useReverifyCargoFormat();
@@ -59,7 +66,7 @@ const EditCargoCarrier: FC<{
   }));
 
   const editMutation = useMutation({
-    mutationFn: (payload: { amrId: string; hasCargo: boolean; cargo: any }) =>
+    mutationFn: (payload: { amrId: string; cargo: Cargo[] }) =>
       client.post("/api/amr/update-cargo-info", payload),
     onSuccess: () => {
       setIsModalOpen(false);
@@ -71,7 +78,6 @@ const EditCargoCarrier: FC<{
     if (!isModalOpen) return;
 
     if (isCarry) {
-      setHasCargo(true);
       try {
         const parsedCargo = Array.isArray(cargo)
           ? cargo.map((c) => ({
@@ -88,7 +94,7 @@ const EditCargoCarrier: FC<{
         const newMap: Record<number, { name: string; type: string }[]> = {};
         parsedCargo.forEach((c, index) => {
           const matched = data?.find(
-            (v) => v?.id === c.custom_cargo_metadata_id,
+            (v) => v?.id === c.custom_cargo_metadata_id
           );
           if (matched?.format) {
             try {
@@ -96,7 +102,7 @@ const EditCargoCarrier: FC<{
                 ([name, type]) => ({
                   name,
                   type: typeof type === "string" ? type : "string",
-                }),
+                })
               );
               newMap[index] = fields;
             } catch (err) {
@@ -126,7 +132,7 @@ const EditCargoCarrier: FC<{
           ([name, type]) => ({
             name,
             type: typeof type === "string" ? type : "string",
-          }),
+          })
         )
       : [];
 
@@ -151,7 +157,6 @@ const EditCargoCarrier: FC<{
       .then((values) => {
         const payload = {
           amrId,
-          hasCargo,
           cargo: (values.cargo || []).map((entry: any) => ({
             cargoInfoId: entry.cargoInfoId,
             metadata: JSON.stringify(entry.metadata),
@@ -172,21 +177,29 @@ const EditCargoCarrier: FC<{
     form.resetFields();
   };
 
-  const renderInput = (type: string, _name: string) => {
+  const renderInput = (
+    type: string,
+    fieldName: string,
+    uniqueKey: string | undefined,
+    isExisting: boolean
+  ) => {
+    // 🚫 disable only if editing existing cargo & field is unique_key
+    const disabled = isExisting && uniqueKey === fieldName;
+
     switch (type.toLowerCase()) {
       case "string":
-        return <Input />;
+        return <Input disabled={disabled} />;
       case "number":
-        return <Input type="number" />;
+        return <Input type="number" disabled={disabled} />;
       case "boolean":
         return (
-          <Select>
+          <Select disabled={disabled}>
             <Select.Option value="true">{t("utils.yes")}</Select.Option>
             <Select.Option value="false">{t("utils.no")}</Select.Option>
           </Select>
         );
       default:
-        return <Input />;
+        return <Input disabled={disabled} />;
     }
   };
 
@@ -204,32 +217,26 @@ const EditCargoCarrier: FC<{
       >
         <Wrapper>
           <Form form={form} layout="vertical">
-            <Form.Item
-              label={t("shelf.layer_form.has_cargo")}
-              name={`hasCargo`}
-              valuePropName="checked"
-            >
-              <Switch
-                value={hasCargo}
-                onChange={() => setHasCargo(!hasCargo)}
-                checkedChildren={t("shelf.layer_form.has_cargo")}
-                unCheckedChildren={t("shelf.layer_form.no_cargo")}
-              />
-            </Form.Item>
-
             <Form.List name="cargo">
               {(fields, { add, remove }) => (
                 <>
-                  {fields.map(({ key, name, ...restField }) => {
+                  {fields.map((field, index) => {
+                    const name = field.name;
                     const currentCargo =
-                      form.getFieldValue("cargo")?.[name] || {};
+                      form.getFieldValue(["cargo", name]) || {};
                     const hasMetadataSchema =
                       !!currentCargo.custom_cargo_metadata_id;
                     const metadata = currentCargo.metadata || {};
 
+                    const matched = data?.find(
+                      (v) => v.id === currentCargo.custom_cargo_metadata_id
+                    );
+                    const uniqueKey = matched?.unique_key;
+                    const isExisting = !!currentCargo.cargoInfoId;
+
                     return (
                       <div
-                        key={key}
+                        key={`${index}-form`}
                         style={{
                           marginBottom: 24,
                           padding: 12,
@@ -237,14 +244,11 @@ const EditCargoCarrier: FC<{
                           borderRadius: 4,
                         }}
                       >
-                        {/* 為了cargo id不可填寫 */}
                         <Form.Item name={[name, "cargoInfoId"]} hidden>
                           <Input />
                         </Form.Item>
 
-                        {/* 當格式不是定義在交管 就不可編輯只能觀看 */}
                         <Form.Item
-                          {...restField}
                           label={t("customCargo.name")}
                           name={[name, "custom_cargo_metadata_id"]}
                         >
@@ -262,45 +266,46 @@ const EditCargoCarrier: FC<{
                           (formatFieldMap[name] || []).map((field) => (
                             <Form.Item
                               key={`${name}-${field.name}`}
-                              label={field.name}
+                              label={
+                                field.name === uniqueKey ? (
+                                  <>{field.name} 🔒</>
+                                ) : (
+                                  field.name
+                                )
+                              }
                               name={[name, "metadata", field.name]}
                             >
-                              {renderInput(field.type, field.name)}
+                              {renderInput(
+                                field.type,
+                                field.name,
+                                uniqueKey,
+                                isExisting
+                              )}
                             </Form.Item>
                           ))
                         ) : (
                           <Form.Item
                             label={
-                              <Flex align="center" gap="large">
-                                <Flex gap="small">
-                                  {t("amr_card.metadata")}
-                                  <Tooltip
-                                    placement="right"
-                                    title={t("amr_card.metadata_desc")}
-                                  >
-                                    <QuestionCircleOutlined />
-                                  </Tooltip>
-                                </Flex>
-
-                                <Button
-                                  loading={isLoading}
-                                  onClick={() =>
-                                    reVerityCargoFormat(
-                                      currentCargo.cargoInfoId,
-                                    )
-                                  }
+                              <>
+                                {t("amr_card.metadata")}
+                                <Tooltip
+                                  placement="right"
+                                  title={t("amr_card.metadata_desc")}
                                 >
-                                  {t("cargo_history.re_verity_format")}
-                                </Button>
-                              </Flex>
+                                  <QuestionCircleOutlined />
+                                </Tooltip>
+                              </>
                             }
                           >
-                            <ReactJsonView
-                              displayDataTypes={false}
-                              enableClipboard={false}
-                              collapsed={false}
-                              value={metadata}
-                            />
+                            <StyledJsonPreview>
+                              <ReactJsonView
+                                displayDataTypes={false}
+                                enableClipboard={false}
+                                collapsed={false}
+                                value={metadata}
+                                style={{ fontSize: 14 }}
+                              />
+                            </StyledJsonPreview>
                           </Form.Item>
                         )}
 
@@ -323,6 +328,8 @@ const EditCargoCarrier: FC<{
                 </>
               )}
             </Form.List>
+
+            <Button onClick={handleOk}>{t("utils.save")}</Button>
           </Form>
         </Wrapper>
       </Modal>

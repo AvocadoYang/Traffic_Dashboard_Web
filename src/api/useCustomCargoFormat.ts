@@ -8,12 +8,13 @@ const schema = array(
     custom_name: string().required(),
     is_default: boolean().required(),
     format: string().optional(),
-  }).optional(),
+    unique_key: string().required(),
+  }).optional()
 ).required();
 
 const getData = async () => {
   const { data } = await client.get<unknown>(
-    "api/setting/custom-cargo-metadata",
+    "api/setting/custom-cargo-metadata"
   );
 
   return schema.validate(data, { stripUnknown: true });

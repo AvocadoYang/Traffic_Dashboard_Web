@@ -14,31 +14,6 @@ export type FormCargo = {
   offload: string;
 };
 
-export type LayerType = {
-  [level: number]: {
-    dbId: string;
-    levelName: string;
-    booked: boolean;
-    cargo_limit: number;
-    disable: boolean;
-    hasCargo: boolean;
-    cargoInfoId: string | null;
-    customCargoMetadataId: string | null;
-    metadata: string | null;
-  };
-};
-
-export type CargoArea = {
-  booker: string;
-  occupier: string;
-
-  name?: string;
-  layer?: LayerType;
-  locationId: string;
-  type: string;
-  isDropping: boolean;
-};
-
 export type HasCargo = {
   has_cargo: boolean;
   border: string;

@@ -91,26 +91,9 @@ const CargoInfoAtPeripheral: FC<{ form: FormInstance<unknown> }> = ({
               <Switch checkedChildren="On" unCheckedChildren="Off" />
             </Form.Item>
             <Flex align="center" gap="middle">
-              <Form.Item
-                label={t("shelf.layer_form.has_cargo")}
-                name={`hasCargo`}
-                valuePropName="checked"
-              >
-                <Switch
-                  checkedChildren={t("shelf.layer_form.has_cargo")}
-                  unCheckedChildren={t("shelf.layer_form.no_cargo")}
-                />
-              </Form.Item>
-
-              <Form.Item dependencies={["hasCargo"]}>
-                {({ getFieldValue }) =>
-                  getFieldValue("hasCargo") ? (
-                    <Button onClick={() => setOpenEditCargoDetailModal()}>
-                      {t("shelf.layer_form.edit_detail")}
-                    </Button>
-                  ) : null
-                }
-              </Form.Item>
+              <Button onClick={() => setOpenEditCargoDetailModal()}>
+                {t("shelf.layer_form.edit_detail")}
+              </Button>
             </Flex>
 
             <Form.Item label={t("shelf.load_priority")} name={`loadPriority`}>

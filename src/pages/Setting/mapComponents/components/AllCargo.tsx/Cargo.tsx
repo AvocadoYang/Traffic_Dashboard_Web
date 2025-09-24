@@ -92,7 +92,7 @@ const Cargo: FC<{
     (
       event: React.MouseEvent<HTMLDivElement>,
       targetId: string,
-      targetLevel: number,
+      targetLevel: number
     ) => {
       if (event.button !== 1) return;
       editColumnMutation.mutate({
@@ -101,7 +101,7 @@ const Cargo: FC<{
         level: targetLevel,
       });
     },
-    [editColumnMutation],
+    [editColumnMutation]
   );
   //console.log(shelfInfo);
   if (!shelfInfo || !shelfInfo.layer) return <LoadingStation />;
@@ -125,7 +125,7 @@ const Cargo: FC<{
         {" "}
         {Object.entries(shelfInfo.layer).map(([levelStr, info]) => {
           const level = Number(levelStr);
-          const cargoValue = info.hasCargo || false;
+          const cargoValue = info.cargo.length > 0;
           const isDisable = info.disable;
 
           return (
@@ -141,7 +141,7 @@ const Cargo: FC<{
                 handleMouseDown(
                   e as React.MouseEvent<HTMLDivElement>,
                   locId,
-                  level,
+                  level
                 )
               }
             />

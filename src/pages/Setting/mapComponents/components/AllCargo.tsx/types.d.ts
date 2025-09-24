@@ -18,17 +18,6 @@ export type FormCargo = {
   relationships: unknown;
 };
 
-export type CargoArea = {
-  booker: string;
-  occupier: string;
-
-  name?: string;
-  layer?: LayerType;
-  locationId: string;
-  type: string;
-  isDropping: boolean;
-};
-
 export type HasCargo = {
   has_cargo: boolean;
   border: string;

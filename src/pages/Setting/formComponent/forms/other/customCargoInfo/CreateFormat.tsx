@@ -10,6 +10,7 @@ import { ErrorResponse } from "@/utils/globalType";
 type Payload = {
   custom_name: string;
   format: string;
+  unique_key: string;
 };
 
 const CreateFormat: FC = () => {
@@ -18,6 +19,7 @@ const CreateFormat: FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
+  const formatValues = Form.useWatch("format", form);
 
   const createMutation = useMutation({
     mutationFn: (payload: Payload) =>
@@ -31,17 +33,23 @@ const CreateFormat: FC = () => {
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
-  const onFinish = (values: { custom_name: string; format: Array<any> }) => {
+  const onFinish = (values: {
+    custom_name: string;
+    format: Array<{ key: string; value: string }>;
+    unique_key: string;
+  }) => {
     const transformed = values.format.reduce(
       (acc: Record<string, string>, item) => {
         if (item.key) acc[item.key] = item.value;
         return acc;
       },
-      {},
+      {}
     );
+
     createMutation.mutate({
       custom_name: values.custom_name,
       format: JSON.stringify(transformed),
+      unique_key: values.unique_key,
     });
   };
 
@@ -123,6 +131,24 @@ const CreateFormat: FC = () => {
               </>
             )}
           </Form.List>
+
+          {/* 👇 Unique key selector */}
+          <Form.Item
+            label={t("customCargo.uniqueKey")}
+            name="unique_key"
+            rules={[{ required: true, message: t("utils.required") }]}
+          >
+            <Select
+              options={
+                formatValues
+                  ?.filter((f: any) => f?.key)
+                  .map((f: any) => ({
+                    value: f.key,
+                    label: f.key,
+                  })) ?? []
+              }
+            />
+          </Form.Item>
 
           <Form.Item>
             <Button

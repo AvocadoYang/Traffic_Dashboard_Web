@@ -21,6 +21,7 @@ interface DataType {
   is_default: boolean;
   custom_name: string;
   format: string;
+  unique_key: string;
 }
 
 import CargoFormatModal from "./CargoFormatModal"; // import the shared modal
@@ -143,6 +144,7 @@ const DataTable: FC = () => {
             custom_name: editingRecord.custom_name,
             is_default: editingRecord.is_default,
             format: JSON.parse(editingRecord.format),
+            unique_key: editingRecord.unique_key,
           }}
           onSubmit={(values) =>
             editMutation.mutate({

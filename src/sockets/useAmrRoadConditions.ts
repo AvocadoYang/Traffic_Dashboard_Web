@@ -8,19 +8,7 @@ import {
 } from "rxjs";
 import { useEffect, useState } from "react";
 import { io } from "./socketConnect";
-
-export type LayerType = {
-  [level: number]: {
-    levelName: string;
-    booked: boolean;
-    cargo_limit: number;
-    disable: boolean;
-    cargo: {
-      hasCargo: boolean;
-      name: string | null;
-    };
-  };
-};
+import { LayerType } from "@/api/type/useLocation";
 
 export type Info = {
   areaId?: string;
@@ -42,12 +30,12 @@ const getRoadConditions$ = fromEventPattern(
   },
   (next) => {
     io.off("road-conditions", next);
-  },
+  }
 ).pipe(
   map((roadConditions) => {
     return schema().validateSync(roadConditions);
   }),
-  share(),
+  share()
 );
 
 const useRoadConditions = (amrId: string) => {
@@ -62,7 +50,7 @@ const useRoadConditions = (amrId: string) => {
         map((data) => data.status),
         distinctUntilChanged((pre, cur) => {
           return cur === pre;
-        }),
+        })
       )
       .subscribe((roadConditions) => {
         setRoadConditions(roadConditions);

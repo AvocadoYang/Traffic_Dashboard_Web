@@ -69,26 +69,6 @@ const SvgStyle = styled.svg<{
   }
 `;
 
-const CargoLight = styled.div`
-  width: 1em;
-  height: 1em;
-  /* Use a small border-radius for a slightly rounded cube edge */
-  border-radius: 4px;
-  position: absolute;
-  left: 15px;
-  bottom: 15px;
-
-  /* 3D Box effect start */
-  background-color: #ff5555; /* Base color for the front face */
-
-  box-shadow:
-    /* Top face highlight (light source from top-left) */
-    inset 2px 2px 5px rgba(255, 255, 255, 0.7),
-    /* Right face shadow */ 5px 5px 10px rgba(0, 0, 0, 0.5),
-    /* Bottom face shadow */ -5px -5px 10px rgba(0, 0, 0, 0.3);
-  /* 3D Box effect end */
-`;
-
 const Elevator: FC<{
   locationId: string;
   hasCargo: boolean;
@@ -98,7 +78,7 @@ const Elevator: FC<{
 }> = ({ locationId, hasCargo, isDisable, isBook, customName }) => {
   const [selectMode, setQuickSettingMode] = useAtom(QuickMissionSettingMode);
   const [isStartSelecting, setStartQuickSetting] = useAtom(
-    StartQuickMissionSetting,
+    StartQuickMissionSetting
   );
   const setLoad = useSetAtom(QuickMissionLoad);
   const setOffload = useSetAtom(QuickMissionOffload);

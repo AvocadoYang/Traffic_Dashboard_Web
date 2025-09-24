@@ -8,7 +8,7 @@ import {
 } from "rxjs";
 import { useEffect, useState } from "react";
 import { io } from "./socketConnect";
-import { Cargo } from "@/types/peripheral";
+import { LayerType } from "@/api/type/useLocation";
 
 export const levelSchema = object({
   levelName: string().optional().nullable(),
@@ -31,29 +31,14 @@ export const layerSchema = object().test(
       if (!valid) {
         console.error(
           `Validation failed for level ${key}:`,
-          levelSchema.validateSync(value[key], { abortEarly: false }),
+          levelSchema.validateSync(value[key], { abortEarly: false })
         );
         return false;
       }
     }
     return true;
-  },
+  }
 );
-export type LayerType = {
-  [level: number]: {
-    dbId: string;
-    height: number;
-    levelName: string;
-    description: string;
-    booker: string;
-    cargo_limit: number;
-    disable: boolean;
-    hasCargo: boolean;
-    loadPriority: number;
-    offloadPriority: number;
-    cargo: Cargo[];
-  };
-};
 
 export type CargoInfo = {
   name?: string;
@@ -71,7 +56,7 @@ const schema = () =>
       locationId: string().required(),
       layer: layerSchema.optional(),
       isDropping: boolean().optional(),
-    }).required(),
+    }).required()
   ).required();
 
 const profiles$ = fromEventPattern(
@@ -81,7 +66,7 @@ const profiles$ = fromEventPattern(
   },
   (next) => {
     io.off("cargo-info", next);
-  },
+  }
 ).pipe(
   switchMap((msg) => {
     // console.log('Message received by switchMap:', msg);
@@ -93,13 +78,13 @@ const profiles$ = fromEventPattern(
           console.error(err.message);
           console.error("cargo-info socket schema mismatch: ", err.value);
           return undefined;
-        }),
+        })
     );
   }),
   distinctUntilChanged(
-    (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
+    (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
   ),
-  share(),
+  share()
 );
 
 const useCargoInfo = () => {
@@ -109,8 +94,8 @@ const useCargoInfo = () => {
     const subscription = profiles$
       .pipe(
         distinctUntilChanged(
-          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
-        ), // Avoid state update if data is identical
+          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
+        ) // Avoid state update if data is identical
       )
       .subscribe((filteredData) => {
         if (filteredData) {

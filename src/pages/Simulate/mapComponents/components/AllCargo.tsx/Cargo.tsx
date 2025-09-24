@@ -22,8 +22,6 @@ const Wrapper = styled.div<WrapperType>`
     `translate(${props.translatex}em, ${props.translatey}em) scale(${props.scale}) rotate(${props.rotate}deg)`};
 `;
 
-const WrapperDiv = memo(Wrapper);
-
 const MemoizedCargo = memo(CargoDisplay, (prevProps, nextProps) => {
   return (
     prevProps.level == nextProps.level &&
@@ -59,7 +57,7 @@ const Cargo: FC<{
     (
       event: React.MouseEvent<HTMLElement>,
       targetId: string,
-      targetLevel: number,
+      targetLevel: number
     ) => {
       if (event.button !== 1) return;
       editColumnMutation.mutate({
@@ -68,14 +66,14 @@ const Cargo: FC<{
         id,
       });
     },
-    [editColumnMutation],
+    [editColumnMutation]
   );
 
   if (!shelfInfo || !shelfInfo.layer) return <LoadingStation />;
   return (
     <>
       {contextHolder}
-      <WrapperDiv
+      <Wrapper
         flex_direction={flex_direction}
         translatex={translateX}
         translatey={translateY}
@@ -85,7 +83,7 @@ const Cargo: FC<{
         {" "}
         {Object.entries(shelfInfo.layer).map(([levelStr, info]) => {
           const level = Number(levelStr);
-          const cargoValue = info.hasCargo || false;
+          const cargoValue = info.cargo.length > 0;
           const isDisable = info.disable;
 
           return (
@@ -101,7 +99,7 @@ const Cargo: FC<{
             />
           );
         })}
-      </WrapperDiv>
+      </Wrapper>
     </>
   );
 };
