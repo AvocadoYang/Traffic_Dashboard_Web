@@ -36,6 +36,13 @@ const shelfSchema = array(
         cargo_limit: number().required(),
         hasCargo: boolean().required(),
         shelfId: string().required(),
+        peripheral_name: object({
+          id: string().required(),
+          name: string().optional().nullable(),
+          description: string().optional().nullable(),
+          quantity: number().optional(),
+          type: string().required(),
+        }).required(),
       }).optional(),
     ).required(),
   }).required(),

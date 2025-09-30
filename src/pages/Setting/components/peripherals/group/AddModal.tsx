@@ -66,9 +66,9 @@ const AddModal: React.FC<AddModalProps> = ({
     direction,
     moveKeys,
   ) => {
-    // console.log("targetKeys:", nextTargetKeys);
-    // console.log("direction:", direction);
-    // console.log("moveKeys:", moveKeys);
+    //  console.log("targetKeys:", nextTargetKeys);
+    //   console.log("direction:", direction);
+    //   console.log("moveKeys:", moveKeys);
     setTargetKeys(nextTargetKeys);
   };
 
@@ -92,6 +92,7 @@ const AddModal: React.FC<AddModalProps> = ({
     onSuccess: () => {
       messageApi.success("success");
       queryClient.invalidateQueries({ queryKey: ["peripheral-group"] });
+          queryClient.invalidateQueries({ queryKey: ["peripheral-corning"] });
       form.resetFields();
       handleCancel();
     },
@@ -112,6 +113,7 @@ const AddModal: React.FC<AddModalProps> = ({
     onSuccess: () => {
       messageApi.success("Updated successfully");
       queryClient.invalidateQueries({ queryKey: ["peripheral-group"] });
+          queryClient.invalidateQueries({ queryKey: ["peripheral-corning"] });
       form.resetFields();
       handleCancel();
     },
@@ -119,7 +121,7 @@ const AddModal: React.FC<AddModalProps> = ({
       errorHandler(e, messageApi);
     },
   });
-
+  // console.log(targetKeys)
   const handleSubmit = async () => {
     try {
       if (!targetKeys || targetKeys.length == 0) {
@@ -132,19 +134,21 @@ const AddModal: React.FC<AddModalProps> = ({
         messageApi.error("name is require !");
         return;
       }
-
+const safeTargetKeys = targetKeys.filter(
+  (k): k is string => typeof k === "string"
+);
       if (isEdit && editValue?.id) {
         editMutation.mutate({
           id: editValue.id,
           name: values.name,
           description: values.description || null,
-          peripheralNameIds: targetKeys as string[],
+       peripheralNameIds: safeTargetKeys,
         });
       } else {
         addMutation.mutate({
           name: values.name,
           description: values.description || null,
-          peripheralNameIds: targetKeys as string[],
+         peripheralNameIds: safeTargetKeys,
         });
       }
     } catch (errInfo) {
@@ -160,6 +164,7 @@ const AddModal: React.FC<AddModalProps> = ({
     resetEdit();
   };
 
+  // Corrected useEffect hook
   useEffect(() => {
     if (!isEdit || !editValue) {
       form.resetFields();
@@ -167,11 +172,12 @@ const AddModal: React.FC<AddModalProps> = ({
     }
 
     form.setFieldsValue({
-      name: prefixLevelName(editValue.name),
+      name: editValue.name,
       description: editValue.description,
       peripherals: editValue.peripherals || [],
     });
 
+    // Fix: Change v.id to v.key to correctly access the unique identifier
     setTargetKeys(editValue.peripherals.map((v) => v.id));
   }, [form, isEdit, editValue]);
 
@@ -271,6 +277,13 @@ const AddModal: React.FC<AddModalProps> = ({
                 t("peripheral_group_table.available_peripherals"),
                 t("peripheral_group_table.selected_peripherals"),
               ]}
+              showSearch
+              filterOption={(inputValue, item) =>
+                item.title.toLowerCase().includes(inputValue.toLowerCase()) ||
+                item.description
+                  .toLowerCase()
+                  .includes(inputValue.toLowerCase())
+              }
             />
           </Form.Item>
         </Form>

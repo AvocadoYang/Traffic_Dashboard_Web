@@ -11,11 +11,14 @@ import Header from "../../components/Header";
 import { useIsMobile } from "../../hooks/useIsMoblie";
 import Timeline from "./components/Timeline/Timeline";
 import SwitchPanelHeightBtn from "./components/Timeline/SwitchPanelHeightBtn";
-import TableSchedule from "./components/Timeline/TableSchedule";
+import TableSchedule from "./components/Timeline/TableView/TableSchedule";
 import OpenScheduleTableBtn from "./components/Timeline/OpenScheduleTableBtn";
-import InsertModal from "./components/Timeline/InsertModal";
-import { ShiftCargoModal } from "./components/Timeline/ShiftCargoModal";
-import { SpawnCargoModal } from "./components/Timeline/SpawnCargoModal";
+import InsertModal from "./components/Timeline/Modals/InsertModal";
+import { ShiftCargoModal } from "./components/Timeline/Modals/ShiftCargoModal";
+import { SpawnCargoModal } from "./components/Timeline/Modals/SpawnCargoModal";
+import InsertFixMissionModal from "./components/Timeline/Modals/InsertFixMissionModal";
+import InsertRangeGroupSpawnCargoModal from "./components/Timeline/Modals/InsertRangeGroupSpawnCargoModal";
+import InsertRangeGroupShiftCargoModal from "./components/Timeline/Modals/InsertRangeGroupShiftCargoModal";
 
 const Simulate: FC = () => {
   const { isMobile } = useIsMobile();
@@ -45,6 +48,15 @@ const Simulate: FC = () => {
           {/* 左上圓形 切換腳本  */}
           <SelectScript />
           <WcsPad />
+
+          {/**試定區域生成貨物 */}
+          <InsertRangeGroupSpawnCargoModal />
+
+          {/**試定區域轉移貨物 */}
+          <InsertRangeGroupShiftCargoModal />
+
+          {/**設並固定range的區域隨機任務 */}
+          <InsertFixMissionModal />
 
           {/**編輯或是新增任務的modal */}
           <InsertModal />

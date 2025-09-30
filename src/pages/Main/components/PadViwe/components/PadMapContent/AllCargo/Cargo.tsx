@@ -22,8 +22,6 @@ const Wrapper = styled.div<WrapperType>`
     `translate(${props.translatex}em, ${props.translatey}em) scale(${props.scale}) rotate(${props.rotate}deg)`};
 `;
 
-const WrapperDiv = memo(Wrapper);
-
 const MemoizedCargo = memo(CargoDisplay, (prevProps, nextProps) => {
   return (
     prevProps.level == nextProps.level &&
@@ -77,7 +75,7 @@ const Cargo: FC<{
   return (
     <>
       {contextHolder}
-      <WrapperDiv
+      <Wrapper
         flex_direction={flex_direction}
         translatex={translateX}
         translatey={translateY}
@@ -89,7 +87,7 @@ const Cargo: FC<{
           const level = Number(levelStr);
           const cargoValue = info.hasCargo || false;
           const isDisable = info.disable;
-          const isHaveAction = info.booked;
+          const isHaveAction = info.booker !== null;
 
           return (
             <MemoizedCargo
@@ -98,6 +96,7 @@ const Cargo: FC<{
               levelName={prefixLevelName(info.levelName)}
               cargoValue={cargoValue}
               isDisable={isDisable}
+              booker={info.booker === null ? "nobody": info.booker}
               locId={locId}
               rotate={0}
               isHaveAction={isHaveAction}
@@ -111,7 +110,7 @@ const Cargo: FC<{
             />
           );
         })}
-      </WrapperDiv>
+      </Wrapper>
     </>
   );
 };

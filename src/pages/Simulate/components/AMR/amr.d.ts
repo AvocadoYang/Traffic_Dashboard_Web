@@ -3,5 +3,6 @@ export type EditFormType = {
   full_name: string;
   script_placement_location: string;
   loadSpeed: number;
-  offloadSpeed: number
+  offloadSpeed: number;
+  move_speed: number;
 };

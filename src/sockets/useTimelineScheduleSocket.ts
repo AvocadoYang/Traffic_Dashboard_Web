@@ -18,14 +18,22 @@ import {
   object,
   string,
 } from "yup";
-import { MissionPriority } from "@/types/mission";
-import { Cargo } from "@/types/peripheral";
+import { Mission_Schedule } from "@/types/timeline";
 
 export const schema = array(
   object({
     id: string().required(),
     time: string().required(),
-    type: string().oneOf(["MISSION", "SPAWN_CARGO", "SHIFT_CARGO"]).required(),
+    eventType: string().oneOf(["GROUP", "FIXED"]),
+    type: string()
+      .oneOf([
+        "MISSION",
+        "SPAWN_CARGO",
+        "SHIFT_CARGO",
+        "SPAWN_CARGO_GROUP",
+        "SHIFT_CARGO_GROUP",
+      ])
+      .required(),
     isEnable: boolean().required(),
     styleRow: number().required(),
 
@@ -52,6 +60,32 @@ export const schema = array(
       .nullable()
       .optional(),
 
+    // ✅ NEW: timelineSpawnCargoGroup
+    timelineSpawnCargoGroup: object({
+      groupId: string().nullable().optional(),
+      range: string().nullable().optional(),
+      activeInterval: number().nullable().optional(),
+      isSpawnAll: boolean().nullable().optional(),
+      spawnNumber: number().nullable().optional(),
+      spawnGroupId: string().nullable().optional(),
+      spawnGroupname: string().nullable().optional(),
+    })
+      .nullable()
+      .optional(),
+
+    // ✅ NEW: timelineShiftCargoGroup
+    timelineShiftCargoGroup: object({
+      groupId: string().nullable().optional(),
+      range: string().nullable().optional(),
+      activeInterval: number().nullable().optional(),
+      isShiftAll: boolean().nullable().optional(),
+      shiftNumber: number().nullable().optional(),
+      shiftGroupId: string().nullable().optional(),
+      shiftGroupname: string().nullable().optional(),
+    })
+      .nullable()
+      .optional(),
+
     timelineMission: object({
       type: string().optional().nullable(),
       priority: number().optional().nullable(),
@@ -61,13 +95,29 @@ export const schema = array(
       normalMissionId: string().nullable().optional(),
       notifyMissionSourcePointNameId: string().nullable().optional(),
       notifyMissionSourcePointName: string().nullable().optional(),
-
+      dynamicMissionPeripheralGroup: object({
+        groupId: string().nullable().optional(),
+        range: string().nullable().optional(),
+        activeInterval: number().nullable().optional(),
+        task: array(
+          object({
+            loadGroupName: string().nullable().optional(),
+            loadGroupId: string().nullable().optional(),
+            offloadGroupName: string().nullable().optional(),
+            offloadGroupId: string().nullable().optional(),
+          }),
+        )
+          .nullable()
+          .optional(),
+      })
+        .nullable()
+        .optional(),
       dynamicMission: array(
         object({
-          loadFromId: string().required(),
-          loadFrom: string().required(),
-          offloadToId: string().required(),
-          offloadTo: string().required(),
+          loadFromId: string().nullable().optional(),
+          loadFrom: string().nullable().optional(),
+          offloadToId: string().nullable().optional(),
+          offloadTo: string().nullable().optional(),
         }),
       )
         .nullable()
@@ -101,50 +151,6 @@ const getC$ = fromEventPattern(
   filter(isDefined),
   share(),
 );
-
-export type Mission_Schedule = {
-  id: string;
-  time: string; // e.g 15:10
-  type: string;
-  isEnable: boolean;
-  styleRow: number;
-
-  timelineShiftCargo?: {
-    shiftPeripheralId?: string;
-    shiftPeripheralName?: string; // 這邊有關peripheral 的name都應該先預先處理好 把字尾的script name刪掉
-    peripheralType?: string;
-  } | null;
-
-  timelineSpawnCargo?: {
-    spawnCargoInfo?: {
-      cargoInfoId: string | null;
-      customCargoMetadataId: string | null;
-      metadata: Record<string, unknown>;
-    } | null;
-
-    peripheralType?: string;
-    peripheralNameId?: string;
-    peripheralName?: string;
-  };
-
-  timelineMission?: {
-    type: string;
-    priority: MissionPriority;
-    amrId: string;
-    normalMissionId?: string | null;
-    normalMissionName?: string | null;
-    notifyMissionSourcePointNameId?: string | null;
-    notifyMissionSourcePointName?: string | null;
-    dynamicMission?:
-      | {
-          loadFromId: string;
-          loadFrom: string;
-          offloadToId: string;
-          offloadTo: string;
-        }[]
-      | null;
-  } | null;
-};
 
 export const useTimelineScheduleSocket = () => {
   const [data, setData] = useState<Mission_Schedule[]>([]);

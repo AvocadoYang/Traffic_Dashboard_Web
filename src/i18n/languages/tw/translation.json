@@ -445,6 +445,8 @@
 
   "shelf": {
     "shelf": "貨架",
+    "load_priority": "取貨優先度",
+    "offload_priority": "放貨優先度",
     "cargo_mission": {
       "default_title": "貨物任務配置",
       "load_mission": "裝載任務",
@@ -494,7 +496,10 @@
       "cargo_name": "貨名",
       "edit_detail": "編輯貨物詳細資訊",
       "cargo_limit": "貨架高度鎖定",
-      "pallet": "板"
+      "pallet": "板",
+      "description": "說明",
+      "level_name_required":"名稱為必填",
+      "invalid_level_name":"名稱不可包含'-'或是空白鍵"
     },
     "error": {
       "info_error": "貨架讀取錯誤"
@@ -954,7 +959,8 @@
     "B": "後退",
     "S": "自轉",
     "H": "枒杈升降",
-    "W": "等待"
+    "W": "等待",
+    "verity_cargo":"相機辨識貨物"
   },
 
   "customCargo": {
@@ -1035,7 +1041,9 @@
       "select_normal": "選擇一般任務",
       "select_notify": "選擇通知地點",
       "error_missing_id": "任務ID或時間未找到",
-      "validation_error": "表單驗證失敗，請檢查輸入"
+      "validation_error": "表單驗證失敗，請檢查輸入",
+      "gap_time": "間隔時間(分鐘)",
+      "range_end_time": "結束時間"
     },
 
     "table_schedule": {
@@ -1044,7 +1052,17 @@
       "detail_search": "搜尋 時間 類型 詳情",
       "mission": "🚀 任務",
       "spawn_cargo": "📦 生成貨物",
-      "shift_cargo": "🔄 轉移貨物"
+      "shift_cargo": "🔄 轉移貨物",
+      "add_range_event": "新增區間事件",
+      "range_time_event": "區間時間事件",
+
+      "fixed_event": "固定事件"
+    },
+
+    "range_table": {
+      "range": "區間",
+      "gap_time": "間隔時間(分鐘)",
+      "activeTimes": "事件次數"
     },
 
     "spawn_cargo_modal": {
@@ -1071,6 +1089,41 @@
       "success": "保存成功",
       "updated": "更新成功",
       "required": "此欄位為必填項"
+    },
+
+    "spawn_cargo_group": {
+      "add": "新增群組隨機生成貨物",
+      "insert_random_spawn_cargo_group": "插入隨機生成貨物群組",
+      "peripheral_group": "設備群組",
+      "spawn_all": "全部生成？",
+      "spawn_number": "生成數量",
+      "success_spawn": "成功新增生成貨物群組！",
+      "failed_spawn": "新增生成貨物群組失敗。",
+      "time": "時間",
+      "gap_time": "間隔時間(分鐘)",
+      "range_end_time": "結束時間",
+      "range": "區間",
+      "spawn_group": "生成貨物群組"
+    },
+
+    "shift_cargo_group": {
+      "add": "新增群組隨機轉移貨物",
+      "insert_random_shift_cargo_group": "插入隨機搬移貨物群組",
+      "shift_all": "全部搬移？",
+      "peripheral_group": "設備群組",
+      "shift_number": "搬移數量",
+      "success_shift": "成功新增搬移貨物群組！",
+      "failed_shift": "新增搬移貨物群組失敗。",
+      "time": "時間",
+      "gap_time": "間隔時間(分鐘)",
+      "range_end_time": "結束時間",
+      "range": "區間",
+      "shift_group": "轉移貨物群組"
+    },
+
+    "dynamic_mission_group": {
+      "mission_group": "任務群組",
+      "range": "區間"
     },
 
     "shift_cargo_modal": {
@@ -1341,6 +1394,8 @@
     "type": "類型",
     "level": "層級",
     "name": "名稱",
+    "description": "說明",
+    "group": "群組",
     "operation": "操作",
     "edit": "編輯",
     "save": "儲存",
@@ -1371,5 +1426,15 @@
     "updatedSuccess": "名稱更新成功",
     "updateFail": "儲存失敗",
     "inputPlaceholder": "輸入名稱"
+  },
+
+  "elevator": {
+    "fork_height": "枒杈高度",
+    "name": "名稱",
+    "description": "說明",
+    "disable": "停用",
+    "edit_cargo_detail": "編輯貨物資訊",
+    "fork_height_desc": "取放貨時枒杈高度",
+    "other_config": "其他"
   }
 }

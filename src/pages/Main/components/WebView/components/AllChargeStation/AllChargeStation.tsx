@@ -78,7 +78,7 @@ const AllChargeStation: FC = () => {
   return (
     <>
       {data.locations
-        .filter(({ areaType }) => areaType === "Charging")
+        .filter(({ areaType }) => areaType === "CHARGING")
         .map((loc) => {
           const [displayX, displayY] = rosCoord2DisplayCoord({
             x: loc.x,

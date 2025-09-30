@@ -50,7 +50,7 @@ const PeripheralGroupTable: React.FC = () => {
     onSuccess: () => {
       messageApi.success("success");
       queryClient.invalidateQueries({ queryKey: ["peripheral-group"] });
-
+    queryClient.invalidateQueries({ queryKey: ["peripheral-corning"] });
       setIsOpenModal(false);
     },
     onError: (e: ErrorResponse) => {
@@ -86,19 +86,17 @@ const PeripheralGroupTable: React.FC = () => {
     {
       title: t("peripheral_group_table.name"),
       dataIndex: "name",
-      width: "25%",
-
-      render: (n: string) => prefixLevelName(n),
+      width: "10%",
     },
     {
       title: t("peripheral_group_table.description"),
       dataIndex: "description",
-      width: "15%",
+      width: "30%",
     },
     {
       title: t("peripheral_group_table.peripherals"),
       dataIndex: "groups",
-      width: "15%",
+      width: "30%",
 
       render: (_: unknown, record: PeripheralGroupName) => {
         return record.peripherals.map((e) => (

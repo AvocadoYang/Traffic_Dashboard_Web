@@ -51,6 +51,10 @@ import {
 import EditPeripheralModal from "../formComponent/forms/peripheralModal/EditPeripheralModal";
 import CargoEditor from "../formComponent/forms/peripheralModal/CargoEditor";
 import { SudoPeripheral } from "../formComponent/forms/other/editPeripheralIcon";
+import AllElevator from "./components/AllElevator/AllElevator";
+import { EEC, EEM } from "../utils/settingJotai";
+import EditElevatorModal from "./components/AllElevator/EditElevatorModal";
+import CargoEditorElevator from "./components/AllElevator/Form/CargoEditorElevator";
 
 const MapView: React.FC<{
   scale: number;
@@ -109,6 +113,8 @@ const MapView: React.FC<{
   const openCargoInfo = useAtomValue(GlobalCargoInfoModal);
   const openPeripheralModal = useAtomValue(IsEditPeripheralModal);
   const openPeripheralCargoEditorModal = useAtomValue(IsOpenCargoEditorModal);
+  const openElevatorModal = useAtomValue(EEM);
+  const openModalElevatorCargoEditor = useAtomValue(EEC);
 
   if (currentVersion) {
     const defaultCookie = Cookies.get("version");
@@ -201,6 +207,8 @@ const MapView: React.FC<{
         handleMouseDown={handleMouseDown}
       />
 
+      <AllElevator />
+
       <AllCargo setInitPoint={setInitPoint} handleMouseDown={handleMouseDown} />
 
       <AllZones scale={scale}></AllZones>
@@ -240,6 +248,8 @@ const MapView: React.FC<{
         <></>
       )}
 
+      {openElevatorModal?.isOpen ? <EditElevatorModal /> : null}
+
       {showRoad ? <AllRoads /> : []}
 
       {showLocationToolTip ? <ToolTip /> : []}
@@ -250,6 +260,8 @@ const MapView: React.FC<{
 
       {/* 只有for  儲位專用修改貨物資料的 modal */}
       {openCargoInfo ? <CargoDetail /> : []}
+
+      {openModalElevatorCargoEditor ? <CargoEditorElevator /> : null}
 
       <CargoModal />
     </div>

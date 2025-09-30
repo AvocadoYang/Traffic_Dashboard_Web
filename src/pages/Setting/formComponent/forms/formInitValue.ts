@@ -15,7 +15,7 @@ export const initialRoadValue = {
 
 export const initialLocationFormValue = {
   locationId: 0,
-  areaType: "Extra",
+  areaType: "EXTRA",
   rotation: 0,
   canRotate: false,
 };

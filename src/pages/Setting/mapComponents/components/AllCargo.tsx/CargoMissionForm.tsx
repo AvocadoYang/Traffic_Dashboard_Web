@@ -53,7 +53,7 @@ const CargoMissionForm: FC<{
     const mixData = info
       .filter(
         (v) =>
-          (v.areaType === "Storage" || v.areaType === "Conveyor") &&
+          (v.areaType === "STORAGE" || v.areaType === "CONVEYOR") &&
           v.id !== locId,
       )
       .sort((a, b) => Number(a.locationId) - Number(b.locationId))
@@ -193,9 +193,9 @@ const CargoMissionForm: FC<{
           />
         </Form.Item>
 
-        <Form.Item label={t("shelf.cargo_mission.location_name")} name="name">
+        {/* <Form.Item label={t("shelf.cargo_mission.location_name")} name="name">
           <Input placeholder={t("shelf.cargo_mission.enter_name")} />
-        </Form.Item>
+        </Form.Item> */}
 
         <Form.Item
           label={
@@ -222,7 +222,7 @@ const CargoMissionForm: FC<{
           />
         </Form.Item>
 
-        <Form.Item
+        {/* <Form.Item
           label={
             <>
               <Flex align="center" justify="center">
@@ -248,7 +248,7 @@ const CargoMissionForm: FC<{
             placeholder={t("utils.select")}
             showSearch
           />
-        </Form.Item>
+        </Form.Item> */}
 
         <Form.Item
           label={

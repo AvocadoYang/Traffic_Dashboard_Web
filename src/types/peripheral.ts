@@ -18,6 +18,7 @@ export type PeripheralTypes =
   | "OUTPUT_STATION"
   | "STORAGE"
   | "FORKLIFT_LOAD_STATION"
+  | "ELEVATOR"
   | "CONVEYOR";
 
 export type PeripheralInfo = {
@@ -50,7 +51,7 @@ export type Conveyor_Info = {
   name: string;
   disable: boolean;
   locationId: string;
-  booker?: string;
+  booker?: boolean;
   occupier?: string;
   forkHeight: number;
   conveyorDBId: string;
@@ -62,8 +63,27 @@ export type Conveyor_Info = {
   offloadMissionId: string;
   placement_priority: number;
   relationships: Relation;
+  loadPriority: number;
+  offloadPriority: number;
 };
 
 export enum Peripheral_Error {
   CONVEYOR_ALREADY_HAS_CARGO = 101,
 }
+
+export type Elevator_Info = {
+  locationId: string;
+  booker: boolean;
+  occupier: string | null;
+  isManualMode: boolean;
+  hasCargoSignal: boolean;
+  status: PeripheralMachineStatus;
+  name: string;
+  description: string;
+  disable: boolean;
+  cargo: Cargo[];
+  forkHeight: number;
+  loadMissionId: string;
+  offloadMissionId: string;
+  elevatorDBId: string;
+};

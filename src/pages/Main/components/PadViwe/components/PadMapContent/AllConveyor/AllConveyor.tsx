@@ -8,7 +8,7 @@ import styled from "styled-components";
 import ConveyorIcon from "./ConveyorIcon";
 import useConveyorSocket from "@/sockets/useConveyorSocket";
 
-const PointDiv = styled.div.attrs<{
+const Point = styled.div.attrs<{
   left: number;
   top: number;
   canrotate: string;
@@ -32,8 +32,6 @@ const PointDiv = styled.div.attrs<{
     scale: 1.8;
   }
 `;
-
-export const Point = memo(PointDiv);
 
 const WrapperStation = styled.div.attrs<{
   left: number;
@@ -70,7 +68,7 @@ const AllConveyor: FC = () => {
   return (
     <>
       {data.locations
-        .filter(({ areaType }) => areaType === "Conveyor")
+        .filter(({ areaType }) => areaType === "CONVEYOR")
         .map((loc) => {
           const [displayX, displayY] = rosCoord2DisplayCoord({
             x: loc.x,

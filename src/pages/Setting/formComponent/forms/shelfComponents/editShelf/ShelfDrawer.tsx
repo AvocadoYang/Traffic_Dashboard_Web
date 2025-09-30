@@ -58,7 +58,7 @@ const ShelfDrawer: FC<{
   const relationOption = useMemo(() => {
     const info = loc as LocWithoutArr[];
     const mixData = info
-      .filter((v) => v.areaType === "Storage")
+      .filter((v) => v.areaType === "STORAGE")
       .sort((a, b) => Number(a.locationId) - Number(b.locationId))
       .map((v) => ({
         label: v.locationId,

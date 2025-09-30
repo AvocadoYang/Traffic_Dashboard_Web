@@ -9,6 +9,20 @@ import SettingStyleForm from "./SettingStyleForm";
 import { FormatPainterOutlined } from "@ant-design/icons";
 import usePeripheralStyle from "@/api/usePeripheralStyle";
 import SettingMultiStyleForm from "./SettingMultiStyleForm";
+import styled from "styled-components";
+
+const Container = styled.div`
+  display: flex;
+  width: 100%;
+  transition: all 0.3s ease;
+`;
+
+const Panel = styled.div<{ width: string; hidden?: boolean }>`
+  width: ${(p) => p.width};
+  transition: all 0.3s ease;
+  overflow: hidden;
+  ${(p) => p.hidden && `visibility: hidden; height: 0;`}
+`;
 
 const EditPeripheralIcon: FC<{
   sortableId: string;
@@ -60,6 +74,11 @@ const EditPeripheralIcon: FC<{
       dataIndex: "locationId",
       key: "locationId",
       sorter: (a, b) => Number(a.locationId) - Number(b.locationId),
+    },
+    {
+      title: "name",
+      dataIndex: "name",
+      key: "name",
     },
     {
       title: t("peripheral_style.areaType"),
@@ -145,10 +164,14 @@ const EditPeripheralIcon: FC<{
       </h3>
       <FormHr />
 
-      {isEditStation ? (
-        <SettingStyleForm />
-      ) : (
-        <>
+      <Container>
+        {/* Form */}
+        <Panel width={isEditStation ? "100%" : "0%"}>
+          <SettingStyleForm />
+        </Panel>
+
+        {/* Table */}
+        <Panel width={isEditStation ? "0%" : "100%"} hidden={isEditStation}>
           <Flex gap="middle">
             <Button
               disabled={selectedRowKeys.length === 0}
@@ -175,9 +198,10 @@ const EditPeripheralIcon: FC<{
             columns={columns as []}
             rowKey={(record: SingleChargeStation) => record.locationId}
           />
-        </>
-      )}
-      {openDrawer ? (
+        </Panel>
+      </Container>
+
+      {openDrawer && (
         <Drawer
           closable={{ "aria-label": "Close Button" }}
           onClose={onclose}
@@ -185,7 +209,7 @@ const EditPeripheralIcon: FC<{
         >
           <SettingMultiStyleForm locations={selectedRowKeys as string[]} />
         </Drawer>
-      ) : null}
+      )}
     </div>
   );
 };

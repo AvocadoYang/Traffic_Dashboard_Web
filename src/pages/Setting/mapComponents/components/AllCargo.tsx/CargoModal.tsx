@@ -1,6 +1,5 @@
 import { FC, useState } from "react";
 import { Form, message, Modal } from "antd";
-import { useCargoMutations } from "./hook/useCargoMutations";
 import { FormCargo } from "./types";
 import { useTranslation } from "react-i18next";
 import CargoMissionForm from "./CargoMissionForm";
@@ -8,6 +7,7 @@ import LayerForm from "./LayerForm";
 import { useAtom, useAtomValue } from "jotai";
 import { BaseGlobalCargoInfoModal, GlobalCargoData } from "./jotaiState";
 import { LayerType } from "@/sockets/useCargoInfo";
+import { useCargoMutations } from "@/api/useCargoMutations";
 
 const CargoModal: FC = () => {
   const [settingForm] = Form.useForm();
@@ -24,6 +24,14 @@ const CargoModal: FC = () => {
   const handleEditOk = () => {
     const payload = settingForm.getFieldsValue() as FormCargo;
     const layerPayload = layerForm.getFieldsValue() as [];
+
+  const errors = layerForm.getFieldsError().filter(({ errors }) => errors.length > 0);
+
+  if (errors.length > 0) {
+    // 2. Show first error with message API
+    messageApi.error(errors[0].errors[0]);
+    return; // 3. Stop execution
+  }
 
     layerForm.resetFields();
     setIsEditLayer(false);

@@ -51,7 +51,7 @@ const columns: TableProps<DataType>["columns"] = [
 const WarningTable: FC = () => {
   const { data } = useWarningTable();
 
-  console.log(data);
+  // console.log(data);
 
   // const warningArray: DataType[] = useMemo(() => {
   //   const rawData = { ...(data as WarningTableData) }

@@ -57,8 +57,11 @@ const useTaskOptions = (action: Action_Type) => {
       case "offload_from_other":
         text = t("car_control_translate.offload_from_other");
         break;
+      case "verity_cargo":
+        text = t("car_control_translate.verity_cargo");
+        break;
       default:
-        text = "unknown movement";
+        text 
     }
     return text;
   };
@@ -90,7 +93,7 @@ const useTaskOptions = (action: Action_Type) => {
     }));
 
   const SpecialActionListOptions: { label: string; value: Action_Type }[] =
-    actonList.slice(4, 8).map((type) => ({
+    actonList.slice(4, 10).map((type) => ({
       label: actionTranslate(type),
       value: type,
     }));

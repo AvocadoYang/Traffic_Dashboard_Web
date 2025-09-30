@@ -37,11 +37,11 @@ import FormHr from "../../utils/FormHr";
 import SubmitButton from "@/utils/SubmitButton";
 
 const pointTypeWithColor = {
-  Extra: "#2d7df6",
-  Charging: "#e7ab29",
-  Dispatch: "#7fc035",
-  Storage: "#e06a0a",
-  Standby: "#e0dcd8",
+  EXTRA: "#2d7df6",
+  CHARGING: "#e7ab29",
+  DISPATCH: "#7fc035",
+  STORAGE: "#e06a0a",
+  STANDBY: "#e0dcd8",
 };
 
 const EditableCell: React.FC<EditableCellProps> = ({
@@ -52,11 +52,11 @@ const EditableCell: React.FC<EditableCellProps> = ({
 }) => {
   const { t } = useTranslation();
   const pointTypeOption = [
-    { value: "Extra", label: t("utils.location_property.none") },
-    { value: "Charging", label: t("utils.location_property.charge_station") },
-    { value: "Dispatch", label: t("utils.location_property.prepare_side") },
-    { value: "Storage", label: t("utils.location_property.shelve") },
-    { value: "Standby", label: t("utils.location_property.wait_side") },
+    { value: "EXTRA", label: t("utils.location_property.none") },
+    { value: "CHARGING", label: t("utils.location_property.charge_station") },
+    { value: "DISPATCH", label: t("utils.location_property.prepare_side") },
+    { value: "STORAGE", label: t("utils.location_property.shelve") },
+    { value: "STANDBYa", label: t("utils.location_property.wait_side") },
   ];
 
   const canRotateOption = [
@@ -382,7 +382,7 @@ const AllLocationTable: React.FC<{
         a.areaType.localeCompare(b.areaType),
       render: (_: unknown, record: LocationType) => {
         switch (record.areaType) {
-          case "Extra":
+          case "EXTRA":
             return (
               <Tag
                 color={pointTypeWithColor[record.areaType]}

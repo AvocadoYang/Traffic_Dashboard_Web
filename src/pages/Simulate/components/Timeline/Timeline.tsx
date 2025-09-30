@@ -1,11 +1,8 @@
 import styled from "styled-components";
 import { FormInstance, message, Tooltip } from "antd";
 import { FC, useState, useRef, useEffect, MouseEvent } from "react";
-import InsertModal from "./InsertModal";
-import {
-  Mission_Schedule,
-  useTimelineScheduleSocket,
-} from "@/sockets/useTimelineScheduleSocket";
+import InsertModal from "./Modals/InsertModal";
+import { useTimelineScheduleSocket } from "@/sockets/useTimelineScheduleSocket";
 import { useTranslation } from "react-i18next";
 import TaskBar from "./TaskBar";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
@@ -20,7 +17,8 @@ import {
 } from "../../utils/mapStatus";
 import TimeLayer from "./TimeLayer";
 import { PlusOutlined } from "@ant-design/icons";
-import { TaskType } from "@/types/timeline";
+import { Mission_Schedule, TaskType } from "@/types/timeline";
+import TaskBarRange from "./TaskBarRange";
 
 const TimelineWrapper = styled.div<{ heightMode: string; isDragging: boolean }>`
   position: absolute;
@@ -314,32 +312,124 @@ const Timeline: FC = () => {
 
   useEffect(() => {
     const updatedTasks: TaskType[] = scheduleData.map(
-      (mission: Mission_Schedule) => ({
-        id: mission.id,
-        startMinute: timeToMinutes(mission.time),
-        time: mission.time,
-        type: mission.type,
-        missionType: mission.timelineMission?.type as string,
-        isEnable: mission.isEnable,
-        styleRow: mission.styleRow,
-        duration: 10,
-        timelineMission: {
-          amrId: mission.timelineMission?.amrId || null,
-          type: mission.timelineMission?.type,
-          normalMissionName: mission.timelineMission?.normalMissionName || null,
-          notifyMissionSourcePointName:
-            mission.timelineMission?.notifyMissionSourcePointName || null,
-          dynamicMission: mission.timelineMission?.dynamicMission || null,
-        },
-        timelineShiftCargo: {
-          shiftPeripheralName: mission.timelineShiftCargo?.shiftPeripheralName,
-          peripheralType: mission.timelineShiftCargo?.peripheralType,
-        },
-        timelineSpawnCargo: {
-          peripheralType: mission.timelineSpawnCargo?.peripheralType,
-          peripheralName: mission.timelineSpawnCargo?.peripheralName,
-        },
-      }),
+      (mission: Mission_Schedule) => {
+        let startMinute = timeToMinutes(mission.time);
+        let duration = 10;
+
+        if (mission.eventType === "GROUP") {
+          if (
+            mission.type === "MISSION" &&
+            mission.timelineMission?.type === "GROUP_TO_GROUP"
+          ) {
+            const arr =
+              mission.timelineMission?.dynamicMissionPeripheralGroup?.range?.split(
+                "-",
+              ) as string[];
+
+            if (arr && arr.length >= 2) {
+              const start = timeToMinutes(arr[0]);
+              const end = timeToMinutes(arr[1]);
+              startMinute = start;
+              duration = end - start;
+            }
+          }
+
+          if (mission.type === "SHIFT_CARGO_GROUP") {
+            const arr = mission.timelineShiftCargoGroup?.range?.split(
+              "-",
+            ) as string[];
+
+            if (arr && arr.length >= 2) {
+              const start = timeToMinutes(arr[0]);
+              const end = timeToMinutes(arr[1]);
+              startMinute = start;
+              duration = end - start;
+            }
+          }
+
+          if (mission.type === "SPAWN_CARGO_GROUP") {
+            const arr = mission.timelineSpawnCargoGroup?.range?.split(
+              "-",
+            ) as string[];
+
+            if (arr && arr.length >= 2) {
+              const start = timeToMinutes(arr[0]);
+              const end = timeToMinutes(arr[1]);
+              startMinute = start;
+              duration = end - start;
+            }
+          }
+        }
+
+        return {
+          id: mission.id,
+          startMinute,
+          duration, // The duration property you calculated
+          time: mission.time,
+          isEnable: mission.isEnable,
+          styleRow: mission.styleRow,
+
+          // This is the missing property
+          eventType: mission.eventType,
+          type: mission.type,
+          missionType: mission.timelineMission?.type,
+
+          // All the other properties you had before...
+          timelineMission: {
+            amrId: mission.timelineMission?.amrId || null,
+            type: mission.timelineMission?.type,
+            normalMissionName:
+              mission.timelineMission?.normalMissionName || null,
+            notifyMissionSourcePointName:
+              mission.timelineMission?.notifyMissionSourcePointName || null,
+            dynamicMission: mission.timelineMission?.dynamicMission || null,
+            dynamicMissionPeripheralGroup: {
+              range:
+                mission.timelineMission?.dynamicMissionPeripheralGroup?.range ||
+                null,
+              activeInterval:
+                mission.timelineMission?.dynamicMissionPeripheralGroup
+                  ?.activeInterval || -1,
+              task:
+                mission.timelineMission?.dynamicMissionPeripheralGroup?.task?.map(
+                  (v) => ({
+                    loadGroupName: v.loadGroupName,
+                    offloadGroupName: v.offloadGroupName,
+                  }),
+                ) || [],
+            },
+          },
+          timelineShiftCargo: {
+            shiftPeripheralName:
+              mission.timelineShiftCargo?.shiftPeripheralName,
+            peripheralType: mission.timelineShiftCargo?.peripheralType,
+          },
+          timelineSpawnCargo: {
+            peripheralType: mission.timelineSpawnCargo?.peripheralType,
+            peripheralName: mission.timelineSpawnCargo?.peripheralName,
+          },
+          timelineShiftCargoGroup: {
+            groupId: mission.timelineShiftCargoGroup?.groupId || "",
+            range: mission.timelineShiftCargoGroup?.range || null,
+            activeInterval:
+              mission.timelineShiftCargoGroup?.activeInterval || -1,
+            isShiftAll: mission.timelineShiftCargoGroup?.isShiftAll,
+            shiftNumber: mission.timelineShiftCargoGroup?.shiftNumber,
+            shiftGroupId: mission.timelineShiftCargoGroup?.shiftGroupId,
+            shiftGroupname: mission.timelineShiftCargoGroup?.shiftGroupname,
+          },
+          timelineSpawnCargoGroup: {
+            groupId: mission.timelineSpawnCargoGroup?.groupId || "",
+            range: mission.timelineSpawnCargoGroup?.range || null,
+            activeInterval:
+              mission.timelineSpawnCargoGroup?.activeInterval || -1,
+            isSpawnAll: mission.timelineSpawnCargoGroup?.isSpawnAll,
+            spawnNumber: mission.timelineSpawnCargoGroup?.spawnNumber,
+            spawnGroupId: mission.timelineSpawnCargoGroup?.spawnGroupId,
+            spawnGroupname: mission.timelineSpawnCargoGroup?.spawnGroupname,
+          },
+        };
+      },
     );
     setTasks(updatedTasks);
   }, [scheduleData]);
@@ -498,19 +588,39 @@ const Timeline: FC = () => {
         <TimeLayer hours={hours} setSelectTime={setSelectTime} />
 
         <TaskLayer height={rowCount * 25} wrapperHeight={heightMode}>
-          {tasks.map((task, idx) => (
-            <TaskBar
-              key={idx}
-              task={task}
-              top={rowAssignments[idx] * 25}
-              barMainColor={taskBarMainColor(
-                task.type,
-                task.missionType,
-                task.isEnable,
-              )}
-              handleEditTimeline={handleEditTimeline}
-            />
-          ))}
+          {tasks
+            .filter(({ eventType }) => eventType === "FIXED")
+            .map((task, idx) => (
+              <TaskBar
+                key={idx}
+                task={task}
+                top={rowAssignments[idx] * 25}
+                barMainColor={taskBarMainColor(
+                  task.type,
+                  task.missionType,
+                  task.isEnable,
+                )}
+                handleEditTimeline={handleEditTimeline}
+              />
+            ))}
+          {tasks
+            .filter(({ eventType }) => eventType === "GROUP")
+            .filter(
+              (task, idx, arr) =>
+                arr.findIndex((t) => t.id === task.id) === idx,
+            )
+            .map((task, idx) => (
+              <TaskBarRange
+                key={idx}
+                task={task}
+                top={rowAssignments[idx] * 25}
+                barMainColor={taskBarMainColor(
+                  task.type,
+                  task.missionType,
+                  task.isEnable,
+                )}
+              />
+            ))}
         </TaskLayer>
       </TimelineWrapper>
     </>

@@ -19,6 +19,7 @@ import { AllChargeStation } from "./AllChargeStation";
 import useMap from "@/api/useMap";
 import ChargeStationModel from "./AllChargeStation/ChargeStationModel";
 import AllConveyor from "../../PadViwe/components/PadMapContent/AllConveyor/AllConveyor";
+import { AllElevator } from "../../PadViwe/components/PadMapContent/AllElevator";
 
 const WebMapView: React.FC<{
   mapRef: RefObject<HTMLDivElement>;
@@ -60,6 +61,7 @@ const WebMapView: React.FC<{
         <>
           <AllAMRs></AllAMRs>
           <AllCargo></AllCargo>
+          <AllElevator></AllElevator>
           <AllConveyor></AllConveyor>
           {showLocation ? <AllLocation></AllLocation> : null}
           {showRoad ? <AllRoads></AllRoads> : null}

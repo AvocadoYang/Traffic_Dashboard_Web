@@ -1,4 +1,4 @@
-import { Mission_Schedule } from "@/sockets/useTimelineScheduleSocket";
+import { Mission_Schedule } from "@/types/timeline";
 import { atom } from "jotai";
 
 export const globalScale = atom<number>(1);
@@ -10,6 +10,15 @@ export const EditConveyorConfig = atom<{
 export const TimelineHeight = atom<"mini" | "normal" | "full">("normal");
 
 export const OpenScheduleTable = atom<boolean>(false);
+
+//**新增區域生成貨物 */
+export const OpenRangeSpawnModal = atom<boolean>(false);
+
+//**新增區域轉移貨物 */
+export const OpenRangeShiftModal = atom<boolean>(false);
+
+//**新增編輯固定時間任務 */
+export const OpenFixedEventMissionEditModal = atom<boolean>(false);
 
 //**新增編輯任務 */
 export const OpenEditModal = atom<boolean>(false);

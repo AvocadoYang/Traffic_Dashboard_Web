@@ -45,7 +45,7 @@ const SudoPeripheral = () => {
     mapResolution: mapData.data.mapResolution,
   });
 
-  if (selectStation.peripheralType === "Charging") {
+  if (selectStation.peripheralType === "CHARGING") {
     return (
       <ChargingStationContainer left={left} top={top} key={selectStation.loc}>
         <ChargingStation
@@ -65,7 +65,7 @@ const SudoPeripheral = () => {
     );
   }
 
-  if (selectStation.peripheralType === "Conveyor") {
+  if (selectStation.peripheralType === "CONVEYOR") {
     return (
       <ConveyorStationContainer left={left} top={top}>
         <ConveyorWrapper
@@ -79,7 +79,7 @@ const SudoPeripheral = () => {
     );
   }
 
-  if (selectStation.peripheralType === "Storage") {
+  if (selectStation.peripheralType === "STORAGE") {
     return (
       <StorageStationContainer left={left} top={top}>
         <StorageWrapper

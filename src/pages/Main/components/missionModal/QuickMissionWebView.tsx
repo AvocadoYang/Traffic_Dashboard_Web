@@ -139,9 +139,10 @@ const SelectedLocation = styled.div`
 `;
 
 type Submit = {
-  amrId: string[];
+  amrId: string;
   priority: number;
-  task: (Quick_Mission | null)[];
+  ept_s: string | undefined;
+  ept_d: string | undefined;
 };
 
 const QuickMissionWebView: React.FC<{
@@ -216,12 +217,11 @@ const QuickMissionWebView: React.FC<{
     const values = form.getFieldsValue() as { amrId: string; priority: number };
     // console.log('Submitting quick mission:', { loadValue, offloadValue, ...values });
 
-    const prefixTask = [loadValue, offloadValue].filter((v) => v !== null);
-
     const payload: Submit = {
-      amrId: [values.amrId],
+      amrId: values.amrId,
       priority: values.priority,
-      task: prefixTask,
+      ept_s: loadValue?.columnName,
+      ept_d: offloadValue?.columnName,
     };
 
     submitMutation.mutate(payload);

@@ -16,7 +16,15 @@ export const isFork = (robotId: string): boolean => {
 
 export const prefixLevelName = (word: string | null | undefined): string => {
   if (!word) return "";
-  const parts = word.split("-");
-  parts.pop();
-  return parts.join("-");
+
+  // Find the index of the last hyphen
+  const lastHyphenIndex = word.lastIndexOf("-");
+
+  // If a hyphen is found, return the substring up to that point
+  if (lastHyphenIndex !== -1) {
+    return word.substring(0, lastHyphenIndex);
+  }
+
+  // If no hyphen is found, return the original word
+  return word;
 };

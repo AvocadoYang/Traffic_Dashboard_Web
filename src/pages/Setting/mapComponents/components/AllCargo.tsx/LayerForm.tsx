@@ -4,10 +4,11 @@ import {
   Form,
   FormInstance,
   Input,
+  InputNumber,
   Switch,
   Typography,
 } from "antd";
-import { Dispatch, FC, SetStateAction, useEffect } from "react";
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { nanoid } from "nanoid";
 import { LayerType } from "@/sockets/useCargoInfo";
@@ -32,6 +33,7 @@ const LayerForm: FC<{
 }> = ({ form, layer, setIsEditLayer, locId }) => {
   const { t } = useTranslation();
   const setCargoInfo = useSetAtom(GlobalCargoInfo);
+  const [isClickBtn, setIsClickBtn] = useState(false);
 
   const setOpenCargoInfo = useSetAtom(GlobalCargoInfoModal);
 
@@ -56,6 +58,7 @@ const LayerForm: FC<{
       cargo: data.cargo,
     });
     setOpenCargoInfo(true);
+    setIsClickBtn(true);
   };
 
   useEffect(() => {
@@ -63,10 +66,12 @@ const LayerForm: FC<{
     Object.entries(layer).forEach(([indexStr, info]) => {
       const levelName = prefixLevelName(info?.levelName);
       form.setFieldsValue({
-        [`hasCargo${indexStr}`]: info.hasCargo,
         [`levelName${indexStr}`]: levelName,
+        [`description${indexStr}`]: info.description,
         [`disable${indexStr}`]: info.disable || false,
         [`cargo_limit${indexStr}`]: info.cargo_limit || false,
+        [`loadPriority${indexStr}`]: info.loadPriority || 0,
+        [`offloadPriority${indexStr}`]: info.offloadPriority || 0,
       });
     });
   }, [form, layer]);
@@ -114,9 +119,40 @@ const LayerForm: FC<{
                 <Form.Item
                   label={t("shelf.layer_form.column_name")}
                   name={`levelName${index}`}
+                    rules={[
+    {
+      required: true,
+      message: t("shelf.layer_form.level_name_required"),
+    },
+    {
+      pattern: /^[a-zA-Z0-9_]+$/,
+      message: t("shelf.layer_form.invalid_level_name"),
+    },
+  ]}
                 >
                   <Input placeholder={t("shelf.layer_form.enter_level_name")} />
                 </Form.Item>
+
+                <Form.Item
+                  label={t("shelf.layer_form.description")}
+                  name={`description${index}`}
+                >
+                  <Input placeholder={t("shelf.layer_form.description")} />
+                </Form.Item>
+
+                <Button
+                  disabled={isClickBtn}
+                  onClick={() =>
+                    setOpenEditCargoDetailModal({
+                      dbId: levelValue.dbId,
+                      level: Number(levelStr),
+                      cargo: levelValue.cargo,
+                    })
+                  }
+                >
+                  {t("shelf.layer_form.edit_detail")}
+                </Button>
+
                 <Form.Item
                   label={t("shelf.layer_form.disable")}
                   name={`disable${index}`}
@@ -124,47 +160,26 @@ const LayerForm: FC<{
                 >
                   <Switch checkedChildren="On" unCheckedChildren="Off" />
                 </Form.Item>
-                <Flex align="center" gap="middle">
-                  <Form.Item
-                    label={t("shelf.layer_form.has_cargo")}
-                    name={`hasCargo${index}`}
-                    valuePropName="checked"
-                  >
-                    <Switch
-                      onChange={(v) => !v && clearCargoField(index)}
-                      checkedChildren={t("shelf.layer_form.has_cargo")}
-                      unCheckedChildren={t("shelf.layer_form.no_cargo")}
-                    />
-                  </Form.Item>
-
-                  <Form.Item
-                    shouldUpdate={(prev, curr) =>
-                      prev[`hasCargo${index}`] !== curr[`hasCargo${index}`]
-                    }
-                  >
-                    {({ getFieldValue }) =>
-                      getFieldValue(`hasCargo${index}`) ? (
-                        <Button
-                          onClick={() =>
-                            setOpenEditCargoDetailModal({
-                              dbId: levelValue.dbId,
-                              level: Number(levelStr),
-                              cargo: levelValue.cargo,
-                            })
-                          }
-                        >
-                          {t("shelf.layer_form.edit_detail")}
-                        </Button>
-                      ) : null
-                    }
-                  </Form.Item>
-                </Flex>
 
                 <Form.Item
                   label={t("edit_road_panel.limit")}
                   name={`cargo_limit${index}`}
                 >
                   <Switch />
+                </Form.Item>
+
+                <Form.Item
+                  label={t("shelf.load_priority")}
+                  name={`loadPriority${index}`}
+                >
+                  <InputNumber min={0} />
+                </Form.Item>
+
+                <Form.Item
+                  label={t("shelf.offload_priority")}
+                  name={`offloadPriority${index}`}
+                >
+                  <InputNumber min={0} />
                 </Form.Item>
               </div>
             );

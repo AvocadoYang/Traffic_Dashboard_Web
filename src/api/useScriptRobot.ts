@@ -9,6 +9,7 @@ const schema = array(
     is_in_script: boolean().required(),
     load_speed: number().required(),
     offload_speed: number().required(),
+    move_speed: number().required(),
     script_placement_location: string().optional().nullable(),
   }).optional(),
 ).required();

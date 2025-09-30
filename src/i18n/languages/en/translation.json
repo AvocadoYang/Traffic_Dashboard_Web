@@ -448,6 +448,8 @@
 
   "shelf": {
     "shelf": "Shelf",
+    "load_priority": "Load priority",
+    "offload_priority": "Offload priority",
     "cargo_mission": {
       "default_title": "Cargo Mission Configuration",
       "load_mission": "Load Mission",
@@ -497,7 +499,10 @@
       "cargo_name": "Cargo Name",
       "edit_detail": "edit cargo detail info",
       "cargo_limit": "Cargo Limit",
-      "pallet": "Pallet"
+      "pallet": "Pallet",
+      "description": "Description",
+           "level_name_required":"name is require",
+      "invalid_level_name":"Name cannot contain spaces or hyphens; Level name can only contain letters, numbers, and underscores."
     },
     "error": {
       "info_error": "error read info error"
@@ -953,7 +958,8 @@
     "B": "backward",
     "S": "spin",
     "H": "fork movement",
-    "W": "wait"
+    "W": "wait",
+        "verity_cargo":"verity cargo via camera"
   },
 
   "customCargo": {
@@ -1002,7 +1008,17 @@
       "detail_search": "Search time type details",
       "mission": "🚀 Mission",
       "spawn_cargo": "📦 Generate cargo",
-      "shift_cargo": "🔄 Transfer cargo"
+      "shift_cargo": "🔄 Transfer cargo",
+      "add_range_event": "Add a new range event",
+      "range_time_event": "Range time event",
+
+      "fixed_event": "Fixed event"
+    },
+
+    "range_table": {
+      "range": "range",
+      "gap_time": "Interval time (minutes)",
+      "activeTimes": "event active times"
     },
 
     "spawn_cargo_modal": {
@@ -1029,6 +1045,41 @@
       "success": "Saved successfully",
       "updated": "Updated successfully",
       "required": "This field is required"
+    },
+
+    "spawn_cargo_group": {
+      "add": "Add Spawn Cargo Random By Group",
+      "insert_random_spawn_cargo_group": "Insert Random Spawn Cargo Group",
+      "peripheral_group": "Peripheral Group",
+      "spawn_all": "Spawn All?",
+      "spawn_number": "Spawn Number",
+      "success_spawn": "Spawn cargo group added successfully!",
+      "failed_spawn": "Failed to add spawn cargo group.",
+      "gap_time": "Interval time (minutes)",
+      "range_end_time": "range end time",
+      "time": "Time",
+      "range": "range",
+      "spawn_group": "Spawn cargo at group"
+    },
+
+    "shift_cargo_group": {
+      "add": "Add Shift Cargo Random By Group",
+      "insert_random_shift_cargo_group": "Insert Random Shift Cargo Group",
+      "shift_all": "Shift All?",
+      "peripheral_group": "Peripheral Group",
+      "shift_number": "Shift Number",
+      "success_shift": "Shift cargo group added successfully!",
+      "failed_shift": "Failed to add shift cargo group.",
+      "gap_time": "Interval time (minutes)",
+      "range_end_time": "range end time",
+      "time": "Time",
+      "range": "range",
+      "shift_group": "Shift cargo at group"
+    },
+
+    "dynamic_mission_group": {
+      "mission_group": "Mission group",
+      "range": "range"
     },
 
     "shift_cargo_modal": {
@@ -1082,7 +1133,9 @@
       "select_normal": "Select a normal task",
       "select_notify": "Select a notify location",
       "error_missing_id": "Task ID or time not found",
-      "validation_error": "Form validation failed, please check your inputs"
+      "validation_error": "Form validation failed, please check your inputs",
+      "gap_time": "Interval time (minutes)",
+      "range_end_time": "range end time"
     },
     "sim_result": {
       "title": "Simulation Result",
@@ -1338,6 +1391,8 @@
     "type": "Type",
     "level": "Level",
     "name": "Name",
+    "description": "Description",
+    "group": "Group",
     "operation": "Operation",
     "edit": "Edit",
     "save": "Save",
@@ -1367,5 +1422,14 @@
     "updatedSuccess": "Name updated successfully",
     "updateFail": "Failed to save changes",
     "inputPlaceholder": "Enter name"
+  },
+  "elevator": {
+    "fork_height": "Fork height",
+    "name": "Name",
+    "description": "Description",
+    "disable": "Disable",
+    "edit_cargo_detail": "Edit cargo detail",
+    "fork_height_desc": "Fork height when load or offload",
+    "other_config": "Other"
   }
 }

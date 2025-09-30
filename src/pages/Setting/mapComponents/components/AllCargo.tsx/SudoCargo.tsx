@@ -94,7 +94,7 @@ const SudoCargo: FC = () => {
   const eachShelf = shelf?.find(
     (v) => v.Loc.locationId === shelfSelectedStyleId,
   );
-
+  console.log(eachShelf);
   return (
     <>
       <WrapperForCargo left={displayX} top={displayY}>
@@ -108,7 +108,9 @@ const SudoCargo: FC = () => {
           {Array.from({ length: currentShelf }, (_, i) => (
             <Block key={i}>
               <BlockSpan>
-                {prefixLevelName(eachShelf?.ShelfConfig[i]?.name)}
+                {prefixLevelName(
+                  eachShelf?.ShelfConfig[i]?.peripheral_name.name,
+                )}
               </BlockSpan>
             </Block>
           ))}

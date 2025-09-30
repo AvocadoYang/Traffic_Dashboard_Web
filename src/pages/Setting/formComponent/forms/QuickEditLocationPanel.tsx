@@ -29,7 +29,7 @@ import useAllAreaTypes from "@/api/useAllAreaTypes";
 import { locationOption } from "../../utils/func";
 
 const initialFormDate = {
-  genre: "Extra",
+  genre: "EXTRA",
   originId: 0,
   originX: null,
   originY: null,
@@ -260,7 +260,7 @@ const QuickEditLocationPanel: React.FC<{
 
   useEffect(() => {
     setTempStoredLocationsForQuickEditPanel([]);
-    form.setFieldValue("genre", "Extra");
+    form.setFieldValue("genre", "EXTRA");
     form.setFieldValue("multiplyX", 2);
     form.setFieldValue("multiplyY", 2);
     form.setFieldValue("xGap", 1);

@@ -130,9 +130,9 @@ const MissionBtn = () => {
           </Tooltip>
         ) : (
           <Flex gap="small" wrap="wrap" align="center" justify="end">
-            <StyledButton onClick={() => {}} icon={<RedoOutlined />}>
+            {/* <StyledButton onClick={() => {}} icon={<RedoOutlined />}>
               {t("toolbar.mission.cycle_mission")}
-            </StyledButton>
+            </StyledButton> */}
 
             <StyledButton
               onClick={() => {

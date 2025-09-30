@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Button,
+  Flex,
   Form,
   Input,
   Popconfirm,
+  Select,
   Table,
   Typography,
   message,
@@ -16,13 +18,19 @@ import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
+import usePeripheralGroup from "@/api/usePeripheralGroup";
+import useCorningPeripheralFormat from "@/api/useCorningPeripheralFormat";
+import { EndpointStatus } from "@/types/corning";
 
 interface PeripheralData {
-  peripheralNameId: string;
-  locationId: string;
-  name: string | null;
-  type: string;
-  level: number | null;
+  id: string;
+  name: string;
+  description: string;
+  group: string;
+  status: EndpointStatus;
+  quantity: number;
+  peripheralNameDBId: string;
+  level: number
 }
 
 const StyledTable = styled(Table)`
@@ -50,6 +58,22 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   record: PeripheralData;
   index: number;
 }
+  const options = [
+    { value: 0, label: "UNDEFINED" },
+    { value: 10, label: "OFFLINE" },
+    { value: 20, label: "EMPTY_AVAILABLE_FOR_RECEIVING"  },
+    { value: 30, label: "EMPTY_ITEM_RESERVED" ,disabled: true },
+    { value: 31, label: "EMPTY_DEFECT_ITEM_RESERVED",disabled: true  },
+    { value: 40, label: "EMPTY_NOT_AVAILABLE"  },
+    { value: 50, label: "OCCUPIED_AVAILABLE_FOR_PICKUP"  },
+    { value: 60, label: "OCCUPIED_ITEM_PICKUP_RESERVED" ,disabled: true },
+    { value: 70, label: "OCCUPIED_NOT_AVAILABLE" },
+  ];
+
+  const statusRecord = options.reduce<Record<number, string>>((acc, option) => {
+    acc[option.value] = option.label;
+    return acc;
+  }, {});
 
 const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   editing,
@@ -60,6 +84,34 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   children,
   ...restProps
 }) => {
+  const { data: peripheralGroups } = usePeripheralGroup();
+  const peripheralOptions = useMemo(
+    () =>
+      peripheralGroups?.map((pg) => ({
+        label: pg.name,
+        value:  pg.name,
+      })) || [],
+    [peripheralGroups],
+  );
+
+
+
+  let inputNode;
+
+  if (dataIndex === "group") {
+    inputNode = (
+      <Select options={peripheralOptions} placeholder="Select group"></Select>
+    );
+  } else if (dataIndex === "status") {
+    inputNode = (
+      <Select options={options} placeholder="Select status"></Select>
+    );
+  } else if (dataIndex === "quantity") {
+    inputNode = <Input type="number" placeholder={`Enter ${title}`} />;
+  } else {
+    inputNode = <Input placeholder={`Enter ${title}`} />;
+  }
+
   return (
     <td {...restProps}>
       {editing ? (
@@ -68,12 +120,12 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
           style={{ margin: 0 }}
           rules={[
             {
-              required: false, // Name is optional as per schema
-              message: `Please Input ${title}!`,
+              required: false,
+              message: `Please input ${title}!`,
             },
           ]}
         >
-          <Input placeholder="Enter name" />
+          {inputNode}
         </Form.Item>
       ) : (
         children
@@ -85,35 +137,49 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
 const PeripheralNameTable: React.FC = () => {
   const [form] = Form.useForm();
   const [editingKey, setEditingKey] = useState<string>("");
-  const { data, isLoading, error, refetch } = usePeripheralName();
+  const { data, isLoading, error, refetch } = useCorningPeripheralFormat(null);
   const queryClient = useQueryClient();
   const [messageApi, contextHolder] = message.useMessage();
   const { t } = useTranslation();
 
-  const isEditing = (record: PeripheralData) =>
-    record.peripheralNameId === editingKey;
 
-  // Mutation to update peripheral name
+
+  const isEditing = (record: PeripheralData) => record.id === editingKey;
+
   const updateMutation = useMutation({
-    mutationFn: (payload: {
-      locationId: string;
-      level: number | null;
-      peripheralNameId: string;
-      name: string | null;
-    }) => {
+    mutationFn: (payload: PeripheralData) => {
       return client.post("/api/setting/update-peripheral-name", payload);
     },
     onSuccess: () => {
       messageApi.success("Name updated successfully");
       queryClient.invalidateQueries({ queryKey: ["peripheral-name"] });
+      refetch()
       setEditingKey("");
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
+  const syncMutation = useMutation({
+    mutationFn: () => {
+      return client.post("/api/wcs/sync-with-corning");
+    },
+    onSuccess: () => {
+      messageApi.success("sync successfully");
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
+  const handleSync = () => {
+    syncMutation.mutate();
+  };
+
   const edit = (record: PeripheralData) => {
     form.setFieldsValue({ name: record.name || "" });
-    setEditingKey(record.peripheralNameId);
+    form.setFieldsValue({ description: record.description || "" });
+    form.setFieldsValue({ quantity: record.quantity });
+    form.setFieldsValue({ group: record.group || null });
+    form.setFieldsValue({ status: record.status });
+    setEditingKey(record.id)
   };
 
   const cancel = () => {
@@ -125,17 +191,24 @@ const PeripheralNameTable: React.FC = () => {
     messageApi.success("ok");
   };
 
-  const save = async (
-    peripheralNameId: string,
-    locationId: string,
-    level: number | null,
-  ) => {
+  const save = async ( peripheralNameDBId: string,locationId: string, level: number) => {
     try {
-      const row = (await form.validateFields()) as { name: string };
+      const row = (await form.validateFields()) as {
+        name: string;
+        description: string;
+        quantity: number;
+        group: string;
+        status: EndpointStatus;
+      };
+     // console.log(peripheralNameDBId,locationId)
       updateMutation.mutate({
-        peripheralNameId,
-        name: row.name || null,
-        locationId,
+        id: locationId,
+        name: row.name,
+        description: row.description,
+        group: row.group,
+        quantity: row.quantity,
+        status: row.status,
+        peripheralNameDBId,
         level,
       });
     } catch (errInfo) {
@@ -147,28 +220,45 @@ const PeripheralNameTable: React.FC = () => {
   const columns: TableProps<PeripheralData>["columns"] = [
     {
       title: t("peripheral_name_table.locationId"),
-      dataIndex: "locationId",
-      sorter: (a, b) => Number(a.locationId) - Number(b.locationId),
+      dataIndex: "id",
+      sorter: (a, b) => Number(a.id) - Number(b.id),
       render: (text: string) => <Typography.Text code>{text}</Typography.Text>,
+      width: 120,
     },
     {
-      title: t("peripheral_name_table.type"),
-      dataIndex: "type",
-    },
-    {
-      title: t("peripheral_name_table.level"),
-      dataIndex: "level",
-
-      render: (text: number | null) => (text !== null ? text + 1 : "-"),
+      title: "status",
+      dataIndex: "status",
+      editable: true,
+      width: 270,
+          render: (text: number) => <Typography.Text code>{statusRecord[text]}</Typography.Text>,
     },
     {
       title: t("peripheral_name_table.name"),
       dataIndex: "name",
-
       editable: true,
       render: (text: string | null) => text || "-",
+      width: 200,
     },
-
+    {
+      title: t("peripheral_name_table.description"),
+      dataIndex: "description",
+      editable: true,
+      render: (text: string | null) => text || "-",
+      width: 250,
+    },
+    {
+      title: t("peripheral_name_table.group"),
+      dataIndex: "group",
+      editable: true,
+       render: (text: string) => <Typography.Text code>{text}</Typography.Text>,
+      width: 250,
+    },
+    {
+      title: "quantity",
+      dataIndex: "quantity",
+      editable: true,
+      width: 50,
+    },
     {
       title: t("peripheral_name_table.operation"),
       dataIndex: "operation",
@@ -177,14 +267,11 @@ const PeripheralNameTable: React.FC = () => {
         return editable ? (
           <span>
             <Typography.Link
-              onClick={() =>
-                save(record.peripheralNameId, record.locationId, record.level)
-              }
+              onClick={() => save( record.peripheralNameDBId,record.id, record.level)}
               style={{ marginInlineEnd: 8 }}
             >
               {t("utils.save")}
             </Typography.Link>
-
             <a onClick={cancel}>{t("utils.cancel")}</a>
           </span>
         ) : (
@@ -196,6 +283,7 @@ const PeripheralNameTable: React.FC = () => {
           </Typography.Link>
         );
       },
+      width: 150,
     },
   ];
 
@@ -223,9 +311,17 @@ const PeripheralNameTable: React.FC = () => {
   return (
     <>
       {contextHolder}
-      <Button onClick={reload} style={{ marginBottom: 16 }}>
-        {t("peripheral_name_table.reload")}
-      </Button>
+
+      <Flex gap="middle">
+        <Button onClick={reload} style={{ marginBottom: 16 }}>
+          {t("peripheral_name_table.reload")}
+        </Button>
+
+        <Button onClick={handleSync} style={{ marginBottom: 16 }}>
+          SYNC WITH CORNING
+        </Button>
+      </Flex>
+
       <Form form={form} component={false}>
         <StyledTable
           components={{
@@ -233,11 +329,11 @@ const PeripheralNameTable: React.FC = () => {
           }}
           bordered
           loading={isLoading}
-          dataSource={data}
+          dataSource={data?.payload}
           columns={mergedColumns as []}
           rowClassName="editable-row"
           pagination={{ pageSize: 10 }}
-          rowKey="peripheralNameId"
+          rowKey={(record:PeripheralData)=> record.id }
         />
       </Form>
     </>
