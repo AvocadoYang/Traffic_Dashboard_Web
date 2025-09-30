@@ -84,7 +84,7 @@ const getMap = async () => {
   const { data } = await api.get<unknown>("/api/map");
   const parsed = await schema.validate(data, { stripUnknown: true });
   if (parsed.imageUrl) {
-    const baseUrl = MISSION_CONTROL_URL.replace("localhost", location.hostname)
+    const baseUrl = `${window.location.origin}`.replace("localhost", location.hostname)
       .replace(/:5173/, ":4000")
       .replace(/\/+$/, "");
 
