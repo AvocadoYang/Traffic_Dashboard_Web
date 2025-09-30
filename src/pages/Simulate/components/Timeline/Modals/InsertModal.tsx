@@ -92,9 +92,9 @@ const InsertModal: FC = () => {
   const [selectTime, setSelectTime] = useAtom(SelectTime);
   const editTask = useAtomValue(EditTask);
   const [localEditTask, setLocalEditTask] = useState<Mission_Schedule | null>(
-    null,
+    null
   ); // 沒有它會暴 id 會不正確
-
+  // console.log(localEditTask, "-------------");
   const handleClose = () => {
     setIsOpen(false);
     setIsEdit(false);
@@ -121,7 +121,7 @@ const InsertModal: FC = () => {
           value: v.peripheralNameId,
         }))
         .sort((a, b) => a.label.localeCompare(b.label)) || [],
-    [peripheralName, t],
+    [peripheralName, t]
   );
 
   const amrOption = useMemo(() => {
@@ -144,7 +144,7 @@ const InsertModal: FC = () => {
       { value: "NORMAL", label: t("sim.insert_modal.normal") },
       { value: "NOTIFY", label: t("sim.insert_modal.notify") },
     ],
-    [t],
+    [t]
   );
 
   const missionOptions = useMemo(
@@ -152,21 +152,21 @@ const InsertModal: FC = () => {
       missionTitle
         ?.filter((g) =>
           g.MissionTitleBridgeCategory.some(
-            (s) => s.Category?.tagName === "normal-mission",
-          ),
+            (s) => s.Category?.tagName === "normal-mission"
+          )
         )
         .map((v) => ({
           value: v.id,
           label: v.name,
         })) || [],
-    [missionTitle],
+    [missionTitle]
   );
 
   const saveMutation = useMutation({
     mutationFn: (
       payload: Omit<Mission_Schedule, "id" | "isEnable" | "timelineMission"> & {
         timelineMission: NonNullable<Mission_Schedule["timelineMission"]>;
-      },
+      }
     ) => {
       return client.post("api/simulate/insert-timeline-mission", payload);
     },
@@ -274,10 +274,8 @@ const InsertModal: FC = () => {
   useEffect(() => {
     if (!isEdit || !editTask) return;
     // console.log(editTask,' edit===')
-    setLocalEditTask(editTask);
 
     if (!localEditTask) {
-      setLocalEditTask(editTask);
       form.setFieldsValue({
         timestamp: dayjs(editTask.time, "HH:mm"),
         styleRow: editTask.styleRow,
@@ -293,14 +291,9 @@ const InsertModal: FC = () => {
         notify: editTask.timelineMission?.notifyMissionSourcePointName,
       });
       setMissionType(editTask.timelineMission?.type as Mission_Type);
+      setLocalEditTask(editTask);
     }
-  }, [isEdit, form, localEditTask]);
-
-  // useEffect(() => {
-  //   if (!isEdit && selectTime) {
-  //     form.setFieldValue("timestamp", dayjs(selectTime, "HH:mm"));
-  //   }
-  // }, [selectTime, isEdit, form]);
+  }, [isEdit, form, editTask]);
 
   return (
     <>
@@ -346,7 +339,7 @@ const InsertModal: FC = () => {
                   },
                 ]}
               >
-                <InputNumber min={0} max={10} />
+                <InputNumber disabled min={0} max={10} />
               </Form.Item>
               {isEdit && (
                 <Form.Item
@@ -413,7 +406,7 @@ const InsertModal: FC = () => {
                     validator: async (_, value) => {
                       if (!value || value.length === 0) {
                         return Promise.reject(
-                          new Error(t("sim.insert_modal.dynamic_required")),
+                          new Error(t("sim.insert_modal.dynamic_required"))
                         );
                       }
                     },

@@ -62,6 +62,7 @@ const NoDefine = styled.span`
 type CargoData = {
   id: string;
   status: string;
+  custom_id: string | null;
   metadata: string | null;
   createdAt: Date;
   register_robot?: { id: string };
@@ -102,7 +103,7 @@ const HistoryTable: FC = () => {
 
   const { t } = useTranslation();
 
-  const { mutate, isLoading, contextHolder } = useReverifyCargoFormat(refetch);
+  const { mutate, isPending, contextHolder } = useReverifyCargoFormat(refetch);
 
   const reVerityCargoFormat = (cargoInfoId: string) => {
     mutate(cargoInfoId);
@@ -130,9 +131,11 @@ const HistoryTable: FC = () => {
   const columns = [
     {
       title: t("cargo_history.cargoId"),
-      dataIndex: "id",
-      key: "id",
-      render: (id: string) => <Text code>{id.slice(0, 8)}...</Text>,
+      dataIndex: "custom_id",
+      key: "custom_id",
+      render: (record: string) => {
+        return <Text code>{record.slice(0, 10) || ""}...</Text>;
+      },
     },
     {
       title: t("cargo_history.status"),
@@ -168,7 +171,7 @@ const HistoryTable: FC = () => {
           const parsed = meta ? meta : {};
           return (
             <pre style={{ fontSize: 12 }}>
-              {JSON.stringify(parsed, null, 0).slice(0, 8)}...
+              {JSON.stringify(parsed, null, 0)?.slice(0, 8) || ""}...
             </pre>
           );
         } catch (e) {
@@ -249,7 +252,7 @@ const HistoryTable: FC = () => {
                             []
                           ) : (
                             <Button
-                              loading={isLoading}
+                              loading={isPending}
                               onClick={() => reVerityCargoFormat(record.id)}
                             >
                               {t("cargo_history.re_verity_format")}
@@ -277,7 +280,7 @@ const HistoryTable: FC = () => {
                         .sort(
                           (a, b) =>
                             new Date(a.timestamp).getTime() -
-                            new Date(b.timestamp).getTime(),
+                            new Date(b.timestamp).getTime()
                         )
                         .map((h) => (
                           <Flex
@@ -287,7 +290,7 @@ const HistoryTable: FC = () => {
                           >
                             <Text type="secondary" style={{ minWidth: 160 }}>
                               {moment(h.timestamp).format(
-                                "YYYY-MM-DD HH:mm:ss",
+                                "YYYY-MM-DD HH:mm:ss"
                               )}
                             </Text>
                             <ActionWrapper>

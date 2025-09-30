@@ -9,7 +9,6 @@ import {
   Switch,
   message,
   Flex,
-  Input,
 } from "antd";
 import dayjs from "dayjs";
 import { FC, useEffect, useMemo, useState } from "react";
@@ -20,7 +19,6 @@ import {
   IsEditSchedule,
   SelectTime,
   EditTask,
-  OpenEditShiftCargoModal,
 } from "../../../utils/mapStatus";
 import client from "@/api/axiosClient";
 import { errorHandler } from "@/utils/utils";
@@ -28,22 +26,12 @@ import { ErrorResponse } from "@/utils/globalType";
 import usePeripheralName from "@/api/usePeripheralName";
 import { useTranslation } from "react-i18next";
 import useCustomCargoFormat from "@/api/useCustomCargoFormat";
-import { QuestionCircleOutlined } from "@ant-design/icons";
-import { Tooltip } from "antd";
-import ReactJsonView from "@uiw/react-json-view";
+import { Mission_Schedule } from "@/types/timeline";
 
 const Wrapper = styled.div`
   max-height: 72vh;
   overflow-y: auto;
   padding-right: 8px;
-`;
-
-const StyledJsonPreview = styled.div`
-  padding: 12px;
-  border: 1px dashed #ccc;
-  border-radius: 8px;
-  background-color: #fafafa;
-  font-size: 13px;
 `;
 
 export const SpawnCargoModal: FC = () => {
@@ -53,12 +41,11 @@ export const SpawnCargoModal: FC = () => {
   const [isEdit, setIsEdit] = useAtom(IsEditSchedule);
   const [selectTime, setSelectTime] = useAtom(SelectTime);
   const editTask = useAtomValue(EditTask);
+  const [valueLock, setValueLock] = useState<Mission_Schedule | null>(null);
   const [messageApi, contextHolder] = message.useMessage();
   const { data: peripheralName } = usePeripheralName();
   const { data } = useCustomCargoFormat();
-  const [formatFieldMap, setFormatFieldMap] = useState<
-    { name: string; type: string }[]
-  >([]);
+
   // console.log(isEdit)
   const options = data?.map((v) => ({
     label: v?.custom_name,
@@ -82,7 +69,7 @@ export const SpawnCargoModal: FC = () => {
           `,
           value: v.peripheralNameId,
         })) || [],
-    [peripheralName, t],
+    [peripheralName, t]
   );
 
   const handleClose = () => {
@@ -90,7 +77,6 @@ export const SpawnCargoModal: FC = () => {
     setIsEdit(false);
     setSelectTime(null);
     form.resetFields();
-    setFormatFieldMap([]);
   };
 
   const saveMutation = useMutation({
@@ -124,45 +110,6 @@ export const SpawnCargoModal: FC = () => {
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
-  const handleSelectChange = (value: string) => {
-    const selectedFormat = data?.find((v) => v?.id === value);
-    const formatFields = selectedFormat?.format
-      ? Object.entries(JSON.parse(selectedFormat.format)).map(
-          ([name, type]) => ({
-            name,
-            type: typeof type === "string" ? type : "string",
-          }),
-        )
-      : [];
-
-    setFormatFieldMap(formatFields);
-    form.setFieldsValue({
-      metadata: {}, // Reset metadata when changing cargo metadata ID
-    });
-  };
-
-  const renderInput = (type: string, name: string) => {
-    switch (type.toLowerCase()) {
-      case "string":
-        return <Input />;
-      case "number":
-        return <InputNumber />;
-      case "boolean":
-        return (
-          <Select>
-            <Select.Option value="true">
-              {t("sim.spawn_cargo_modal.yes")}
-            </Select.Option>
-            <Select.Option value="false">
-              {t("sim.spawn_cargo_modal.no")}
-            </Select.Option>
-          </Select>
-        );
-      default:
-        return <Input />;
-    }
-  };
-
   const save = () => {
     form
       .validateFields()
@@ -176,17 +123,14 @@ export const SpawnCargoModal: FC = () => {
             peripheralNameId: values.peripheralNameId,
             spawnCargoInfo: {
               customCargoMetadataId: values.customCargoMetadataId,
-              metadata: values.metadata
-                ? JSON.stringify(values.metadata)
-                : "{}",
             },
           },
         };
-        //  console.log(payload);
-        if (isEdit && editTask?.id && selectTime) {
+
+        if (isEdit && valueLock?.id && selectTime) {
           editMutation.mutate({
             ...payload,
-            id: editTask.id,
+            id: valueLock.id,
             oldTimestamp: selectTime,
           });
         } else {
@@ -208,49 +152,26 @@ export const SpawnCargoModal: FC = () => {
 
   useEffect(() => {
     if (isEdit && editTask?.type === "SPAWN_CARGO" && isOpen) {
-      const metadata = editTask.timelineSpawnCargo?.spawnCargoInfo?.metadata
-        ? typeof editTask.timelineSpawnCargo.spawnCargoInfo.metadata ===
-          "string"
-          ? JSON.parse(editTask.timelineSpawnCargo.spawnCargoInfo.metadata)
-          : editTask.timelineSpawnCargo.spawnCargoInfo.metadata
-        : {};
+      setValueLock(editTask);
       const customCargoMetadataId =
         editTask.timelineSpawnCargo?.spawnCargoInfo?.customCargoMetadataId;
-      //  console.log(editTask);
+
       form.setFieldsValue({
         timestamp: dayjs(editTask.time, "HH:mm"),
         styleRow: editTask.styleRow,
         isEnable: editTask.isEnable,
         peripheralNameId: editTask.timelineSpawnCargo?.peripheralNameId,
         customCargoMetadataId,
-        metadata,
       });
-
-      if (customCargoMetadataId) {
-        const selectedFormat = data?.find(
-          (v) => v?.id === customCargoMetadataId,
-        );
-        const formatFields = selectedFormat?.format
-          ? Object.entries(JSON.parse(selectedFormat.format)).map(
-              ([name, type]) => ({
-                name,
-                type: typeof type === "string" ? type : "string",
-              }),
-            )
-          : [];
-        setFormatFieldMap(formatFields);
-      } else {
-        setFormatFieldMap([]);
-      }
     } else if (!isEdit && selectTime) {
       form.setFieldValue("timestamp", dayjs(selectTime, "HH:mm"));
-      setFormatFieldMap([]);
     }
   }, [isEdit, editTask, selectTime, data, form]);
 
   return (
     <Modal
       open={isOpen}
+      key={editTask?.id}
       title={t("sim.spawn_cargo_modal.title")}
       onCancel={handleClose}
       footer={[]}
@@ -288,7 +209,7 @@ export const SpawnCargoModal: FC = () => {
                 },
               ]}
             >
-              <InputNumber min={0} max={10} />
+              <InputNumber min={0} max={10} disabled />
             </Form.Item>
             <Form.Item
               name="isEnable"
@@ -308,7 +229,15 @@ export const SpawnCargoModal: FC = () => {
           >
             <Select
               options={peripheralOption}
+              showSearch
+              optionFilterProp="label"
               placeholder={t("sim.spawn_cargo_modal.select_notify")}
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toString()
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
             />
           </Form.Item>
 
@@ -318,43 +247,9 @@ export const SpawnCargoModal: FC = () => {
           >
             <Select
               options={options}
-              onChange={handleSelectChange}
               placeholder={t("sim.spawn_cargo_modal.select")}
             />
           </Form.Item>
-
-          {formatFieldMap.length > 0 ? (
-            formatFieldMap.map((field) => (
-              <Form.Item
-                key={field.name}
-                label={field.name}
-                name={["metadata", field.name]}
-                rules={[
-                  {
-                    required: true,
-                    message: t("sim.spawn_cargo_modal.required"),
-                  },
-                ]}
-              >
-                {renderInput(field.type, field.name)}
-              </Form.Item>
-            ))
-          ) : (
-            <Form.Item
-              label={<>{t("sim.spawn_cargo_modal.metadata")}</>}
-              name="metadata"
-            >
-              <StyledJsonPreview>
-                <ReactJsonView
-                  displayDataTypes={false}
-                  enableClipboard={false}
-                  collapsed={false}
-                  value={form.getFieldValue("metadata") || {}}
-                  style={{ fontSize: 14 }}
-                />
-              </StyledJsonPreview>
-            </Form.Item>
-          )}
 
           <Flex gap="middle">
             <Form.Item>

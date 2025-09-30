@@ -13,12 +13,13 @@ const historySchema = array(
     description: string().nullable(),
     actor: string().nullable(),
     timestamp: date().required(),
-  }),
+  })
 ).required();
 
 const customCargoMetadataSchema = object({
   id: string().required(),
   is_default: boolean().required(),
+  unique_key: string().optional().nullable(),
   custom_name: string().required(),
   format: mixed().optional().nullable(),
 })
@@ -31,6 +32,7 @@ const schema = array(
     status: string()
       .oneOf(["ON_AMR", "AT_LOCATION", "SHIFT", "PRE_SPAWN"])
       .required(),
+    custom_id: string().optional().nullable(),
     metadata: mixed().optional().nullable(),
     createdAt: date().required(),
     updatedAt: date().required(),
@@ -41,7 +43,7 @@ const schema = array(
 
     history: historySchema,
     custom_cargo_metadata: customCargoMetadataSchema,
-  }),
+  })
 ).required();
 
 export type CargoListData = InferType<typeof schema>;
@@ -53,7 +55,7 @@ const getCargoHistory = async (metadata: string) => {
     "api/cargo-history/search-metadata-history",
     {
       params: { metadata },
-    },
+    }
   );
 
   return schema
@@ -66,7 +68,7 @@ const getCargoHistory = async (metadata: string) => {
 
 const useSearchCargoMetadata = (metadata: string) => {
   return useQuery(["cargo-history-metadata", metadata], () =>
-    getCargoHistory(metadata),
+    getCargoHistory(metadata)
   );
 };
 

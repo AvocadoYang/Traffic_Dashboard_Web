@@ -47,7 +47,9 @@ const Simulate: FC = () => {
 
           {/* 左上圓形 切換腳本  */}
           <SelectScript />
-          <WcsPad />
+
+          {/*  各站點設定 可能用不到了 */}
+          {/* <WcsPad /> */}
 
           {/**試定區域生成貨物 */}
           <InsertRangeGroupSpawnCargoModal />

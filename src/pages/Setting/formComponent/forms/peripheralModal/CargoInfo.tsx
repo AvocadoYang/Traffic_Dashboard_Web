@@ -36,8 +36,6 @@ const CargoInfoAtPeripheral: FC<{ form: FormInstance<unknown> }> = ({
 
   useEffect(() => {
     if (!openModal || !openModal.cargo) return;
-    // console.log(openModal)
-    // console.log(prefixLevelName(openModal.name), 'asdas')
 
     form.setFieldValue("hasCargo", openModal.cargo.length > 0);
     form.setFieldValue("name", prefixLevelName(openModal.name));

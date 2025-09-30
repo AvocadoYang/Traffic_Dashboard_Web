@@ -18,6 +18,7 @@ import client from "@/api/axiosClient";
 import usePeripheralGroup from "@/api/usePeripheralGroup";
 import { OpenRangeSpawnModal } from "../../../utils/mapStatus";
 import { useTranslation } from "react-i18next";
+import useCustomCargoFormat from "@/api/useCustomCargoFormat";
 
 interface FormValues {
   timestamp: dayjs.Dayjs;
@@ -35,6 +36,13 @@ const InsertRangeGroupSpawnCargoModal: FC = () => {
   const { data: peripheralGroups } = usePeripheralGroup();
   const [messageApi, contextHolder] = message.useMessage();
   const [isSpawnAll, setIsSpawnAll] = useState(false);
+  const { data } = useCustomCargoFormat();
+
+  // console.log(isEdit)
+  const options = data?.map((v) => ({
+    label: v?.custom_name,
+    value: v?.id,
+  }));
   const { t } = useTranslation();
   const handleClose = () => {
     setIsOpen(false);
@@ -53,14 +61,14 @@ const InsertRangeGroupSpawnCargoModal: FC = () => {
         label: pg.name,
         value: pg.id,
       })) || [],
-    [peripheralGroups],
+    [peripheralGroups]
   );
 
   const saveMutation = useMutation({
     mutationFn: (payload: any) =>
       client.post(
         "/api/simulate/insert-timeline-random-group-spawn-mission",
-        payload,
+        payload
       ),
     onSuccess: () => {
       messageApi.success("Spawn cargo group added successfully!");
@@ -82,6 +90,7 @@ const InsertRangeGroupSpawnCargoModal: FC = () => {
         }
         saveMutation.mutate({
           ...values,
+          isSpawnAll: values.isSpawnAll,
           timestamp: values.timestamp.format("HH:mm") as string,
           end_timestamp: values.end_timestamp.format("HH:mm"),
         });
@@ -101,7 +110,7 @@ const InsertRangeGroupSpawnCargoModal: FC = () => {
         <Form
           form={form}
           layout="vertical"
-          initialValues={{ styleRow: 0, activeInterval: 5 }}
+          initialValues={{ styleRow: 0, activeInterval: 5, isSpawnAll: false }}
         >
           <Flex justify="space-between">
             <Form.Item
@@ -119,11 +128,11 @@ const InsertRangeGroupSpawnCargoModal: FC = () => {
               <TimePicker needConfirm={false} format="HH:mm" />
             </Form.Item>
             <Form.Item
-              label="Style Row"
+              label={t("sim.insert_modal.style_row")}
               name="styleRow"
               rules={[{ required: true }]}
             >
-              <InputNumber min={0} max={10} />
+              <InputNumber min={0} max={10} disabled />
             </Form.Item>
           </Flex>
 
@@ -151,6 +160,17 @@ const InsertRangeGroupSpawnCargoModal: FC = () => {
               onChange={(v) => handleSpawnAll(v)}
             />
           </Form.Item>
+
+          <Form.Item
+            name="customCargoMetadataId"
+            label={t("sim.spawn_cargo_modal.cargo_metadata_id")}
+          >
+            <Select
+              options={options}
+              placeholder={t("sim.spawn_cargo_modal.select")}
+            />
+          </Form.Item>
+
           <Form.Item
             label={t("sim.spawn_cargo_group.spawn_number")}
             name="spawnNumber"

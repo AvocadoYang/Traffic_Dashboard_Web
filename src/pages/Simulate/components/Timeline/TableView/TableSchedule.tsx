@@ -30,6 +30,7 @@ import RangeEventTable from "./RangeEventTable";
 const TableSchedule: React.FC = () => {
   const { t } = useTranslation();
   const scheduleData = useTimelineScheduleSocket();
+  const [selectTab, setSelectTab] = useState<string>("1");
   const [isOpenScheduleTable, setIsOpenScheduleTable] =
     useAtom(OpenScheduleTable);
   const setSelectTime = useSetAtom(SelectTime);
@@ -95,10 +96,13 @@ const TableSchedule: React.FC = () => {
   };
 
   const handleEdit = (id: string) => {
+    // console.log("edit it", id);
     const taskIndex = scheduleData?.findIndex((v) => v.id === id);
     if (taskIndex === undefined || taskIndex === -1 || !scheduleData) return;
 
     const task = scheduleData[taskIndex];
+    // console.log(task);
+    // console.log("******************************");
     setSelectTime(task.time);
     setEditTask(task);
     setIsEdit(true);
@@ -223,6 +227,7 @@ const TableSchedule: React.FC = () => {
       >
         <Flex gap="small" justify="space-between">
           <ActionButtons
+            selectTab={selectTab}
             selectedRowKeys={selectedRowKeys}
             onDeleteMulti={deleteMulti}
             onAddFixedSchedule={directAddFixedSchedule}
@@ -248,7 +253,12 @@ const TableSchedule: React.FC = () => {
         <Divider />
 
         <StyledCard>
-          <Tabs defaultActiveKey="1" type="card" items={items} />
+          <Tabs
+            defaultActiveKey="1"
+            onChange={(k) => setSelectTab(k)}
+            type="card"
+            items={items}
+          />
         </StyledCard>
       </StyledModal>
     </>

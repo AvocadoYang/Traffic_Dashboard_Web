@@ -124,8 +124,6 @@ const RangeEventTable: React.FC<RangeEventTableProps> = ({
     },
   ];
 
-  console.log(dataSource, "asd");
-
   return (
     <Table
       rowSelection={{ type: "checkbox", ...rowSelection }}

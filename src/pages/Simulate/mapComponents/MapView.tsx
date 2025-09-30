@@ -10,7 +10,6 @@ import CreateScriptForm from "../components/CreateScriptForm";
 import AllInMapAMRs from "../components/AMR/AllInMapAMRs";
 import { globalScale } from "../utils/mapStatus";
 import AllConveyor from "./components/AllConveyor/AllConveyor";
-import EditConveyorModal from "./components/AllConveyor/EditConveyorModal";
 import { AllElevator } from "./components/AllElevator";
 import AllChargeStation from "./components/AllChargeStation/AllChargeStation";
 
@@ -43,7 +42,6 @@ const MapView: React.FC<{
       <AllChargeStation />
       <AllElevator />
       <AllConveyor />
-      <EditConveyorModal />
 
       {showLocationToolTip ? <ToolTip /> : []}
 

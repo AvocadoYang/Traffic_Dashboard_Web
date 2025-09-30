@@ -93,7 +93,7 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
   const handleSim = (
     timeRange: [dayjs.Dayjs, dayjs.Dayjs],
     activeStationTask: boolean,
-    runningScale: number,
+    runningScale: number
   ) => {
     const startTime = timeRange[0].format("HH:mm");
     const endTime = timeRange[1].format("HH:mm");
@@ -171,7 +171,7 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
   useEffect(() => {
     if (!script) return;
     const inUseAmr = script.robot?.filter(
-      (v) => v.script_placement_location !== "unset",
+      (v) => v.script_placement_location !== "unset"
     );
 
     if (inUseAmr?.length !== 0) {
@@ -328,7 +328,7 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
                 ]}
                 className={`${isDark ? "select-lang" : ""}`}
               />
-              <Switch title="show ecs" />
+
               {/* <UserOutlined
                 style={{
                   color: "blue",

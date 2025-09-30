@@ -49,7 +49,7 @@ const InsertRangeGroupShiftCargoModal: FC = () => {
         label: pg.name,
         value: pg.id,
       })) || [],
-    [peripheralGroups],
+    [peripheralGroups]
   );
 
   const handleShiftAll = (isShifted: boolean) => {
@@ -63,7 +63,7 @@ const InsertRangeGroupShiftCargoModal: FC = () => {
     mutationFn: (payload: any) =>
       client.post(
         "/api/simulate/insert-timeline-random-group-shift-mission",
-        payload,
+        payload
       ),
     onSuccess: () => {
       messageApi.success("Shift cargo group added successfully!");
@@ -125,11 +125,11 @@ const InsertRangeGroupShiftCargoModal: FC = () => {
               <TimePicker needConfirm={false} format="HH:mm" />
             </Form.Item>
             <Form.Item
-              label="Style Row"
+              label={t("sim.insert_modal.style_row")}
               name="styleRow"
               rules={[{ required: true }]}
             >
-              <InputNumber min={0} max={10} />
+              <InputNumber min={0} max={10} disabled />
             </Form.Item>
           </Flex>
 

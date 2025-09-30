@@ -98,7 +98,7 @@ export const ShiftCargoModal: FC = () => {
           `,
           value: v.peripheralNameId,
         })) || [],
-    [peripheralName, t],
+    [peripheralName, t]
   );
 
   const save = () => {
@@ -185,7 +185,7 @@ export const ShiftCargoModal: FC = () => {
                 },
               ]}
             >
-              <InputNumber min={0} max={10} />
+              <InputNumber min={0} max={10} disabled />
             </Form.Item>
             <Form.Item
               name="isEnable"
@@ -205,7 +205,14 @@ export const ShiftCargoModal: FC = () => {
           >
             <Select
               options={peripheralOption}
+              showSearch
               placeholder={t("sim.shift_cargo_modal.select_notify")}
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toString()
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
             />
           </Form.Item>
 

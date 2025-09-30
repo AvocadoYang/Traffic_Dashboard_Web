@@ -13,7 +13,7 @@ const historySchema = array(
     description: string().nullable(),
     actor: string().nullable(),
     timestamp: date().required(),
-  }),
+  })
 ).required();
 
 const customCargoMetadataSchema = object({
@@ -38,10 +38,11 @@ const schema = array(
     script_robot_id: string().nullable(),
     shelfConfigId: string().nullable(),
     custom_cargo_metadata_id: string().nullable(),
-
+    owner: string().required(),
+    custom_id: string().required(),
     history: historySchema,
     custom_cargo_metadata: customCargoMetadataSchema,
-  }),
+  })
 ).required();
 
 export type CargoListData = InferType<typeof schema>;
@@ -61,7 +62,7 @@ const getCargoHistory = async (page = 1, pageSize = 20) => {
 
 const useCargoHistory = (page: number, pageSize: number) => {
   return useQuery(["cargo-history", page, pageSize], () =>
-    getCargoHistory(page, pageSize),
+    getCargoHistory(page, pageSize)
   );
 };
 
