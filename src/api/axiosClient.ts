@@ -6,7 +6,7 @@ import { MISSION_CONTROL_URL } from "../configs/config";
 //   '####################'
 // )
 const client = axios.create({
-  baseURL: MISSION_CONTROL_URL,
+  baseURL: `${window.location.origin.replace("5173", "4000")}`,
 });
 
 export default client;

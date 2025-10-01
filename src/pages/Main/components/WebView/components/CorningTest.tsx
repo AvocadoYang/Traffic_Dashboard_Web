@@ -37,7 +37,7 @@ const CorningTest: FC = () => {
 
   const elevatorMutation = useMutation({
     mutationFn: (payload: string) => {
-      return client.post("api/simulate/elevator-signal", {
+      return client.post("api/test/elevator-signal", {
         scenario: payload,
       });
     },
@@ -48,7 +48,7 @@ const CorningTest: FC = () => {
   });
 
   const liftMutation = useMutation({
-    mutationFn: (payload) => {
+    mutationFn: (payload: { status: "all-empty" | "all-manual" }) => {
       return client.post("api/test/fake-elevator-signal-change", payload);
     },
     onSuccess: () => {
@@ -81,8 +81,8 @@ const CorningTest: FC = () => {
     elevatorMutation.mutate(scenario);
   };
 
-  const handleLiftSignal = () => {
-    liftMutation.mutate();
+  const handleLiftSignal = (status: "all-empty" | "all-manual") => {
+    liftMutation.mutate({ status });
   };
 
   const handleWarning = () => {
@@ -127,7 +127,12 @@ const CorningTest: FC = () => {
             <Button onClick={() => handleElevator("4")}>Scenario 4</Button>
           </Tooltip>
 
-          <Button onClick={() => handleLiftSignal()}>Lift Signal</Button>
+          <Button onClick={() => handleLiftSignal("all-empty")}>
+            Lift Signal All empty
+          </Button>
+          <Button onClick={() => handleLiftSignal("all-manual")}>
+            Lift Signal All Manual
+          </Button>
 
           <Button onClick={() => handleWarning()}>Warning</Button>
           <Button onClick={() => handleAlarm()}>Alarm</Button>
