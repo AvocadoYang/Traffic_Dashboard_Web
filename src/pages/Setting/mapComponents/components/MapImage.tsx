@@ -23,14 +23,14 @@ const MapImage = forwardRef<HTMLImageElement>((_props, ref) => {
 
   if (isError)
     return (
-      <div
+     <div
         style={{
           height: "100%",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           zIndex: 999,
-        }}
+        }} 
       >
         <div
           style={{
