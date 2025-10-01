@@ -23,6 +23,7 @@ const SvgStyle = styled.svg<{
   $isSelecting: boolean;
   $canBeClick: boolean;
   $isHaveAction: boolean;
+  $isManual: boolean;
 }>`
   width: 24px;
   height: 24px;
@@ -38,11 +39,19 @@ const SvgStyle = styled.svg<{
   opacity: ${({ $isDisable }) => ($isDisable ? 0.6 : 1)};
   fill: ${({ $hasCargo }) => ($hasCargo ? "#ffe73c" : "#999")};
 
-  border: ${({ $isSelecting, $canBeClick }) =>
-    $isSelecting && $canBeClick ? "2px solid #1890ff" : "1px dashed #727272"};
+  border: ${({ $isSelecting, $canBeClick, $isManual }) =>
+    $isManual
+      ? "2px solid red" // 👈 highlight manual mode
+      : $isSelecting && $canBeClick
+        ? "2px solid #1890ff"
+        : "1px dashed #727272"};
 
-  box-shadow: ${({ $isSelecting, $canBeClick }) =>
-    $isSelecting && $canBeClick ? "0 0 8px rgba(24, 144, 255, 0.3)" : "none"};
+  box-shadow: ${({ $isSelecting, $canBeClick, $isManual }) =>
+    $isManual
+      ? "0 0 8px rgba(255, 0, 0, 0.5)" // 👈 glow red in manual mode
+      : $isSelecting && $canBeClick
+        ? "0 0 8px rgba(24, 144, 255, 0.3)"
+        : "none"};
 
   ${({ $isHaveAction, $isDisable }) =>
     $isHaveAction && !$isDisable
@@ -75,7 +84,8 @@ const Elevator: FC<{
   isDisable: boolean;
   isBook: boolean;
   customName: string;
-}> = ({ locationId, hasCargo, isDisable, isBook, customName }) => {
+  isManual: boolean;
+}> = ({ locationId, hasCargo, isDisable, isBook, customName, isManual }) => {
   const [selectMode, setQuickSettingMode] = useAtom(QuickMissionSettingMode);
   const [isStartSelecting, setStartQuickSetting] = useAtom(
     StartQuickMissionSetting
@@ -122,6 +132,7 @@ const Elevator: FC<{
           $isDisable={isDisable}
           $isSelecting={isStartSelecting}
           $canBeClick={isStartSelecting ? canBeClickInSelection : true}
+          $isManual={isManual}
           $isHaveAction={isBook} // or pass some condition
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"

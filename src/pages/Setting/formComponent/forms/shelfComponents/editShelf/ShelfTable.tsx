@@ -94,10 +94,6 @@ const ShelfTable: FC<{
   const { t } = useTranslation();
   const searchInput = useRef<InputRef>(null);
 
-  const handleEdit = (id: string) => {
-    setSelectId(id);
-  };
-
   const handleSearch = (confirm: FilterDropdownProps["confirm"]) => {
     confirm();
   };
@@ -107,7 +103,7 @@ const ShelfTable: FC<{
   };
 
   const getColumnSearchProps = (
-    dataIndex: DataIndex,
+    dataIndex: DataIndex
   ): TableColumnType<ShelfWithoutList> => ({
     filterDropdown: ({
       setSelectedKeys,
@@ -240,23 +236,6 @@ const ShelfTable: FC<{
         return recorder.Loc?.loc_regions?.name || "";
       },
     },
-    {
-      title: t("edit_shelf_panel.setting"),
-      dataIndex: "operation",
-      key: "operation",
-      render: (_v, recorder) => {
-        return (
-          <Button
-            icon={<FormatPainterOutlined />}
-            onClick={() => handleEdit(recorder.Loc.id)}
-            color="primary"
-            variant="filled"
-          >
-            {t("edit_shelf_panel.edit_position")}
-          </Button>
-        );
-      },
-    },
   ];
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
@@ -302,17 +281,17 @@ const ShelfTable: FC<{
           expandable={{
             expandedRowRender: (record) => {
               const sortedConfig = record.ShelfConfig.sort(
-                (a, b) => a.level - b.level,
+                (a, b) => a.level - b.level
               );
               const thisLocationInfo = (locData as LocWithoutArr[]).find(
-                (v) => v.locationId === record.Loc.locationId,
+                (v) => v.locationId === record.Loc.locationId
               );
 
               const relationshipsDisplay = thisLocationInfo?.relationships
                 ? Object.entries(thisLocationInfo.relationships)
                     .map(
                       ([locId, type]) =>
-                        `${locId}: ${type === "fixed" ? t("shelf.cargo_mission.relationship_fixed") : t("shelf.cargo_mission.relationship_non_fixed")}`,
+                        `${locId}: ${type === "fixed" ? t("shelf.cargo_mission.relationship_fixed") : t("shelf.cargo_mission.relationship_non_fixed")}`
                     )
                     .join(", ")
                 : t("utils.none");
@@ -398,7 +377,7 @@ const ShelfTable: FC<{
                             <span>{t("edit_shelf_panel.relationships")}</span>
                             <Tooltip
                               title={t(
-                                "shelf.cargo_mission.relationships_desc",
+                                "shelf.cargo_mission.relationships_desc"
                               )}
                             >
                               <InfoCircleOutlined
@@ -419,14 +398,6 @@ const ShelfTable: FC<{
           }}
         />
       </Wrapper>
-      {selectId ? (
-        <SettingCargoStyleForm
-          selectId={selectId}
-          cancelEditStyle={cancelEditStyle}
-        />
-      ) : (
-        []
-      )}
     </>
   );
 };

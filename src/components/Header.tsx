@@ -120,7 +120,7 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
   const items = [
     `${t("page_view")}`,
     `${t("page_amr")}`,
-    `${t("page_analysis")}`,
+    // `${t("page_analysis")}`,
     `${t("page_cargo_history")}`,
     `${t("page_setting")}`,
     `${t("page_simulate")}`,
@@ -138,19 +138,19 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
       case "2":
         navigate("/amr");
         break;
+      // case "3":
+      //   navigate("/mission-analysis");
+      //   break;
       case "3":
-        navigate("/mission-analysis");
-        break;
-      case "4":
         navigate("/cargo-history");
         break;
-      case "5":
+      case "4":
         navigate("/setting");
         break;
-      case "6":
+      case "5":
         navigate("/simulate");
         break;
-      case "7":
+      case "6":
         navigate("/simulate-result");
         break;
       default:

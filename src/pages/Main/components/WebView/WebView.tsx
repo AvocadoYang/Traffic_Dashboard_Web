@@ -10,6 +10,7 @@ import CarCardWrap from "../../Car_Card/CardWrap";
 import { darkMode } from "@/utils/gloable";
 import MissionWrap from "../../Mission_Card/MissionWrap";
 import MissionBtn from "./components/MissionBtn";
+import CorningTest from "./components/CorningTest";
 
 const { Content } = Layout;
 const WebView = () => {
@@ -51,6 +52,7 @@ const WebView = () => {
             <ZoomPad></ZoomPad>
             <ScalePad></ScalePad>
             <MissionBtn></MissionBtn>
+            <CorningTest></CorningTest>
           </Splitter.Panel>
           <Splitter.Panel
             defaultSize="20%"
