@@ -626,6 +626,8 @@
     "select_amr": "Select AMR(s)",
     "task_required": "Please select a task",
     "select_task": "Select a task",
+    "passiveThreshold": "passiveThreshold",
+    "passiveThreshold_max": "Aggressive threshold must be at most 70%",
     "aggressive_max": "Aggressive threshold must be at most 70%",
     "full_rate_min": "Full charge threshold must be at least 70%",
     "available_min": "Available task threshold must be at least 11%",

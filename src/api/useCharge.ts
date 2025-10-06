@@ -6,24 +6,38 @@ const schema = array(
   object({
     id: string().required(),
     active: boolean().optional().nullable(),
-    amrIds: array(string().optional()).optional(),
+
     aggressiveThreshold: number().optional().nullable(),
     fullThreshold: number().optional().nullable(),
     availableGetTaskThreshold: number().optional().nullable(),
+    passiveThreshold: number().optional().nullable(),
+
+    amr: array(
+      object({
+        fullName: string().optional(),
+        id: string().optional(),
+        isReal: boolean().optional(),
+      })
+    )
+      .optional()
+      .nullable(),
 
     titleId: string().optional().nullable(),
     title: string().optional().nullable(),
-  }).optional(),
+  }).optional()
 ).required();
 
-const getCommon = async () => {
+const getData = async () => {
   const { data } = await client.get<unknown>("api/setting/all-charge-mission");
   const result = await schema.validate(data, { stripUnknown: true });
   return result;
 };
 
 const useCharge = () => {
-  return useQuery(["charge-mission"], () => getCommon());
+  return useQuery({
+    queryKey: ["charge-mission"],
+    queryFn: () => getData(),
+  });
 };
 export type ChargeMissionType = InferType<typeof schema>;
 

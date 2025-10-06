@@ -51,24 +51,42 @@ const StyledForm = styled(Form)`
 
 const getSelectedCharge = async (id: string) => {
   const { data } = await client.get<unknown>(
-    `api/setting/selected-charge?id=${id}`,
+    `api/setting/selected-charge?id=${id}`
   );
 
   const schema = () =>
     object({
       id: string().required(),
       active: boolean().optional().nullable(),
-      amrIds: array(string().optional()).optional(),
       aggressiveThreshold: number().optional().nullable(),
       fullThreshold: number().optional().nullable(),
-      passiveFullThreshold: number().optional().nullable(),
-      passiveWaitTime: number().optional().nullable(),
       availableGetTaskThreshold: number().optional().nullable(),
-      autoTimeZone: string().optional().nullable(),
-      missionTitleId: string().optional().nullable(),
+      passiveThreshold: number().optional().nullable(),
+
+      titleId: string().optional().nullable(),
+      amr: array(
+        object({
+          fullName: string().optional(),
+          id: string().optional(),
+          isReal: boolean().optional(),
+        })
+      ).optional(),
     }).required();
 
-  return schema().validate(data, { stripUnknown: true });
+  const parsed = await schema().validate(data, { stripUnknown: true });
+
+  const amrIds = parsed.amr?.map((r) => r.fullName);
+
+  return {
+    id: parsed.id,
+    active: parsed.active ?? false,
+    aggressiveThreshold: parsed.aggressiveThreshold ?? null,
+    fullThreshold: parsed.fullThreshold ?? null,
+    availableGetTaskThreshold: parsed.availableGetTaskThreshold ?? null,
+    passiveThreshold: parsed.passiveThreshold ?? null,
+    titleId: parsed.titleId ? parsed.titleId : null,
+    amrIds,
+  };
 };
 
 const ChargeForm: FC<{ form: FormInstance<unknown>; selectKey: string }> = ({
@@ -80,25 +98,25 @@ const ChargeForm: FC<{ form: FormInstance<unknown>; selectKey: string }> = ({
     () => getSelectedCharge(selectKey),
     {
       enabled: !!selectKey,
-    },
+    }
   );
   const { data: missionTitle } = useAllMissionTitles();
   const { t } = useTranslation();
   const { data: name } = useName();
 
-  const AmrOption: { value: null | string; label: string }[] | undefined =
-    useMemo(() => {
-      return name?.amrs.map((m) => ({
-        label: `${m.amrId} ${m.isReal ? "" : t("simulate")}`,
-        value: m.amrId,
-      }));
-    }, [name, t]);
+  // options must have primitive values for Select
+  const AmrOption = useMemo(() => {
+    return (
+      name?.amrs.map((m) => ({
+        label: `${m.amrId}${m.isReal ? "" : ` ${t("simulate")}`}`,
+        value: m.amrId, // primitive string value
+      })) ?? []
+    );
+  }, [name, t]);
 
   const taskOption = missionTitle
     ?.filter((g) =>
-      g.MissionTitleBridgeCategory.some(
-        (s) => s.Category?.tagName === "charge",
-      ),
+      g.MissionTitleBridgeCategory.some((s) => s.Category?.tagName === "charge")
     )
     .map((v) => {
       return { value: v.id, label: v.name };
@@ -107,17 +125,16 @@ const ChargeForm: FC<{ form: FormInstance<unknown>; selectKey: string }> = ({
   useEffect(() => {
     if (!selectKey || !selectedCharge) return;
 
-    form.setFieldValue("amrId", selectedCharge?.amrIds);
-    form.setFieldValue("taskId", selectedCharge.missionTitleId);
-    form.setFieldValue(
-      "aggressiveThreshold",
-      selectedCharge?.aggressiveThreshold,
-    );
-    form.setFieldValue("fullThreshold", selectedCharge?.fullThreshold);
-    form.setFieldValue(
-      "availableGetTaskThreshold",
-      selectedCharge?.availableGetTaskThreshold,
-    );
+    form.setFieldsValue({
+      // Use setFieldsValue for batch + validation trigger
+      amrId: Array.isArray(selectedCharge.amrIds) ? selectedCharge.amrIds : [],
+      taskId: selectedCharge.titleId || null,
+      aggressiveThreshold: selectedCharge.aggressiveThreshold ?? null,
+      passiveThreshold: selectedCharge.passiveThreshold ?? null,
+      fullThreshold: selectedCharge.fullThreshold ?? null,
+      availableGetTaskThreshold:
+        selectedCharge.availableGetTaskThreshold ?? null,
+    });
   }, [form, selectKey, selectedCharge]);
 
   if (isLoading) return <GlobalLoading />;
@@ -165,6 +182,20 @@ const ChargeForm: FC<{ form: FormInstance<unknown>; selectKey: string }> = ({
           ]}
         >
           <InputNumber min={0} max={70} style={{ width: "100%" }} />
+        </Form.Item>
+
+        <Form.Item
+          label={t("charge.passiveThreshold")}
+          name="passiveThreshold"
+          rules={[
+            {
+              type: "number",
+              max: 40,
+              message: t("charge.passiveThreshold_max"),
+            },
+          ]}
+        >
+          <InputNumber min={0} max={40} style={{ width: "100%" }} />
         </Form.Item>
 
         <Form.Item

@@ -3,6 +3,7 @@ import {
   CloseCircleOutlined,
   DeleteTwoTone,
   PlayCircleOutlined,
+  ReloadOutlined,
 } from "@ant-design/icons";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import styled from "styled-components";
@@ -21,13 +22,22 @@ const getTopic = async () => {
     array(
       object({
         id: string().required(),
-        amrId: array(string().required()).required(),
         idleMin: number().required(),
         active: boolean().required(),
         preventLocation: array(string().optional()).optional().nullable(),
         taskName: string().required(),
         taskId: string().required(),
-      }).required(),
+
+        amr: array(
+          object({
+            fullName: string().optional(),
+            id: string().optional(),
+            isReal: boolean().optional(),
+          })
+        )
+          .optional()
+          .nullable(),
+      }).required()
     ).required();
 
   return schema().validate(data, { stripUnknown: true });
@@ -61,12 +71,17 @@ const Dot = styled.div<DotStyle>`
 
 interface DataType {
   id: string;
-  amrId: string[];
   idleMin: number;
   active: boolean;
   preventLocation: string[] | null;
   taskName: string;
   taskId: string;
+
+  amr: {
+    isReal: boolean;
+    fullName: string;
+    id: string;
+  }[];
 }
 
 const IdleMissionTable: FC = () => {
@@ -129,8 +144,8 @@ const IdleMissionTable: FC = () => {
       key: "amrId",
       width: 150,
       render: (_: unknown, record: DataType) => {
-        return record.amrId.map((item, i) => {
-          return <p key={`${item}-${i}`}>{item} ,</p>;
+        return record.amr.map((item, i) => {
+          return <p key={`${item}-${i}`}>{item.fullName} ,</p>;
         });
       },
     },
@@ -249,6 +264,10 @@ const IdleMissionTable: FC = () => {
   return (
     <Wrapper>
       {contextHolder}
+      <Button
+        onClick={() => refetch()}
+        icon={<ReloadOutlined></ReloadOutlined>}
+      ></Button>
       <Table
         rowKey={(record) => record.id}
         columns={columns}

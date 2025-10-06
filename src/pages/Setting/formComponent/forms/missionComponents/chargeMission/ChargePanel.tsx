@@ -14,15 +14,21 @@ import {
   EditOutlined,
   PlayCircleOutlined,
   PlusOutlined,
+  ReloadOutlined,
 } from "@ant-design/icons";
+import { Err } from "@/utils/responseErr";
 
 type ChargeData = {
   id: string;
   active: boolean;
-  amrIds: string[];
+  amr: {
+    isReal: boolean;
+    fullName: string;
+    id: string;
+  }[];
   aggressiveThreshold: number;
   fullThreshold: number;
-  passiveFullThreshold: number;
+  passiveThreshold: number;
   passiveWaitTime: number;
   availableGetTaskThreshold: number;
   autoTimeZone: string;
@@ -91,6 +97,11 @@ const ChargePanel: FC<{
     },
     onSuccess() {
       void refetch();
+      form.resetFields();
+      setOpen(false);
+    },
+    onError(error: Err) {
+      messageApi.error(error.response.data.message);
     },
   });
 
@@ -140,7 +151,7 @@ const ChargePanel: FC<{
       newPayload.availableGetTaskThreshold <= newPayload.aggressiveThreshold
     ) {
       messageApi.warning(
-        t("mission.charge_mission.available_less_than_aggressive"),
+        t("mission.charge_mission.available_less_than_aggressive")
       );
       return;
     }
@@ -154,11 +165,10 @@ const ChargePanel: FC<{
     }
 
     saveMutation.mutate(newPayload);
-
-    setOpen(false);
   };
 
   const handleCancel = () => {
+    form.resetFields();
     setOpen(false);
   };
 
@@ -233,7 +243,7 @@ const ChargePanel: FC<{
       dataIndex: "amrId",
       key: "amrId",
       render(_, record) {
-        return <>{record.amrIds}</>;
+        return <>{record.amr.map((v) => v.fullName)}</>;
       },
     },
     {
@@ -242,6 +252,14 @@ const ChargePanel: FC<{
       key: "aggressive",
       render(_, record) {
         return <>{record.aggressiveThreshold}</>;
+      },
+    },
+    {
+      title: t("charge.passiveThreshold"),
+      dataIndex: "passiveThreshold",
+      key: "passiveThreshold",
+      render(_, record) {
+        return <>{record.passiveThreshold}</>;
       },
     },
     {
@@ -257,7 +275,7 @@ const ChargePanel: FC<{
       dataIndex: "aggressiveThreshold",
       key: "aggressiveThreshold",
       render(_, record) {
-        return <>{record.aggressiveThreshold}</>;
+        return <>{record.availableGetTaskThreshold}</>;
       },
     },
 
@@ -280,7 +298,13 @@ const ChargePanel: FC<{
               </Button>
               {record.active ? (
                 <Button
-                  onClick={() => handleActive(false, record.id, record.amrIds)}
+                  onClick={() =>
+                    handleActive(
+                      false,
+                      record.id,
+                      record.amr.map((v) => v.fullName)
+                    )
+                  }
                   icon={<CloseCircleOutlined />}
                   color="default"
                   variant="filled"
@@ -290,7 +314,13 @@ const ChargePanel: FC<{
                 </Button>
               ) : (
                 <Button
-                  onClick={() => handleActive(true, record.id, record.amrIds)}
+                  onClick={() =>
+                    handleActive(
+                      true,
+                      record.id,
+                      record.amr.map((v) => v.fullName)
+                    )
+                  }
                   icon={<PlayCircleOutlined />}
                   color="primary"
                   variant="filled"
@@ -302,7 +332,12 @@ const ChargePanel: FC<{
 
               <Popconfirm
                 title="Sure to delete?"
-                onConfirm={() => handleDelete(record.id, record.amrIds)}
+                onConfirm={() =>
+                  handleDelete(
+                    record.id,
+                    record.amr.map((v) => v.fullName)
+                  )
+                }
               >
                 <Button
                   icon={<DeleteTwoTone twoToneColor="#f30303" />}
@@ -330,11 +365,21 @@ const ChargePanel: FC<{
         <FormHr />
 
         <Flex gap="middle" justify="flex-start" align="start" vertical>
-          <BtnBox onClick={() => handleAdd()}>
-            <Button icon={<PlusOutlined />} color="primary" variant="filled">
+          <Flex gap="large">
+            <Button
+              onClick={() => handleAdd()}
+              icon={<PlusOutlined />}
+              color="primary"
+              variant="filled"
+            >
               {t("utils.add")}
             </Button>
-          </BtnBox>
+
+            <Button
+              onClick={() => refetch()}
+              icon={<ReloadOutlined></ReloadOutlined>}
+            ></Button>
+          </Flex>
 
           <Table
             rowKey={(record) => record.id}
