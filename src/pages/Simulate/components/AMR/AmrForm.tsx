@@ -7,6 +7,7 @@ import { EditFormType } from "./amr";
 import useScriptRobot from "@/api/useScriptRobot";
 import client from "@/api/axiosClient";
 import { useMutation } from "@tanstack/react-query";
+import useRobotType from "@/api/useRobotType";
 
 const AmrForm: FC<{
   id: string;
@@ -19,6 +20,14 @@ const AmrForm: FC<{
   const [form] = Form.useForm();
   const { data: robot, refetch } = useScriptRobot();
   const [messageApi, contextHolder] = message.useMessage();
+  const { data: allRobotType } = useRobotType();
+
+  const robotTypeOption = allRobotType?.map((y) => {
+    return {
+      label: `robot name: ${y.name}, prefix: ${y.value}`,
+      value: y.id,
+    };
+  });
 
   const deleteMutation = useMutation({
     mutationFn: () => {
@@ -53,7 +62,7 @@ const AmrForm: FC<{
   const editHandler = () => {
     const full_name = form.getFieldValue("full_name") as string;
     const script_placement_location = form.getFieldValue(
-      "script_placement_location",
+      "script_placement_location"
     ) as string;
     const loadSpeed = form.getFieldValue("loadSpeed") as number;
     const offloadSpeed = form.getFieldValue("offloadSpeed") as number;
@@ -74,11 +83,11 @@ const AmrForm: FC<{
     if (!isOpen) return;
 
     const info = robot?.find((v) => v?.id === id);
-    console.log(info);
-    form.setFieldValue("full_name", info?.full_name);
+
+    form.setFieldValue("robot_type", info?.Robot_type.id);
     form.setFieldValue(
       "script_placement_location",
-      info?.script_placement_location,
+      info?.script_placement_location
     );
     form.setFieldValue("loadSpeed", info?.load_speed);
     form.setFieldValue("offloadSpeed", info?.offload_speed);
@@ -108,16 +117,24 @@ const AmrForm: FC<{
       >
         <Form form={form} style={{ maxWidth: 600 }}>
           <Form.Item
-            name="full_name"
-            label={t("sim.robot.modal.full_name")}
+            name="robot_type"
+            label={"name"}
             rules={[{ required: true }]}
           >
-            <Input />
+            <Select options={robotTypeOption} />
+          </Form.Item>
+
+          <Form.Item
+            name="car_number"
+            label={"car number"}
+            rules={[{ required: true }]}
+          >
+            <InputNumber />
           </Form.Item>
 
           <Form.Item
             name="script_placement_location"
-            label={"initital location"}
+            label={"initial location"}
             rules={[{ required: true }]}
           >
             <Select options={locationOptions} />

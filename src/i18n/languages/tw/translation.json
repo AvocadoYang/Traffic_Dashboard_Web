@@ -184,9 +184,9 @@
   },
 
   "page_view": "地圖",
-  "page_setting": "點位設定",
+  "page_setting": "設定",
   "page_dashboard": "控制中心",
-  "page_simulate": "模擬任務",
+  "page_simulate": "任務模擬",
   "page_simulate_result": "模擬任務統計表",
   "simulate": "模擬的",
   "page_analysis": "任務統計",

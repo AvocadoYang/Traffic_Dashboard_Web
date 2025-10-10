@@ -11,7 +11,12 @@ const schema = array(
     offload_speed: number().required(),
     move_speed: number().required(),
     script_placement_location: string().optional().nullable(),
-  }).optional(),
+
+    Robot_type: object({
+      id: string().required(),
+      name: string().required(),
+    }).required(),
+  }).optional()
 ).required();
 
 const getRobot = async () => {

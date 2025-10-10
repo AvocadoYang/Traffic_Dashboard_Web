@@ -12,6 +12,12 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import SettingRobotModal from "./SettingRobotModal";
+import {
+  FileAddFilled,
+  PlusOutlined,
+  UserAddOutlined,
+} from "@ant-design/icons";
 
 type When_Finish = {
   id?: string;
@@ -33,6 +39,15 @@ const RegisterForm: FC<{
   const [submittable, setSubmittable] = useState<boolean>(false);
   const [messageApi, contextHolder] = message.useMessage();
   const queryClient = useQueryClient();
+  const [openRobot, setOpenRobot] = useState(false);
+
+  const handleOneSetRobot = () => {
+    setOpenRobot(true);
+  };
+
+  const handleCancelSetRobot = () => {
+    setOpenRobot(false);
+  };
 
   const createMutation = useMutation({
     mutationFn: (payload: When_Finish) => {
@@ -117,7 +132,7 @@ const RegisterForm: FC<{
       return Promise.resolve();
     }
     return Promise.reject(
-      new Error(t("setting_amr.register_amr.invalid_serial_number")),
+      new Error(t("setting_amr.register_amr.invalid_serial_number"))
     );
   };
 
@@ -146,13 +161,20 @@ const RegisterForm: FC<{
     <>
       {contextHolder}
       <Form form={form} onFinish={onFinish}>
-        <Form.Item
-          name="robot_type"
-          label={t("setting_amr.register_amr.type")}
-          rules={[{ required: true }]}
-        >
-          <Select options={robotTypeOptions} />
-        </Form.Item>
+        <Flex justify="center" gap="middle" align="center">
+          <Form.Item
+            name="robot_type"
+            label={t("setting_amr.register_amr.type")}
+            rules={[{ required: true }]}
+            style={{ flex: 1 }} // Let it stretch
+          >
+            <Select
+              style={{ width: "100%" }} // full width of Form.Item
+              options={robotTypeOptions}
+            />
+          </Form.Item>
+          <Button icon={<PlusOutlined />} onClick={handleOneSetRobot} />
+        </Flex>
 
         <Form.Item
           name="full_name"
@@ -189,6 +211,8 @@ const RegisterForm: FC<{
           </Flex>
         </Form.Item>
       </Form>
+
+      <SettingRobotModal open={openRobot} cancel={handleCancelSetRobot} />
     </>
   );
 };
