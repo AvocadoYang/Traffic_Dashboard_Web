@@ -60,7 +60,8 @@ const AmrForm: FC<{
   }, [map?.locations]);
 
   const editHandler = () => {
-    const full_name = form.getFieldValue("full_name") as string;
+    const robotTypeId = form.getFieldValue("robot_type") as string;
+    const carNum = form.getFieldValue("car_number") as number;
     const script_placement_location = form.getFieldValue(
       "script_placement_location"
     ) as string;
@@ -69,7 +70,8 @@ const AmrForm: FC<{
     const move_speed = form.getFieldValue("move_speed") as number;
 
     const payload = {
-      full_name,
+      robotTypeId,
+      carNum,
       script_placement_location,
       loadSpeed,
       offloadSpeed,
@@ -84,7 +86,10 @@ const AmrForm: FC<{
 
     const info = robot?.find((v) => v?.id === id);
 
+    const nameArr = info?.full_name.split("-") as string[];
+
     form.setFieldValue("robot_type", info?.Robot_type.id);
+    form.setFieldValue("car_number", nameArr[nameArr?.length - 1]);
     form.setFieldValue(
       "script_placement_location",
       info?.script_placement_location

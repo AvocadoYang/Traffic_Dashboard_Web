@@ -95,6 +95,22 @@ const AmrIcon: FC<{
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
+  const editPlacementMutation = useMutation({
+    mutationFn: (script_placement_location: string) => {
+      return client.post("api/simulate/edit-robot-placement", {
+        script_placement_location,
+        id,
+      });
+    },
+    onSuccess: async () => {
+      refetch();
+      void messageApi.success(t("utils.success"));
+      setIsOpen(false);
+      queryClient.refetchQueries({ queryKey: ["mock-robot"] });
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
   const isRegisterMutation = useMutation({
     mutationFn: async (locationId: string) => {
       const response = await client.post("api/simulate/is-place-has-robot", {
@@ -118,15 +134,11 @@ const AmrIcon: FC<{
   };
 
   const handlePlacement = (locationId: string | null) => {
-    const info = robot?.find((v) => v?.id === id);
-
-    handleEditMutation({
-      full_name: info?.full_name as string,
-      script_placement_location: locationId === null ? "unset" : locationId,
-      loadSpeed: info?.load_speed || 30,
-      offloadSpeed: info?.offload_speed || 30,
-      move_speed: info?.move_speed || 1.5,
-    });
+    if (!locationId) {
+      messageApi.warning("invalid location");
+      return;
+    }
+    editPlacementMutation.mutate(locationId);
   };
 
   const handleDragEnd = (event: React.DragEvent<HTMLDivElement>) => {
@@ -194,5 +206,5 @@ const AmrIcon: FC<{
 export default memo(
   AmrIcon,
   (prev, next) =>
-    JSON.stringify(prev.placement) === JSON.stringify(next.placement),
+    JSON.stringify(prev.placement) === JSON.stringify(next.placement)
 );
