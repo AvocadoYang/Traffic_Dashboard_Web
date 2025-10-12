@@ -102,6 +102,7 @@ const AddSchedule = styled.div`
   background-color: #f5f5f5;
   border-radius: 3%;
   display: flex;
+  border-radius: 6px;
   justify-content: center;
   align-items: center;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
@@ -127,6 +128,7 @@ const AddSpawnCargoSchedule = styled.div`
   height: 2em;
   background-color: #f5f5f5;
   border-radius: 3%;
+  border-radius: 6px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -154,6 +156,7 @@ const AddShiftCargoSchedule = styled.div`
   background-color: #f5f5f5;
   border-radius: 3%;
   display: flex;
+  border-radius: 6px;
   justify-content: center;
   align-items: center;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
