@@ -7,6 +7,7 @@ import styled from "styled-components";
 const FloatTitle = styled.div<{ $isMobile: boolean }>`
   position: fixed;
   left: 2em;
+  z-index: 1000;
   top: ${(props) => (props.$isMobile ? "unset" : "6em")};
   bottom: ${(props) => (props.$isMobile ? "2em" : "unset")};
 `;
