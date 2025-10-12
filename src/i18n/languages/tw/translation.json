@@ -740,7 +740,8 @@
       "is_selectable": "快速指派時選擇",
       "available_charge_station": "閒置充電站",
       "location": "地點",
-
+      "clamp": "夾具高度",
+      "tilt": "傾角",
       "yaw": "轉角",
       "auto_preparatory_point": "自動預備點",
       "is_define_heigh": "枒杈高度選項",
@@ -967,6 +968,8 @@
     "offload": "放貨",
     "charge": "充電",
     "fork": "枒杈姿勢",
+    "clamp": "夾起來",
+    "tilt": "頃角",
     "load_from_other": "從另一台車身上取貨",
     "offload_from_other": "放貨至令一台車上",
     "upper_control": "上肢控制",

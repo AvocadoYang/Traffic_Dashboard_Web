@@ -31,6 +31,7 @@ const schema = object({
       move: number().optional(),
       shift: number().optional(),
       tilt: number().optional(),
+      clamp: number().optional(),
     }).optional(),
     camera: object({
       config: number().optional(),
@@ -57,7 +58,7 @@ const getOneTask = async (key: string) => {
     "api/setting/one-task-detail-fork",
     {
       key,
-    },
+    }
   );
   const validatedData = await schema.validate(data, { stripUnknown: true });
   return validatedData;

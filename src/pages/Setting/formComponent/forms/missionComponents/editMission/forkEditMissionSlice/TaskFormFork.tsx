@@ -81,6 +81,12 @@ const TaskFormFork: FC<{
   const isIncludeH = controlClickOrder
     .map((v) => v.split("-")[0])
     .includes("H");
+  const isIncludeClamp = controlClickOrder
+    .map((v) => v.split("-")[0])
+    .includes("clamp");
+  const isIncludeTilt = controlClickOrder
+    .map((v) => v.split("-")[0])
+    .includes("tilt");
   const {
     robotOption,
     locationsOption,
@@ -162,7 +168,7 @@ const TaskFormFork: FC<{
     const indexedControls = controlSequence
       .map((v, i) => `${v}-${i}`)
       .filter((v) =>
-        originFormData.operation.control?.includes(v.split("-")[0]),
+        originFormData.operation.control?.includes(v.split("-")[0])
       );
 
     setControlClickOrder(indexedControls);
@@ -174,25 +180,25 @@ const TaskFormFork: FC<{
 
       setSelectLocationType(
         (originFormData.operation.is_define_id as Select_Location_Type) ||
-          "custom",
+          "custom"
       );
       setSelectYaw(
         originFormData.operation.is_define_yaw !== undefined
           ? (originFormData.operation.is_define_yaw as YawGenre)
-          : undefined,
+          : undefined
       );
       setSelectForkHeight(
-        originFormData.io?.fork?.is_define_height as Select_Fork_Height_Type,
+        originFormData.io?.fork?.is_define_height as Select_Fork_Height_Type
       );
       setOtherSpecial(originFormData.operation.waitGenre !== null);
       setSelectActiveWaitRobot(
-        originFormData.operation.waitGenre !== null ? "enable" : "disable",
+        originFormData.operation.waitGenre !== null ? "enable" : "disable"
       );
 
       form.setFieldsValue({
         action_type: originFormData.operation.type,
         control: originFormData.operation.control?.map(
-          (v: string, i: number) => `${v}-${i}`,
+          (v: string, i: number) => `${v}-${i}`
         ),
         wait: originFormData.operation.wait,
         is_define_id: originFormData.operation.is_define_id,
@@ -210,6 +216,8 @@ const TaskFormFork: FC<{
         lookahead: originFormData.operation.lookahead,
         camera_config: originFormData.io?.camera?.config || 0,
         modify_dis: originFormData.io?.camera?.modify_dis || 0,
+        tilt: originFormData.io.fork.tilt || 0,
+        clamp: originFormData.io.fork.clamp || 0,
       });
     }
   }, [originFormData, form]);
@@ -336,6 +344,12 @@ const TaskFormFork: FC<{
                       break;
                     case "W":
                       text = t("car_control_translate.W");
+                      break;
+                    case "clamp":
+                      text = t("car_control_translate.clamp");
+                      break;
+                    case "tilt":
+                      text = t("car_control_translate.tilt");
                       break;
                     default:
                       text = "unknown movement";
@@ -582,6 +596,44 @@ const TaskFormFork: FC<{
             )}
           </Form.Item>
         )}
+
+        {isIncludeClamp ? (
+          <Form.Item
+            label={t("mission.task_table.clamp")}
+            name="clamp"
+            rules={[
+              {
+                required: true,
+              },
+              {
+                type: "number",
+                min: 0,
+                max: 900,
+              },
+            ]}
+          >
+            <InputNumber min={0} max={900} addonAfter="M" />
+          </Form.Item>
+        ) : null}
+
+        {isIncludeTilt ? (
+          <Form.Item
+            label={t("mission.task_table.tilt")}
+            name="tilt"
+            rules={[
+              {
+                required: true,
+              },
+              {
+                type: "number",
+                min: -6,
+                max: 6,
+              },
+            ]}
+          >
+            <InputNumber min={-6} max={6} addonAfter="°" />
+          </Form.Item>
+        ) : null}
 
         {selectForkHeight === "custom" && isIncludeH && (
           <Form.Item

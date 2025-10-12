@@ -1,4 +1,3 @@
-import { t } from "i18next";
 import {
   activeWaitRobot,
   actonList,
@@ -16,6 +15,7 @@ import {
 import useMap from "@/api/useMap";
 import useName from "@/api/useAmrName";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 enum YawGenre {
   CUSTOM,
@@ -26,6 +26,7 @@ enum YawGenre {
 const useTaskOptions = (action: Action_Type) => {
   const { data: mapData } = useMap();
   const { data: robots } = useName();
+  const { t } = useTranslation();
 
   const actionTranslate = (type: Action_Type) => {
     let text = "";
@@ -59,6 +60,12 @@ const useTaskOptions = (action: Action_Type) => {
         break;
       case "verity_cargo":
         text = t("car_control_translate.verity_cargo");
+        break;
+      case "clamp":
+        text = t("car_control_translate.clamp");
+        break;
+      case "tilt":
+        text = t("car_control_translate.tilt");
         break;
       default:
         text;
@@ -198,7 +205,7 @@ const useTaskOptions = (action: Action_Type) => {
             value: type,
           };
       }
-    },
+    }
   );
 
   const SelectForkHeightOptions: {

@@ -9,14 +9,16 @@ export const actonList = [
   "load_from_other",
   "offload_from_other",
   "verity_cargo",
+  "clamp",
+  "tilt",
 ] as const;
 
 export const controlList = {
   move: ["F", "H", "S", "B", "W"],
-  load: ["H", "C", "H", "B"],
-  offload: ["H", "B"],
+  load: ["H", "C", "H", "B", "tilt", "clamp"],
+  offload: ["H", "B", "tilt", "clamp"],
   spin: ["S"],
-  fork: ["H", "F", "B"],
+  fork: ["H", "F", "B", "tilt", "clamp"],
   charge: ["H"],
   cargo_limit: ["H"],
   load_from_other: ["F", "H", "S", "B", "W"],

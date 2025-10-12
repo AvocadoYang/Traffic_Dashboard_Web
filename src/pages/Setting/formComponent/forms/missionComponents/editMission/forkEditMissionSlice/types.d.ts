@@ -14,7 +14,7 @@ export type Fork_Action = {
     wait: number;
     is_define_id: string;
     locationId: number;
-    is_define_yaw: YawGenre;
+    is_define_yaw: string;
     yaw: number;
     tolerance: number;
     lookahead: number;
@@ -30,6 +30,7 @@ export type Fork_Action = {
       move: number;
       shift: number;
       tilt: number;
+      clamp: number;
     };
     camera: {
       config: number;
@@ -61,4 +62,4 @@ export type Select_Active_Robot_Type = (typeof activeWaitRobot)[number];
 
 export type Select_Robot_Wait_Type = (typeof waitRobotOption)[number];
 
-export type Control_Types = "F" | "H" | "S" | "B" | "W";
+export type Control_Types = "F" | "H" | "S" | "B" | "W" | "clamp" | "tilt";

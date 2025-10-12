@@ -740,7 +740,8 @@
       "is_selectable": "Selectable for Quick Assignment",
       "available_charge_station": "available charge station",
       "location": "Location",
-
+      "clamp": "Clamp",
+      "tilt": "Tilt",
       "yaw": "Yaw",
       "auto_preparatory_point": "Automatic Preparatory Point",
       "is_define_heigh": "Fork Height Option",
@@ -966,6 +967,8 @@
     "offload": "offload",
     "charge": "charge",
     "fork": "fork",
+    "clamp": "clamp",
+    "tilt": "tilt",
     "load_from_other": "load from other",
     "offload_from_other": "offload to other",
     "upper_control": "Upper Control",
