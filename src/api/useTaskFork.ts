@@ -21,7 +21,7 @@ const missionSchema = array(
       waitOtherAmr: string().optional().nullable(),
       waitGenre: string().optional().nullable(),
       auto_preparatory_point: boolean().required(
-        "Preparatory point flag is required",
+        "Preparatory point flag is required"
       ),
     }).required("Operation object is required"),
     io: object({
@@ -31,6 +31,7 @@ const missionSchema = array(
         move: number().required("Move distance is required"),
         shift: number().required("Shift distance is required"),
         tilt: number().required("Tilt angle is required"),
+        clamp: number().optional(),
       }).required("Fork object is required"),
       camera: object({
         config: number().required("Camera config is required"),
@@ -50,7 +51,7 @@ const missionSchema = array(
         .nullable()
         .required("Book block is required"),
     }).required("Mission status object is required"),
-  }).optional(),
+  }).optional()
 ).optional();
 
 const getRelateTask = async (key: string) => {
@@ -58,7 +59,7 @@ const getRelateTask = async (key: string) => {
     "api/setting/relative-task-fork",
     {
       key,
-    },
+    }
   );
   const validatedData = await missionSchema.validate(data, {
     stripUnknown: true,
@@ -75,7 +76,7 @@ const useTaskFork = (key: string) => {
       if (!data) return [];
       const newData = [...data];
       return newData.sort(
-        (a, b) => (a?.process_order || 0) - (b?.process_order || 0),
+        (a, b) => (a?.process_order || 0) - (b?.process_order || 0)
       );
     },
     staleTime: Infinity,

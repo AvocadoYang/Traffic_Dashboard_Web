@@ -61,6 +61,7 @@ const WebMapView: React.FC<{
         []
       ) : (
         <>
+          <AllLocation></AllLocation>
           <AllAMRs></AllAMRs>
           <AllCargo></AllCargo>
           <AllElevator></AllElevator>

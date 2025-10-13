@@ -134,7 +134,7 @@ const HistoryTable: FC = () => {
       dataIndex: "custom_id",
       key: "custom_id",
       render: (record: string) => {
-        return <Text code>{record.slice(0, 10) || ""}...</Text>;
+        return <Text code>{record?.slice(0, 10) || ""}...</Text>;
       },
     },
     {

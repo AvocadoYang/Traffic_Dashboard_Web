@@ -87,6 +87,7 @@ const PeripheralGroupTable: React.FC = () => {
       title: t("peripheral_group_table.name"),
       dataIndex: "name",
       width: "10%",
+      sorter: (a, b) => (a.name || "").localeCompare(b.name || ""),
     },
     {
       title: t("peripheral_group_table.description"),

@@ -85,17 +85,17 @@ const AllCargo: React.FC = () => {
 
           const info = locInfo as LocWithoutArr[];
 
-          const translateX =
-            info?.find((i) => i.locationId === loc.locationId)?.translateX || 0;
-          const translateY =
-            info?.find((i) => i.locationId === loc.locationId)?.translateY || 0;
-          const rotate =
-            info?.find((i) => i.locationId === loc.locationId)?.rotate || 0.1;
-          const LocScale =
-            info?.find((i) => i.locationId === loc.locationId)?.scale || 1;
-          const flex_direction =
-            info?.find((i) => i.locationId === loc.locationId)
-              ?.flex_direction || "row";
+          const translateX = info?.find((i) => i.locationId === loc.locationId)
+            ?.translateX as number;
+          const translateY = info?.find((i) => i.locationId === loc.locationId)
+            ?.translateY as number;
+          const rotate = info?.find((i) => i.locationId === loc.locationId)
+            ?.rotate as number;
+          const LocScale = info?.find((i) => i.locationId === loc.locationId)
+            ?.scale as number;
+          const flex_direction = info?.find(
+            (i) => i.locationId === loc.locationId
+          )?.flex_direction as string;
           return (
             <div
               draggable={false}
@@ -124,7 +124,7 @@ const AllCargo: React.FC = () => {
                   rotate={rotate}
                   flex_direction={flex_direction}
                   shelfInfo={shelfInfo?.find(
-                    (s) => s.locationId === loc.locationId,
+                    (s) => s.locationId === loc.locationId
                   )}
                 />
               </WrapperForCargo>

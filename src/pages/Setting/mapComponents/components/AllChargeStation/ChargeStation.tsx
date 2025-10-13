@@ -66,19 +66,9 @@ const ChargeStation: FC<{
 }) => {
   const setCSM = useSetAtom(ECSM);
   const quickRoad = useAtomValue(IsEditingQuickRoads);
-  const setQuickRoadArr = useSetAtom(QuickRoadsArray);
-
-  const handleQuickRoad = (locationId: string) => {
-    if (!quickRoad) return;
-
-    setQuickRoadArr((prev) => [...prev, locationId]);
-  };
 
   const handleEdit = () => {
-    if (quickRoad) {
-      handleQuickRoad(locationId);
-      return;
-    }
+    if (quickRoad) return;
     setCSM({ locationId, isOpen: true });
   };
 

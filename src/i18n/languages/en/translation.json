@@ -670,6 +670,7 @@
       "dialog_mission": {
         "task_priority": "Task priority",
         "mission_type": "Mission Type",
+        "reload": "Reload",
         "priority": {
           "TRIVIAL": "Trivial",
           "NORMAL": "Normal",

@@ -10,8 +10,6 @@ import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import styled from "styled-components";
 import ChargeStation from "./ChargeStation";
 import { Point } from "@/pages/Setting/mapComponents/components/AllLocation/components/PointAndLine";
-import StatusPanel from "./StatusPanel";
-import useChargeStationSocket from "@/sockets/useChargeStationSocket";
 
 const WrapperStation = styled.div.attrs<{
   left: number;
@@ -65,14 +63,14 @@ const AllChargeStation: FC = () => {
 
           const info = locInfo as LocWithoutArr[];
 
-          const translateX =
-            info?.find((i) => i.locationId === loc.locationId)?.translateX || 0;
-          const translateY =
-            info?.find((i) => i.locationId === loc.locationId)?.translateY || 0;
-          const rotate =
-            info?.find((i) => i.locationId === loc.locationId)?.rotate || 270;
-          const LocScale =
-            info?.find((i) => i.locationId === loc.locationId)?.scale || 1;
+          const translateX = info?.find((i) => i.locationId === loc.locationId)
+            ?.translateX as number;
+          const translateY = info?.find((i) => i.locationId === loc.locationId)
+            ?.translateY as number;
+          const rotate = info?.find((i) => i.locationId === loc.locationId)
+            ?.rotate as number;
+          const LocScale = info?.find((i) => i.locationId === loc.locationId)
+            ?.scale as number;
 
           return (
             <div

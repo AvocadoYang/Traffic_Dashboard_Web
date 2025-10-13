@@ -1,5 +1,6 @@
 import React, { FC, useState } from "react";
 import {
+  CodeOutlined,
   DeleteTwoTone,
   EditOutlined,
   EyeInvisibleOutlined,
@@ -7,6 +8,7 @@ import {
   ImportOutlined,
   MenuOutlined,
 } from "@ant-design/icons";
+import ReactJsonView from "@uiw/react-json-view";
 import {
   Button,
   Flex,
@@ -15,6 +17,10 @@ import {
   Tooltip,
   message,
   Descriptions,
+  Popover,
+  Col,
+  Row,
+  Space,
 } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
@@ -54,7 +60,7 @@ const DataRow = ({ children, ...props }: RowProps) => {
   const style: React.CSSProperties = {
     ...props.style,
     transform: CSS.Transform.toString(
-      transform && { ...transform, scaleY: 1 },
+      transform && { ...transform, scaleY: 1 }
     )?.replace(/translate3d\(([^,]+),/, "translate3d(0,"),
     transition,
     ...(isDragging ? { position: "relative", zIndex: 9999 } : {}),
@@ -160,7 +166,7 @@ const ForkTaskTable: FC<{
     });
     queryClient.setQueryData(
       ["all-relate-task-fork", selectedMissionKey],
-      newData,
+      newData
     );
   };
 
@@ -222,49 +228,78 @@ const ForkTaskTable: FC<{
     {
       title: "",
       key: "actions",
-      width: 200,
+      width: 260,
       render: (_, record) => (
-        <Flex gap="small" wrap="wrap">
-          <Popconfirm
-            title={t("utils.delete_warn")}
-            onConfirm={() => deleteTask(record.id)}
-          >
-            <Button
-              type="link"
-              danger
-              icon={<DeleteTwoTone twoToneColor="#f30303" />}
+        <Row gutter={[8, 8]} justify="start" align="middle" wrap>
+          <Col>
+            <Popconfirm
+              title={t("utils.delete_warn")}
+              onConfirm={() => deleteTask(record.id)}
             >
-              {t("utils.delete")}
-            </Button>
-          </Popconfirm>
-          <Button
-            type="link"
-            icon={<EditOutlined />}
-            onClick={() => showModal(record.id)}
-          >
-            {t("utils.edit")}
-          </Button>
-          <Button
-            type="link"
-            icon={<ImportOutlined />}
-            onClick={() => showImportMissionModal(record.process_order)}
-          >
-            {t("mission.task_table.import_mission")}
-          </Button>
-          <Tooltip
-            title={
-              record.disable
-                ? t("mission.task_table.in_use")
-                : t("mission.task_table.stop_this_process")
-            }
-          >
+              <Button
+                type="link"
+                danger
+                icon={<DeleteTwoTone twoToneColor="#f30303" />}
+              >
+                {t("utils.delete")}
+              </Button>
+            </Popconfirm>
+          </Col>
+
+          <Col>
+            <Space>
+              <Button
+                type="link"
+                icon={<EditOutlined />}
+                onClick={() => showModal(record.id)}
+              >
+                {t("utils.edit")}
+              </Button>
+
+              <Popover
+                title={
+                  <ReactJsonView
+                    displayDataTypes={false}
+                    value={record}
+                    collapsed={false}
+                    enableClipboard={false}
+                    style={{ fontSize: 14 }}
+                  />
+                }
+              >
+                <Button type="link" icon={<CodeOutlined />} />
+              </Popover>
+            </Space>
+          </Col>
+
+          <Col>
             <Button
               type="link"
-              icon={record.disable ? <EyeInvisibleOutlined /> : <EyeOutlined />}
-              onClick={() => disableTask(record.id, !record.disable)}
-            />
-          </Tooltip>
-        </Flex>
+              icon={<ImportOutlined />}
+              onClick={() => showImportMissionModal(record.process_order)}
+            >
+              {t("mission.task_table.import_mission")}
+            </Button>
+          </Col>
+
+          <Col>
+            <Tooltip
+              title={
+                record.disable
+                  ? t("mission.task_table.in_use")
+                  : t("mission.task_table.stop_this_process")
+              }
+            >
+              <Button
+                type="link"
+                icon={
+                  record.disable ? <EyeInvisibleOutlined /> : <EyeOutlined />
+                }
+                onClick={() => disableTask(record.id, !record.disable)}
+              />
+            </Tooltip>
+          </Col>
+        </Row>
       ),
     },
   ];
@@ -275,7 +310,7 @@ const ForkTaskTable: FC<{
       auto: t("mission.task_table.select"),
       select: t("mission.task_table.is_selectable"),
       available_charge_station: t(
-        "mission.task_table.available_charge_station",
+        "mission.task_table.available_charge_station"
       ),
       prepare_point: t("mission.task_table.prepare_point"),
       back_to_load_place: t("mission.task_table.back_to_load_place_desc"),

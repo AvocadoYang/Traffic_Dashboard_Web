@@ -52,6 +52,35 @@ type Form_Value = {
   waitOtherAmr: string;
   wait_genre: string;
 };
+import styled from "styled-components";
+
+const ControlDisplay = styled.div<{ hasValue: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  min-width: 400px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: ${({ hasValue }) =>
+    hasValue ? "rgba(59,130,246,0.1)" : "rgba(255,255,255,0.05)"};
+  border: 1px solid
+    ${({ hasValue }) =>
+      hasValue ? "rgba(59,130,246,0.5)" : "rgba(255,255,255,0.2)"};
+  color: ${({ hasValue }) => (hasValue ? "rgba(0, 70, 136, 0.95)" : "#aaa")};
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  user-select: none;
+
+  &:hover {
+    background: ${({ hasValue }) =>
+      hasValue ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.08)"};
+    border-color: rgba(59, 130, 246, 0.6);
+  }
+`;
 
 const TaskFormFork: FC<{
   editTaskKey: string;
@@ -59,7 +88,7 @@ const TaskFormFork: FC<{
   selectedMissionKey: string;
 }> = ({ editTaskKey, selectedMissionKey }) => {
   const { data: originFormData } = useOneTaskDetailFork(editTaskKey);
-  const [actionState, setActionStatus] = useState<Action_Type>();
+  const [actionState, setActionStatus] = useState<Action_Type>("move");
   const [messageApi, contextHolder] = message.useMessage();
   const [isSpecialAction, setIsSpecialAction] = useState(false);
   const [controlClickOrder, setControlClickOrder] = useState<string[]>([]);
@@ -99,17 +128,11 @@ const TaskFormFork: FC<{
     SelectWaitRobotOptions,
   } = useTaskOptions(actionState as Action_Type);
 
-  const handleControlClick = (controlValue: string) => {
-    setControlClickOrder((prevOrder) => {
-      if (prevOrder.includes(controlValue)) {
-        return prevOrder.filter((item) => item !== controlValue);
-      }
-      return [...prevOrder, controlValue];
+  const handleControlClick = (movement: string) => {
+    setControlClickOrder((prev) => {
+      const updated = [...prev, movement];
+      return updated;
     });
-
-    setTimeout(() => {
-      form.setFieldsValue({ control: controlClickOrder });
-    }, 0);
   };
 
   const editMutation = useMutation({
@@ -156,28 +179,61 @@ const TaskFormFork: FC<{
 
     const type = originFormData.operation.type as Action_Type;
     if (!controlList[type]) {
-      console.warn(`Invalid action type: ${type}`);
+      //  console.warn(`Invalid action type: ${type}`);
       setControlClickOrder([]);
-      setActionStatus(undefined);
+      setActionStatus("move");
       return;
     }
 
     setActionStatus(type);
+  };
 
-    const controlSequence = controlList[type];
-    const indexedControls = controlSequence
-      .map((v, i) => `${v}-${i}`)
-      .filter((v) =>
-        originFormData.operation.control?.includes(v.split("-")[0])
-      );
+  const canSelectLocation = () => {
+    if (actionState === "move" && selectLocationType === "custom") return true;
+    if (actionState === "load" && selectLocationType === "custom") return true;
+    if (actionState === "offload" && selectLocationType === "custom")
+      return true;
+    return false;
+  };
 
-    setControlClickOrder(indexedControls);
+  const canSelectIsDefinedId = () => {
+    if (
+      actionState === "spin" ||
+      actionState === "fork" ||
+      actionState === "charge" ||
+      actionState === "cargo_limit" ||
+      // actionState === "load_from_other" ||
+      // actionState === "offload_from_other" ||
+      actionState === "verity_cargo"
+    )
+      return false;
+    return true;
+  };
+
+  const canEditClamp = () => {
+    if (actionState === "offload") return false;
+    if (isIncludeClamp === false) return false;
+    return true;
+  };
+
+  const changeActiontype = (e: Action_Type) => {
+    setControlClickOrder([]);
+    setActionStatus(e);
+    form.setFieldValue("locationId", 0);
+  };
+
+  const onChangeSelectIdDefinedId = (e: Select_Location_Type) => {
+    setSelectLocationType(e);
+    form.setFieldValue("locationId", 0);
   };
 
   useEffect(() => {
-    if (originFormData) {
-      updateControlClickOrder();
+    updateControlClickOrder();
+  }, []);
 
+  useEffect(() => {
+    if (originFormData) {
+      setActionStatus(originFormData.operation.type as any);
       setSelectLocationType(
         (originFormData.operation.is_define_id as Select_Location_Type) ||
           "custom"
@@ -194,12 +250,11 @@ const TaskFormFork: FC<{
       setSelectActiveWaitRobot(
         originFormData.operation.waitGenre !== null ? "enable" : "disable"
       );
-
+      setControlClickOrder(originFormData.operation.control || []);
+      //  console.log(originFormData.operation.control, "origin control");
       form.setFieldsValue({
         action_type: originFormData.operation.type,
-        control: originFormData.operation.control?.map(
-          (v: string, i: number) => `${v}-${i}`
-        ),
+        control: originFormData.operation.control,
         wait: originFormData.operation.wait,
         is_define_id: originFormData.operation.is_define_id,
         locationId: originFormData.operation.locationId?.toString(),
@@ -235,14 +290,14 @@ const TaskFormFork: FC<{
     const value = form.getFieldsValue() as Form_Value;
 
     if (controlClickOrder.length === 0) {
-      // console.log('bitch 1');
+      console.log("bitch 1");
       setSubmittable(false);
       return;
     }
 
     if (controlClickOrder.includes("W")) {
       if (value.wait <= 0) {
-        // console.log('bitch 2');
+        //      console.log("bitch 2");
         setSubmittable(false);
         return;
       }
@@ -251,19 +306,11 @@ const TaskFormFork: FC<{
     if (
       selectLocationType === "custom" &&
       !value.locationId &&
-      actionState !== "spin"
+      canSelectIsDefinedId()
     ) {
-      // console.log('bitch 3');
+      //      console.log("bitch 3");
       setSubmittable(false);
       return;
-    }
-
-    if (value?.active_wait_amr && value.active_wait_amr === "enable") {
-      if (!value.waitOtherAmr || !value.wait_genre) {
-        //     console.log('bitch 4');
-        setSubmittable(false);
-        return;
-      }
     }
 
     if (
@@ -271,11 +318,11 @@ const TaskFormFork: FC<{
       isIncludeSpin &&
       (value.yaw === undefined || value.yaw < -180 || value.yaw > 180)
     ) {
-      // console.log('bitch 5');
+      // console.log("bitch 5");
       setSubmittable(false);
       return;
     }
-
+    // console.log("pass");
     setSubmittable(true);
   }, [form, values]);
 
@@ -296,7 +343,7 @@ const TaskFormFork: FC<{
             name="action_type"
           >
             <Segmented
-              onChange={(e: Action_Type) => setActionStatus(e)}
+              onChange={(e: Action_Type) => changeActiontype(e)}
               options={
                 isSpecialAction
                   ? SpecialActionListOptions
@@ -320,81 +367,58 @@ const TaskFormFork: FC<{
           </Tooltip>
         </Flex>
 
-        <Flex align="center" justify="space-between">
-          {actionState !== undefined ? (
-            <Form.Item label={t("mission.task_table.action")} name="control">
-              <Flex gap="small">
-                {controlList[actionState].map((v, i) => {
-                  const uniqueValue = `${v}-${i}`;
-                  const movement = v as Control_Types;
-                  let text = "";
+        {/* === Control Selector Section === */}
+        <Flex align="center" gap="small" style={{ marginBottom: 24 }}>
+          <ControlDisplay hasValue={controlClickOrder.length > 0}>
+            {controlClickOrder.length > 0
+              ? controlClickOrder.join(" → ")
+              : "No control sequence"}
+          </ControlDisplay>
 
-                  switch (movement) {
-                    case "F":
-                      text = t("car_control_translate.F");
-                      break;
-                    case "H":
-                      text = t("car_control_translate.H");
-                      break;
-                    case "S":
-                      text = t("car_control_translate.S");
-                      break;
-                    case "B":
-                      text = t("car_control_translate.B");
-                      break;
-                    case "W":
-                      text = t("car_control_translate.W");
-                      break;
-                    case "clamp":
-                      text = t("car_control_translate.clamp");
-                      break;
-                    case "tilt":
-                      text = t("car_control_translate.tilt");
-                      break;
-                    default:
-                      text = "unknown movement";
-                  }
-
-                  return (
-                    <Tooltip
-                      key={uniqueValue}
-                      title={text}
-                      mouseEnterDelay={0.5}
-                    >
-                      <Button
-                        type={
-                          controlClickOrder.includes(uniqueValue)
-                            ? "primary"
-                            : "default"
-                        }
-                        onClick={() => handleControlClick(uniqueValue)}
-                      >
-                        {v}
-                      </Button>
-                    </Tooltip>
-                  );
-                })}
-              </Flex>
-            </Form.Item>
-          ) : (
-            []
-          )}
-          <Flex>
-            <Input
-              disabled
-              style={{ width: 200, marginBottom: 24 }}
-              value={controlClickOrder
-                .flatMap((v) => v.split("-")[0])
-                .join(", ")}
+          <Tooltip title={t("utils.reset")}>
+            <Button
+              icon={<RedoOutlined />}
+              danger={controlClickOrder.length > 0}
+              onClick={() => {
+                setControlClickOrder([]);
+                form.setFieldValue("control", []);
+              }}
             />
-            <Tooltip title={t("utils.reset")}>
-              <Button
-                style={{ marginBottom: 24 }}
-                icon={<RedoOutlined />}
-                onClick={() => setControlClickOrder([])}
-              />
-            </Tooltip>
-          </Flex>
+          </Tooltip>
+        </Flex>
+
+        {/* === Control Buttons === */}
+        <Flex wrap gap="small" style={{ marginBottom: 24 }}>
+          {(controlList[actionState] || []).map((movement) => {
+            const text = (() => {
+              switch (movement) {
+                case "F":
+                  return t("car_control_translate.F");
+                case "H":
+                  return t("car_control_translate.H");
+                case "S":
+                  return t("car_control_translate.S");
+                case "B":
+                  return t("car_control_translate.B");
+                case "W":
+                  return t("car_control_translate.W");
+                case "clamp":
+                  return t("car_control_translate.clamp");
+                case "tilt":
+                  return t("car_control_translate.tilt");
+                default:
+                  return "Unknown";
+              }
+            })();
+
+            return (
+              <Tooltip key={movement} title={text}>
+                <Button onClick={() => handleControlClick(movement)}>
+                  {movement}
+                </Button>
+              </Tooltip>
+            );
+          })}
         </Flex>
 
         {controlClickOrder.some((item) => item.startsWith("W")) && (
@@ -403,66 +427,70 @@ const TaskFormFork: FC<{
           </Form.Item>
         )}
 
-        <Form.Item
-          label={
-            <Flex gap="small" align="center">
-              <span>{t("mission.task_table.is_custom_location")}</span>
-              <Tooltip title={t("mission.task_table.location_tooltip")}>
-                <QuestionCircleOutlined style={{ color: "#8c8c8c" }} />
-              </Tooltip>
-            </Flex>
-          }
-          name="is_define_id"
-        >
-          <Select
-            value={selectLocationType}
-            onChange={(e: Select_Location_Type) => setSelectLocationType(e)}
-            options={SelectLocationOptions}
-          />
+        {canSelectIsDefinedId() && (
+          <Form.Item
+            label={
+              <Flex gap="small" align="center">
+                <span>{t("mission.task_table.is_custom_location")}</span>
+                <Tooltip title={t("mission.task_table.location_tooltip")}>
+                  <QuestionCircleOutlined style={{ color: "#8c8c8c" }} />
+                </Tooltip>
+              </Flex>
+            }
+            name="is_define_id"
+          >
+            <Select
+              value={selectLocationType}
+              onChange={(e: Select_Location_Type) =>
+                onChangeSelectIdDefinedId(e)
+              }
+              options={SelectLocationOptions}
+            />
 
-          {selectLocationType === "custom" && (
-            <Typography.Text
-              type="secondary"
-              style={{ marginTop: 8, display: "block" }}
-            >
-              {t("mission.task_table.location_custom_desc")}
-            </Typography.Text>
-          )}
-          {selectLocationType === "select" && (
-            <Typography.Text
-              type="secondary"
-              style={{ marginTop: 8, display: "block" }}
-            >
-              {t("mission.task_table.location_select_desc")}
-            </Typography.Text>
-          )}
-          {selectLocationType === "available_charge_station" && (
-            <Typography.Text
-              type="secondary"
-              style={{ marginTop: 8, display: "block" }}
-            >
-              {t("mission.task_table.location_charge_station_desc")}
-            </Typography.Text>
-          )}
-          {selectLocationType === "prepare_point" && (
-            <Typography.Text
-              type="secondary"
-              style={{ marginTop: 8, display: "block" }}
-            >
-              {t("mission.task_table.prepare_point_desc")}
-            </Typography.Text>
-          )}
-          {selectLocationType === "back_to_load_place" && (
-            <Typography.Text
-              type="secondary"
-              style={{ marginTop: 8, display: "block" }}
-            >
-              {t("mission.task_table.back_to_load_place_desc")}
-            </Typography.Text>
-          )}
-        </Form.Item>
+            {selectLocationType === "custom" && (
+              <Typography.Text
+                type="secondary"
+                style={{ marginTop: 8, display: "block" }}
+              >
+                {t("mission.task_table.location_custom_desc")}
+              </Typography.Text>
+            )}
+            {selectLocationType === "select" && (
+              <Typography.Text
+                type="secondary"
+                style={{ marginTop: 8, display: "block" }}
+              >
+                {t("mission.task_table.location_select_desc")}
+              </Typography.Text>
+            )}
+            {selectLocationType === "available_charge_station" && (
+              <Typography.Text
+                type="secondary"
+                style={{ marginTop: 8, display: "block" }}
+              >
+                {t("mission.task_table.location_charge_station_desc")}
+              </Typography.Text>
+            )}
+            {selectLocationType === "prepare_point" && (
+              <Typography.Text
+                type="secondary"
+                style={{ marginTop: 8, display: "block" }}
+              >
+                {t("mission.task_table.prepare_point_desc")}
+              </Typography.Text>
+            )}
+            {selectLocationType === "back_to_load_place" && (
+              <Typography.Text
+                type="secondary"
+                style={{ marginTop: 8, display: "block" }}
+              >
+                {t("mission.task_table.back_to_load_place_desc")}
+              </Typography.Text>
+            )}
+          </Form.Item>
+        )}
 
-        {selectLocationType === "custom" && actionState !== "spin" && (
+        {canSelectLocation() && (
           <Form.Item
             label={t("mission.task_table.location")}
             name="locationId"
@@ -597,7 +625,7 @@ const TaskFormFork: FC<{
           </Form.Item>
         )}
 
-        {isIncludeClamp ? (
+        {canEditClamp() ? (
           <Form.Item
             label={t("mission.task_table.clamp")}
             name="clamp"
@@ -712,7 +740,7 @@ const TaskFormFork: FC<{
               name="modify_dis"
               rules={[{ required: true, message: t("utils.required") }]}
             >
-              <InputNumber min={0} placeholder="1" addonAfter="meter" />
+              <InputNumber placeholder="1" addonAfter="meter" />
             </Form.Item>
           </>
         ) : (
@@ -817,7 +845,7 @@ const TaskFormFork: FC<{
               type="primary"
               disabled={!submittable}
               htmlType="submit"
-              loading={editMutation.isLoading}
+              loading={editMutation.isPending}
             >
               {t("utils.save")}
             </Button>

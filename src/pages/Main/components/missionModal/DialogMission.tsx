@@ -9,6 +9,8 @@ import { useMutation } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
+import { ReloadOutlined } from "@ant-design/icons";
+import styled from "styled-components";
 
 enum MissionPriority {
   TRIVIAL, //沒差最後再做
@@ -23,15 +25,55 @@ type MissionFrom = {
   priority: MissionPriority;
 };
 
+const MissionOption = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  font-size: 16px;
+  font-weight: 500;
+  width: 100%;
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+`;
+
+const LongSelect = styled(Select)`
+  width: 100%; /* or fixed width like 500px */
+  min-width: 400px;
+  max-width: 700px;
+
+  /* make dropdown wider */
+  .ant-select-dropdown {
+    min-width: 500px !important;
+  }
+
+  /* allow text wrapping in selected value */
+  .ant-select-selection-item {
+    white-space: normal !important;
+    word-break: break-word;
+    line-height: 1.4;
+  }
+`;
+
 const DialogMission = () => {
   const { t } = useTranslation();
   const [missionForm] = Form.useForm();
-  const { data } = useAllMissionTitles();
-  const { data: name } = useName();
+  const { data, refetch: refetchMissions } = useAllMissionTitles();
+  const { data: name, refetch: refetchAgv } = useName();
   const [messageApi, contextHolder] = message.useMessage();
 
   const [openDialogMission, setOpenDialogMission] = useAtom(OpenAssignMission);
   const [, setAmrGenre] = useState<string | null>(null);
+
+  const reload = () => {
+    refetchAgv();
+    refetchMissions();
+    void messageApi.success("reload");
+  };
+
   const AmrOption: { value: string; label: string }[] | undefined =
     useMemo(() => {
       let options;
@@ -48,6 +90,7 @@ const DialogMission = () => {
         ? [...options, { value: "none", label: t("utils.random") }]
         : undefined;
     }, [name, t]);
+
   const canSubmitMutation = useMutation({
     mutationFn: (payload: MissionFrom) => {
       return client.post("api/missions/dialog-mission", payload, {
@@ -70,31 +113,32 @@ const DialogMission = () => {
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
+
   const misOptions = useMemo(() => {
     if (!data) return [];
     return data
       ?.filter((g) =>
         g.MissionTitleBridgeCategory.some(
-          (s) => s.Category?.tagName === "normal-mission",
-        ),
+          (s) => s.Category?.tagName === "normal-mission"
+        )
       )
-      .map((v) => {
-        return {
-          value: v.id,
-          label: (
-            <Flex justify="space-evenly">
-              {v.name}{" "}
+      .map((v) => ({
+        value: v.id,
+        label: (
+          <MissionOption>
+            <span>{v.name}</span>
+            <div className="tags">
               {v.MissionTitleBridgeCategory.filter(
-                (f) => f.Category?.tagName !== "normal-mission",
+                (f) => f.Category?.tagName !== "normal-mission"
               ).map((m) => (
                 <Tag key={m.Category?.id} color={m.Category?.color}>
                   {m.Category?.tagName}
                 </Tag>
               ))}
-            </Flex>
-          ),
-        };
-      });
+            </div>
+          </MissionOption>
+        ),
+      }));
   }, [data]);
 
   const submit = () => {
@@ -128,6 +172,7 @@ const DialogMission = () => {
     <Modal
       title={t("main.card_name.new_mission")}
       open={openDialogMission}
+      width={600}
       footer={[
         <Button
           key="submit"
@@ -191,22 +236,19 @@ const DialogMission = () => {
         </Form.Item>
 
         <Form.Item label={`${t("toolbar.mission.mission")}`} name="titleId">
-          <Select
+          <LongSelect
             options={misOptions}
-            placeholder="Select a mission "
-            onMouseDown={(e) => e.preventDefault()}
-            onPopupScroll={(e) => {
-              e.stopPropagation();
-            }}
-            onDropdownVisibleChange={(open) => {
-              if (open) {
-                document.body.style.overflow = "hidden";
-              } else {
-                document.body.style.overflow = "auto";
-              }
-            }}
+            placeholder="Select a mission"
+            size="large"
+            dropdownMatchSelectWidth={false} // allows dropdown to be wider than input
           />
         </Form.Item>
+
+        <Flex align="center" justify="center">
+          <Button icon={<ReloadOutlined />} onClick={() => reload()}>
+            {t("main.mission_modal.dialog_mission.reload")}
+          </Button>
+        </Flex>
       </Form>
     </Modal>
   );

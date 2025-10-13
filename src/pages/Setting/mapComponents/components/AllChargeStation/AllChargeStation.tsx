@@ -48,7 +48,7 @@ const AllChargeStation: FC<{
 
   const handleQuickRoad = (locationId: string) => {
     if (!quickRoad) return;
-
+    // console.log("chick+++");
     setQuickRoadArr((prev) => [...prev, locationId]);
   };
 
@@ -84,14 +84,14 @@ const AllChargeStation: FC<{
 
           const info = locInfo as LocWithoutArr[];
 
-          const translateX =
-            info?.find((i) => i.locationId === loc.locationId)?.translateX || 0;
-          const translateY =
-            info?.find((i) => i.locationId === loc.locationId)?.translateY || 0;
-          const rotate =
-            info?.find((i) => i.locationId === loc.locationId)?.rotate || 270;
-          const LocScale =
-            info?.find((i) => i.locationId === loc.locationId)?.scale || 1;
+          const translateX = info?.find((i) => i.locationId === loc.locationId)
+            ?.translateX as number;
+          const translateY = info?.find((i) => i.locationId === loc.locationId)
+            ?.translateY as number;
+          const rotate = info?.find((i) => i.locationId === loc.locationId)
+            ?.rotate as number;
+          const LocScale = info?.find((i) => i.locationId === loc.locationId)
+            ?.scale as number;
 
           return (
             <div

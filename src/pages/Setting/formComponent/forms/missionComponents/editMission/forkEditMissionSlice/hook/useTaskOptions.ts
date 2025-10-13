@@ -52,20 +52,14 @@ const useTaskOptions = (action: Action_Type) => {
       case "cargo_limit":
         text = t("car_control_translate.cargo_limit");
         break;
-      case "load_from_other":
-        text = t("car_control_translate.load_from_other");
-        break;
-      case "offload_from_other":
-        text = t("car_control_translate.offload_from_other");
-        break;
+      // case "load_from_other":
+      //   text = t("car_control_translate.load_from_other");
+      //   break;
+      // case "offload_from_other":
+      //   text = t("car_control_translate.offload_from_other");
+      //   break;
       case "verity_cargo":
         text = t("car_control_translate.verity_cargo");
-        break;
-      case "clamp":
-        text = t("car_control_translate.clamp");
-        break;
-      case "tilt":
-        text = t("car_control_translate.tilt");
         break;
       default:
         text;

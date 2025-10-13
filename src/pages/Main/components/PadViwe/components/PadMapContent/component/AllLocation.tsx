@@ -18,7 +18,7 @@ const AllLocation = () => {
         locationId,
       });
     },
-    [],
+    []
   );
 
   const handleLeave = useCallback(() => {
@@ -31,7 +31,7 @@ const AllLocation = () => {
     <>
       {data.locations
         .filter(
-          ({ areaType }) => areaType === "Extra" || areaType === "Dispatch",
+          ({ areaType }) => areaType === "EXTRA" || areaType === "DISPATCH"
         )
         .map((loc) => {
           const [displayX, displayY] = rosCoord2DisplayCoord({

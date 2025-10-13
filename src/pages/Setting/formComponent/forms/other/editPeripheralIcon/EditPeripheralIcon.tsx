@@ -6,7 +6,11 @@ import { useAtom, useSetAtom } from "jotai";
 import { FC, useState } from "react";
 import { useTranslation } from "react-i18next";
 import SettingStyleForm from "./SettingStyleForm";
-import { FormatPainterOutlined } from "@ant-design/icons";
+import {
+  FormatPainterOutlined,
+  LoadingOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
 import usePeripheralStyle from "@/api/usePeripheralStyle";
 import SettingMultiStyleForm from "./SettingMultiStyleForm";
 import styled from "styled-components";
@@ -35,11 +39,11 @@ const EditPeripheralIcon: FC<{
   const setSelectStation = useSetAtom(PeripheralEditData);
   const [isEditStation, setIsEditStation] = useAtom(IsEditPeripheralStyle);
   const [filterType, setFilterType] = useState<string | null>(null);
-  const { data } = usePeripheralStyle(filterType);
+  const { data, refetch } = usePeripheralStyle(filterType);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [openDrawer, setOpenDrawer] = useState(false);
   const uniqueAreaTypes = Array.from(
-    new Set((data ?? []).map((item) => item?.areaType)),
+    new Set((data ?? []).map((item) => item?.areaType))
   );
 
   const onChangeAreaType = (type: string) => {
@@ -87,7 +91,7 @@ const EditPeripheralIcon: FC<{
       filteredValue: filterType ? [filterType] : null,
       onFilter: (value, record) => record.areaType === value,
       sorter: (a, b) => a.areaType.localeCompare(b.areaType),
-      render: (v: string) => t(`peripheral.${v}` as any) || v,
+      // render: (v: string) => t(`peripheral.${v}` as any) || v,
     },
     {
       title: "x",
@@ -190,6 +194,10 @@ const EditPeripheralIcon: FC<{
               }))}
               value={filterType ?? undefined}
             />
+            <Button
+              onClick={() => refetch()}
+              icon={<ReloadOutlined />}
+            ></Button>
           </Flex>
 
           <Table
