@@ -3,8 +3,8 @@ import { useMockInfo } from "@/sockets/useMockInfo";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { useMutation } from "@tanstack/react-query";
-import { Button, Flex, message, Tooltip } from "antd";
-import { FC } from "react";
+import { Button, Flex, Input, message, Popover, Tooltip } from "antd";
+import { FC, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 
@@ -30,15 +30,30 @@ const MissionBtnWrap = styled.div`
   align-items: center;
 `;
 
+export type Corning_Cargo = {
+  container_id: string;
+  container_gen: string;
+  container_type: string;
+};
+
+const c_genOption = ["5", "5.5", "6-Metal", "6-Wooden", "6-Inno", "6-KC"];
+const c_typeOption = ["Full", "Pallet", "Wooden", "Unknown", "Empty"];
+
 const CorningTest: FC = () => {
   const script = useMockInfo();
   const { t } = useTranslation();
   const [messageApi, contextHolders] = message.useMessage();
+  const [container, setContainer] = useState<Corning_Cargo>({
+    container_id: "TC123456",
+    container_gen: "",
+    container_type: "",
+  });
 
   const elevatorMutation = useMutation({
     mutationFn: (payload: string) => {
       return client.post("api/test/elevator-signal", {
         scenario: payload,
+        container,
       });
     },
     onSuccess: () => {
@@ -93,6 +108,33 @@ const CorningTest: FC = () => {
     alarmMutation.mutate();
   };
 
+  const handleContainer = (type: "id" | "gen" | "type", value: string) => {
+    if (type === "gen") {
+      setContainer((prev) => {
+        return {
+          ...prev,
+          container_gen: value,
+        };
+      });
+    }
+    if (type === "id") {
+      setContainer((prev) => {
+        return {
+          ...prev,
+          container_id: value,
+        };
+      });
+    }
+    if (type === "type") {
+      setContainer((prev) => {
+        return {
+          ...prev,
+          container_type: value,
+        };
+      });
+    }
+  };
+
   if (script?.isSimulate === false) return null;
   return (
     <>
@@ -106,7 +148,45 @@ const CorningTest: FC = () => {
             <Button onClick={() => handleElevator("1")}>Scenario 1</Button>
           </Tooltip>
 
-          <Tooltip
+          <Input
+            placeholder="id"
+            value={container.container_id}
+            onChange={(e) => handleContainer("id", e.target.value)}
+          />
+
+          <Input
+            placeholder="gen"
+            value={container.container_gen}
+            onChange={(e) => handleContainer("gen", e.target.value)}
+          />
+
+          <Input
+            placeholder="type"
+            value={container.container_type}
+            onChange={(e) => handleContainer("type", e.target.value)}
+          />
+
+          <Popover
+            content={
+              <div>
+                ========= gen
+                {c_genOption.map((v) => {
+                  return <p>{v}</p>;
+                })}
+                ========= type
+                {c_typeOption.map((v) => {
+                  return <p>{v}</p>;
+                })}
+              </div>
+            }
+            placement="right"
+            title="Title"
+            trigger="click"
+          >
+            <Button>Click me</Button>
+          </Popover>
+
+          {/* <Tooltip
             placement="right"
             title="Success elevator barcode reader, fail fork read container"
           >
@@ -125,7 +205,7 @@ const CorningTest: FC = () => {
             title="Fail elevator barcode reader, fail fork read container"
           >
             <Button onClick={() => handleElevator("4")}>Scenario 4</Button>
-          </Tooltip>
+          </Tooltip> */}
 
           <Button onClick={() => handleLiftSignal("all-empty")}>
             Lift Signal All empty
