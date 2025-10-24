@@ -91,7 +91,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
         label: pg.name,
         value: pg.name,
       })) || [],
-    [peripheralGroups],
+    [peripheralGroups]
   );
 
   let inputNode;
@@ -188,7 +188,7 @@ const PeripheralNameTable: React.FC = () => {
   const save = async (
     peripheralNameDBId: string,
     locationId: string,
-    level: number,
+    level: number
   ) => {
     try {
       const row = (await form.validateFields()) as {
@@ -303,7 +303,7 @@ const PeripheralNameTable: React.FC = () => {
           editing: isEditing(record),
         }),
       };
-    },
+    }
   );
 
   if (error) {
@@ -319,9 +319,9 @@ const PeripheralNameTable: React.FC = () => {
           {t("peripheral_name_table.reload")}
         </Button>
 
-        <Button onClick={handleSync} style={{ marginBottom: 16 }}>
-          SYNC WITH CORNING
-        </Button>
+        <Popconfirm title="are u sure" onConfirm={handleSync}>
+          <Button style={{ marginBottom: 16 }}>SYNC WITH CORNING</Button>
+        </Popconfirm>
       </Flex>
 
       <Form form={form} component={false}>

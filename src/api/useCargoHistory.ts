@@ -39,7 +39,7 @@ const schema = array(
     shelfConfigId: string().nullable(),
     custom_cargo_metadata_id: string().nullable(),
     owner: string().required(),
-    custom_id: string().required(),
+    custom_id: string().optional().nullable(),
     history: historySchema,
     custom_cargo_metadata: customCargoMetadataSchema,
   })
