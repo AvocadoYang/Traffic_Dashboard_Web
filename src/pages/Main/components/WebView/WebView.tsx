@@ -13,6 +13,7 @@ import MissionBtn from "./components/MissionBtn";
 import CorningTest from "./components/CorningTest";
 import ElevatorIO from "./components/ElevatorIO";
 import TestBarcode from "./components/TestBarcode";
+import ECS_online from "./components/ECS_online";
 
 const { Content } = Layout;
 const WebView = () => {
@@ -56,6 +57,7 @@ const WebView = () => {
             <MissionBtn></MissionBtn>
             <CorningTest></CorningTest>
             <ElevatorIO />
+            <ECS_online />
             <TestBarcode />
           </Splitter.Panel>
           <Splitter.Panel

@@ -209,13 +209,6 @@ const CorningTest: FC = () => {
           </Tooltip>
            */}
 
-          <Button onClick={() => handleLiftSignal("all-empty")}>
-            Lift Signal All empty
-          </Button>
-          <Button onClick={() => handleLiftSignal("all-manual")}>
-            Lift Signal All Manual
-          </Button>
-
           <Button onClick={() => handleWarning()}>Warning</Button>
           <Button onClick={() => handleAlarm()}>Alarm</Button>
         </Flex>

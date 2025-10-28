@@ -1,77 +1,112 @@
-import React, { useState } from "react";
-import { Button, Popover, Space, Tag, Tooltip } from "antd";
-import { useElevatorSignal } from "@/sockets/useElevatorSignal";
+import React from "react";
+import { Button, Popover, Space, Tooltip } from "antd";
 import styled from "styled-components";
+import {
+  useLeftElevatorSignal,
+  useRightElevatorSignal,
+} from "@/sockets/useElevatorSignal";
+import { io } from "@/sockets/socketConnect";
 
 const MissionBtnWrap = styled.div`
   position: absolute;
   z-index: 4;
-  top: 100px; /* Align with the header */
-  left: 16px; /* Align with the right edge of the mission panel */
-  background-color: rgba(
-    255,
-    255,
-    255,
-    0.01
-  ); /* White background to match panels */
-  border-radius: 8px; /* Consistent rounded corners */
-  padding: 8px; /* More padding for a spacious feel */
-  opacity: 1; /* Always fully opaque for clarity */
+  top: 100px;
+  left: 16px;
+  border-radius: 8px;
+  padding: 8px;
+  opacity: 1;
   transition: all 0.3s ease-in-out;
-  background-color: "#b41313";
-  width: "50px";
-  height: "50px";
-  overflow: hidden;
   display: flex;
   align-items: center;
 `;
 
-const ElevatorIO: React.FC = () => {
-  const elevator = useElevatorSignal();
+const IOGrid = styled.div`
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
 
-  if (!elevator) return <MissionBtnWrap>no elevator signal...</MissionBtnWrap>;
+const IORow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const Label = styled.span`
+  flex: 1;
+  font-weight: 500;
+`;
+
+const ElevatorIO: React.FC = () => {
+  const right = useRightElevatorSignal();
+  const left = useLeftElevatorSignal();
+
+  const handleEmit = (side: "right" | "left", key: string, value: boolean) => {
+    io.emit("set-elevator-io", { side, key, value });
+  };
+
+  const renderIOList = (
+    title: string,
+    ioObj: Record<string, boolean>,
+    side: "right" | "left"
+  ) => {
+    if (!ioObj) return <div>Waiting for {side} elevator signal...</div>;
+
+    return (
+      <div>
+        <h4 style={{ marginBottom: 8 }}>{title}</h4>
+        <IOGrid>
+          {Object.entries(ioObj).map(([key, value]) => {
+            const label = key
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (str) => str.toUpperCase());
+            return (
+              <IORow key={key}>
+                <Label>{label}</Label>
+                <Space>
+                  <Button
+                    size="small"
+                    type={value ? "primary" : "default"}
+                    onClick={() => handleEmit(side, key, true)}
+                  >
+                    ON
+                  </Button>
+                  <Button
+                    size="small"
+                    danger
+                    type={!value ? "primary" : "default"}
+                    onClick={() => handleEmit(side, key, false)}
+                  >
+                    OFF
+                  </Button>
+                </Space>
+              </IORow>
+            );
+          })}
+        </IOGrid>
+      </div>
+    );
+  };
 
   return (
-    <>
-      <MissionBtnWrap>
-        <Tooltip placement="right" title="show elevator io">
-          <Popover
-            content={
-              <div style={{ minWidth: 250 }}>
-                {Object.entries(elevator).map(([key, value]) => (
-                  <Space
-                    key={key}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      marginBottom: 8,
-                    }}
-                  >
-                    <span style={{ fontWeight: 500 }}>
-                      {key
-                        .replace(/([A-Z])/g, " $1")
-                        .replace(/^./, (str) => str.toUpperCase())}
-                    </span>
-                    <Button
-                      shape="circle"
-                      size="small"
-                      style={{
-                        backgroundColor: value ? "#52c41a" : "#d9d9d9",
-                        borderColor: value ? "#52c41a" : "#d9d9d9",
-                      }}
-                    />
-                  </Space>
-                ))}
-              </div>
-            }
-            title="Title"
-            trigger="click"
-          >
-            <Button>Elevator IO</Button>
-          </Popover>
-        </Tooltip>
-      </MissionBtnWrap>
-    </>
+    <MissionBtnWrap>
+      <Tooltip placement="right" title="Show elevator IO">
+        <Popover
+          content={
+            <>
+              {renderIOList("Right Elevator IO", right, "right")}
+              <div style={{ marginTop: 16 }} />
+              {renderIOList("Left Elevator IO", left, "left")}
+            </>
+          }
+          title="Elevator IO"
+          trigger="click"
+        >
+          <Button>Elevator IO</Button>
+        </Popover>
+      </Tooltip>
+    </MissionBtnWrap>
   );
 };
 
