@@ -4,7 +4,7 @@ import {
   QuickMissionSettingMode,
   StartQuickMissionSetting,
 } from "@/pages/Main/global/jotai";
-import { Tooltip } from "antd";
+import { Flex, Popover, Tooltip } from "antd";
 import { useAtom, useSetAtom } from "jotai";
 import React, { FC } from "react";
 import styled from "styled-components";
@@ -24,6 +24,7 @@ const SvgStyle = styled.svg<{
   $canBeClick: boolean;
   $isHaveAction: boolean;
   $isManual: boolean;
+  $isRunning: boolean; // 👈 add this
 }>`
   width: 24px;
   height: 24px;
@@ -39,42 +40,65 @@ const SvgStyle = styled.svg<{
   opacity: ${({ $isDisable }) => ($isDisable ? 0.6 : 1)};
   fill: ${({ $hasCargo }) => ($hasCargo ? "#ffe73c" : "#999")};
 
-  border: ${({ $isSelecting, $canBeClick, $isManual }) =>
+  border: ${({ $isSelecting, $canBeClick, $isManual, $isRunning }) =>
     $isManual
-      ? "2px solid red" // 👈 highlight manual mode
-      : $isSelecting && $canBeClick
+      ? "2px solid red"
+      : $isRunning
         ? "2px solid #1890ff"
-        : "1px dashed #727272"};
+        : $isSelecting && $canBeClick
+          ? "2px solid #1890ff"
+          : "1px dashed #727272"};
 
-  box-shadow: ${({ $isSelecting, $canBeClick, $isManual }) =>
+  box-shadow: ${({ $isManual, $isRunning }) =>
     $isManual
-      ? "0 0 8px rgba(255, 0, 0, 0.5)" // 👈 glow red in manual mode
-      : $isSelecting && $canBeClick
-        ? "0 0 8px rgba(24, 144, 255, 0.3)"
+      ? "0 0 8px rgba(255, 0, 0, 0.5)"
+      : $isRunning
+        ? "0 0 12px rgba(24, 144, 255, 0.6)"
         : "none"};
 
   ${({ $isHaveAction, $isDisable }) =>
     $isHaveAction && !$isDisable
       ? `
-        animation: pulse 2s infinite;
-        @keyframes pulse {
-          0% {
-            box-shadow: 0 0 0 0 rgba(82, 196, 26, 0.7);
-          }
-          70% {
-            box-shadow: 0 0 0 8px rgba(82, 196, 26, 0);
-          }
-          100% {
-            box-shadow: 0 0 0 0 rgba(82, 196, 26, 0);
-          }
+        animation: pulseGreen 2s infinite;
+        @keyframes pulseGreen {
+          0% { box-shadow: 0 0 0 0 rgba(82, 196, 26, 0.7); }
+          70% { box-shadow: 0 0 0 8px rgba(82, 196, 26, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(82, 196, 26, 0); }
         }
       `
       : ""}
 
-  &:hover {
-    transform: scale(1.05);
-    background-color: ${({ $hasCargo }) =>
-      $hasCargo ? "rgba(255, 231, 60, 0.5)" : "rgba(200,200,200,0.3)"};
+  ${({ $isRunning }) =>
+    $isRunning
+      ? `
+        animation: pulseBlue 1s infinite;
+        @keyframes pulseBlue {
+          0% { box-shadow: 0 0 0 0 rgba(24, 144, 255, 0.6); }
+          70% { box-shadow: 0 0 0 10px rgba(24, 144, 255, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(24, 144, 255, 0); }
+        }
+      `
+      : ""}
+`;
+
+const PopoverContent = styled(Flex)`
+  padding: 4px;
+  min-width: 200px;
+`;
+
+const StatusItem = styled(Flex)`
+  justify-content: space-between;
+  width: 100%;
+  padding: 4px 0;
+
+  .label {
+    color: #8c8c8c;
+    margin-right: 12px;
+  }
+
+  .value {
+    font-weight: 500;
+    color: ${(props) => props.color || "#262626"};
   }
 `;
 
@@ -85,7 +109,16 @@ const Elevator: FC<{
   isBook: boolean;
   customName: string;
   isManual: boolean;
-}> = ({ locationId, hasCargo, isDisable, isBook, customName, isManual }) => {
+  isRunning: boolean;
+}> = ({
+  locationId,
+  hasCargo,
+  isDisable,
+  isBook,
+  customName,
+  isManual,
+  isRunning,
+}) => {
   const [selectMode, setQuickSettingMode] = useAtom(QuickMissionSettingMode);
   const [isStartSelecting, setStartQuickSetting] = useAtom(
     StartQuickMissionSetting
@@ -125,22 +158,59 @@ const Elevator: FC<{
 
   return (
     <>
-      {/* {hasCargo ? <CargoLight></CargoLight> : null} */}
-      <Tooltip title={customName}>
-        <SvgStyle
-          $hasCargo={hasCargo}
-          $isDisable={isDisable}
-          $isSelecting={isStartSelecting}
-          $canBeClick={isStartSelecting ? canBeClickInSelection : true}
-          $isManual={isManual}
-          $isHaveAction={isBook} // or pass some condition
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          onClick={() => handleQuickMissionPayload()}
-        >
-          <path d="M9 9V11H7V9H5V11H3V9H1V21H3V19H5V21H7V19H9V21H11V19H13V21H15V19H17V21H19V19H21V21H23V9H21V11H19V9H17V11H15V9H13V11H11V9H9M3 13H5V17H3V13M7 13H9V17H7V13M11 13H13V17H11V13M15 13H17V17H15V13M19 13H21V17H19V13M7 4H11V2L17 5H13V7L7 4Z" />
-        </SvgStyle>
-      </Tooltip>
+      <Popover
+        content={
+          <PopoverContent vertical gap={8}>
+            <StatusItem>
+              <span className="label">Manual Mode:</span>
+              <span
+                className="value"
+                style={{ color: isManual ? "#f5222d" : "#52c41a" }}
+              >
+                {isManual ? "Yes" : "No"}
+              </span>
+            </StatusItem>
+            <StatusItem>
+              <span className="label">Running Status:</span>
+              <span
+                className="value"
+                style={{ color: isRunning ? "#1890ff" : "#8c8c8c" }}
+              >
+                {isRunning ? "Active" : "Idle"}
+              </span>
+            </StatusItem>
+            <StatusItem>
+              <span className="label">Cargo Status:</span>
+              <span
+                className="value"
+                style={{ color: hasCargo ? "#faad14" : "#8c8c8c" }}
+              >
+                {hasCargo ? "Loaded" : "Empty"}
+              </span>
+            </StatusItem>
+          </PopoverContent>
+        }
+        title={<div style={{ fontWeight: 500 }}>{customName}</div>}
+        trigger="click"
+        placement="right"
+      >
+        <Tooltip title={customName}>
+          <SvgStyle
+            $hasCargo={hasCargo}
+            $isDisable={isDisable}
+            $isSelecting={isStartSelecting}
+            $canBeClick={isStartSelecting ? canBeClickInSelection : true}
+            $isManual={isManual}
+            $isHaveAction={isBook}
+            $isRunning={isRunning}
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            onClick={() => handleQuickMissionPayload()}
+          >
+            <path d="M9 9V11H7V9H5V11H3V9H1V21H3V19H5V21H7V19H9V21H11V19H13V21H15V19H17V21H19V19H21V21H23V9H21V11H19V9H17V11H15V9H13V11H11V9H9M3 13H5V17H3V13M7 13H9V17H7V13M11 13H13V17H11V13M15 13H17V17H15V13M19 13H21V17H19V13M7 4H11V2L17 5H13V7L7 4Z" />
+          </SvgStyle>
+        </Tooltip>
+      </Popover>
     </>
   );
 };

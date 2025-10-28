@@ -78,12 +78,25 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
+  const forceDeleteMissionMutation = useMutation({
+    mutationFn: () => {
+      return client.post("/api/amr/force-delete-mission", { amrId });
+    },
+    onSuccess: () => {
+      void messageApi.success(t("utils.success"));
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
   const handleEmergencyStop = (isStop: boolean) => {
     emergencyMutation.mutate(isStop);
   };
 
   const handleDelMis = () => {
     deleteMissionMutation.mutate();
+  };
+
+  const handleForceDelMis = () => {
+    forceDeleteMissionMutation.mutate();
   };
 
   return (
@@ -104,6 +117,14 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
           onClick={() => handleDelMis()}
         >
           {t("amr_card.delete_current_mission")}
+        </StyledButton>
+        <StyledButton
+          type="default"
+          variant="outlined"
+          danger
+          onClick={() => handleForceDelMis()}
+        >
+          {t("amr_card.force_delete_mission")}
         </StyledButton>
         <MaintenancePanel amrId={amrId} />
 

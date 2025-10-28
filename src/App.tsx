@@ -1,6 +1,4 @@
-
-
-import MonitorCenter from './pages/SWMoniter/SWMoniter';
+import MonitorCenter from "./pages/SWMoniter/SWMoniter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Routes, Route, HashRouter, BrowserRouter } from "react-router-dom";
 import { Main, LogIn, Setting, Register, Simulate } from "./pages";
@@ -13,6 +11,7 @@ import { useEcsTransaction } from "./sockets/useEcsTransaction";
 import { notification } from "antd";
 import { useEffect } from "react";
 import { useEcsTransactionResp } from "./sockets/useEcsTransactionResp";
+import { useBarcodeSignal } from "./sockets/useBarcodeSignal";
 
 const client = new QueryClient({
   defaultOptions: {
@@ -26,11 +25,12 @@ type NotificationType = "success" | "info" | "warning" | "error";
 function App() {
   const esc = useEcsTransaction();
   const ecsResp = useEcsTransactionResp();
+  const bar = useBarcodeSignal();
   const [api, contextHolder] = notification.useNotification();
 
   const openNotificationWithIconEcsReq = (
     type: NotificationType,
-    msg: string,
+    msg: string
   ) => {
     api[type]({
       message: "ECS Requests",
@@ -40,12 +40,22 @@ function App() {
 
   const openNotificationWithIconResp = (
     type: NotificationType,
-    msg: string,
+    msg: string
   ) => {
     api[type]({
       showProgress: true,
       pauseOnHover: true,
       message: "ECS Response",
+      description: msg,
+    });
+  };
+
+  const openNotificationWithIconBarcodeReq = (
+    type: NotificationType,
+    msg: string
+  ) => {
+    api[type]({
+      message: "BARCODE READ",
       description: msg,
     });
   };
@@ -62,6 +72,12 @@ function App() {
     }
   }, [esc]);
 
+  useEffect(() => {
+    if (bar !== "") {
+      openNotificationWithIconBarcodeReq("info", `${bar}`);
+    }
+  }, [bar]);
+
   // const ipcHandle = (): void => window.electron.ipc.send('ping')
   return (
     <QueryClientProvider client={client}>
@@ -74,9 +90,12 @@ function App() {
           <Route path="/simulate" element={<Simulate />}></Route>
           <Route path="/mission-analysis" element={<MissionAnalysis />}></Route>
           <Route path="/cargo-history" element={<CargoHistory />}></Route>
-          <Route path="/simulate-result" element={<AllSimulateResult />}></Route>
+          <Route
+            path="/simulate-result"
+            element={<AllSimulateResult />}
+          ></Route>
           <Route path="/" element={<Main />}></Route>
-          <Route path='/test' element={<MonitorCenter></MonitorCenter>}></Route>
+          <Route path="/test" element={<MonitorCenter></MonitorCenter>}></Route>
           <Route path="/amr" element={<AmrList />} />
           <Route path="/amr/:amrId" element={<AmrDetail />} />
           <Route path="*" element={<h1>Not Found</h1>} />

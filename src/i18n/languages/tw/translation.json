@@ -134,6 +134,7 @@
 
   "amr_card": {
     "delete_current_mission": "刪除任務",
+    "force_delete_mission": "強制刪除任務",
     "emergency_stop": "啟動急停",
     "continue_move": "解除急停",
     "update_cargo": "編輯攜帶貨物資訊",

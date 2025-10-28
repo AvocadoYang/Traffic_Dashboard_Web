@@ -9,26 +9,50 @@ import { FC } from "react";
 import styled from "styled-components";
 import { Button } from "antd";
 
-// Styled component for the info block, initially hidden
 const InfoBlock = styled.div`
-  /* Position the info block absolutely */
   position: absolute;
-  /* Make sure it's above other elements */
-  z-index: 100;
-  top: -5px; /* Adjust as needed */
-  left: 125px;
+  z-index: 200;
+  top: -70px;
+  left: 50%;
   transform: translateX(-50%);
-  width: auto;
-  padding: 8px;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  display: none; /* Initially hide the info block */
-  pointer-events: none; /* Do not block mouse events */
+  min-width: 120px;
+  padding: 8px 12px;
+  background-color: rgba(255, 255, 255, 0.98);
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  box-shadow:
+    0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 6px 16px 0 rgba(0, 0, 0, 0.08),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  display: none;
+  pointer-events: none;
+  font-size: 12px;
+  color: #595959;
+
+  &::before {
+    content: "";
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 10px;
+    height: 10px;
+    background-color: white;
+    border-right: 1px solid #e8e8e8;
+    border-bottom: 1px solid #e8e8e8;
+  }
+
+  .label {
+    color: #8c8c8c;
+    margin-right: 8px;
+  }
+
+  .value {
+    font-weight: 500;
+    color: #262626;
+  }
 `;
 
-// Styled component for the main block, now with a new hover behavior
 const Block = styled(Button)<{
   $hasCargo: boolean;
   $isDisable: boolean;
@@ -80,7 +104,6 @@ const Block = styled(Button)<{
       `
       : ""}
 
-  /* Show the InfoBlock when hovering over the Block */
   &:hover + ${InfoBlock} {
     display: block;
   }
@@ -120,9 +143,8 @@ const BlockSpan = styled.span<{ rotate: number; $hasCargo: boolean }>`
   text-align: center;
 `;
 
-// A container to hold both Block and InfoBlock
 const BlockContainer = styled.div`
-  position: relative; /* This is crucial for positioning the InfoBlock */
+  position: relative;
   display: inline-block;
 `;
 
@@ -138,7 +160,7 @@ interface CargoDisplayProps {
   handleMouseDown: (
     e: React.MouseEvent<HTMLElement>,
     locId: string,
-    level: number,
+    level: number
   ) => void;
 }
 
@@ -155,7 +177,7 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
 }) => {
   const [selectMode, setQuickSettingMode] = useAtom(QuickMissionSettingMode);
   const [isStartSelecting, setStartQuickSetting] = useAtom(
-    StartQuickMissionSetting,
+    StartQuickMissionSetting
   );
   const setLoad = useSetAtom(QuickMissionLoad);
   const setOffload = useSetAtom(QuickMissionOffload);
@@ -208,8 +230,14 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
         </BlockSpan>
       </Block>
       <InfoBlock>
-        {/* You can add dynamic content here based on props */}
-        Booker:{booker}
+        <div>
+          <span className="label">Booker:</span>
+          <span className="value">{booker || "None"}</span>
+        </div>
+        <div>
+          <span className="label">Disable:</span>
+          <span className="value">{isDisable ? "yes" : "none"}</span>
+        </div>
       </InfoBlock>
     </BlockContainer>
   );

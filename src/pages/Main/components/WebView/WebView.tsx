@@ -1,5 +1,5 @@
-import { ConfigProvider, Splitter } from "antd";
-import { memo, useRef } from "react";
+import { Button, ConfigProvider, Popover, Splitter, Tooltip } from "antd";
+import { memo, useRef, useState } from "react";
 import { Layout } from "antd";
 import "./webview.css";
 import ZoomPad from "./components/ZoomPad";
@@ -11,6 +11,8 @@ import { darkMode } from "@/utils/gloable";
 import MissionWrap from "../../Mission_Card/MissionWrap";
 import MissionBtn from "./components/MissionBtn";
 import CorningTest from "./components/CorningTest";
+import ElevatorIO from "./components/ElevatorIO";
+import TestBarcode from "./components/TestBarcode";
 
 const { Content } = Layout;
 const WebView = () => {
@@ -53,6 +55,8 @@ const WebView = () => {
             <ScalePad></ScalePad>
             <MissionBtn></MissionBtn>
             <CorningTest></CorningTest>
+            <ElevatorIO />
+            <TestBarcode />
           </Splitter.Panel>
           <Splitter.Panel
             defaultSize="20%"

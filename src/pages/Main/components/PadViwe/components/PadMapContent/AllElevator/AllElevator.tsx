@@ -86,6 +86,7 @@ const AllElevator: FC = () => {
           const isDisable = eleSocket[loc.locationId]?.disable;
           const isBook = eleSocket[loc.locationId]?.booker;
           const isManual = eleSocket[loc.locationId].isManualMode;
+          const isRunning = eleSocket[loc.locationId].isRunning;
           return (
             <div
               draggable={false}
@@ -115,6 +116,7 @@ const AllElevator: FC = () => {
                     isBook={isBook}
                     customName={customName}
                     isManual={isManual}
+                    isRunning={isRunning}
                   />
                 </ContainerElevator>
               </WrapperStation>

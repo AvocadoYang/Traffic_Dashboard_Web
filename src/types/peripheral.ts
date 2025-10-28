@@ -78,6 +78,7 @@ export type Elevator_Info = {
   occupier: string | null;
   isManualMode: boolean;
   hasCargoSignal: boolean;
+  isRunning: boolean;
   status: PeripheralMachineStatus;
   name: string;
   description: string;

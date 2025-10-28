@@ -7,6 +7,7 @@ const schema = object({
   description: string().nullable(),
   disable: boolean(),
   isManualMode: boolean(),
+  isRunning: boolean(),
   hasCargoSignal: boolean(),
   locationId: string().required(), // locationId is required
   forkHeight: number(),
@@ -23,7 +24,7 @@ const schema = object({
 
 const getData = async (locationId: string) => {
   const { data } = await client.get<unknown>(
-    `api/setting/elevator-info?locationId=${locationId}`,
+    `api/setting/elevator-info?locationId=${locationId}`
   );
   const result = await schema.validate(data, { stripUnknown: true });
   return result;

@@ -43,6 +43,7 @@ const CorningTest: FC = () => {
   const script = useMockInfo();
   const { t } = useTranslation();
   const [messageApi, contextHolders] = message.useMessage();
+
   const [container, setContainer] = useState<Corning_Cargo>({
     container_id: "TC123456",
     container_gen: "",
@@ -205,7 +206,8 @@ const CorningTest: FC = () => {
             title="Fail elevator barcode reader, fail fork read container"
           >
             <Button onClick={() => handleElevator("4")}>Scenario 4</Button>
-          </Tooltip> */}
+          </Tooltip>
+           */}
 
           <Button onClick={() => handleLiftSignal("all-empty")}>
             Lift Signal All empty

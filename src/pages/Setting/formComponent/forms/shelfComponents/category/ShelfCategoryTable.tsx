@@ -4,10 +4,12 @@ import useShelfCategory, {
   ShelfCategoryWithoutList,
 } from "@/api/useShelfCategory";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Table, Popconfirm, Button, Flex } from "antd";
+import { Table, Popconfirm, Button, Flex, message } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { FC } from "react";
 import { useTranslation } from "react-i18next";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
 
 const ShelfCategoryTable: FC<{
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -16,6 +18,7 @@ const ShelfCategoryTable: FC<{
   const queryClient = useQueryClient();
   const { data, isLoading } = useShelfCategory();
   const { t } = useTranslation();
+  const [messageApi, contextHolders] = message.useMessage();
 
   const addMutation = useMutation({
     mutationFn: () => {
@@ -43,6 +46,7 @@ const ShelfCategoryTable: FC<{
         queryKey: ["all-shelf-category"],
       });
     },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const addHandler = () => [addMutation.mutate()];
@@ -85,7 +89,7 @@ const ShelfCategoryTable: FC<{
       key: "height",
       render: (_v, recorder) => {
         const sortedHeight = recorder.Height?.sort(
-          (a, b) => a.height - b.height,
+          (a, b) => a.height - b.height
         );
 
         return sortedHeight?.map((k) => <p key={k.id}>{k.height}</p>);
@@ -128,6 +132,7 @@ const ShelfCategoryTable: FC<{
   if (isLoading) return [];
   return (
     <>
+      {contextHolders}
       <Button
         icon={<PlusOutlined />}
         color="primary"
