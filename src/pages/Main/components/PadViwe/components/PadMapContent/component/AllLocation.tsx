@@ -5,11 +5,12 @@ import { nanoid } from "nanoid";
 import { Point } from "@/pages/Setting/mapComponents/components/AllLocation/components/PointAndLine";
 import { useSetAtom } from "jotai";
 import { tooltipProp } from "@/utils/gloable";
+import { OpenDirect } from "@/pages/Main/global/jotai";
 
 const AllLocation = () => {
   const { data } = useMap();
   const setTooltip = useSetAtom(tooltipProp);
-
+  const setOpen = useSetAtom(OpenDirect);
   const handleEnter = useCallback(
     (locationId: string, x: number, y: number) => {
       setTooltip({
@@ -24,6 +25,10 @@ const AllLocation = () => {
   const handleLeave = useCallback(() => {
     setTooltip(null);
   }, []);
+
+  const handleDireMove = (locationId: string) => {
+    setOpen({ open: true, locationId });
+  };
 
   if (!data) return;
 
@@ -47,6 +52,7 @@ const AllLocation = () => {
             <Point
               id={loc.locationId.toString()}
               canrotate={`${loc.canRotate}`}
+              onClick={() => handleDireMove(loc.locationId.toString())}
               onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
               onMouseLeave={() => handleLeave()}
               left={displayX}

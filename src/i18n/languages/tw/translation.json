@@ -8,6 +8,7 @@
     "detail": "詳情",
     "search": "搜尋",
     "reset": "重設",
+    "back": "回表單",
     "random": "不指定",
     "working": "運行中",
     "stopping": "未運行",
@@ -1264,7 +1265,8 @@
       "duration": "模擬時長",
       "station_mission": "啟動各站點任務",
       "remainTime": "模擬剩餘時間",
-      "current_time": "目前模擬時間"
+      "current_time": "目前模擬時間",
+      "start_mock_info": "無法啟動模擬？ 先在模擬頁面設定車輛資料於地圖."
     },
 
     "results": {
@@ -1457,5 +1459,9 @@
     "edit_cargo_detail": "編輯貨物資訊",
     "fork_height_desc": "取放貨時枒杈高度",
     "other_config": "其他"
+  },
+
+  "dialog": {
+    "direct": "直接移動到點"
   }
 }

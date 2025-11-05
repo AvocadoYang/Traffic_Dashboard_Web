@@ -14,6 +14,7 @@ import CorningTest from "./components/CorningTest";
 import ElevatorIO from "./components/ElevatorIO";
 import TestBarcode from "./components/TestBarcode";
 import ECS_online from "./components/ECS_online";
+import DirectMove from "../missionModal/DirectMove";
 
 const { Content } = Layout;
 const WebView = () => {
@@ -56,6 +57,7 @@ const WebView = () => {
             <ScalePad></ScalePad>
             <MissionBtn></MissionBtn>
             <CorningTest></CorningTest>
+            <DirectMove></DirectMove>
             <ElevatorIO />
             <ECS_online />
             <TestBarcode />

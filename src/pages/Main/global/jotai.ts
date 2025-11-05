@@ -38,3 +38,8 @@ export const StartQuickMissionSetting = atom<boolean>(false);
 export const QuickMissionSettingMode = atom<"load" | "offload" | null>(null);
 
 export const OpenChargeStationModal = atom<string | null>(null);
+
+export const OpenDirect = atom<{ open: boolean; locationId: string | null }>({
+  open: false,
+  locationId: null,
+});

@@ -81,7 +81,7 @@ const SettingStyleForm: FC = () => {
     mutationFn: (payload: SubmitValue) => {
       return client.post(
         "api/peripherals/edit-peripheral-station-style",
-        payload,
+        payload
       );
     },
     onSuccess: async () => {
@@ -230,7 +230,7 @@ const SettingStyleForm: FC = () => {
                 variant="filled"
                 onClick={() => setIsEditStation(false)}
               >
-                {t("utils.cancel")}
+                {t("utils.back")}
               </Button>
               <Button
                 color="primary"

@@ -11,6 +11,7 @@ import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { ReloadOutlined } from "@ant-design/icons";
 import styled from "styled-components";
+import MissionTableSelect from "./MissionTableSelect";
 
 enum MissionPriority {
   TRIVIAL, //沒差最後再做
@@ -114,33 +115,6 @@ const DialogMission = () => {
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
-  const misOptions = useMemo(() => {
-    if (!data) return [];
-    return data
-      ?.filter((g) =>
-        g.MissionTitleBridgeCategory.some(
-          (s) => s.Category?.tagName === "normal-mission"
-        )
-      )
-      .map((v) => ({
-        value: v.id,
-        label: (
-          <MissionOption>
-            <span>{v.name}</span>
-            <div className="tags">
-              {v.MissionTitleBridgeCategory.filter(
-                (f) => f.Category?.tagName !== "normal-mission"
-              ).map((m) => (
-                <Tag key={m.Category?.id} color={m.Category?.color}>
-                  {m.Category?.tagName}
-                </Tag>
-              ))}
-            </div>
-          </MissionOption>
-        ),
-      }));
-  }, [data]);
-
   const submit = () => {
     if (!data) return;
     const payload = missionForm.getFieldsValue() as MissionFrom;
@@ -236,11 +210,17 @@ const DialogMission = () => {
         </Form.Item>
 
         <Form.Item label={`${t("toolbar.mission.mission")}`} name="titleId">
-          <LongSelect
-            options={misOptions}
-            placeholder="Select a mission"
-            size="large"
-            dropdownMatchSelectWidth={false} // allows dropdown to be wider than input
+          <MissionTableSelect
+            data={data?.filter((g) =>
+              g.MissionTitleBridgeCategory.some(
+                (s) => s.Category?.tagName === "normal-mission"
+              )
+            )}
+            onSelect={(record) => {
+              missionForm.setFieldValue("titleId", record.id);
+              void messageApi.success(`Selected mission: ${record.name}`);
+            }}
+            placeholder="Click to choose mission"
           />
         </Form.Item>
 

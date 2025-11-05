@@ -1,9 +1,9 @@
 import { SingleChargeStation } from "@/api/useAllCharge";
 import FormHr from "@/pages/Setting/utils/FormHr";
 import { PeripheralEditData, IsEditPeripheralStyle } from "@/utils/gloable";
-import { Button, Drawer, Flex, Select, Table } from "antd";
+import { Button, Drawer, Flex, Select, Table, Input } from "antd";
 import { useAtom, useSetAtom } from "jotai";
-import { FC, useState } from "react";
+import { FC, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import SettingStyleForm from "./SettingStyleForm";
 import {
@@ -40,6 +40,7 @@ const EditPeripheralIcon: FC<{
   const [isEditStation, setIsEditStation] = useAtom(IsEditPeripheralStyle);
   const [filterType, setFilterType] = useState<string | null>(null);
   const { data, refetch } = usePeripheralStyle(filterType);
+  const [searchText, setSearchText] = useState("");
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [openDrawer, setOpenDrawer] = useState(false);
   const uniqueAreaTypes = Array.from(
@@ -73,6 +74,24 @@ const EditPeripheralIcon: FC<{
   };
 
   const columns = [
+    {
+      title: t("other.edit_charge_station_icon_style.edit_position"),
+      dataIndex: "operation",
+      key: "operation",
+
+      render: (_v: unknown, record: SingleChargeStation) => {
+        return (
+          <Button
+            icon={<FormatPainterOutlined />}
+            onClick={() => handleEdit(record.locationId)}
+            color="primary"
+            variant="filled"
+          >
+            {t("other.edit_charge_station_icon_style.edit_position")}
+          </Button>
+        );
+      },
+    },
     {
       title: t("other.edit_mission_tag.location"),
       dataIndex: "locationId",
@@ -123,24 +142,6 @@ const EditPeripheralIcon: FC<{
       dataIndex: "scale",
       key: "scale",
     },
-    {
-      title: t("other.edit_charge_station_icon_style.edit_position"),
-      dataIndex: "operation",
-      key: "operation",
-
-      render: (_v: unknown, record: SingleChargeStation) => {
-        return (
-          <Button
-            icon={<FormatPainterOutlined />}
-            onClick={() => handleEdit(record.locationId)}
-            color="primary"
-            variant="filled"
-          >
-            {t("other.edit_charge_station_icon_style.edit_position")}
-          </Button>
-        );
-      },
-    },
   ];
 
   const onclose = () => {
@@ -161,6 +162,17 @@ const EditPeripheralIcon: FC<{
     onChange: onSelectChange,
   };
 
+  const filteredData = useMemo(() => {
+    if (!data) return [];
+    const q = searchText.trim().toLowerCase();
+    if (!q) return data;
+    return data.filter((item) => {
+      const loc = String(item?.locationId ?? "").toLowerCase();
+      const name = String(item?.name ?? "").toLowerCase();
+      return loc.includes(q) || name.includes(q);
+    });
+  }, [data, searchText]);
+
   return (
     <div>
       <h3 className="drop_button_style" {...listeners} {...attributes}>
@@ -177,6 +189,14 @@ const EditPeripheralIcon: FC<{
         {/* Table */}
         <Panel width={isEditStation ? "0%" : "100%"} hidden={isEditStation}>
           <Flex gap="middle">
+            <Input.Search
+              placeholder={"Search locationId or name"}
+              allowClear
+              style={{ width: 280 }}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              onSearch={(val) => setSearchText(val)}
+            />
             <Button
               disabled={selectedRowKeys.length === 0}
               onClick={handleEditMulti}
@@ -202,7 +222,7 @@ const EditPeripheralIcon: FC<{
 
           <Table
             rowSelection={rowSelection}
-            dataSource={data as SingleChargeStation[]}
+            dataSource={filteredData as SingleChargeStation[]}
             columns={columns as []}
             rowKey={(record: SingleChargeStation) => record.locationId}
           />

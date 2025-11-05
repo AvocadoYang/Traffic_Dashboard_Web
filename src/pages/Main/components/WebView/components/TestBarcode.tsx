@@ -29,7 +29,7 @@ const TestBarcode: React.FC = () => {
 
   const barcodeMutation = useMutation({
     mutationFn: () => {
-      return client.post("api/peripherals/barcode");
+      return client.post("api/corning/barcode");
     },
     onSuccess: () => {
       void messageApi.success("success");

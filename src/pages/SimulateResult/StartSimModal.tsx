@@ -34,7 +34,7 @@ const StartSimModal: FC<{
   handleSim: (
     timeRange: [dayjs.Dayjs, dayjs.Dayjs],
     activeStationTask: boolean,
-    runningScale: number,
+    runningScale: number
   ) => void;
   canSim: boolean;
 }> = ({ isSimulateOpen, setIsSimulateOpen, handleSim, canSim }) => {
@@ -50,7 +50,7 @@ const StartSimModal: FC<{
   const [scale, setScale] = useState(10);
   const durationMinutes = Math.max(
     0,
-    dayjs(timeRange[1]).diff(dayjs(timeRange[0]), "minute"),
+    dayjs(timeRange[1]).diff(dayjs(timeRange[0]), "minute")
   );
   const simMinutes = durationMinutes / (scale || 1);
   return (
@@ -96,7 +96,7 @@ const StartSimModal: FC<{
           <List
             size="small"
             dataSource={script.robot.filter(
-              (r) => r.script_placement_location !== "unset",
+              (r) => r.script_placement_location !== "unset"
             )}
             renderItem={(robot) => (
               <List.Item style={{ padding: "8px 0", borderBottom: "none" }}>
@@ -185,20 +185,23 @@ const StartSimModal: FC<{
       <Divider style={{ margin: "16px 0" }} />
 
       <Space style={{ display: "flex", justifyContent: "center" }}>
-        <Button
-          disabled={!canSim}
-          type="primary"
-          icon={<CheckCircleOutlined />}
-          onClick={() => handleSim(timeRange, isActiveStation, scale)}
-          style={{
-            background: canSim ? "#1d39c4" : "#fff",
-            borderColor: "#1d39c4",
-            borderRadius: "4px",
-            padding: "0 24px",
-          }}
-        >
-          {t("sim.start_sim_modal.active")}
-        </Button>
+        <Tooltip title={t("sim.start_sim_modal.start_mock_info")}>
+          <Button
+            disabled={!canSim}
+            type="primary"
+            icon={<CheckCircleOutlined />}
+            onClick={() => handleSim(timeRange, isActiveStation, scale)}
+            style={{
+              background: canSim ? "#1d39c4" : "#fff",
+              borderColor: "#1d39c4",
+              borderRadius: "4px",
+              padding: "0 24px",
+            }}
+          >
+            {t("sim.start_sim_modal.active")}
+          </Button>
+        </Tooltip>
+
         <Button
           icon={<CloseCircleOutlined />}
           onClick={() => setIsSimulateOpen(false)}

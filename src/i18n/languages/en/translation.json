@@ -7,6 +7,7 @@
     "location": "Location",
     "search": "search",
     "reset": "reset",
+    "back": "Return to form",
     "close": "Close",
     "count": "Count",
     "random": "random",
@@ -1262,7 +1263,8 @@
       "duration": "Simulation duration",
       "station_mission": "Active each station task",
       "remainTime": "Simulation remaining time",
-      "current_time": "Current Time"
+      "current_time": "Current Time",
+      "start_mock_info": "Unable to start the simulation? First, set the vehicle information on the map in the simulation page."
     },
 
     "results": {
@@ -1452,5 +1454,8 @@
     "edit_cargo_detail": "Edit cargo detail",
     "fork_height_desc": "Fork height when load or offload",
     "other_config": "Other"
+  },
+  "dialog": {
+    "direct": "Direct move to location"
   }
 }

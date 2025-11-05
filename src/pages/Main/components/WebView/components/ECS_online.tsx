@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Tooltip, Tag } from "antd"; // Import Tag and Tooltip
 // import { useElevatorSignal } from "@/sockets/useElevatorSignal"; // Assuming this hook provides the status
 import styled from "styled-components";
+import useEcsAlive from "@/sockets/useEcsOnline";
 
 // --- Styled Component ---
 // Modified to remove conflicting inline styles and focus on the container
@@ -21,23 +22,11 @@ const MissionBtnWrap = styled.div`
 
 // --- Component ---
 const ECS_online: React.FC = () => {
-  // 1. State for the third-party service status
-  const [isOnline, setIsOnline] = useState<boolean>(false);
-
-  useEffect(() => {
-    const checkStatus = () => {
-      setTimeout(() => {
-        const statusFromSignal = Math.random() > 0.5;
-        setIsOnline(statusFromSignal);
-      }, 500);
-    };
-
-    checkStatus();
-  }, []);
+  const isAlive = useEcsAlive();
 
   // Determine the display properties
-  const statusColor = isOnline ? "success" : "error";
-  const statusText = isOnline ? "Online" : "Offline";
+  const statusColor = isAlive ? "success" : "error";
+  const statusText = isAlive ? "Online" : "Offline";
   const tooltipTitle = `Third-Party Status: ${statusText}`;
 
   return (
