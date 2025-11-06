@@ -10,6 +10,9 @@ import {
   ConfigProvider,
   Button,
   Flex,
+  Tooltip,
+  Tag,
+  Popover,
 } from "antd";
 import { memo, useEffect, useState } from "react";
 import "../mission_info.css";
@@ -22,6 +25,9 @@ import client from "@/api/axiosClient";
 import { useMutation } from "@tanstack/react-query";
 import useName from "@/api/useAmrName";
 import MissionHistory from "./MissionHistory";
+import { useRejectMission } from "@/sockets/useRejectMission";
+import { QuestionCircleFilled } from "@ant-design/icons";
+import MissionRejectReasonInfo from "./MissionRejectReasonInfo";
 
 const MISSION_SORT = [
   "executing",
@@ -85,6 +91,7 @@ const MissionTable = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 767);
   const [, setWindowHeight] = useState(window.innerHeight);
   const [isOpenMissionHistory, setIsOpenMissionHistory] = useState(false);
+  const rejectMission = useRejectMission();
 
   const openHistory = () => {
     setIsOpenMissionHistory(true);
@@ -109,6 +116,33 @@ const MissionTable = () => {
   }, []);
 
   const columns: TableColumnsType<MissionInfo> = [
+    {
+      title: t("mission_history.mission_id"),
+      dataIndex: "missionId",
+      key: "missionId",
+      sorter: (a, b) => a.id.localeCompare(b.id),
+      width: 150,
+      render: (missionId: string) => {
+        const info = rejectMission?.[missionId];
+        if (!info) return missionId;
+
+        const tooltipContent = (
+          <div style={{ maxWidth: 260 }}>
+            {info.map((entry, idx) => (
+              <div key={idx}>
+                <strong>{entry.amrId}</strong>: {entry.reason}
+              </div>
+            ))}
+          </div>
+        );
+
+        return (
+          <Tooltip title={tooltipContent} color="blue" placement="right">
+            <Tag color="blue">{missionId}</Tag>
+          </Tooltip>
+        );
+      },
+    },
     {
       title: "AMR",
       dataIndex: "amrId",
@@ -198,7 +232,7 @@ const MissionTable = () => {
         },
         {
           headers: { authorization: `Bearer ${localStorage.getItem("_KMT")}` },
-        },
+        }
       );
     },
     onSuccess: () => {
@@ -316,7 +350,7 @@ const MissionTable = () => {
                   ? Math.round(
                       (m.completedAt.getTime() -
                         (m.startedAt?.getTime() || 0)) /
-                        6000,
+                        6000
                     ) / 10
                   : "",
             })) as []

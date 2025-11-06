@@ -100,7 +100,7 @@ const LayerForm: FC<{
             //  console.log(levelValue.cargo, 'level value');
             return (
               <div
-                key={nanoid()}
+                key={levelStr}
                 style={{
                   marginBottom: "24px",
                   padding: "16px",

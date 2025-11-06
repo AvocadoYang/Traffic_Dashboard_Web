@@ -1,8 +1,10 @@
 import { memo } from "react";
 // import { DownOutlined, UpOutlined } from '@ant-design/icons';
-import { SelectProps } from "antd";
+import { Button, Flex, Popover, SelectProps, Tooltip } from "antd";
 import { useAtomValue } from "jotai";
 import { darkMode } from "@/utils/gloable";
+import { QuestionCircleFilled } from "@ant-design/icons";
+import MissionRejectReasonInfo from "./components/MissionRejectReasonInfo";
 
 const options: SelectProps["options"] = [];
 
@@ -18,14 +20,16 @@ const TitleTools = () => {
   // const [isDrop, setIsDrop] = useState(false);
   return (
     <>
-      <span className={`card-wrap-title ${isDark ? "dark-mode-title" : ""}`}>
-        Missions
-        {/* {isDrop ? (
-          <UpOutlined className="drop-icon" onClick={() => setIsDrop(false)} />
-        ) : (
-          <DownOutlined className="drop-icon" onClick={() => setIsDrop(true)} />
-        )} */}
-      </span>
+      <Flex gap="middle">
+        <span className={`card-wrap-title ${isDark ? "dark-mode-title" : ""}`}>
+          Missions
+        </span>
+        <Popover content={<MissionRejectReasonInfo />} trigger="click">
+          <Tooltip title="Why Rejected?">
+            <QuestionCircleFilled />
+          </Tooltip>
+        </Popover>
+      </Flex>
     </>
   );
 };

@@ -4,3 +4,10 @@ export enum MissionPriority {
   PIVOTAL, //特別優先
   CRITICAL, // 緊急
 }
+
+export type Reject_Mission = {
+  [missionId: string]: {
+    amrId: string;
+    reason: string;
+  }[];
+};

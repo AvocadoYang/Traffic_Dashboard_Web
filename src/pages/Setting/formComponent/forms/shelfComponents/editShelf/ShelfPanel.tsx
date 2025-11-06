@@ -1,4 +1,4 @@
-import { Button, Flex } from "antd";
+import { Alert, Button, Flex } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import ShelfTable from "./ShelfTable";
@@ -25,7 +25,7 @@ const ShelfPanel: React.FC<{
 
       <FormHr></FormHr>
 
-      <Flex vertical align="start" gap="middle">
+      <Flex align="start" gap="middle">
         <Button
           color="primary"
           variant="filled"
@@ -35,12 +35,12 @@ const ShelfPanel: React.FC<{
           {t("utils.edit")}
         </Button>
 
-        <ShelfTable
-          selectedRowKeys={selectedRowKeys}
-          setSelectedRowKeys={setSelectedRowKeys}
-        />
+        <Alert message={t("edit_shelf_panel.warn")} type="error" />
       </Flex>
-
+      <ShelfTable
+        selectedRowKeys={selectedRowKeys}
+        setSelectedRowKeys={setSelectedRowKeys}
+      />
       <ShelfDrawer
         openDrawer={openDrawer}
         setOpenDrawer={setOpenDrawer}

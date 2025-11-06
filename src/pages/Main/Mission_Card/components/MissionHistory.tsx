@@ -1,4 +1,4 @@
-import { Drawer, Table, Tag, Space, Typography, Button } from "antd";
+import { Drawer, Table, Tag, Space, Typography, Button, Tooltip } from "antd";
 import { Dispatch, FC, SetStateAction, useState } from "react";
 import { ColumnsType } from "antd/es/table";
 import moment from "moment";
@@ -13,6 +13,7 @@ import {
 import useAllMissionHistory from "@/api/useMissionHistory";
 import { useTranslation } from "react-i18next";
 import "./addonStyle.css";
+import { useRejectMission } from "@/sockets/useRejectMission";
 
 // Define the Mission interface based on your schema
 interface Mission {
@@ -57,6 +58,8 @@ const MissionHistory: FC<{
   setIsOpenMissionHistory: Dispatch<SetStateAction<boolean>>;
 }> = ({ isOpenMissionHistory, setIsOpenMissionHistory }) => {
   const { t } = useTranslation();
+  const rejectMission = useRejectMission();
+
   const [pagination, setPagination] = useState<{
     page: number;
     pageSize: number;
@@ -84,6 +87,26 @@ const MissionHistory: FC<{
       key: "id",
       sorter: (a, b) => a.id.localeCompare(b.id),
       width: 150,
+      render: (missionId: string) => {
+        const info = rejectMission?.[missionId];
+        if (!info) return missionId;
+
+        const tooltipContent = (
+          <div style={{ maxWidth: 260 }}>
+            {info.map((entry, idx) => (
+              <div key={idx}>
+                <strong>{entry.amrId}</strong>: {entry.reason}
+              </div>
+            ))}
+          </div>
+        );
+
+        return (
+          <Tooltip title={tooltipContent} color="volcano" placement="right">
+            <Tag color="volcano">{missionId}</Tag>
+          </Tooltip>
+        );
+      },
     },
     {
       title: t("mission_history.amr_id"),
@@ -240,7 +263,7 @@ const MissionHistory: FC<{
       render: (_, record) => {
         if (record.startedAt && record.completedAt) {
           const duration = moment.duration(
-            moment(record.completedAt).diff(moment(record.startedAt)),
+            moment(record.completedAt).diff(moment(record.startedAt))
           );
           const minutes = Math.floor(duration.asMinutes());
           const seconds = duration.seconds();

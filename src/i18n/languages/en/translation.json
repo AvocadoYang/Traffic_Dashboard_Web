@@ -531,7 +531,8 @@
     "shelf_config": "Individual storage location information",
     "config_tooltip": "Click on the storage location on the map to edit related parameters",
     "relationships": "Relationships",
-    "placement_priority": "Priority"
+    "placement_priority": "Priority",
+    "warn": "edit shelf category might clear exist shelf data, please ask programer to when edit"
   },
   "edit_shelf_category": {
     "edit_shelf_category": "Edit Shelf Category",
@@ -1457,5 +1458,45 @@
   },
   "dialog": {
     "direct": "Direct move to location"
+  },
+  "mission_reject_reason": {
+    "title": "Mission Assignment Rejection Reasons",
+
+    "cat1": "Priority & Queue Issues",
+    "cat1_1": "Higher priority mission exists in queue",
+    "cat1_2": "Another pending mission has an earlier order number",
+    "cat1_3": "System processes missions in priority order",
+
+    "cat2": "AGV Availability Issues",
+    "cat2_1": "No suitable AGV available",
+    "cat2_2": "No AGV found that can handle this mission",
+    "cat2_3": "All AGVs are busy or unavailable",
+    "cat2_4": "Specified AGVs are not available (offline, busy, or unregistered)",
+
+    "cat3": "AGV Maintenance Issues",
+    "cat3_1": "AGV maintenance level blocks this mission type",
+    "cat3_2": "None of the specified AGVs pass maintenance check",
+
+    "cat4": "Path & Navigation Issues",
+    "cat4_1": "Path verification failed",
+    "cat4_2": "Path contains invalid or non-existent location(s)",
+    "cat4_3": "Travel time estimation failed",
+    "cat4_4": "No valid path between start and destination",
+    "cat4_5": "AGV path is blocked by cargo or bookings",
+
+    "cat5": "AGV State Issues",
+    "cat5_1": "AGV status or payload is unavailable",
+    "cat5_2": "AGV is in manual mode",
+    "cat5_3": "AGV is not registered",
+    "cat5_4": "AGV is already executing another mission",
+
+    "cat6": "Mission State Issues",
+    "cat6_1": "Mission has already been completed",
+    "cat6_2": "Mission has already been assigned",
+    "cat6_3": "AGV at charging station requires exit clearance",
+
+    "cat7": "Mission Compatibility Issues",
+    "cat7_1": "AGV has cargo and cannot proceed to charging station",
+    "cat7_2": "Mission requires a different AGV"
   }
 }

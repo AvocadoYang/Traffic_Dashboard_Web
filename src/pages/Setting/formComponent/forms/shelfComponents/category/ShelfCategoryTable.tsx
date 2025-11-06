@@ -4,7 +4,7 @@ import useShelfCategory, {
   ShelfCategoryWithoutList,
 } from "@/api/useShelfCategory";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Table, Popconfirm, Button, Flex, message } from "antd";
+import { Table, Popconfirm, Button, Flex, message, Alert } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { FC } from "react";
 import { useTranslation } from "react-i18next";
@@ -143,6 +143,9 @@ const ShelfCategoryTable: FC<{
       >
         {t("edit_shelf_category.add_shelf")}
       </Button>
+
+      <Alert message={t("edit_shelf_panel.warn")} type="error" />
+
       <Table
         dataSource={data as ShelfCategoryWithoutList[]}
         columns={columns}
