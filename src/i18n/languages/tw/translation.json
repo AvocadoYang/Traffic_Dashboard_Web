@@ -53,6 +53,7 @@
     "floor": "層",
     "overdue": "逾時",
     "action": "操作",
+    "reload": "重新整理",
     "location_property": {
       "none": "點位",
       "charge_station": "充電站",

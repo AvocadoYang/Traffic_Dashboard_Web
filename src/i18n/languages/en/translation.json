@@ -53,6 +53,7 @@
     "floor": "floor",
     "overdue": "overdue",
     "action": "Action",
+    "reload": "Reload",
     "location_property": {
       "none": "Normal",
       "charge_station": "Charge Station",

@@ -1,42 +1,21 @@
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  Button,
-  Flex,
-  Form,
-  Input,
-  InputNumber,
-  Popconfirm,
-  Select,
-  Skeleton,
-  Table,
-  Tag,
-  Typography,
-  message,
-} from "antd";
-import type { ColumnsType, TableProps } from "antd/es/table";
+import { Button, Flex, Popconfirm, Skeleton, Table, Tag, message } from "antd";
 import { useTranslation } from "react-i18next";
-import usePeripheralName from "@/api/usePeripheralName";
 import usePeripheralGroup, {
   PeripheralGroupName,
 } from "@/api/usePeripheralGroup";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import styled from "styled-components";
 import AddModal from "./AddModal";
 import { prefixLevelName } from "@/utils/globalFunction";
-import {
-  DeleteOutlined,
-  EditOutlined,
-  EditTwoTone,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, EditTwoTone, PlusOutlined } from "@ant-design/icons";
 
 const PeripheralGroupTable: React.FC = () => {
   const { t } = useTranslation();
 
-  const { data: groups } = usePeripheralGroup();
+  const { data: groups, refetch } = usePeripheralGroup();
   const queryClient = useQueryClient();
   const [messageApi, contextHolder] = message.useMessage();
   const [isOpenModal, setIsOpenModal] = useState(false);
@@ -145,10 +124,12 @@ const PeripheralGroupTable: React.FC = () => {
   return (
     <>
       {contextHolder}
-      <Flex>
+      <Flex gap="middle">
         <Button icon={<PlusOutlined />} onClick={handleOpenAddModal}>
           {t("utils.add")}
         </Button>
+
+        <Button onClick={() => refetch()}>{t("utils.reload")}</Button>
       </Flex>
 
       <Table<PeripheralGroupName>
