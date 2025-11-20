@@ -123,7 +123,7 @@ const ImportMissionForm: FC<{
             label="任務"
             name="importTaskId"
           >
-            <Select options={options} />
+            <Select showSearch optionFilterProp="label" options={options} />
           </Form.Item>
         </Form>
       </Modal>

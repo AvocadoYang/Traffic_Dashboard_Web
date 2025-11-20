@@ -12,15 +12,42 @@ export const actonList = [
 ] as const;
 
 export const controlList = {
-  move: ["F", "H", "B", "W"],
-  load: ["H", "C", "B", "tilt", "clamp"],
-  offload: ["H", "B", "tilt", "clamp"],
+  move: ["F", "fork_height", "B", "W"],
+  load: [
+    "C",
+    "B",
+    "tilt", //
+    "clamp", //
+    "fork_height", //
+    "blind_fork", //
+    "pallet_detection", //
+    "baffle", //
+    "shelf_detection",
+  ],
+  offload: [
+    "B",
+    "tilt",
+    "clamp",
+    "blind_fork",
+    "fork_height",
+    "pallet_detection",
+    "baffle",
+    "shelf_detection",
+  ],
   spin: ["S"],
-  fork: ["H", "tilt", "clamp"],
-  charge: ["H"],
-  cargo_limit: ["H"],
-  load_from_other: ["F", "H", "S", "B", "W"],
-  offload_from_other: ["F", "H", "S", "B", "W"],
+  fork: [
+    "tilt",
+    "clamp",
+    "fork_height",
+    "blind_fork",
+    "pallet_detection",
+    "baffle",
+    "shelf_detection",
+  ],
+  charge: ["fork_height"],
+  cargo_limit: ["fork_height"],
+  load_from_other: ["F", "fork_height", "B", "W"],
+  offload_from_other: ["F", "fork_height", "B", "W"],
   verity_cargo: ["C"],
 } as const;
 

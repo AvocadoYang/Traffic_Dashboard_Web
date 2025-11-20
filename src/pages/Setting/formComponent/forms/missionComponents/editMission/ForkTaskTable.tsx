@@ -178,9 +178,27 @@ const ForkTaskTable: FC<{
     setImportConfig({ key: selectedMissionKey, order: order + 1 });
   };
 
+  const NineByNineGrid: React.FC<{ children: React.ReactNode }> = ({
+    children,
+  }) => {
+    return (
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(9, 1fr)",
+          gridTemplateRows: "repeat(9, auto)",
+          gap: 6,
+          width: 240,
+        }}
+      >
+        {children}
+      </div>
+    );
+  };
+
   const columns: ColumnsType<Fork_mission_Slice> = [
     {
-      title: t("mission.task_table.expand"),
+      title: "",
       key: "sort",
       width: 50,
       render: () => <MenuOutlined style={{ cursor: "move" }} />,
@@ -229,25 +247,43 @@ const ForkTaskTable: FC<{
       title: "",
       key: "actions",
       width: 260,
-      render: (_, record) => (
-        <Row gutter={[8, 8]} justify="start" align="middle" wrap>
-          <Col>
-            <Popconfirm
-              title={t("utils.delete_warn")}
-              onConfirm={() => deleteTask(record.id)}
-            >
-              <Button
-                type="link"
-                danger
-                icon={<DeleteTwoTone twoToneColor="#f30303" />}
-              >
-                {t("utils.delete")}
-              </Button>
-            </Popconfirm>
-          </Col>
+      render: (_, record) => {
+        const prefix1 = {
+          operation: {
+            ...record.operation,
+          },
+        };
 
-          <Col>
-            <Space>
+        const prefix2 = {
+          ...record.io,
+        };
+        return (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gridTemplateRows: "repeat(2, auto)",
+              gap: 8,
+              width: "100%",
+            }}
+          >
+            {/* Row 1 */}
+            <div style={{ textAlign: "center" }}>
+              <Popconfirm
+                title={t("utils.delete_warn")}
+                onConfirm={() => deleteTask(record.id)}
+              >
+                <Button
+                  type="link"
+                  danger
+                  icon={<DeleteTwoTone twoToneColor="#f30303" />}
+                >
+                  {t("utils.delete")}
+                </Button>
+              </Popconfirm>
+            </div>
+
+            <div style={{ textAlign: "center" }}>
               <Button
                 type="link"
                 icon={<EditOutlined />}
@@ -255,52 +291,75 @@ const ForkTaskTable: FC<{
               >
                 {t("utils.edit")}
               </Button>
+            </div>
 
+            <div style={{ textAlign: "center" }}>
+              <Button
+                type="link"
+                icon={<ImportOutlined />}
+                onClick={() => showImportMissionModal(record.process_order)}
+              >
+                {t("mission.task_table.import_mission")}
+              </Button>
+            </div>
+
+            {/* Row 2 */}
+            <div style={{ textAlign: "center" }}>
               <Popover
                 title={
                   <ReactJsonView
                     displayDataTypes={false}
-                    value={record}
+                    value={prefix1}
                     collapsed={false}
                     enableClipboard={false}
                     style={{ fontSize: 14 }}
                   />
                 }
               >
-                <Button type="link" icon={<CodeOutlined />} />
+                <Button type="link" icon={<CodeOutlined />}>
+                  {t("mission.task_table.task_operation")}
+                </Button>
               </Popover>
-            </Space>
-          </Col>
+            </div>
 
-          <Col>
-            <Button
-              type="link"
-              icon={<ImportOutlined />}
-              onClick={() => showImportMissionModal(record.process_order)}
-            >
-              {t("mission.task_table.import_mission")}
-            </Button>
-          </Col>
-
-          <Col>
-            <Tooltip
-              title={
-                record.disable
-                  ? t("mission.task_table.in_use")
-                  : t("mission.task_table.stop_this_process")
-              }
-            >
-              <Button
-                type="link"
-                icon={
-                  record.disable ? <EyeInvisibleOutlined /> : <EyeOutlined />
+            <div style={{ textAlign: "center" }}>
+              <Popover
+                title={
+                  <ReactJsonView
+                    displayDataTypes={false}
+                    value={prefix2}
+                    collapsed={false}
+                    enableClipboard={false}
+                    style={{ fontSize: 14 }}
+                  />
                 }
-                onClick={() => disableTask(record.id, !record.disable)}
-              />
-            </Tooltip>
-          </Col>
-        </Row>
-      ),
+              >
+                <Button type="link" icon={<CodeOutlined />}>
+                  {t("mission.task_table.task_fork_movement")}
+                </Button>
+              </Popover>
+            </div>
+
+            <div style={{ textAlign: "center" }}>
+              <Tooltip
+                title={
+                  record.disable
+                    ? t("mission.task_table.in_use")
+                    : t("mission.task_table.stop_this_process")
+                }
+              >
+                <Button
+                  type="link"
+                  icon={
+                    record.disable ? <EyeInvisibleOutlined /> : <EyeOutlined />
+                  }
+                  onClick={() => disableTask(record.id, !record.disable)}
+                />
+              </Tooltip>
+            </div>
+          </div>
+        );
+      },
     },
   ];
 
@@ -320,115 +379,6 @@ const ForkTaskTable: FC<{
       : "-";
   };
 
-  const expandedRowRender = (record: Fork_mission_Slice) => (
-    <Descriptions bordered column={2} size="small">
-      {/* control */}
-      <Descriptions.Item label={t("mission.task_table.action")}>
-        {JSON.stringify(record.operation.control) || "-"}
-      </Descriptions.Item>
-
-      {/* control */}
-      <Descriptions.Item label={t("mission.task_table.location")}>
-        {JSON.stringify(record.operation.locationId) || "-"}
-      </Descriptions.Item>
-
-      {/* 等待 wait */}
-      <Descriptions.Item label={t("mission.task_table.wait")}>
-        {record.operation.wait ?? "-"}
-      </Descriptions.Item>
-
-      {/* 位置選擇模式 is define id */}
-      <Descriptions.Item label={t("mission.task_table.is_custom_location")}>
-        {getLocationModeLabel(record.operation.is_define_id)}
-      </Descriptions.Item>
-
-      <Descriptions.Item label={""}>{"-"}</Descriptions.Item>
-      <Descriptions.Item label={""}>{"-"}</Descriptions.Item>
-
-      {/* 轉角選擇	 is defined yaw*/}
-      <Descriptions.Item label={t("mission.task_table.is_custom_yaw")}>
-        {record.operation.is_define_yaw === 0
-          ? t("mission.task_table.custom")
-          : record.operation.is_define_yaw === 1
-            ? t("mission.task_table.by_target_shelf_setting")
-            : record.operation.is_define_yaw === 2
-              ? t("mission.task_table.calculate_by_agv_and_shelf_angle")
-              : "-"}
-      </Descriptions.Item>
-
-      {/* yaw 轉角值	 */}
-      <Descriptions.Item label={t("mission.task_table.yaw")}>
-        {record.operation.yaw ?? "-"}
-      </Descriptions.Item>
-
-      {/* 小車專用	 */}
-      {/* <Descriptions.Item label={t('mission.task_table.auto_preparatory_point')}>
-        {record.operation.auto_preparatory_point ? t('utils.yes') : t('utils.no')}
-      </Descriptions.Item> */}
-
-      {/* is defined height 貨架高設定	 */}
-      <Descriptions.Item label={t("mission.task_table.is_define_heigh")}>
-        {record.io.fork.is_define_height === "custom"
-          ? t("mission.task_table.custom")
-          : record.io.fork.is_define_height === "auto"
-            ? t("mission.task_table.select")
-            : record.io.fork.is_define_height === "select"
-              ? t("mission.task_table.is_selectable")
-              : "-"}
-      </Descriptions.Item>
-
-      {/* height 枒杈高	 */}
-      <Descriptions.Item label={t("mission.task_table.height")}>
-        {record.io.fork.height ?? "-"}
-      </Descriptions.Item>
-
-      {/* is defined height 貨架高設定	 */}
-      {/* <Descriptions.Item label={t('mission.task_table.has_cargo_to_process')}>
-        {record.operation.hasCargoToProcess ? t('utils.yes') : t('utils.no')}
-      </Descriptions.Item> */}
-
-      <Descriptions.Item label={""}>{"-"}</Descriptions.Item>
-      <Descriptions.Item label={""}>{"-"}</Descriptions.Item>
-
-      {/* tolerance 不知道這是啥問捷克 */}
-      <Descriptions.Item label={t("mission.task_table.tolerance")}>
-        {record.operation.tolerance || "-"}
-      </Descriptions.Item>
-
-      {/* lookahead 不知道這是啥問捷克	 */}
-      <Descriptions.Item label={t("mission.task_table.lookahead")}>
-        {record.operation.lookahead || "-"}
-      </Descriptions.Item>
-
-      {/* camera config 不知道這是啥問捷克 */}
-      <Descriptions.Item label={"camera config"}>
-        {record.io.camera.config || "-"}
-      </Descriptions.Item>
-
-      {/* camera modify_dis 不知道這是啥問捷克	 */}
-      <Descriptions.Item label={"camera modify dis"}>
-        {record.io.camera.modify_dis || "-"}
-      </Descriptions.Item>
-
-      <Descriptions.Item label={""}>{"-"}</Descriptions.Item>
-      <Descriptions.Item label={""}>{"-"}</Descriptions.Item>
-
-      {/* 等待其他車 wait other	 */}
-      <Descriptions.Item label={t("mission.task_table.amr_list")}>
-        {record.operation.waitOtherAmr || "-"}
-      </Descriptions.Item>
-
-      {/* 先等或是後等 wait genre	 */}
-      <Descriptions.Item label={t("mission.task_table.wait_genre")}>
-        {record.operation.waitGenre === "execute_first"
-          ? t("mission.task_table.execute_first")
-          : record.operation.waitGenre === "wait_other_finish"
-            ? t("mission.task_table.wait_other_finish")
-            : "-"}
-      </Descriptions.Item>
-    </Descriptions>
-  );
-
   if (!taskDataSource) return null;
 
   return (
@@ -444,7 +394,6 @@ const ForkTaskTable: FC<{
             rowKey="id"
             columns={columns}
             dataSource={taskDataSource as []}
-            expandable={{ expandedRowRender }}
             bordered
             pagination={{ pageSize: 50 }}
           />

@@ -738,6 +738,8 @@
       "inactive": "停用中",
       "action": "行動類型",
       "wait": "等待秒數",
+      "task_operation": "任務內容",
+      "task_fork_movement": "枒杈動作",
 
       "custom": "自定",
       "select": "自動",

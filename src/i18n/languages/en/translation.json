@@ -738,6 +738,8 @@
       "inactive": "Inactive",
       "action": "Action Type",
       "wait": "Wait Time (seconds)",
+      "task_operation": "operation",
+      "task_fork_movement": "fork movement",
 
       "custom": "Custom",
       "select": "Auto",

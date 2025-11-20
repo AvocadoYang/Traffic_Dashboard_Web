@@ -137,6 +137,7 @@ const PeripheralNameTable: React.FC = () => {
   const queryClient = useQueryClient();
   const [messageApi, contextHolder] = message.useMessage();
   const { t } = useTranslation();
+  const [searchTerm, setSearchTerm] = useState("");
 
   const isEditing = (record: PeripheralData) => record.id === editingKey;
 
@@ -184,6 +185,18 @@ const PeripheralNameTable: React.FC = () => {
     refetch();
     messageApi.success("ok");
   };
+
+  const filteredData = useMemo(() => {
+    if (!data?.payload) return [];
+    if (!searchTerm.trim()) return data.payload;
+
+    const term = searchTerm.toLowerCase();
+    return data.payload.filter(
+      (item: PeripheralData) =>
+        item.id.toLowerCase().includes(term) ||
+        (item.name ?? "").toLowerCase().includes(term)
+    );
+  }, [data?.payload, searchTerm]);
 
   const save = async (
     peripheralNameDBId: string,
@@ -322,6 +335,13 @@ const PeripheralNameTable: React.FC = () => {
         <Popconfirm title="are u sure" onConfirm={handleSync}>
           <Button style={{ marginBottom: 16 }}>SYNC WITH CORNING</Button>
         </Popconfirm>
+
+        <Input.Search
+          allowClear
+          placeholder="Search Name or ID"
+          style={{ width: 260, marginBottom: 16 }}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       </Flex>
 
       <Form form={form} component={false}>
@@ -331,7 +351,7 @@ const PeripheralNameTable: React.FC = () => {
           }}
           bordered
           loading={isLoading}
-          dataSource={data?.payload}
+          dataSource={filteredData}
           columns={mergedColumns as []}
           rowClassName="editable-row"
           pagination={{ pageSize: 10 }}
