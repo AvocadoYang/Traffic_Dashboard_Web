@@ -293,7 +293,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
           </ControlCard>
         );
 
-      case "blind_fork":
+     case "blind_fork":
         return (
           <ControlCard
             key={`${control}-${index}`}
@@ -305,34 +305,100 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
               </Flex>
             }
           >
-            <Form.Item
-              label="Backward Location"
-              name={[...fieldName, "blind_fork", "backward_location_id"]}
-              rules={[{ required: true, message: t("utils.required") }]}
-            >
-              <Select
-                showSearch
-                options={locationsOption}
-                placeholder="Select backward location"
-                style={{ width: "100%" }}
-              />
-            </Form.Item>
+            <Form.Item noStyle shouldUpdate>
+              {() => {
+                const backward = form.getFieldValue([
+                  ...fieldName,
+                  "blind_fork",
+                  "backward_location_id",
+                ]);
 
-            <Form.Item
-              label="Forward Location"
-              name={[...fieldName, "blind_fork", "forward_location_id"]}
-              rules={[{ required: true, message: t("utils.required") }]}
-            >
-              <Select
-                showSearch
-                options={locationsOption}
-                placeholder="Select forward location"
-                style={{ width: "100%" }}
-              />
+                const forward = form.getFieldValue([
+                  ...fieldName,
+                  "blind_fork",
+                  "forward_location_id",
+                ]);
+
+                return (
+                  <>
+                    {/* Backward */}
+                    <Form.Item
+                      label="Backward Location"
+                      name={[
+                        ...fieldName,
+                        "blind_fork",
+                        "backward_location_id",
+                      ]}
+                      rules={[
+                        {
+                          validator: () => {
+                            if (!backward && !forward)
+                              return Promise.reject(
+                                "Select Backward or Forward"
+                              );
+                            return Promise.resolve();
+                          },
+                        },
+                      ]}
+                    >
+                      <Select
+                        showSearch
+                        options={locationsOption}
+                        placeholder="Select backward location"
+                        style={{ width: "100%" }}
+                        disabled={!!forward} // disable if forward chosen
+                        onChange={() => {
+                          // clear forward if backward picked
+                          form.setFieldValue(
+                            [...fieldName, "blind_fork", "forward_location_id"],
+                            undefined
+                          );
+                        }}
+                      />
+                    </Form.Item>
+
+                    {/* Forward */}
+                    <Form.Item
+                      label="Forward Location"
+                      name={[...fieldName, "blind_fork", "forward_location_id"]}
+                      rules={[
+                        {
+                          validator: () => {
+                            if (!backward && !forward)
+                              return Promise.reject(
+                                "Select Forward or Backward"
+                              );
+                            return Promise.resolve();
+                          },
+                        },
+                      ]}
+                    >
+                      <Select
+                        showSearch
+                        options={locationsOption}
+                        placeholder="Select forward location"
+                        style={{ width: "100%" }}
+                        disabled={!!backward} // disable if backward chosen
+                        onChange={() => {
+                          // clear backward if forward picked
+                          form.setFieldValue(
+                            [
+                              ...fieldName,
+                              "blind_fork",
+                              "backward_location_id",
+                            ],
+                            undefined
+                          );
+                        }}
+                      />
+                    </Form.Item>
+                  </>
+                );
+              }}
             </Form.Item>
           </ControlCard>
         );
-
+        
       case "clamp":
         return (
           <ControlCard
