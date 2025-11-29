@@ -38,6 +38,13 @@ const ZoneTable: React.FC<{
   const [messageApi, contextHolders] = message.useMessage();
   const queryClient = useQueryClient();
 
+   const layerDict: { [value: string]: string} = {
+    "0": `${t("edit_zone_panel.layer_dis_far")}`,
+    "1":  `${t("edit_zone_panel.layer_dis_near")}`,
+    "2": `${t("edit_zone_panel.speical_layer_cargo")}`,
+    "3": `${t("edit_zone_panel.special_layer_charge")}`
+  } 
+
   const deleteMutation = useMutation({
     mutationFn: (zoneId: string[]) => {
       return client.post(`api/setting/delete-edit-zone`, {
@@ -69,6 +76,8 @@ const ZoneTable: React.FC<{
       backgroundColor: record.backgroundColor,
       category: record.category,
       endPoint: record.endPoint,
+      layer: record.layer,
+      lidar: record.lidar,
       startPoint: record.startPoint,
       tagSetting: record.tagSetting,
       name: record.name,
@@ -98,7 +107,7 @@ const ZoneTable: React.FC<{
         );
       },
       editable: true,
-      width: "16%",
+      width: "18%",
     },
     {
       title: t("zone_table_form.end_point"),
@@ -113,7 +122,38 @@ const ZoneTable: React.FC<{
           </Flex>
         );
       },
-      width: "16%",
+      width: "18%",
+    },
+    {
+      title: t("zone_table_form.layer"),
+      dataIndex: "layer",
+      key: "layer",
+      editable: true,
+      render: (data) => {
+        return <>
+          {`${data}: `}
+
+          {
+            data ?  <p style={{ fontWeight: "bold"}}>{layerDict[data]}</p> : <></>
+          }
+
+        </>
+      },
+      width: "18%",
+    },
+    {
+      title: t("zone_table_form.lidar"),
+      dataIndex: "lidar",
+      key: "lidar",
+      editable: true,
+      render: (data: { front: boolean, back: boolean}) => {
+        return <>
+            <p>{`${t(`edit_zone_panel.lidar_front`)}: ${data.front ? t(`utils.open`): t(`utils.close`)}`}</p>
+      
+            <p>{`${t(`edit_zone_panel.lidar_back`)}: ${data.back ? t(`utils.open`): t(`utils.close`)}`}</p>
+        </>
+      },
+      width: "18%",
     },
     {
       title: t("zone_table_form.zone_attr"),
@@ -226,7 +266,12 @@ const ZoneTable: React.FC<{
             }}
             rowKey={(record) => record.id}
             columns={columns}
-            dataSource={data.zones as unknown as ZoneTableData[]}
+            dataSource={[...data.zones].map((zone) => {
+              return {
+                ...zone,
+                lidar: { front: zone.lidar_front, back: zone.lidar_back}
+              }
+            }) as unknown as ZoneTableData[]}
           ></Table>
         </Flex>
       ) : (

@@ -393,6 +393,14 @@
     "free_zone": "所有車輛皆可通行",
     "not_vehicle_forbidden": "不設定限制車輛",
     "edit_zone": "編輯區域",
+    "layer_setting": "圖層設定",
+    "layer":"選擇圖層",
+    "lidar_front": "前方光達",
+    "lidar_back": "後方光達",
+    "layer_dis_far": "圖層距離 (遠)",
+    "layer_dis_near": "圖層距離 (近)",
+    "speical_layer_cargo":"特殊圖層 (貨區)",
+    "special_layer_charge": "特殊圖層 (充電站)",
     "deceleration_zone": "減速區",
     "height_limit_zone": "限高區",
     "restricted_zone": "禁制區",
@@ -423,7 +431,9 @@
     "start_point": "起點",
     "end_point": "終點",
     "zone_attr": "區域標籤",
-    "zone_color": "區域顏色"
+    "zone_color": "區域顏色",
+    "layer": "圖層",
+    "lidar": "光達"
   },
 
   "all_location_list_form": {

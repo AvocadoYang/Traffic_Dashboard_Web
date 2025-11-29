@@ -55,6 +55,9 @@ const schema = object({
       name: string().required(),
       backgroundColor: string().required(),
       category: array(string().required()).required(),
+      layer: string().required(),
+      lidar_front: boolean().required(),
+      lidar_back: boolean().required(),
       tagSetting: object({
         speed_limit: number().nullable(),
         hight_limit: number().nullable(),

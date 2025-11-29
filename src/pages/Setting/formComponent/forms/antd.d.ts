@@ -12,6 +12,8 @@ export type ZoneTableData = {
   id: string;
   name: string;
   category: string[];
+  layer: string;
+  lidar: { front: boolean, back: boolean};
   tagSetting: {
     forbidden_car: string[];
     hight_limit: number | null;
