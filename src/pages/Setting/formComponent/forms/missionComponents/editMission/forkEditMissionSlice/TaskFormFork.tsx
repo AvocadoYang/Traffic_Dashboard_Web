@@ -10,7 +10,11 @@ import {
   Tooltip,
   Typography,
 } from "antd";
-import { QuestionCircleOutlined, RedoOutlined } from "@ant-design/icons";
+import {
+  QuestionCircleOutlined,
+  RedoOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 import { FC, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
@@ -103,6 +107,30 @@ const TaskFormFork: FC<{
     SelectActiveWaitRobotOptions,
     SelectWaitRobotOptions,
   } = useTaskOptions(actionState as Action_Type);
+
+  const deleteControlElementFromIndex = (index: number) => {
+    setControlClickOrder((prev) => {
+      const newOrder = prev.filter((_, i) => i !== index);
+
+      // Reorganize form fields to remove gaps
+      setTimeout(() => {
+        const currentForkValues = form.getFieldValue(["io", "fork"]) || {};
+        const newForkValues = {};
+
+        let newIndex = 0;
+        Object.keys(currentForkValues).forEach((key, oldIndex) => {
+          if (oldIndex !== index) {
+            newForkValues[newIndex.toString()] = currentForkValues[key];
+            newIndex++;
+          }
+        });
+
+        form.setFieldValue(["io", "fork"], newForkValues);
+      }, 0);
+
+      return newOrder;
+    });
+  };
 
   const handleControlClick = (movement: string) => {
     setControlClickOrder((prev) => [...prev, movement]);
@@ -275,10 +303,21 @@ const TaskFormFork: FC<{
             <ControlDisplay hasValue={controlClickOrder.length > 0}>
               {controlClickOrder.length > 0
                 ? controlClickOrder.map((ctrl, idx) => (
-                    <span key={idx}>
-                      {ctrl}
-                      {idx < controlClickOrder.length - 1 && " → "}
-                    </span>
+                    <Flex key={idx} align="center" gap="small">
+                      <Tooltip title={t("utils.delete")}>
+                        <Button
+                          type="text"
+                          danger
+                          size="small"
+                          icon={<DeleteOutlined />}
+                          onClick={() => deleteControlElementFromIndex(idx)}
+                        />
+                      </Tooltip>
+                      <span>
+                        {ctrl}
+                        {idx < controlClickOrder.length - 1 && " → "}
+                      </span>
+                    </Flex>
                   ))
                 : "No control sequence"}
             </ControlDisplay>

@@ -1,10 +1,24 @@
 import React, { FC } from "react";
-import { Card, Modal, Skeleton, Table, Tag } from "antd";
+import {
+  Button,
+  Card,
+  Divider,
+  Flex,
+  message,
+  Modal,
+  Skeleton,
+  Table,
+  Tag,
+} from "antd";
 import useChargeStationSocket from "@/sockets/useChargeStationSocket";
 import { useSetAtom } from "jotai";
 import { OpenChargeStationModal } from "@/pages/Main/global/jotai";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
+import { useMutation } from "@tanstack/react-query";
+import client from "@/api/axiosClient";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
 
 type TableRow = {
   key: string;
@@ -44,13 +58,30 @@ const StatusPanel: FC<{ locId: string | null }> = ({ locId }) => {
   const socketState = useChargeStationSocket();
   const setChargeConfig = useSetAtom(OpenChargeStationModal);
   const { t } = useTranslation();
+  const [messageApi, contextHolder] = message.useMessage();
 
   const handleClose = () => {
     setChargeConfig(null);
   };
 
+  const testMutation = useMutation({
+    mutationFn: (locationId: string) => {
+      return client.post("api/test/charge-station-bar", {
+        locationId: locationId,
+      });
+    },
+    onSuccess: async () => {
+      messageApi.info("is bar out??");
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
   const station = locId ? socketState[locId] : null;
   const currentStatus = station?.currentStatus;
+
+  const handleBar = (locationId: string) => {
+    testMutation.mutate(locationId);
+  };
 
   const columns = [
     {
@@ -115,12 +146,16 @@ const StatusPanel: FC<{ locId: string | null }> = ({ locId }) => {
         title={`${station.name} (${station.locationId})`}
         extra={`Station: ${station.stationId} | ${station.ip}:${station.port}`}
       >
-        <div style={{ marginBottom: 8 }}>
+        <Flex gap={"middle"} align="center">
           <strong>{t("charge.updateTime")}:</strong>{" "}
           {currentStatus.responseTime
             ? dayjs(currentStatus.responseTime).format("YYYY-MM-DD HH:mm:ss")
             : "-"}
-        </div>
+          <Button onClick={() => handleBar(station.locationId)}>test</Button>
+        </Flex>
+
+        <Divider></Divider>
+
         <Table
           size="small"
           bordered
@@ -134,9 +169,12 @@ const StatusPanel: FC<{ locId: string | null }> = ({ locId }) => {
   }
 
   return (
-    <Modal open={!!locId} onCancel={handleClose} footer={null}>
-      {content}
-    </Modal>
+    <>
+      {contextHolder}
+      <Modal open={!!locId} onCancel={handleClose} footer={null}>
+        {content}
+      </Modal>
+    </>
   );
 };
 

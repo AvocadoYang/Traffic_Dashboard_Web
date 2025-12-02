@@ -2,6 +2,7 @@ import { FC } from "react";
 import { Select_Fork_Height_Type } from "./types";
 import styled from "styled-components";
 import {
+  Button,
   Card,
   Collapse,
   Flex,
@@ -130,7 +131,6 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
               rules={[{ required: true, message: t("utils.required") }]}
             >
               <InputNumber
-                min={0}
                 step={0.1}
                 addonAfter="mm"
                 placeholder="Enter distance"
@@ -305,30 +305,96 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
               </Flex>
             }
           >
-            <Form.Item
-              label="Backward Location"
-              name={[...fieldName, "blind_fork", "backward_location_id"]}
-              rules={[{ required: true, message: t("utils.required") }]}
-            >
-              <Select
-                showSearch
-                options={locationsOption}
-                placeholder="Select backward location"
-                style={{ width: "100%" }}
-              />
-            </Form.Item>
+            <Form.Item noStyle shouldUpdate>
+              {() => {
+                const backward = form.getFieldValue([
+                  ...fieldName,
+                  "blind_fork",
+                  "backward_location_id",
+                ]);
 
-            <Form.Item
-              label="Forward Location"
-              name={[...fieldName, "blind_fork", "forward_location_id"]}
-              rules={[{ required: true, message: t("utils.required") }]}
-            >
-              <Select
-                showSearch
-                options={locationsOption}
-                placeholder="Select forward location"
-                style={{ width: "100%" }}
-              />
+                const forward = form.getFieldValue([
+                  ...fieldName,
+                  "blind_fork",
+                  "forward_location_id",
+                ]);
+
+                return (
+                  <>
+                    {/* Backward */}
+                    <Form.Item
+                      label="Backward Location"
+                      name={[
+                        ...fieldName,
+                        "blind_fork",
+                        "backward_location_id",
+                      ]}
+                      rules={[
+                        {
+                          validator: () => {
+                            if (!backward && !forward)
+                              return Promise.reject(
+                                "Select Backward or Forward"
+                              );
+                            return Promise.resolve();
+                          },
+                        },
+                      ]}
+                    >
+                      <Select
+                        showSearch
+                        options={locationsOption}
+                        placeholder="Select backward location"
+                        style={{ width: "100%" }}
+                        disabled={!!forward} // disable if forward chosen
+                        onChange={() => {
+                          // clear forward if backward picked
+                          form.setFieldValue(
+                            [...fieldName, "blind_fork", "forward_location_id"],
+                            undefined
+                          );
+                        }}
+                      />
+                    </Form.Item>
+
+                    {/* Forward */}
+                    <Form.Item
+                      label="Forward Location"
+                      name={[...fieldName, "blind_fork", "forward_location_id"]}
+                      rules={[
+                        {
+                          validator: () => {
+                            if (!backward && !forward)
+                              return Promise.reject(
+                                "Select Forward or Backward"
+                              );
+                            return Promise.resolve();
+                          },
+                        },
+                      ]}
+                    >
+                      <Select
+                        showSearch
+                        options={locationsOption}
+                        placeholder="Select forward location"
+                        style={{ width: "100%" }}
+                        disabled={!!backward} // disable if backward chosen
+                        onChange={() => {
+                          // clear backward if forward picked
+                          form.setFieldValue(
+                            [
+                              ...fieldName,
+                              "blind_fork",
+                              "backward_location_id",
+                            ],
+                            undefined
+                          );
+                        }}
+                      />
+                    </Form.Item>
+                  </>
+                );
+              }}
             </Form.Item>
           </ControlCard>
         );
@@ -346,25 +412,67 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
             }
           >
             <Form.Item
-              label={t("mission.task_table.clamp")}
-              name={[...fieldName, "clamp"]}
-              rules={[
-                { required: true, message: t("utils.required") },
-                {
-                  type: "number",
-                  min: 0,
-                  max: 900,
-                  message: "Range: 0-900mm",
-                },
-              ]}
+              label={t("mission.task_table.is_define_height")}
+              name={[...fieldName, "clamp", "is_define_clamp"]}
+              rules={[{ required: true, message: t("utils.required") }]}
             >
-              <InputNumber
-                min={0}
-                max={900}
-                addonAfter="mm"
-                placeholder="Enter clamp value"
+              <Segmented
+                options={[
+                  { label: "Custom", value: "custom" },
+                  { label: "Select", value: "select" },
+                ]}
                 style={{ width: "100%" }}
               />
+            </Form.Item>
+
+            <Form.Item noStyle shouldUpdate>
+              {() => {
+                const heightType = form.getFieldValue([
+                  ...fieldName,
+                  "clamp",
+                  "is_define_clamp",
+                ]);
+
+                if (
+                  heightType === "custom" ||
+                  heightType?.startsWith("preset")
+                ) {
+                  return (
+                    <Form.Item
+                      label={t("mission.task_table.clamp")}
+                      name={[...fieldName, "clamp", "height"]}
+                      rules={[{ required: true, message: t("utils.required") }]}
+                    >
+                      <InputNumber
+                        min={0}
+                        addonAfter="mm"
+                        placeholder="Enter height"
+                        style={{ width: "100%" }}
+                      />
+                    </Form.Item>
+                  );
+                }
+
+                if (heightType === "level") {
+                  return (
+                    <Form.Item
+                      label={t("mission.task_table.clamp")}
+                      name={[...fieldName, "clamp"]}
+                      rules={[{ required: true, message: t("utils.required") }]}
+                    >
+                      <InputNumber
+                        style={{ width: "100%" }}
+                        min={0}
+                        max={900}
+                        addonAfter="mm"
+                        placeholder="Enter clamp value"
+                      />
+                    </Form.Item>
+                  );
+                }
+
+                return null;
+              }}
             </Form.Item>
           </ControlCard>
         );
