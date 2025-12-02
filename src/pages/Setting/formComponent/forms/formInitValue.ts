@@ -25,6 +25,8 @@ export const initialZoneValue = {
   startY: 0,
   endX: 0,
   endY: 0,
+  lidar_back: false,
+  lidar_front: false
 };
 
 export const initialTagFormValue = {

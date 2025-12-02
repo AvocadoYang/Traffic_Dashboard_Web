@@ -403,6 +403,14 @@
     "not_vehicle_forbidden": "Not set",
     "hint": "Tag setting isn't yet completed !",
     "edit_zone": "Edit Zones",
+    "layer_setting": "Layer setting",
+    "layer":"Select layer",
+    "lidar_front": "Lidar (front)",
+    "lidar_back": "Lidar (back)",
+    "layer_dis_far": "Layer Distance (Far)",
+    "layer_dis_near": "Layer Distance (Near)",
+    "speical_layer_cargo":"Special Layer (Loading Area)",
+    "special_layer_charge": "Special Layer (Charging Station)",
     "deceleration_zone": "Deceleration zone",
     "height_limit_zone": "Height limit zone",
     "restricted_zone": "Restricted zone",
@@ -432,7 +440,9 @@
     "start_point": "Start point",
     "end_point": "End point",
     "zone_attr": "Zone label",
-    "zone_color": "Zone color"
+    "zone_color": "Zone color",
+    "layer": "Layer",
+    "lidar": "Lidar"
   },
 
   "multiStyle": {

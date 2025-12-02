@@ -13,6 +13,7 @@ import {
   Tag,
   message,
   InputNumber,
+  Switch,
 } from "antd";
 import "../../form.css";
 import { CloseOutlined } from "@ant-design/icons";
@@ -34,6 +35,9 @@ type FormType = {
   startY: number;
   endX: number;
   endY: number;
+  layer: string;
+  lidar_front: boolean,
+  lidar_back: boolean,
   category: string[] | undefined;
 
   hight_limit: number | undefined;
@@ -93,6 +97,7 @@ const EditZoneTable: FC<{
   sortableId: string;
 }> = ({ setEditingKey, editingKey, oldData }) => {
   const [editZoneForm] = Form.useForm();
+  const [layerOpt, setLayerOpt] = useState<string | undefined>();
   const [showTagSetting, setShowTagSetting] = useState(false);
   const [isHint, setIsHint] = useState(false);
   const [tagsSetting, setTagSetting] = useState<TagSetting>(tagInit);
@@ -189,6 +194,9 @@ const EditZoneTable: FC<{
 
     const payload: FormType = {
       ...data,
+      layer: data.layer ? data.layer: "none",
+      lidar_back: data.layer ? data.lidar_back: false,
+      lidar_front : data.layer ? data.lidar_front: false,
       speed_limit: data.speed_limit
         ? data.speed_limit
         : (oldData?.tagSetting.speed_limit as number),
@@ -208,10 +216,22 @@ const EditZoneTable: FC<{
     saveMutation.mutate(payload);
   };
 
+  const updateLayer = (layer: string) => {
+      setLayerOpt(layer)
+  }
+
+  const layer: SelectProps["options"] = [
+    { label: `${t("edit_zone_panel.layer_dis_far")}`, value: "0" },
+    { label: `${t("edit_zone_panel.layer_dis_near")}`, value: "1" },
+    { label: `${t("edit_zone_panel.speical_layer_cargo")}`, value: "2" },
+    { label: `${t("edit_zone_panel.special_layer_charge")}`, value: "3" },
+  ]
+
+
+
   // 將資料庫資料寫入各個 input. 另外將資料複製一份到即將修改的表單中
   useEffect(() => {
     if (!oldData) return;
-
     setZoneTags(oldData.category);
     const forbiddenCar = oldData.tagSetting.forbidden_car;
 
@@ -224,6 +244,7 @@ const EditZoneTable: FC<{
       speed_limit: undefined,
       view_available: undefined,
     };
+
 
     if (forbiddenCar.length) {
       tagSetting.allVehicleForbidden = false;
@@ -249,7 +270,10 @@ const EditZoneTable: FC<{
       }
       editZoneForm.setFieldValue("forbidden", []);
     }
-
+    editZoneForm.setFieldValue("layer", oldData.layer == "none" ? undefined : oldData.layer)
+    oldData.layer == "none" ? setLayerOpt(undefined): setLayerOpt(oldData.layer); 
+    editZoneForm.setFieldValue("lidar_front", oldData.lidar.front);
+    editZoneForm.setFieldValue("lidar_back", oldData.lidar.back);
     editZoneForm.setFieldValue("name", oldData.name);
     editZoneForm.setFieldValue("startX", oldData.startPoint.startX);
     editZoneForm.setFieldValue("startY", oldData.startPoint.startY);
@@ -465,6 +489,37 @@ const EditZoneTable: FC<{
               </Form.Item>
             </div>
           </Space>
+
+           <Form.Item
+            label={t("edit_zone_panel.layer_setting")}
+            name="layer"  
+          >
+          <Select
+            allowClear
+            placeholder={t("edit_zone_panel.layer")}
+            style={{ width: "100%" }}
+            onChange={(v: string) => updateLayer(v)}
+            options={layer}
+          />
+            </Form.Item>
+
+      
+            <div style={{ display: `${layerOpt ? "block":"none"}`}}>
+               <Flex gap="middle">
+                <Form.Item
+                  label={t("edit_zone_panel.lidar_front")}
+                  name="lidar_front"  
+                >
+                    <Switch checkedChildren="On" unCheckedChildren="Off" />
+                </Form.Item> 
+                <Form.Item
+                  label={t("edit_zone_panel.lidar_back")}
+                  name="lidar_back"   
+                >
+                      <Switch checkedChildren="On" unCheckedChildren="Off" />
+                </Form.Item> 
+              </Flex>
+              </div>
           <Form.Item
             label={t("edit_zone_panel.category")}
             name="category"

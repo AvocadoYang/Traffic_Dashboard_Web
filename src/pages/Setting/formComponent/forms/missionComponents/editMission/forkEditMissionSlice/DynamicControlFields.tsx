@@ -293,7 +293,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
           </ControlCard>
         );
 
-      case "blind_fork":
+     case "blind_fork":
         return (
           <ControlCard
             key={`${control}-${index}`}
@@ -398,7 +398,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
             </Form.Item>
           </ControlCard>
         );
-
+        
       case "clamp":
         return (
           <ControlCard

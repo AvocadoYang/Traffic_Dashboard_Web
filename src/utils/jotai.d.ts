@@ -12,6 +12,9 @@ export type ZoneType = {
   name?: string;
   color?: AggregationColor2;
   category?: string[];
+    layer: string,
+    lidar_back: boolean;
+  lidar_front: boolean;
   startX: number;
   startY: number;
   endX: number;

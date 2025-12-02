@@ -16,6 +16,8 @@ import {
   Space,
   Tag,
   Checkbox,
+  Switch,
+  Flex,
 } from "antd";
 import { SaveOutlined } from "@ant-design/icons";
 import FormHr from "../../utils/FormHr";
@@ -29,6 +31,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import useMap from "@/api/useMap";
 import useAmrName from "@/api/useAmrName";
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
+import { DefaultOptionType } from "antd/es/select";
 
 type TagRender = SelectProps["tagRender"];
 
@@ -80,6 +83,7 @@ const EditZonePanel: React.FC<{
 }> = ({ attributes, listeners, zonePanelForm }) => {
   const { t } = useTranslation();
   const { data } = useMap();
+  const [layerOpt, setLayerOpt] = useState<string | undefined>();
   const { data: allAmr } = useAmrName();
   const [showTagSetting, setShowTagSetting] = useState(false);
   const { data: loc } = useLoc(undefined);
@@ -120,6 +124,18 @@ const EditZonePanel: React.FC<{
     { label: `${t("edit_zone_panel.view_available_zone")}`, value: "查看區" },
   ];
 
+  const layer: SelectProps["options"] = [
+    { label: `${t("edit_zone_panel.layer_dis_far")}`, value: "0" },
+    { label: `${t("edit_zone_panel.layer_dis_near")}`, value: "1" },
+    { label: `${t("edit_zone_panel.speical_layer_cargo")}`, value: "2" },
+    { label: `${t("edit_zone_panel.special_layer_charge")}`, value: "3" },
+  ]
+
+
+  const updateLayer = (layer: string) => {
+    setLayerOpt(layer)
+  }
+
   const AmrsID: SelectProps["options"] = allAmr?.amrs.map((amr) => {
     return { value: amr.amrId };
   });
@@ -151,7 +167,7 @@ const EditZonePanel: React.FC<{
       (!tagSettingForm.getFieldsValue() && !zoneTags?.length)
     )
       return;
-    const { name, color, category, startX, startY, endX, endY } =
+    const { name, color, category, startX, startY, endX, endY, layer, lidar_back, lidar_front } =
       zonePanelForm.getFieldsValue() as ZoneType;
     if ((startX === endX && startY === endY) || !startX || !startY) {
       openNotificationWithIcon(
@@ -256,6 +272,9 @@ const EditZonePanel: React.FC<{
         startX,
         startY,
       },
+      layer : layer ? layer: "none" ,
+      lidar_back: layer ? lidar_back : false,
+      lidar_front: layer ? lidar_front: false,
       endPoint: {
         endX,
         endY,
@@ -307,6 +326,7 @@ const EditZonePanel: React.FC<{
     tagSettingForm,
     t,
   ]);
+
 
   const tagChangeFn = useCallback(
     (tags) => {
@@ -434,6 +454,40 @@ const EditZonePanel: React.FC<{
               </Form.Item>
             </div>
           </Space>
+          <Form.Item
+            label={t("edit_zone_panel.layer_setting")}
+            name="layer"  
+          >
+          <Select
+            allowClear
+            placeholder={t("edit_zone_panel.layer")}
+            style={{ width: "100%" }}
+            onChange={(v: string) => updateLayer(v)}
+            options={layer}
+          />
+            </Form.Item>
+
+      
+            <div style={{ display: `${layerOpt ? "block":"none"}`}}>
+               <Flex gap="middle">
+                <Form.Item
+                  label={t("edit_zone_panel.lidar_front")}
+                  name="lidar_front"  
+                >
+                    <Switch checkedChildren="On" unCheckedChildren="Off" />
+                </Form.Item> 
+                <Form.Item
+                  label={t("edit_zone_panel.lidar_back")}
+                  name="lidar_back"   
+                >
+                      <Switch checkedChildren="On" unCheckedChildren="Off" />
+                </Form.Item> 
+              </Flex>
+              </div>
+            
+         
+
+        
           <Form.Item
             label={t("edit_zone_panel.category")}
             name="category"
