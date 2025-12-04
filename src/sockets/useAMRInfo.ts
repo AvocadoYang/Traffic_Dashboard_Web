@@ -590,6 +590,7 @@ export const usePosIsAccurate = (amrId: string) => {
     const isAccurate$ = profile$
       .pipe(
         map((info) => info.isPosAccurate),
+        filter((info) => info !== undefined),
         distinctUntilChanged()
       )
       .subscribe((isAccurate) => setIsPoseAccurate(isAccurate));

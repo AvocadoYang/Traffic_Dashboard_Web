@@ -94,9 +94,10 @@ export const PowerTag: React.FC<{ amrId }> = memo(({ amrId }) => {
 export const IsPosAccurate: React.FC<{ amrId }> = memo(({ amrId }) => {
   const { isPosAccurate } = usePosIsAccurate(amrId)
   const { t } = useTranslation();
+
   return (
     <Tag
-      color={`${isPosAccurate}` ? "#2eb800": "red"}
+      color={ isPosAccurate ? "#8ed476ff": "volcano"}
       style={{ margin: 0 }}
     >
       { isPosAccurate ? `${t("mode.positioning_normal")}` : `${t("mode.positioning_inaccurate")}`}
