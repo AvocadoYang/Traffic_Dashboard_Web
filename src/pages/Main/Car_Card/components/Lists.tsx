@@ -10,7 +10,7 @@ import {
   CaretUpOutlined,
   CaretDownOutlined,
 } from "@ant-design/icons";
-import { Space, Flex } from "antd";
+import { Space, Flex, Tag } from "antd";
 import {
   useAmrStatus,
   useBattery,
@@ -21,7 +21,7 @@ import {
   useMaintenanceStatus,
 } from "@/sockets/useAMRInfo";
 import { useTranslation } from "react-i18next";
-import { CarryTag, ChargingTag, ManualTag, MissionTag, PowerTag } from "./Tags";
+import { CarryTag, ChargingTag, IsPosAccurate, ManualTag, MissionTag, PowerTag } from "./Tags";
 import useRoadConditions from "@/sockets/useAmrRoadConditions";
 
 const shak = keyframes`
@@ -194,11 +194,10 @@ export const RowOne: React.FC<{ isDark: boolean; amrId: string }> = memo(
         category: amrId.split("-").slice(0, 3).join("-"),
       };
     }, [amrId]);
-
     return (
       <CarRow1 is_dark={isDark.toString()}>
         <div>
-          <LogInStatus login={isOnline ? "true" : "false"} />
+          <LogInStatus login={isOverdue ? "false" : "true"} />
 
           <span
             className={`login-text ${
@@ -236,6 +235,17 @@ export const RowOne: React.FC<{ isDark: boolean; amrId: string }> = memo(
           >
             {`${t("utils.category")}: ${AmrID.category}`}
           </span>
+          {
+            isOnline ?  
+             <p className={`amr-is-registerd`} >
+            {`-- ${t("utils.is_registered")} --`}
+          </p> :  
+          <p
+            className={`amr-is-registerd`}
+          >
+            {`-- ${t("utils.not_registered")} --`}
+          </p>
+          }
         </AmrTitle>
       </CarRow1>
     );
@@ -508,6 +518,7 @@ export const RowFifth: React.FC<{ isDark: boolean; amrId: string }> = memo(
 
 export const CarTag: React.FC<{ openFullInfo: boolean; amrId: string }> = memo(
   ({ openFullInfo, amrId }) => {
+     const { isOverdue } = useIsLogIn(amrId);
     return (
       <Flex
         justify="center"
@@ -516,11 +527,12 @@ export const CarTag: React.FC<{ openFullInfo: boolean; amrId: string }> = memo(
         wrap
         gap={"small"}
       >
-        <ManualTag amrId={amrId} />
+        { isOverdue ?  <></> : <ManualTag amrId={amrId} />}
         <MissionTag amrId={amrId} />
         <CarryTag amrId={amrId} />
         <ChargingTag amrId={amrId} />
         <PowerTag amrId={amrId} />
+        { isOverdue ? <></> :<IsPosAccurate amrId={amrId}></IsPosAccurate>}
       </Flex>
     );
   },

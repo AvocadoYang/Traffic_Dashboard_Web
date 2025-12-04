@@ -13,6 +13,7 @@ import {
   scan,
   share,
   switchMap,
+  tap,
   withLatestFrom,
 } from "rxjs";
 import { io } from "./socketConnect";
@@ -578,6 +579,29 @@ export const useBattery = (amrId: string) => {
   return { battery };
 };
 
+export const usePosIsAccurate = (amrId: string) => {
+   const [isPosAccurate, setIsPoseAccurate] = useState<boolean | undefined>(undefined);
+  useEffect(() => {
+    const profile$ = profiles$.pipe(
+      map((p) => p.find((x) => x.amrId === amrId)),
+      filter(isDefined),
+      share()
+    );
+    const isAccurate$ = profile$
+      .pipe(
+        map((info) => info.isPosAccurate),
+        distinctUntilChanged()
+      )
+      .subscribe((isAccurate) => setIsPoseAccurate(isAccurate));
+
+    return () => {
+      isAccurate$.unsubscribe();
+    };
+  }, [amrId]);
+
+  return { isPosAccurate };
+}
+
 export const useYaw = (amrId: string) => {
   const [yaw, setYaw] = useState<number | undefined>(0);
   useEffect(() => {
@@ -588,7 +612,9 @@ export const useYaw = (amrId: string) => {
     );
     const yaw$ = profile$
       .pipe(
-        map((info) => info.pose?.yaw),
+        map((info) => {return { amrId: info.amrId, yaw: info.pose?.yaw}}),
+        map((data) => data.yaw),
+        filter((v)=> v !== undefined),
         filter((v) => v !== 0),
         distinctUntilChanged(
           (pre, current) => JSON.stringify(pre) === JSON.stringify(current)
