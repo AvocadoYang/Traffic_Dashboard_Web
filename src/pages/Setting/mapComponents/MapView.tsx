@@ -36,13 +36,13 @@ import {
 } from "./components";
 import { LocationType } from "@/utils/jotai";
 import AllRoads from "./components/AllRoads/AllRoads";
-import AllCargo from "./components/AllCargo.tsx/AllCargo";
+import AllCargo from "./components/AllCargo/AllCargo";
 import ToolTip from "../components/ToolTip";
-import SudoCargo from "./components/AllCargo.tsx/SudoCargo";
+import SudoCargo from "./components/AllCargo/SudoCargo";
 import { AllChargeStation } from "./components/AllChargeStation";
-import CargoDetail from "./components/AllCargo.tsx/CargoDetail";
-import { GlobalCargoInfoModal } from "./components/AllCargo.tsx/jotaiState";
-import CargoModal from "./components/AllCargo.tsx/CargoModal";
+import CargoDetail from "./components/AllCargo/CargoDetail";
+import { GlobalCargoInfoModal } from "./components/AllCargo/jotaiState";
+import CargoModal from "./components/AllCargo/CargoModal";
 import AllConveyor from "./components/AllConveyor/AllConveyor";
 import {
   IsEditPeripheralModal,
@@ -56,6 +56,8 @@ import { ECSM, EEC, EEM } from "../utils/settingJotai";
 import EditElevatorModal from "./components/AllElevator/EditElevatorModal";
 import CargoEditorElevator from "./components/AllElevator/Form/CargoEditorElevator";
 import EditChargeStationConfigModal from "./components/AllChargeStation/EditChargeStationConfigModal";
+import AllGateWaitPoint from "./components/AllGateWaitPoint/AllGateWaitPoint";
+import AllLiftGate from "./components/AllGate/AllLiftGate";
 
 const MapView: React.FC<{
   scale: number;
@@ -105,7 +107,7 @@ const MapView: React.FC<{
   const [, setSameVersion] = useAtom(sameVersion);
   const openEditLocationPanel = useAtomValue(EditLocationPanelSwitch);
   const openQuickEditLocationPanelSwitch = useAtomValue(
-    QuickEditLocationPanelSwitch,
+    QuickEditLocationPanelSwitch
   );
   const openEditZone = useAtomValue(EditZoneSwitch);
   const shelfSelectedStyleId = useAtomValue(shelfSelectedStyleLocationId);
@@ -142,7 +144,7 @@ const MapView: React.FC<{
     mapImageRef,
     scale,
     locationPanelForm,
-    openEditLocationPanel,
+    openEditLocationPanel
   );
 
   //控制區域圈選
@@ -155,7 +157,7 @@ const MapView: React.FC<{
     setInitPointRecord,
     setEndPointRecord,
     setRectInfo,
-    zonePanelForm,
+    zonePanelForm
   );
 
   //控制編輯路線時的箭頭拖曳
@@ -165,7 +167,7 @@ const MapView: React.FC<{
     initPoint,
     isResizing,
     setIsResizing,
-    scale,
+    scale
   );
 
   const handleMouseDown = useCallback(
@@ -175,7 +177,7 @@ const MapView: React.FC<{
       setShowBlockId(startId);
       const result = getLocationInfoById(
         startId,
-        mapData?.locations as LocationType[],
+        mapData?.locations as LocationType[]
       );
       setDragLineInfo((pre) => {
         return { ...pre, width: 1 };
@@ -183,7 +185,7 @@ const MapView: React.FC<{
       roadPanelForm.setFieldValue("x", result.locationId);
       roadPanelForm.setFieldValue("to", undefined);
     },
-    [mapData, roadPanelForm],
+    [mapData, roadPanelForm]
   );
 
   window.addEventListener("beforeunload", () => {
@@ -219,6 +221,10 @@ const MapView: React.FC<{
         setInitPoint={setInitPoint}
         handleMouseDown={handleMouseDown}
       />
+
+      <AllGateWaitPoint />
+
+      <AllLiftGate />
 
       {openPeripheralModal ? <EditPeripheralModal /> : []}
 

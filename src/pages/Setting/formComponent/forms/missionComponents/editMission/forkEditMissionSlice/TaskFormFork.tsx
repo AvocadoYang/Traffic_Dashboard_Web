@@ -14,6 +14,8 @@ import {
   QuestionCircleOutlined,
   RedoOutlined,
   DeleteOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
 } from "@ant-design/icons";
 import { FC, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -37,35 +39,6 @@ enum YawGenre {
   CALCULATE_BY_AGV_AND_SHELF_ANGLE,
 }
 
-// Styled Components
-const ControlDisplay = styled.div<{ hasValue: boolean }>`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 40px;
-  min-width: 400px;
-  padding: 8px 14px;
-  border-radius: 10px;
-  background: ${({ hasValue }) =>
-    hasValue ? "rgba(59,130,246,0.1)" : "rgba(255,255,255,0.05)"};
-  border: 1px solid
-    ${({ hasValue }) =>
-      hasValue ? "rgba(59,130,246,0.5)" : "rgba(255,255,255,0.2)"};
-  color: ${({ hasValue }) => (hasValue ? "rgba(0, 70, 136, 0.95)" : "#aaa")};
-  font-weight: 600;
-  font-size: 15px;
-  letter-spacing: 0.4px;
-  white-space: nowrap;
-  transition: all 0.2s ease;
-  user-select: none;
-
-  &:hover {
-    background: ${({ hasValue }) =>
-      hasValue ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.08)"};
-    border-color: rgba(59, 130, 246, 0.6);
-  }
-`;
-
 const SectionHeader = styled(Typography.Title)`
   && {
     margin-bottom: 16px !important;
@@ -74,6 +47,90 @@ const SectionHeader = styled(Typography.Title)`
     border-bottom: 1px solid #f0f0f0;
     padding-bottom: 8px;
   }
+`;
+
+const ControlDisplay = styled.div<{ hasValue: boolean }>`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 320px;
+  padding: ${({ hasValue }) => (hasValue ? "16px" : "24px")};
+  border-radius: 12px;
+  background: ${({ hasValue }) =>
+    hasValue
+      ? "linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(99,102,241,0.08) 100%)"
+      : "rgba(250,250,250,0.8)"};
+  border: 2px solid
+    ${({ hasValue }) =>
+      hasValue ? "rgba(59,130,246,0.3)" : "rgba(217,217,217,0.5)"};
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: ${({ hasValue }) =>
+    hasValue
+      ? "0 4px 12px rgba(59,130,246,0.1)"
+      : "0 2px 8px rgba(0,0,0,0.04)"};
+
+  &:hover {
+    border-color: ${({ hasValue }) =>
+      hasValue ? "rgba(59,130,246,0.5)" : "rgba(217,217,217,0.8)"};
+    box-shadow: ${({ hasValue }) =>
+      hasValue
+        ? "0 6px 16px rgba(59,130,246,0.15)"
+        : "0 4px 12px rgba(0,0,0,0.06)"};
+  }
+`;
+
+const EmptyStateText = styled.div`
+  color: #8c8c8c;
+  font-size: 14px;
+  text-align: center;
+  padding: 12px;
+  font-style: italic;
+`;
+
+const ControlItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+  &:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border-color: rgba(59, 130, 246, 0.3);
+    transform: translateY(-1px);
+  }
+`;
+
+const ControlLabel = styled.span`
+  flex: 1;
+  font-weight: 500;
+  font-size: 14px;
+  color: #262626;
+  font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Code", monospace;
+`;
+
+const ControlIndex = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+`;
+
+const ActionButtonGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 `;
 
 const TaskFormFork: FC<{
@@ -88,10 +145,11 @@ const TaskFormFork: FC<{
   const [controlClickOrder, setControlClickOrder] = useState<string[]>([]);
   const [selectLocationType, setSelectLocationType] =
     useState<Select_Location_Type>("custom");
+  const [selectLevelType, setSelectLevelType] = useState<"custom" | "select">(
+    "custom"
+  );
   const [selectYaw, setSelectYaw] = useState<YawGenre>();
-  const [otherSpecial, setOtherSpecial] = useState(false);
-  const [selectActiveWaitRobot, setSelectActiveWaitRobot] =
-    useState<Select_Active_Robot_Type>("disable");
+
   const [submittable, setSubmittable] = useState<boolean>(false);
   const { t } = useTranslation();
   const [form] = Form.useForm();
@@ -103,6 +161,7 @@ const TaskFormFork: FC<{
     NormalActionListOptions,
     SpecialActionListOptions,
     SelectLocationOptions,
+    SelectLevelOptions,
     SelectYawOptions,
     SelectActiveWaitRobotOptions,
     SelectWaitRobotOptions,
@@ -136,10 +195,33 @@ const TaskFormFork: FC<{
     setControlClickOrder((prev) => [...prev, movement]);
   };
 
-  const handleRemoveControl = (index: number) => {
-    setControlClickOrder((prev) => prev.filter((_, i) => i !== index));
-    // Clear the form field for this control
-    form.setFieldValue(["io", "fork", index.toString()], undefined);
+  const moveControlIndex = (from: number, to: number) => {
+    setControlClickOrder((prev) => {
+      const newOrder = [...prev];
+      const [moved] = newOrder.splice(from, 1);
+      newOrder.splice(to, 0, moved);
+
+      // Reorder fork form fields as well
+      const current = form.getFieldValue(["io", "fork"]) || {};
+      const keys = Object.keys(current);
+
+      // Old -> New mapping
+      const reorderedForkValues = {};
+
+      const reorderedKeys = [...keys];
+      const [removedKey] = reorderedKeys.splice(from, 1);
+      reorderedKeys.splice(to, 0, removedKey);
+
+      reorderedKeys.forEach((oldKey, newIndex) => {
+        reorderedForkValues[newIndex] = current[oldKey];
+      });
+
+      setTimeout(() => {
+        form.setFieldValue(["io", "fork"], reorderedForkValues);
+      }, 0);
+
+      return newOrder;
+    });
   };
 
   const editMutation = useMutation({
@@ -203,11 +285,13 @@ const TaskFormFork: FC<{
         (originFormData.operation.is_define_id as Select_Location_Type) ||
           "custom"
       );
-      setSelectYaw(originFormData.operation.is_define_yaw as YawGenre);
-      setOtherSpecial(originFormData.operation.waitGenre !== null);
-      setSelectActiveWaitRobot(
-        originFormData.operation.waitGenre !== null ? "enable" : "disable"
+      setSelectLevelType(
+        (originFormData.io.fork_global.is_define_level as
+          | "select"
+          | "custom") || "custom"
       );
+      setSelectYaw(originFormData.operation.is_define_yaw as YawGenre);
+
       setControlClickOrder(originFormData.operation.control || []);
 
       form.setFieldsValue({
@@ -295,15 +379,44 @@ const TaskFormFork: FC<{
           </Flex>
 
           {/* Control Sequence Display */}
+
           <Flex
             align="center"
             gap="small"
             style={{ marginTop: 16, marginBottom: 16 }}
           >
             <ControlDisplay hasValue={controlClickOrder.length > 0}>
-              {controlClickOrder.length > 0
-                ? controlClickOrder.map((ctrl, idx) => (
-                    <Flex key={idx} align="center" gap="small">
+              {controlClickOrder.length > 0 ? (
+                <Flex vertical gap="10px" style={{ width: "100%" }}>
+                  {controlClickOrder.map((ctrl, idx) => (
+                    <ControlItem key={idx}>
+                      <ControlIndex>{idx + 1}</ControlIndex>
+                      <ControlLabel>{ctrl}</ControlLabel>
+
+                      <ActionButtonGroup>
+                        <Tooltip title="Move Up">
+                          <Button
+                            type="text"
+                            size="small"
+                            disabled={idx === 0}
+                            icon={<ArrowUpOutlined />}
+                            onClick={() => moveControlIndex(idx, idx - 1)}
+                            style={{ height: 24, padding: 0, minWidth: 24 }}
+                          />
+                        </Tooltip>
+
+                        <Tooltip title="Move Down">
+                          <Button
+                            type="text"
+                            size="small"
+                            disabled={idx === controlClickOrder.length - 1}
+                            icon={<ArrowDownOutlined />}
+                            onClick={() => moveControlIndex(idx, idx + 1)}
+                            style={{ height: 24, padding: 0, minWidth: 24 }}
+                          />
+                        </Tooltip>
+                      </ActionButtonGroup>
+
                       <Tooltip title={t("utils.delete")}>
                         <Button
                           type="text"
@@ -313,13 +426,15 @@ const TaskFormFork: FC<{
                           onClick={() => deleteControlElementFromIndex(idx)}
                         />
                       </Tooltip>
-                      <span>
-                        {ctrl}
-                        {idx < controlClickOrder.length - 1 && " → "}
-                      </span>
-                    </Flex>
-                  ))
-                : "No control sequence"}
+                    </ControlItem>
+                  ))}
+                </Flex>
+              ) : (
+                <EmptyStateText>
+                  {t("mission.task_table.no_control_sequence") ||
+                    "No control sequence selected"}
+                </EmptyStateText>
+              )}
             </ControlDisplay>
 
             <Tooltip title={t("utils.reset")}>
@@ -329,6 +444,11 @@ const TaskFormFork: FC<{
                 onClick={() => {
                   setControlClickOrder([]);
                   form.setFieldValue(["io", "fork"], {});
+                }}
+                style={{
+                  height: 40,
+                  width: 40,
+                  borderRadius: 10,
                 }}
               />
             </Tooltip>
@@ -349,7 +469,7 @@ const TaskFormFork: FC<{
           )}
         </Card>
 
-        {/* Dynamic Control Fields Section */}
+        {/* fork的動態 */}
         <Card style={{ marginBottom: 24 }}>
           <SectionHeader level={4}>Control Configuration</SectionHeader>
           <DynamicControlFields
@@ -456,6 +576,42 @@ const TaskFormFork: FC<{
           >
             <InputNumber min={-180} max={180} addonAfter="°" />
           </Form.Item>
+        )}
+
+        {(actionState === "load" ||
+          actionState === "offload" ||
+          actionState === "fork") && (
+          <Card style={{ marginBottom: 24 }}>
+            <SectionHeader level={4}>
+              {t("mission.task_table.level_title")}
+            </SectionHeader>
+            <Form.Item
+              label={t("mission.task_table.is_custom_location")}
+              name="is_define_level"
+            >
+              <Select
+                value={selectLevelType}
+                onChange={(e: "select" | "custom") => setSelectLevelType(e)}
+                options={SelectLevelOptions}
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
+
+            {selectLevelType === "custom" && (
+              <Form.Item
+                label={t("mission.task_table.level")}
+                name="level"
+                rules={[
+                  {
+                    required: true,
+                    message: t("utils.required"),
+                  },
+                ]}
+              >
+                <InputNumber min={1}></InputNumber>
+              </Form.Item>
+            )}
+          </Card>
         )}
 
         {controlClickOrder.some((item) => item.startsWith("W")) && (

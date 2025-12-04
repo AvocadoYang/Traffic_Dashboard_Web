@@ -1,0 +1,112 @@
+import React from "react";
+import useLoc, { LocWithoutArr } from "@/api/useLoc";
+import useMap from "@/api/useMap";
+import styled from "styled-components";
+import { useSetAtom } from "jotai";
+import { tooltipProp } from "@/utils/gloable";
+import { rosCoord2DisplayCoord } from "@/utils/utils";
+import LiftGate from "./LiftGate";
+
+const Point = styled.div.attrs<{
+  left: number;
+  top: number;
+  canrotate: string;
+}>(({ left, top, canrotate }) => ({
+  style: { left, top, canrotate },
+}))<{
+  left: number;
+  top: number;
+  canrotate: string;
+}>`
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: ${(props) =>
+    props.canrotate === "true" ? "#ebac5b" : "#71ce00"};
+  border-radius: 50%;
+  z-index: 10;
+  transition-duration: 200ms;
+  &:hover {
+    background: red;
+    scale: 1.8;
+  }
+`;
+
+const WrapperStation = styled.div.attrs<{
+  left: number;
+  top: number;
+}>(({ left, top }) => ({
+  style: { left, top },
+}))<{
+  left: number;
+  top: number;
+}>`
+  position: absolute;
+  width: 5px;
+  height: 5px;
+`;
+
+const AllLiftGate = () => {
+  const { data } = useMap();
+  const { data: locInfo } = useLoc(undefined);
+
+  const setTooltip = useSetAtom(tooltipProp);
+
+  const handleEnter = (locationId: string, x: number, y: number) => {
+    setTooltip({
+      x,
+      y,
+      locationId,
+    });
+  };
+
+  const handleLeave = () => {
+    setTooltip(null);
+  };
+  if (!data) return [];
+
+  return (
+    <>
+      {data.locations
+        .filter(({ areaType }) => areaType === "LIFT_GATE")
+        .map((loc) => {
+          const [displayX, displayY] = rosCoord2DisplayCoord({
+            x: loc.x,
+            y: loc.y,
+            mapHeight: data?.mapHeight,
+            mapOriginX: data?.mapOriginX,
+            mapOriginY: data.mapOriginY,
+            mapResolution: data.mapResolution,
+          });
+
+          const info = locInfo as LocWithoutArr[];
+
+          return (
+            <div
+              draggable={false}
+              key={loc.locationId}
+              onDragStart={(event) => {
+                event.preventDefault();
+              }}
+              style={{ borderRadius: "50%" }}
+            >
+              <Point
+                id={loc.locationId.toString()}
+                canrotate={`${loc.canRotate}`}
+                left={displayX}
+                top={displayY}
+                key={loc.locationId}
+                onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
+                onMouseLeave={() => handleLeave()}
+              ></Point>
+              <WrapperStation left={displayX} top={displayY}>
+                <LiftGate locationId={loc.locationId}></LiftGate>
+              </WrapperStation>
+            </div>
+          );
+        })}
+    </>
+  );
+};
+
+export default AllLiftGate;

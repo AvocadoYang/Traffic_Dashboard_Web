@@ -59,6 +59,8 @@ export const selectLocationOption = [
   "back_to_load_place",
 ] as const;
 
+export const levelOption = ["custom", "select"] as const;
+
 export const yawOption = [
   "custom",
   "select",

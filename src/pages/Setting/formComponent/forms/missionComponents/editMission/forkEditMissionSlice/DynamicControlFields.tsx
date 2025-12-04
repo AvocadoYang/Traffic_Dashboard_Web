@@ -64,7 +64,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
       fork_height: "Fork Height",
       blind_fork: "Blind Fork",
       clamp: t("mission.task_table.clamp"),
-      F: "Forward",
+
       B: "Backward",
       S: "Spin",
       W: "Wait",
@@ -270,30 +270,13 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                   );
                 }
 
-                if (heightType === "level") {
-                  return (
-                    <Form.Item
-                      label={t("mission.task_table.level")}
-                      name={[...fieldName, "level"]}
-                      rules={[{ required: true, message: t("utils.required") }]}
-                    >
-                      <InputNumber
-                        min={1}
-                        addonAfter={t("utils.floor")}
-                        placeholder="Enter level"
-                        style={{ width: "100%" }}
-                      />
-                    </Form.Item>
-                  );
-                }
-
                 return null;
               }}
             </Form.Item>
           </ControlCard>
         );
 
-     case "blind_fork":
+      case "blind_fork":
         return (
           <ControlCard
             key={`${control}-${index}`}
@@ -398,7 +381,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
             </Form.Item>
           </ControlCard>
         );
-        
+
       case "clamp":
         return (
           <ControlCard
