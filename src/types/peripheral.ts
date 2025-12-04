@@ -19,6 +19,7 @@ export type PeripheralTypes =
   | "STORAGE"
   | "FORKLIFT_LOAD_STATION"
   | "ELEVATOR"
+  | "GATE_WAIT_POINT"
   | "CONVEYOR";
 
 export type PeripheralInfo = {

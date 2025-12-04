@@ -2,6 +2,7 @@ import {
   activeWaitRobot,
   actonList,
   forkHeightOption,
+  levelOption,
   selectLocationOption,
   waitRobotOption,
 } from "../params";
@@ -144,6 +145,33 @@ const useTaskOptions = (action: Action_Type) => {
       .filter(Boolean) as { label: string; value: Select_Location_Type }[];
   }, [action, t, selectLocationOption]);
 
+  const SelectLevelOptions: {
+    label: string;
+    value: Select_Location_Type;
+  }[] = useMemo(() => {
+    return levelOption
+      .map((type) => {
+        switch (type) {
+          case "custom":
+            return {
+              label: t("mission.task_table.custom_level"),
+              value: type,
+            };
+          case "select":
+            return {
+              label: t("mission.task_table.level_select"),
+              value: type,
+            };
+          default:
+            return {
+              label: type,
+              value: type,
+            };
+        }
+      })
+      .filter(Boolean) as { label: string; value: Select_Location_Type }[];
+  }, [action, t, levelOption]);
+
   // const SelectLocationOptions: { label: string; value: Select_Location_Type }[] =
   //   selectLocationOption.map((type) => {
   //     switch (type) {
@@ -262,6 +290,7 @@ const useTaskOptions = (action: Action_Type) => {
     locationsOption,
     NormalActionListOptions,
     SpecialActionListOptions,
+    SelectLevelOptions,
     SelectLocationOptions,
     SelectYawOptions,
     SelectForkHeightOptions,

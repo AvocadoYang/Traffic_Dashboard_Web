@@ -8,8 +8,8 @@ export const locationOption = (value) => {
     //   return t("edit_location_panel.roboticArm");
     case "CONVEYOR":
       return t("edit_location_panel.conveyor");
-    // case "LiftGate":
-    //   return t("edit_location_panel.liftGate");
+    case "LiftGate":
+      return t("edit_location_panel.liftGate");
     // case "Palletizer":
     //   return t("edit_location_panel.palletizer");
     case "CHARGING":
@@ -19,6 +19,8 @@ export const locationOption = (value) => {
       return t("edit_location_panel.Standby");
     case "STORAGE":
       return t("edit_location_panel.Storage");
+    case "GATE_WAIT_POINT":
+      return t("edit_location_panel.GATE_WAIT_POINT");
     default:
       return value;
   }

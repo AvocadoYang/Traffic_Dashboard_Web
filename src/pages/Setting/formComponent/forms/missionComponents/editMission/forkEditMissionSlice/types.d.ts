@@ -61,6 +61,7 @@ export type Fork_Action = {
     };
     fork_global: {
       level: number;
+      is_define_level: string;
     };
     camera: {
       config: number;

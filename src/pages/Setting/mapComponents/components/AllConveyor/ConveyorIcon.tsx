@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { LoadingStation } from "../AllCargo.tsx/LoadingStation";
+import { LoadingStation } from "../AllCargo/LoadingStation";
 import { useAtomValue, useSetAtom } from "jotai";
 import { IsEditPeripheralModal } from "../../../formComponent/forms/peripheralModal/jotai";
 import { Conveyor_Info } from "@/types/peripheral";

@@ -1,0 +1,119 @@
+import useLoc, { LocWithoutArr } from "@/api/useLoc";
+import useMap from "@/api/useMap";
+import { tooltipProp } from "@/utils/gloable";
+import { rosCoord2DisplayCoord } from "@/utils/utils";
+import { useSetAtom } from "jotai";
+import React from "react";
+import styled from "styled-components";
+import GateWaitPoint from "./GateWaitPoint";
+
+const Point = styled.div.attrs<{
+  left: number;
+  top: number;
+  canrotate: string;
+}>(({ left, top, canrotate }) => ({
+  style: { left, top, canrotate },
+}))<{
+  left: number;
+  top: number;
+  canrotate: string;
+}>`
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: ${(props) =>
+    props.canrotate === "true" ? "#ebac5b" : "#8200ce"};
+  border-radius: 50%;
+  z-index: 10;
+  transition-duration: 200ms;
+  &:hover {
+    background: red;
+    scale: 1.8;
+  }
+`;
+
+const WrapperStation = styled.div.attrs<{
+  left: number;
+  top: number;
+}>(({ left, top }) => ({
+  style: { left, top },
+}))<{
+  left: number;
+  top: number;
+}>`
+  position: absolute;
+  width: 5px;
+  height: 5px;
+`;
+
+const AllGateWaitPoint = () => {
+  const { data } = useMap();
+  const setTooltip = useSetAtom(tooltipProp);
+  const { data: locInfo } = useLoc(undefined);
+
+  const handleEnter = (locationId: string, x: number, y: number) => {
+    setTooltip({
+      x,
+      y,
+      locationId,
+    });
+  };
+  // console.log(conveyorData, 'kkk');
+  const handleLeave = () => {
+    setTooltip(null);
+  };
+  if (!data) return [];
+  return (
+    <>
+      {data.locations
+        .filter(({ areaType }) => areaType === "GATE_WAIT_POINT")
+        .map((loc) => {
+          const [displayX, displayY] = rosCoord2DisplayCoord({
+            x: loc.x,
+            y: loc.y,
+            mapHeight: data?.mapHeight,
+            mapOriginX: data?.mapOriginX,
+            mapOriginY: data.mapOriginY,
+            mapResolution: data.mapResolution,
+          });
+
+          const info = locInfo as LocWithoutArr[];
+
+          const translateX = info?.find((i) => i.locationId === loc.locationId)
+            ?.translateX as number;
+          const translateY = info?.find((i) => i.locationId === loc.locationId)
+            ?.translateY as number;
+          const rotate = info?.find((i) => i.locationId === loc.locationId)
+            ?.rotate as number;
+          const LocScale = info?.find((i) => i.locationId === loc.locationId)
+            ?.scale as number;
+
+          return (
+            <div
+              draggable={false}
+              key={loc.locationId}
+              onDragStart={(event) => {
+                event.preventDefault();
+              }}
+              style={{ borderRadius: "50%" }}
+            >
+              <Point
+                id={loc.locationId.toString()}
+                canrotate={`${loc.canRotate}`}
+                left={displayX}
+                top={displayY}
+                key={loc.locationId}
+                onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
+                onMouseLeave={() => handleLeave()}
+              ></Point>
+              <WrapperStation left={displayX} top={displayY}>
+                <GateWaitPoint locationId={loc.locationId}></GateWaitPoint>
+              </WrapperStation>
+            </div>
+          );
+        })}
+    </>
+  );
+};
+
+export default AllGateWaitPoint;

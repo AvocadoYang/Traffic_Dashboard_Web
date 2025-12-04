@@ -332,6 +332,7 @@
     "Dispatch": "預派點",
     "Standby": "待命區",
     "Storage": "存貨區",
+    "GATE_WAIT_POINT": "門前等待點",
     "save_pose_notify": {
       "empty_value": "X/Y 為必填值",
       "fill_in_value": "請填入 X/Y 值",
@@ -394,12 +395,12 @@
     "not_vehicle_forbidden": "不設定限制車輛",
     "edit_zone": "編輯區域",
     "layer_setting": "圖層設定",
-    "layer":"選擇圖層",
+    "layer": "選擇圖層",
     "lidar_front": "前方光達",
     "lidar_back": "後方光達",
     "layer_dis_far": "圖層距離 (遠)",
     "layer_dis_near": "圖層距離 (近)",
-    "speical_layer_cargo":"特殊圖層 (貨區)",
+    "speical_layer_cargo": "特殊圖層 (貨區)",
     "special_layer_charge": "特殊圖層 (充電站)",
     "deceleration_zone": "減速區",
     "height_limit_zone": "限高區",
@@ -817,6 +818,10 @@
       "location_charge_station_desc": "自動尋找可用的充電站。",
       "back_to_load_place": "自動 (回取貨的預備點)",
       "back_to_load_place_desc": "回去取貨的預備點",
+
+      "level_title": "位置選擇模式",
+      "custom_level": "自訂（輸入儲位樓層）",
+      "level_select": "自動（快速任務位置）",
 
       "prepare_point": "自動（預派點）",
       "prepare_point_desc": "目標儲位設定的預派點",
