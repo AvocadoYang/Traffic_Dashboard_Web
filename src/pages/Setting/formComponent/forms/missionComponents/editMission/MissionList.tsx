@@ -141,7 +141,7 @@ const MissionList: FC<{
         )}
 
         <Modal
-          width={1000}
+          width={3000}
           title={t("utils.edit")}
           open={open}
           onCancel={handleCancel}
