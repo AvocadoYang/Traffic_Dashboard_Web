@@ -75,6 +75,17 @@
   color: #646963;
 }
 
+.amr-is-registerd {
+  font-size: 10px;
+  margin-top: 4px;
+  color:  #2eb800;
+}
+.amr-not-registerd {
+  font-size: 10px;
+  margin-top: 4px;
+  color:  #646963;
+}
+
 .amr-title-category-dark-mode {
   font-size: 10px;
   color: #fafafa;

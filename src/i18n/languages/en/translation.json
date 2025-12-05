@@ -2,6 +2,8 @@
   "utils": {
     "yes": "Yes",
     "no": "No",
+    "is_registered": "is registered",
+    "not_registered": "not registered",
     "open": "Open",
     "detail": "Detail",
     "location": "Location",
@@ -165,6 +167,8 @@
     "is_carry": "is carry",
     "is_charge": "is charging",
     "low_power": "low power",
+    "positioning_normal": "position normal" ,
+    "positioning_inaccurate": "position inaccurate",
     "unknown": "unknown"
   },
 

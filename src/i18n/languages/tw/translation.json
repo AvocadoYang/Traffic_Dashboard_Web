@@ -6,6 +6,8 @@
     "close": "關閉",
     "count": "數量",
     "detail": "詳情",
+     "is_registered": "已註冊",
+    "not_registered": "未註冊",
     "search": "搜尋",
     "reset": "重設",
     "back": "回表單",
@@ -164,6 +166,8 @@
     "is_carry": "攜貨",
     "is_charge": "充電中",
     "low_power": "低電量",
+     "positioning_normal": "定位正常" ,
+    "positioning_inaccurate": "定位異常",
     "unknown": "未知"
   },
   "locations": {

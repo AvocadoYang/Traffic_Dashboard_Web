@@ -4,6 +4,7 @@ import {
   useIsCharging,
   useIsManual,
   useIsWorking,
+  usePosIsAccurate,
 } from "@/sockets/useAMRInfo";
 import { errorHandler } from "@/utils/utils";
 import { useMutation } from "@tanstack/react-query";
@@ -85,6 +86,21 @@ export const PowerTag: React.FC<{ amrId }> = memo(({ amrId }) => {
       style={{ margin: 0 }}
     >
       {`${t("mode.low_power")}`}
+    </Tag>
+  );
+});
+
+
+export const IsPosAccurate: React.FC<{ amrId }> = memo(({ amrId }) => {
+  const { isPosAccurate } = usePosIsAccurate(amrId)
+  const { t } = useTranslation();
+
+  return (
+    <Tag
+      color={ isPosAccurate ? "#8ed476ff": "volcano"}
+      style={{ margin: 0 }}
+    >
+      { isPosAccurate ? `${t("mode.positioning_normal")}` : `${t("mode.positioning_inaccurate")}`}
     </Tag>
   );
 });
