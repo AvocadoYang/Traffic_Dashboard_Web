@@ -12,6 +12,8 @@ import { globalScale } from "../utils/mapStatus";
 import AllConveyor from "./components/AllConveyor/AllConveyor";
 import { AllElevator } from "./components/AllElevator";
 import AllChargeStation from "./components/AllChargeStation/AllChargeStation";
+import AllGateWaitPoint from "./components/AllGateWaitPoint/AllGateWaitPoint";
+import AllLiftGate from "./components/AllGate/AllLiftGate";
 
 const MapView: React.FC<{
   mapRef: RefObject<HTMLDivElement>;
@@ -42,7 +44,8 @@ const MapView: React.FC<{
       <AllChargeStation />
       <AllElevator />
       <AllConveyor />
-
+      <AllGateWaitPoint></AllGateWaitPoint>
+      <AllLiftGate></AllLiftGate>
       {showLocationToolTip ? <ToolTip /> : []}
 
       {/* 一開始創建新的模擬任務的modal 必須填完才能使用 */}

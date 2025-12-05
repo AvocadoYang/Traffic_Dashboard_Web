@@ -90,3 +90,25 @@ export type Elevator_Info = {
   offloadMissionId: string;
   elevatorDBId: string;
 };
+
+export type Lift_Gate_Info = {
+  locationId: string;
+  booker?: string;
+  occupier?: string | null;
+
+  name: string;
+  description: string;
+  group: string | null;
+  disable: boolean;
+  status: Lift_Gate_Status;
+};
+
+export enum Lift_Gate_Status {
+  OPENED = "1001",
+  OPENING = "1002",
+  CLOSING = "1003",
+  CLOSED = "1004",
+  E_STOP = "9001",
+  VFD_Alarm = "9002",
+  System_Error = "9003",
+}

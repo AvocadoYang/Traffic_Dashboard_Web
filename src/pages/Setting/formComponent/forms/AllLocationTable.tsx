@@ -23,6 +23,7 @@ import {
   DeleteTwoTone,
   EditOutlined,
   CloseOutlined,
+  ReloadOutlined,
 } from "@ant-design/icons";
 import { EditableCellProps, DataIndex } from "./antd";
 
@@ -132,7 +133,7 @@ const AllLocationTable: React.FC<{
   const [locationPanelForm] = Form.useForm();
   const searchInput = useRef<InputRef>(null);
   const [editingKey, setEditingKey] = useState<string | null>(null);
-  const { data: mapData } = useMap();
+  const { data: mapData, refetch } = useMap();
   const setTooltip = useSetAtom(tooltipProp);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [messageApi, contextHolders] = message.useMessage();
@@ -202,7 +203,7 @@ const AllLocationTable: React.FC<{
   };
 
   const getColumnSearchProps = (
-    dataIndex: DataIndex,
+    dataIndex: DataIndex
   ): TableColumnType<LocationType> => ({
     filterDropdown: ({
       setSelectedKeys,
@@ -293,7 +294,7 @@ const AllLocationTable: React.FC<{
 
     if (isNegative) {
       messageApi.warning(
-        t("edit_location_panel.save_pose_notify.is_a_navigate"),
+        t("edit_location_panel.save_pose_notify.is_a_navigate")
       );
       return;
     }
@@ -516,16 +517,23 @@ const AllLocationTable: React.FC<{
           vertical
           onMouseLeave={handleMouseLeave}
         >
-          <Button
-            onClick={() => deleteMultiItem()}
-            icon={<DeleteTwoTone twoToneColor="#f30303" />}
-            loading={deleteMultiLocationMutation.isLoading}
-            disabled={selectedRowKeys.length === 0}
-            color="danger"
-            variant="filled"
-          >
-            {t("utils.delete")}
-          </Button>
+          <Flex gap={"middle"}>
+            <Button
+              onClick={() => deleteMultiItem()}
+              icon={<DeleteTwoTone twoToneColor="#f30303" />}
+              loading={deleteMultiLocationMutation.isLoading}
+              disabled={selectedRowKeys.length === 0}
+              color="danger"
+              variant="filled"
+            >
+              {t("utils.delete")}
+            </Button>
+
+            <Button onClick={() => refetch()} icon={<ReloadOutlined />}>
+              {t("utils.reload")}
+            </Button>
+          </Flex>
+
           <Form form={locationPanelForm} component={false}>
             <Table
               rowSelection={{
@@ -554,7 +562,7 @@ const AllLocationTable: React.FC<{
                     handleHover(
                       record.locationId,
                       Number(record.x),
-                      Number(record.y),
+                      Number(record.y)
                     ),
                 };
               }}

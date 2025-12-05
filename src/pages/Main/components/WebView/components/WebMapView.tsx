@@ -21,6 +21,8 @@ import { AllElevator } from "../../PadViwe/components/PadMapContent/AllElevator"
 import AllChargeStation from "../../PadViwe/components/PadMapContent/AllChargeStation/AllChargeStation";
 import { OpenChargeStationModal } from "@/pages/Main/global/jotai";
 import StatusPanel from "../../PadViwe/components/PadMapContent/AllChargeStation/StatusPanel";
+import AllGateWaitPoint from "../../PadViwe/components/PadMapContent/AllGateWaitPoint/AllGateWaitPoint";
+import AllLiftGate from "../../PadViwe/components/PadMapContent/AllGate/AllLiftGate";
 
 const WebMapView: React.FC<{
   mapRef: RefObject<HTMLDivElement>;
@@ -66,6 +68,8 @@ const WebMapView: React.FC<{
           <AllCargo></AllCargo>
           <AllElevator></AllElevator>
           <AllConveyor></AllConveyor>
+          <AllGateWaitPoint></AllGateWaitPoint>
+          <AllLiftGate></AllLiftGate>
           {showLocation ? <AllLocation></AllLocation> : null}
           {showRoad ? <AllRoads></AllRoads> : null}
           {showLocationToolTip ? <ToolTip /> : []}
