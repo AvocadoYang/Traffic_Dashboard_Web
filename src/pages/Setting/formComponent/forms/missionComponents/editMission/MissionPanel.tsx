@@ -13,6 +13,7 @@ import { FC, useState, useMemo, useEffect } from "react";
 import { nanoid } from "nanoid";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import styled from "styled-components";
 import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 import useAMRsample from "@/api/useAMRsample";
 import useCategory from "@/api/useCategory";
@@ -23,6 +24,192 @@ import FormHr from "@/pages/Setting/utils/FormHr";
 import MissionForm from "./MissionForm";
 import SwitchTable from "./SwitchTable";
 import useAllMissionTitlesDetail from "@/api/useMissionTitleDetail";
+
+// Industrial Styled Components
+const IndustrialContainer = styled.div`
+  font-family: "Roboto Mono", monospace;
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  padding: 20px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+`;
+
+const PanelHeader = styled.h3`
+  background: #fafafa;
+  border: 1px solid #d9d9d9;
+  border-left: 4px solid #1890ff;
+  padding: 12px 16px;
+  margin: 0 0 20px 0;
+  font-family: "Roboto Mono", monospace;
+  color: #262626;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 14px;
+  cursor: move;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f0f5ff;
+    border-left-color: #40a9ff;
+  }
+`;
+
+const ControlRow = styled(Row)`
+  margin-bottom: 16px;
+`;
+
+const IndustrialButton = styled(Button)`
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1px;
+  height: 36px;
+  font-weight: 600;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+
+  &.ant-btn-primary {
+    background: #1890ff;
+    border-color: #1890ff;
+
+    &:hover {
+      background: #40a9ff;
+      border-color: #40a9ff;
+      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
+    }
+  }
+
+  &.reload-btn {
+    background: #ffffff;
+    border: 1px solid #d9d9d9;
+    color: #595959;
+
+    &:hover {
+      background: #fafafa;
+      border-color: #1890ff;
+      color: #1890ff;
+    }
+  }
+`;
+
+const IndustrialInput = styled(Input)`
+  font-family: "Roboto Mono", monospace;
+  font-size: 12px;
+  height: 36px;
+  border-radius: 4px;
+  border: 1px solid #d9d9d9;
+
+  &:hover {
+    border-color: #40a9ff;
+  }
+
+  &:focus {
+    border-color: #1890ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+  }
+
+  &::placeholder {
+    color: #bfbfbf;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+  }
+`;
+
+const IndustrialSelect = styled(Select)`
+  font-family: "Roboto Mono", monospace;
+
+  .ant-select-selector {
+    height: 36px !important;
+    border: 1px solid #d9d9d9 !important;
+    border-radius: 4px !important;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+
+    &:hover {
+      border-color: #40a9ff !important;
+    }
+  }
+
+  &.ant-select-focused .ant-select-selector {
+    border-color: #1890ff !important;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2) !important;
+  }
+
+  .ant-select-selection-placeholder {
+    color: #bfbfbf;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+  }
+`;
+
+const IndustrialModal = styled(Modal)`
+  .ant-modal-content {
+    background: #ffffff;
+    border: 2px solid #d9d9d9;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .ant-modal-header {
+    background: #fafafa;
+    border-bottom: 2px solid #d9d9d9;
+    border-left: 4px solid #1890ff;
+    padding: 16px 24px;
+  }
+
+  .ant-modal-title {
+    color: #262626;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: "Roboto Mono", monospace;
+  }
+
+  .ant-modal-body {
+    padding: 24px;
+  }
+
+  .ant-modal-footer {
+    border-top: 1px solid #d9d9d9;
+    padding: 16px 24px;
+
+    .ant-btn {
+      font-family: "Roboto Mono", monospace;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 1px;
+      height: 36px;
+      font-weight: 600;
+    }
+  }
+`;
+
+const FormLabel = styled.span`
+  color: #595959;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: "Roboto Mono", monospace;
+  font-weight: 600;
+`;
+
+const StyledForm = styled(Form)`
+  .ant-form-item-label > label {
+    color: #595959;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: "Roboto Mono", monospace;
+    font-weight: 600;
+  }
+`;
 
 const EditMissionPanel: FC<{
   sortableId: string;
@@ -64,6 +251,10 @@ const EditMissionPanel: FC<{
         await queryClient.refetchQueries({
           queryKey: ["all-mission-title-detail"],
         });
+        messageApi.success(t("utils.success"));
+      },
+      onError: () => {
+        messageApi.error(t("utils.error"));
       },
     },
   );
@@ -126,15 +317,15 @@ const EditMissionPanel: FC<{
     } else {
       setCanBeCreate(false);
     }
-  }, [tag]);
+  }, [tag, catOption]);
 
   return (
-    <>
+    <IndustrialContainer>
       {contextHolder}
       <div>
-        <h3 className="drop_button_style" {...listeners} {...attributes}>
+        <PanelHeader {...listeners} {...attributes}>
           {t("mission.add_mission.title")}
-        </h3>
+        </PanelHeader>
         <FormHr />
         <Flex gap="middle" justify="flex-start" align="start" vertical>
           <SwitchTable
@@ -148,95 +339,103 @@ const EditMissionPanel: FC<{
             selectedMissionCar={selectedMissionCar}
             filterMissionData={filterMissionData as unknown as MTType}
           >
-            <Row gutter={12}>
+            <ControlRow gutter={12}>
               <Col span={8}>
-                <Button
+                <IndustrialButton
+                  type="primary"
                   icon={<PlusOutlined />}
                   onClick={createMissionBtn}
-                  color="primary"
-                  variant="filled"
-                  style={{ marginBottom: 12 }}
+                  block
                 >
                   {t("mission.add_mission.create_mission")}
-                </Button>
+                </IndustrialButton>
               </Col>
               <Col span={12}>
-                <Input
+                <IndustrialInput
                   placeholder={t("mission.add_mission.search_mission")}
                   onChange={(e) => setSearch(e.target.value)}
                 />
               </Col>
               <Col span={4}>
-                <Button
+                <IndustrialButton
+                  className="reload-btn"
                   shape="circle"
                   loading={loadingTitle}
-                  icon={<ReloadOutlined onClick={refetchData} />}
+                  icon={<ReloadOutlined />}
+                  onClick={refetchData}
                 />
               </Col>
-            </Row>
+            </ControlRow>
           </SwitchTable>
         </Flex>
       </div>
 
-      {/* 新增任務Create Mission Modal */}
-      {openWithCreateMission ? (
-        <Modal
-          title={t("mission.add_mission.create_mission")}
-          open={openWithCreateMission}
-          onOk={handleAdd}
-          onCancel={() => {
-            createMissionForm.setFieldValue("name", "");
-            setOpenWithCreateMission(false);
-          }}
+      {/* Create Mission Modal */}
+      <IndustrialModal
+        title={t("mission.add_mission.create_mission")}
+        open={openWithCreateMission}
+        onOk={handleAdd}
+        onCancel={() => {
+          createMissionForm.setFieldValue("name", "");
+          setOpenWithCreateMission(false);
+        }}
+        okText={t("utils.confirm") || "CONFIRM"}
+        cancelText={t("utils.cancel") || "CANCEL"}
+      >
+        <StyledForm
+          form={createMissionForm}
+          labelCol={{ span: 6 }}
+          autoComplete="off"
+          layout="horizontal"
         >
-          <Form
-            form={createMissionForm}
-            labelCol={{ span: 6 }}
-            autoComplete="off"
+          <Form.Item
+            label={t("mission.add_mission.name")}
+            name="name"
+            rules={[
+              { required: true, message: t("mission.add_mission.car_warn") },
+            ]}
           >
-            <Form.Item
-              hasFeedback
-              label={t("mission.add_mission.name")}
-              name="name"
-              rules={[
-                { required: true, message: t("mission.add_mission.car_warn") },
-              ]}
-            >
-              <Input placeholder="請輸入任務名稱" />
-            </Form.Item>
-            <Form.Item
-              hasFeedback
-              label={t("mission.add_mission.car")}
-              name="robot_type_id"
-            >
-              <Select placeholder="請選擇" options={newCarList} />
-            </Form.Item>
-            <Form.Item label={t("mission.add_mission.tag")} name="category">
-              <Select
-                placeholder="請選擇"
-                mode="multiple"
-                options={catOption}
-                onChange={(v) => setTag(v)}
-              />
-            </Form.Item>
-          </Form>
-        </Modal>
-      ) : (
-        []
-      )}
+            <IndustrialInput placeholder={t("mission.add_mission.name")} />
+          </Form.Item>
+          <Form.Item
+            label={t("mission.add_mission.car")}
+            name="robot_type_id"
+            rules={[
+              { required: true, message: t("mission.add_mission.car_warn") },
+            ]}
+          >
+            <IndustrialSelect
+              placeholder={t("mission.add_mission.car")}
+              options={newCarList}
+            />
+          </Form.Item>
+          <Form.Item
+            label={t("mission.add_mission.tag")}
+            name="category"
+            rules={[
+              { required: true, message: t("mission.add_mission.tag_warn") },
+            ]}
+          >
+            <IndustrialSelect
+              placeholder={t("mission.add_mission.tag")}
+              mode="multiple"
+              options={catOption}
+              onChange={(v) => setTag(v)}
+            />
+          </Form.Item>
+        </StyledForm>
+      </IndustrialModal>
 
-      {/* 編輯任務Edit Mission Modal */}
-      {openMissionModel ? (
+      {/* Edit Mission Modal */}
+      {openMissionModel && (
         <MissionForm
           editMissionKey={editMissionKey}
           formMission={formMission}
           openMissionModel={openMissionModel}
           setOpenMissionModel={setOpenMissionModel}
         />
-      ) : (
-        []
       )}
-    </>
+    </IndustrialContainer>
   );
 };
 

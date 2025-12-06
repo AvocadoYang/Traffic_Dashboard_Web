@@ -761,8 +761,8 @@
       "empty_warn": "任務名稱不可為空",
       "empty_car_warn": "車輛類別不可為空",
       "duplicate_warn": "已有相同任務名稱存在",
-      "edit_info": "編輯任務資料",
-      "edit_detail": "編輯任務參數",
+      "edit_info": "編輯名稱",
+      "edit_detail": "編輯參數",
 
       "name_warn": "任務名稱不可為空",
       "car_warn": "車輛類型必填",

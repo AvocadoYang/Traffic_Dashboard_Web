@@ -11,24 +11,27 @@ import {
   message,
   Popconfirm,
   Flex,
+  Space,
+  Table,
+  Tag,
+  Form,
 } from "antd";
 import { useSetAtom } from "jotai";
 import { LocationType } from "@/utils/jotai";
-import { useRef, useState } from "react";
+import { useRef, useState, memo } from "react";
 import { FilterDropdownProps } from "antd/es/table/interface";
 import { useTranslation } from "react-i18next";
 import { tooltipProp } from "@/utils/gloable";
+import styled from "styled-components";
 import {
   SearchOutlined,
   DeleteTwoTone,
   EditOutlined,
   CloseOutlined,
   ReloadOutlined,
+  SaveOutlined,
 } from "@ant-design/icons";
 import { EditableCellProps, DataIndex } from "./antd";
-
-import React, { memo } from "react";
-import { Space, Table, Tag, Form } from "antd";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
@@ -36,6 +39,212 @@ import { errorHandler } from "@/utils/utils";
 import useMap from "@/api/useMap";
 import FormHr from "../../utils/FormHr";
 import SubmitButton from "@/utils/SubmitButton";
+
+// Industrial Styled Components
+const IndustrialContainer = styled.div`
+  font-family: "Roboto Mono", monospace;
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  padding: 20px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+`;
+
+const PanelHeader = styled.h3`
+  background: #fafafa;
+  border: 1px solid #d9d9d9;
+  border-left: 4px solid #1890ff;
+  padding: 12px 16px;
+  margin: 0 0 20px 0;
+  font-family: "Roboto Mono", monospace;
+  color: #262626;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 14px;
+  cursor: move;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f0f5ff;
+    border-left-color: #40a9ff;
+  }
+`;
+
+const IndustrialTableContainer = styled.div`
+  .ant-table {
+    background: #ffffff;
+    border: 1px solid #d9d9d9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .ant-table-thead > tr > th {
+    background: #fafafa;
+    color: #262626;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
+    border-bottom: 2px solid #d9d9d9;
+    font-family: "Roboto Mono", monospace;
+  }
+
+  .ant-table-tbody > tr {
+    background: #ffffff;
+    transition: all 0.2s ease;
+    font-family: "Roboto Mono", monospace;
+
+    &:hover {
+      background: #f0f5ff !important;
+      box-shadow: 0 2px 4px rgba(24, 144, 255, 0.1);
+    }
+  }
+
+  .ant-table-tbody > tr > td {
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 12px;
+    color: #595959;
+  }
+
+  .ant-checkbox-wrapper {
+    font-family: "Roboto Mono", monospace;
+  }
+`;
+
+const IndustrialButton = styled(Button)`
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  height: 32px;
+  font-weight: 600;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+
+  &.delete-btn {
+    background: #fff1f0;
+    border: 1px solid #ff4d4f;
+    color: #ff4d4f;
+
+    &:hover {
+      background: #ff4d4f;
+      border-color: #ff4d4f;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3);
+    }
+
+    &:disabled {
+      background: #f5f5f5;
+      border-color: #d9d9d9;
+      color: #bfbfbf;
+    }
+  }
+
+  &.edit-btn {
+    background: #e6f7ff;
+    border: 1px solid #1890ff;
+    color: #1890ff;
+
+    &:hover {
+      background: #1890ff;
+      border-color: #1890ff;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+    }
+  }
+
+  &.save-btn {
+    background: #f6ffed;
+    border: 1px solid #52c41a;
+    color: #52c41a;
+
+    &:hover {
+      background: #52c41a;
+      border-color: #52c41a;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(82, 196, 26, 0.3);
+    }
+  }
+
+  &.cancel-btn {
+    background: #fff1f0;
+    border: 1px solid #ff4d4f;
+    color: #ff4d4f;
+
+    &:hover {
+      background: #ff4d4f;
+      border-color: #ff4d4f;
+      color: #ffffff;
+    }
+  }
+
+  &.reload-btn {
+    background: #ffffff;
+    border: 1px solid #d9d9d9;
+    color: #595959;
+
+    &:hover {
+      background: #fafafa;
+      border-color: #1890ff;
+      color: #1890ff;
+    }
+  }
+`;
+
+const LocationIdBadge = styled.span`
+  display: inline-block;
+  padding: 2px 8px;
+  background: #e6f7ff;
+  border: 1px solid #1890ff;
+  border-radius: 4px;
+  color: #1890ff;
+  font-family: "Roboto Mono", monospace;
+  font-size: 11px;
+  font-weight: 600;
+`;
+
+const CoordinateText = styled.span`
+  font-family: "Roboto Mono", monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: #262626;
+`;
+
+const IndustrialTag = styled(Tag)`
+  font-family: "Roboto Mono", monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+`;
+
+const SearchDropdown = styled.div`
+  padding: 8px;
+  font-family: "Roboto Mono", monospace;
+
+  .ant-input {
+    font-family: "Roboto Mono", monospace;
+    font-size: 11px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+
+    &:focus {
+      border-color: #1890ff;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+    }
+  }
+
+  .ant-btn {
+    font-family: "Roboto Mono", monospace;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+  }
+`;
 
 const pointTypeWithColor = {
   EXTRA: "#2d7df6",
@@ -57,7 +266,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
     { value: "CHARGING", label: t("utils.location_property.charge_station") },
     { value: "DISPATCH", label: t("utils.location_property.prepare_side") },
     { value: "STORAGE", label: t("utils.location_property.shelve") },
-    { value: "STANDBYa", label: t("utils.location_property.wait_side") },
+    { value: "STANDBY", label: t("utils.location_property.wait_side") },
   ];
 
   const canRotateOption = [
@@ -69,25 +278,22 @@ const EditableCell: React.FC<EditableCellProps> = ({
 
   switch (dataIndex) {
     case "locationId":
-      inputNode = <InputNumber />;
+      inputNode = <InputNumber style={{ width: "100%" }} />;
       break;
     case "x":
-      inputNode = <InputNumber style={{ width: "150px" }} />;
+      inputNode = <InputNumber style={{ width: "100%" }} />;
       break;
     case "y":
-      inputNode = <InputNumber style={{ width: "150px" }} />;
+      inputNode = <InputNumber style={{ width: "100%" }} />;
       break;
     case "areaType":
-      inputNode = (
-        <Select options={pointTypeOption} style={{ width: "150px" }} />
-      );
+      inputNode = <Select options={pointTypeOption} style={{ width: "100%" }} />;
       break;
-
     case "canRotate":
-      inputNode = <Select options={canRotateOption} />;
+      inputNode = <Select options={canRotateOption} style={{ width: "100%" }} />;
       break;
     default:
-      <InputNumber />;
+      inputNode = <InputNumber style={{ width: "100%" }} />;
   }
 
   return (
@@ -96,13 +302,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
         <Form.Item
           name={dataIndex}
           style={{ margin: 0 }}
-          hasFeedback
-          rules={[
-            {
-              required: true,
-              message: "Please Input !",
-            },
-          ]}
+          rules={[{ required: true, message: "REQUIRED!" }]}
         >
           {inputNode}
         </Form.Item>
@@ -164,12 +364,10 @@ const AllLocationTable: React.FC<{
 
   const deleteMultiLocationMutation = useMutation({
     mutationFn: (id: string[]) => {
-      return client.post("api/setting/delete-multi-edit-loc", {
-        id,
-      });
+      return client.post("api/setting/delete-multi-edit-loc", { id });
     },
     onSuccess: () => {
-      void messageApi.success("success");
+      void messageApi.success(t("utils.success"));
       queryClient.refetchQueries({ queryKey: ["map"] });
       setSelectedRowKeys([]);
     },
@@ -178,7 +376,6 @@ const AllLocationTable: React.FC<{
 
   const deleteMultiItem = () => {
     if (selectedRowKeys.length === 0) return;
-
     deleteMultiLocationMutation.mutate(selectedRowKeys as string[]);
   };
 
@@ -193,7 +390,6 @@ const AllLocationTable: React.FC<{
     setEditingKey(record.locationId);
   };
 
-  /** About search function */
   const handleSearch = (confirm: FilterDropdownProps["confirm"]) => {
     confirm();
   };
@@ -212,10 +408,10 @@ const AllLocationTable: React.FC<{
       clearFilters,
       close,
     }) => (
-      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+      <SearchDropdown onKeyDown={(e) => e.stopPropagation()}>
         <Input
           ref={searchInput}
-          placeholder={`Search ${dataIndex}`}
+          placeholder={`SEARCH ${String(dataIndex).toUpperCase()}`}
           value={selectedKeys[0]}
           onChange={(e) =>
             setSelectedKeys(e.target.value ? [e.target.value] : [])
@@ -224,48 +420,36 @@ const AllLocationTable: React.FC<{
           style={{ marginBottom: 8, display: "block" }}
         />
         <Space>
-          <Button
-            color="primary"
-            variant="filled"
+          <IndustrialButton
+            className="edit-btn"
             onClick={() => handleSearch(confirm)}
             icon={<SearchOutlined />}
             size="small"
-            style={{ width: 90 }}
           >
             {t("utils.search")}
-          </Button>
-          <Button
-            color="default"
-            variant="filled"
+          </IndustrialButton>
+          <IndustrialButton
+            className="reload-btn"
             onClick={() => clearFilters && handleReset(clearFilters)}
             size="small"
-            style={{ width: 90 }}
           >
             {t("utils.reset")}
-          </Button>
+          </IndustrialButton>
           <Button
             type="link"
             size="small"
-            onClick={() => {
-              confirm({ closeDropdown: false });
-            }}
+            onClick={() => confirm({ closeDropdown: false })}
           >
             {t("utils.filter")}
           </Button>
-          <Button
-            type="link"
-            size="small"
-            onClick={() => {
-              close();
-            }}
-          >
+          <Button type="link" size="small" onClick={() => close()}>
             {t("utils.cancel")}
           </Button>
         </Space>
-      </div>
+      </SearchDropdown>
     ),
     filterIcon: (filtered: boolean) => (
-      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
     ),
     onFilter: (value, record) => {
       const fieldValue = record[dataIndex];
@@ -282,20 +466,15 @@ const AllLocationTable: React.FC<{
         }
       },
     },
-
     render: (text: string) => text,
   });
-
-  // --------------------------
 
   const savePos = (id: string, oldLocationId: string) => {
     const payload = locationPanelForm.getFieldsValue() as LocationType;
     const isNegative = Number(payload.locationId) <= 0;
 
     if (isNegative) {
-      messageApi.warning(
-        t("edit_location_panel.save_pose_notify.is_a_navigate")
-      );
+      messageApi.warning(t("edit_location_panel.save_pose_notify.is_a_navigate"));
       return;
     }
 
@@ -320,18 +499,14 @@ const AllLocationTable: React.FC<{
 
   const deleteLocationInList = (id: string | undefined, locationId: string) => {
     if (!id) {
-      messageApi.error("id is missed");
+      messageApi.error("ID IS MISSING");
       return;
     }
     deleteLocationMutation.mutate({ id, locationId });
   };
 
   const handleHover = (locationId: string, x: number, y: number) => {
-    setTooltip({
-      x,
-      y,
-      locationId,
-    });
+    setTooltip({ x, y, locationId });
   };
 
   const handleMouseLeave = () => {
@@ -348,29 +523,32 @@ const AllLocationTable: React.FC<{
       sorter: (a: LocationType, b: LocationType) =>
         Number(a.locationId) - Number(b.locationId),
       ...getColumnSearchProps("locationId"),
+      render: (text: string) => <LocationIdBadge>{text}</LocationIdBadge>,
     },
     {
       title: "X",
       dataIndex: "x",
-      width: "8%",
+      width: "12%",
       editable: true,
       key: "x",
+      render: (text: string) => <CoordinateText>{text}</CoordinateText>,
     },
     {
       title: "Y",
       dataIndex: "y",
-      width: "8%",
+      width: "12%",
       editable: true,
       key: "y",
+      render: (text: string) => <CoordinateText>{text}</CoordinateText>,
     },
     {
-      title: "是否可旋轉",
+      title: "ROTATABLE",
       dataIndex: "canRotate",
       key: "canRotate",
-      width: "20%",
+      width: "12%",
       editable: true,
       render: (_: unknown, record: LocationType) => {
-        return <Checkbox checked={record.canRotate} />;
+        return <Checkbox checked={record.canRotate} disabled />;
       },
     },
     {
@@ -378,89 +556,64 @@ const AllLocationTable: React.FC<{
       dataIndex: "areaType",
       editable: false,
       key: "areaType",
-      width: "20%",
+      width: "18%",
       sorter: (a: LocationType, b: LocationType) =>
         a.areaType.localeCompare(b.areaType),
       render: (_: unknown, record: LocationType) => {
-        switch (record.areaType) {
-          case "EXTRA":
-            return (
-              <Tag
-                color={pointTypeWithColor[record.areaType]}
-                key={record.areaType}
-              >
-                {t("utils.location_property.none")}
-              </Tag>
-            );
-          default:
-            return (
-              <Tag
-                color={pointTypeWithColor[record.areaType]}
-                key={record.areaType}
-              >
-                {record.areaType}
-              </Tag>
-            );
-        }
+        const label =
+          record.areaType === "EXTRA"
+            ? t("utils.location_property.none")
+            : record.areaType;
+        return (
+          <IndustrialTag color={pointTypeWithColor[record.areaType]}>
+            {label}
+          </IndustrialTag>
+        );
       },
     },
     {
+      title: "ACTIONS",
       dataIndex: "operation",
       key: "operation",
-
+      width: "30%",
       render: (_: unknown, record: LocationType) => {
         const editable = isEditing(record);
         return editable ? (
           <Flex gap="small">
-            <Typography.Link
+            <IndustrialButton
+              className="save-btn"
               onClick={() => {
                 if (record.id && record.locationId) {
                   save(record.id, record.locationId);
                 } else {
-                  messageApi.warning("id is missed");
+                  messageApi.warning("ID IS MISSING");
                 }
               }}
-              style={{ marginRight: 8 }}
+              icon={<SaveOutlined />}
+              size="small"
             >
-              <SubmitButton
-                isModel={false}
-                text="save"
-                form={locationPanelForm}
-              />
-            </Typography.Link>
-            <Typography.Link
-              onClick={() => {
-                cancel();
-              }}
-              style={{ marginRight: 8 }}
+              {t("utils.save")}
+            </IndustrialButton>
+            <IndustrialButton
+              className="cancel-btn"
+              onClick={() => cancel()}
+              icon={<CloseOutlined />}
+              size="small"
             >
-              <Button
-                icon={<CloseOutlined />}
-                color="danger"
-                variant="filled"
-                type="link"
-              >
-                {t("utils.cancel")}
-              </Button>
-            </Typography.Link>
+              {t("utils.cancel")}
+            </IndustrialButton>
           </Flex>
         ) : (
           <Flex gap="small">
-            <Typography.Link
+            <IndustrialButton
+              className="edit-btn"
               disabled={editingKey !== null}
-              onClick={() => {
-                edit(record);
-              }}
+              onClick={() => edit(record)}
+              icon={<EditOutlined />}
+              size="small"
             >
-              <Button
-                icon={<EditOutlined />}
-                color="primary"
-                variant="filled"
-                type="link"
-              >
-                {t("utils.edit")}
-              </Button>
-            </Typography.Link>
+              {t("utils.edit")}
+            </IndustrialButton>
             <Popconfirm
               title={t("utils.delete")}
               description={t("edit_location_panel.table_notify.are_you_sure")}
@@ -471,14 +624,13 @@ const AllLocationTable: React.FC<{
               okText={t("utils.yes")}
               cancelText={t("utils.no")}
             >
-              <Button
-                icon={<DeleteTwoTone twoToneColor="#f30303" />}
-                color="danger"
-                variant="filled"
-                type="link"
+              <IndustrialButton
+                className="delete-btn"
+                icon={<DeleteTwoTone twoToneColor="#ff4d4f" />}
+                size="small"
               >
                 {t("utils.delete")}
-              </Button>
+              </IndustrialButton>
             </Popconfirm>
           </Flex>
         );
@@ -502,38 +654,36 @@ const AllLocationTable: React.FC<{
       }),
     };
   });
+
   return (
-    <>
+    <IndustrialContainer onMouseLeave={handleMouseLeave}>
       {contextHolders}
-      <div onMouseLeave={handleMouseLeave}>
-        <h3 className="drop_button_style" {...listeners} {...attributes}>
-          {t("sider_output_form_name.locationList")}
-        </h3>
-        <FormHr></FormHr>
-        <Flex
-          gap="middle"
-          justify="flex-start"
-          align="start"
-          vertical
-          onMouseLeave={handleMouseLeave}
-        >
-          <Flex gap={"middle"}>
-            <Button
-              onClick={() => deleteMultiItem()}
-              icon={<DeleteTwoTone twoToneColor="#f30303" />}
-              loading={deleteMultiLocationMutation.isLoading}
-              disabled={selectedRowKeys.length === 0}
-              color="danger"
-              variant="filled"
-            >
-              {t("utils.delete")}
-            </Button>
+      <PanelHeader {...listeners} {...attributes}>
+        {t("sider_output_form_name.locationList")}
+      </PanelHeader>
+      <FormHr />
+      <Flex gap="middle" justify="flex-start" align="start" vertical>
+        <Flex gap="middle">
+          <IndustrialButton
+            className="delete-btn"
+            onClick={() => deleteMultiItem()}
+            icon={<DeleteTwoTone twoToneColor="#ff4d4f" />}
+            loading={deleteMultiLocationMutation.isLoading}
+            disabled={selectedRowKeys.length === 0}
+          >
+            {t("utils.delete")} ({selectedRowKeys.length})
+          </IndustrialButton>
 
-            <Button onClick={() => refetch()} icon={<ReloadOutlined />}>
-              {t("utils.reload")}
-            </Button>
-          </Flex>
+          <IndustrialButton
+            className="reload-btn"
+            onClick={() => refetch()}
+            icon={<ReloadOutlined />}
+          >
+            {t("utils.reload")}
+          </IndustrialButton>
+        </Flex>
 
+        <IndustrialTableContainer>
           <Form form={locationPanelForm} component={false}>
             <Table
               rowSelection={{
@@ -554,7 +704,9 @@ const AllLocationTable: React.FC<{
               columns={mergedColumns as []}
               pagination={{
                 onChange: cancel,
-                pageSize: 8,
+                pageSize: 10,
+                showSizeChanger: true,
+                showTotal: (total) => `TOTAL: ${total} LOCATIONS`,
               }}
               onRow={(record) => {
                 return {
@@ -569,9 +721,9 @@ const AllLocationTable: React.FC<{
               bordered
             />
           </Form>
-        </Flex>
-      </div>
-    </>
+        </IndustrialTableContainer>
+      </Flex>
+    </IndustrialContainer>
   );
 };
 

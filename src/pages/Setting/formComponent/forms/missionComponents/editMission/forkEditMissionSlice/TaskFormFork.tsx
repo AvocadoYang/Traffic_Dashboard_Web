@@ -585,7 +585,7 @@ const TaskFormFork: FC<{
           "custom"
       );
       setSelectLevelType(
-        (originFormData.io.fork_global.is_define_level as
+        (originFormData.io.fork_global?.is_define_level as
           | "select"
           | "custom") || "custom"
       );
@@ -601,8 +601,8 @@ const TaskFormFork: FC<{
         io: originFormData.io,
 
         is_define_id: originFormData.operation.is_define_id,
-        is_define_level: originFormData.io.fork_global.is_define_level,
-        level: originFormData.io.fork_global.level,
+        is_define_level: originFormData.io.fork_global?.is_define_level || 'custom',
+        level: originFormData.io.fork_global?.level | 0,
       });
     }
   }, [originFormData, form]);

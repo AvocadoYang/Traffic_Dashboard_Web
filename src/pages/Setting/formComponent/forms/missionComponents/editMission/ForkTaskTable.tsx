@@ -16,11 +16,7 @@ import {
   Table,
   Tooltip,
   message,
-  Descriptions,
   Popover,
-  Col,
-  Row,
-  Space,
 } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
@@ -33,18 +29,143 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import styled from "styled-components";
 import client from "@/api/axiosClient";
 import useTaskFork from "../../../../../../api/useTaskFork";
 import ImportMissionForm from "./ImportMissionForm";
 import CarControlTranslate from "./CarControlTranslate";
 import { Fork_mission_Slice } from "./mission";
 import { Err } from "@/utils/responseErr";
-import "./style/index.css";
 
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   "data-row-key": string;
   children: React.ReactNode;
 }
+
+// Industrial Styled Components
+const IndustrialTableContainer = styled.div`
+  font-family: "Roboto Mono", monospace;
+  width: 100%;
+
+  .ant-table {
+    background: #ffffff;
+    border: 1px solid #d9d9d9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .ant-table-thead > tr > th {
+    background: #fafafa;
+    color: #262626;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
+    border-bottom: 2px solid #d9d9d9;
+    font-family: "Roboto Mono", monospace;
+  }
+
+  .ant-table-tbody > tr {
+    background: #ffffff;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #f0f5ff !important;
+      box-shadow: 0 2px 4px rgba(24, 144, 255, 0.1);
+    }
+  }
+
+  .ant-table-tbody > tr > td {
+    border-bottom: 1px solid #f0f0f0;
+    font-family: "Roboto Mono", monospace;
+    font-size: 12px;
+    color: #595959;
+  }
+
+  .ant-pagination {
+    font-family: "Roboto Mono", monospace;
+  }
+`;
+
+const StatusIndicator = styled.div<{ active: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Roboto Mono", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  color: ${({ active }) => (active ? "#52c41a" : "#8c8c8c")};
+
+  &::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: ${({ active }) => (active ? "#52c41a" : "#8c8c8c")};
+    box-shadow: ${({ active }) =>
+      active ? "0 0 8px rgba(82, 196, 26, 0.6)" : "none"};
+  }
+`;
+
+const ActionGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, auto);
+  gap: 8px;
+  width: 100%;
+`;
+
+const IndustrialButton = styled(Button)`
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  height: 28px;
+  padding: 0 12px;
+
+  &.ant-btn-link {
+    color: #1890ff;
+
+    &:hover {
+      color: #40a9ff;
+    }
+  }
+
+  &.ant-btn-link.ant-btn-dangerous {
+    color: #ff4d4f;
+
+    &:hover {
+      color: #ff7875;
+    }
+  }
+`;
+
+const LocationBadge = styled.span`
+  display: inline-block;
+  padding: 2px 8px;
+  background: #e6f7ff;
+  border: 1px solid #1890ff;
+  border-radius: 4px;
+  color: #1890ff;
+  font-family: "Roboto Mono", monospace;
+  font-size: 11px;
+  font-weight: 600;
+`;
+
+const ActionTypeBadge = styled.span`
+  display: inline-block;
+  padding: 4px 10px;
+  background: #fff7e6;
+  border: 1px solid #ffa940;
+  border-radius: 4px;
+  color: #fa8c16;
+  font-family: "Roboto Mono", monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+`;
 
 const DataRow = ({ children, ...props }: RowProps) => {
   const {
@@ -74,7 +195,7 @@ const DataRow = ({ children, ...props }: RowProps) => {
             children: (
               <MenuOutlined
                 ref={setActivatorNodeRef}
-                style={{ touchAction: "none", cursor: "move" }}
+                style={{ touchAction: "none", cursor: "move", color: "#8c8c8c" }}
                 {...listeners}
               />
             ),
@@ -178,24 +299,6 @@ const ForkTaskTable: FC<{
     setImportConfig({ key: selectedMissionKey, order: order + 1 });
   };
 
-  const NineByNineGrid: React.FC<{ children: React.ReactNode }> = ({
-    children,
-  }) => {
-    return (
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(9, 1fr)",
-          gridTemplateRows: "repeat(9, auto)",
-          gap: 6,
-          width: 240,
-        }}
-      >
-        {children}
-      </div>
-    );
-  };
-
   const columns: ColumnsType<Fork_mission_Slice> = [
     {
       title: "",
@@ -207,25 +310,20 @@ const ForkTaskTable: FC<{
       title: t("mission.task_table.sort"),
       dataIndex: "process_order",
       width: 80,
+      render: (order: number) => (
+        <span style={{ fontWeight: 600, color: "#262626" }}>#{order}</span>
+      ),
     },
     {
       title: t("mission.task_table.status"),
       dataIndex: "disable",
-      width: 100,
+      width: 120,
       render: (disable: boolean) => (
-        <Flex align="center" gap="small">
-          <div
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: "50%",
-              backgroundColor: disable ? "#979797" : "#2bea00",
-            }}
-          />
+        <StatusIndicator active={!disable}>
           {disable
             ? t("mission.task_table.inactive")
             : t("mission.task_table.active")}
-        </Flex>
+        </StatusIndicator>
       ),
     },
     {
@@ -233,156 +331,129 @@ const ForkTaskTable: FC<{
       dataIndex: "operation",
       width: 150,
       render: (operation) =>
-        operation.type ? <CarControlTranslate word={operation.type} /> : "-",
+        operation.type ? (
+          <ActionTypeBadge>
+            <CarControlTranslate word={operation.type} />
+          </ActionTypeBadge>
+        ) : (
+          "-"
+        ),
     },
     {
       title: t("mission.task_table.location"),
       dataIndex: ["operation", "id"],
       width: 120,
-      render: (_, record) => {
-        return record.operation.locationId;
-      },
+      render: (_, record) =>
+        record.operation.locationId ? (
+          <LocationBadge>{record.operation.locationId}</LocationBadge>
+        ) : (
+          <span style={{ color: "#8c8c8c" }}>-</span>
+        ),
     },
     {
-      title: "",
+      title: "ACTIONS",
       key: "actions",
-      width: 260,
+      width: 280,
       render: (_, record) => {
-        const prefix1 = {
-          operation: {
-            ...record.operation,
-          },
-        };
-
-        const prefix2 = {
-          ...record.io,
-        };
+        const prefix1 = { operation: { ...record.operation } };
+        const prefix2 = { ...record.io };
+        
         return (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gridTemplateRows: "repeat(2, auto)",
-              gap: 8,
-              width: "100%",
-            }}
-          >
+          <ActionGrid>
             {/* Row 1 */}
-            <div style={{ textAlign: "center" }}>
-              <Popconfirm
-                title={t("utils.delete_warn")}
-                onConfirm={() => deleteTask(record.id)}
-              >
-                <Button
-                  type="link"
-                  danger
-                  icon={<DeleteTwoTone twoToneColor="#f30303" />}
-                >
-                  {t("utils.delete")}
-                </Button>
-              </Popconfirm>
-            </div>
-
-            <div style={{ textAlign: "center" }}>
-              <Button
+            <Popconfirm
+              title={t("utils.delete_warn")}
+              onConfirm={() => deleteTask(record.id)}
+            >
+              <IndustrialButton
                 type="link"
-                icon={<EditOutlined />}
-                onClick={() => showModal(record.id)}
+                danger
+                icon={<DeleteTwoTone twoToneColor="#ff4d4f" />}
+                size="small"
               >
-                {t("utils.edit")}
-              </Button>
-            </div>
+                {t("utils.delete")}
+              </IndustrialButton>
+            </Popconfirm>
 
-            <div style={{ textAlign: "center" }}>
-              <Button
-                type="link"
-                icon={<ImportOutlined />}
-                onClick={() => showImportMissionModal(record.process_order)}
-              >
-                {t("mission.task_table.import_mission")}
-              </Button>
-            </div>
+            <IndustrialButton
+              type="link"
+              icon={<EditOutlined />}
+              onClick={() => showModal(record.id)}
+              size="small"
+            >
+              {t("utils.edit")}
+            </IndustrialButton>
+
+            <IndustrialButton
+              type="link"
+              icon={<ImportOutlined />}
+              onClick={() => showImportMissionModal(record.process_order)}
+              size="small"
+            >
+              IMPORT
+            </IndustrialButton>
 
             {/* Row 2 */}
-            <div style={{ textAlign: "center" }}>
-              <Popover
-                title={
-                  <ReactJsonView
-                    displayDataTypes={false}
-                    value={prefix1}
-                    collapsed={false}
-                    enableClipboard={false}
-                    style={{ fontSize: 14 }}
-                  />
-                }
-              >
-                <Button type="link" icon={<CodeOutlined />}>
-                  {t("mission.task_table.task_operation")}
-                </Button>
-              </Popover>
-            </div>
-
-            <div style={{ textAlign: "center" }}>
-              <Popover
-                title={
-                  <ReactJsonView
-                    displayDataTypes={false}
-                    value={prefix2}
-                    collapsed={false}
-                    enableClipboard={false}
-                    style={{ fontSize: 14 }}
-                  />
-                }
-              >
-                <Button type="link" icon={<CodeOutlined />}>
-                  {t("mission.task_table.task_fork_movement")}
-                </Button>
-              </Popover>
-            </div>
-
-            <div style={{ textAlign: "center" }}>
-              <Tooltip
-                title={
-                  record.disable
-                    ? t("mission.task_table.in_use")
-                    : t("mission.task_table.stop_this_process")
-                }
-              >
-                <Button
-                  type="link"
-                  icon={
-                    record.disable ? <EyeInvisibleOutlined /> : <EyeOutlined />
-                  }
-                  onClick={() => disableTask(record.id, !record.disable)}
+            <Popover
+              title={
+                <ReactJsonView
+                  displayDataTypes={false}
+                  value={prefix1}
+                  collapsed={false}
+                  enableClipboard={false}
+                  style={{ fontSize: 12 }}
                 />
-              </Tooltip>
-            </div>
-          </div>
+              }
+            >
+              <IndustrialButton type="link" icon={<CodeOutlined />} size="small">
+                OPERATION
+              </IndustrialButton>
+            </Popover>
+
+            <Popover
+              title={
+                <ReactJsonView
+                  displayDataTypes={false}
+                  value={prefix2}
+                  collapsed={false}
+                  enableClipboard={false}
+                  style={{ fontSize: 12 }}
+                />
+              }
+            >
+              <IndustrialButton type="link" icon={<CodeOutlined />} size="small">
+                MOVEMENT
+              </IndustrialButton>
+            </Popover>
+
+            <Tooltip
+              title={
+                record.disable
+                  ? t("mission.task_table.in_use")
+                  : t("mission.task_table.stop_this_process")
+              }
+            >
+              <IndustrialButton
+                type="link"
+                icon={
+                  record.disable ? <EyeInvisibleOutlined /> : <EyeOutlined />
+                }
+                onClick={() => disableTask(record.id, !record.disable)}
+                size="small"
+              >
+                {record.disable ? "ENABLE" : "DISABLE"}
+              </IndustrialButton>
+            </Tooltip>
+          </ActionGrid>
         );
       },
     },
   ];
 
-  const getLocationModeLabel = (isDefineId: string | undefined): string => {
-    const locationModeMap: Record<string, string> = {
-      custom: t("mission.task_table.custom"),
-      auto: t("mission.task_table.select"),
-      select: t("mission.task_table.is_selectable"),
-      available_charge_station: t(
-        "mission.task_table.available_charge_station"
-      ),
-      prepare_point: t("mission.task_table.prepare_point"),
-      back_to_load_place: t("mission.task_table.back_to_load_place_desc"),
-    };
-    return isDefineId && locationModeMap[isDefineId]
-      ? locationModeMap[isDefineId]
-      : "-";
-  };
-
   if (!taskDataSource) return null;
 
   return (
-    <>
+    <IndustrialTableContainer>
       {contextHolder}
       <DndContext onDragEnd={onDragEnd}>
         <SortableContext
@@ -405,7 +476,7 @@ const ForkTaskTable: FC<{
         importConfig={importConfig}
         selectedMissionCar={selectedMissionCar}
       />
-    </>
+    </IndustrialTableContainer>
   );
 };
 
