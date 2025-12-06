@@ -10,8 +10,9 @@ import {
   isShowLocationTooltip,
   isShowRoad,
   isShowRoadTooltip,
+  mouseMoveSwitch,
 } from "@/utils/siderGloble";
-import { Scale } from "@/utils/gloable";
+import { mouseDetectLoc, Scale } from "@/utils/gloable";
 
 const ZoomPadWrap = styled.div`
   position: absolute;
@@ -95,6 +96,8 @@ const ZoomPad = () => {
   const { data, isError } = useMap();
   const { t } = useTranslation();
   const setScale = useSetAtom(Scale);
+  const [_s, setMouseDetectLoc] = useAtom(mouseDetectLoc);
+  const [_a, setMouseMoveSwitch] = useAtom(mouseMoveSwitch)
   const [showLocationToolTip, setShowLocationTooltip] = useAtom(
     isShowLocationTooltip,
   );
@@ -164,7 +167,11 @@ const ZoomPad = () => {
       <Tooltip title={t("map_tool.location_tooltip")}>
         <StyledButton
           type={showLocationToolTip ? "primary" : "default"}
-          onClick={() => setShowLocationTooltip(!showLocationToolTip)}
+          onClick={() => {
+            setMouseDetectLoc(new Set([]))
+            if(showLocationToolTip){setMouseMoveSwitch(false)} else { setMouseMoveSwitch(true)}
+            setShowLocationTooltip(!showLocationToolTip)
+          }}
           icon={
             <ResponsiveSVG
               xmlns="http://www.w3.org/2000/svg"

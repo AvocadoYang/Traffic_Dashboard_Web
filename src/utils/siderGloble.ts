@@ -98,6 +98,10 @@ export const isShowEditBackup = atom<boolean>(false);
 /** 地點tooltip */
 export const isShowLocationTooltip = atom<boolean>(false);
 
+export const mousePosition = atom<{ clientX: number, clientY: number}>({ clientX: 0, clientY: 0});
+
+export const mouseMoveSwitch = atom<boolean>(true);
+
 /** 路線tooltip */
 export const isShowRoadTooltip = atom<boolean>(false);
 

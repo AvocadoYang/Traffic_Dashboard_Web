@@ -63,3 +63,5 @@ export const showZoneForbidden = atom<Set<string>>(new Set([]));
 export const AmrCarSelectFilter = atom<SelectProps["options"]>([]);
 
 export const QuickMissionSelectParam = atom<string>("");
+
+export const mouseDetectLoc = atom<Set<string>>(new Set([]));

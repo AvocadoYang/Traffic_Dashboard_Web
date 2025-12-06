@@ -1,4 +1,4 @@
-import { memo, RefObject } from "react";
+import { memo, RefObject, useRef } from "react";
 import { MapImage } from "@/pages/Setting/mapComponents/components";
 import "../webview.css";
 import { AllZones } from "@/pages/Setting/mapComponents/components";
@@ -21,11 +21,15 @@ import { AllElevator } from "../../PadViwe/components/PadMapContent/AllElevator"
 import AllChargeStation from "../../PadViwe/components/PadMapContent/AllChargeStation/AllChargeStation";
 import { OpenChargeStationModal } from "@/pages/Main/global/jotai";
 import StatusPanel from "../../PadViwe/components/PadMapContent/AllChargeStation/StatusPanel";
+import useDetectLoc from "../hooks/useDetectLoc";
+import useMouseClick from "../hooks/useMouseClick";
 
 const WebMapView: React.FC<{
   mapRef: RefObject<HTMLDivElement>;
-}> = ({ mapRef }) => {
+  mapWrapRef: RefObject<HTMLDivElement>;
+}> = ({ mapRef, mapWrapRef }) => {
   const scale = useAtomValue(Scale);
+    const mapImageRef = useRef<HTMLImageElement>(null);
   const [hintAmrId, setHintAmrId] = useAtom(AmrFilterCarCard);
   const [zoneForbidden, setZoneForbidden] = useAtom(showZoneForbidden);
   const showLocationToolTip = useAtomValue(isShowLocationTooltip);
@@ -34,10 +38,22 @@ const WebMapView: React.FC<{
   const showChargeConfig = useAtomValue(OpenChargeStationModal);
   const { isError } = useMap();
 
+  useDetectLoc(
+    mapRef,
+    mapWrapRef,
+    mapImageRef, 
+    scale
+  );
+  useMouseClick(mapWrapRef)
+
   return (
     <div
       className="map-view"
-      style={{ transform: `scale(${scale})` }}
+      style={{ 
+        transform: `scale(${scale})`,
+        transformOrigin: "0% 0%",
+        position: "relative",
+       }}
       draggable={false}
       ref={mapRef}
       onClick={(e) => {
@@ -56,17 +72,17 @@ const WebMapView: React.FC<{
         }
       }}
     >
-      <MapImage></MapImage>
+      <MapImage ref={mapImageRef} ></MapImage>
       {isError ? (
         []
       ) : (
         <>
-          <AllLocation></AllLocation>
+          <AllLocation mapRef={mapRef}></AllLocation>
           <AllAMRs></AllAMRs>
           <AllCargo></AllCargo>
           <AllElevator></AllElevator>
           <AllConveyor></AllConveyor>
-          {showLocation ? <AllLocation></AllLocation> : null}
+          {showLocation ? <AllLocation mapRef={mapRef}></AllLocation> : null}
           {showRoad ? <AllRoads></AllRoads> : null}
           {showLocationToolTip ? <ToolTip /> : []}
           <AllZones scale={scale}></AllZones>

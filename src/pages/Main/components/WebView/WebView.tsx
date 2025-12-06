@@ -19,6 +19,7 @@ import DirectMove from "../missionModal/DirectMove";
 const { Content } = Layout;
 const WebView = () => {
   const mapRef = useRef(null);
+  const mapWrapRef = useRef(null);
   const isDark = useAtomValue(darkMode);
 
   return (
@@ -45,14 +46,27 @@ const WebView = () => {
           </Splitter.Panel>
           <Splitter.Panel
             defaultSize="67%"
-            style={{ position: "relative", overflow: "hidden" }}
+            style={{overflow: "hidden", backgroundColor: "#e6e6e7" }}
             className={`${isDark ? "dark-mode-map" : ""}`}
           >
-            <Content
-              className={`map-view-wrap ${isDark ? "dark-mode-map" : ""}`}
+          <div
+              style={{
+                height: "100%",
+                width: "100%",
+                overflow: "scroll",
+                borderRadius: "6px",
+                borderLeft: "2px solid #9b9b9b",
+                borderRight: "2px solid #9b9b9b"
+              }}
+              draggable={false}
+              ref={mapWrapRef}
             >
-              <WebMapView mapRef={mapRef}></WebMapView>
-            </Content>
+              <WebMapView mapRef={mapRef} mapWrapRef={mapWrapRef}></WebMapView>
+            <div style={{  
+              height: "100%",
+              width: "100%",
+            
+            }}>
             <ZoomPad></ZoomPad>
             <ScalePad></ScalePad>
             <MissionBtn></MissionBtn>
@@ -61,6 +75,8 @@ const WebView = () => {
             <ElevatorIO />
             <ECS_online />
             <TestBarcode />
+            </div>
+            </div>
           </Splitter.Panel>
           <Splitter.Panel
             defaultSize="20%"
