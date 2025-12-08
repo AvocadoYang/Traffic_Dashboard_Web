@@ -184,3 +184,4 @@ const ForkLiftIcon: FC<{ amrId:string, color: string, left: number, top: number,
 }
 
 export default ForkLiftIcon;
+
