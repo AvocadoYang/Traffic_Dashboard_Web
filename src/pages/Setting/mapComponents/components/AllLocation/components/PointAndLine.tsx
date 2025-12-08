@@ -4,7 +4,6 @@ import { useAtomValue } from "jotai";
 import { DragLineInfo, showBlockId as ShowBlockId } from "@/utils/gloable";
 import { EditRoadPanelSwitch } from "@/utils/siderGloble";
 
-// Label 外層容器，負責 hover 效果
 const LabelWrapperDiv = styled.div.attrs<{ x: number; y: number }>(({ x, y }) => ({
   style: {
     left: x + "px",
@@ -109,13 +108,13 @@ width: 3px;
 height: 3px;
 border-radius: 50%;
 background: ${(props) => props.canrotate === "true" ? "#ff15fb" : "#0d0d12"};
-  position: absolute;
-  left: ${(p) => p.left}px;
-  top: ${(p) => p.top}px;
-  z-index: 9999995;
-box-shadow:  ${(props) => props.canrotate === "true" ? " 0 0 4px rgba(253, 43, 180, 0.6)" : " 0 0 4px rgba(0, 0, 0, 0.6)"};;
-  transform: translate(-50%, -50%);
-  border: ${(props) => (props.hoverLoc ? "5px solid #ff0000" : "none")};
+position: absolute;
+left: ${(p) => p.left}px;
+top: ${(p) => p.top}px;
+z-index: 9999995;
+/* box-shadow:  ${(props) => props.canrotate === "true" ? " 0 0 4px rgba(253, 43, 180, 0.6)" : " 0 0 4px rgba(0, 0, 0, 0.6)"}; */
+transform: translate(-50%, -50%);
+border: ${(props) => (props.hoverLoc ? "5px solid #ff0000" : "none")};
   &:hover {
     background: red;
     width: 6px;
