@@ -119,7 +119,7 @@ const AllLocation: React.FC<{
                     roadInfo?.filter(({ spot1Id, spot2Id}) => {
                       return spot1Id == loc.locationId || spot2Id == loc.locationId
                     }).map((road) =>{
-                      return  <p key={nanoid()} style={{ whiteSpace: "nowrap"}}>{`${road.roadId}`}</p> 
+                      return  <p key={nanoid()} style={{ whiteSpace: "nowrap", zIndex: "999999999"}}>{`${road.roadId}`}</p> 
                     })
                   }
                 </LabelTooltip>

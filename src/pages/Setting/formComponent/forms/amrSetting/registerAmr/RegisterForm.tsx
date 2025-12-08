@@ -41,13 +41,6 @@ const RegisterForm: FC<{
   const queryClient = useQueryClient();
   const [openRobot, setOpenRobot] = useState(false);
 
-  const handleOneSetRobot = () => {
-    setOpenRobot(true);
-  };
-
-  const handleCancelSetRobot = () => {
-    setOpenRobot(false);
-  };
 
   const createMutation = useMutation({
     mutationFn: (payload: When_Finish) => {
@@ -173,7 +166,6 @@ const RegisterForm: FC<{
               options={robotTypeOptions}
             />
           </Form.Item>
-          <Button icon={<PlusOutlined />} onClick={handleOneSetRobot} />
         </Flex>
 
         <Form.Item
@@ -211,8 +203,6 @@ const RegisterForm: FC<{
           </Flex>
         </Form.Item>
       </Form>
-
-      <SettingRobotModal open={openRobot} cancel={handleCancelSetRobot} />
     </>
   );
 };

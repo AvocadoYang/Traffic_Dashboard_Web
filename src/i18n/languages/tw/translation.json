@@ -242,8 +242,13 @@
     },
     "amr_setting": {
       "robot": "車輛 ＆＆ 機器人",
-      "register_amr": "註冊車輛",
-      "amr_config": "車輛參數設定"
+      "register_amr": "新增車輛",
+      "amr_config": "新增車種",
+      "amr_name": "車種名稱",
+      "serial_name": "系列名稱",
+      "width": "寬",
+      "length": "長",
+      "height": "高"
     },
     "mission": {
       "mission": "任務",
@@ -575,7 +580,7 @@
   },
   "setting_amr": {
     "register_amr": {
-      "title_name": "註冊車輛",
+      "title_name": "新增車輛",
       "amr_name": "車輛名稱",
       "type": "類型",
       "serial_number": "連線 MAC address",

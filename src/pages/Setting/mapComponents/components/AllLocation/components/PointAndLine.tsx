@@ -13,7 +13,7 @@ const LabelWrapperDiv = styled.div.attrs<{ x: number; y: number }>(({ x, y }) =>
   },
 }))`
   position: absolute;
-  z-index: 99999299;
+  z-index: 999998833;
   cursor: pointer;
   display: inline-block;
 
@@ -31,6 +31,7 @@ const LabelDiv = styled.div`
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid black;
   border-radius: 4px;
+  z-index: 999991113;
   white-space: nowrap;
   pointer-events: auto;
   transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.2s ease;
@@ -52,7 +53,7 @@ const TooltipDiv = styled.div`
   background: rgba(0, 0, 0, 0.85);
   color: white;
   padding: 4px 8px;
-  z-index: 99999999;
+  z-index: 999998899;
   font-size: 9px;
   border-radius: 4px;
   /* white-space: nowrap; */

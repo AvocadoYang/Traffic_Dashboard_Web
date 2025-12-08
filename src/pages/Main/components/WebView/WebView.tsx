@@ -70,10 +70,10 @@ const WebView = () => {
             <ZoomPad></ZoomPad>
             <ScalePad></ScalePad>
             <MissionBtn></MissionBtn>
-            <CorningTest></CorningTest>
             <DirectMove></DirectMove>
-            <ElevatorIO />
             <ECS_online />
+            <ElevatorIO />
+            <CorningTest></CorningTest>
             <TestBarcode />
             </div>
             </div>
