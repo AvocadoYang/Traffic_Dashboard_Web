@@ -1,6 +1,7 @@
 import useAMRsample from "@/api/useAMRsample";
 import useMap from "@/api/useMap";
 import { translate } from "@/i18n";
+import { robotControl } from "@/pages/Setting/formComponent/forms/missionComponents/editMission/humanRobotEditMissionSlice/params";
 import { useAmrPose, useIsCarry } from "@/sockets/useAMRInfo";
 import { AmrFilterCarCard, showZoneForbidden } from "@/utils/gloable";
 import { useAtom, useAtomValue } from "jotai";
@@ -118,15 +119,16 @@ const ForkLiftIcon: FC<{ amrId:string, color: string, left: number, top: number,
     top,
     yaw
 }) => {
-    const size = useRef<{ width: number, length: number}>()
+    const size = useRef<{ width: number, length: number}>({ width: 1, length: 1 })
     const { data: map } = useMap();
     const { pose } = useAmrPose(amrId);
     const { isCarry } = useIsCarry(amrId);
     const { data: robotTypes } = useAMRsample();
-    if(!robotTypes) return;
+  
 
 
     useEffect(() => {
+      if(!robotTypes) return;
       const type = amrId.split("-").slice(0, -1).join('-')
       const amrSize = robotTypes.filter((amr) => type.includes(amr.value));
       if(!amrSize.length){
@@ -151,9 +153,11 @@ const ForkLiftIcon: FC<{ amrId:string, color: string, left: number, top: number,
         } else {
           return zoneForbidden.has(amrId) ? false : true;
         }
-      }, [amrFilterCarCard, zoneForbidden]);
+      }, [amrFilterCarCard, zoneForbidden, robotTypes]);
 
-    if (!map || !pose) return null;
+      if(!robotTypes || !map || !pose) return <></>;
+  
+
     return (
     <IconWrapper left={left} top={top} className={`${needOpacity ? "opacity-icon" : ""}`}>
         <ForkliftBody 
