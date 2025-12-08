@@ -1,9 +1,43 @@
+// ============= RegisterAmrPanel.tsx =============
 import FormHr from "@/pages/Setting/utils/FormHr";
 import { Flex } from "antd";
 import { FC, useState } from "react";
 import { useTranslation } from "react-i18next";
+import styled from "styled-components";
 import RegisterForm from "./RegisterForm";
 import RegisterTable from "./RegisterTable";
+
+const IndustrialContainer = styled.div`
+  font-family: "Roboto Mono", monospace;
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  padding: 20px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+`;
+
+const PanelHeader = styled.h3`
+  background: #fafafa;
+  border: 1px solid #d9d9d9;
+  border-left: 4px solid #1890ff;
+  padding: 12px 16px;
+  margin: 0 0 20px 0;
+  font-family: "Roboto Mono", monospace;
+  color: #262626;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 14px;
+  cursor: move;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f0f5ff;
+    border-left-color: #40a9ff;
+  }
+`;
 
 type When_Finish = {
   robot_type: string;
@@ -28,20 +62,19 @@ const RegisterAmrPanel: FC<{
     isEdit,
     setIsEdit,
   };
-  return (
-    <>
-      <div>
-        <h3 className="drop_button_style" {...listeners} {...attributes}>
-          {t("setting_amr.register_amr.title_name")}
-        </h3>
-        <FormHr />
 
-        <Flex gap="middle" justify="flex-start" align="start" vertical>
-          <RegisterForm {...props} />
-          <RegisterTable {...props} />
-        </Flex>
-      </div>
-    </>
+  return (
+    <IndustrialContainer>
+      <PanelHeader {...listeners} {...attributes}>
+        {t("setting_amr.register_amr.title_name")}
+      </PanelHeader>
+      <FormHr />
+
+      <Flex gap="middle" justify="flex-start" align="start" vertical>
+        <RegisterForm {...props} />
+        <RegisterTable {...props} />
+      </Flex>
+    </IndustrialContainer>
   );
 };
 

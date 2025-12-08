@@ -231,7 +231,8 @@ const EditMissionPanel: FC<{
   const [canBeCreate, setCanBeCreate] = useState(false);
   const [tag, setTag] = useState<string[]>([]);
   const { data: amrs } = useAMRsample();
-  const { data: allMissionTitle } = useAllMissionTitlesDetail();
+  const { data: allMissionTitle, refetch: refetchMission } =
+    useAllMissionTitlesDetail();
   const { data: cat } = useCategory();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
@@ -240,7 +241,7 @@ const EditMissionPanel: FC<{
   const catOption = cat?.map((v) => ({ value: v.id, label: v.tagName })) || [];
   const filterMissionData = useMemo(
     () => allMissionTitle?.filter((m) => m.name.includes(search)) || [],
-    [search, allMissionTitle],
+    [search, allMissionTitle]
   );
 
   const addMutation = useMutation(
@@ -256,11 +257,12 @@ const EditMissionPanel: FC<{
       onError: () => {
         messageApi.error(t("utils.error"));
       },
-    },
+    }
   );
 
   const refetchData = async () => {
     setLoadingTitle(true);
+    refetchMission();
     await queryClient.refetchQueries({ queryKey: ["all-mission-title"] });
     setLoadingTitle(false);
   };
@@ -286,7 +288,7 @@ const EditMissionPanel: FC<{
     amrs?.forEach(
       (item) =>
         item.name === formData.robot_type_id &&
-        (formData.robot_type_id = item.id),
+        (formData.robot_type_id = item.id)
     );
     addMutation.mutate({ ...formData, key: nanoid() });
     createMissionForm.setFieldValue("name", "");
@@ -362,7 +364,7 @@ const EditMissionPanel: FC<{
                   shape="circle"
                   loading={loadingTitle}
                   icon={<ReloadOutlined />}
-                  onClick={refetchData}
+                  onClick={() => refetchData()}
                 />
               </Col>
             </ControlRow>

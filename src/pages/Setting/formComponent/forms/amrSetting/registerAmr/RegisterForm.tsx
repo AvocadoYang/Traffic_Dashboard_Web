@@ -1,3 +1,4 @@
+// ============= RegisterForm.tsx =============
 import client from "@/api/axiosClient";
 import useAMRsample from "@/api/useAMRsample";
 import { Err } from "@/utils/responseErr";
@@ -12,12 +13,105 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import SettingRobotModal from "./SettingRobotModal";
-import {
-  FileAddFilled,
-  PlusOutlined,
-  UserAddOutlined,
-} from "@ant-design/icons";
+import styled from "styled-components";
+import { SaveOutlined, PlusOutlined } from "@ant-design/icons";
+
+const FormSection = styled.div`
+  background: #fafafa;
+  border: 1px solid #d9d9d9;
+  padding: 20px;
+  border-radius: 4px;
+  width: 100%;
+`;
+
+const StyledForm = styled(Form)`
+  .ant-form-item-label > label {
+    color: #595959;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: "Roboto Mono", monospace;
+    font-weight: 600;
+  }
+
+  .ant-input,
+  .ant-input-number-input {
+    font-family: "Roboto Mono", monospace;
+    font-size: 12px;
+
+    border-radius: 4px;
+
+    &:hover {
+      border-color: #40a9ff;
+    }
+
+    &:focus {
+      border-color: #1890ff;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+    }
+  }
+
+  .ant-input-number {
+    width: 100%;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+
+    &:hover {
+      border-color: #40a9ff;
+    }
+
+    &:focus-within {
+      border-color: #1890ff;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+    }
+  }
+
+  .ant-select-selector {
+    font-family: "Roboto Mono", monospace !important;
+    font-size: 12px !important;
+  }
+`;
+
+const IndustrialButton = styled(Button)`
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  height: 36px;
+  padding: 0 20px;
+  font-weight: 600;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+
+  &.ant-btn-primary {
+    background: #1890ff;
+    border-color: #1890ff;
+
+    &:hover:not(:disabled) {
+      background: #40a9ff;
+      border-color: #40a9ff;
+      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
+    }
+
+    &:disabled {
+      background: #f5f5f5;
+      border-color: #d9d9d9;
+      color: #bfbfbf;
+    }
+  }
+
+  &.ant-btn-default {
+    background: #ffffff;
+    border: 1px solid #d9d9d9;
+    color: #595959;
+
+    &:hover {
+      background: #fafafa;
+      border-color: #8c8c8c;
+      color: #262626;
+    }
+  }
+`;
 
 type When_Finish = {
   id?: string;
@@ -39,8 +133,6 @@ const RegisterForm: FC<{
   const [submittable, setSubmittable] = useState<boolean>(false);
   const [messageApi, contextHolder] = message.useMessage();
   const queryClient = useQueryClient();
-  const [openRobot, setOpenRobot] = useState(false);
-
 
   const createMutation = useMutation({
     mutationFn: (payload: When_Finish) => {
@@ -49,6 +141,7 @@ const RegisterForm: FC<{
     onSuccess: async () => {
       messageApi.success(t("utils.success"));
       queryClient.refetchQueries({ queryKey: ["all-register-amr"] });
+      form.resetFields();
     },
     onError(error: Err) {
       messageApi.error(error.response.data.message);
@@ -62,6 +155,9 @@ const RegisterForm: FC<{
     onSuccess: async () => {
       messageApi.success(t("utils.success"));
       queryClient.refetchQueries({ queryKey: ["all-register-amr"] });
+      form.resetFields();
+      setIsEdit(false);
+      setEditData(undefined);
     },
     onError(error: Err) {
       messageApi.error(error.response.data.message);
@@ -70,12 +166,10 @@ const RegisterForm: FC<{
 
   const robotTypeOptions = useMemo(() => {
     return (
-      robotTypes?.map((v) => {
-        return {
-          label: v.name,
-          value: v.value,
-        };
-      }) || []
+      robotTypes?.map((v) => ({
+        label: v.name,
+        value: v.value,
+      })) || []
     );
   }, [robotTypes]);
 
@@ -87,12 +181,11 @@ const RegisterForm: FC<{
 
   const onFinish = (values: When_Finish) => {
     const paddedFullName = String(values.full_name).padStart(3, "0");
-
     const prefixAmrName = values.robot_type + "-" + paddedFullName;
 
     if (isEdit) {
       if (!editData?.id) {
-        messageApi.error("id is missed");
+        messageApi.error("ID IS MISSING");
         return;
       }
 
@@ -104,10 +197,6 @@ const RegisterForm: FC<{
       };
 
       editMutation.mutate(payload);
-      form.resetFields();
-      setIsEdit(false);
-      setEditData(undefined);
-
       return;
     }
 
@@ -137,10 +226,8 @@ const RegisterForm: FC<{
   }, [form, values]);
 
   useEffect(() => {
-    if (!isEdit) return;
-    if (!editData) return;
+    if (!isEdit || !editData) return;
     const nameArr = editData.full_name.split("-");
-
     const numberName = Number(nameArr[nameArr?.length - 1]);
 
     form.setFieldsValue({
@@ -148,32 +235,35 @@ const RegisterForm: FC<{
       full_name: numberName,
       serialNum: editData?.serialNum,
     });
-  }, [isEdit]);
+  }, [isEdit, editData]);
 
   return (
-    <>
+    <FormSection>
       {contextHolder}
-      <Form form={form} onFinish={onFinish}>
-        <Flex justify="center" gap="middle" align="center">
-          <Form.Item
-            name="robot_type"
-            label={t("setting_amr.register_amr.type")}
-            rules={[{ required: true }]}
-            style={{ flex: 1 }} // Let it stretch
-          >
-            <Select
-              style={{ width: "100%" }} // full width of Form.Item
-              options={robotTypeOptions}
-            />
-          </Form.Item>
-        </Flex>
+      <StyledForm form={form} onFinish={onFinish} layout="vertical">
+        <Form.Item
+          name="robot_type"
+          label={t("setting_amr.register_amr.type")}
+          rules={[{ required: true, message: "REQUIRED FIELD" }]}
+        >
+          <Select
+            style={{ width: "100%" }}
+            options={robotTypeOptions}
+            placeholder="SELECT ROBOT TYPE"
+          />
+        </Form.Item>
 
         <Form.Item
           name="full_name"
           label={t("setting_amr.register_amr.amr_name")}
-          rules={[{ required: true }]}
+          rules={[{ required: true, message: "REQUIRED FIELD" }]}
         >
-          <InputNumber placeholder="002" max={999} min={1} />
+          <InputNumber
+            placeholder="002"
+            max={999}
+            min={1}
+            style={{ width: "100%" }}
+          />
         </Form.Item>
 
         <Form.Item
@@ -189,21 +279,25 @@ const RegisterForm: FC<{
 
         <Form.Item>
           <Flex gap="middle">
-            {isEdit ? (
-              <Button onClick={handleCancel} type="default">
+            {isEdit && (
+              <IndustrialButton onClick={handleCancel}>
                 {t("utils.cancel")}
-              </Button>
-            ) : (
-              []
+              </IndustrialButton>
             )}
 
-            <Button disabled={!submittable} type="primary" htmlType="submit">
-              {isEdit ? t("utils.edit") : t("utils.submit")}
-            </Button>
+            <IndustrialButton
+              type="primary"
+              disabled={!submittable}
+              htmlType="submit"
+              loading={createMutation.isLoading || editMutation.isLoading}
+              icon={isEdit ? <SaveOutlined /> : <PlusOutlined />}
+            >
+              {isEdit ? t("utils.save") : t("utils.add")}
+            </IndustrialButton>
           </Flex>
         </Form.Item>
-      </Form>
-    </>
+      </StyledForm>
+    </FormSection>
   );
 };
 
