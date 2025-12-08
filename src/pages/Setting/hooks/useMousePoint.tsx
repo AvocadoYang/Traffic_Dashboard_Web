@@ -71,6 +71,7 @@ const useMousePoint = (
 
         const adjustX = clientX - mapRef.current.offsetLeft + (Left as number);
         const adjustY = clientY - mapRef.current.offsetTop + (Top as number);
+        console.log(clientX, clientY, mapRef.current.offsetLeft,Top, scale)
         const [rx, ry] = rvizCoord({
           displayX: adjustX,
           displayY: adjustY,

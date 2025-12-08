@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { InferType, array, object, string } from "yup";
+import { InferType, array, object, string, number } from "yup";
 import client from "./axiosClient";
 
 const schema = array(
@@ -7,6 +7,9 @@ const schema = array(
     id: string().required(),
     name: string().required(),
     value: string().required(),
+    length: number().required(),
+    height: number().required(),
+    width: number().required()
   }).required(),
 );
 

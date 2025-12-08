@@ -17,17 +17,21 @@ const PointDiv = styled.div.attrs<{
   top: number;
   canrotate: string;
 }>`
-  position: absolute;
-  width: 5px;
-  height: 5px;
-  background: ${(props) =>
-    props.canrotate === "true" ? "#ebac5b" : "#71ce00"};
+  width: 3px;
+  height: 3px;
   border-radius: 50%;
-  z-index: 10;
-  transition-duration: 200ms;
+  background: ${(props) =>
+    props.canrotate === "true" ? "#ebac5b" : "#1904be"};
+  position: absolute;
+  left: ${(p) => p.left}px;
+  top: ${(p) => p.top}px;
+  z-index: 300000;
+  box-shadow: 0 0 4px rgba(13, 91, 236, 0.6);
+  transform: translate(-50%, -50%);
   &:hover {
     background: red;
-    scale: 1.8;
+    width: 5px;
+    height: 5px;
   }
 `;
 
@@ -98,7 +102,7 @@ const AllElevator: FC = () => {
             >
               <PointDiv
                 id={loc.locationId.toString()}
-                canrotate={`${loc.canRotate}`}
+                canrotate={`${false}`}
                 left={displayX}
                 top={displayY}
                 key={loc.locationId}

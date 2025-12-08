@@ -245,7 +245,12 @@
     "amr_setting": {
       "robot": "robot",
       "register_amr": "Register Robot",
-      "amr_config": "Robot Config"
+      "amr_config": "Add AMR type",
+      "amr_name": "AMR name",
+      "serial_name": "Serial name",
+      "width": "width",
+      "length": "length",
+      "height": "Height"
     },
     "mission": {
       "mission": "Mission",
