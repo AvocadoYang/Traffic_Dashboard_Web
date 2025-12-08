@@ -94,16 +94,20 @@ const AllLocation: React.FC<{
             <Point
               id={loc.locationId.toString()}
               canrotate={`${loc.canRotate}`}
-              onClick={() => handleDireMove(loc.locationId.toString())}
-              onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
+              onClick={(e) => {
+                e.preventDefault()
+                handleDireMove(loc.locationId.toString())
+              }}
+              onMouseEnter={() =>{
+                handleEnter(loc.locationId, loc.x, loc.y)
+              }}
               onMouseLeave={() => handleLeave()}
               left={displayX}
               top={displayY}
-              key={nanoid()}
+
             ></Point>
             {
               mouseDetectLocArr.has(loc.locationId.toString()) ? 
-              
               <>
               <Line
                 id={loc.locationId}
@@ -112,7 +116,7 @@ const AllLocation: React.FC<{
                 progress={mouseDetectLocArr.has(loc.locationId.toString()) ? 1 : 0}
                 angle={angleDeg}
               />
-              <LabelWrapper x={labelX} y={labelY} key={nanoid()} id={loc.locationId}>
+              <LabelWrapper x={labelX} y={labelY} id={loc.locationId}>
                 <Label>{loc.locationId}</Label>
                 <LabelTooltip className="tooltip">
                   {
