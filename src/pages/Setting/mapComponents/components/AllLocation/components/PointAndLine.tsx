@@ -12,7 +12,7 @@ const LabelWrapperDiv = styled.div.attrs<{ x: number; y: number }>(({ x, y }) =>
   },
 }))`
   position: absolute;
-  z-index: 999998833;
+  z-index: 100;
   cursor: pointer;
   display: inline-block;
 
@@ -27,10 +27,10 @@ export const LabelWrapper = memo(LabelWrapperDiv);
 const LabelDiv = styled.div`
   font-size: 10px;
   padding: 2px 6px;
-  background: rgba(255, 255, 255, 0.9);
+  background: white;
   border: 1px solid black;
   border-radius: 4px;
-  z-index: 999991113;
+  z-index: 102;
   white-space: nowrap;
   pointer-events: auto;
   transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.2s ease;
@@ -52,7 +52,7 @@ const TooltipDiv = styled.div`
   background: rgba(0, 0, 0, 0.85);
   color: white;
   padding: 4px 8px;
-  z-index: 999998899;
+  z-index: 104;
   font-size: 9px;
   border-radius: 4px;
   /* white-space: nowrap; */
@@ -83,7 +83,7 @@ position: absolute;
   width: 60px;   /* 真寬 */
   height: 2px;
   opacity: 0.5;
-  z-index: 9999998;
+  z-index: 95;
   transition: transform 0.45s cubic-bezier(.2,.8,.3,1);
   background: rgba(0, 0, 0, 0.45);
 `;
@@ -109,9 +109,10 @@ height: 3px;
 border-radius: 50%;
 background: ${(props) => props.canrotate === "true" ? "#ff15fb" : "#0d0d12"};
 position: absolute;
+cursor: pointer;
 left: ${(p) => p.left}px;
 top: ${(p) => p.top}px;
-z-index: 9999995;
+z-index: 150;
 /* box-shadow:  ${(props) => props.canrotate === "true" ? " 0 0 4px rgba(253, 43, 180, 0.6)" : " 0 0 4px rgba(0, 0, 0, 0.6)"}; */
 transform: translate(-50%, -50%);
 border: ${(props) => (props.hoverLoc ? "5px solid #ff0000" : "none")};

@@ -1,4 +1,4 @@
-import { mouseMoveSwitch, mousePosition } from "@/utils/siderGloble";
+import { isShowLocationTooltip, mouseMoveSwitch, mousePosition } from "@/utils/siderGloble";
 import { useAtom, useAtomValue } from "jotai";
 import { RefObject, useEffect } from "react";
 import { debounceTime, fromEvent, map, throttleTime } from "rxjs";
@@ -7,10 +7,11 @@ const useMouseClick = (
     mapWrapRef: RefObject<HTMLDivElement>,
 ) => {
      const [moveSwitch, setMouseMoveSwitch] = useAtom(mouseMoveSwitch);
+       const showLocationToolTip = useAtomValue(isShowLocationTooltip);
 
 
      useEffect(() => {
-        if(!mapWrapRef.current) return;
+        if(!mapWrapRef.current || !showLocationToolTip) return;
         const mouseClickEvent$ = fromEvent<MouseEvent>(mapWrapRef.current, "click").pipe((
             map(({ clientX, clientY}) => {
                 return { clientX, clientY}
@@ -27,7 +28,8 @@ const useMouseClick = (
         };
      },[
         mapWrapRef,
-        moveSwitch
+        moveSwitch,
+        showLocationToolTip
      ])
 };
 
