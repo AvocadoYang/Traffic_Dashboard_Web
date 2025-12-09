@@ -84,8 +84,6 @@ const EditChargeStationConfigModal = () => {
       disable: socketConfig[open.locationId].disable,
       name: socketConfig[open.locationId].name,
       description: socketConfig[open.locationId].description,
-      port: socketConfig[open.locationId].port,
-      ip: socketConfig[open.locationId].ip,
       stationId: socketConfig[open.locationId].stationId,
     });
     setIsFormInitialized(true);
@@ -141,28 +139,9 @@ const EditChargeStationConfigModal = () => {
               </Form.Item>
 
               <Form.Item label={t("charge.model.station_id")} name="stationId">
-                <InputNumber min={1} max={9} />
+                <Input min={1} max={9} />
               </Form.Item>
-              <Form.Item
-                label={t("charge.model.ip_address")}
-                name="ip"
-                rules={[
-                  {
-                    pattern:
-                      /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
-                    message: t("charge.model.ip_invalid"),
-                  },
-                  {
-                    required: true,
-                    message: t("charge.model.ip_required"),
-                  },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-              <Form.Item label={t("charge.model.port")} name="port">
-                <InputNumber max={65536} min={0} />
-              </Form.Item>
+
               <Form.Item
                 label={t("charge.model.name")}
                 name="name"
