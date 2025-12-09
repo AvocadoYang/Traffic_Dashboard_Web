@@ -1,110 +1,119 @@
 import useMap from "@/api/useMap";
 import { rad2Deg, rosCoord2DisplayCoord } from "@/utils/utils";
-import { FC } from "react";
+import { FC, Fragment } from "react";
 import styled from "styled-components";
 
-const PointDiv = styled.div.attrs<{
+const hexToRGBA = (hex: string, alpha: number) => {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
+
+const Container = styled.div.attrs<{
   left: number;
   top: number;
-
-}>(({ left, top }) => ({
-  style: { left, top},
-}))<{
+}>(({ left, top }) => ({ style: { left, top } }))<{
   left: number;
   top: number;
 }>`
-width: 4px;
-height: 4px;
-border-radius: 50%;
-background: #0d0d12;
-position: absolute;
-
-z-index: 150;
-
-transform: translate(-50%, -50%);
+  position: absolute;
 `;
 
 
-const BBox: FC<{ amrId: string, bbox: number[][]}> = ({ amrId, bbox}) => {
+const Line = styled.div.attrs<{
+  length: number;
+  angle: number;
+  color: string;
+}>(
+  ({
+    length,
+    angle,
+    color,
+  }) => ({
+    style: {
+      width: length,
+      height: "1px",
+      transform: `rotate(${angle}deg) translateY(-50%)`,
+      transformOrigin: "0 50%",  // ⬅ 旋轉基準改在左正中
+      opacity: "0.7",
+      border: `1px dashed ${hexToRGBA(color, 0.7)}`
+    },
+  }),
+)<{
+  length: number;
+  angle: number;
+  color: string;
+}>` 
+
+  position: absolute;
+  z-index: 149;
+`;
+
+
+const BBox: FC<{ amrId: string, color: string,  bbox: number[][]}> = ({ amrId, color, bbox}) => {
      const { data } = useMap();
-    if(!data) return null;
+    if(!data || !bbox) return null;
     return (
         <>
         {
-            bbox.map(([x,y], i) => {
-                const [displayX, displayY] = rosCoord2DisplayCoord({
-                    x,
-                    y,
-                    mapHeight: data?.mapHeight,
-                    mapOriginX: data?.mapOriginX,
-                    mapOriginY: data.mapOriginY,
-                    mapResolution: data.mapResolution,
-                });
-                return <PointDiv key={i} left={displayX} top={displayY}></PointDiv>
+          [...bbox].slice(0, bbox.length -1).map((curr, i) => {
+            // console.log((i + 1) % bbox.length, '@@@@')
+            const next = bbox[(i + 1) % (bbox.length -1)];
+            const [displayX, displayY] = rosCoord2DisplayCoord({
+              x: curr[0],
+              y: curr[1],
+              mapHeight: data?.mapHeight,
+              mapOriginX: data?.mapOriginX,
+              mapOriginY: data.mapOriginY,
+              mapResolution: data.mapResolution,
+          });
+
+          const [connectX, connectY] = rosCoord2DisplayCoord({
+              x: next[0],
+              y: next[1],
+              mapHeight: data?.mapHeight,
+              mapOriginX: data?.mapOriginX,
+              mapOriginY: data.mapOriginY,
+              mapResolution: data.mapResolution,
+            });
+          
+            const [centerX, centerY] = rosCoord2DisplayCoord({
+              x: bbox[bbox.length -1][0],
+              y: bbox[bbox.length -1][1],
+              mapHeight: data?.mapHeight,
+              mapOriginX: data?.mapOriginX,
+              mapOriginY: data.mapOriginY,
+              mapResolution: data.mapResolution,
             })
+
+              const length = Math.hypot(displayX - connectX, displayY - connectY);
+              const angle = rad2Deg(Math.atan2(connectY - displayY, connectX - displayX));
+
+              const length2Center = Math.hypot(displayX - centerX, displayY - centerY);
+              const angleWCenter =  rad2Deg(Math.atan2(centerY - displayY, centerX - displayX));
+
+              return (
+                <Fragment key={`${amrId}-line-${i}`}>
+                <Container left={displayX} top={displayY} >
+                  <Line  color={color} length={length} angle={angle} className="bbox-line"></Line>
+                </Container>
+                <Container left={displayX} top={displayY} >
+                  <Line  color={color} length={length2Center} angle={angleWCenter} className="bbox-line"></Line>
+                </Container>
+                </Fragment>
+              )
+          })
         }
-    {bbox.map((curr, i) => {
-        const next = bbox[(i + 1) % bbox.length]; // 最後一點連回第一點
 
-        const [x1, y1] = rosCoord2DisplayCoord({
-            x: curr[0],
-            y: curr[1],
-            mapHeight: data?.mapHeight,
-            mapOriginX: data?.mapOriginX,
-            mapOriginY: data.mapOriginY,
-            mapResolution: data.mapResolution,
-        });
-
-
-        const [x2, y2] = rosCoord2DisplayCoord({
-            x: next[0],
-            y: next[1],
-            mapHeight: data?.mapHeight,
-            mapOriginX: data?.mapOriginX,
-            mapOriginY: data.mapOriginY,
-            mapResolution: data.mapResolution,
-        });
         
-        const length = Math.hypot(x1 - x2, y1 - y2);
-        const angle = rad2Deg(Math.atan2(y2 - y1, x2 - x1));
-
-
-        return (
-          <Line
-            key={`line-${i}`}
-            length={length}
-            angle={angle}
-            color={"#0d0d12"}
-          />
-        );
-      })}
+        
         </>
     )
 }
+
+
 export default BBox
 
 
-const Line = styled.div.attrs<{
-    length: number;
-    angle: number;
-    color: string;
-  }>(
-    ({
-      length,
-      angle,
-      color
-    }) => ({
-      style: {
-        width: length,
-        height: "2px",
-        transform: `rotate(${angle}deg) translateY(-50%)`,
-        backgroundColor: `${color}`,
-        opacity: "0.7",
-        border: `1px solid red`
-      },
-    }),
-  )<{
-    length: number;
-    angle: number;
-    color: string
-  }>` `;

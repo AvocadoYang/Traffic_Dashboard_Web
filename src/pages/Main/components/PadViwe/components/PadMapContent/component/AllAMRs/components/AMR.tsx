@@ -138,7 +138,7 @@ const AMR: FC<{
 
 
       <ForkLiftIcon amrId={amrId} color={color} left={left} yaw={pose.yaw} top={top}></ForkLiftIcon>
-      <BBox amrId={amrId} bbox={bbox}></BBox>
+      <BBox amrId={amrId} bbox={bbox} color={color}></BBox>
       {/* <Icon amrId={amrId} color={color} left={left} top={top}></Icon> */}
       {errorMessage?.length ? (
         <ErrorTip left={left} top={top + Math.sqrt(top) - 5}>
