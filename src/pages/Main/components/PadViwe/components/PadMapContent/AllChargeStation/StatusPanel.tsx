@@ -210,7 +210,7 @@ const StatusPanel: FC<{ locId: string | null }> = ({ locId }) => {
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
   const station = locId ? socketState[locId] : null;
-  console.log(station);
+
   const handleBar = (cmd: string) => {
     if (!locId) {
       messageApi.error("LOCATION NOT FOUND");
