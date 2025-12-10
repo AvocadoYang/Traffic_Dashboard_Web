@@ -32,7 +32,7 @@ const IndustrialTableContainer = styled.div`
     background: #fafafa;
     color: #262626;
     font-weight: 600;
-    text-transform: uppercase;
+
     font-size: 11px;
     letter-spacing: 1px;
     border-bottom: 2px solid #d9d9d9;
@@ -68,7 +68,7 @@ const MissionName = styled.p`
   font-weight: 600;
   color: #262626;
   font-size: 13px;
-  text-transform: uppercase;
+
   letter-spacing: 0.5px;
 `;
 
@@ -82,7 +82,7 @@ const RobotType = styled.p`
   font-size: 11px;
   font-weight: 600;
   display: inline-block;
-  text-transform: uppercase;
+
   letter-spacing: 1px;
 `;
 
@@ -95,7 +95,7 @@ const TagWrapper = styled.div`
 const IndustrialTag = styled(Tag)`
   font-family: "Roboto Mono", monospace;
   font-size: 10px;
-  text-transform: uppercase;
+
   letter-spacing: 0.5px;
   padding: 2px 8px;
   border-radius: 4px;
@@ -110,7 +110,7 @@ const ActionButtonGroup = styled.div`
 
 const IndustrialButton = styled(Button)`
   font-family: "Roboto Mono", monospace;
-  text-transform: uppercase;
+
   font-size: 10px;
   letter-spacing: 0.5px;
   height: 32px;
@@ -182,7 +182,7 @@ const MissionTable: FC<{
   const queryClient = useQueryClient();
   const { t } = useTranslation();
   const [messageApi, contextHolders] = message.useMessage();
-  
+
   const deleteMutation = useMutation({
     mutationFn: (deleteId: string) => {
       return client.post(
@@ -192,7 +192,7 @@ const MissionTable: FC<{
         },
         {
           headers: { authorization: `Bearer ${localStorage.getItem("_KMT")}` },
-        },
+        }
       );
     },
     onSuccess: async () => {
@@ -263,7 +263,11 @@ const MissionTable: FC<{
             {c.Category?.tagName}
           </IndustrialTag>
         ));
-        return <TagWrapper>{tags || <span style={{ color: "#8c8c8c" }}>-</span>}</TagWrapper>;
+        return (
+          <TagWrapper>
+            {tags || <span style={{ color: "#8c8c8c" }}>-</span>}
+          </TagWrapper>
+        );
       },
     },
     {

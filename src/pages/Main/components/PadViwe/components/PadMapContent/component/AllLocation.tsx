@@ -1,6 +1,13 @@
 import useMap from "@/api/useMap";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
-import { Fragment, memo, RefObject, useCallback, useEffect, useState } from "react";
+import {
+  Fragment,
+  memo,
+  RefObject,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { nanoid } from "nanoid";
 import { Label, LabelTooltip, LabelWrapper, Line, Point, PointMain } from "@/pages/Setting/mapComponents/components/AllLocation/components/PointAndLine";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -10,15 +17,16 @@ import useMouseMove from "@/pages/Main/components/WebView/hooks/useMoseMove";
 import { mousePosition } from "@/utils/siderGloble";
 
 const AllLocation: React.FC<{
-   mapRef: RefObject<HTMLDivElement>;
-}> = ({ mapRef}) => {
+  mapRef: RefObject<HTMLDivElement>;
+}> = ({ mapRef }) => {
   const { data } = useMap();
   const setTooltip = useSetAtom(tooltipProp);
   const setOpen = useSetAtom(OpenDirect);
-  const [roadInfo, setRoadInfo] = useState<{ spot1Id: string, spot2Id: string, roadId: string}[]>()
+  const [roadInfo, setRoadInfo] =
+    useState<{ spot1Id: string; spot2Id: string; roadId: string }[]>();
   const mouseDetectLocArr = useAtomValue(mouseDetectLoc);
-  const { clientX, clientY} = useAtomValue(mousePosition);
-  
+  const { clientX, clientY } = useAtomValue(mousePosition);
+
   const handleEnter = useCallback(
     (locationId: string, x: number, y: number) => {
       setTooltip({
@@ -32,22 +40,25 @@ const AllLocation: React.FC<{
 
   useEffect(() => {
     const roads = data?.roads.map((road) => {
-      return { spot1Id: road.spot1Id, spot2Id: road.spot2Id, roadId: road.roadId}
+      return {
+        spot1Id: road.spot1Id,
+        spot2Id: road.spot2Id,
+        roadId: road.roadId,
+      };
     });
     setRoadInfo(roads);
-  }, [data])
+  }, [data]);
 
   const handleLeave = useCallback(() => {
     setTooltip(null);
   }, []);
 
   const handleDireMove = (locationId: string) => {
+    console.log("???");
     setOpen({ open: true, locationId });
   };
 
-  useMouseMove(mapRef)
-
-
+  useMouseMove(mapRef);
 
   if (!data) return;
 
@@ -71,7 +82,9 @@ const AllLocation: React.FC<{
           let labelX = displayX;
           let labelY = displayY;
 
-          const index = [...mouseDetectLocArr].indexOf(loc.locationId.toString());
+          const index = [...mouseDetectLocArr].indexOf(
+            loc.locationId.toString()
+          );
           const total = mouseDetectLocArr.size;
 
           const dx = clientX - displayX;
@@ -84,10 +97,9 @@ const AllLocation: React.FC<{
           const spreadRad = (FAN_ANGLE * (Math.PI / 180)) / total;
           const rad = baseRad + spreadRad * (index - total / 2);
 
-
-           labelX = displayX + Math.cos(rad) * 70;
-           labelY = displayY + Math.sin(rad) * 70;
-           angleDeg = (rad * 180) / Math.PI;
+          labelX = displayX + Math.cos(rad) * 70;
+          labelY = displayY + Math.sin(rad) * 70;
+          angleDeg = (rad * 180) / Math.PI;
 
           return (
             <Fragment key={loc.locationId}>

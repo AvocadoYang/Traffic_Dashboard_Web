@@ -64,7 +64,7 @@ const schema = array(
     disable: boolean().required(),
     booker: string().optional().nullable(),
     occupier: string().optional().nullable(),
-    currentStatus: stateSchema,
+    isConnect: boolean().optional(),
     ip: string().optional().nullable(),
     port: number().required(),
   }).optional()
@@ -82,9 +82,9 @@ const profiles$ = fromEventPattern(
   switchMap(async (msg: unknown) => {
     return msg as { [locationId: string]: Charge_Status_Info };
   }),
-  distinctUntilChanged(
-    (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
-  ),
+  // distinctUntilChanged(
+  //   (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
+  // ),
   share()
 );
 
@@ -127,8 +127,11 @@ export type Charge_Status_Info = {
   disable: boolean;
   booker: string;
   occupier: string;
-  currentStatus: ChargeStationResponseObj;
-
+  // currentStatus: ChargeStationResponseObj;
+  isMQTTConnect: boolean;
+  isTCPConnect: boolean;
+  isStationCodeAlive: boolean;
+  leastHeartbeatTime: Date;
   stationId: string;
   ip: string;
   port: number;
