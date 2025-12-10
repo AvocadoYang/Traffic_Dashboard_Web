@@ -1,18 +1,25 @@
-import { Drawer, Table, Tag, Space, Typography, Button, Tooltip } from "antd";
-import { Dispatch, FC, SetStateAction, useState } from "react";
+import {
+  Drawer,
+  Table,
+  Tag,
+  Space,
+  Typography,
+  Button,
+  Tooltip,
+  ConfigProvider,
+  Flex,
+  RadioChangeEvent,
+} from "antd";
+import { Dispatch, FC, SetStateAction, useState, memo } from "react";
 import { ColumnsType } from "antd/es/table";
 import moment from "moment";
-import {
-  SyncOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  ExclamationCircleOutlined,
-  LoadingOutlined,
-  MinusCircleOutlined,
-} from "@ant-design/icons";
+import { SyncOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import useAllMissionHistory from "@/api/useMissionHistory";
 import { useTranslation } from "react-i18next";
-import "./addonStyle.css";
+import styled from "styled-components";
+import { translate } from "@/i18n";
+import { darkMode } from "@/utils/gloable";
+import { useAtomValue } from "jotai";
 import { useRejectMission } from "@/sockets/useRejectMission";
 
 // Define the Mission interface based on your schema
@@ -37,29 +44,230 @@ interface Mission {
   totalDistanceTraveled: number;
   info?: any;
   message?: string;
+  full_name?: string[];
+  category?: string[];
 }
 
 enum Send_By {
   /**未知 */
   UNKNOWN,
-
   /**交管 */
   RCS,
-
   /**第三方的API */
   WCS,
-
   //**使用者於界面上派發 */
   USER,
 }
+
+// Industrial Styled Components (adapted from MissionTable)
+const IndustrialDrawer = styled(Drawer)<{ $isDark: boolean }>`
+  .ant-drawer-content-wrapper {
+    background: ${({ $isDark }) => ($isDark ? "#0f0f0f" : "#ffffff")};
+  }
+  .ant-drawer-header {
+    background: ${({ $isDark }) => ($isDark ? "#0a0a0a" : "#fafafa")};
+    border-bottom: 1px solid
+      ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#d9d9d9")};
+  }
+  .ant-drawer-title {
+    color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#262626")};
+    font-family: "Roboto Mono", monospace;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+`;
+
+const IndustrialTableContainer = styled.div<{ $isDark: boolean }>`
+  .ant-table {
+    background: ${({ $isDark }) => ($isDark ? "#0f0f0f" : "#ffffff")};
+    border: 1px solid ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#d9d9d9")};
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  .ant-table-thead > tr > th {
+    background: ${({ $isDark }) => ($isDark ? "#0a0a0a" : "#fafafa")};
+    color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#262626")};
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
+    border-bottom: 2px solid
+      ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#d9d9d9")};
+    font-family: "Roboto Mono", monospace;
+  }
+  .ant-table-tbody > tr {
+    background: ${({ $isDark }) => ($isDark ? "#0f0f0f" : "#ffffff")};
+    transition: all 0.2s ease;
+    font-family: "Roboto Mono", monospace;
+    &:hover {
+      background: ${({ $isDark }) =>
+        $isDark ? "#1a1a1a" : "#f0f5ff"} !important;
+      box-shadow: 0 2px 4px rgba(24, 144, 255, 0.1);
+    }
+  }
+  .ant-table-tbody > tr > td {
+    border-bottom: 1px solid
+      ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#f0f0f0")};
+    font-size: 12px;
+    color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#595959")};
+  }
+  .ant-pagination {
+    font-family: "Roboto Mono", monospace;
+  }
+`;
+
+const IndustrialButton = styled(Button)`
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  height: 36px;
+  padding: 0 20px;
+  font-weight: 600;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  &.refresh-btn {
+    background: #e6f7ff;
+    border: 1px solid #1890ff;
+    color: #1890ff;
+    &:hover:not(:disabled) {
+      background: #1890ff;
+      border-color: #1890ff;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+    }
+  }
+`;
+
+const MissionIdTag = styled(Tag)`
+  font-family: "Roboto Mono", monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  cursor: pointer;
+`;
+
+const StatusBadge = styled.span<{ $status: number; $isDark: boolean }>`
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-family: "Roboto Mono", monospace;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  ${({ $status, $isDark }) => {
+    const statusColors: Record<
+      number,
+      { bg: string; border: string; text: string; icon?: string }
+    > = {
+      0: {
+        // pending
+        bg: $isDark ? "#0a0a0a" : "#fff7e6",
+        border: "#faad14",
+        text: "#faad14",
+      },
+      1: {
+        // assigned
+        bg: $isDark ? "#0a0a0a" : "#e6f7ff",
+        border: "#1890ff",
+        text: "#1890ff",
+      },
+      2: {
+        // executing
+        bg: $isDark ? "#0a0a0a" : "#f6ffed",
+        border: "#52c41a",
+        text: "#52c41a",
+      },
+      3: {
+        // completed
+        bg: $isDark ? "#0a0a0a" : "#fafafa",
+        border: "#8c8c8c",
+        text: "#8c8c8c",
+      },
+      4: {
+        // aborting
+        bg: $isDark ? "#0a0a0a" : "#fff1f0",
+        border: "#ff4d4f",
+        text: "#ff4d4f",
+      },
+      5: {
+        // canceled
+        bg: $isDark ? "#0a0a0a" : "#fff1f0",
+        border: "#ff4d4f",
+        text: "#ff4d4f",
+      },
+    };
+    const color = statusColors[$status] || statusColors[0];
+    return `
+      background: ${color.bg};
+      border: 1px solid ${color.border};
+      color: ${color.text};
+    `;
+  }}
+`;
+
+const ModeTag = styled(Tag)<{ $isDark: boolean }>`
+  font-family: "Roboto Mono", monospace;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+`;
+
+const ErrorMessage = styled.div<{ $isDark: boolean }>`
+  text-align: center;
+  padding: 20px;
+  color: ${({ $isDark }) => ($isDark ? "#ff4d4f" : "#ff4d4f")};
+  font-family: "Roboto Mono", monospace;
+  font-size: 12px;
+  background: ${({ $isDark }) => ($isDark ? "#1a1a1a" : "#fff1f0")};
+  border: 1px solid #ff4d4f;
+  border-radius: 4px;
+`;
+
+const DrawerTitleWrapper = styled(Flex)`
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const IndustrialTypography = styled(Typography.Title)<{ $isDark: boolean }>`
+  color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#262626")};
+  font-family: "Roboto Mono", monospace;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px !important;
+  margin: 0 !important;
+`;
+
+const ViewButton = styled(Button)`
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+`;
+
+const MISSION_SORT = [
+  0, // pending
+  1, // assigned
+  2, // executing
+  3, // completed
+  4, // aborting
+  5, // canceled
+];
 
 const MissionHistory: FC<{
   isOpenMissionHistory: boolean;
   setIsOpenMissionHistory: Dispatch<SetStateAction<boolean>>;
 }> = ({ isOpenMissionHistory, setIsOpenMissionHistory }) => {
   const { t } = useTranslation();
+  const isDark = useAtomValue(darkMode);
   const rejectMission = useRejectMission();
-
   const [pagination, setPagination] = useState<{
     page: number;
     pageSize: number;
@@ -67,17 +275,16 @@ const MissionHistory: FC<{
     page: 1,
     pageSize: 10,
   });
-
   const {
     data: missions,
     isLoading,
     error,
     refetch,
   } = useAllMissionHistory(pagination);
-
   const closeHistory = () => {
     setIsOpenMissionHistory(false);
   };
+  const [size, setSize] = useState(980);
 
   // Define table columns
   const columns: ColumnsType<Mission> = [
@@ -89,21 +296,26 @@ const MissionHistory: FC<{
       width: 150,
       render: (missionId: string) => {
         const info = rejectMission?.[missionId];
-        if (!info) return missionId;
-
+        if (!info) return <MissionIdTag color="blue">{missionId}</MissionIdTag>;
         const tooltipContent = (
-          <div style={{ maxWidth: 260 }}>
+          <div
+            style={{
+              maxWidth: 260,
+              fontFamily: "Roboto Mono",
+              fontSize: 11,
+              color: isDark ? "#00ff41" : "#595959",
+            }}
+          >
             {info.map((entry, idx) => (
-              <div key={idx}>
+              <div key={idx} style={{ marginBottom: 4 }}>
                 <strong>{entry.amrId}</strong>: {entry.reason}
               </div>
             ))}
           </div>
         );
-
         return (
-          <Tooltip title={tooltipContent} color="volcano" placement="right">
-            <Tag color="volcano">{missionId}</Tag>
+          <Tooltip title={tooltipContent} color="blue" placement="right">
+            <MissionIdTag color="blue">{missionId}</MissionIdTag>
           </Tooltip>
         );
       },
@@ -119,62 +331,18 @@ const MissionHistory: FC<{
       title: t("mission_history.status"),
       dataIndex: "status",
       key: "status",
-      filters: [
-        { text: t("mission_history.pending"), value: 0 },
-        { text: t("mission_history.assigned"), value: 1 },
-        { text: t("mission_history.executing"), value: 2 },
-        { text: t("mission_history.completed"), value: 3 },
-        { text: t("mission_history.aborting"), value: 4 },
-        { text: t("mission_history.canceled"), value: 5 },
-      ],
-      onFilter: (value, record) => record.status === value,
       render: (status: number) => {
-        let color = "blue";
-        let text = t("mission_history.pending");
-        let icon = <SyncOutlined spin />;
-
-        switch (status) {
-          case 0:
-            color = "blue";
-            text = t("mission_history.pending");
-            icon = <SyncOutlined spin />;
-            break;
-          case 1:
-            color = "orange";
-            text = t("mission_history.assigned");
-            icon = <SyncOutlined />;
-            break;
-          case 2:
-            color = "gold";
-            text = t("mission_history.executing");
-            icon = <LoadingOutlined />;
-            break;
-          case 3:
-            color = "green";
-            text = t("mission_history.completed");
-            icon = <CheckCircleOutlined />;
-            break;
-          case 4:
-            color = "red";
-            text = t("mission_history.aborting");
-            icon = <CloseCircleOutlined />;
-            break;
-          case 5:
-            color = "gray";
-            text = t("mission_history.canceled");
-            icon = <MinusCircleOutlined />;
-            break;
-        }
-
+        const text = translate("normal", status.toString()) || "";
         return (
-          <Tag color={color} icon={icon}>
+          <StatusBadge $status={status} $isDark={isDark}>
             {text}
-          </Tag>
+          </StatusBadge>
         );
       },
+      sorter: (a, b) =>
+        MISSION_SORT.indexOf(a.status) - MISSION_SORT.indexOf(b.status),
       width: 150,
     },
-
     {
       title: t("mission_history.full_name"),
       dataIndex: "full_name",
@@ -199,7 +367,6 @@ const MissionHistory: FC<{
       render: (category: string[]) => category?.join(", ") || "N/A",
       width: 150,
     },
-
     {
       title: t("mission_history.priority"),
       dataIndex: "priority",
@@ -296,58 +463,44 @@ const MissionHistory: FC<{
       key: "totalDistanceTraveled",
       sorter: (a, b) => a.totalDistanceTraveled - b.totalDistanceTraveled,
       render: (distance) =>
-        `${distance.toFixed(2)} ${t("mission_history.distance_traveled").split("（")[1].replace("）", "")}`,
+        `${distance.toFixed(2)} ${t("mission_history.distance_traveled").split("（")[1]?.replace("）", "") || "m"}`,
       width: 150,
     },
     {
       title: t("mission_history.manual_mode"),
       dataIndex: "manualMode",
       key: "manualMode",
-      render: (manual) =>
-        manual ? (
-          <Tag color="purple">{t("mission_history.manual")}</Tag>
-        ) : (
-          <Tag color="blue">{t("mission_history.auto")}</Tag>
-        ),
-      filters: [
-        { text: t("mission_history.manual"), value: true },
-        { text: t("mission_history.auto"), value: false },
-      ],
-      onFilter: (value, record) => record.manualMode === value,
+      render: (manual) => (
+        <ModeTag $isDark={isDark} color={manual ? "purple" : "blue"}>
+          {manual ? t("mission_history.manual") : t("mission_history.auto")}
+        </ModeTag>
+      ),
       width: 120,
     },
     {
       title: t("mission_history.emergency_btn"),
       dataIndex: "emergencyBtn",
       key: "emergencyBtn",
-      render: (emergency) =>
-        emergency ? (
-          <Tag color="red">{t("mission_history.pressed")}</Tag>
-        ) : (
-          <Tag color="green">{t("mission_history.not_pressed")}</Tag>
-        ),
-      filters: [
-        { text: t("mission_history.pressed"), value: true },
-        { text: t("mission_history.not_pressed"), value: false },
-      ],
-      onFilter: (value, record) => record.emergencyBtn === value,
+      render: (emergency) => (
+        <ModeTag $isDark={isDark} color={emergency ? "red" : "green"}>
+          {emergency
+            ? t("mission_history.pressed")
+            : t("mission_history.not_pressed")}
+        </ModeTag>
+      ),
       width: 120,
     },
     {
       title: t("mission_history.recovery_btn"),
       dataIndex: "recoveryBtn",
       key: "recoveryBtn",
-      render: (recovery) =>
-        recovery ? (
-          <Tag color="orange">{t("mission_history.pressed")}</Tag>
-        ) : (
-          <Tag color="green">{t("mission_history.not_pressed")}</Tag>
-        ),
-      filters: [
-        { text: t("mission_history.pressed"), value: true },
-        { text: t("mission_history.not_pressed"), value: false },
-      ],
-      onFilter: (value, record) => record.recoveryBtn === value,
+      render: (recovery) => (
+        <ModeTag $isDark={isDark} color={recovery ? "orange" : "green"}>
+          {recovery
+            ? t("mission_history.pressed")
+            : t("mission_history.not_pressed")}
+        </ModeTag>
+      ),
       width: 120,
     },
     {
@@ -358,21 +511,6 @@ const MissionHistory: FC<{
         warningIdList && warningIdList.length > 0
           ? warningIdList.join(", ")
           : t("mission_history.none"),
-      sorter: (a, b) => {
-        const aList = a.warningIdList || [];
-        const bList = b.warningIdList || [];
-        return aList.length - bList.length; // Sort by number of warnings
-      },
-      filters: [
-        { text: t("mission_history.has_warnings"), value: true },
-        { text: t("mission_history.no_warnings"), value: false },
-      ],
-      onFilter: (value, record) => {
-        const hasWarnings = !!(
-          record.warningIdList && record.warningIdList.length > 0
-        );
-        return value ? hasWarnings : !hasWarnings;
-      },
       width: 150,
     },
     {
@@ -380,14 +518,14 @@ const MissionHistory: FC<{
       key: "actions",
       render: (_, record) => (
         <Space size="middle">
-          <Button
+          <ViewButton
             type="link"
             onClick={() => {
               console.log(t("mission_history.view"), record.id);
             }}
           >
             {t("mission_history.view")}
-          </Button>
+          </ViewButton>
         </Space>
       ),
       width: 100,
@@ -395,61 +533,80 @@ const MissionHistory: FC<{
   ];
 
   return (
-    <Drawer
-      title={
-        <div className="flex items-center justify-between">
-          <Typography.Title level={4} className="!m-0">
-            {t("mission_history.title")}
-          </Typography.Title>
-          <Button
-            type="primary"
-            icon={<SyncOutlined />}
-            onClick={() => refetch()}
-          >
-            {t("mission_history.refresh")}
-          </Button>
-        </div>
-      }
-      size="large"
-      closable
-      onClose={closeHistory}
-      open={isOpenMissionHistory}
-      width={1400}
-      className="mission-history-drawer"
+    <ConfigProvider
+      theme={{
+        components: {
+          Table: {
+            rowHoverBg: isDark ? "#1a1a1a" : "#f0f5ff",
+          },
+        },
+      }}
     >
-      {error ? (
-        <div className="text-red-500 text-center">
-          <ExclamationCircleOutlined className="mr-2" />
-          {t("mission_history.error_loading")}:{" "}
-          {(error as { message: string }).message}
-        </div>
-      ) : (
-        <Table
-          columns={columns as []}
-          dataSource={missions?.data}
-          loading={isLoading}
-          rowKey="id"
-          pagination={{
-            current: pagination.page,
-            pageSize: pagination.pageSize,
-            total: missions?.pagination.total,
-            showSizeChanger: true,
-            pageSizeOptions: ["10", "20", "50"],
-            showTotal: (total) =>
-              t("mission_history.total_missions", { count: total }),
-            onChange: (page, pageSize) => {
-              setPagination({ page, pageSize });
-            },
-          }}
-          scroll={{ x: 1400 }}
-          className="shadow-md rounded-lg"
-          rowClassName={(_, index) =>
-            index % 2 === 0 ? "bg-white" : "bg-gray-50"
-          }
-        />
-      )}
-    </Drawer>
+      <IndustrialDrawer
+        $isDark={isDark}
+        title={
+          <DrawerTitleWrapper>
+            <IndustrialTypography level={4} $isDark={isDark}>
+              {t("mission_history.title")}
+            </IndustrialTypography>
+            <IndustrialButton
+              className="refresh-btn"
+              type="primary"
+              icon={<SyncOutlined />}
+              onClick={() => refetch()}
+              size="small"
+            >
+              {t("mission_history.refresh")}
+            </IndustrialButton>
+          </DrawerTitleWrapper>
+        }
+        closable
+        onClose={closeHistory}
+        open={isOpenMissionHistory}
+        size={size}
+        resizable={{
+          onResize: (newSize) => setSize(newSize),
+        }}
+        className="mission-history-drawer"
+      >
+        {error ? (
+          <ErrorMessage $isDark={isDark}>
+            <ExclamationCircleOutlined style={{ marginRight: 8 }} />
+            {t("mission_history.error_loading")}:{" "}
+            {(error as { message: string }).message}
+          </ErrorMessage>
+        ) : (
+          <IndustrialTableContainer $isDark={isDark}>
+            <Table
+              columns={columns as []}
+              dataSource={missions?.data?.sort((a: Mission, b: Mission) => {
+                const typeDiff =
+                  MISSION_SORT.indexOf(a.status) -
+                  MISSION_SORT.indexOf(b.status);
+                if (typeDiff !== 0) return typeDiff;
+                return moment(b.createdAt).unix() - moment(a.createdAt).unix();
+              })}
+              loading={isLoading}
+              rowKey="id"
+              pagination={{
+                current: pagination.page,
+                pageSize: pagination.pageSize,
+                total: missions?.pagination.total,
+                showSizeChanger: true,
+                pageSizeOptions: ["10", "20", "50"],
+                showTotal: (total) => `TOTAL: ${total} MISSIONS`,
+                onChange: (page, pageSize) => {
+                  setPagination({ page, pageSize });
+                },
+              }}
+              scroll={{ x: 1400 }}
+              bordered
+            />
+          </IndustrialTableContainer>
+        )}
+      </IndustrialDrawer>
+    </ConfigProvider>
   );
 };
 
-export default MissionHistory;
+export default memo(MissionHistory);

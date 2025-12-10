@@ -601,8 +601,9 @@ const TaskFormFork: FC<{
         io: originFormData.io,
 
         is_define_id: originFormData.operation.is_define_id,
-        is_define_level: originFormData.io.fork_global?.is_define_level || 'custom',
-        level: originFormData.io.fork_global?.level | 0,
+        is_define_level:
+          originFormData.io.fork_global?.is_define_level || "custom",
+        level: (originFormData.io.fork_global?.level + 1) | 0,
       });
     }
   }, [originFormData, form]);

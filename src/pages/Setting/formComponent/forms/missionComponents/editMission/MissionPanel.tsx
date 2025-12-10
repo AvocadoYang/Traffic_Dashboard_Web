@@ -381,7 +381,7 @@ const EditMissionPanel: FC<{
           createMissionForm.setFieldValue("name", "");
           setOpenWithCreateMission(false);
         }}
-        okText={t("utils.confirm") || "CONFIRM"}
+        okText={t("utils.add") || "CONFIRM"}
         cancelText={t("utils.cancel") || "CANCEL"}
       >
         <StyledForm
