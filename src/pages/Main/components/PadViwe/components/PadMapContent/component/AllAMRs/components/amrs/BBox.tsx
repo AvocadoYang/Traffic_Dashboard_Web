@@ -38,7 +38,7 @@ const Line = styled.div.attrs<{
       transform: `rotate(${angle}deg) translateY(-50%)`,
       transformOrigin: "0 50%",  // ⬅ 旋轉基準改在左正中
       opacity: "0.7",
-      border: `1px dashed ${hexToRGBA(color, 0.7)}`
+      border: `1px dashed ${hexToRGBA(color, 0.9)}`
     },
   }),
 )<{

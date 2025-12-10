@@ -1,12 +1,13 @@
-import { Form, message, Modal, Select } from "antd";
+import { Form, message, Modal, Select,Radio, RadioChangeEvent } from "antd";
 import { useAtom } from "jotai";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { OpenDirect } from "../../global/jotai";
 import useName from "@/api/useAmrName";
 import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";
 import { useMutation } from "@tanstack/react-query";
 import { Err } from "@/utils/responseErr";
+import { SelectCommonPlacement } from "antd/es/_util/motion";
 
 const DirectMove = () => {
   const [open, setOpen] = useAtom(OpenDirect);
@@ -14,9 +15,14 @@ const DirectMove = () => {
   const [missionForm] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
   const { t } = useTranslation();
+  const [placement, SetPlacement] = useState<string>(`F`);
+
+  const placementChange = (e: RadioChangeEvent) => {
+    SetPlacement(e.target.value);
+  };
 
   const editMutation = useMutation({
-    mutationFn: (payload: { amrId: string; locationId: string | null }) => {
+    mutationFn: (payload: { amrId: string; locationId: string | null, control: string }) => {
       return client.post("api/missions/direct-move", payload);
     },
     onSuccess: async () => {
@@ -35,7 +41,9 @@ const DirectMove = () => {
 
   const send = () => {
     const amrId = missionForm.getFieldValue("amrId") as string;
-    editMutation.mutate({ amrId, locationId: open.locationId });
+    const control = missionForm.getFieldValue("direction") ?missionForm.getFieldValue("direction") : "F";
+
+    editMutation.mutate({ amrId, locationId: open.locationId, control });
   };
 
   const AmrOption: { value: string; label: string }[] | undefined =
@@ -87,6 +95,13 @@ const DirectMove = () => {
                 }
               }}
             />
+  
+          </Form.Item>
+          <Form.Item label={`${t("utils.direction")}`} name="direction">
+          <Radio.Group value={placement} onChange={placementChange}>
+              <Radio.Button value="F">{t('car_control_translate.F')}</Radio.Button>
+              <Radio.Button value="B">{t(`car_control_translate.B`)}</Radio.Button>
+            </Radio.Group>
           </Form.Item>
         </Form>
       </Modal>

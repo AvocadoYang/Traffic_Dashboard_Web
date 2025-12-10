@@ -2,7 +2,7 @@ import useMap from "@/api/useMap";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
 import { Fragment, memo, RefObject, useCallback, useEffect, useState } from "react";
 import { nanoid } from "nanoid";
-import { Label, LabelTooltip, LabelWrapper, Line, Point } from "@/pages/Setting/mapComponents/components/AllLocation/components/PointAndLine";
+import { Label, LabelTooltip, LabelWrapper, Line, Point, PointMain } from "@/pages/Setting/mapComponents/components/AllLocation/components/PointAndLine";
 import { useAtomValue, useSetAtom } from "jotai";
 import { mouseDetectLoc, tooltipProp } from "@/utils/gloable";
 import { OpenDirect } from "@/pages/Main/global/jotai";
@@ -91,7 +91,7 @@ const AllLocation: React.FC<{
 
           return (
             <Fragment key={loc.locationId}>
-            <Point
+            <PointMain
               id={loc.locationId.toString()}
               canrotate={`${loc.canRotate}`}
               onClick={(e) => {
@@ -105,7 +105,7 @@ const AllLocation: React.FC<{
               left={displayX}
               top={displayY}
 
-            ></Point>
+            ></PointMain>
             {
               mouseDetectLocArr.has(loc.locationId.toString()) ? 
               <>

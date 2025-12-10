@@ -112,7 +112,7 @@ const AMR: FC<{
   const { pose } = useAmrPose(amrId);
   const bbox = useAmrBBox(amrId);
  
-  if (!pose || !map || !bbox) return null;
+  if (!pose || !map || !bbox || !bbox.length) return null;
 
   const { x: newX, y: newY } = agvFormate(pose.x, pose.y);
   const [left, top] = rosCoord2DisplayCoord({

@@ -104,6 +104,40 @@ const PointDiv = styled.div.attrs<{
   canrotate: string;
   hoverLoc?: boolean;
 }>`
+width: 4px;
+height: 4px;
+border-radius: 50%;
+background: ${(props) => props.canrotate === "true" ? "#ff15fb" : "#0d0d12"};
+position: absolute;
+cursor: pointer;
+left: ${(p) => p.left}px;
+top: ${(p) => p.top}px;
+z-index: 150;
+/* box-shadow:  ${(props) => props.canrotate === "true" ? " 0 0 4px rgba(253, 43, 180, 0.6)" : " 0 0 4px rgba(0, 0, 0, 0.6)"}; */
+transform: translate(-50%, -50%);
+border: ${(props) => (props.hoverLoc ? "5px solid #ff0000" : "none")};
+  &:hover {
+    background: red;
+    width: 6px;
+height: 6px;
+  }
+`;
+
+export const Point = memo(PointDiv);
+
+const PointMainDiv = styled.div.attrs<{
+  left: number;
+  top: number;
+  canrotate: string;
+  hoverLoc?: boolean;
+}>(({ left, top, canrotate, hoverLoc }) => ({
+  style: { left, top, canrotate, hoverLoc },
+}))<{
+  left: number;
+  top: number;
+  canrotate: string;
+  hoverLoc?: boolean;
+}>`
 width: 3px;
 height: 3px;
 border-radius: 50%;
@@ -123,7 +157,7 @@ height: 6px;
   }
 `;
 
-export const Point = memo(PointDiv);
+export const PointMain = memo(PointMainDiv);
 
 const DraggableLineDiv = styled.div.attrs<{
   left: number;

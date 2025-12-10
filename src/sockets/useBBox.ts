@@ -48,6 +48,7 @@ export const useAmrBBox = (amrId: string) => {
     useEffect(() => {
         const amrBBox = profiles$.subscribe((data)=> {
             const amrBBox = data.filter((amr) => amr.amrId === amrId)[0];
+            if(!amrBBox) return;
             setBBox(amrBBox.bbox)
         });
 
