@@ -9,6 +9,7 @@ import {
   ConfigProvider,
   Flex,
   RadioChangeEvent,
+  Input,
 } from "antd";
 import { Dispatch, FC, SetStateAction, useState, memo } from "react";
 import { ColumnsType } from "antd/es/table";
@@ -285,6 +286,19 @@ const MissionHistory: FC<{
     setIsOpenMissionHistory(false);
   };
   const [size, setSize] = useState(980);
+  const [searchText, setSearchText] = useState("");
+
+  const filteredMissions = missions?.data?.filter((m) => {
+    const missionIdMatch = m.id
+      .toLowerCase()
+      .includes(searchText.toLowerCase());
+
+    const fullNameMatch = Array.isArray(m.full_name)
+      ? m.sub_name?.toLowerCase().includes(searchText.toLowerCase())
+      : false;
+
+    return missionIdMatch || fullNameMatch;
+  });
 
   // Define table columns
   const columns: ColumnsType<Mission> = [
@@ -549,15 +563,24 @@ const MissionHistory: FC<{
             <IndustrialTypography level={4} $isDark={isDark}>
               {t("mission_history.title")}
             </IndustrialTypography>
-            <IndustrialButton
-              className="refresh-btn"
-              type="primary"
-              icon={<SyncOutlined />}
-              onClick={() => refetch()}
-              size="small"
-            >
-              {t("mission_history.refresh")}
-            </IndustrialButton>
+            <Flex gap={"large"} align="center">
+              <Input.Search
+                placeholder="Search missionId or mission name"
+                allowClear
+                style={{ width: 260 }}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+
+              <IndustrialButton
+                className="refresh-btn"
+                type="primary"
+                icon={<SyncOutlined />}
+                onClick={() => refetch()}
+                size="small"
+              >
+                {t("mission_history.refresh")}
+              </IndustrialButton>
+            </Flex>
           </DrawerTitleWrapper>
         }
         closable
@@ -579,13 +602,7 @@ const MissionHistory: FC<{
           <IndustrialTableContainer $isDark={isDark}>
             <Table
               columns={columns as []}
-              dataSource={missions?.data?.sort((a: Mission, b: Mission) => {
-                const typeDiff =
-                  MISSION_SORT.indexOf(a.status) -
-                  MISSION_SORT.indexOf(b.status);
-                if (typeDiff !== 0) return typeDiff;
-                return moment(b.createdAt).unix() - moment(a.createdAt).unix();
-              })}
+              dataSource={filteredMissions}
               loading={isLoading}
               rowKey="id"
               pagination={{

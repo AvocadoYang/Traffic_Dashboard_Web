@@ -2,7 +2,6 @@ import { useAtom, useSetAtom } from "jotai";
 import {
   EditLocationPanelSwitch,
   EditLocationListTableSwitch,
-  SideSwitchToShowForm,
   QuickEditLocationPanelSwitch,
   EditRoadPanelSwitch,
   EditZoneSwitch,
@@ -13,7 +12,6 @@ import { useEffect } from "react";
 import { showBlockId } from "@/utils/gloable";
 
 const useResetSiderSwitch = () => {
-  const [, setSideSwitchToShowForm] = useAtom(SideSwitchToShowForm);
   const [, setOpenEditLocationPanel] = useAtom(EditLocationPanelSwitch);
   const [, setEditRoadPanelSwitch] = useAtom(EditRoadPanelSwitch);
   const [, setQuickEditLocationPanel] = useAtom(QuickEditLocationPanelSwitch);
@@ -23,7 +21,6 @@ const useResetSiderSwitch = () => {
   const [, setShowAllZonesSwitch] = useAtom(showAllZonesSwitch);
   const [, setShowBlockId] = useAtom(showBlockId);
   useEffect(() => {
-    setSideSwitchToShowForm(false);
     setShowAllLocationListTable(false);
     setOpenEditLocationPanel(false);
     setEditRoadPanelSwitch(false);

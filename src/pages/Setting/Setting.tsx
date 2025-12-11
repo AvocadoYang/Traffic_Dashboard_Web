@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { Layout, Form, Splitter, Flex } from "antd";
 import Header from "../../components/Header";
-import { ZoomPad, Sider, FormDrawerBtn, ToolComponents } from "./components";
+import { ZoomPad, Sider, BKBtn, ToolComponents } from "./components";
 import { useResetSiderSwitch } from "./hooks";
 import "./setting.css";
 import { DndContext } from "@dnd-kit/core";
@@ -132,7 +132,7 @@ const Setting: React.FC = () => {
                 </Splitter.Panel>
               </Splitter>
               <ZoomPad setScale={setScale}></ZoomPad>
-              <FormDrawerBtn></FormDrawerBtn>
+              <BKBtn></BKBtn>
             </Content>
           </Layout>
         </Content>

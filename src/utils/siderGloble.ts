@@ -36,8 +36,6 @@ export const EditShelfCategoryPanelSwitch = atom<boolean>(false);
 /** 4-3 顯示 編輯YAW */
 export const EditShelfYawPanelSwitch = atom<boolean>(false);
 
-export const SideSwitchToShowForm = atom<boolean>(false);
-
 /** 5-1 顯示編輯註冊車輛 */
 export const isShowRegisterAMR = atom<boolean>(false);
 
@@ -98,7 +96,10 @@ export const isShowEditBackup = atom<boolean>(false);
 /** 地點tooltip */
 export const isShowLocationTooltip = atom<boolean>(false);
 
-export const mousePosition = atom<{ clientX: number, clientY: number}>({ clientX: 0, clientY: 0});
+export const mousePosition = atom<{ clientX: number; clientY: number }>({
+  clientX: 0,
+  clientY: 0,
+});
 
 export const mouseMoveSwitch = atom<boolean>(true);
 

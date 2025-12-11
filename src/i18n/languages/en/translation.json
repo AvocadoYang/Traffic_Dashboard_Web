@@ -6,6 +6,7 @@
     "not_registered": "not registered",
     "open": "Open",
     "detail": "Detail",
+    "confirm": "Confirm",
     "location": "Location",
     "search": "search",
     "reset": "reset",
@@ -167,7 +168,7 @@
     "is_carry": "is carry",
     "is_charge": "is charging",
     "low_power": "low power",
-    "positioning_normal": "position normal" ,
+    "positioning_normal": "position normal",
     "positioning_inaccurate": "position inaccurate",
     "unknown": "unknown"
   },
@@ -1573,5 +1574,21 @@
     "cat7": "Mission Compatibility Issues",
     "cat7_1": "AGV has cargo and cannot proceed to charging station",
     "cat7_2": "Mission requires a different AGV"
+  },
+  "backup": {
+    "title": "System Backup Management",
+    "trigger_backup": "Trigger Backup",
+    "backup_history": "Backup History",
+    "create_new": "Create New Backup",
+    "confirm_title": "Confirm Database Backup",
+    "confirm_message": "Are you sure you want to trigger a new database backup now? This action cannot be reversed.",
+    "file_name": "File Name",
+    "size": "Size",
+    "created_at": "Created At",
+    "total_disk_usage": "Total Disk Usage",
+    "actions": "Actions",
+    "download_file": "Download File",
+    "no_backups": "No backup files found.",
+    "note": "Note: Backups ensure system data safety. Use the download link to secure the file locally."
   }
 }
