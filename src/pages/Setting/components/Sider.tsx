@@ -57,8 +57,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import ChangeMapModal from "./ChangeMap/ChangeMapCar";
 import ImportMapConfigModal from "./importMap/ImportMapConfigModal";
+import MapManager from "./ChangeMap/MapManager";
 
 export type MenuItem = Required<MenuProps>["items"][number];
 
@@ -753,7 +753,7 @@ const Sider: React.FC<{
         openImportMapConfig={openImportMapConfig}
       ></ImportMapConfigModal>
       <UploadWarningModal></UploadWarningModal>
-      <ChangeMapModal></ChangeMapModal>
+      <MapManager></MapManager>
     </>
   );
 };
