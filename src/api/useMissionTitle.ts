@@ -6,6 +6,12 @@ const schema = array(
   object({
     id: string().required(),
     name: string().required(),
+    mission_folder: object({
+      id: string().optional(),
+      name: string().optional(),
+    })
+      .optional()
+      .nullable(),
     MissionTitleBridgeCategory: array(
       object({
         Category: object({
@@ -13,9 +19,9 @@ const schema = array(
           tagName: string().required(),
           color: string().required(),
         }).optional(),
-      }),
+      })
     ).required(),
-  }).required(),
+  }).required()
 );
 
 const getAllMissionTitle = async () => {

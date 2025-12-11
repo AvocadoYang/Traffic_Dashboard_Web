@@ -24,6 +24,8 @@ import FormHr from "@/pages/Setting/utils/FormHr";
 import MissionForm from "./MissionForm";
 import SwitchTable from "./SwitchTable";
 import useAllMissionTitlesDetail from "@/api/useMissionTitleDetail";
+import Folder from "./folder/Folder";
+import FolderEditor from "./folder/FolderEditor";
 
 // Industrial Styled Components
 const IndustrialContainer = styled.div`
@@ -191,15 +193,6 @@ const IndustrialModal = styled(Modal)`
   }
 `;
 
-const FormLabel = styled.span`
-  color: #595959;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-family: "Roboto Mono", monospace;
-  font-weight: 600;
-`;
-
 const StyledForm = styled(Form)`
   .ant-form-item-label > label {
     color: #595959;
@@ -220,16 +213,19 @@ const EditMissionPanel: FC<{
 }> = ({ attributes, listeners }) => {
   const [formMission] = Form.useForm();
   const [createMissionForm] = Form.useForm();
+
   const [search, setSearch] = useState("");
   const [missionName, setMissionName] = useState("");
   const [selectedMissionKey, setSelectedMissionKey] = useState("");
   const [selectedMissionCar, setSelectedMissionCar] = useState("");
   const [openMissionModel, setOpenMissionModel] = useState(false);
   const [openWithCreateMission, setOpenWithCreateMission] = useState(false);
+
   const [editMissionKey, setEditMissionKey] = useState("");
   const [loadingTitle, setLoadingTitle] = useState(false);
   const [canBeCreate, setCanBeCreate] = useState(false);
   const [tag, setTag] = useState<string[]>([]);
+  const [selectFolder, setSelectFolder] = useState<string>("");
   const { data: amrs } = useAMRsample();
   const { data: allMissionTitle, refetch: refetchMission } =
     useAllMissionTitlesDetail();
@@ -237,13 +233,25 @@ const EditMissionPanel: FC<{
   const queryClient = useQueryClient();
   const { t } = useTranslation();
   const [messageApi, contextHolder] = message.useMessage();
-
   const catOption = cat?.map((v) => ({ value: v.id, label: v.tagName })) || [];
+  const [openFolderEditorModal, setOpenFolderEditorModal] = useState(false);
+
+  const handleFilterFolder = (id: string) => {
+    setSelectFolder(id);
+  };
+
   const filterMissionData = useMemo(
-    () => allMissionTitle?.filter((m) => m.name.includes(search)) || [],
-    [search, allMissionTitle]
+    () =>
+      allMissionTitle
+        ?.filter((m) => m.name.includes(search))
+        .filter((m) => {
+          if (selectFolder === "") return true;
+          return m.mission_folder?.id === selectFolder;
+        }) || [],
+    [search, allMissionTitle, handleFilterFolder]
   );
 
+  // Mission Mutations
   const addMutation = useMutation(
     (newMission: MissionListType) =>
       client.post("api/setting/add-mission-title", newMission),
@@ -329,6 +337,7 @@ const EditMissionPanel: FC<{
           {t("mission.add_mission.title")}
         </PanelHeader>
         <FormHr />
+
         <Flex gap="middle" justify="flex-start" align="start" vertical>
           <SwitchTable
             selectedMissionKey={selectedMissionKey}
@@ -341,36 +350,57 @@ const EditMissionPanel: FC<{
             selectedMissionCar={selectedMissionCar}
             filterMissionData={filterMissionData as unknown as MTType}
           >
-            <ControlRow gutter={12}>
-              <Col span={8}>
-                <IndustrialButton
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={createMissionBtn}
-                  block
-                >
-                  {t("mission.add_mission.create_mission")}
-                </IndustrialButton>
-              </Col>
-              <Col span={12}>
-                <IndustrialInput
-                  placeholder={t("mission.add_mission.search_mission")}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </Col>
-              <Col span={4}>
-                <IndustrialButton
-                  className="reload-btn"
-                  shape="circle"
-                  loading={loadingTitle}
-                  icon={<ReloadOutlined />}
-                  onClick={() => refetchData()}
-                />
-              </Col>
-            </ControlRow>
+            <Flex vertical>
+              <ControlRow gutter={12}>
+                <Col span={6}>
+                  <IndustrialButton
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={createMissionBtn}
+                    block
+                  >
+                    {t("mission.add_mission.create_mission")}
+                  </IndustrialButton>
+                </Col>
+
+                <Col span={4}>
+                  <IndustrialButton
+                    type="primary"
+                    size="small"
+                    icon={<PlusOutlined />}
+                    onClick={() => setOpenFolderEditorModal(true)}
+                  >
+                    {t("folder_editor.title")}
+                  </IndustrialButton>
+                </Col>
+                <Col span={12}>
+                  <IndustrialInput
+                    placeholder={t("mission.add_mission.search_mission")}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </Col>
+                <Col span={2}>
+                  <IndustrialButton
+                    className="reload-btn"
+                    shape="circle"
+                    loading={loadingTitle}
+                    icon={<ReloadOutlined />}
+                    onClick={() => refetchData()}
+                  />
+                </Col>
+              </ControlRow>
+
+              <Folder handleFilterFolder={handleFilterFolder} />
+              <FolderEditor
+                setOpenFolderEditorModal={setOpenFolderEditorModal}
+                openFolderEditorModal={openFolderEditorModal}
+              />
+            </Flex>
           </SwitchTable>
         </Flex>
       </div>
+
+      {/* Folder Modal */}
 
       {/* Create Mission Modal */}
       <IndustrialModal
@@ -422,7 +452,7 @@ const EditMissionPanel: FC<{
               placeholder={t("mission.add_mission.tag")}
               mode="multiple"
               options={catOption}
-              onChange={(v) => setTag(v)}
+              onChange={(v) => setTag(v as string[])}
             />
           </Form.Item>
         </StyledForm>

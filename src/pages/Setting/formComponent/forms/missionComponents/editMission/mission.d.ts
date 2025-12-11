@@ -222,6 +222,10 @@ export type Mission_Title = {
   id: string;
   name: string;
   robot_id: string;
+  mission_folder: {
+    id: string;
+    name: string;
+  };
   MissionTitleBridgeCategory: {
     id: string;
     missionTitleId: string;
