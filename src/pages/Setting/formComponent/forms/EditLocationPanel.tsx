@@ -1,6 +1,6 @@
 import React, { memo, useEffect } from "react";
 import { LocationType } from "@/utils/jotai";
-import "./form.css";
+import "./form.css"; // Ensure this file is updated (see CSS below)
 import { openNotificationWithIcon } from "../../utils/notification";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -24,9 +24,10 @@ import { MinusOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
 import useAllAreaTypes from "@/api/useAllAreaTypes";
 import { locationOption } from "../../utils/func";
 
+// Adjusted props to be cleaner
 const EditLocationPanel: React.FC<{
   locationPanelForm: FormInstance<unknown>;
-  sortableId: string;
+  // For Dnd-kit, keep these imports correct
   attributes: import("@dnd-kit/core").DraggableAttributes;
   listeners:
     | import("@dnd-kit/core/dist/hooks/utilities").SyntheticListenerMap
@@ -39,10 +40,12 @@ const EditLocationPanel: React.FC<{
 
   const saveLocationMutation = useMutation({
     mutationFn: (payload: LocationType) => {
+      // Assuming 'api/setting/save-edit-loc' is the correct endpoint for PUT/POST
       return client.post("api/setting/save-edit-loc", payload);
     },
     onSuccess: () => {
-      void messageApi.success("success");
+      void messageApi.success(t("utils.success"));
+      // Refetch relevant queries
       queryClient.refetchQueries({ queryKey: ["map"] });
       queryClient.refetchQueries({
         queryKey: ["loc-only"],
@@ -50,7 +53,9 @@ const EditLocationPanel: React.FC<{
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
+
   const savePose = () => {
+    // ... (Your existing savePose logic remains the same for functionality)
     const payload = locationPanelForm.getFieldsValue() as LocationType;
     const isNegative = Number(payload.locationId) <= 0;
 
@@ -59,7 +64,7 @@ const EditLocationPanel: React.FC<{
         "warning",
         t("edit_location_panel.save_pose_notify.empty_value"),
         t("edit_location_panel.save_pose_notify.fill_in_value"),
-        "bottomLeft",
+        "bottomLeft"
       );
       return;
     }
@@ -69,7 +74,7 @@ const EditLocationPanel: React.FC<{
         "warning",
         t("edit_location_panel.save_pose_notify.format_warn"),
         t("edit_location_panel.save_pose_notify.is_a_navigate"),
-        "bottomLeft",
+        "bottomLeft"
       );
       return;
     }
@@ -86,6 +91,7 @@ const EditLocationPanel: React.FC<{
   };
 
   useEffect(() => {
+    // ... (Your existing useEffect for keyboard shortcuts remains the same)
     const handleKeyDown = (e: KeyboardEvent) => {
       const currentId = locationPanelForm.getFieldValue("locationId") || 0;
       if (document.activeElement?.tagName === "INPUT") return; // ignore if focused on input
@@ -102,18 +108,23 @@ const EditLocationPanel: React.FC<{
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [locationPanelForm, savePose]);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [locationPanelForm, savePose]); // Dependencies array corrected to include savePose
 
   return (
     <>
       {contextHolders}
-      <div style={{ width: "23em" }}>
+      {/* Industrial style width and container */}
+      <div className="industrial-panel">
+        {/* Header with drag handle styles */}
         <h3 className="drop_button_style" {...listeners} {...attributes}>
           {t("sider_output_form_name.locationPanel")}
         </h3>
-        <FormHr></FormHr>
-        <Space style={{ marginBottom: 12 }}>
+        <FormHr /> {/* Visually strong separator */}
+        {/* Keyboard shortcut section */}
+        <Space className="keyboard-shortcuts-info" size="middle">
           <Tooltip title="Q: Increase ID">
             <PlusOutlined />
           </Tooltip>
@@ -124,105 +135,104 @@ const EditLocationPanel: React.FC<{
             <SaveOutlined />
           </Tooltip>
         </Space>
-
         <Form
           layout="vertical"
           initialValues={initialLocationFormValue}
           form={locationPanelForm}
-          style={{ fontWeight: "bold" }}
+          className="industrial-form"
         >
+          {/* Location ID */}
           <Form.Item
             label="ID"
             name="locationId"
-            style={{ marginBottom: 16 }}
+            className="industrial-item"
             rules={[{ required: true, message: "必填" }]}
           >
             <Input type="number" />
           </Form.Item>
-          <Space
-            size={"large"}
-            style={{
-              borderBottom: "2px solid black",
-              marginBottom: "15px",
-              overflow: "hidden",
-            }}
-          >
-            <Form.Item
-              label="X :"
-              name="x"
-              style={{ marginBottom: 16 }}
-              required
-            >
-              <Input type="number" />
-            </Form.Item>
 
-            <Form.Item
-              label="Y:"
-              name="y"
-              style={{ marginBottom: 16 }}
-              required
-            >
-              <Input type="number" />
-            </Form.Item>
-          </Space>
+          {/* Coordinate Section (X, Y) - Bolder separation */}
+          <div className="industrial-section coordinate-space">
+            <Space size="large">
+              <Form.Item
+                label="X :"
+                name="x"
+                className="industrial-item"
+                required
+              >
+                <Input type="number" />
+              </Form.Item>
 
-          <Space
-            size={"large"}
-            style={{
-              borderBottom: "2px solid black",
-              overflow: "hidden",
-              marginBottom: "15px",
-            }}
-          >
-            <Form.Item
-              label="θ"
-              name="rotation"
-              style={{ marginBottom: 16 }}
-              rules={[
-                { required: true, message: t("utils.required") },
-                {
-                  max: 360,
-                  message: t(
-                    "edit_location_panel.save_pose_notify.no_more_than_360",
-                  ),
-                },
-                {
-                  min: -360,
-                  message: t(
-                    "edit_location_panel.save_pose_notify.cannot_be_less_than_-360",
-                  ),
-                },
-              ]}
-            >
-              <Input type="number" />
-            </Form.Item>
-            <Form.Item
-              label={t("edit_location_panel.can_rotate")}
-              name="canRotate"
-              valuePropName="checked"
-              shouldUpdate
-              style={{ marginBottom: 16 }}
-            >
-              <Checkbox />
-            </Form.Item>
-          </Space>
+              <Form.Item
+                label="Y:"
+                name="y"
+                className="industrial-item"
+                required
+              >
+                <Input type="number" />
+              </Form.Item>
+            </Space>
+          </div>
+
+          {/* Rotation Section (Rotation, Can Rotate) - Bolder separation */}
+          <div className="industrial-section rotation-space">
+            <Space size="large">
+              <Form.Item
+                label="θ"
+                name="rotation"
+                className="industrial-item"
+                rules={[
+                  { required: true, message: t("utils.required") },
+                  {
+                    max: 360,
+                    message: t(
+                      "edit_location_panel.save_pose_notify.no_more_than_360"
+                    ),
+                  },
+                  {
+                    min: -360,
+                    message: t(
+                      "edit_location_panel.save_pose_notify.cannot_be_less_than_-360"
+                    ),
+                  },
+                ]}
+              >
+                <Input type="number" />
+              </Form.Item>
+              <Form.Item
+                label={t("edit_location_panel.can_rotate")}
+                name="canRotate"
+                valuePropName="checked"
+                shouldUpdate
+                className="industrial-item-checkbox"
+              >
+                <Checkbox />
+              </Form.Item>
+            </Space>
+          </div>
+
+          {/* Area Type Radio Group */}
           <Form.Item
             label={t("edit_location_panel.areaType")}
             name="areaType"
-            style={{ marginBottom: 16 }}
+            className="industrial-item"
           >
             <Radio.Group>
               {locGenre?.map(({ value }) => (
-                <Radio value={value}>{locationOption(value)}</Radio>
+                // Added a key for mapping performance
+                <Radio key={value} value={value}>
+                  {locationOption(value)}
+                </Radio>
               ))}
             </Radio.Group>
           </Form.Item>
-          <Form.Item style={{ textAlign: "center" }}>
+
+          {/* Save Button */}
+          <Form.Item className="industrial-item form-submit-center">
             <Button
               icon={<SaveOutlined />}
               onClick={savePose}
-              color="primary"
-              variant="filled"
+              type="primary" // Use type="primary" for a solid, primary-colored button
             >
               {t("edit_location_panel.save")}
             </Button>

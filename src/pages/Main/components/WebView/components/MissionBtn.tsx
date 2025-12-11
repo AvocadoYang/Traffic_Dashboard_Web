@@ -1,6 +1,5 @@
 import {
   ThunderboltOutlined,
-  RedoOutlined,
   CalendarOutlined,
   SwapOutlined,
   CloseOutlined,
@@ -14,56 +13,147 @@ import { useSetAtom } from "jotai";
 import QuickMissionWebView from "../../missionModal/QuickMissionWebView";
 import styled from "styled-components";
 
-// Styled Components
+// Industrial Button Styling - Light Mode
 const MissionBtnWrap = styled.div<{ $isMinimized: boolean }>`
-
+  position: relative;
 `;
 
-const StyledButton = styled(Button)`
-  height: 40px; /* Consistent height with other buttons */
-  border-radius: 4px; /* Rounded corners for a modern look */
-  border: none; /* No border for a clean look */
-  background-color: rgb(
-    135,
-    208,
-    241
-  ); /* Light gray background for unselected buttons */
-  color: #333; /* Darker text for contrast */
-  font-weight: 500; /* Slightly bold text */
-  font-size: 14px; /* Larger font size for readability */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  transition: all 0.3s ease;
+const IndustrialButton = styled(Button)`
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  color: #595959;
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 1px;
+  height: 36px;
+  font-weight: 600;
+  padding: 0 16px;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
 
-  &:hover {
-    background-color: #1890ff; /* Ant Design primary color on hover */
-    color: #fff; /* White text on hover */
-    transform: scale(1.05); /* Slight scale-up effect */
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    background: transparent;
+    transition: width 0.3s;
   }
 
-  &:active {
-    transform: scale(0.95); /* Scale-down on click */
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &.quick-mission {
+    border-color: #faad14;
+    color: #faad14;
+    background: #fffbe6;
+
+    &::before {
+      background: linear-gradient(90deg, transparent, rgba(250, 173, 20, 0.1));
+    }
+
+    &:hover {
+      background: #fff1b8;
+      border-color: #faad14;
+      color: #fa8c16;
+      box-shadow: 0 2px 12px rgba(250, 173, 20, 0.3);
+
+      &::before {
+        width: 100%;
+      }
+    }
+  }
+
+  &.new-mission {
+    border-color: #1890ff;
+    color: #1890ff;
+    background: #e6f7ff;
+
+    &::before {
+      background: linear-gradient(90deg, transparent, rgba(24, 144, 255, 0.1));
+    }
+
+    &:hover {
+      background: #bae7ff;
+      border-color: #1890ff;
+      color: #096dd9;
+      box-shadow: 0 2px 12px rgba(24, 144, 255, 0.3);
+
+      &::before {
+        width: 100%;
+      }
+    }
+  }
+
+  .anticon {
+    font-size: 14px;
   }
 `;
 
 const MinimizeButton = styled(Button)`
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
   padding: 0;
-  border: none;
-  background-color: #f5f5f5;
-  color: #333;
-  font-size: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  color: #8c8c8c;
+  font-size: 12px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &:hover {
-    background-color: #ff4d4f;
-    color: #fff;
-    transform: scale(1.05);
+    background: #fff1f0;
+    border-color: #ff4d4f;
+    color: #ff4d4f;
+    box-shadow: 0 2px 8px rgba(255, 77, 79, 0.2);
+    transform: rotate(90deg);
   }
+`;
 
-  &:active {
-    transform: scale(0.95);
+const ExpandButton = styled(Button)`
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  padding: 0;
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  color: #595959;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: #f0f5ff;
+    border-color: #1890ff;
+    color: #1890ff;
+    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+    transform: scale(1.1);
+  }
+`;
+
+const ButtonGroup = styled(Flex)`
+  gap: 8px;
+  position: relative;
+  padding-left: 12px;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(180deg, transparent, #1890ff, transparent);
   }
 `;
 
@@ -89,41 +179,40 @@ const MissionBtn = () => {
       <MissionBtnWrap $isMinimized={$isMinimized}>
         {$isMinimized ? (
           <Tooltip title={t("main.card_name.mission")} placement="bottom">
-            <Button
+            <ExpandButton
               icon={<SwapOutlined />}
-              type="text"
               onClick={() => set$isMinimized(false)}
             />
           </Tooltip>
         ) : (
-          <Flex gap="small" wrap="wrap" align="center" justify="end">
-            {/* <StyledButton onClick={() => {}} icon={<RedoOutlined />}>
-              {t("toolbar.mission.cycle_mission")}
-            </StyledButton> */}
-
-            <StyledButton
+          <ButtonGroup align="center">
+            <IndustrialButton
+              className="quick-mission"
               onClick={() => {
                 setShowQuickMission(!showQuickMission);
               }}
               icon={<ThunderboltOutlined />}
             >
               {t("main.card_name.quick_mission")}
-            </StyledButton>
+            </IndustrialButton>
 
-            <StyledButton
+            <IndustrialButton
+              className="new-mission"
               onClick={() => {
                 openAssignMission(true);
               }}
               icon={<CalendarOutlined />}
             >
               {t("main.card_name.new_mission")}
-            </StyledButton>
+            </IndustrialButton>
 
-            <MinimizeButton
-              icon={<CloseOutlined />}
-              onClick={() => set$isMinimized(true)}
-            />
-          </Flex>
+            <Tooltip title="Minimize" placement="bottom">
+              <MinimizeButton
+                icon={<CloseOutlined />}
+                onClick={() => set$isMinimized(true)}
+              />
+            </Tooltip>
+          </ButtonGroup>
         )}
       </MissionBtnWrap>
       <DialogMission />

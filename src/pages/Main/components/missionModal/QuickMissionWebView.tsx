@@ -1,21 +1,17 @@
+import { Select, Radio, Form, Button, Flex, Space, message } from "antd";
 import {
-  Select,
-  Radio,
-  Form,
-  Button,
-  Flex,
-  Typography,
-  Space,
-  Card,
-  message,
-} from "antd";
-import { CloseOutlined } from "@ant-design/icons";
+  CloseOutlined,
+  RocketOutlined,
+  WarningOutlined,
+  CheckCircleOutlined,
+  UploadOutlined,
+  DownloadOutlined,
+} from "@ant-design/icons";
 import useName from "@/api/useAmrName";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAtom, useSetAtom } from "jotai";
 import {
-  Quick_Mission,
   QuickMissionLoad,
   QuickMissionOffload,
   QuickMissionSettingMode,
@@ -28,114 +24,348 @@ import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 
 enum MissionPriority {
-  TRIVIAL, // 沒差最後再做
-  NORMAL, // 普通
-  PIVOTAL, // 特別優先
-  CRITICAL, // 緊急
+  TRIVIAL,
+  NORMAL,
+  PIVOTAL,
+  CRITICAL,
 }
 
-const fadeIn = keyframes`
+const slideIn = keyframes`
   from {
+    transform: translateX(100%);
     opacity: 0;
-    transform: translateY(10px);
   }
   to {
+    transform: translateX(0);
     opacity: 1;
-    transform: translateY(0);
   }
 `;
 
-const fadeOut = keyframes`
+const slideOut = keyframes`
   from {
+    transform: translateX(0);
     opacity: 1;
-    transform: translateY(0);
   }
   to {
+    transform: translateX(100%);
     opacity: 0;
-    transform: translateY(10px);
   }
 `;
 
 const QuickMissionContainer = styled.div<{ $visible: boolean }>`
   position: fixed;
-  bottom: 1%;
-  right: ${(props) => `${props.$visible ? "1%" : "-90%"}`};
+  bottom: 20px;
+  right: 20px;
   width: 100%;
-  max-width: 450px;
+  max-width: 480px;
   z-index: 1000;
   animation: ${({ $visible }) =>
     $visible
       ? css`
-          ${fadeIn} 0.3s ease-out forwards
+          ${slideIn} 0.3s ease-out forwards
         `
       : css`
-          ${fadeOut} 0.3s ease-out forwards
+          ${slideOut} 0.3s ease-out forwards
         `};
-  @media (max-width: 480px) {
-    max-width: 90%;
+
+  @media (max-width: 768px) {
+    right: 10px;
+    bottom: 10px;
+    max-width: calc(100% - 20px);
   }
 `;
 
-const StyledCard = styled(Card)`
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  background: #fff;
-  padding: 16px;
-  .ant-card-body {
-    padding: 24px;
-  }
+const IndustrialPanel = styled.div`
+  background: #ffffff;
+  border: 2px solid #d9d9d9;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 `;
 
-const Header = styled(Flex)`
-  align-items: center;
+const PanelHeader = styled.div`
+  background: #fafafa;
+  border-bottom: 2px solid #d9d9d9;
+  padding: 16px 20px;
+  display: flex;
   justify-content: space-between;
-  margin-bottom: 24px;
+  align-items: center;
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #1890ff;
+  }
 `;
 
-const Title = styled(Typography.Title)`
-  margin: 0 !important;
-  font-size: 20px !important;
-  color: #1a1a1a !important;
-`;
-
-const CloseIcon = styled(CloseOutlined)`
+const PanelTitle = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: "Roboto Mono", monospace;
   font-size: 16px;
-  color: #666;
-  cursor: pointer;
-  transition: color 0.3s;
+  font-weight: 700;
+  color: #1890ff;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+`;
+
+const CloseButton = styled(Button)`
+  background: transparent;
+  border: 1px solid #d9d9d9;
+  color: #8c8c8c;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   &:hover {
+    background: #fff1f0;
+    border-color: #ff4d4f;
     color: #ff4d4f;
   }
 `;
 
-const InstructionText = styled.div`
-  text-align: center;
-  font-size: 14px;
-  color: #666;
-  margin: 16px 0;
-  padding: 12px;
-  background: #f5f5f5;
-  border-radius: 8px;
-  animation: ${fadeIn} 0.3s ease-out;
+const PanelBody = styled.div`
+  padding: 24px;
+  background: #ffffff;
 `;
 
-const ActionButton = styled(Button)`
-  border-radius: 8px;
-  font-weight: 500;
-  transition: all 0.3s;
+const StatusIndicator = styled.div<{ status: "idle" | "selecting" | "ready" }>`
+  background: ${({ status }) =>
+    status === "ready"
+      ? "#f6ffed"
+      : status === "selecting"
+        ? "#fffbe6"
+        : "#fafafa"};
+  border: 2px solid;
+  border-color: ${({ status }) =>
+    status === "ready"
+      ? "#52c41a"
+      : status === "selecting"
+        ? "#faad14"
+        : "#d9d9d9"};
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: "Roboto Mono", monospace;
+  color: ${({ status }) =>
+    status === "ready"
+      ? "#52c41a"
+      : status === "selecting"
+        ? "#faad14"
+        : "#8c8c8c"};
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+`;
+
+const FieldLabel = styled.div`
+  color: #595959;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: "Roboto Mono", monospace;
+  margin-bottom: 8px;
+  font-weight: 600;
+`;
+
+const LocationCard = styled.div<{
+  type: "load" | "offload";
+  selected: boolean;
+}>`
+  background: ${({ selected, type }) =>
+    selected ? (type === "load" ? "#e6f7ff" : "#f6ffed") : "#fafafa"};
+  border: 2px solid;
+  border-color: ${({ selected, type }) =>
+    selected ? (type === "load" ? "#1890ff" : "#52c41a") : "#d9d9d9"};
+  padding: 16px;
+  margin-bottom: 12px;
+  position: relative;
+  transition: all 0.2s ease;
+  cursor: ${({ selected }) => (selected ? "default" : "pointer")};
+
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-color: ${({ selected, type }) =>
+      selected ? (type === "load" ? "#1890ff" : "#52c41a") : "#bfbfbf"};
+    background: ${({ selected, type }) =>
+      selected ? (type === "load" ? "#e6f7ff" : "#f6ffed") : "#f5f5f5"};
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: ${({ type }) => (type === "load" ? "#1890ff" : "#52c41a")};
+    opacity: ${({ selected }) => (selected ? 1 : 0)};
+    transition: opacity 0.2s;
   }
 `;
 
-const SelectedLocation = styled.div`
-  padding: 8px 12px;
-  background: #e6f7ff;
-  border-radius: 6px;
-  color: #1890ff;
+const LocationHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+`;
+
+const LocationIcon = styled.div<{ type: "load" | "offload" }>`
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${({ type }) => (type === "load" ? "#1890ff" : "#52c41a")};
+  color: #ffffff;
+  font-size: 16px;
+  border: 1px solid;
+  border-color: ${({ type }) => (type === "load" ? "#096dd9" : "#389e0d")};
+`;
+
+const LocationTitle = styled.div`
+  font-family: "Roboto Mono", monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #262626;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  flex: 1;
+`;
+
+const LocationValue = styled.div`
+  font-family: "Roboto Mono", monospace;
   font-size: 14px;
-  margin: 8px 0;
+  color: #1890ff;
+  font-weight: 600;
+  padding-left: 44px;
+`;
+
+const InstructionBanner = styled.div`
+  background: #fffbe6;
+  border: 2px solid #faad14;
+  padding: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: "Roboto Mono", monospace;
+  font-size: 12px;
+  color: #faad14;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  animation: ${keyframes`
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  `} 2s ease-in-out infinite;
+`;
+
+const IndustrialButton = styled(Button)`
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  color: #1890ff;
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1px;
+  height: 40px;
+  font-weight: 600;
+
+  &:hover {
+    background: #f0f5ff;
+    border-color: #1890ff;
+    color: #1890ff;
+    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+  }
+
+  &.danger {
+    border-color: #ff4d4f;
+    color: #ff4d4f;
+
+    &:hover {
+      background: #fff1f0;
+      border-color: #ff7875;
+      color: #ff7875;
+      box-shadow: 0 2px 8px rgba(255, 77, 79, 0.2);
+    }
+  }
+
+  &.primary {
+    background: #1890ff;
+    border-color: #1890ff;
+    color: #ffffff;
+
+    &:hover {
+      background: #40a9ff;
+      border-color: #40a9ff;
+      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
+    }
+  }
+
+  &.success {
+    background: #52c41a;
+    border-color: #52c41a;
+    color: #ffffff;
+
+    &:hover {
+      background: #73d13d;
+      border-color: #73d13d;
+      box-shadow: 0 2px 8px rgba(82, 196, 26, 0.4);
+    }
+  }
+
+  &:disabled {
+    background: #f5f5f5;
+    border-color: #d9d9d9;
+    color: #bfbfbf;
+  }
+`;
+
+const PriorityRadioGroup = styled(Radio.Group)`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .ant-radio-button-wrapper {
+    height: 40px;
+    line-height: 38px;
+    border: 1px solid #d9d9d9;
+    background: #fafafa;
+    font-family: "Roboto Mono", monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #f5f5f5;
+      border-color: #bfbfbf;
+    }
+
+    &.ant-radio-button-wrapper-checked {
+      background: #e6f7ff;
+      border-color: #1890ff;
+      color: #1890ff;
+      box-shadow: inset 0 0 20px rgba(24, 144, 255, 0.08);
+
+      &::before {
+        background: #1890ff;
+      }
+    }
+  }
 `;
 
 type Submit = {
@@ -154,7 +384,7 @@ const QuickMissionWebView: React.FC<{
   const [loadValue, setLoad] = useAtom(QuickMissionLoad);
   const [offloadValue, setOffload] = useAtom(QuickMissionOffload);
   const [startQuickSetting, setStartQuickSetting] = useAtom(
-    StartQuickMissionSetting,
+    StartQuickMissionSetting
   );
   const setQuickSettingMode = useSetAtom(QuickMissionSettingMode);
   const { t } = useTranslation();
@@ -205,7 +435,6 @@ const QuickMissionWebView: React.FC<{
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && startQuickSetting) {
         handleCancel();
-        console.log("press esc");
       }
     };
 
@@ -215,7 +444,6 @@ const QuickMissionWebView: React.FC<{
 
   const handleSubmit = () => {
     const values = form.getFieldsValue() as { amrId: string; priority: number };
-    // console.log('Submitting quick mission:', { loadValue, offloadValue, ...values });
 
     const payload: Submit = {
       amrId: values.amrId,
@@ -234,117 +462,197 @@ const QuickMissionWebView: React.FC<{
     });
   }, []);
 
+  const getStatus = () => {
+    if (startQuickSetting) return "selecting";
+    if (loadValue || offloadValue) return "ready";
+    return "idle";
+  };
+
   return (
     <>
       {contextHolder}
       <QuickMissionContainer $visible={showQuickMission}>
-        <StyledCard>
-          <Header>
-            <Title level={4}>{t("main.card_name.quick_mission")}</Title>
-            <CloseIcon
+        <IndustrialPanel>
+          <PanelHeader>
+            <PanelTitle>
+              <RocketOutlined />
+              {t("main.card_name.quick_mission")}
+            </PanelTitle>
+            <CloseButton
+              icon={<CloseOutlined />}
               onClick={() => setShowQuickMission(false)}
-              aria-label="Close"
             />
-          </Header>
+          </PanelHeader>
 
-          <Form form={form} layout="vertical">
-            <Form.Item
-              label={t("mission.cycle_mission.car")}
-              name="amrId"
-              rules={[{ required: true, message: t("utils.required") }]}
-            >
-              <Select
-                options={AmrOption}
-                onChange={(v: string) => setAmrGenre(v)}
-                placeholder={t("utils.required")}
-                size="large"
-                style={{ borderRadius: "8px" }}
-              />
-            </Form.Item>
-
-            <Form.Item
-              label={t("main.mission_modal.dialog_mission.task_priority")}
-              name="priority"
-              rules={[{ required: true, message: t("utils.required") }]}
-            >
-              <Radio.Group>
-                <Radio.Button value={MissionPriority.CRITICAL}>
-                  {t("main.mission_modal.dialog_mission.priority.CRITICAL")}
-                </Radio.Button>
-                <Radio.Button value={MissionPriority.PIVOTAL}>
-                  {t("main.mission_modal.dialog_mission.priority.PIVOTAL")}
-                </Radio.Button>
-                <Radio.Button value={MissionPriority.NORMAL}>
-                  {t("main.mission_modal.dialog_mission.priority.NORMAL")}
-                </Radio.Button>
-                <Radio.Button value={MissionPriority.TRIVIAL}>
-                  {t("main.mission_modal.dialog_mission.priority.TRIVIAL")}
-                </Radio.Button>
-              </Radio.Group>
-            </Form.Item>
-
-            <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-              {startQuickSetting ? (
-                <InstructionText>
-                  {t("main.quick_mission.click_shelves_or_cancel")} (ESC to
-                  cancel)
-                </InstructionText>
-              ) : (
+          <PanelBody>
+            <StatusIndicator status={getStatus()}>
+              {getStatus() === "ready" && (
                 <>
-                  {loadValue ? (
-                    <SelectedLocation>
-                      {t("main.quick_mission.load")}: {loadValue.locationId}
-                    </SelectedLocation>
-                  ) : (
-                    <ActionButton
-                      type="primary"
-                      size="large"
-                      block
-                      onClick={() => handlePayload("load")}
-                      style={{ background: "#1890ff", borderColor: "#1890ff" }}
-                    >
-                      {t("main.quick_mission.load")}
-                    </ActionButton>
-                  )}
-
-                  {offloadValue ? (
-                    <SelectedLocation>
-                      {t("main.quick_mission.offload")}:{" "}
-                      {offloadValue.locationId}
-                    </SelectedLocation>
-                  ) : (
-                    <ActionButton
-                      type="primary"
-                      size="large"
-                      block
-                      onClick={() => handlePayload("offload")}
-                      style={{ background: "#52c41a", borderColor: "#52c41a" }}
-                    >
-                      {t("main.quick_mission.offload")}
-                    </ActionButton>
-                  )}
+                  <CheckCircleOutlined />
+                  [OK] LOCATIONS CONFIGURED
                 </>
               )}
+              {getStatus() === "selecting" && (
+                <>
+                  <WarningOutlined />
+                  [ACTIVE] SELECTING LOCATION
+                </>
+              )}
+              {getStatus() === "idle" && (
+                <>
+                  <WarningOutlined />
+                  [STANDBY] AWAITING CONFIGURATION
+                </>
+              )}
+            </StatusIndicator>
 
-              <Flex gap="middle" justify="space-between">
-                <ActionButton size="large" block onClick={handleCancel} danger>
+            {startQuickSetting && (
+              <InstructionBanner>
+                <WarningOutlined />
+                {t("main.quick_mission.click_shelves_or_cancel")} (ESC)
+              </InstructionBanner>
+            )}
+
+            <Form form={form} layout="vertical">
+              <Form.Item
+                label={
+                  <FieldLabel>{t("mission.cycle_mission.car")}</FieldLabel>
+                }
+                name="amrId"
+                rules={[{ required: true, message: t("utils.required") }]}
+              >
+                <Select
+                  options={AmrOption}
+                  onChange={(v: string) => setAmrGenre(v)}
+                  placeholder={t("utils.required")}
+                  size="large"
+                />
+              </Form.Item>
+
+              <Form.Item
+                label={
+                  <FieldLabel>
+                    {t("main.mission_modal.dialog_mission.task_priority")}
+                  </FieldLabel>
+                }
+                name="priority"
+                rules={[{ required: true, message: t("utils.required") }]}
+              >
+                <PriorityRadioGroup>
+                  <Radio.Button value={MissionPriority.CRITICAL}>
+                    {t("main.mission_modal.dialog_mission.priority.CRITICAL")}
+                  </Radio.Button>
+                  <Radio.Button value={MissionPriority.PIVOTAL}>
+                    {t("main.mission_modal.dialog_mission.priority.PIVOTAL")}
+                  </Radio.Button>
+                  <Radio.Button value={MissionPriority.NORMAL}>
+                    {t("main.mission_modal.dialog_mission.priority.NORMAL")}
+                  </Radio.Button>
+                  <Radio.Button value={MissionPriority.TRIVIAL}>
+                    {t("main.mission_modal.dialog_mission.priority.TRIVIAL")}
+                  </Radio.Button>
+                </PriorityRadioGroup>
+              </Form.Item>
+
+              {!startQuickSetting && (
+                <Space
+                  direction="vertical"
+                  size="middle"
+                  style={{ width: "100%" }}
+                >
+                  <LocationCard
+                    type="load"
+                    selected={!!loadValue}
+                    onClick={() => !loadValue && handlePayload("load")}
+                  >
+                    <LocationHeader>
+                      <LocationIcon type="load">
+                        <UploadOutlined />
+                      </LocationIcon>
+                      <LocationTitle>
+                        {t("main.quick_mission.load")}
+                      </LocationTitle>
+                    </LocationHeader>
+                    {loadValue && (
+                      <LocationValue>ID: {loadValue.locationId}</LocationValue>
+                    )}
+                    {!loadValue && (
+                      <div
+                        style={{
+                          paddingLeft: "44px",
+                          color: "#8c8c8c",
+                          fontSize: "11px",
+                          fontFamily: "Roboto Mono, monospace",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        Click to select
+                      </div>
+                    )}
+                  </LocationCard>
+
+                  <LocationCard
+                    type="offload"
+                    selected={!!offloadValue}
+                    onClick={() => !offloadValue && handlePayload("offload")}
+                  >
+                    <LocationHeader>
+                      <LocationIcon type="offload">
+                        <DownloadOutlined />
+                      </LocationIcon>
+                      <LocationTitle>
+                        {t("main.quick_mission.offload")}
+                      </LocationTitle>
+                    </LocationHeader>
+                    {offloadValue && (
+                      <LocationValue>
+                        ID: {offloadValue.locationId}
+                      </LocationValue>
+                    )}
+                    {!offloadValue && (
+                      <div
+                        style={{
+                          paddingLeft: "44px",
+                          color: "#8c8c8c",
+                          fontSize: "11px",
+                          fontFamily: "Roboto Mono, monospace",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        Click to select
+                      </div>
+                    )}
+                  </LocationCard>
+                </Space>
+              )}
+
+              <Flex gap="middle" style={{ marginTop: 20 }}>
+                <IndustrialButton
+                  className="danger"
+                  size="large"
+                  block
+                  onClick={handleCancel}
+                >
                   {t("utils.cancel")}
-                </ActionButton>
+                </IndustrialButton>
                 {(loadValue || offloadValue) && !startQuickSetting && (
-                  <ActionButton
-                    type="primary"
+                  <IndustrialButton
+                    className="success"
                     size="large"
                     block
                     onClick={handleSubmit}
-                    style={{ background: "#faad14", borderColor: "#faad14" }}
+                    disabled={!loadValue || !offloadValue}
+                    loading={submitMutation.isPending}
                   >
-                    {t("utils.submit")}
-                  </ActionButton>
+                    {submitMutation.isPending
+                      ? "DEPLOYING..."
+                      : t("utils.submit")}
+                  </IndustrialButton>
                 )}
               </Flex>
-            </Space>
-          </Form>
-        </StyledCard>
+            </Form>
+          </PanelBody>
+        </IndustrialPanel>
       </QuickMissionContainer>
     </>
   );
