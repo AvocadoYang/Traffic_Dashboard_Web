@@ -774,6 +774,7 @@
       "name_warn": "任務名稱不可為空",
       "car_warn": "車輛類型必填",
 
+      "folder": "資料夾",
       "name": "任務名稱",
       "create_mission": "新增任務",
       "search_mission": "搜尋任務",
@@ -1598,5 +1599,29 @@
     "download_file": "下載檔案",
     "no_backups": "未找到備份檔案。",
     "note": "注意：備份確保了系統資料的安全。請使用下載連結將檔案本地保存。"
+  },
+  "folder_editor": {
+    "title": "資料夾管理",
+    "create_new_folder": "建立新資料夾",
+    "folder_name": "資料夾名稱",
+    "folder_name_placeholder": "輸入資料夾名稱",
+    "create_folder_btn": "建立資料夾",
+    "existing_folders": "現有資料夾",
+    "folder_name_column": "資料夾名稱",
+    "missions_column": "任務",
+    "operations_column": "操作",
+    "save": "儲存",
+    "cancel": "取消",
+    "edit": "編輯",
+    "delete": "刪除",
+    "delete_title": "刪除資料夾？",
+    "delete_description": "確定要刪除此資料夾嗎？",
+    "delete_ok_text": "確定",
+    "delete_cancel_text": "取消",
+    "folder_name_required": "請輸入資料夾名稱",
+    "delete_success": "資料夾已刪除",
+    "edit_success": "資料夾已更新",
+    "add_success": "資料夾已建立",
+    "validation_failed": "驗證失敗"
   }
 }

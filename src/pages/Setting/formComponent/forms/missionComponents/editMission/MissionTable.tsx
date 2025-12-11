@@ -8,6 +8,7 @@ import {
   Flex,
   message,
   Popconfirm,
+  Select,
   Table,
   TableColumnsType,
   Tag,
@@ -16,6 +17,7 @@ import { FC } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { Mission_Title } from "./mission";
+import useMissionFolder from "@/api/useMissionFolder";
 
 // Industrial Styled Components
 const IndustrialTableContainer = styled.div`
@@ -182,7 +184,7 @@ const MissionTable: FC<{
   const queryClient = useQueryClient();
   const { t } = useTranslation();
   const [messageApi, contextHolders] = message.useMessage();
-
+  const { data: folders, refetch: refetchFolders } = useMissionFolder();
   const deleteMutation = useMutation({
     mutationFn: (deleteId: string) => {
       return client.post(
@@ -210,6 +212,27 @@ const MissionTable: FC<{
     },
   });
 
+  const editMutation = useMutation({
+    mutationFn: (payload: { folderId: string; missionId: string }) => {
+      return client.post("api/setting/change-mission-folder", payload);
+    },
+    onSuccess: async () => {
+      messageApi.success(t("utils.success"));
+      await queryClient.refetchQueries({ queryKey: ["mission-folder"] });
+      await queryClient.refetchQueries({ queryKey: ["all-relate-task"] });
+      await queryClient.refetchQueries({
+        queryKey: ["all-mission-title-detail"],
+      });
+    },
+    onError(error: Err) {
+      messageApi.error(error.response.data.message);
+    },
+  });
+
+  const folderOption = folders?.map((s) => {
+    return { label: s.name, value: s.id };
+  });
+
   const handleDelete = (key: string) => {
     deleteMutation.mutate(key);
   };
@@ -233,12 +256,16 @@ const MissionTable: FC<{
     setSelectedMissionKey("");
   };
 
+  const handleSelectFolder = (folderId: string, missionId: string) => {
+    editMutation.mutate({ folderId, missionId });
+  };
+
   const columns: TableColumnsType<Mission_Title> = [
     {
       title: t("mission.add_mission.name"),
       dataIndex: "name",
       key: "name",
-      width: "25%",
+
       render: (text: string) => <MissionName>{text}</MissionName>,
       defaultSortOrder: "ascend",
     },
@@ -246,17 +273,33 @@ const MissionTable: FC<{
       title: t("mission.add_mission.car"),
       dataIndex: "car_type",
       key: "car_type",
-      width: "20%",
+
       render: (_, record) => {
         return <RobotType>{record.Robot_types?.name || "-"}</RobotType>;
       },
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
+      title: t("mission.add_mission.folder"),
+      dataIndex: "folder_path",
+      key: "folder_path",
+
+      render(value, record, index) {
+        return (
+          <Select
+            value={record?.mission_folder?.id || null}
+            style={{ width: 250 }}
+            options={folderOption}
+            onChange={(v) => handleSelectFolder(v, record.id)}
+          />
+        );
+      },
+    },
+    {
       title: t("mission.add_mission.tag"),
       dataIndex: "tag",
       key: "tag",
-      width: "25%",
+
       render: (_, record) => {
         const tags = record.MissionTitleBridgeCategory?.map((c, idx) => (
           <IndustrialTag key={c.Category?.id || idx} color={c.Category?.color}>
@@ -274,7 +317,7 @@ const MissionTable: FC<{
       title: "ACTIONS",
       dataIndex: "operation",
       key: "operation",
-      width: "30%",
+
       render: (_, record) => {
         return (
           <ActionButtonGroup>

@@ -17,7 +17,7 @@ const schema = array(
           tagName: string().required(),
           color: string().required(),
         }).optional(),
-      }),
+      })
     ).required(),
     Robot_types: object({
       id: string().required(),
@@ -34,14 +34,20 @@ const schema = array(
         disable: boolean().required(),
       })
         .required()
-        .nullable(),
+        .nullable()
     ).optional(),
-  }).required(),
+    mission_folder: object({
+      id: string().optional().nullable(),
+      name: string().optional().nullable(),
+    })
+      .optional()
+      .nullable(),
+  }).required()
 );
 
 const getAllMissionTitle = async () => {
   const { data } = await client.get<unknown>(
-    "api/setting/all-mission-title-detail",
+    "api/setting/all-mission-title-detail"
   );
 
   const parsed = await schema.validate(data, { stripUnknown: true });
