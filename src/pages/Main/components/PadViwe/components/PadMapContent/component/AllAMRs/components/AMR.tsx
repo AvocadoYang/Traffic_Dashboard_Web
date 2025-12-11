@@ -10,6 +10,9 @@ import { useAtomValue } from "jotai";
 import { amrId2ColorRainbow } from "@/utils/utils";
 import { AmrFilterCarCard, hintAmr, showZoneForbidden } from "@/utils/gloable";
 import { useWarningId } from "@/sockets/useWarning";
+import ForkLiftIcon from "./amrs/ForkliftIcon";
+import { useAmrBBox } from "@/sockets/useBBox";
+import BBox from "./amrs/BBox";
 
 const Tip = styled.div.attrs<{
   left: number;
@@ -18,7 +21,7 @@ const Tip = styled.div.attrs<{
   style: {
     transform: `translate(-42%, -160%) `,
     left,
-    top,
+    top: top -10,
     transition: "x 1s, y 1s",
   },
 }))<{
@@ -107,7 +110,9 @@ const AMR: FC<{
   }, [hintAmrId2, hintAmrId, zoneForbidden]);
 
   const { pose } = useAmrPose(amrId);
-  if (!pose || !map) return null;
+  const bbox = useAmrBBox(amrId);
+ 
+  if (!pose || !map || !bbox || !bbox.length) return null;
 
   const { x: newX, y: newY } = agvFormate(pose.x, pose.y);
   const [left, top] = rosCoord2DisplayCoord({
@@ -131,7 +136,10 @@ const AMR: FC<{
         []
       )}
 
-      <Icon amrId={amrId} color={color} left={left} top={top}></Icon>
+
+      <ForkLiftIcon amrId={amrId} color={color} left={left} yaw={pose.yaw} top={top}></ForkLiftIcon>
+      <BBox amrId={amrId} bbox={bbox} color={color}></BBox>
+      {/* <Icon amrId={amrId} color={color} left={left} top={top}></Icon> */}
       {errorMessage?.length ? (
         <ErrorTip left={left} top={top + Math.sqrt(top) - 5}>
           ❗

@@ -29,7 +29,7 @@ const Dot = styled.div<{
   position: absolute;
   left: ${(p) => p.left}px;
   top: ${(p) => p.top}px;
-  z-index: 300000;
+  z-index: 9999999;
   box-shadow: 0 0 4px rgba(255, 77, 79, 0.6);
   transform: translate(-50%, -50%);
 `;
@@ -139,41 +139,41 @@ const Icon: FC<{
   if (!map || !pose) return null;
 
   return (
-    // <ColorAmr
-    //   className={`${needOpacity ? "opacity-icon" : ""}`}
-    //   onClick={() => {
-    //     setAmrFilterCarCard((pre) => {
-    //       if (pre.has(amrId)) {
-    //         pre.delete(amrId);
-    //         return new Set([...pre]);
-    //       } else {
-    //         pre.add(amrId);
-    //         return new Set([...pre]);
-    //       }
-    //     });
-    //   }}
-    //   width={
-    //     amrId.includes("SW15")
-    //       ? AGV_WIDTH / map.mapResolution
-    //       : AMR_FORK_WIDTH / map.mapResolution
-    //   }
-    //   height={
-    //     amrId.includes("SW15")
-    //       ? AGV_HEIGHT / map.mapResolution
-    //       : AMR_FORK_HEIGHT / map.mapResolution
-    //   }
-    //   left={left}
-    //   top={top}
-    //   color={color}
-    //   rotate={amrId.includes("SW15") ? 90 - pose.yaw + 180 : 90 - pose.yaw}
-    //   is_agv={amrId.includes("SW15").toString()}
-    //   $isCarry={isCarry as boolean}
-    // >
-    //   {amrId.includes("anfa") ? <Fork direct="left" /> : null}
-    //   {amrId.includes("anfa") ? <Fork direct="right" /> : null}
-    //   {isCarry && amrId.includes("anfa") && <CargoBox />}{" "}
-    // </ColorAmr>
-    <Dot left={left} top={top}></Dot>
+    <ColorAmr
+      className={`${needOpacity ? "opacity-icon" : ""}`}
+      onClick={() => {
+        setAmrFilterCarCard((pre) => {
+          if (pre.has(amrId)) {
+            pre.delete(amrId);
+            return new Set([...pre]);
+          } else {
+            pre.add(amrId);
+            return new Set([...pre]);
+          }
+        });
+      }}
+      width={
+        amrId.includes("SW15")
+          ? AGV_WIDTH / map.mapResolution
+          : AMR_FORK_WIDTH / map.mapResolution
+      }
+      height={
+        amrId.includes("SW15")
+          ? AGV_HEIGHT / map.mapResolution
+          : AMR_FORK_HEIGHT / map.mapResolution
+      }
+      left={left}
+      top={top}
+      color={color}
+      rotate={amrId.includes("SW15") ? 90 - pose.yaw + 180 : 90 - pose.yaw}
+      is_agv={amrId.includes("SW15").toString()}
+      $isCarry={isCarry as boolean}
+    >
+      {amrId.includes("anfa") ? <Fork direct="left" /> : null}
+      {amrId.includes("anfa") ? <Fork direct="right" /> : null}
+      {isCarry && amrId.includes("anfa") && <CargoBox />}{" "}
+    </ColorAmr>
+    // <Dot left={left} top={top}></Dot>
   );
 };
 

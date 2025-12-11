@@ -22,6 +22,7 @@
     "yaw": "Yaw",
     "opacity": "opacity",
     "show": "show",
+    "direction": "direction",
     "status": "Status",
     "road_conditions": "Road conditions",
     "maintenance_level": "Maintenance level",

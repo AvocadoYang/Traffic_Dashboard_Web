@@ -68,13 +68,12 @@ const WebView = () => {
             
             }}>
             <ZoomPad></ZoomPad>
-            <ScalePad></ScalePad>
-            <MissionBtn></MissionBtn>
+            {/* <MissionBtn></MissionBtn> */}
             <DirectMove></DirectMove>
-            <ECS_online />
+            {/* <ECS_online />
             <ElevatorIO />
             <CorningTest></CorningTest>
-            <TestBarcode />
+            <TestBarcode /> */}
             </div>
             </div>
           </Splitter.Panel>

@@ -22,6 +22,7 @@
     "road_conditions": "路況",
     "maintenance_level": "車況",
     "location": "地點",
+    "direction": "方向",
     "yaw": "轉角",
     "opacity": "淡化",
     "show": "顯示",

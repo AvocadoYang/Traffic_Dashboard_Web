@@ -16,39 +16,6 @@ const Container = styled.div.attrs<{
   position: absolute;
 `;
 
-const Line1 = styled.div<{
-  x: number;
-  y: number;
-  length: number;
-  angle: number;
-}>`
-  position: absolute;
-  left: ${(p) => p.x}px;
-  top: ${(p) => p.y}px;
-  width: ${(p) => p.length}px;
-  height: 2px;
-  background: #ff4d4f;
-  transform-origin: 0 0;
-  transform: rotate(${(p) => p.angle}deg);
-  z-index: 300000;
-`;
-
-const LineBetweenTwoPoints: FC<{
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-}> = ({ x1, y1, x2, y2 }) => {
-  // 計算距離
-  const dx = x2 - x1;
-  const dy = y2 - y1;
-  const length = Math.sqrt(dx * dx + dy * dy);
-
-  // 計算旋轉角度
-  const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
-
-  return <Line1 x={x1} y={y1} length={length} angle={angle} />;
-};
 //#9cb4c8 #02ddff
 const Line = styled.div.attrs<{
   length: number;
@@ -78,7 +45,7 @@ const Line = styled.div.attrs<{
       border:
         $isClaimed || $isOnHover
           ? `0.5px solid ${color}`
-          : `${priority === 1 ? "0.5px solid #f74f8746" : "0.5px solid #9cb4c8"}`,
+          : `${priority === 1 ? "0.5px solid #ff9646" : "0.5px solid #02ddff"}`,
     },
   }),
 )<{
@@ -157,7 +124,7 @@ const Road: FC<{
   useEffect(() => {
     if (!script) return;
     if (script.isSimulate) {
-      setSimulateColor("#7ca1ea");
+      setSimulateColor("#ff9646");
     } else {
       setSimulateColor("#ff9646");
     }

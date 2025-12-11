@@ -23,6 +23,7 @@ import { OpenChargeStationModal } from "@/pages/Main/global/jotai";
 import StatusPanel from "../../PadViwe/components/PadMapContent/AllChargeStation/StatusPanel";
 import useDetectLoc from "../hooks/useDetectLoc";
 import useMouseClick from "../hooks/useMouseClick";
+import ScalePad from "./ScalePad";
 
 const WebMapView: React.FC<{
   mapRef: RefObject<HTMLDivElement>;
@@ -83,6 +84,7 @@ const WebMapView: React.FC<{
           <AllZones scale={scale}></AllZones>
           <AllChargeStation></AllChargeStation>
           {showChargeConfig ? <StatusPanel locId={showChargeConfig} /> : null}
+          <ScalePad></ScalePad>
         </>
       )}
     </div>

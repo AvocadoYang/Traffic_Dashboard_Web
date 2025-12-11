@@ -29,7 +29,7 @@ const Line = styled.div.attrs<{
     transform: `rotate(${angle}deg) translateY(-50%)`,
     backgroundColor: $isOneWayRoad ? "#ffffff5" : "rgb(0 68 255 / 0%)",
     border:
-      $isClaimed || $isOnHover ? "1px solid #ff9646" : "2px solid #cccccc47",
+      $isClaimed || $isOnHover ? "1px solid #ff9646" : "2px solid #ff9646",
   },
 }))<{
   length: number;

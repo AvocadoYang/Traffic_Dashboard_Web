@@ -9,13 +9,7 @@ import {
   useState,
 } from "react";
 import { nanoid } from "nanoid";
-import {
-  Label,
-  LabelTooltip,
-  LabelWrapper,
-  Line,
-  Point,
-} from "@/pages/Setting/mapComponents/components/AllLocation/components/PointAndLine";
+import { Label, LabelTooltip, LabelWrapper, Line, Point, PointMain } from "@/pages/Setting/mapComponents/components/AllLocation/components/PointAndLine";
 import { useAtomValue, useSetAtom } from "jotai";
 import { mouseDetectLoc, tooltipProp } from "@/utils/gloable";
 import { OpenDirect } from "@/pages/Main/global/jotai";
@@ -109,59 +103,46 @@ const AllLocation: React.FC<{
 
           return (
             <Fragment key={loc.locationId}>
-              <Point
-                id={loc.locationId.toString()}
-                canrotate={`${loc.canRotate}`}
-                onMouseDown={() => handleDireMove(loc.locationId.toString())}
-                onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
-                onMouseLeave={() => handleLeave()}
-                left={displayX}
-                top={displayY}
-                key={nanoid()}
-              ></Point>
-              {mouseDetectLocArr.has(loc.locationId.toString()) ? (
-                <>
-                  <Line
-                    id={loc.locationId}
-                    x={displayX}
-                    y={displayY}
-                    progress={
-                      mouseDetectLocArr.has(loc.locationId.toString()) ? 1 : 0
-                    }
-                    angle={angleDeg}
-                  />
-                  <LabelWrapper
-                    x={labelX}
-                    y={labelY}
-                    key={nanoid()}
-                    id={loc.locationId}
-                  >
-                    <Label>{loc.locationId}</Label>
-                    <LabelTooltip className="tooltip">
-                      {roadInfo
-                        ?.filter(({ spot1Id, spot2Id }) => {
-                          return (
-                            spot1Id == loc.locationId ||
-                            spot2Id == loc.locationId
-                          );
-                        })
-                        .map((road) => {
-                          return (
-                            <p
-                              key={nanoid()}
-                              style={{
-                                whiteSpace: "nowrap",
-                                zIndex: "999999999",
-                              }}
-                            >{`${road.roadId}`}</p>
-                          );
-                        })}
-                    </LabelTooltip>
-                  </LabelWrapper>
-                </>
-              ) : (
-                <></>
-              )}
+            <PointMain
+              id={loc.locationId.toString()}
+              canrotate={`${loc.canRotate}`}
+              onClick={(e) => {
+                e.preventDefault()
+                handleDireMove(loc.locationId.toString())
+              }}
+              onMouseEnter={() =>{
+                handleEnter(loc.locationId, loc.x, loc.y)
+              }}
+              onMouseLeave={() => handleLeave()}
+              left={displayX}
+              top={displayY}
+
+            ></PointMain>
+            {
+              mouseDetectLocArr.has(loc.locationId.toString()) ? 
+              <>
+              <Line
+                id={loc.locationId}
+                x={displayX}
+                y={displayY}
+                progress={mouseDetectLocArr.has(loc.locationId.toString()) ? 1 : 0}
+                angle={angleDeg}
+              />
+              <LabelWrapper x={labelX} y={labelY} id={loc.locationId}>
+                <Label>{loc.locationId}</Label>
+                <LabelTooltip className="tooltip">
+                  {
+                    roadInfo?.filter(({ spot1Id, spot2Id}) => {
+                      return spot1Id == loc.locationId || spot2Id == loc.locationId
+                    }).map((road) =>{
+                      return  <p key={nanoid()} style={{ whiteSpace: "nowrap", zIndex: "999999999"}}>{`${road.roadId}`}</p> 
+                    })
+                  }
+                </LabelTooltip>
+              </LabelWrapper>
+            </>
+              :<></>
+            }
             </Fragment>
           );
         })}

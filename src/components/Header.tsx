@@ -11,7 +11,7 @@ import {
   Switch,
 } from "antd";
 import "./component.css";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Select } from "antd";
 import { memo, useEffect, useState } from "react";
 import { MenuOutlined } from "@ant-design/icons";
@@ -29,6 +29,7 @@ import { useMockInfo } from "@/sockets/useMockInfo";
 import styled from "styled-components";
 import { useTimelineSocket } from "@/sockets/useTimelineSocket";
 import dayjs from "dayjs";
+import MissionBtn from "@/pages/Main/components/WebView/components/MissionBtn";
 const { Header: AntdHeader } = Layout;
 
 const RemainText = styled.span`
@@ -64,6 +65,8 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
   const timeline = useTimelineSocket();
   const { refetch: amrNameRefetch } = useName();
   const [messageApi, contextHolder] = message.useMessage();
+  const location = useLocation();
+
 
   const simMutation = useMutation({
     mutationFn: (data: {
@@ -275,6 +278,9 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
                   />
                 </svg>
               </Badge> */}
+              { location.pathname == "/" ?
+                <MissionBtn></MissionBtn>
+              : <></>}
               {script?.isSimulate ? (
                 <Flex align="center">
                   <RemainText>
