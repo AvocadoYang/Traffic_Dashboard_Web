@@ -142,7 +142,6 @@ const ForkLiftIcon: FC<{ amrId:string, color: string, left: number, top: number,
 
     const [amrFilterCarCard, setAmrFilterCarCard] = useAtom(AmrFilterCarCard);
     const zoneForbidden = useAtomValue(showZoneForbidden);
-    
     const needOpacity = useMemo(() => {
         if (!amrFilterCarCard.size && !zoneForbidden.size) {
           return false;

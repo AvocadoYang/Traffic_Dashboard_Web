@@ -387,7 +387,7 @@ export const useAmrPose = (amrId: string) => {
           y: Number((y || 0).toFixed(2)),
           yaw: Number((yaw || 0).toFixed(2)),
         })),
-        regularYaw(),
+        // regularYaw(),
         // tap(({ yaw }) => console.log(yaw)),
         distinctUntilChanged(
           (prev, cur) =>
