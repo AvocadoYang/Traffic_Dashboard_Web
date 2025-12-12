@@ -390,7 +390,10 @@ const EditMissionPanel: FC<{
                 </Col>
               </ControlRow>
 
-              <Folder handleFilterFolder={handleFilterFolder} />
+              <Folder
+                selected={selectFolder}
+                handleFilterFolder={handleFilterFolder}
+              />
               <FolderEditor
                 setOpenFolderEditorModal={setOpenFolderEditorModal}
                 openFolderEditorModal={openFolderEditorModal}

@@ -659,6 +659,15 @@
     "available_min": "Available task threshold must be at least 11%",
     "submit": "Submit",
 
+    "section_basic": "[01] Basic Configuration",
+    "section_threshold": "[02] Threshold Settings",
+    "threshold_note_title": "Note:",
+    "threshold_note_desc": "Configure battery thresholds to manage charging behavior. Aggressive threshold triggers immediate charging, while full threshold indicates when charging is complete.",
+    "tooltip_aggressive": "Battery level to trigger immediate charging",
+    "tooltip_passive": "Battery level for passive charging mode",
+    "tooltip_full": "Battery level considered fully charged",
+    "tooltip_available_get_task": "Minimum battery level to accept new tasks",
+
     "model": {
       "station_id": "Station ID",
       "ip_address": "IP Address",
@@ -693,6 +702,15 @@
       "car_info": "Car information cards"
     },
     "mission_modal": {
+      "title": "Select Mission",
+      "select_mission_button": "Select Mission",
+      "search_placeholder": "Search by name or tag...",
+      "mission_name": "Mission Name",
+      "tags": "Tags",
+      "loading": "Loading...",
+      "no_missions": "No missions found",
+      "total_missions": "Total Missions: {{count}}",
+      "filtered": "Filtered: {{count}}",
       "dialog_mission": {
         "task_priority": "Task priority",
         "mission_type": "Mission Type",

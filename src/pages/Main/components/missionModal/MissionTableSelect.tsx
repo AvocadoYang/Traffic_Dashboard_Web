@@ -1,7 +1,11 @@
-import { Button, Input, Modal, Table, Tag, Space } from "antd";
+import { Button, Input, Modal, Table, Tag, Space, Flex } from "antd";
 import { useState, useMemo } from "react";
 import { SearchOutlined, DatabaseOutlined } from "@ant-design/icons";
 import styled from "styled-components";
+import Folder from "@/pages/Setting/formComponent/forms/missionComponents/editMission/folder/Folder";
+import useAllMissionTitles from "@/api/useMissionTitle";
+import { filter } from "rxjs";
+import { useTranslation } from "react-i18next";
 
 // Industrial Modal Styling
 const IndustrialModal = styled(Modal)`
@@ -264,39 +268,47 @@ const MissionName = styled.div`
 `;
 
 const MissionTableSelect = ({
-  data,
   onSelect,
-  placeholder = "Select Mission",
+  placeholder,
 }: {
-  data: any[];
   onSelect: (record: any) => void;
   placeholder?: string;
 }) => {
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<any>(null);
+  const [selectFolder, setSelectFolder] = useState<string>("");
+  const { data, refetch: refetchMissions } = useAllMissionTitles();
 
-  const filteredData = useMemo(() => {
-    const s = search.trim().toLowerCase();
-    if (!s) return data;
-    return data.filter((item) => {
-      const nameMatch = item.name?.toLowerCase().includes(s);
-      const tagMatch = item.MissionTitleBridgeCategory?.some((m: any) =>
-        m.Category?.tagName?.toLowerCase().includes(s)
-      );
-      return nameMatch || tagMatch;
-    });
-  }, [data, search]);
+  const handleFilterFolder = (id: string) => {
+    setSelectFolder(id);
+  };
 
+  const filterMissionData = useMemo(
+    () =>
+      data
+        ?.filter((m) => m.name.includes(search))
+        .filter((v) =>
+          v.MissionTitleBridgeCategory.some(
+            (w) => w.Category.tagName === "normal-mission"
+          )
+        )
+        .filter((m) => {
+          if (selectFolder === "") return true;
+          return m.mission_folder?.id === selectFolder;
+        }) || [],
+    [search, data, handleFilterFolder]
+  );
   const columns = [
     {
-      title: "Mission Name",
+      title: t("main.mission_modal.mission_name"),
       dataIndex: "name",
       key: "name",
       render: (name: string) => <MissionName>{name}</MissionName>,
     },
     {
-      title: "Tags",
+      title: t("main.mission_modal.tags"),
       dataIndex: "MissionTitleBridgeCategory",
       key: "tags",
       render: (list: any[]) => (
@@ -320,66 +332,78 @@ const MissionTableSelect = ({
     },
   ];
 
+  if (!data) return <>{t("main.mission_modal.loading")}</>;
+
   return (
     <>
       <IndustrialButton
         className={selected ? "selected" : ""}
         onClick={() => setOpen(true)}
       >
-        {selected ? selected.name : placeholder}
+        {selected
+          ? selected.name
+          : (placeholder ?? t("main.mission_modal.select_mission_button"))}
       </IndustrialButton>
 
       <IndustrialModal
         title={
           <>
             <DatabaseOutlined />
-            Select Mission
+            {t("main.mission_modal.title")}
           </>
         }
         open={open}
         onCancel={() => setOpen(false)}
         footer={null}
-        width={900}
+        width={800}
       >
         <SearchContainer>
           <IndustrialInput
             prefix={<SearchOutlined />}
-            placeholder="Search by name or tag..."
+            placeholder={t("main.mission_modal.search_placeholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             allowClear
           />
         </SearchContainer>
 
-        <StatsBar>
+        {/* <StatsBar>
           <span>
             Total Missions: <span className="stat-value">{data.length}</span>
           </span>
           <span>
-            Filtered: <span className="stat-value">{filteredData.length}</span>
+            Filtered:{" "}
+            <span className="stat-value">{filterMissionData.length}</span>
           </span>
-        </StatsBar>
+        </StatsBar> */}
 
-        <IndustrialTable
-          rowKey="id"
-          dataSource={filteredData}
-          columns={columns}
-          pagination={{
-            pageSize: 50,
-            showSizeChanger: false,
-          }}
-          onRow={(record) => ({
-            onClick: () => {
-              setSelected(record);
-              onSelect(record);
-              setOpen(false);
-              setSearch("");
-            },
-          })}
-          rowClassName={(record) =>
-            selected?.id === record.id ? "ant-table-row-selected" : ""
-          }
-        />
+        <Flex vertical>
+          <Folder
+            selected={selectFolder}
+            handleFilterFolder={handleFilterFolder}
+          />
+
+          <IndustrialTable
+            rowKey="id"
+            dataSource={filterMissionData}
+            columns={columns}
+            pagination={{
+              pageSize: 50,
+              showSizeChanger: false,
+            }}
+            onRow={(record) => ({
+              onClick: () => {
+                setSelected(record);
+                onSelect(record);
+                setOpen(false);
+                setSearch("");
+              },
+            })}
+            rowClassName={(record: any) =>
+              selected?.id === record.id ? "ant-table-row-selected" : ""
+            }
+          />
+        </Flex>
       </IndustrialModal>
     </>
   );

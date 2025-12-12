@@ -656,6 +656,15 @@
     "available_min": "可用任務閾值至少為11%",
     "submit": "提交",
 
+    "section_basic": "[01] 基本設定",
+    "section_threshold": "[02] 閾值設定",
+    "threshold_note_title": "說明：",
+    "threshold_note_desc": "設定電池閾值以管理充電行為。激進門檻會觸發立即充電，滿電閾值表示充電完成。",
+    "tooltip_aggressive": "觸發立即充電的電量百分比",
+    "tooltip_passive": "被動充電模式的電量百分比",
+    "tooltip_full": "視為已充滿的電量百分比",
+    "tooltip_available_get_task": "接受新任務的最低電量百分比",
+
     "model": {
       "ip": "IP",
       "station_id": "站點 ID",
@@ -690,6 +699,15 @@
       "car_info": "車輛資訊"
     },
     "mission_modal": {
+      "title": "選擇任務",
+      "select_mission_button": "選擇任務",
+      "search_placeholder": "以名稱或標籤搜尋...",
+      "mission_name": "任務名稱",
+      "tags": "標籤",
+      "loading": "載入中...",
+      "no_missions": "未找到任務",
+      "total_missions": "共 {{count}} 筆任務",
+      "filtered": "已篩選: {{count}}",
       "dialog_mission": {
         "task_priority": "任務級別",
         "mission_type": "任務類型",
