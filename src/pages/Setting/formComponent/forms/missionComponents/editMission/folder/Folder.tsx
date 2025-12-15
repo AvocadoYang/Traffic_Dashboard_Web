@@ -1,6 +1,5 @@
 import useMissionFolder from "@/api/useMissionFolder";
-import { FolderOutlined } from "@ant-design/icons";
-import { Button } from "antd";
+import { FolderOutlined, FolderOpenOutlined } from "@ant-design/icons";
 import { FC } from "react";
 import styled from "styled-components";
 
@@ -9,138 +8,141 @@ const FolderList = styled.div`
   flex-direction: row;
   gap: 8px;
   padding-bottom: 1em;
-  flex-wrap: wrap; // 👈 THIS IS THE FIX
+  flex-wrap: wrap;
 `;
 
-const FolderItem = styled.div`
+const FolderItem = styled.div<{ $isSelected: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 12px;
   cursor: pointer;
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  border-left: 3px solid #52c41a;
+  background: ${({ $isSelected }) => ($isSelected ? "#f6ffed" : "#ffffff")};
+  border: 1px solid
+    ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#d9d9d9")};
+  border-left: 2px solid
+    ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#d9d9d9")};
   transition: all 0.2s;
   max-height: 2em;
+  position: relative;
+  box-shadow: ${({ $isSelected }) =>
+    $isSelected
+      ? "inset 0 0 20px rgba(82, 196, 26, 0.08), 0 2px 8px rgba(82, 196, 26, 0.25)"
+      : "none"};
+
+  ${({ $isSelected }) =>
+    $isSelected &&
+    `
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(82, 196, 26, 0.03) 2px,
+        rgba(82, 196, 26, 0.03) 4px
+      );
+      pointer-events: none;
+    }
+  `}
+
   &:hover {
-    background: #f6ffed;
-    border-left-color: #73d13d;
-    transform: translateX(4px);
-    box-shadow: 0 2px 8px rgba(82, 196, 26, 0.15);
+    background: ${({ $isSelected }) => ($isSelected ? "#f6ffed" : "#f6ffed")};
+    border-color: ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#73d13d")};
+    border-left-color: ${({ $isSelected }) =>
+      $isSelected ? "#52c41a" : "#73d13d"};
+    transform: ${({ $isSelected }) =>
+      $isSelected ? "none" : "translateX(4px)"};
+    box-shadow: ${({ $isSelected }) =>
+      $isSelected
+        ? "inset 0 0 20px rgba(82, 196, 26, 0.08), 0 2px 8px rgba(82, 196, 26, 0.25)"
+        : "0 2px 8px rgba(82, 196, 26, 0.15)"};
   }
 `;
 
-const FolderName = styled.div`
+const FolderName = styled.div<{ $isSelected: boolean }>`
   display: flex;
   align-items: center;
   gap: 8px;
   font-family: "Roboto Mono", monospace;
   font-size: 12px;
-  color: #262626;
-  font-weight: 600;
+  color: ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#262626")};
+  font-weight: ${({ $isSelected }) => ($isSelected ? 700 : 600)};
+  text-transform: uppercase;
+  letter-spacing: ${({ $isSelected }) => ($isSelected ? "1.2px" : "0.5px")};
+  transition: all 0.2s;
+
+  .anticon {
+    font-size: 14px;
+    color: ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#8c8c8c")};
+    transition: all 0.2s;
+  }
 `;
 
-const FolderActions = styled.div`
-  display: flex;
-  gap: 4px;
-`;
-
-const ActionButton = styled(Button)`
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  display: flex;
+const FolderCount = styled.span<{ $isSelected: boolean }>`
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #d9d9d9;
-  background: #ffffff;
-
-  &:hover {
-    border-color: #1890ff;
-    color: #1890ff;
-  }
-
-  &.delete-btn:hover {
-    border-color: #ff4d4f;
-    color: #ff4d4f;
-    background: #fff1f0;
-  }
-`;
-
-const EmptyState = styled.div`
-  text-align: center;
-  padding: 2px;
-  color: #8c8c8c;
+  min-width: 24px;
+  height: 20px;
+  padding: 0 6px;
+  background: ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#e6f7ff")};
+  border: 1px solid
+    ${({ $isSelected }) => ($isSelected ? "#389e0d" : "#1890ff")};
+  color: ${({ $isSelected }) => ($isSelected ? "#ffffff" : "#1890ff")};
+  font-size: 10px;
+  font-weight: 700;
   font-family: "Roboto Mono", monospace;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  border: 1px dashed #d9d9d9;
-  max-height: 2em;
-  background: #ffffff;
+  margin-left: 8px;
+  transition: all 0.2s;
 `;
 
-const IndustrialButton = styled(Button)`
-  font-family: "Roboto Mono", monospace;
-  text-transform: uppercase;
-  font-size: 11px;
-  letter-spacing: 1px;
-  height: 36px;
-  font-weight: 600;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-
-  &.ant-btn-primary {
-    background: #1890ff;
-    border-color: #1890ff;
-
-    &:hover {
-      background: #40a9ff;
-      border-color: #40a9ff;
-      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
-    }
-  }
-
-  &.reload-btn {
-    background: #ffffff;
-    border: 1px solid #d9d9d9;
-    color: #595959;
-
-    &:hover {
-      background: #fafafa;
-      border-color: #1890ff;
-      color: #1890ff;
-    }
-  }
-`;
-
-const Folder: FC<{ handleFilterFolder: (v: string) => void }> = ({
-  handleFilterFolder,
-}) => {
+const Folder: FC<{
+  selected: string;
+  handleFilterFolder: (v: string) => void;
+}> = ({ selected, handleFilterFolder }) => {
   const { data: folders } = useMissionFolder();
 
   return (
     <>
       <FolderList>
-        <FolderItem onClick={() => handleFilterFolder("")}>
-          <FolderName>
-            <FolderOutlined />
+        <FolderItem
+          $isSelected={selected === ""}
+          onClick={() => handleFilterFolder("")}
+        >
+          <FolderName $isSelected={selected === ""}>
+            {selected === "" ? <FolderOpenOutlined /> : <FolderOutlined />}
             All
           </FolderName>
         </FolderItem>
         {folders && folders.length > 0
-          ? folders.map((folder) => (
-              <FolderItem
-                key={folder.id}
-                onClick={() => handleFilterFolder(folder?.id || "")}
-              >
-                <FolderName>
-                  <FolderOutlined />
-                  {folder.name}
-                </FolderName>
-              </FolderItem>
-            ))
+          ? folders.map((folder) => {
+              const isSelected = selected === folder.id;
+              const missionCount = folder.missionTitles?.length || 0;
+
+              return (
+                <FolderItem
+                  key={folder.id}
+                  $isSelected={isSelected}
+                  onClick={() => handleFilterFolder(folder?.id || "")}
+                >
+                  <FolderName $isSelected={isSelected}>
+                    {isSelected ? <FolderOpenOutlined /> : <FolderOutlined />}
+                    {folder.name}
+                    {missionCount > 0 && (
+                      <FolderCount $isSelected={isSelected}>
+                        {missionCount}
+                      </FolderCount>
+                    )}
+                  </FolderName>
+                </FolderItem>
+              );
+            })
           : []}
       </FolderList>
     </>

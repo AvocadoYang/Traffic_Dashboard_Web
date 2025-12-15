@@ -245,7 +245,7 @@ const ActionBar = styled(Flex)`
 const DialogMission = () => {
   const { t } = useTranslation();
   const [missionForm] = Form.useForm();
-  const { data, refetch: refetchMissions } = useAllMissionTitles();
+  const { refetch: refetchMissions } = useAllMissionTitles();
   const { data: name, refetch: refetchAgv } = useName();
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -282,7 +282,6 @@ const DialogMission = () => {
       });
     },
     onSuccess: (resData) => {
-      console.log(resData);
       const errorMessage = resData?.data.message;
       if (!errorMessage || errorMessage === "success") {
         void messageApi.success(t("utils.success"));
@@ -291,7 +290,6 @@ const DialogMission = () => {
       }
       const splitErrorMessage = errorMessage.split(" ");
       if (splitErrorMessage[0] === "[CustomError]") {
-        console.log(splitErrorMessage);
         void messageApi.error("無法排除 聯絡FAE工程師");
       }
     },
@@ -299,10 +297,9 @@ const DialogMission = () => {
   });
 
   const submit = () => {
-    if (!data) return;
     const payload = missionForm.getFieldsValue() as MissionFrom;
     const { titleId, priority } = payload;
-    if (!titleId || !priority) {
+    if (!titleId || priority === undefined || priority === null) {
       void messageApi.error("尚未完成選項");
       return;
     }
@@ -323,8 +320,6 @@ const DialogMission = () => {
     if (!openDialogMission) return;
     missionForm.setFieldValue("priority", MissionPriority.PIVOTAL);
   }, [openDialogMission]);
-
-  if (!data || !openDialogMission) return null;
 
   return (
     <IndustrialModal
@@ -416,11 +411,6 @@ const DialogMission = () => {
           </FieldLabel>
           <Form.Item name="titleId" style={{ marginBottom: 0 }}>
             <MissionTableSelect
-              data={data?.filter((g) =>
-                g.MissionTitleBridgeCategory.some(
-                  (s) => s.Category?.tagName === "normal-mission"
-                )
-              )}
               onSelect={(record) => {
                 missionForm.setFieldValue("titleId", record.id);
                 void messageApi.success(`Selected mission: ${record.name}`);

@@ -659,6 +659,15 @@
     "available_min": "Available task threshold must be at least 11%",
     "submit": "Submit",
 
+    "section_basic": "[01] Basic Configuration",
+    "section_threshold": "[02] Threshold Settings",
+    "threshold_note_title": "Note:",
+    "threshold_note_desc": "Configure battery thresholds to manage charging behavior. Aggressive threshold triggers immediate charging, while full threshold indicates when charging is complete.",
+    "tooltip_aggressive": "Battery level to trigger immediate charging",
+    "tooltip_passive": "Battery level for passive charging mode",
+    "tooltip_full": "Battery level considered fully charged",
+    "tooltip_available_get_task": "Minimum battery level to accept new tasks",
+
     "model": {
       "station_id": "Station ID",
       "ip_address": "IP Address",
@@ -693,6 +702,15 @@
       "car_info": "Car information cards"
     },
     "mission_modal": {
+      "title": "Select Mission",
+      "select_mission_button": "Select Mission",
+      "search_placeholder": "Search by name or tag...",
+      "mission_name": "Mission Name",
+      "tags": "Tags",
+      "loading": "Loading...",
+      "no_missions": "No missions found",
+      "total_missions": "Total Missions: {{count}}",
+      "filtered": "Filtered: {{count}}",
       "dialog_mission": {
         "task_priority": "Task priority",
         "mission_type": "Mission Type",
@@ -1616,5 +1634,37 @@
     "edit_success": "Folder updated successfully",
     "add_success": "Folder created successfully",
     "validation_failed": "Validate Failed"
+  },
+  "map_manager": {
+    "title": "Map Management",
+    "upload_section": "Upload New Map",
+    "upload_file": "Upload File",
+    "upload_map_btn": "Upload Map",
+    "existing_maps": "Existing Maps",
+    "file_name": "File Name",
+    "status": "Status",
+    "origin_x": "Origin X",
+    "origin_y": "Origin Y",
+    "actions": "Actions",
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "active": "Active",
+    "inactive": "Inactive",
+    "no_maps": "[ No maps found ]",
+    "delete_title": "Delete map?",
+    "delete_description": "Are you sure you want to delete this map?",
+    "delete_ok": "Yes",
+    "delete_cancel": "No",
+    "edit_modal_title": "Edit Map Information",
+    "edit_modal_save": "Save",
+    "edit_modal_cancel": "Cancel",
+    "map_origin_x": "Map Origin X",
+    "map_origin_y": "Map Origin Y",
+    "enter_x_coord": "Enter X coordinate",
+    "enter_y_coord": "Enter Y coordinate",
+    "drag_file_text": "Click or drag file to this area",
+    "png_hint": "Support PNG format only. File name must be alphanumeric.",
+    "file_required": "Required"
   }
 }

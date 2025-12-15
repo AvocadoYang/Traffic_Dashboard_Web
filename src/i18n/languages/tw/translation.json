@@ -656,6 +656,15 @@
     "available_min": "可用任務閾值至少為11%",
     "submit": "提交",
 
+    "section_basic": "[01] 基本設定",
+    "section_threshold": "[02] 閾值設定",
+    "threshold_note_title": "說明：",
+    "threshold_note_desc": "設定電池閾值以管理充電行為。激進門檻會觸發立即充電，滿電閾值表示充電完成。",
+    "tooltip_aggressive": "觸發立即充電的電量百分比",
+    "tooltip_passive": "被動充電模式的電量百分比",
+    "tooltip_full": "視為已充滿的電量百分比",
+    "tooltip_available_get_task": "接受新任務的最低電量百分比",
+
     "model": {
       "ip": "IP",
       "station_id": "站點 ID",
@@ -690,6 +699,15 @@
       "car_info": "車輛資訊"
     },
     "mission_modal": {
+      "title": "選擇任務",
+      "select_mission_button": "選擇任務",
+      "search_placeholder": "以名稱或標籤搜尋...",
+      "mission_name": "任務名稱",
+      "tags": "標籤",
+      "loading": "載入中...",
+      "no_missions": "未找到任務",
+      "total_missions": "共 {{count}} 筆任務",
+      "filtered": "已篩選: {{count}}",
       "dialog_mission": {
         "task_priority": "任務級別",
         "mission_type": "任務類型",
@@ -1623,5 +1641,37 @@
     "edit_success": "資料夾已更新",
     "add_success": "資料夾已建立",
     "validation_failed": "驗證失敗"
+  },
+  "map_manager": {
+    "title": "地圖管理",
+    "upload_section": "上傳新地圖",
+    "upload_file": "上傳檔案",
+    "upload_map_btn": "上傳地圖",
+    "existing_maps": "現有地圖",
+    "file_name": "檔案名稱",
+    "status": "狀態",
+    "origin_x": "原點 X",
+    "origin_y": "原點 Y",
+    "actions": "操作",
+    "view": "查看",
+    "edit": "編輯",
+    "delete": "刪除",
+    "active": "啟用",
+    "inactive": "停用",
+    "no_maps": "[ 未找到地圖 ]",
+    "delete_title": "刪除地圖？",
+    "delete_description": "確定要刪除此地圖嗎？",
+    "delete_ok": "確定",
+    "delete_cancel": "取消",
+    "edit_modal_title": "編輯地圖資訊",
+    "edit_modal_save": "儲存",
+    "edit_modal_cancel": "取消",
+    "map_origin_x": "地圖原點 X",
+    "map_origin_y": "地圖原點 Y",
+    "enter_x_coord": "輸入 X 座標",
+    "enter_y_coord": "輸入 Y 座標",
+    "drag_file_text": "點擊或拖曳檔案到此區域",
+    "png_hint": "僅支援 PNG 格式。檔案名稱必須為英數字。",
+    "file_required": "必填"
   }
 }

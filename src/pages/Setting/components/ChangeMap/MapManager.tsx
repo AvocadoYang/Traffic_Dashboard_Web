@@ -580,7 +580,7 @@ const MapManager: FC = () => {
 
   const columns = [
     {
-      title: "File Name",
+      title: t("map_manager.file_name"),
       dataIndex: "fileName",
       key: "fileName",
       render: (text: string) => (
@@ -591,7 +591,7 @@ const MapManager: FC = () => {
       ),
     },
     {
-      title: "Status",
+      title: t("map_manager.status"),
       dataIndex: "isUsing",
       key: "isUsing",
       render: (isUsing: boolean) => (
@@ -599,29 +599,29 @@ const MapManager: FC = () => {
           {isUsing ? (
             <>
               <CheckCircleOutlined />
-              Active
+              {t("map_manager.active")}
             </>
           ) : (
             <>
               <CloseCircleOutlined />
-              Inactive
+              {t("map_manager.inactive")}
             </>
           )}
         </StatusBadge>
       ),
     },
     {
-      title: "Origin X",
+      title: t("map_manager.origin_x"),
       dataIndex: "mapOriginX",
       key: "mapOriginX",
     },
     {
-      title: "Origin Y",
+      title: t("map_manager.origin_y"),
       dataIndex: "mapOriginY",
       key: "mapOriginY",
     },
     {
-      title: "Actions",
+      title: t("map_manager.actions"),
       key: "actions",
       render: (_: any, record: MapInfo) => (
         <Flex gap="small">
@@ -633,7 +633,7 @@ const MapManager: FC = () => {
               viewImage(maps?.systemFilePath as string, record.fileName)
             }
           >
-            View
+            {t("map_manager.view")}
           </IndustrialButton>
           <IndustrialButton
             className="edit-btn"
@@ -641,21 +641,21 @@ const MapManager: FC = () => {
             icon={<EditOutlined />}
             onClick={() => openEditModal(record)}
           >
-            Edit
+            {t("map_manager.edit")}
           </IndustrialButton>
           <Popconfirm
-            title="Delete map?"
-            description="Are you sure you want to delete this map?"
+            title={t("map_manager.delete_title")}
+            description={t("map_manager.delete_description")}
             onConfirm={() => deleteMutation.mutate(record.id)}
-            okText="Yes"
-            cancelText="No"
+            okText={t("map_manager.delete_ok")}
+            cancelText={t("map_manager.delete_cancel")}
           >
             <IndustrialButton
               className="delete-btn"
               size="small"
               icon={<DeleteOutlined />}
             >
-              Delete
+              {t("map_manager.delete")}
             </IndustrialButton>
           </Popconfirm>
         </Flex>
@@ -670,7 +670,7 @@ const MapManager: FC = () => {
         <Header>
           <Title>
             <PictureOutlined />
-            Map Management
+            {t("map_manager.title")}
           </Title>
           <CloseButton
             icon={<CloseOutlined />}
@@ -682,45 +682,47 @@ const MapManager: FC = () => {
           {/* Upload Section */}
           <SectionHeader>
             <UploadOutlined />
-            Upload New Map
+            {t("map_manager.upload_section")}
           </SectionHeader>
           <UploadSection>
             <StyledForm form={uploadForm} layout="vertical">
               <Flex gap="middle">
                 <Form.Item
                   name="mapOriginX"
-                  label="Map Origin X"
-                  rules={[{ required: true, message: "Required" }]}
+                  label={t("map_manager.map_origin_x")}
+                  rules={[
+                    { required: true, message: t("map_manager.file_required") },
+                  ]}
                   style={{ flex: 1 }}
                 >
                   <IndustrialInputNumber
                     style={{ width: "100%" }}
-                    placeholder="Enter X coordinate"
+                    placeholder={t("map_manager.enter_x_coord")}
                   />
                 </Form.Item>
                 <Form.Item
                   name="mapOriginY"
-                  label="Map Origin Y"
-                  rules={[{ required: true, message: "Required" }]}
+                  label={t("map_manager.map_origin_y")}
+                  rules={[
+                    { required: true, message: t("map_manager.file_required") },
+                  ]}
                   style={{ flex: 1 }}
                 >
                   <IndustrialInputNumber
                     style={{ width: "100%" }}
-                    placeholder="Enter Y coordinate"
+                    placeholder={t("map_manager.enter_y_coord")}
                   />
                 </Form.Item>
               </Flex>
-              <Form.Item label="Upload File">
+              <Form.Item label={t("map_manager.upload_file")}>
                 <StyledDragger {...uploadProps}>
                   <p className="ant-upload-drag-icon">
                     <InboxOutlined />
                   </p>
                   <p className="ant-upload-text">
-                    Click or drag file to this area
+                    {t("map_manager.drag_file_text")}
                   </p>
-                  <p className="ant-upload-hint">
-                    Support PNG format only. File name must be alphanumeric.
-                  </p>
+                  <p className="ant-upload-hint">{t("map_manager.png_hint")}</p>
                 </StyledDragger>
               </Form.Item>
               <Form.Item>
@@ -728,11 +730,11 @@ const MapManager: FC = () => {
                   className="upload-btn"
                   icon={<UploadOutlined />}
                   onClick={handleUpload}
-                  loading={uploadMutation.isLoading}
+                  loading={uploadMutation.isPending}
                   disabled={!file}
                   block
                 >
-                  Upload Map
+                  {t("map_manager.upload_map_btn")}
                 </IndustrialButton>
               </Form.Item>
             </StyledForm>
@@ -743,7 +745,7 @@ const MapManager: FC = () => {
           {/* Maps Table */}
           <SectionHeader>
             <PictureOutlined />
-            Existing Maps ({maps?.allMap?.length || 0})
+            {t("map_manager.existing_maps")} ({maps?.allMap?.length || 0})
           </SectionHeader>
           {maps?.allMap && maps.allMap.length > 0 ? (
             <IndustrialTable
@@ -764,7 +766,7 @@ const MapManager: FC = () => {
               <div className="icon">
                 <PictureOutlined />
               </div>
-              [ No maps found ]
+              {t("map_manager.no_maps")}
             </EmptyState>
           )}
         </Content>
@@ -782,36 +784,36 @@ const MapManager: FC = () => {
 
       {/* Edit Modal */}
       <IndustrialModal
-        title="Edit Map Information"
+        title={t("map_manager.edit_modal_title")}
         open={editModalOpen}
         onOk={handleEdit}
         onCancel={() => {
           setEditModalOpen(false);
           setEditingMap(null);
         }}
-        okText="Save"
-        cancelText="Cancel"
+        okText={t("map_manager.edit_modal_save")}
+        cancelText={t("map_manager.edit_modal_cancel")}
         confirmLoading={editMutation.isPending}
       >
         <StyledForm form={editForm} layout="vertical">
-          <Form.Item label="File Name" name="fileName">
+          <Form.Item label={t("map_manager.file_name")} name="fileName">
             <IndustrialInput disabled />
           </Form.Item>
-          <Form.Item label="Status" name="isUsing">
+          <Form.Item label={t("map_manager.status")} name="isUsing">
             <Radio.Group>
-              <Radio value={false}>Inactive</Radio>
-              <Radio value={true}>Active</Radio>
+              <Radio value={false}>{t("map_manager.inactive")}</Radio>
+              <Radio value={true}>{t("map_manager.active")}</Radio>
             </Radio.Group>
           </Form.Item>
           <Form.Item
-            label="Map Origin X"
+            label={t("map_manager.map_origin_x")}
             name="mapOriginX"
             rules={[{ required: true }]}
           >
             <IndustrialInputNumber style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item
-            label="Map Origin Y"
+            label={t("map_manager.map_origin_y")}
             name="mapOriginY"
             rules={[{ required: true }]}
           >
