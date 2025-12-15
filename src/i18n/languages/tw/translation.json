@@ -1028,6 +1028,27 @@
     "edit_charge_station_icon_style": {
       "title": "調整充電站icon位置",
       "edit_position": "調整位置"
+    },
+    "edit_peripheral_style": {
+      "title": "編輯周邊設備樣式 - 位置 {{location}}",
+      "position_controls": "位置控制 (按住重複)",
+      "rotation_controls": "旋轉控制",
+      "scale_controls": "縮放控制",
+      "manual_input": "手動輸入",
+      "translate_x": "X 位移",
+      "translate_y": "Y 位移",
+      "scale": "縮放",
+      "rotate": "旋轉",
+      "flex_direction": "彈性方向",
+      "move_up": "上移",
+      "move_down": "下移",
+      "move_left": "左移",
+      "move_right": "右移",
+      "rotate_clockwise": "順時針旋轉",
+      "rotate_counter_clockwise": "逆時針旋轉",
+      "scale_up": "放大",
+      "scale_down": "縮小",
+      "error_message": "無法更新。請聯絡 FAE 工程師"
     }
   },
 

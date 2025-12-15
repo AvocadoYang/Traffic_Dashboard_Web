@@ -8,12 +8,48 @@ import { useTranslation } from "react-i18next";
 import SettingStyleForm from "./SettingStyleForm";
 import {
   FormatPainterOutlined,
-  LoadingOutlined,
   ReloadOutlined,
+  EditOutlined,
+  SettingOutlined,
+  SearchOutlined,
+  FilterOutlined,
 } from "@ant-design/icons";
 import usePeripheralStyle from "@/api/usePeripheralStyle";
 import SettingMultiStyleForm from "./SettingMultiStyleForm";
 import styled from "styled-components";
+
+// Industrial Styled Components
+const IndustrialContainer = styled.div`
+  font-family: "Roboto Mono", monospace;
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+`;
+
+const PanelHeader = styled.h3`
+  background: #fafafa;
+  border: 1px solid #d9d9d9;
+  border-left: 4px solid #eb2f96;
+  padding: 12px 16px;
+  margin: 0 0 20px 0;
+  font-family: "Roboto Mono", monospace;
+  color: #262626;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 14px;
+  cursor: move;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #fff0f6;
+    border-left-color: #f759ab;
+  }
+`;
 
 const Container = styled.div`
   display: flex;
@@ -26,6 +62,262 @@ const Panel = styled.div<{ width: string; hidden?: boolean }>`
   transition: all 0.3s ease;
   overflow: hidden;
   ${(p) => p.hidden && `visibility: hidden; height: 0;`}
+`;
+
+const ToolbarSection = styled(Flex)`
+  background: #fafafa;
+  border: 2px solid #d9d9d9;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-left: 4px solid #eb2f96;
+  gap: 12px;
+  flex-wrap: wrap;
+`;
+
+const IndustrialInput = styled(Input)`
+  font-family: "Roboto Mono", monospace;
+  font-size: 12px;
+  height: 36px;
+  border-radius: 0;
+  border: 1px solid #d9d9d9;
+
+  &:hover {
+    border-color: #f759ab;
+  }
+
+  &:focus {
+    border-color: #eb2f96;
+    box-shadow: 0 0 0 2px rgba(235, 47, 150, 0.2);
+  }
+
+  &::placeholder {
+    color: #bfbfbf;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+  }
+`;
+
+const IndustrialSelect = styled(Select)`
+  font-family: "Roboto Mono", monospace;
+
+  .ant-select-selector {
+    height: 36px !important;
+    border: 1px solid #d9d9d9 !important;
+    border-radius: 0 !important;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+
+    &:hover {
+      border-color: #f759ab !important;
+    }
+  }
+
+  &.ant-select-focused .ant-select-selector {
+    border-color: #eb2f96 !important;
+    box-shadow: 0 0 0 2px rgba(235, 47, 150, 0.2) !important;
+  }
+
+  .ant-select-selection-placeholder {
+    color: #bfbfbf;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+  }
+`;
+
+const IndustrialButton = styled(Button)`
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1px;
+  height: 36px;
+  font-weight: 600;
+  border-radius: 0;
+  transition: all 0.2s ease;
+
+  &.edit-btn {
+    background: #ffffff;
+    border: 1px solid #eb2f96;
+    color: #eb2f96;
+
+    &:hover {
+      background: #fff0f6;
+      border-color: #f759ab;
+      color: #f759ab;
+      box-shadow: 0 2px 8px rgba(235, 47, 150, 0.3);
+    }
+
+    &:disabled {
+      background: #f5f5f5;
+      border-color: #d9d9d9;
+      color: #bfbfbf;
+    }
+  }
+
+  &.reload-btn {
+    background: #ffffff;
+    border: 1px solid #d9d9d9;
+    color: #595959;
+    width: 36px;
+    min-width: 36px;
+    padding: 0;
+
+    &:hover {
+      background: #fafafa;
+      border-color: #eb2f96;
+      color: #eb2f96;
+    }
+  }
+
+  &.position-btn {
+    background: #eb2f96;
+    border-color: #eb2f96;
+    color: #ffffff;
+
+    &:hover {
+      background: #f759ab;
+      border-color: #f759ab;
+      box-shadow: 0 2px 8px rgba(235, 47, 150, 0.4);
+    }
+  }
+`;
+
+const IndustrialTable = styled(Table)`
+  .ant-table {
+    border: 1px solid #d9d9d9;
+    border-radius: 0;
+    font-family: "Roboto Mono", monospace;
+  }
+
+  .ant-table-thead > tr > th {
+    background: #fafafa;
+    border-bottom: 2px solid #d9d9d9;
+    color: #595959;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
+    padding: 12px 16px;
+
+    &::before {
+      display: none;
+    }
+  }
+
+  .ant-table-tbody > tr {
+    transition: all 0.2s;
+    position: relative;
+
+    &:hover {
+      background: #fff0f6;
+
+      &::before {
+        width: 4px;
+      }
+
+      td {
+        background: transparent;
+      }
+    }
+
+    &.ant-table-row-selected {
+      background: #fff0f6;
+
+      &::before {
+        width: 4px;
+      }
+
+      td {
+        background: transparent;
+      }
+    }
+  }
+
+  .ant-table-tbody > tr > td {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 12px 16px;
+    font-size: 12px;
+  }
+
+  .ant-table-selection-column {
+    .ant-checkbox-wrapper {
+      .ant-checkbox {
+        .ant-checkbox-inner {
+          border-radius: 0;
+          border-color: #d9d9d9;
+        }
+
+        &.ant-checkbox-checked .ant-checkbox-inner {
+          background-color: #eb2f96;
+          border-color: #eb2f96;
+        }
+      }
+    }
+  }
+`;
+
+const IndustrialDrawer = styled(Drawer)`
+  .ant-drawer-content {
+    background: #ffffff;
+  }
+
+  .ant-drawer-header {
+    background: #fafafa;
+    border-bottom: 2px solid #d9d9d9;
+    border-left: 4px solid #eb2f96;
+  }
+
+  .ant-drawer-title {
+    color: #eb2f96;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: "Roboto Mono", monospace;
+  }
+`;
+
+const ValueBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 50px;
+  padding: 2px 8px;
+  background: #fff0f6;
+  border: 1px solid #eb2f96;
+  color: #eb2f96;
+  font-family: "Roboto Mono", monospace;
+  font-size: 11px;
+  font-weight: 700;
+`;
+
+const LocationBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: #f9f0ff;
+  border: 1px solid #d3adf7;
+  color: #722ed1;
+  font-family: "Roboto Mono", monospace;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+`;
+
+const AreaTypeBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: #e6fffb;
+  border: 1px solid #87e8de;
+  color: #13c2c2;
+  font-family: "Roboto Mono", monospace;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 `;
 
 const EditPeripheralIcon: FC<{
@@ -43,6 +335,7 @@ const EditPeripheralIcon: FC<{
   const [searchText, setSearchText] = useState("");
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [openDrawer, setOpenDrawer] = useState(false);
+
   const uniqueAreaTypes = Array.from(
     new Set((data ?? []).map((item) => item?.areaType))
   );
@@ -81,14 +374,14 @@ const EditPeripheralIcon: FC<{
 
       render: (_v: unknown, record: SingleChargeStation) => {
         return (
-          <Button
+          <IndustrialButton
+            className="position-btn"
             icon={<FormatPainterOutlined />}
             onClick={() => handleEdit(record.locationId)}
-            color="primary"
-            variant="filled"
+            size="small"
           >
-            {t("other.edit_charge_station_icon_style.edit_position")}
-          </Button>
+            Edit
+          </IndustrialButton>
         );
       },
     },
@@ -96,51 +389,67 @@ const EditPeripheralIcon: FC<{
       title: t("other.edit_mission_tag.location"),
       dataIndex: "locationId",
       key: "locationId",
+
       sorter: (a, b) => Number(a.locationId) - Number(b.locationId),
+      render: (value: number) => <LocationBadge>{value}</LocationBadge>,
     },
     {
-      title: "name",
+      title: "Name",
       dataIndex: "name",
       key: "name",
+      ellipsis: true,
     },
     {
       title: t("peripheral_style.areaType"),
       dataIndex: "areaType",
       key: "areaType",
+
       filteredValue: filterType ? [filterType] : null,
       onFilter: (value, record) => record.areaType === value,
       sorter: (a, b) => a.areaType.localeCompare(b.areaType),
-      // render: (v: string) => t(`peripheral.${v}` as any) || v,
+      render: (value: string) => <AreaTypeBadge>{value}</AreaTypeBadge>,
     },
     {
-      title: "x",
+      title: "X",
       dataIndex: "x",
       key: "x",
+
+      render: (value: number) => <ValueBadge>{value}</ValueBadge>,
     },
     {
-      title: "y",
+      title: "Y",
       dataIndex: "y",
       key: "y",
+
+      render: (value: number) => <ValueBadge>{value}</ValueBadge>,
     },
     {
       title: "translateX",
       dataIndex: "translateX",
       key: "translateX",
+
+      render: (value: number) => <ValueBadge>{value}</ValueBadge>,
     },
     {
       title: "translateY",
       dataIndex: "translateY",
       key: "translateY",
+
+      render: (value: number) => <ValueBadge>{value}</ValueBadge>,
     },
     {
-      title: "rotate",
+      title: "Rotate",
       dataIndex: "rotate",
       key: "rotate",
+
+      render: (value: number) => <ValueBadge>{value}°</ValueBadge>,
     },
     {
-      title: "scale",
+      title: "Scale",
       dataIndex: "scale",
       key: "scale",
+
+      render: (value: number) => <ValueBadge>{value}x</ValueBadge>,
     },
   ];
 
@@ -153,7 +462,6 @@ const EditPeripheralIcon: FC<{
   };
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    //  console.log("selectedRowKeys changed: ", newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
 
@@ -174,71 +482,92 @@ const EditPeripheralIcon: FC<{
   }, [data, searchText]);
 
   return (
-    <div>
-      <h3 className="drop_button_style" {...listeners} {...attributes}>
+    <IndustrialContainer>
+      <PanelHeader {...listeners} {...attributes}>
+        <SettingOutlined />
         {t("toolbar.others.edit_peripheral_style")}
-      </h3>
+      </PanelHeader>
       <FormHr />
 
       <Container>
-        {/* Form */}
+        {/* Form Panel */}
         <Panel width={isEditStation ? "100%" : "0%"}>
           <SettingStyleForm />
         </Panel>
 
-        {/* Table */}
+        {/* Table Panel */}
         <Panel width={isEditStation ? "0%" : "100%"} hidden={isEditStation}>
-          <Flex gap="middle">
-            <Input.Search
-              placeholder={"Search locationId or name"}
+          <ToolbarSection>
+            <IndustrialInput
+              prefix={<SearchOutlined />}
+              placeholder="Search location ID or name"
               allowClear
               style={{ width: 280 }}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              onSearch={(val) => setSearchText(val)}
             />
-            <Button
+
+            <IndustrialButton
+              className="edit-btn"
               disabled={selectedRowKeys.length === 0}
               onClick={handleEditMulti}
+              icon={<EditOutlined />}
             >
-              {t("utils.edit")}
-            </Button>
-            <Select
+              Edit ({selectedRowKeys.length})
+            </IndustrialButton>
+
+            <IndustrialSelect
               allowClear
-              style={{ width: 200, marginBottom: 16 }}
-              placeholder="Filter by areaType"
+              style={{ width: 200 }}
+              placeholder="Filter by type"
               onChange={(value) => onChangeAreaType(value)}
               options={uniqueAreaTypes.map((type) => ({
                 label: type,
                 value: type,
               }))}
               value={filterType ?? undefined}
+              suffixIcon={<FilterOutlined />}
             />
-            <Button
+
+            <IndustrialButton
+              className="reload-btn"
               onClick={() => refetch()}
               icon={<ReloadOutlined />}
-            ></Button>
-          </Flex>
+            />
+          </ToolbarSection>
 
-          <Table
+          <IndustrialTable
             rowSelection={rowSelection}
             dataSource={filteredData as SingleChargeStation[]}
             columns={columns as []}
             rowKey={(record: SingleChargeStation) => record.locationId}
+            pagination={{
+              pageSize: 20,
+              showTotal: (total, range) => (
+                <span style={{ fontFamily: "Roboto Mono, monospace" }}>
+                  {range[0]}-{range[1]} of {total}
+                </span>
+              ),
+              showSizeChanger: true,
+              pageSizeOptions: ["10", "20", "50", "100"],
+            }}
+            scroll={{ x: 1400 }}
           />
         </Panel>
       </Container>
 
       {openDrawer && (
-        <Drawer
-          closable={{ "aria-label": "Close Button" }}
+        <IndustrialDrawer
+          title="Bulk Edit Peripheral Styles"
+          placement="right"
           onClose={onclose}
           open={openDrawer}
+          width={600}
         >
           <SettingMultiStyleForm locations={selectedRowKeys as string[]} />
-        </Drawer>
+        </IndustrialDrawer>
       )}
-    </div>
+    </IndustrialContainer>
   );
 };
 

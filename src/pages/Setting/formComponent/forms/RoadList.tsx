@@ -24,6 +24,7 @@ import {
   DeleteOutlined,
   EditOutlined,
   SearchOutlined,
+  SaveOutlined,
 } from "@ant-design/icons";
 import { nanoid } from "nanoid";
 import { FilterDropdownProps } from "antd/es/table/interface";
@@ -35,7 +36,6 @@ import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import FormHr from "../../utils/FormHr";
-import { SaveOutlined } from "@ant-design/icons";
 
 type RoadListType = {
   id: string;
@@ -60,6 +60,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   dataIndex?: string;
   title: string;
   children: React.ReactNode;
+  form?: FormInstance;
 }
 
 const yawOptions = ["0", "90", "180", "270", "*"].map((v) => ({
@@ -67,7 +68,7 @@ const yawOptions = ["0", "90", "180", "270", "*"].map((v) => ({
   label: v === "*" ? "All Angles" : `${v}°`,
 }));
 
-const whenAll = yawOptions.slice(1); // Exclude '*' option
+const whenAll = yawOptions.slice(1);
 const when0 = [
   { value: "0", label: "0°" },
   { value: "180", label: "180°" },
@@ -85,13 +86,189 @@ const when270 = [
   { value: "270", label: "270°" },
 ];
 
-interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
-  editing?: boolean;
-  dataIndex?: string;
-  title: string;
-  children: React.ReactNode;
-  form?: FormInstance;
-}
+// Industrial Styled Components
+const IndustrialContainer = styled.div`
+  font-family: "Roboto Mono", monospace;
+`;
+
+const IndustrialButton = styled(Button)`
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  color: #1890ff;
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1px;
+  height: 36px;
+
+  &:hover {
+    background: #f0f5ff;
+    border-color: #1890ff;
+    color: #1890ff;
+    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+  }
+
+  &.danger {
+    border-color: #ff4d4f;
+    color: #ff4d4f;
+
+    &:hover {
+      background: #fff1f0;
+      border-color: #ff7875;
+      color: #ff7875;
+      box-shadow: 0 2px 8px rgba(255, 77, 79, 0.2);
+    }
+  }
+
+  &.primary {
+    background: #1890ff;
+    border-color: #1890ff;
+    color: #ffffff;
+    font-weight: 600;
+
+    &:hover {
+      background: #40a9ff;
+      border-color: #40a9ff;
+      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
+    }
+  }
+
+  &:disabled {
+    background: #f5f5f5;
+    border-color: #d9d9d9;
+    color: #bfbfbf;
+  }
+`;
+
+const StyledTable = styled(Table)`
+  font-family: "Roboto Mono", monospace;
+
+  .ant-table {
+    border: 1px solid #d9d9d9;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    background: #ffffff;
+
+    &:hover {
+      border-color: #bfbfbf;
+    }
+  }
+
+  .ant-table-thead > tr > th {
+    background: #ffffff;
+    border-bottom: 2px solid #1890ff;
+    color: #262626;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: "Roboto Mono", monospace;
+    padding: 12px 16px;
+  }
+
+  .ant-table-tbody > tr > td {
+    padding: 12px 16px;
+    color: #595959;
+    border-bottom: 1px solid #d9d9d9;
+    font-family: "Roboto Mono", monospace;
+    font-size: 12px;
+  }
+
+  .ant-table-tbody > tr:hover > td {
+    background: #fafafa;
+  }
+
+  .ant-table-tbody > tr.ant-table-row-selected > td {
+    background: #f0f5ff;
+    border-left: 3px solid #1890ff;
+  }
+
+  .ant-table-tbody > tr.ant-table-row-selected:hover > td {
+    background: #e6f7ff;
+  }
+
+  .ant-pagination-item {
+    border: 1px solid #d9d9d9;
+    font-weight: 500;
+    font-family: "Roboto Mono", monospace;
+  }
+
+  .ant-pagination-item-active {
+    background: #1890ff;
+    border-color: #1890ff;
+
+    a {
+      color: #ffffff;
+    }
+  }
+
+  .ant-table-filter-trigger {
+    color: #8c8c8c;
+
+    &.active {
+      color: #1890ff;
+    }
+  }
+`;
+
+const SearchDropdown = styled.div`
+  padding: 8px;
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+  .ant-input {
+    font-family: "Roboto Mono", monospace;
+    font-size: 12px;
+  }
+
+  .ant-btn {
+    font-family: "Roboto Mono", monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+`;
+
+const ActiveBox = styled.div`
+  min-width: 4em;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  font-family: "Roboto Mono", monospace;
+`;
+
+type DotStyle = { $active: boolean };
+
+const Dot = styled.div<DotStyle>`
+  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  background-color: ${(prop) => (prop.$active ? "#ff4d4f" : "#52c41a")};
+  box-shadow: 0 0 4px
+    ${(prop) =>
+      prop.$active ? "rgba(255, 77, 79, 0.5)" : "rgba(82, 196, 26, 0.5)"};
+`;
+
+const StatusText = styled.span<{ $active: boolean }>`
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: ${(prop) => (prop.$active ? "#ff4d4f" : "#52c41a")};
+  font-weight: 600;
+`;
+
+type SubmitRoad = {
+  id: string;
+  limit: boolean;
+  spot1Id: number;
+  spot2Id: number;
+  roadType: string;
+  priority: number;
+  disabled: boolean;
+  validYawList: number[] | string[];
+};
 
 const EditableCell: FC<EditableCellProps> = ({
   editing,
@@ -148,10 +325,10 @@ const EditableCell: FC<EditableCellProps> = ({
   let inputNode;
   switch (dataIndex) {
     case "spot1Id":
-      inputNode = <InputNumber />;
+      inputNode = <InputNumber style={{ width: "100%" }} />;
       break;
     case "spot2Id":
-      inputNode = <InputNumber />;
+      inputNode = <InputNumber style={{ width: "100%" }} />;
       break;
     case "disabled":
       inputNode = <Switch />;
@@ -209,34 +386,6 @@ const EditableCell: FC<EditableCellProps> = ({
   );
 };
 
-const ActiveBox = styled.div`
-  min-width: 4em;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-around;
-`;
-
-type DotStyle = { $active: boolean };
-
-type SubmitRoad = {
-  id: string;
-  limit: boolean;
-  spot1Id: number;
-  spot2Id: number;
-  roadType: string;
-  priority: number;
-  disabled: boolean;
-  validYawList: number[] | string[];
-};
-
-const Dot = styled.div<DotStyle>`
-  border-radius: 99%;
-  width: 7px;
-  height: 7px;
-  background-color: ${(prop) => (prop.$active ? "#979797" : "#2bea00")};
-`;
-
 const RoadList: React.FC<{
   sortableId: string;
   attributes: import("@dnd-kit/core").DraggableAttributes;
@@ -292,7 +441,7 @@ const RoadList: React.FC<{
   const handleMouseLeave = () => setHoverRoad("");
 
   const getColumnSearchProps = (
-    dataIndex: DataIndex,
+    dataIndex: DataIndex
   ): TableColumnType<RoadListType> => ({
     filterDropdown: ({
       setSelectedKeys,
@@ -301,7 +450,7 @@ const RoadList: React.FC<{
       clearFilters,
       close,
     }) => (
-      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+      <SearchDropdown onKeyDown={(e) => e.stopPropagation()}>
         <Input
           ref={searchInput}
           placeholder={`Search ${dataIndex}`}
@@ -343,10 +492,13 @@ const RoadList: React.FC<{
             {t("utils.cancel")}
           </Button>
         </Space>
-      </div>
+      </SearchDropdown>
     ),
     filterIcon: (filtered: boolean) => (
-      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+      <SearchOutlined
+        style={{ color: filtered ? "#1890ff" : "#8c8c8c" }}
+        className={filtered ? "active" : ""}
+      />
     ),
     onFilter: (value, record) =>
       record[dataIndex]
@@ -410,7 +562,7 @@ const RoadList: React.FC<{
       dataIndex: "spot1Id",
       key: "spot1Id",
       editable: true,
-      minWidth: 120, // Enough for IDs like "12345"
+      minWidth: 120,
       sorter: (a: RoadListType, b: RoadListType) =>
         Number(a.spot1Id) - Number(b.spot2Id),
       ...getColumnSearchProps("spot1Id"),
@@ -420,7 +572,7 @@ const RoadList: React.FC<{
       dataIndex: "spot2Id",
       key: "spot2Id",
       editable: true,
-      minWidth: 120, // Enough for IDs like "12345"
+      minWidth: 120,
       sorter: (a: RoadListType, b: RoadListType) =>
         Number(a.spot2Id) - Number(b.spot1Id),
       ...getColumnSearchProps("spot2Id"),
@@ -430,7 +582,7 @@ const RoadList: React.FC<{
       dataIndex: "roadType",
       key: "roadType",
       editable: true,
-      minWidth: 150, // Space for "Single Road" or "Two-Way Road"
+      minWidth: 150,
       render: (_v: unknown, record: RoadListType) =>
         record.roadType === "oneWayRoad"
           ? t("edit_road_panel.single_road")
@@ -477,8 +629,10 @@ const RoadList: React.FC<{
       minWidth: 100,
       render: (_v: unknown, record: RoadListType) => (
         <ActiveBox>
-          <Dot $active={record.disabled as boolean} />{" "}
-          <>{record.disabled ? t("utils.yes") : t("utils.no")}</>
+          <Dot $active={record.disabled as boolean} />
+          <StatusText $active={record.disabled as boolean}>
+            {record.disabled ? t("utils.yes") : t("utils.no")}
+          </StatusText>
         </ActiveBox>
       ),
     },
@@ -491,44 +645,26 @@ const RoadList: React.FC<{
         const editable = isEditing(record);
         return editable ? (
           <Flex gap="small">
-            <Typography.Link
+            <IndustrialButton
+              className="primary"
               onClick={() => save(record.id)}
-              style={{ marginRight: 8 }}
+              icon={<SaveOutlined />}
             >
-              <Button
-                variant="filled"
-                color="primary"
-                htmlType="submit"
-                icon={<SaveOutlined />}
-              >
-                {t("utils.save")}
-              </Button>
-            </Typography.Link>
-            <Typography.Link
-              onClick={() => cancel()}
-              style={{ marginRight: 8 }}
-            >
-              <Button
-                icon={<CloseOutlined />}
-                color="default"
-                variant="filled"
-                type="link"
-              >
-                {t("utils.cancel")}
-              </Button>
-            </Typography.Link>
+              {t("utils.save")}
+            </IndustrialButton>
+            <IndustrialButton onClick={() => cancel()} icon={<CloseOutlined />}>
+              {t("utils.cancel")}
+            </IndustrialButton>
           </Flex>
         ) : (
           <Flex gap="small">
-            <Button
+            <IndustrialButton
+              className="primary"
               onClick={() => edit(record)}
               icon={<EditOutlined />}
-              color="primary"
-              variant="filled"
-              type="link"
             >
               {t("utils.edit")}
-            </Button>
+            </IndustrialButton>
             <Popconfirm
               title="Delete the task"
               description="Are you sure to delete this road?"
@@ -537,14 +673,9 @@ const RoadList: React.FC<{
               okText="Yes"
               cancelText="No"
             >
-              <Button
-                icon={<DeleteOutlined color="#ff0707" />}
-                color="danger"
-                variant="filled"
-                type="link"
-              >
+              <IndustrialButton className="danger" icon={<DeleteOutlined />}>
                 {t("utils.delete")}
-              </Button>
+              </IndustrialButton>
             </Popconfirm>
           </Flex>
         );
@@ -561,12 +692,13 @@ const RoadList: React.FC<{
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
+        form: formRoad,
       }),
     };
   });
 
   return (
-    <>
+    <IndustrialContainer>
       {contextHolders}
       <h3 className="drop_button_style" {...listeners} {...attributes}>
         {t("edit_road_panel.road_table")}
@@ -579,17 +711,16 @@ const RoadList: React.FC<{
         vertical
         onMouseLeave={handleMouseLeave}
       >
-        <Button
+        <IndustrialButton
+          className="danger"
           onClick={deleteMultiItem}
           loading={deleteMultiRoadMutation.isLoading}
           disabled={selectedRowKeys.length === 0}
-          color="danger"
-          variant="filled"
         >
           {t("utils.delete")}
-        </Button>
+        </IndustrialButton>
         <Form form={formRoad} component={false}>
-          <Table
+          <StyledTable
             dataSource={currentMap?.roads}
             rowKey={(v) => v.roadId}
             rowSelection={{
@@ -606,7 +737,7 @@ const RoadList: React.FC<{
           />
         </Form>
       </Flex>
-    </>
+    </IndustrialContainer>
   );
 };
 

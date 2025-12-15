@@ -10,6 +10,104 @@ import { FC } from "react";
 import { useTranslation } from "react-i18next";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
+import styled from "styled-components";
+
+const IndustrialContainer = styled.div`
+  font-family: "Roboto Mono", monospace;
+`;
+
+const IndustrialButton = styled(Button)`
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  color: #1890ff;
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1px;
+  height: 36px;
+
+  &:hover {
+    background: #f0f5ff;
+    border-color: #1890ff;
+    color: #1890ff;
+    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+  }
+
+  &.danger {
+    border-color: #ff4d4f;
+    color: #ff4d4f;
+
+    &:hover {
+      background: #fff1f0;
+      border-color: #ff7875;
+      color: #ff7875;
+      box-shadow: 0 2px 8px rgba(255, 77, 79, 0.2);
+    }
+  }
+
+  &.primary {
+    background: #1890ff;
+    border-color: #1890ff;
+    color: #ffffff;
+    font-weight: 600;
+
+    &:hover {
+      background: #40a9ff;
+      border-color: #40a9ff;
+      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
+    }
+  }
+`;
+
+const IndustrialAlert = styled(Alert)`
+  margin-bottom: 16px;
+  font-family: "Roboto Mono", monospace;
+  border: 1px solid #ff4d4f;
+  border-left: 4px solid #ff4d4f;
+  background: #fff1f0;
+
+  .ant-alert-message {
+    color: #ff4d4f;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+  }
+`;
+
+const StyledTable = styled(Table)`
+  font-family: "Roboto Mono", monospace;
+
+  .ant-table {
+    border: 1px solid #d9d9d9;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    background: #ffffff;
+  }
+
+  .ant-table-thead > tr > th {
+    background: #ffffff;
+    border-bottom: 2px solid #1890ff;
+    color: #262626;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: "Roboto Mono", monospace;
+    padding: 12px 16px;
+  }
+
+  .ant-table-tbody > tr > td {
+    padding: 12px 16px;
+    color: #595959;
+    border-bottom: 1px solid #d9d9d9;
+    font-family: "Roboto Mono", monospace;
+    font-size: 12px;
+  }
+
+  .ant-table-tbody > tr:hover > td {
+    background: #fafafa;
+  }
+`;
 
 const ShelfCategoryTable: FC<{
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -105,24 +203,18 @@ const ShelfCategoryTable: FC<{
               title={t("edit_shelf_category.delete_warning")}
               onConfirm={() => handleDelete(record.id)}
             >
-              <Button
-                icon={<DeleteOutlined color="#ff0707" />}
-                color="danger"
-                variant="filled"
-                type="link"
-              >
+              <IndustrialButton className="danger" icon={<DeleteOutlined />}>
                 {t("utils.delete")}
-              </Button>
+              </IndustrialButton>
             </Popconfirm>
 
-            <Button
-              color="primary"
-              variant="filled"
+            <IndustrialButton
+              className="primary"
               onClick={() => handleEdit(record.id)}
-              icon={<EditTwoTone twoToneColor="#33bcb7" />}
+              icon={<EditTwoTone twoToneColor="#ffffff" />}
             >
               {t("utils.edit")}
-            </Button>
+            </IndustrialButton>
           </Flex>
         );
       },
@@ -131,27 +223,25 @@ const ShelfCategoryTable: FC<{
 
   if (isLoading) return [];
   return (
-    <>
+    <IndustrialContainer>
       {contextHolders}
-      <Button
+      <IndustrialButton
+        className="primary"
         icon={<PlusOutlined />}
-        color="primary"
-        variant="filled"
         onClick={addHandler}
-        type="primary"
         style={{ marginBottom: 16 }}
       >
         {t("edit_shelf_category.add_shelf")}
-      </Button>
+      </IndustrialButton>
 
-      <Alert message={t("edit_shelf_panel.warn")} type="error" />
+      <IndustrialAlert message={t("edit_shelf_panel.warn")} type="error" />
 
-      <Table
+      <StyledTable
         dataSource={data as ShelfCategoryWithoutList[]}
         columns={columns}
         rowKey={(record) => record.id}
       />
-    </>
+    </IndustrialContainer>
   );
 };
 

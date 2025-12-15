@@ -21,8 +21,8 @@ const LeftSide: FC<{ form: FormInstance<unknown> }> = ({ form }) => {
   const taskOption = misTitle
     ?.filter((g) =>
       g.MissionTitleBridgeCategory.some(
-        (s) => s.Category?.tagName === "dynamic-mission",
-      ),
+        (s) => s.Category?.tagName === "dynamic-mission"
+      )
     )
     .map((v) => ({ value: v.id, label: v.name ?? `Mission ${v.id}` }));
 
@@ -70,6 +70,11 @@ const LeftSide: FC<{ form: FormInstance<unknown> }> = ({ form }) => {
             options={taskOption}
             placeholder={t("utils.select")}
             showSearch
+            filterOption={(input, option) =>
+              (option?.label as string)
+                ?.toLowerCase()
+                .includes(input.toLowerCase())
+            }
           />
         </Form.Item>
 
@@ -92,7 +97,12 @@ const LeftSide: FC<{ form: FormInstance<unknown> }> = ({ form }) => {
           <Select
             options={taskOption}
             placeholder={t("utils.select")}
-            showSearch
+            showSearch={{
+              filterOption: (input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase()),
+            }}
           />
         </Form.Item>
 
