@@ -809,6 +809,30 @@ export const useIsWorking = (amrId: string) => {
   return { isWorking };
 };
 
+export const useSpeed = (amrId: string) => {
+  const [speed, setSpeed] = useState<number | undefined>(0);
+  const profile$ = profiles$.pipe(
+    map((p) => p.find((x) => x.amrId === amrId)),
+    filter(isDefined),
+    share()
+  );
+  const getSpeed$ = profile$
+    .pipe(
+      map((info) => info.IO?.linear_x),
+      filter(isDefined),
+      share()
+    ) .subscribe((speed) => setSpeed(speed));
+
+
+  useEffect(() => {
+    return () => {
+      getSpeed$.unsubscribe()
+    }
+  }, [amrId])
+
+  return { speed }
+}
+
 export const useIsManual = (amrId: string) => {
   const [isManual, setIsManual] = useState<boolean | undefined>(false);
   useEffect(() => {

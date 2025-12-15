@@ -19,6 +19,7 @@ import {
   useYaw,
   useXY,
   useMaintenanceStatus,
+  useSpeed,
 } from "@/sockets/useAMRInfo";
 import { useTranslation } from "react-i18next";
 import { CarryTag, ChargingTag, IsPosAccurate, ManualTag, MissionTag, PowerTag } from "./Tags";
@@ -270,10 +271,11 @@ const LocValue: React.FC<{ amrId: string; isDark: boolean }> = memo(
   },
 );
 const CardSpeed: React.FC<{ amrId: string; isDark: boolean }> = memo(
-  ({ isDark }) => {
+  ({ isDark, amrId }) => {
+    const { speed } = useSpeed(amrId);
     return (
       <p className="value">
-        {`1.5`}
+        {speed?.toString()}
         <span className={`${isDark ? "symbol-dark" : "symbol"}`}>{"m/s"}</span>
       </p>
     );
