@@ -31,10 +31,9 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
   const [openFullInfo, setOpenFullInfo] = useState(true);
   const [openModal, setOpenModal] = useState(false);
   const errorMessage = useWarningId()?.get(id);
-
+  
   const { t } = useTranslation();
 
-  // console.log(errorMessage);
   // hover 卡片時地圖AMR的提示
   const setHintAmr = useSetAtom(hintAmr);
   // select選單篩選顯示的 AMR 系列

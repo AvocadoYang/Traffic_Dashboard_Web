@@ -141,8 +141,8 @@
   "amr_card": {
     "delete_current_mission": "刪除任務",
     "force_delete_mission": "強制刪除任務",
-    "emergency_stop": "啟動急停",
-    "continue_move": "解除急停",
+    "emergency_stop": "工作暫停",
+    "continue_move": "解除暫停",
     "update_cargo": "編輯攜帶貨物資訊",
     "metadata": "中繼資料 (只能讀取)",
     "metadata_desc": "此資料尚未定義型態於交管系統不可編輯",
