@@ -12,7 +12,11 @@ import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { nanoid } from "nanoid";
 import { useSetAtom } from "jotai";
-import { GlobalCargoInfo, GlobalCargoInfoModal } from "./jotaiState";
+import {
+  BaseGlobalCargoInfoModal,
+  GlobalCargoInfo,
+  GlobalCargoInfoModal,
+} from "./jotaiState";
 import { Cargo } from "@/types/peripheral";
 import { LayerType } from "@/api/type/useLocation";
 
@@ -34,6 +38,7 @@ const LayerForm: FC<{
   const { t } = useTranslation();
   const setCargoInfo = useSetAtom(GlobalCargoInfo);
   const [isClickBtn, setIsClickBtn] = useState(false);
+  const setIsEditModalOpen = useSetAtom(BaseGlobalCargoInfoModal);
 
   const setOpenCargoInfo = useSetAtom(GlobalCargoInfoModal);
 
@@ -71,6 +76,15 @@ const LayerForm: FC<{
       });
     });
   }, [form, layer]);
+
+  const handleEditCargo = (dbId: string, level: number, cargo: any) => {
+    setOpenEditCargoDetailModal({
+      dbId,
+      level,
+      cargo,
+    });
+    setIsEditModalOpen(false);
+  };
 
   return (
     <>
@@ -139,11 +153,11 @@ const LayerForm: FC<{
                 <Button
                   disabled={isClickBtn}
                   onClick={() =>
-                    setOpenEditCargoDetailModal({
-                      dbId: levelValue.dbId,
-                      level: Number(levelStr),
-                      cargo: levelValue.cargo,
-                    })
+                    handleEditCargo(
+                      levelValue.dbId,
+                      Number(levelStr),
+                      levelValue.cargo
+                    )
                   }
                 >
                   {t("shelf.layer_form.edit_detail")}

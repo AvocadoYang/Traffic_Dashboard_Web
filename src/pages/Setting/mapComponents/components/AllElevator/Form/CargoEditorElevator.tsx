@@ -32,7 +32,8 @@ const CargoEditorElevator: FC = () => {
   const { t } = useTranslation();
   const { data } = useCustomCargoFormat();
   const [form] = Form.useForm();
-  const open = useAtomValue(EEM);
+
+  const [open, setOpen] = useAtom(EEM);
   const [openModal, setOpenModal] = useAtom(EEC);
   const { data: elevator } = useElevatorInfo(open.locationId as string);
   const [messageApi, contextHolder] = message.useMessage();
@@ -101,6 +102,7 @@ const CargoEditorElevator: FC = () => {
 
   const handleCancel = () => {
     setOpenModal(false);
+    setOpen({ locationId: null, isOpen: false });
     form.resetFields();
   };
 
@@ -130,24 +132,17 @@ const CargoEditorElevator: FC = () => {
     form.setFieldsValue({ cargo: existingCargo });
   };
 
+  const corningOption = [
+    "6-Metal",
+    "5",
+    "6-Inno",
+    "6-Wooden",
+    "6-KC",
+    "5.5",
+    "6-TC",
+  ];
 
-    const corningOption =[
-    "6-Metal" ,
-  "5" ,
-  "6-Inno" ,
-  '6-Wooden' ,
-  "6-KC" ,
-  "5.5" ,
-  "6-TC"
-  ]
-
-   const c_typeOption = [
-            'Full',
-            'Pallet',
-            'Wooden',
-            'Unknown',
-            'Empty',
-          ];
+  const c_typeOption = ["Full", "Pallet", "Wooden", "Unknown", "Empty"];
 
   const renderInput = (
     type: string,
@@ -158,27 +153,32 @@ const CargoEditorElevator: FC = () => {
     // 🚫 disable only if editing existing cargo & field is unique_key
     const disabled = isExisting && uniqueKey === fieldName;
 
-
-     if (type.toLowerCase() === "string" && fieldName === "container_id") {
-  return (
-    <div style={{ display: "flex", gap: 8 }}>
-      <Input style={{ width: "100%" }}  />
-
-    </div>
-  );
-}
-
-     if(type.toLowerCase() === "string" && fieldName === "container_gen"){
-      return <Select options={corningOption.map((c)=> {
-        return {value: c}
-      })}></Select>
-    }
-     if(type.toLowerCase() === "string" && fieldName === "container_type"){
-      return <Select options={c_typeOption.map((c)=> {
-        return {value: c}
-      })}></Select>
+    if (type.toLowerCase() === "string" && fieldName === "container_id") {
+      return (
+        <div style={{ display: "flex", gap: 8 }}>
+          <Input style={{ width: "100%" }} />
+        </div>
+      );
     }
 
+    if (type.toLowerCase() === "string" && fieldName === "container_gen") {
+      return (
+        <Select
+          options={corningOption.map((c) => {
+            return { value: c };
+          })}
+        ></Select>
+      );
+    }
+    if (type.toLowerCase() === "string" && fieldName === "container_type") {
+      return (
+        <Select
+          options={c_typeOption.map((c) => {
+            return { value: c };
+          })}
+        ></Select>
+      );
+    }
 
     switch (type.toLowerCase()) {
       case "string":
@@ -198,7 +198,8 @@ const CargoEditorElevator: FC = () => {
   };
 
   const handleOk = () => {
-    if (!elevator || !open || !open.locationId) return;
+    console.log("click");
+    if (!open || !open.locationId) return;
 
     form
       .validateFields()

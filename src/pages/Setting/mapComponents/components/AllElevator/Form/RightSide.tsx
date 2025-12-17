@@ -1,6 +1,7 @@
 import useElevatorInfo from "@/api/useElevatorInfo";
 import {
   EEC,
+  EEM,
   IsEditingQuickRoads,
   QuickRoadsArray,
 } from "@/pages/Setting/utils/settingJotai";
@@ -28,7 +29,7 @@ const RightSide: FC<{
   const setQuickRoadArr = useSetAtom(QuickRoadsArray);
   const { data: elevator } = useElevatorInfo(locationId);
   const setOpenModal = useSetAtom(EEC);
-
+  const setOpenFirst = useSetAtom(EEM);
   const handleCon = () => {
     if (quickRoad) {
       setQuickRoadArr((prev) => [...prev, locationId]);
@@ -36,6 +37,9 @@ const RightSide: FC<{
     }
     if (!elevator) return;
 
+    setOpenFirst((prev) => {
+      return { locationId: prev.locationId, isOpen: false };
+    });
     setOpenModal(true);
   };
 
