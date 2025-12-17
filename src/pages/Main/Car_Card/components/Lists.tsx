@@ -21,7 +21,15 @@ import {
   useMaintenanceStatus,
 } from "@/sockets/useAMRInfo";
 import { useTranslation } from "react-i18next";
-import { CarryTag, ChargingTag, IsPosAccurate, ManualTag, MissionTag, PowerTag } from "./Tags";
+import {
+  CarryTag,
+  ChargingTag,
+  IsPause,
+  IsPosAccurate,
+  ManualTag,
+  MissionTag,
+  PowerTag,
+} from "./Tags";
 import useRoadConditions from "@/sockets/useAmrRoadConditions";
 
 const shak = keyframes`
@@ -235,21 +243,19 @@ export const RowOne: React.FC<{ isDark: boolean; amrId: string }> = memo(
           >
             {`${t("utils.category")}: ${AmrID.category}`}
           </span>
-          {
-            isOnline ?  
-             <p className={`amr-is-registerd`} >
-            {`-- ${t("utils.is_registered")} --`}
-          </p> :  
-          <p
-            className={`amr-is-registerd`}
-          >
-            {`-- ${t("utils.not_registered")} --`}
-          </p>
-          }
+          {isOnline ? (
+            <p className={`amr-is-registerd`}>
+              {`-- ${t("utils.is_registered")} --`}
+            </p>
+          ) : (
+            <p className={`amr-is-registerd`}>
+              {`-- ${t("utils.not_registered")} --`}
+            </p>
+          )}
         </AmrTitle>
       </CarRow1>
     );
-  },
+  }
 );
 
 // ======Second row in info card ============
@@ -267,7 +273,7 @@ const LocValue: React.FC<{ amrId: string; isDark: boolean }> = memo(
         {`${closeLoc ? closeLoc : "--"}`}
       </p>
     );
-  },
+  }
 );
 const CardSpeed: React.FC<{ amrId: string; isDark: boolean }> = memo(
   ({ isDark }) => {
@@ -277,7 +283,7 @@ const CardSpeed: React.FC<{ amrId: string; isDark: boolean }> = memo(
         <span className={`${isDark ? "symbol-dark" : "symbol"}`}>{"m/s"}</span>
       </p>
     );
-  },
+  }
 );
 const Power: React.FC<{ amrId: string; isDark: boolean }> = memo(
   ({ amrId, isDark }) => {
@@ -296,7 +302,7 @@ const Power: React.FC<{ amrId: string; isDark: boolean }> = memo(
         </p>
       </>
     );
-  },
+  }
 );
 const Yaw: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const { yaw } = useYaw(amrId);
@@ -453,7 +459,7 @@ export const RowThread: React.FC<{ isDark: boolean; amrId: string }> = memo(
         <Statue amrId={amrId}></Statue>
       </CarRow3>
     );
-  },
+  }
 );
 
 // ======= Fourth row in info ===============
@@ -497,7 +503,7 @@ export const RowFourth: React.FC<{ isDark: boolean; amrId: string }> = memo(
         <RoadStatue amrId={amrId}></RoadStatue>
       </CarRow3>
     );
-  },
+  }
 );
 
 export const RowFifth: React.FC<{ isDark: boolean; amrId: string }> = memo(
@@ -511,14 +517,14 @@ export const RowFifth: React.FC<{ isDark: boolean; amrId: string }> = memo(
         <MaintenanceStatue amrId={amrId}></MaintenanceStatue>
       </CarRow3>
     );
-  },
+  }
 );
 
 // ======= Tag Wrap ==============
 
 export const CarTag: React.FC<{ openFullInfo: boolean; amrId: string }> = memo(
   ({ openFullInfo, amrId }) => {
-     const { isOverdue } = useIsLogIn(amrId);
+    const { isOverdue } = useIsLogIn(amrId);
     return (
       <Flex
         justify="center"
@@ -527,13 +533,14 @@ export const CarTag: React.FC<{ openFullInfo: boolean; amrId: string }> = memo(
         wrap
         gap={"small"}
       >
-        { isOverdue ?  <></> : <ManualTag amrId={amrId} />}
+        {isOverdue ? <></> : <ManualTag amrId={amrId} />}
         <MissionTag amrId={amrId} />
         <CarryTag amrId={amrId} />
         <ChargingTag amrId={amrId} />
         <PowerTag amrId={amrId} />
-        { isOverdue ? <></> :<IsPosAccurate amrId={amrId}></IsPosAccurate>}
+        <IsPause amrId={amrId} />
+        {isOverdue ? <></> : <IsPosAccurate amrId={amrId}></IsPosAccurate>}
       </Flex>
     );
-  },
+  }
 );

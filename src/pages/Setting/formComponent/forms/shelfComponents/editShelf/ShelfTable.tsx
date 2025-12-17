@@ -29,33 +29,160 @@ import { FilterDropdownProps } from "antd/es/table/interface";
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
 
 const ExpandedRowWrapper = styled.div`
-  padding: 16px;
+  padding: 20px;
   background: #fafafa;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #d9d9d9;
+  border-left: 4px solid #1890ff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  font-family: "Roboto Mono", monospace;
 `;
 
 const ConfigCard = styled(Card)`
   margin-bottom: 16px;
-  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+
   .ant-card-head {
-    background: #f0f2f5;
-    border-radius: 8px 8px 0 0;
+    background: #ffffff;
+    border-bottom: 2px solid #fa8c16;
+    padding: 10px 16px;
+    font-family: "Roboto Mono", monospace;
+    color: #fa8c16;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 13px;
   }
+
   .ant-card-body {
-    padding: 16px;
+    padding: 20px;
+    background: #ffffff;
+  }
+
+  .ant-descriptions-bordered .ant-descriptions-item-label {
+    background: #fafafa;
+    font-weight: 500;
+    color: #262626;
+    font-family: "Roboto Mono", monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-right: 1px solid #d9d9d9;
+  }
+
+  .ant-descriptions-bordered .ant-descriptions-item-content {
+    background: #ffffff;
+    color: #595959;
+    font-family: "Roboto Mono", monospace;
+    font-size: 12px;
+  }
+
+  .ant-descriptions-bordered .ant-descriptions-row {
+    border-bottom: 1px solid #d9d9d9;
   }
 `;
 
 const LevelTag = styled(Tag)`
   margin-right: 8px;
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 1px solid currentColor;
+  box-shadow: 0 1px 4px rgba(24, 144, 255, 0.15);
 `;
 
 const Wrapper = styled.div<{ $hasSelect: boolean }>`
-  display: flex;
-  align-items: center;
   display: ${(prop) => (prop.$hasSelect ? "none" : "flex")};
+  align-items: center;
+  font-family: "Roboto Mono", monospace;
+
+  .ant-table {
+    border: 1px solid #d9d9d9;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    background: #ffffff;
+
+    &:hover {
+      border-color: #bfbfbf;
+    }
+  }
+
+  .ant-table-thead > tr > th {
+    background: #ffffff;
+    border-bottom: 2px solid #1890ff;
+    color: #262626;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: "Roboto Mono", monospace;
+    padding: 12px 16px;
+  }
+
+  .ant-table-tbody > tr > td {
+    padding: 12px 16px;
+    color: #595959;
+    border-bottom: 1px solid #d9d9d9;
+    font-family: "Roboto Mono", monospace;
+    font-size: 12px;
+  }
+
+  .ant-table-tbody > tr:hover > td {
+    background: #fafafa;
+  }
+
+  .ant-table-tbody > tr.ant-table-row-selected > td {
+    background: #f0f5ff;
+    border-left: 3px solid #1890ff;
+  }
+
+  .ant-table-tbody > tr.ant-table-row-selected:hover > td {
+    background: #e6f7ff;
+  }
+
+  .ant-pagination-item {
+    border: 1px solid #d9d9d9;
+    font-weight: 500;
+    font-family: "Roboto Mono", monospace;
+  }
+
+  .ant-pagination-item-active {
+    background: #1890ff;
+    border-color: #1890ff;
+
+    a {
+      color: #ffffff;
+    }
+  }
+
+  .ant-table-filter-trigger {
+    color: #8c8c8c;
+
+    &.active {
+      color: #1890ff;
+    }
+  }
+`;
+
+const SearchDropdown = styled.div`
+  padding: 8px;
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+  .ant-input {
+    font-family: "Roboto Mono", monospace;
+    font-size: 12px;
+  }
+
+  .ant-btn {
+    font-family: "Roboto Mono", monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
 `;
 
 type ShelfCell = {
@@ -112,7 +239,7 @@ const ShelfTable: FC<{
       clearFilters,
       close,
     }) => (
-      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+      <SearchDropdown onKeyDown={(e) => e.stopPropagation()}>
         <Input
           ref={searchInput}
           placeholder={`Search ${dataIndex}`}
@@ -162,10 +289,13 @@ const ShelfTable: FC<{
             {t("utils.cancel")}
           </Button>
         </Space>
-      </div>
+      </SearchDropdown>
     ),
     filterIcon: (filtered: boolean) => (
-      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+      <SearchOutlined
+        style={{ color: filtered ? "#1890ff" : "#8c8c8c" }}
+        className={filtered ? "active" : ""}
+      />
     ),
     onFilter: (value, record) => {
       return record.Loc.locationId

@@ -147,7 +147,8 @@
     "metadata": "中繼資料 (只能讀取)",
     "metadata_desc": "此資料尚未定義型態於交管系統不可編輯",
     "add_cargo": "新增貨物資訊",
-    "add_desc": "新增代表此車輛同時攜帶1個以上的貨物, 放貨後會將所有貨物資訊轉移到放貨點"
+    "add_desc": "新增代表此車輛同時攜帶1個以上的貨物, 放貨後會將所有貨物資訊轉移到放貨點",
+    "cargo_item": "貨物資訊"
   },
 
   "scale_pad": {
@@ -170,6 +171,7 @@
     "low_power": "低電量",
     "positioning_normal": "定位正常",
     "positioning_inaccurate": "定位異常",
+    "isPause": "急停",
     "unknown": "未知"
   },
   "locations": {
@@ -1028,6 +1030,27 @@
     "edit_charge_station_icon_style": {
       "title": "調整充電站icon位置",
       "edit_position": "調整位置"
+    },
+    "edit_peripheral_style": {
+      "title": "編輯周邊設備樣式 - 位置 {{location}}",
+      "position_controls": "位置控制 (按住重複)",
+      "rotation_controls": "旋轉控制",
+      "scale_controls": "縮放控制",
+      "manual_input": "手動輸入",
+      "translate_x": "X 位移",
+      "translate_y": "Y 位移",
+      "scale": "縮放",
+      "rotate": "旋轉",
+      "flex_direction": "彈性方向",
+      "move_up": "上移",
+      "move_down": "下移",
+      "move_left": "左移",
+      "move_right": "右移",
+      "rotate_clockwise": "順時針旋轉",
+      "rotate_counter_clockwise": "逆時針旋轉",
+      "scale_up": "放大",
+      "scale_down": "縮小",
+      "error_message": "無法更新。請聯絡 FAE 工程師"
     }
   },
 

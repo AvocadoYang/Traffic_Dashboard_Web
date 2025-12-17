@@ -16,6 +16,7 @@ import {
   CheckCircleOutlined,
   DeleteTwoTone,
   FormOutlined,
+  ToolOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@tanstack/react-query";
@@ -27,35 +28,143 @@ import SubmitButton from "@/utils/SubmitButton";
 
 const { Search } = Input;
 
+const IndustrialModal = styled(Modal)`
+  .ant-modal-content {
+    background: #f5f5f5;
+    font-family: "Roboto Mono", monospace;
+  }
+
+  .ant-modal-header {
+    background: #ffffff;
+    border-bottom: 2px solid #1890ff;
+    padding: 16px 24px;
+  }
+
+  .ant-modal-title {
+    color: #1890ff;
+    font-family: "Roboto Mono", monospace;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .ant-modal-body {
+    padding: 24px;
+    background: #f5f5f5;
+  }
+
+  .ant-form-item-label > label {
+    font-family: "Roboto Mono", monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #595959;
+    font-weight: 600;
+  }
+
+  .ant-input,
+  .ant-select-selector,
+  .ant-input-number {
+    font-family: "Roboto Mono", monospace;
+    border: 1px solid #d9d9d9;
+
+    &:hover {
+      border-color: #1890ff;
+    }
+
+    &:focus {
+      border-color: #1890ff;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+    }
+  }
+`;
+
 const ListWrapper = styled.div`
   display: flex;
   justify-content: center;
   flex-direction: column;
   align-items: center;
-  gap: 0.5em;
+  gap: 8px;
+  padding: 16px;
+  background: #fafafa;
+  border: 1px solid #d9d9d9;
+  border-radius: 0;
 `;
 
 const Item = styled.div`
   display: flex;
-  width: 15em;
-  height: 2em;
-  text-align: center;
-  box-shadow: 5px 1px 10px 2px #0000000f;
-  justify-content: center;
+  width: 100%;
+  min-height: 48px;
   align-items: center;
-  font-weight: 700;
-  font-size: 1.3em;
-  color: gray;
-  padding-right: 1em;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  border-left: 3px solid #1890ff;
+  padding: 8px 16px;
+  font-family: "Roboto Mono", monospace;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #fafafa;
+    border-left-color: #fa8c16;
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
 `;
 
 const WordTitle = styled.span`
-  margin: 0;
-  width: 100%;
+  flex: 1;
+  font-weight: 600;
+  font-size: 11px;
+  color: #262626;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 `;
 
 const Word = styled.div`
-  width: 100%;
+  min-width: 80px;
+  text-align: right;
+  font-weight: 600;
+  font-size: 13px;
+  color: #1890ff;
+`;
+
+const IconButton = styled.span`
+  cursor: pointer;
+  color: #8c8c8c;
+  transition: color 0.2s;
+  font-size: 16px;
+
+  &:hover {
+    color: #1890ff;
+  }
+
+  &.delete {
+    color: #ff4d4f;
+
+    &:hover {
+      color: #ff7875;
+    }
+  }
+`;
+
+const SectionHeader = styled.div`
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  border-left: 3px solid #fa8c16;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  font-family: "Roboto Mono", monospace;
+  color: #fa8c16;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 `;
 
 type EditType = {
@@ -106,7 +215,6 @@ const ShelfCategoryForm: FC<{
   const onAdd = (value: string) => {
     const numberRegex = /^[0-9]+$/;
 
-    // Check if the value contains only numbers
     if (!numberRegex.test(value)) {
       messageApi.warning(t("edit_shelf_category.add_number_warning"));
       return;
@@ -118,7 +226,6 @@ const ShelfCategoryForm: FC<{
       return;
     }
     if (!cateHeight.includes(convertValue)) {
-      // Value is not a duplicate, add it to the array
       setCateHeight([...cateHeight, convertValue].sort((a, b) => a - b));
       setHasDelete(true);
     } else {
@@ -139,6 +246,7 @@ const ShelfCategoryForm: FC<{
     setCateHeight(cateHeight.filter((o) => o !== id));
     setHasDelete(true);
   };
+
   const onGenderChange = (value: string) => {
     switch (value) {
       case "type_1":
@@ -153,6 +261,7 @@ const ShelfCategoryForm: FC<{
         break;
     }
   };
+
   useEffect(() => {
     if (!targetCategory) return;
     form.setFieldValue("name", targetCategory.name);
@@ -165,8 +274,12 @@ const ShelfCategoryForm: FC<{
   return (
     <>
       {contextHolders}
-      <Modal
-        title={t("edit_shelf_category.edit_shelf_category")}
+      <IndustrialModal
+        title={
+          <>
+            <ToolOutlined /> {t("edit_shelf_category.edit_shelf_category")}
+          </>
+        }
         open={openModel}
         onCancel={() => setOpenModel(false)}
         footer={() => (
@@ -174,6 +287,7 @@ const ShelfCategoryForm: FC<{
             <SubmitButton form={form} onOk={editHandler} isModel />
           </>
         )}
+        width={600}
       >
         <Row gutter={[24, 12]}>
           <Col span={24}>
@@ -223,9 +337,13 @@ const ShelfCategoryForm: FC<{
           </Col>
 
           <Col span={24}>
+            <SectionHeader>
+              <ToolOutlined />
+              {t("edit_shelf_category.every_level")}
+            </SectionHeader>
             <ListWrapper>
-              {cateHeight?.map((v, i) => {
-                return (
+              {cateHeight && cateHeight.length > 0 ? (
+                cateHeight.map((v, i) => (
                   <LevelStrip
                     key={`level-${i}`}
                     v={v}
@@ -233,12 +351,24 @@ const ShelfCategoryForm: FC<{
                     onDelete={onDelete}
                     onEdit={onEdit}
                   />
-                );
-              })}
+                ))
+              ) : (
+                <div
+                  style={{
+                    padding: "20px",
+                    color: "#8c8c8c",
+                    fontSize: "11px",
+                    textTransform: "uppercase",
+                    letterSpacing: "2px",
+                  }}
+                >
+                  [ {t("utils.no")} ]
+                </div>
+              )}
             </ListWrapper>
           </Col>
         </Row>
-      </Modal>
+      </IndustrialModal>
     </>
   );
 };
@@ -263,7 +393,7 @@ const LevelStrip: FC<{
   };
 
   return (
-    <Item key={i}>
+    <Item>
       <WordTitle>
         {t("edit_shelf_category.f1")}
         {i + 1}
@@ -271,19 +401,12 @@ const LevelStrip: FC<{
       </WordTitle>
 
       {isEdit ? (
-        <WordTitle>
-          <InputNumber
-            min={1}
-            onChange={(e) => setEditValue(e as number)}
-            placeholder={v.toString()}
-          />
-        </WordTitle>
-      ) : (
-        []
-      )}
-
-      {isEdit ? (
-        []
+        <InputNumber
+          min={1}
+          onChange={(e) => setEditValue(e as number)}
+          placeholder={v.toString()}
+          style={{ width: 100 }}
+        />
       ) : (
         <Word>
           {v}
@@ -291,15 +414,25 @@ const LevelStrip: FC<{
         </Word>
       )}
 
-      {isEdit ? <CheckCircleOutlined onClick={() => handleSaveEdit()} /> : []}
+      {isEdit && (
+        <IconButton onClick={() => handleSaveEdit()}>
+          <CheckCircleOutlined />
+        </IconButton>
+      )}
 
-      {isEdit ? [] : <FormOutlined onClick={() => handleShowEdit()} />}
+      {!isEdit && (
+        <IconButton onClick={() => handleShowEdit()}>
+          <FormOutlined />
+        </IconButton>
+      )}
 
       <Popconfirm
         title={t("edit_shelf_category.delete_warning")}
         onConfirm={() => onDelete(Number(v))}
       >
-        <DeleteTwoTone twoToneColor="#a61d24" />
+        <IconButton className="delete">
+          <DeleteTwoTone twoToneColor="#ff4d4f" />
+        </IconButton>
       </Popconfirm>
     </Item>
   );

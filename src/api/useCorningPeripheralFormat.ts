@@ -14,7 +14,7 @@ const schema = object({
       quantity: number().required(),
       peripheralNameDBId: string().required(),
       level: number().required(),
-    }).optional(),
+    }).optional()
   ),
 }).required();
 

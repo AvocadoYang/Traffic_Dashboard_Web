@@ -3,6 +3,7 @@ import {
   useIsCarry,
   useIsCharging,
   useIsManual,
+  useIsPause,
   useIsWorking,
   usePosIsAccurate,
 } from "@/sockets/useAMRInfo";
@@ -90,17 +91,26 @@ export const PowerTag: React.FC<{ amrId }> = memo(({ amrId }) => {
   );
 });
 
-
 export const IsPosAccurate: React.FC<{ amrId }> = memo(({ amrId }) => {
-  const { isPosAccurate } = usePosIsAccurate(amrId)
+  const { isPosAccurate } = usePosIsAccurate(amrId);
   const { t } = useTranslation();
 
   return (
-    <Tag
-      color={ isPosAccurate ? "#8ed476ff": "volcano"}
-      style={{ margin: 0 }}
-    >
-      { isPosAccurate ? `${t("mode.positioning_normal")}` : `${t("mode.positioning_inaccurate")}`}
+    <Tag color={isPosAccurate ? "#8ed476ff" : "volcano"} style={{ margin: 0 }}>
+      {isPosAccurate
+        ? `${t("mode.positioning_normal")}`
+        : `${t("mode.positioning_inaccurate")}`}
+    </Tag>
+  );
+});
+
+export const IsPause: React.FC<{ amrId }> = memo(({ amrId }) => {
+  const { isPause } = useIsPause(amrId);
+  const { t } = useTranslation();
+
+  return (
+    <Tag color={isPause ? "volcano" : "#e3e4e3"} style={{ margin: 0 }}>
+      {t("mode.isPause")}
     </Tag>
   );
 });

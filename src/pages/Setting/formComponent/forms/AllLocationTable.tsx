@@ -287,10 +287,14 @@ const EditableCell: React.FC<EditableCellProps> = ({
       inputNode = <InputNumber style={{ width: "100%" }} />;
       break;
     case "areaType":
-      inputNode = <Select options={pointTypeOption} style={{ width: "100%" }} />;
+      inputNode = (
+        <Select options={pointTypeOption} style={{ width: "100%" }} />
+      );
       break;
     case "canRotate":
-      inputNode = <Select options={canRotateOption} style={{ width: "100%" }} />;
+      inputNode = (
+        <Select options={canRotateOption} style={{ width: "100%" }} />
+      );
       break;
     default:
       inputNode = <InputNumber style={{ width: "100%" }} />;
@@ -474,7 +478,9 @@ const AllLocationTable: React.FC<{
     const isNegative = Number(payload.locationId) <= 0;
 
     if (isNegative) {
-      messageApi.warning(t("edit_location_panel.save_pose_notify.is_a_navigate"));
+      messageApi.warning(
+        t("edit_location_panel.save_pose_notify.is_a_navigate")
+      );
       return;
     }
 
@@ -519,7 +525,7 @@ const AllLocationTable: React.FC<{
       dataIndex: "locationId",
       key: "locationId",
       editable: true,
-      width: "16%",
+      width: "30%",
       sorter: (a: LocationType, b: LocationType) =>
         Number(a.locationId) - Number(b.locationId),
       ...getColumnSearchProps("locationId"),
@@ -528,7 +534,7 @@ const AllLocationTable: React.FC<{
     {
       title: "X",
       dataIndex: "x",
-      width: "12%",
+      width: "30%",
       editable: true,
       key: "x",
       render: (text: string) => <CoordinateText>{text}</CoordinateText>,
@@ -536,7 +542,7 @@ const AllLocationTable: React.FC<{
     {
       title: "Y",
       dataIndex: "y",
-      width: "12%",
+      width: "30%",
       editable: true,
       key: "y",
       render: (text: string) => <CoordinateText>{text}</CoordinateText>,

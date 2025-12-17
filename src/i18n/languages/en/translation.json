@@ -148,7 +148,8 @@
     "metadata": "Metadata (can only read)",
     "metadata_desc": "This data has not been defined and cannot be edited in the traffic control system",
     "add_cargo": "Add cargo information",
-    "add_desc": "Added means this vehicle carries more than one cargo at the same time. After releasing the cargo, all cargo information will be transferred to the release point."
+    "add_desc": "Added means this vehicle carries more than one cargo at the same time. After releasing the cargo, all cargo information will be transferred to the release point.",
+    "cargo_item": "cargo Items"
   },
 
   "scale_pad": {
@@ -171,6 +172,7 @@
     "low_power": "low power",
     "positioning_normal": "position normal",
     "positioning_inaccurate": "position inaccurate",
+    "isPause": "Pause",
     "unknown": "unknown"
   },
 
@@ -1026,6 +1028,27 @@
     "edit_charge_station_icon_style": {
       "title": "edit charge station icon style",
       "edit_position": "Edit Style"
+    },
+    "edit_peripheral_style": {
+      "title": "Edit Peripheral Style - Location {{location}}",
+      "position_controls": "Position Controls (Hold to repeat)",
+      "rotation_controls": "Rotation Controls",
+      "scale_controls": "Scale Controls",
+      "manual_input": "Manual Input",
+      "translate_x": "Translate X",
+      "translate_y": "Translate Y",
+      "scale": "Scale",
+      "rotate": "Rotate",
+      "flex_direction": "Flex Direction",
+      "move_up": "Move Up",
+      "move_down": "Move Down",
+      "move_left": "Move Left",
+      "move_right": "Move Right",
+      "rotate_clockwise": "Rotate Clockwise",
+      "rotate_counter_clockwise": "Rotate Counter-clockwise",
+      "scale_up": "Scale Up",
+      "scale_down": "Scale Down",
+      "error_message": "Unable to update. Please contact FAE engineer"
     }
   },
 
