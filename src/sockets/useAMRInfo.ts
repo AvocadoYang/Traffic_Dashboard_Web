@@ -208,6 +208,7 @@ const schema = () =>
 
       rosError: string().optional(),
       doingTask: boolean().optional(),
+      isPause: boolean().optional(),
       rosStatus: string().optional(),
       arriveInit: boolean().optional().default(false),
       isPosAccurate: boolean().optional(),
@@ -558,6 +559,7 @@ export const useAmrDetail = (amrId: string) => {
 
 export const useBattery = (amrId: string) => {
   const [battery, setBattery] = useState<number | undefined>(undefined);
+
   useEffect(() => {
     const profile$ = profiles$.pipe(
       map((p) => p.find((x) => x.amrId === amrId)),
@@ -580,7 +582,9 @@ export const useBattery = (amrId: string) => {
 };
 
 export const usePosIsAccurate = (amrId: string) => {
-   const [isPosAccurate, setIsPoseAccurate] = useState<boolean | undefined>(undefined);
+  const [isPosAccurate, setIsPoseAccurate] = useState<boolean | undefined>(
+    undefined
+  );
   useEffect(() => {
     const profile$ = profiles$.pipe(
       map((p) => p.find((x) => x.amrId === amrId)),
@@ -601,7 +605,33 @@ export const usePosIsAccurate = (amrId: string) => {
   }, [amrId]);
 
   return { isPosAccurate };
-}
+};
+
+export const useIsPause = (amrId: string) => {
+  const [isPosAccurate, setIsPoseAccurate] = useState<boolean | undefined>(
+    undefined
+  );
+  useEffect(() => {
+    const profile$ = profiles$.pipe(
+      map((p) => p.find((x) => x.amrId === amrId)),
+      filter(isDefined),
+      share()
+    );
+    const isAccurate$ = profile$
+      .pipe(
+        map((info) => info.isPause),
+        filter((info) => info !== undefined),
+        distinctUntilChanged()
+      )
+      .subscribe((isAccurate) => setIsPoseAccurate(isAccurate));
+
+    return () => {
+      isAccurate$.unsubscribe();
+    };
+  }, [amrId]);
+
+  return { isPause: isPosAccurate };
+};
 
 export const useYaw = (amrId: string) => {
   const [yaw, setYaw] = useState<number | undefined>(0);
@@ -613,9 +643,11 @@ export const useYaw = (amrId: string) => {
     );
     const yaw$ = profile$
       .pipe(
-        map((info) => {return { amrId: info.amrId, yaw: info.pose?.yaw}}),
+        map((info) => {
+          return { amrId: info.amrId, yaw: info.pose?.yaw };
+        }),
         map((data) => data.yaw),
-        filter((v)=> v !== undefined),
+        filter((v) => v !== undefined),
         filter((v) => v !== 0),
         distinctUntilChanged(
           (pre, current) => JSON.stringify(pre) === JSON.stringify(current)

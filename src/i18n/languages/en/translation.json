@@ -172,6 +172,7 @@
     "low_power": "low power",
     "positioning_normal": "position normal",
     "positioning_inaccurate": "position inaccurate",
+    "isPause": "Pause",
     "unknown": "unknown"
   },
 

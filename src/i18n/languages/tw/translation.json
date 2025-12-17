@@ -171,6 +171,7 @@
     "low_power": "低電量",
     "positioning_normal": "定位正常",
     "positioning_inaccurate": "定位異常",
+    "isPause": "急停",
     "unknown": "未知"
   },
   "locations": {

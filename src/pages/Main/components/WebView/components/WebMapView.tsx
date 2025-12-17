@@ -24,6 +24,8 @@ import StatusPanel from "../../PadViwe/components/PadMapContent/AllChargeStation
 import useDetectLoc from "../hooks/useDetectLoc";
 import useMouseClick from "../hooks/useMouseClick";
 import ScalePad from "./ScalePad";
+import AllGateWaitPoint from "../../PadViwe/components/PadMapContent/AllGateWaitPoint/AllGateWaitPoint";
+import AllLiftGate from "../../PadViwe/components/PadMapContent/AllGate/AllLiftGate";
 
 const WebMapView: React.FC<{
   mapRef: RefObject<HTMLDivElement>;
@@ -78,6 +80,8 @@ const WebMapView: React.FC<{
           <AllCargo></AllCargo>
           <AllElevator></AllElevator>
           <AllConveyor></AllConveyor>
+          <AllGateWaitPoint></AllGateWaitPoint>
+          <AllLiftGate></AllLiftGate>
           {showLocation ? <AllLocation mapRef={mapRef}></AllLocation> : null}
           {showRoad ? <AllRoads></AllRoads> : null}
           {showLocationToolTip ? <ToolTip /> : []}
