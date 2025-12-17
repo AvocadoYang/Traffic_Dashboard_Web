@@ -429,7 +429,10 @@ export const useIsLogIn = (amrId: string) => {
           delay: info.networkDelay,
           isOverdue: info.isOverdue,
           isPosAccurate: info.isPosAccurate,
-        }))
+        })),
+                distinctUntilChanged(
+          (pre, current) => JSON.stringify(pre) === JSON.stringify(current)
+        )
       )
       .subscribe(({ isOnline, delay, isOverdue, isPosAccurate }) => {
         setData({
@@ -819,6 +822,7 @@ export const useSpeed = (amrId: string) => {
   const getSpeed$ = profile$
     .pipe(
       map((info) => info.IO?.linear_x),
+     //tap((data) => { if(amrId === "anfa-ps14-16-002") { console.log(data)}}),
       filter(isDefined),
       share()
     ) .subscribe((speed) => setSpeed(speed));

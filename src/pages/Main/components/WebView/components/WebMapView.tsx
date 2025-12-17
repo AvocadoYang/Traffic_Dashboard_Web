@@ -73,7 +73,7 @@ const WebMapView: React.FC<{
         []
       ) : (
         <>
-          <AllLocation mapRef={mapRef}></AllLocation>
+          {/* <AllLocation mapRef={mapRef}></AllLocation> */}
           <AllAMRs></AllAMRs>
           <AllCargo></AllCargo>
           <AllElevator></AllElevator>

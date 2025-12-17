@@ -25,7 +25,7 @@ export const DICT = [
   ["PALLET_RESCUE", "🤖自動救位中"],
   ["PALLET_MOVEBASE_REALIGN", "⏳初步定位中"],
   ["PALLET_ACTION_DONE", "🎉傳板完成"],
-  ["MANUAL", "手動模式"],
+  ["MANUAL", "維修模式"],
   ["TURNING_OFF_CHARGE", "關閉充電"],
   ["completed", "😎 已完成"],
   ["executing", "🤖 進行中"],

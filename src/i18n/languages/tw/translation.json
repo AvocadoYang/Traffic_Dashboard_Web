@@ -105,7 +105,7 @@
     "completed_at": "完成時間",
     "battery_cost": "電池耗損",
     "distance_traveled": "移動距離（公尺）",
-    "manual_mode": "手動模式",
+    "manual_mode": "維修模式",
     "manual": "手動",
     "auto": "自動",
     "emergency_btn": "緊急按鈕",
@@ -163,7 +163,7 @@
   },
 
   "mode": {
-    "manual_mode": "手動模式",
+    "manual_mode": "維修模式",
     "is_mission": "任務中",
     "is_carry": "攜貨",
     "is_charge": "充電中",
@@ -1486,7 +1486,7 @@
     "manual_operation": "手動操作",
     "show_manual": "顯示手動操作",
     "hide_manual": "隱藏手動操作",
-    "reset": "復歸",
+    "reset": "重新準備",
     "force_to_standby": "強制狀態回待命",
     "stop": "停止",
     "continue": "解除停止",
@@ -1589,7 +1589,7 @@
 
     "cat5": "AGV 狀態問題",
     "cat5_1": "無法取得 AGV 狀態或負載資訊",
-    "cat5_2": "AGV 正處於手動模式",
+    "cat5_2": "AGV 正處於維修模式",
     "cat5_3": "AGV 尚未註冊",
     "cat5_4": "AGV 已在執行其他任務",
 
