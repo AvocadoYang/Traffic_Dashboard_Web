@@ -19,6 +19,7 @@ import {
   useYaw,
   useXY,
   useMaintenanceStatus,
+  useSpeed,
 } from "@/sockets/useAMRInfo";
 import { useTranslation } from "react-i18next";
 import {
@@ -276,11 +277,12 @@ const LocValue: React.FC<{ amrId: string; isDark: boolean }> = memo(
   }
 );
 const CardSpeed: React.FC<{ amrId: string; isDark: boolean }> = memo(
-  ({ isDark }) => {
+  ({ isDark, amrId }) => {
+    const { speed } = useSpeed(amrId);
     return (
       <p className="value">
-        {`1.5`}
-        <span className={`${isDark ? "symbol-dark" : "symbol"}`}>{"m/s"}</span>
+        {Math.abs((Number(speed) * 100)).toFixed(2).toString()}
+        <span className={`${isDark ? "symbol-dark" : "symbol"}`}>{"cm/s"}</span>
       </p>
     );
   }
