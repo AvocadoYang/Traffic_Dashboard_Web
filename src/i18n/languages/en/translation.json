@@ -7,6 +7,7 @@
     "open": "Open",
     "detail": "Detail",
     "confirm": "Confirm",
+    "passwordMin": "At least 6 characters",
     "location": "Location",
     "search": "search",
     "reset": "reset",
@@ -1689,5 +1690,25 @@
     "drag_file_text": "Click or drag file to this area",
     "png_hint": "Support PNG format only. File name must be alphanumeric.",
     "file_required": "Required"
+  },
+  "changePassword": {
+    "title": "Change Password",
+    "oldPassword": "Old Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "passwordNotMatch": "Passwords do not match"
+  },
+  "create_user": {
+    "title": "CREATE USER",
+    "username": "NEW USER NAME",
+    "password": "PASSWORD",
+    "role": "ROLE",
+    "passwordMin": "At least 8 characters",
+    "passwordNoSpace": "Password cannot contain spaces",
+    "passwordCase": "Must contain at least one uppercase and one lowercase letter",
+    "roles": {
+      "GENERALLY": "General User",
+      "ENGINEER": "Engineer"
+    }
   }
 }

@@ -8,6 +8,8 @@ import {
   message,
   Tooltip,
   Select,
+  Avatar,
+  Dropdown,
 } from "antd";
 import "./component.css";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -32,6 +34,10 @@ import styled from "styled-components";
 import { useTimelineSocket } from "@/sockets/useTimelineSocket";
 import dayjs from "dayjs";
 import MissionBtn from "@/pages/Main/components/WebView/components/MissionBtn";
+import ChangePasswordModal from "./ChangePasswordModal";
+import CreateUserModel from "./CreateUserModel";
+import { jwtDecode } from "jwt-decode";
+
 const { Header: AntdHeader } = Layout;
 
 // Industrial Header Styling - Light Mode
@@ -259,6 +265,8 @@ const MobileMenu = styled(Menu)`
     }
   }
 `;
+const token = localStorage.getItem("token");
+const username = token ? jwtDecode<{ username: string }>(token).username : "";
 
 const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
   const { t, i18n } = useTranslation();
@@ -273,6 +281,8 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
   const { refetch: amrNameRefetch } = useName();
   const [messageApi, contextHolder] = message.useMessage();
   const location = useLocation();
+  const [openChangePassword, setOpenChangePassword] = useState(false);
+  const [openCreateUser, setOpenCreateUser] = useState(false);
 
   const simMutation = useMutation({
     mutationFn: (data: {
@@ -385,6 +395,38 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
     setCanSim(false);
   }, [script]);
 
+  const handleUserMenuClick = (e: { key: string }) => {
+    switch (e.key) {
+      case "2":
+        localStorage.removeItem("token");
+        navigate("/login");
+        break;
+      case "3":
+        setOpenChangePassword(true);
+        break;
+      case "4":
+        setOpenCreateUser(true);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const userItems = [
+    `HI 👋 ${username}`,
+    ` logout`,
+    `change password`,
+    `create user`,
+  ].map((name, index) => ({
+    key: index + 1,
+    label: name,
+  }));
+
+  const menuProps = {
+    items: userItems,
+    onClick: handleUserMenuClick,
+  };
+
   return (
     <>
       {contextHolder}
@@ -420,6 +462,7 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
                 items={items}
                 onClick={handleMenuClick}
               />
+              <Avatar size={32} icon={<UserOutlined />} />
             </IndustrialDrawer>
           </>
         ) : (
@@ -481,6 +524,19 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
                   { value: "ch.tw", label: "中文" },
                 ]}
               />
+
+              <Dropdown
+                menu={menuProps}
+                placement="bottomRight"
+                trigger={["click"]}
+              >
+                <Avatar
+                  size={32}
+                  icon={<UserOutlined />}
+                  style={{ cursor: "pointer" }}
+                  shape="square"
+                ></Avatar>
+              </Dropdown>
             </Flex>
           </>
         )}
@@ -492,6 +548,13 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
         handleSim={handleSim}
         setIsSimulateOpen={setIsSimulateOpen}
       />
+
+      <ChangePasswordModal
+        open={openChangePassword}
+        setOpen={setOpenChangePassword}
+      ></ChangePasswordModal>
+
+      <CreateUserModel open={openCreateUser} setOpen={setOpenCreateUser} />
     </>
   );
 };

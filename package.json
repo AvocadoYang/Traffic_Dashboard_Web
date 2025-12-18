@@ -53,6 +53,7 @@
     "jotai": "^2.2.2",
     "js-cookie": "^3.0.5",
     "js.cookie": "^0.0.4",
+    "jwt-decode": "^4.0.0",
     "less-loader": "^11.0.0",
     "moment": "^2.29.4",
     "nanoid": "^4.0.2",

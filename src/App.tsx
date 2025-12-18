@@ -12,7 +12,7 @@ import { notification } from "antd";
 import { useEffect } from "react";
 import { useEcsTransactionResp } from "./sockets/useEcsTransactionResp";
 import { useBarcodeSignal } from "./sockets/useBarcodeSignal";
-
+import { Navigate, Outlet } from "react-router-dom";
 const client = new QueryClient({
   defaultOptions: {
     queries: {
@@ -78,27 +78,46 @@ function App() {
     }
   }, [bar]);
 
+  const ProtectedRoute = () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      return <Navigate to="/login" replace />;
+    }
+
+    return <Outlet />;
+  };
+
   // const ipcHandle = (): void => window.electron.ipc.send('ping')
   return (
     <QueryClientProvider client={client}>
       {contextHolder}
       <BrowserRouter>
         <Routes>
-          {/* <Route path="/" element={<LogIn />}></Route> */}
-          <Route path="/dashboard" element={<Register />}></Route>
-          <Route path="/setting" element={<Setting></Setting>}></Route>
-          <Route path="/simulate" element={<Simulate />}></Route>
-          <Route path="/mission-analysis" element={<MissionAnalysis />}></Route>
-          <Route path="/cargo-history" element={<CargoHistory />}></Route>
-          <Route
-            path="/simulate-result"
-            element={<AllSimulateResult />}
-          ></Route>
-          <Route path="/" element={<Main />}></Route>
-          <Route path="/test" element={<MonitorCenter></MonitorCenter>}></Route>
-          <Route path="/amr" element={<AmrList />} />
-          <Route path="/amr/:amrId" element={<AmrDetail />} />
-          <Route path="*" element={<h1>Not Found</h1>} />
+          <Route path="/login" element={<LogIn />}></Route>
+
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<Register />}></Route>
+            <Route path="/setting" element={<Setting></Setting>}></Route>
+            <Route path="/simulate" element={<Simulate />}></Route>
+            <Route
+              path="/mission-analysis"
+              element={<MissionAnalysis />}
+            ></Route>
+            <Route path="/cargo-history" element={<CargoHistory />}></Route>
+            <Route
+              path="/simulate-result"
+              element={<AllSimulateResult />}
+            ></Route>
+            <Route path="/" element={<Main />}></Route>
+            <Route
+              path="/test"
+              element={<MonitorCenter></MonitorCenter>}
+            ></Route>
+            <Route path="/amr" element={<AmrList />} />
+            <Route path="/amr/:amrId" element={<AmrDetail />} />
+            <Route path="*" element={<h1>Not Found</h1>} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
