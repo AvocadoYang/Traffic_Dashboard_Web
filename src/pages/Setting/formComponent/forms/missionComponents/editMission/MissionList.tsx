@@ -1,4 +1,4 @@
-import { Button, Flex, message, Modal, Tooltip } from "antd";
+import { Button, Flex, message, Modal, Popconfirm, Tooltip } from "antd";
 import { Dispatch, FC, SetStateAction, useState } from "react";
 import { nanoid } from "nanoid";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -225,12 +225,14 @@ const MissionList: FC<{
             {t("mission.mission_list.create_mission")}
           </IndustrialButton>
 
-          <IndustrialButton
-            icon={<CopyOutlined />}
-            onClick={() => copyMission()}
+          <Popconfirm
+            title="are your sure copy mission?"
+            onConfirm={() => copyMission()}
           >
-            {t("mission.mission_list.copy_mission")}
-          </IndustrialButton>
+            <IndustrialButton icon={<CopyOutlined />}>
+              {t("mission.mission_list.copy_mission")}
+            </IndustrialButton>
+          </Popconfirm>
 
           <MissionTitle>{missionName}</MissionTitle>
         </HeaderBar>
@@ -242,7 +244,7 @@ const MissionList: FC<{
             selectedMissionCar={selectedMissionCar}
           />
         )}
-        
+
         {isHumanRobot(selectedMissionCar) && (
           <HumanRobotTaskTable
             showModal={showModal}
@@ -265,7 +267,7 @@ const MissionList: FC<{
               selectedMissionKey={selectedMissionKey}
             />
           )}
-          
+
           {isHumanRobot(selectedMissionCar) && (
             <TaskFormHumanRobot
               editTaskKey={editTaskKey}
