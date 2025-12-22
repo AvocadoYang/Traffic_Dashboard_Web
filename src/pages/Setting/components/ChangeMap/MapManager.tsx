@@ -776,9 +776,9 @@ const MapManager: FC = () => {
       <Image
         style={{ display: "none" }}
         preview={{
-          visible: imagePreviewOpen,
+          open: imagePreviewOpen,
           src: previewImage,
-          onVisibleChange: (visible) => setImagePreviewOpen(visible),
+          onOpenChange: (visible) => setImagePreviewOpen(visible),
         }}
       />
 
