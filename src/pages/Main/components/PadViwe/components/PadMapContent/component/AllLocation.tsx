@@ -54,11 +54,11 @@ const AllLocation: React.FC<{
   }, []);
 
   const handleDireMove = (locationId: string) => {
-    console.log("???");
+    // console.log("???");
     setOpen({ open: true, locationId });
   };
 
-  useMouseMove(mapRef);
+  // useMouseMove(mapRef);
 
   if (!data) return;
 
@@ -118,7 +118,7 @@ const AllLocation: React.FC<{
               top={displayY}
 
             ></PointMain>
-            {
+            {/* {
               mouseDetectLocArr.has(loc.locationId.toString()) ? 
               <>
               <Line
@@ -142,7 +142,7 @@ const AllLocation: React.FC<{
               </LabelWrapper>
             </>
               :<></>
-            }
+            } */}
             </Fragment>
           );
         })}
