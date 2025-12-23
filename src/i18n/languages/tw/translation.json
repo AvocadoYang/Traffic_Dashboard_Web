@@ -1470,7 +1470,10 @@
     "upload_label": "上傳地圖檔案",
     "drag_text": "點擊或拖曳檔案到此區域以上傳",
     "hint": "請上傳地圖圖片檔案。僅允許一個檔案。",
-    "button": "上傳地圖"
+    "button": "上傳地圖",
+    "scroll_x": "初始捲動位置X",
+    "scroll_y": "初始捲動位置Y",
+    "scale": "初始放大倍率"
   },
 
   "conveyor": {

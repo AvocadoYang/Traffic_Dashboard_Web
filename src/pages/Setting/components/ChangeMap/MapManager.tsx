@@ -439,6 +439,9 @@ type MapInfo = {
   isUsing: boolean;
   mapOriginX: number;
   mapOriginY: number;
+  scrollX: number;
+  scrollY: number;
+  scale: number;
 };
 
 const MapManager: FC = () => {
@@ -532,6 +535,9 @@ const MapManager: FC = () => {
       isUsing: record.isUsing,
       mapOriginX: record.mapOriginX,
       mapOriginY: record.mapOriginY,
+      scrollX: record.scrollX,
+      scrollY: record.scrollY,
+      scale: record.scale,
     });
     setEditModalOpen(true);
   };
@@ -749,7 +755,7 @@ const MapManager: FC = () => {
           </SectionHeader>
           {maps?.allMap && maps.allMap.length > 0 ? (
             <IndustrialTable
-              columns={columns}
+              columns={columns as any}
               dataSource={maps.allMap}
               rowKey="id"
               pagination={{
@@ -818,6 +824,30 @@ const MapManager: FC = () => {
             rules={[{ required: true }]}
           >
             <IndustrialInputNumber style={{ width: "100%" }} />
+          </Form.Item>
+
+          <Form.Item
+            label={t("upload.scroll_x")}
+            name="scrollX"
+            rules={[{ required: true }]}
+          >
+            <IndustrialInputNumber style={{ width: "100%" }} />
+          </Form.Item>
+
+          <Form.Item
+            label={t("upload.scroll_y")}
+            name="scrollY"
+            rules={[{ required: true }]}
+          >
+            <IndustrialInputNumber style={{ width: "100%" }} />
+          </Form.Item>
+
+          <Form.Item
+            label={t("upload.scale")}
+            name="scale"
+            rules={[{ required: true }]}
+          >
+            <IndustrialInputNumber min={0.1} style={{ width: "100%" }} />
           </Form.Item>
         </StyledForm>
       </IndustrialModal>

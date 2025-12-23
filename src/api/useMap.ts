@@ -21,7 +21,7 @@ const schema = object({
       y: number().required(),
       canRotate: boolean().required(),
       areaType: string().required(),
-    }).required(),
+    }).required()
   ).required(),
   roads: array(
     object({
@@ -47,7 +47,7 @@ const schema = object({
       tolerance: number().optional(),
       cost: number().optional(),
       inflationRadius: number().optional(),
-    }).required(),
+    }).required()
   ).required(),
   zones: array(
     object({
@@ -73,7 +73,7 @@ const schema = object({
         endX: number().required(),
         endY: number().required(),
       }).required(),
-    }),
+    })
   ).required(),
   mapWidth: number().required(),
   mapHeight: number().required(),
@@ -81,13 +81,17 @@ const schema = object({
   mapOriginY: number().required(),
   mapResolution: number().positive().required(),
   imageUrl: string().optional(),
+  scale: number().required(),
+  scrollX: number().required(),
+  scrollY: number().required(),
 }).required();
 
 const getMap = async () => {
   const { data } = await api.get<unknown>("/api/map");
   const parsed = await schema.validate(data, { stripUnknown: true });
   if (parsed.imageUrl) {
-    const baseUrl = `${window.location.origin}`.replace("localhost", location.hostname)
+    const baseUrl = `${window.location.origin}`
+      .replace("localhost", location.hostname)
       .replace(/:5173/, ":4000")
       .replace(/\/+$/, "");
 
