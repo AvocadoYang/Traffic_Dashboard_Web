@@ -286,6 +286,17 @@ const StatusPanel: FC<{ locId: string | null }> = ({ locId }) => {
                 ● {station?.isTCPConnect ? "CONNECTED" : "DISCONNECT"}
               </InfoValue>
             </InfoRow>
+
+            <InfoRow>
+              <InfoLabel>Charge Bar:</InfoLabel>
+              <InfoValue
+                style={{
+                  color: station?.barOut === "1" ? "#1a1dc4" : "#a8a8a8",
+                }}
+              >
+                ● {station?.barOut === "1" ? "OUT" : "IN"}
+              </InfoValue>
+            </InfoRow>
           </InfoSection>
 
           <Flex gap="large" justify="center" align="center" vertical={false}>

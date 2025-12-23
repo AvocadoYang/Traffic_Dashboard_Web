@@ -15,7 +15,14 @@ import { getMoveIndex } from "./utils/utils";
 import { toolbarState } from "./components/siderElement";
 import { useIsMobile } from "@/hooks/useIsMoblie";
 import MapView from "./mapComponents/MapView";
+import useMap from "@/api/useMap";
 const { Content } = Layout;
+
+const INITIAL_VIEW = {
+  scale: 1.5,
+  scrollX: 1500,
+  scrollY: 3020,
+};
 
 const Setting: React.FC = () => {
   const mapRef = useRef(null);
@@ -27,6 +34,8 @@ const Setting: React.FC = () => {
   const [zonePanelForm] = Form.useForm();
   const [dataList, setDataList] = useState(toolbarState);
   const [scale, setScale] = useState(1);
+  const currentMapInfo = useMap();
+
   const [splitterSize, setSplitterSize] = useState<number[] | string[]>([
     "0%",
     "100%",
@@ -85,6 +94,33 @@ const Setting: React.FC = () => {
   };
 
   useResetSiderSwitch();
+
+  // useEffect(() => {
+  //   const container = mapWrapRef.current;
+  //   if (!container) return;
+
+  //   const handleScroll = () => {
+  //     const scrollX = container.scrollLeft;
+  //     const scrollY = container.scrollTop;
+  //     console.log("當前捲動位置:", { scrollX, scrollY });
+  //     // 你可以將這兩個值存在 useState 中，或是傳給其他組件使用
+  //   };
+
+  //   container.addEventListener("scroll", handleScroll);
+  //   return () => container.removeEventListener("scroll", handleScroll);
+  // }, [mapWrapRef]);
+
+  useEffect(() => {
+    // 確保 DOM 已經渲染
+    if (mapWrapRef.current && currentMapInfo) {
+      // 直接設定 DOM 的捲動位置
+      setTimeout(() => {
+        ((mapWrapRef.current.scrollLeft = currentMapInfo.data?.scrollX),
+          (mapWrapRef.current.scrollTop = currentMapInfo.data?.scrollY),
+          setScale(currentMapInfo.data?.scale));
+      }, 100);
+    }
+  }, []);
 
   return (
     <>

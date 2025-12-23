@@ -1467,7 +1467,10 @@
     "upload_label": "Upload Map File",
     "drag_text": "Click or drag file to this area to upload",
     "hint": "Please upload the map image file. Only one file is allowed.",
-    "button": "Upload Map"
+    "button": "Upload Map",
+    "scroll_x": "Scroll X",
+    "scroll_y": "Scroll Y",
+    "scale": "Scale"
   },
   "conveyor": {
     "title": "Edit conveyor belt parameters",

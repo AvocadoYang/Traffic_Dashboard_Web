@@ -12,6 +12,9 @@ const schema = object({
       mapOriginY: number().required(),
       mapWidth: number().required(),
       mapHeight: number().required(),
+      scale: number().required(),
+      scrollX: number().required(),
+      scrollY: number().required(),
     })
   ).required(),
   systemFilePath: string().required(),

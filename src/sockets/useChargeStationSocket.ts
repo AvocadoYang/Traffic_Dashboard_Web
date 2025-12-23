@@ -127,14 +127,14 @@ export type Charge_Status_Info = {
   disable: boolean;
   booker: string;
   occupier: string;
-  // currentStatus: ChargeStationResponseObj;
+
   isMQTTConnect: boolean;
   isTCPConnect: boolean;
-  isStationCodeAlive: boolean;
-  leastHeartbeatTime: Date;
+  isStationCodeAlive?: boolean;
+  leastHeartbeatTime?: Date;
+
   stationId: string;
-  ip: string;
-  port: number;
+  barOut: string;
 };
 
 const useChargeStationSocket = () => {
