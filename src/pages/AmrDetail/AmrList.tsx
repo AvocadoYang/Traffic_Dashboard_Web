@@ -1,4 +1,4 @@
-import { Card, Layout, List, Typography } from "antd";
+import { Card, Col, Empty, Layout, List, Row, Typography } from "antd";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
@@ -174,6 +174,7 @@ const AmrList = () => {
   const { t } = useTranslation();
 
   const columns = isMobile ? 1 : 2;
+  const colSpan = isMobile ? 24 : 12;
 
   return (
     <Layout style={{ minHeight: "100vh", background: "#f5f5f5" }}>
@@ -183,74 +184,85 @@ const AmrList = () => {
           <RobotOutlined style={{ fontSize: 24 }} />
           <h2>{t("page_amr")}</h2>
         </PageHeader>
-        <List
-          grid={{ gutter: 24, column: columns }}
-          dataSource={data}
-          locale={{ emptyText: t("utils.none") }}
-          renderItem={(amr) => {
-            let amrId = amr.amrId;
-            if (amrId.startsWith("/#")) {
-              amrId = "mock-" + amrId.slice(2);
-            } else if (amrId.startsWith("#")) {
-              amrId = "mock-" + amrId.slice(1);
-            }
 
-            const status = amr.isOnline
-              ? amr.isOverdue
-                ? "Error"
-                : "Active"
-              : "Idle";
+        {/* REPLACEMENT START */}
+        {data && data.length > 0 ? (
+          <Row gutter={[24, 24]}>
+            {data.map((amr) => {
+              // Your ID cleaning logic
+              let amrId = amr.amrId;
+              if (amrId.startsWith("/#")) {
+                amrId = "mock-" + amrId.slice(2);
+              } else if (amrId.startsWith("#")) {
+                amrId = "mock-" + amrId.slice(1);
+              }
 
-            return (
-              <List.Item>
-                <Link to={`/amr/${amrId}`} style={{ display: "block" }}>
-                  <IndustrialCard hoverable>
-                    <AmrTitle level={4}>
-                      <RobotOutlined style={{ color: "#1890ff" }} />
-                      {amr.amrId}
-                    </AmrTitle>
-                    <InfoRow>
-                      <span className="label">{t("utils.status")}:</span>
-                      <StatusBadge $status={status}>
-                        {amr.isOnline
-                          ? amr.isOverdue
-                            ? t("utils.error")
-                            : t("utils.active")
-                          : t("utils.inactive")}
-                      </StatusBadge>
-                    </InfoRow>
-                    <InfoRow>
-                      <span className="label">
-                        {t("utils.online")}/{t("utils.offline")}:
-                      </span>
-                      <StatusBadge $status={amr.isOnline ? "Active" : "Idle"}>
-                        {amr.isOnline ? t("utils.online") : t("utils.offline")}
-                      </StatusBadge>
-                    </InfoRow>
-                    <InfoRow>
-                      <span className="label">
-                        {t("utils.road_conditions")}:
-                      </span>
-                      <NetworkDelay>{amr.networkDelay} ms</NetworkDelay>
-                    </InfoRow>
-                    <InfoRow>
-                      <span className="label">
-                        {t("utils.maintenance_level")}:
-                      </span>
-                      <StatusBadge
-                        $status={amr.isPosAccurate ? "Active" : "Idle"}
-                      >
-                        {amr.isPosAccurate
-                          ? t("utils.active")
-                          : t("utils.inactive")}
-                      </StatusBadge>
-                    </InfoRow>
-                  </IndustrialCard>
-                </Link>
-              </List.Item>
-            );
-          }}
-        />
+              const status = amr.isOnline
+                ? amr.isOverdue
+                  ? "Error"
+                  : "Active"
+                : "Idle";
+
+              return (
+                <Col span={colSpan} key={amr.amrId}>
+                  <Link to={`/amr/${amrId}`} style={{ display: "block" }}>
+                    <IndustrialCard hoverable>
+                      <AmrTitle level={4}>
+                        <RobotOutlined style={{ color: "#1890ff" }} />
+                        {amr.amrId}
+                      </AmrTitle>
+
+                      <InfoRow>
+                        <span className="label">{t("utils.status")}:</span>
+                        <StatusBadge $status={status}>
+                          {amr.isOnline
+                            ? amr.isOverdue
+                              ? t("utils.error")
+                              : t("utils.active")
+                            : t("utils.inactive")}
+                        </StatusBadge>
+                      </InfoRow>
+
+                      <InfoRow>
+                        <span className="label">
+                          {t("utils.online")}/{t("utils.offline")}:
+                        </span>
+                        <StatusBadge $status={amr.isOnline ? "Active" : "Idle"}>
+                          {amr.isOnline
+                            ? t("utils.online")
+                            : t("utils.offline")}
+                        </StatusBadge>
+                      </InfoRow>
+
+                      <InfoRow>
+                        <span className="label">
+                          {t("utils.road_conditions")}:
+                        </span>
+                        <NetworkDelay>{amr.networkDelay} ms</NetworkDelay>
+                      </InfoRow>
+
+                      <InfoRow>
+                        <span className="label">
+                          {t("utils.maintenance_level")}:
+                        </span>
+                        <StatusBadge
+                          $status={amr.isPosAccurate ? "Active" : "Idle"}
+                        >
+                          {amr.isPosAccurate
+                            ? t("utils.active")
+                            : t("utils.inactive")}
+                        </StatusBadge>
+                      </InfoRow>
+                    </IndustrialCard>
+                  </Link>
+                </Col>
+              );
+            })}
+          </Row>
+        ) : (
+          <Empty description={t("utils.none")} />
+        )}
+        {/* REPLACEMENT END */}
       </IndustrialContainer>
     </Layout>
   );

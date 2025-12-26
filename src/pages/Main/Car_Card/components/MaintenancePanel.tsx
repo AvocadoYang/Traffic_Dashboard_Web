@@ -169,7 +169,7 @@ const MaintenancePanel: FC<{ amrId: string }> = ({ amrId }) => {
         menu={{ items, onClick }}
         trigger={["click"]}
         placement="bottom"
-        dropdownRender={dropdownRender}
+        popupRender={dropdownRender}
       >
         <IndustrialDropdown>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>

@@ -36,9 +36,10 @@ const Cards: React.FC<{}> = () => {
     >
       {names.amrs
         .filter((v) => v.isReal)
-        .map((item) => (
-          <Card key={item.amrId} id={item.amrId}></Card>
-        ))}
+        .map((item) => {
+          console.log("real", item.amrId);
+          return <Card key={item.amrId} id={item.amrId}></Card>;
+        })}
     </Flex>
   );
 };

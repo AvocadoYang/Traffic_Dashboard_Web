@@ -52,6 +52,9 @@ const StartSimModal: FC<{
     0,
     dayjs(timeRange[1]).diff(dayjs(timeRange[0]), "minute")
   );
+  const activeRobots =
+    script?.robot?.filter((v) => v.script_placement_location !== "unset") || [];
+
   const simMinutes = durationMinutes / (scale || 1);
   return (
     <Modal
@@ -90,35 +93,35 @@ const StartSimModal: FC<{
         <Text strong style={{ display: "block", marginBottom: "8px" }}>
           {t("sim.start_sim_modal.in_use_robot")}
         </Text>
-        {script?.robot &&
-        script.robot.filter((v) => v.script_placement_location !== "unset")
-          .length > 0 ? (
-          <List
-            size="small"
-            dataSource={script.robot.filter(
-              (r) => r.script_placement_location !== "unset"
-            )}
-            renderItem={(robot) => (
-              <List.Item style={{ padding: "8px 0", borderBottom: "none" }}>
-                <Text>
-                  <CarOutlined
-                    style={{ marginRight: "8px", color: "#1890ff" }}
-                  />
-                  {robot.id}
-                </Text>
-              </List.Item>
-            )}
+
+        {activeRobots.length > 0 ? (
+          <div
             style={{
               maxHeight: "150px",
               overflowY: "auto",
-              padding: "8px",
-              background: "#f9f9f9",
-              borderRadius: "4px",
+              padding: "12px",
+              background: "#f5f5f5", // Slightly lighter grey
+              borderRadius: "8px",
+              border: "1px solid #f0f0f0",
             }}
-          />
+          >
+            <Flex vertical gap="small">
+              {activeRobots.map((robot) => (
+                <Flex
+                  align="center"
+                  key={robot.id}
+                  style={{ padding: "4px 0" }}
+                >
+                  <CarOutlined
+                    style={{ marginRight: "8px", color: "#1890ff" }}
+                  />
+                  <Text>{robot.id}</Text>
+                </Flex>
+              ))}
+            </Flex>
+          </div>
         ) : (
           <Text type="secondary">
-            {" "}
             {t("sim.start_sim_modal.no_robot_select")}
           </Text>
         )}
@@ -170,7 +173,7 @@ const StartSimModal: FC<{
         </Flex>
       </div>
 
-      <div style={{ marginBottom: "24px" }}>
+      {/* <div style={{ marginBottom: "24px" }}>
         <Text strong style={{ display: "block", marginBottom: "8px" }}>
           {t("sim.start_sim_modal.station_mission")}
         </Text>
@@ -180,7 +183,7 @@ const StartSimModal: FC<{
           value={isActiveStation}
           onChange={(v) => setIsActiveStation(v)}
         />
-      </div>
+      </div> */}
 
       <Divider style={{ margin: "16px 0" }} />
 

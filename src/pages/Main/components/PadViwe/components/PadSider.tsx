@@ -20,7 +20,7 @@ function getItem(
   icon?: React.ReactNode,
   onClick?: () => void, // 新增 onClick 參數
   children?: MenuItem[],
-  type?: "group",
+  type?: "group"
 ): MenuItem {
   return {
     key,
@@ -51,7 +51,7 @@ const PadSider = () => {
       t("main.pad_view.sider.map_view"),
       "1",
       <GlobalOutlined className="map-icon" />,
-      () => handleViewChange(ViewBtn.mapView),
+      () => handleViewChange(ViewBtn.mapView)
     ),
     getItem(
       t("main.pad_view.sider.mission_view"),
@@ -59,7 +59,7 @@ const PadSider = () => {
       <ScheduleOutlined className="mission-icon" />,
       () => {
         handleViewChange(ViewBtn.missionView);
-      },
+      }
     ),
     getItem(
       t("main.pad_view.sider.info_view"),
@@ -67,7 +67,7 @@ const PadSider = () => {
       <InsertRowAboveOutlined className="info-icon" />,
       () => {
         handleViewChange(ViewBtn.infoView);
-      },
+      }
     ),
     getItem(
       t("main.pad_view.sider.alert_view"),
@@ -77,7 +77,7 @@ const PadSider = () => {
       </Badge>,
       () => {
         handleViewChange(ViewBtn.alertView);
-      },
+      }
     ),
   ];
 

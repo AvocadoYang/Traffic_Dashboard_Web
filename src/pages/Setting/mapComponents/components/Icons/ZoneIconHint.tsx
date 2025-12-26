@@ -7,7 +7,7 @@ import { EditZoneSwitch } from "@/utils/siderGloble";
 const Container = styled.div.attrs<{ left: number; top: number }>(
   ({ left, top }) => ({
     style: { left, top },
-  }),
+  })
 )<{ left: number; top: number }>`
   position: absolute;
 `;
@@ -108,7 +108,7 @@ const ZoneIconHint: FC<{
 
   const { displayX: x, displayY: y } = mouseMoveLocationForFrame;
   const { data } = useMap();
-  if (!data) return null;
+  if (!data || isNaN(Number(x)) || isNaN(Number(y))) return null;
   return (
     <Container left={Number(x)} top={Number(y)} draggable={false}>
       <Circle />

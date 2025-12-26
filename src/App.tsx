@@ -33,7 +33,7 @@ function App() {
     msg: string
   ) => {
     api[type]({
-      message: "ECS Requests",
+      title: "ECS Requests",
       description: msg,
     });
   };
@@ -45,7 +45,7 @@ function App() {
     api[type]({
       showProgress: true,
       pauseOnHover: true,
-      message: "ECS Response",
+      title: "ECS Response",
       description: msg,
     });
   };
@@ -55,7 +55,7 @@ function App() {
     msg: string
   ) => {
     api[type]({
-      message: "BARCODE READ",
+      title: "BARCODE READ",
       description: msg,
     });
   };
@@ -92,7 +92,9 @@ function App() {
   return (
     <QueryClientProvider client={client}>
       {contextHolder}
-      <BrowserRouter>
+      <BrowserRouter
+        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+      >
         <Routes>
           <Route path="/login" element={<LogIn />}></Route>
 

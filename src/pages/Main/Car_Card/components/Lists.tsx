@@ -281,7 +281,9 @@ const CardSpeed: React.FC<{ amrId: string; isDark: boolean }> = memo(
     const { speed } = useSpeed(amrId);
     return (
       <p className="value">
-        {Math.abs((Number(speed) * 100)).toFixed(2).toString()}
+        {Math.abs(Number(speed) * 100)
+          .toFixed(2)
+          .toString()}
         <span className={`${isDark ? "symbol-dark" : "symbol"}`}>{"cm/s"}</span>
       </p>
     );
@@ -333,7 +335,7 @@ export const RowSecond: React.FC<{
       style={{ margin: "1.5px 0 1px 0" }}
     >
       <Space
-        direction="vertical"
+        orientation="vertical"
         size={1}
         style={{ textAlign: "center", width: "18%", cursor: "pointer" }}
         onClick={(e) => {
@@ -348,7 +350,7 @@ export const RowSecond: React.FC<{
         <LocValue amrId={amrId} isDark={isDark}></LocValue>
       </Space>
       <Space
-        direction="vertical"
+        orientation="vertical"
         size={1}
         style={{ textAlign: "center", width: "18%" }}
       >
@@ -358,14 +360,14 @@ export const RowSecond: React.FC<{
         <CardSpeed amrId={amrId} isDark={isDark}></CardSpeed>
       </Space>
       <Space
-        direction="vertical"
+        orientation="vertical"
         size={1}
         style={{ textAlign: "center", width: "18%" }}
       >
         <Power amrId={amrId} isDark={isDark}></Power>
       </Space>
       <Space
-        direction="vertical"
+        orientation="vertical"
         size={1}
         style={{ textAlign: "center", width: "18%" }}
       >

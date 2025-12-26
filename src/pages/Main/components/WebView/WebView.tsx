@@ -78,9 +78,9 @@ const WebView = () => {
                 height: "100%",
                 width: "100%",
                 overflow: "scroll",
-                borderRadius: "6px",
-                borderLeft: "2px solid #9b9b9b",
-                borderRight: "2px solid #9b9b9b",
+                // borderRadius: "6px",
+                // borderLeft: "2px solid #9b9b9b",
+                // borderRight: "2px solid #9b9b9b",
               }}
               draggable={false}
               ref={mapWrapRef}

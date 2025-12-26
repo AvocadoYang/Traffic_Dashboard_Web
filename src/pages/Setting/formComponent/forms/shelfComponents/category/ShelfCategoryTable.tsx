@@ -234,7 +234,7 @@ const ShelfCategoryTable: FC<{
         {t("edit_shelf_category.add_shelf")}
       </IndustrialButton>
 
-      <IndustrialAlert message={t("edit_shelf_panel.warn")} type="error" />
+      <IndustrialAlert title={t("edit_shelf_panel.warn")} type="error" />
 
       <StyledTable
         dataSource={data as ShelfCategoryWithoutList[]}

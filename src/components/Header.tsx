@@ -49,7 +49,7 @@ const IndustrialHeader = styled(AntdHeader)`
   justify-content: space-between;
   padding: 0 24px !important;
   height: 64px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  //box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   position: relative;
 
   &::after {
@@ -59,7 +59,7 @@ const IndustrialHeader = styled(AntdHeader)`
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, #1890ff, transparent);
+    // background: linear-gradient(90deg, transparent, #1890ff, transparent);
   }
 `;
 
@@ -438,7 +438,7 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
               <IndustrialSelect
                 defaultValue="ch.tw"
                 style={{ width: 100 }}
-                onChange={(e) => handleChineseItemClick(e)}
+                onChange={(e) => handleChineseItemClick(e as any)}
                 options={[
                   { value: "en", label: "EN" },
                   { value: "ch.tw", label: "中文" },
@@ -518,7 +518,7 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
               <IndustrialSelect
                 defaultValue="ch.tw"
                 style={{ width: 100 }}
-                onChange={(e) => handleChineseItemClick(e)}
+                onChange={(e) => handleChineseItemClick(e as any)}
                 options={[
                   { value: "en", label: "EN" },
                   { value: "ch.tw", label: "中文" },

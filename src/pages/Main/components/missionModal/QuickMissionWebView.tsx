@@ -556,7 +556,7 @@ const QuickMissionWebView: React.FC<{
 
               {!startQuickSetting && (
                 <Space
-                  direction="vertical"
+                  orientation="vertical"
                   size="middle"
                   style={{ width: "100%" }}
                 >

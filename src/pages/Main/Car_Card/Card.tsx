@@ -24,6 +24,7 @@ import {
 import { amrId2ColorRainbow } from "@/utils/utils";
 import { useWarningId } from "@/sockets/useWarning";
 import { useTranslation } from "react-i18next";
+import React from "react";
 
 const Card: React.FC<{ id: string }> = ({ id }) => {
   const [openHiddenRow, setOpenHiddenRow] = useState(false);
@@ -31,7 +32,7 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
   const [openFullInfo, setOpenFullInfo] = useState(true);
   const [openModal, setOpenModal] = useState(false);
   const errorMessage = useWarningId()?.get(id);
-  
+
   const { t } = useTranslation();
 
   // hover 卡片時地圖AMR的提示
@@ -61,7 +62,7 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
   }, [selectedOption, hintAmrId]);
 
   return (
-    <>
+    <React.Fragment key={id}>
       <ConfigProvider
         theme={{
           token: {
@@ -139,7 +140,7 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
       >
         {errorMessage?.map((warn) => {
           return (
-            <>
+            <React.Fragment key={warn.warningId}>
               <h4>{`${t("file.warning_list.error_code")}: ${warn.warningId}`}</h4>
               <div style={{ marginTop: "5px" }}>
                 <h5>{`${t("file.warning_list.info")}- `}</h5>
@@ -160,11 +161,11 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
                 </p>
               </div>
               <hr style={{ marginBottom: "5px" }} />
-            </>
+            </React.Fragment>
           );
         })}
       </Modal>
-    </>
+    </React.Fragment>
   );
 };
 

@@ -164,7 +164,7 @@ const Sider: React.FC<{
     isShowPeripheralGroupTable
   );
 
-  const [collapsed, setCollapsed] = useState(true);
+  const [collapsed, setCollapsed] = useState(false);
   const { t } = useTranslation();
   useEffect(() => {
     const isOpen = [
@@ -734,13 +734,13 @@ const Sider: React.FC<{
         width={230}
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
-        style={{ backgroundColor: "#f5f5f5" }}
-        className="setting-sider"
+        style={{ backgroundColor: "#ffffff", overflowY: "scroll" }}
+        // className="setting-sider"
       >
         <Menu
           onClick={(e) => handleRestart(e.keyPath)}
           mode="inline"
-          style={{ height: "100%", borderRight: 0, backgroundColor: "#f5f5f5" }}
+          style={{ height: "100%", borderRight: 0, backgroundColor: "#ffffff" }}
           items={toolItem}
           className="setting-sider-menu"
         />

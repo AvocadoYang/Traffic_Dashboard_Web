@@ -35,7 +35,7 @@ const ShelfPanel: React.FC<{
           {t("utils.edit")}
         </Button>
 
-        <Alert message={t("edit_shelf_panel.warn")} type="error" />
+        <Alert title={t("edit_shelf_panel.warn")} type="error" />
       </Flex>
       <ShelfTable
         selectedRowKeys={selectedRowKeys}

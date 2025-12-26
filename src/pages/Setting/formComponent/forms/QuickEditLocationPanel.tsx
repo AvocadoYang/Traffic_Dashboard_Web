@@ -74,7 +74,7 @@ const QuickEditLocationPanel: React.FC<{
   const mousePointX = useAtomValue(locationXForQuickEditLocationPanel);
   const mousePointY = useAtomValue(locationYForQuickEditLocationPanel);
   const [, setTempStoredLocationsForQuickEditPanel] = useAtom(
-    TempStoredLocationsForQuickEditPanel,
+    TempStoredLocationsForQuickEditPanel
   );
 
   const [messageApi, contextHolder] = message.useMessage();
@@ -110,7 +110,7 @@ const QuickEditLocationPanel: React.FC<{
         "warning",
         t("quick_edit_location_panel.save_pose_notify.is_a_navigate"),
         t("quick_edit_location_panel.save_pose_notify.is_a_navigate"),
-        "bottomLeft",
+        "bottomLeft"
       );
       return false;
     }
@@ -127,7 +127,7 @@ const QuickEditLocationPanel: React.FC<{
 
     if (isDuplicate) {
       void messageApi.warning(
-        t("quick_edit_location_panel.save_pose_notify.duplicate_id"),
+        t("quick_edit_location_panel.save_pose_notify.duplicate_id")
       );
       return false;
     }
@@ -231,10 +231,10 @@ const QuickEditLocationPanel: React.FC<{
           const currentId = originId + row * multiplyX + col;
           const nextId = currentId + 1;
           const curPose = newLocationData.find(
-            (v) => Number(v.locationId) === currentId,
+            (v) => Number(v.locationId) === currentId
           );
           const nextPose = newLocationData.find(
-            (v) => Number(v.locationId) === nextId,
+            (v) => Number(v.locationId) === nextId
           );
 
           newRoadData.push({
@@ -372,6 +372,7 @@ const QuickEditLocationPanel: React.FC<{
               label={t("quick_edit_location_panel.is_connect_road")}
               name="connectRoad"
               shouldUpdate
+              valuePropName="checked"
             >
               <Checkbox
                 defaultChecked={false}
