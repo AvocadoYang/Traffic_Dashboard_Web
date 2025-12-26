@@ -11,13 +11,7 @@ const Cards: React.FC<{}> = () => {
   if (!names || !names.amrs.length) return;
   if (mockRobot && mockRobot.isSimulate) {
     return (
-      <Flex
-        align="center"
-        justify="center"
-        wrap
-        gap="middle"
-        style={{ width: "95%" }}
-      >
+      <Flex align="center" justify="center" wrap gap="middle">
         {mockRobot?.robot
           ?.filter((v) => v.script_placement_location !== "unset")
           .map((v) => {
@@ -27,17 +21,10 @@ const Cards: React.FC<{}> = () => {
     );
   }
   return (
-    <Flex
-      align="center"
-      justify="center"
-      wrap
-      gap="middle"
-      style={{ width: "95%" }}
-    >
+    <Flex align="center" justify="center" wrap gap="middle">
       {names.amrs
         .filter((v) => v.isReal)
         .map((item) => {
-          console.log("real", item.amrId);
           return <Card key={item.amrId} id={item.amrId}></Card>;
         })}
     </Flex>

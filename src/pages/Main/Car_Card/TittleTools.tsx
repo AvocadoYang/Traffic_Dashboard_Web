@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useState } from "react";
 import { DownOutlined, UpOutlined, CloseOutlined } from "@ant-design/icons";
-import { ConfigProvider, Select, SelectProps } from "antd";
+import { ConfigProvider, Select, SelectProps, Flex } from "antd"; // Added Flex
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   AmrCarSelectFilter,
@@ -9,6 +9,30 @@ import {
 } from "@/utils/gloable";
 import useName from "@/api/useAmrName";
 import { DefaultOptionType } from "antd/es/select";
+import styled from "styled-components"; // Added styled-components
+
+// --- Reusing the Styled Components from the Missions component ---
+const TitleBar = styled.div<{ $isDark: boolean }>`
+  background: ${({ $isDark }) => ($isDark ? "#0a0a0a" : "#ffffff")};
+  border: 1px solid ${({ $isDark }) => ($isDark ? "#333" : "#d9d9d9")};
+  border-left: 4px solid #1890ff;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  cursor: pointer; /* To indicate the whole bar is clickable */
+`;
+
+const Title = styled.span<{ $isDark: boolean }>`
+  font-family: "Roboto Mono", monospace;
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#262626")};
+`;
+// ----------------------------------------------------------------
 
 const UpDownIcon: React.FC<{
   isDrop: boolean;
@@ -17,9 +41,15 @@ const UpDownIcon: React.FC<{
   return (
     <>
       {isDrop ? (
-        <UpOutlined className="drop-icon" onClick={() => setIsDrop(false)} />
+        <UpOutlined
+          style={{ marginLeft: "auto" }}
+          onClick={() => setIsDrop(false)}
+        />
       ) : (
-        <DownOutlined className="drop-icon" onClick={() => setIsDrop(true)} />
+        <DownOutlined
+          style={{ marginLeft: "auto" }}
+          onClick={() => setIsDrop(true)}
+        />
       )}
     </>
   );
@@ -54,16 +84,16 @@ const TittleTools: React.FC<{}> = () => {
         value.map((amrCategory) => ({
           value: amrCategory,
           label: amrCategory,
-        })),
+        }))
       );
     },
-    [setSelectedOption],
+    [setSelectedOption]
   );
 
   return (
     <>
-      <span
-        className={`card-wrap-title ${isDark ? "dark-mode-title" : ""}`}
+      <TitleBar
+        $isDark={isDark}
         onClick={() => {
           if (hintAmrId.size) {
             setHintAmrId((pre) => {
@@ -76,64 +106,59 @@ const TittleTools: React.FC<{}> = () => {
           setIsDrop(!isDrop);
         }}
       >
-        AMRs
-        {hintAmrId.size ? (
-          <CloseOutlined
-            onClick={() => {
-              setHintAmrId((pre) => {
-                pre.clear();
-                return new Set([...pre]);
-              });
-              setIsDrop(false);
-            }}
-            className="drop-icon"
-          />
-        ) : (
-          <UpDownIcon isDrop={isDrop} setIsDrop={setIsDrop}></UpDownIcon>
-        )}
-      </span>
-      {isDrop && !hintAmrId.size ? (
-        <ConfigProvider
-          theme={{
-            components: {
-              Input: {
-                activeBorderColor: `${isDark ? "#ff9900" : "#1677ff"}`,
-                hoverBorderColor: `${isDark ? "#ff9900" : "#1677ff"}`,
+        <Flex justify="space-between" align="center">
+          <Title $isDark={isDark}>AMRs</Title>
+
+          {hintAmrId.size ? (
+            <CloseOutlined
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent trigger parent onClick
+                setHintAmrId((pre) => {
+                  pre.clear();
+                  return new Set([...pre]);
+                });
+                setIsDrop(false);
+              }}
+              style={{ color: isDark ? "#00ff41" : "#1890ff" }}
+            />
+          ) : (
+            <div style={{ color: isDark ? "#00ff41" : "#1890ff" }}>
+              <UpDownIcon isDrop={isDrop} setIsDrop={setIsDrop}></UpDownIcon>
+            </div>
+          )}
+        </Flex>
+      </TitleBar>
+
+      {isDrop && !hintAmrId.size && (
+        <div style={{ padding: "0 20px" }}>
+          <ConfigProvider
+            theme={{
+              components: {
+                Input: {
+                  activeBorderColor: `${isDark ? "#ff9900" : "#1677ff"}`,
+                  hoverBorderColor: `${isDark ? "#ff9900" : "#1677ff"}`,
+                },
+                Select: {
+                  activeBorderColor: `${isDark ? "#ff9900" : "#1677ff"}`,
+                  hoverBorderColor: `${isDark ? "#ff9900" : "#1677ff"}`,
+                },
               },
-              Select: {
-                activeBorderColor: `${isDark ? "#ff9900" : "#1677ff"}`,
-                hoverBorderColor: `${isDark ? "#ff9900" : "#1677ff"}`,
-              },
-            },
-          }}
-        >
-          <Select
-            mode="multiple"
-            placeholder="AMR category"
-            onChange={handleChange}
-            style={{ width: "82%", margin: "3% 0 3% 0" }}
-            options={selectOption}
-            onMouseDown={(e) => e.preventDefault()}
-            onPopupScroll={(e) => {
-              e.stopPropagation();
             }}
-            onDropdownVisibleChange={(open) => {
-              if (open) {
-                document.body.style.overflow = "hidden";
-              } else {
-                document.body.style.overflow = "auto";
-              }
-            }}
-          />
-          {/* <Input
-            size="middle"
-            placeholder="Search AMR"
-            suffix={<SearchOutlined />}
-            style={{ width: '82%', margin: '3% 0 3% 0' }}
-          /> */}
-        </ConfigProvider>
-      ) : (
-        []
+          >
+            <Select
+              mode="multiple"
+              placeholder="AMR category"
+              onChange={handleChange}
+              style={{ width: "100%", marginBottom: "20px" }}
+              options={selectOption}
+              onMouseDown={(e) => e.preventDefault()}
+              onPopupScroll={(e) => e.stopPropagation()}
+              onDropdownVisibleChange={(open) => {
+                document.body.style.overflow = open ? "hidden" : "auto";
+              }}
+            />
+          </ConfigProvider>
+        </div>
       )}
     </>
   );

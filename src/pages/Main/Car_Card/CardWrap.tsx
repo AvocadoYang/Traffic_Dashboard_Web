@@ -5,18 +5,24 @@ import Cards from "./Cards";
 import { useAtomValue } from "jotai";
 import { darkMode } from "@/utils/gloable";
 import TittleTools from "./TittleTools";
+import styled from "styled-components";
+
+const IndustrialContainer = styled.div`
+  font-family: "Roboto Mono", monospace;
+  background: "#f5f5f5";
+  padding: 20px;
+  border-radius: 4px;
+  min-height: 100vh;
+`;
 
 const CarCardWrap: React.FC = () => {
   const isDark = useAtomValue(darkMode);
   return (
     <>
-      <div
-        className={`card-wrap-2d ${isDark ? "dark-mode-wrap" : ""}`}
-        draggable="false"
-      >
+      <IndustrialContainer>
         <TittleTools></TittleTools>
         <Cards></Cards>
-      </div>
+      </IndustrialContainer>
     </>
   );
 };
