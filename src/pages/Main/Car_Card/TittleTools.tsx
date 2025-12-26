@@ -153,7 +153,7 @@ const TittleTools: React.FC<{}> = () => {
               options={selectOption}
               onMouseDown={(e) => e.preventDefault()}
               onPopupScroll={(e) => e.stopPropagation()}
-              onDropdownVisibleChange={(open) => {
+              onOpenChange={(open) => {
                 document.body.style.overflow = open ? "hidden" : "auto";
               }}
             />

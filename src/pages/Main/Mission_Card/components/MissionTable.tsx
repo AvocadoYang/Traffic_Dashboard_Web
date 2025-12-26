@@ -31,6 +31,8 @@ import {
   HistoryOutlined,
 } from "@ant-design/icons";
 import MissionRejectReasonInfo from "./MissionRejectReasonInfo";
+import { MissionStatus } from "@/types/mission";
+import I18nCancelReason from "@/i18n/I18nCancelReason";
 
 const MISSION_SORT = [
   "executing",
@@ -192,7 +194,7 @@ const AmrBadge = styled.span<{ $isDark: boolean }>`
   font-weight: 600;
 `;
 
-const StatusBadge = styled.span<{ $status: string; $isDark: boolean }>`
+const StatusBadge = styled.span<{ $status: MissionStatus; $isDark: boolean }>`
   display: inline-block;
   padding: 4px 10px;
   border-radius: 4px;
@@ -338,11 +340,26 @@ const MissionTable = () => {
       title: t("mission.task_table.status"),
       dataIndex: "missionStatus",
       key: "missionStatus",
-      render: (status: string) => (
-        <StatusBadge $status={status} $isDark={isDark}>
-          {status}
-        </StatusBadge>
-      ),
+      render: (status: MissionStatus, record) => {
+        if (
+          record.status === MissionStatus.CANCELED ||
+          record.status === MissionStatus.ABORTING
+        ) {
+          return (
+            <Tooltip title={<I18nCancelReason reason={record.cancelReason} />}>
+              <StatusBadge $status={status} $isDark={isDark}>
+                {status}
+              </StatusBadge>
+            </Tooltip>
+          );
+        }
+
+        return (
+          <StatusBadge $status={status} $isDark={isDark}>
+            {status}
+          </StatusBadge>
+        );
+      },
       filters: MISSION_SORT.map((state) => ({
         text: `${translate("normal", state)}`,
         value: `${translate("normal", state)}`,

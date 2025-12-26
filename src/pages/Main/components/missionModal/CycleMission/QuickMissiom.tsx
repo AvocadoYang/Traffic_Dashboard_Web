@@ -163,7 +163,7 @@ const QuickMission = () => {
               onPopupScroll={(e) => {
                 e.stopPropagation();
               }}
-              onDropdownVisibleChange={(open) => {
+              onOpenChange={(open) => {
                 if (open) {
                   document.body.style.overflow = "hidden";
                 } else {
@@ -199,7 +199,7 @@ const QuickMission = () => {
               style={{ width: "100%" }}
               options={loadShelf}
               onMouseDown={(e) => e.preventDefault()}
-              onDropdownVisibleChange={(open) => {
+              onOpenChange={(open) => {
                 if (open) {
                   document.body.style.overflow = "hidden";
                 } else {
@@ -221,7 +221,7 @@ const QuickMission = () => {
               style={{ width: "100%" }}
               options={offLoadShelf}
               onMouseDown={(e) => e.preventDefault()}
-              onDropdownVisibleChange={(open) => {
+              onOpenChange={(open) => {
                 if (open) {
                   document.body.style.overflow = "hidden";
                 } else {

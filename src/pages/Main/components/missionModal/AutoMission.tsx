@@ -116,7 +116,7 @@ const AutoMission = () => {
             onPopupScroll={(e) => {
               e.stopPropagation();
             }}
-            onDropdownVisibleChange={(open) => {
+            onOpenChange={(open) => {
               if (open) {
                 document.body.style.overflow = "hidden";
               } else {
@@ -136,7 +136,7 @@ const AutoMission = () => {
             placeholder="Select an AMR"
             options={AmrOption}
             onMouseDown={(e) => e.preventDefault()}
-            onDropdownVisibleChange={(open) => {
+            onOpenChange={(open) => {
               if (open) {
                 document.body.style.overflow = "hidden";
               } else {

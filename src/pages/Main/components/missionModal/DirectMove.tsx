@@ -1,4 +1,4 @@
-import { Form, message, Modal, Select,Radio, RadioChangeEvent } from "antd";
+import { Form, message, Modal, Select, Radio, RadioChangeEvent } from "antd";
 import { useAtom } from "jotai";
 import React, { useMemo, useState } from "react";
 import { OpenDirect } from "../../global/jotai";
@@ -22,7 +22,11 @@ const DirectMove = () => {
   };
 
   const editMutation = useMutation({
-    mutationFn: (payload: { amrId: string; locationId: string | null, control: string }) => {
+    mutationFn: (payload: {
+      amrId: string;
+      locationId: string | null;
+      control: string;
+    }) => {
       return client.post("api/missions/direct-move", payload);
     },
     onSuccess: async () => {
@@ -41,7 +45,9 @@ const DirectMove = () => {
 
   const send = () => {
     const amrId = missionForm.getFieldValue("amrId") as string;
-    const control = missionForm.getFieldValue("direction") ?missionForm.getFieldValue("direction") : "F";
+    const control = missionForm.getFieldValue("direction")
+      ? missionForm.getFieldValue("direction")
+      : "F";
 
     editMutation.mutate({ amrId, locationId: open.locationId, control });
   };
@@ -87,7 +93,7 @@ const DirectMove = () => {
               onPopupScroll={(e) => {
                 e.stopPropagation();
               }}
-              onDropdownVisibleChange={(open) => {
+              onOpenChange={(open) => {
                 if (open) {
                   document.body.style.overflow = "hidden";
                 } else {
@@ -95,12 +101,15 @@ const DirectMove = () => {
                 }
               }}
             />
-  
           </Form.Item>
           <Form.Item label={`${t("utils.direction")}`} name="direction">
-          <Radio.Group value={placement} onChange={placementChange}>
-              <Radio.Button value="F">{t('car_control_translate.F')}</Radio.Button>
-              <Radio.Button value="B">{t(`car_control_translate.B`)}</Radio.Button>
+            <Radio.Group value={placement} onChange={placementChange}>
+              <Radio.Button value="F">
+                {t("car_control_translate.F")}
+              </Radio.Button>
+              <Radio.Button value="B">
+                {t(`car_control_translate.B`)}
+              </Radio.Button>
             </Radio.Group>
           </Form.Item>
         </Form>

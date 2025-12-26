@@ -31,9 +31,10 @@ const missionSchema = object({
       batteryCost: number().required(),
       batteryRateWhenStarted: number().required(),
       totalDistanceTraveled: number().required(),
+      cancel_reason: number().optional().nullable(),
       info: string().nullable(),
       message: string().nullable(),
-    }).required(),
+    }).required()
   ),
 });
 
@@ -41,7 +42,7 @@ const getAllMission = async (
   params: {
     page?: number;
     pageSize?: number;
-  } = {},
+  } = {}
 ) => {
   const { data } = await client.get<unknown>("api/missions/mission-history", {
     params: { page: params.page, pageSize: params.pageSize },
@@ -51,7 +52,7 @@ const getAllMission = async (
 };
 
 const useAllMissionHistory = (
-  params: { page?: number; pageSize?: number } = {},
+  params: { page?: number; pageSize?: number } = {}
 ) => {
   return useQuery({
     queryKey: ["mission-history", params.page, params.pageSize],

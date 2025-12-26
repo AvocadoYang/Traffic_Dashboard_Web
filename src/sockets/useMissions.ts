@@ -22,6 +22,7 @@ import {
 } from "yup";
 import { InferObservableType } from "@/utils/globalType";
 import { io } from "./socketConnect";
+import { CancelReason } from "@/types/mission";
 
 const missionTypeMap = {
   sprinkle: "sprinkle",
@@ -65,9 +66,11 @@ const schema = () =>
         startedAt: date().optional(),
         completedAt: date().optional(),
         info: string().optional().nullable(),
+        cancelReason: number().optional().nullable(),
+        status: number().required(),
         order: number().required(),
         priority: number().required(),
-      }).required(),
+      }).required()
     ).required(),
   }).required();
 
@@ -78,7 +81,7 @@ const missionReports$ = fromEventPattern(
   },
   (next) => {
     io.off("mission", next);
-  },
+  }
 ).pipe(
   switchMap((msg) =>
     from(
@@ -88,8 +91,8 @@ const missionReports$ = fromEventPattern(
           console.error(err.message);
           console.error("mission socket schema mismatch: ", err.value);
           return undefined;
-        }),
-    ),
+        })
+    )
   ),
   filter(isDefined),
   map((e) => {
@@ -105,7 +108,7 @@ const missionReports$ = fromEventPattern(
       missions,
     };
   }),
-  share(),
+  share()
 );
 
 export const useMissions = () => {
@@ -117,8 +120,8 @@ export const useMissions = () => {
       .pipe(
         pluck("missions"),
         distinctUntilChanged(
-          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
-        ),
+          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
+        )
       )
       .subscribe((ms) => {
         setMissions(ms);
@@ -146,7 +149,7 @@ export const useMissionsOnce = () => {
 
 export const useRecentMission = (amrId: string) => {
   const [recentMission, setRecentMission] = useState<MissionInfo | undefined>(
-    undefined,
+    undefined
   );
 
   useEffect(() => {
@@ -161,10 +164,10 @@ export const useRecentMission = (amrId: string) => {
               .sort(
                 (a, b) =>
                   (b.startedAt?.getTime?.() || 0) -
-                  (a.startedAt?.getTime?.() || 0),
-              )[0],
+                  (a.startedAt?.getTime?.() || 0)
+              )[0]
         ),
-        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
       )
       .subscribe(setRecentMission);
 
@@ -193,6 +196,7 @@ export type MissionInfo = {
   forkEndAt?: Date;
   completedAt?: Date;
   info?: string | null;
+  cancelReason?: CancelReason;
   priority?: number;
   order: number;
 };

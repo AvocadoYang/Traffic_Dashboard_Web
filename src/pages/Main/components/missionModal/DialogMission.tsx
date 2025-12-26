@@ -364,7 +364,7 @@ const DialogMission = () => {
               onPopupScroll={(e) => {
                 e.stopPropagation();
               }}
-              onDropdownVisibleChange={(open) => {
+              onOpenChange={(open) => {
                 if (open) {
                   document.body.style.overflow = "hidden";
                 } else {

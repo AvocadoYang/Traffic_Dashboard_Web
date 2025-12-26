@@ -431,7 +431,7 @@ export const useIsLogIn = (amrId: string) => {
           isOverdue: info.isOverdue,
           isPosAccurate: info.isPosAccurate,
         })),
-                distinctUntilChanged(
+        distinctUntilChanged(
           (pre, current) => JSON.stringify(pre) === JSON.stringify(current)
         )
       )
@@ -846,28 +846,23 @@ export const useIsWorking = (amrId: string) => {
 
 export const useSpeed = (amrId: string) => {
   const [speed, setSpeed] = useState<number | undefined>(0);
-  const profile$ = profiles$.pipe(
-    map((p) => p.find((x) => x.amrId === amrId)),
-    filter(isDefined),
-    share()
-  );
-  const getSpeed$ = profile$
-    .pipe(
-      map((info) => info.IO?.linear_x),
-     //tap((data) => { if(amrId === "anfa-ps14-16-002") { console.log(data)}}),
-      filter(isDefined),
-      share()
-    ) .subscribe((speed) => setSpeed(speed));
-
 
   useEffect(() => {
-    return () => {
-      getSpeed$.unsubscribe()
-    }
-  }, [amrId])
+    const sub = profiles$
+      .pipe(
+        debounceTime(500),
+        map((p) => p.find((x) => x.amrId === amrId)),
+        filter(isDefined),
+        map((info) => info.IO?.linear_x),
+        filter(isDefined)
+      )
+      .subscribe(setSpeed);
 
-  return { speed }
-}
+    return () => sub.unsubscribe();
+  }, [amrId]);
+
+  return { speed };
+};
 
 export const useIsManual = (amrId: string) => {
   const [isManual, setIsManual] = useState<boolean | undefined>(false);

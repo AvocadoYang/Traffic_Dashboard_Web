@@ -37,6 +37,7 @@ import MissionBtn from "@/pages/Main/components/WebView/components/MissionBtn";
 import ChangePasswordModal from "./ChangePasswordModal";
 import CreateUserModel from "./CreateUserModel";
 import { jwtDecode } from "jwt-decode";
+import SimTime from "./SimTime";
 
 const { Header: AntdHeader } = Layout;
 
@@ -114,17 +115,6 @@ const StatusLabel = styled.span`
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: 700;
-`;
-
-const TimeDisplay = styled.span`
-  font-size: 16px;
-  font-weight: 700;
-  color: #ff4d4f;
-  font-family: "Roboto Mono", monospace;
-  min-width: 80px;
-  text-align: center;
-
-  background: #ffffff;
 `;
 
 const ControlButton = styled(Button)`
@@ -277,7 +267,7 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [hintAmrId, setHintAmrId] = useAtom(AmrFilterCarCard);
   const script = useMockInfo();
-  const timeline = useTimelineSocket();
+
   const { refetch: amrNameRefetch } = useName();
   const [messageApi, contextHolder] = message.useMessage();
   const location = useLocation();
@@ -481,7 +471,7 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
                 <SimulationStatus>
                   <ClockCircleOutlined style={{ fontSize: 16 }} />
                   <StatusLabel>SIM TIME</StatusLabel>
-                  <TimeDisplay>{timeline}</TimeDisplay>
+                  <SimTime></SimTime>
                 </SimulationStatus>
               ) : null}
 

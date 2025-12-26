@@ -11,7 +11,7 @@ import {
   RadioChangeEvent,
   Input,
 } from "antd";
-import { Dispatch, FC, SetStateAction, useState, memo } from "react";
+import { Dispatch, FC, SetStateAction, useState, memo, useEffect } from "react";
 import { ColumnsType } from "antd/es/table";
 import moment from "moment";
 import { SyncOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
@@ -22,6 +22,8 @@ import { translate } from "@/i18n";
 import { darkMode } from "@/utils/gloable";
 import { useAtomValue } from "jotai";
 import { useRejectMission } from "@/sockets/useRejectMission";
+import { CancelReason, MissionStatus } from "@/types/mission";
+import I18nCancelReason from "@/i18n/I18nCancelReason";
 
 // Define the Mission interface based on your schema
 interface Mission {
@@ -43,6 +45,7 @@ interface Mission {
   batteryCost: number;
   batteryRateWhenStarted: number;
   totalDistanceTraveled: number;
+  cancel_reason: CancelReason;
   info?: any;
   message?: string;
   full_name?: string[];
@@ -262,6 +265,15 @@ const MISSION_SORT = [
   5, // canceled
 ];
 
+const statusDesc = {
+  0: "⏱ 等待中",
+  1: "⏱ 已指派",
+  2: "🤖 進行中",
+  3: "😎 已完成",
+  4: "🥊進行時取消",
+  5: "🙅‍♂️ 已取消",
+};
+
 const MissionHistory: FC<{
   isOpenMissionHistory: boolean;
   setIsOpenMissionHistory: Dispatch<SetStateAction<boolean>>;
@@ -299,6 +311,11 @@ const MissionHistory: FC<{
 
     return missionIdMatch || fullNameMatch;
   });
+
+  useEffect(() => {
+    if (!isOpenMissionHistory) return;
+    refetch();
+  }, [isOpenMissionHistory]);
 
   // Define table columns
   const columns: ColumnsType<Mission> = [
@@ -345,11 +362,22 @@ const MissionHistory: FC<{
       title: t("mission_history.status"),
       dataIndex: "status",
       key: "status",
-      render: (status: number) => {
-        const text = translate("normal", status.toString()) || "";
+      render: (status: number, record) => {
+        if (
+          status === MissionStatus.CANCELED ||
+          status === MissionStatus.ABORTING
+        ) {
+          return (
+            <Tooltip title={<I18nCancelReason reason={record.cancel_reason} />}>
+              <StatusBadge $status={status} $isDark={isDark}>
+                {statusDesc[status]}
+              </StatusBadge>
+            </Tooltip>
+          );
+        }
         return (
           <StatusBadge $status={status} $isDark={isDark}>
-            {text}
+            {statusDesc[status]}
           </StatusBadge>
         );
       },
@@ -357,6 +385,24 @@ const MissionHistory: FC<{
         MISSION_SORT.indexOf(a.status) - MISSION_SORT.indexOf(b.status),
       width: 150,
     },
+    {
+      title: t("mission_history.cancel_reason"),
+      dataIndex: "cancel_reason",
+      key: "cancel_reason",
+      sorter: (a, b) => a.amrId.localeCompare(b.amrId),
+      width: 120,
+      render(value, record, index) {
+        if (
+          record.status === MissionStatus.CANCELED ||
+          record.status === MissionStatus.ABORTING
+        ) {
+          return <I18nCancelReason reason={record.cancel_reason} />;
+        } else {
+          return <>-</>;
+        }
+      },
+    },
+
     {
       title: t("mission_history.full_name"),
       dataIndex: "full_name",

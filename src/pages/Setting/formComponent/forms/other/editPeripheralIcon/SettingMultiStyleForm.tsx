@@ -46,7 +46,6 @@ export type SubmitValue = {
 
 const SettingMultiStyleForm: FC<{ locations: string[] }> = ({ locations }) => {
   const [form] = Form.useForm();
-  const intervalId = useRef<ReturnType<typeof setInterval> | null>(null);
   const queryClient = useQueryClient();
   const { t } = useTranslation();
   const [messageApi, contextHolder] = message.useMessage();
@@ -55,7 +54,7 @@ const SettingMultiStyleForm: FC<{ locations: string[] }> = ({ locations }) => {
     mutationFn: (payload: SubmitValue) =>
       client.post(
         "api/peripherals/edit-multi-peripheral-station-style",
-        payload,
+        payload
       ),
     onSuccess: async () => {
       await queryClient.refetchQueries({
