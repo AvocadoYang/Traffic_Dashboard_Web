@@ -202,6 +202,7 @@
   "page_dashboard": "Dashboard",
   "page_simulate": "Simulate",
   "page_simulate_result": "Simulation task statistics table",
+  "page_record": "warn and alarm records",
   "simulate": "simulate",
   "page_analysis": "Mission analysis",
   "page_cargo_history": "Cargo History",

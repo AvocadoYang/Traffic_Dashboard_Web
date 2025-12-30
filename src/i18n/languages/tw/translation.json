@@ -200,6 +200,7 @@
   "page_dashboard": "控制中心",
   "page_simulate": "任務模擬",
   "page_simulate_result": "模擬任務統計表",
+  "page_record": "告警紀錄",
   "simulate": "模擬的",
   "page_analysis": "任務統計",
   "page_cargo_history": "貨物紀錄",
