@@ -285,6 +285,7 @@
       "upload_warning_file": "上傳錯誤表",
       "backup_file": "備份檔案",
       "switch_map": "變更地圖",
+      "start_point": "起始位置",
       "import_map": "引入其他腳本點位路徑"
     },
     "restart": {
@@ -1721,6 +1722,21 @@
       "GENERALLY": "一般使用者",
       "ENGINEER": "工程師"
     }
+  },
+  "start_point": {
+    "title": "設定初始點",
+    "confirm": "確認",
+    "cancel": "取消",
+    "location_id": "地點編號",
+    "select_location": "選擇初始地點...",
+    "select_error": "請選擇一個地點",
+    "success": "🎇🎆 新年快樂 🎆🎇",
+    "no_locations": "[ 未找到地點 ]",
+    "configuration_required": "需要設定",
+    "description": "選擇系統啟動的初始地點。這將用作預設起始位置。",
+    "path_optimization": "路徑最佳化：當派送沒有選定的車輛時，起點將被考慮用於最短路徑計算。",
+    "route_planning": "路線規劃：此地點作為自動路由決定的參考點。",
+    "critical_warning": "關鍵：如果此地點從系統中刪除，您必須手動更新並配置新的起點以維持最佳的路由功能。"
   },
   "cancel_reason": {
     "NULL": "未指定原因（成功/完成代碼對應）",

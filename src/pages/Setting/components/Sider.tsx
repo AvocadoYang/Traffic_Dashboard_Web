@@ -59,6 +59,7 @@ import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import ImportMapConfigModal from "./importMap/ImportMapConfigModal";
 import MapManager from "./ChangeMap/MapManager";
+import StartPoint from "./StartPoint/StartPoint";
 
 export type MenuItem = Required<MenuProps>["items"][number];
 
@@ -152,6 +153,7 @@ const Sider: React.FC<{
   );
   const [openImportMapConfig, setImportMapConfig] = useState(false);
   const [openBackup, setOpenBackup] = useAtom(isShowEditBackup);
+  const [openStartPoint, setOpenStartPoint] = useState(false);
 
   const setOpenSwitchMap = useSetAtom(isOpenSwitchMap);
 
@@ -672,14 +674,11 @@ const Sider: React.FC<{
           }
         />
       ),
-      // getItem(
-      //   t("toolbar.file_setting.backup_file"),
-      //   "9-3",
-      //   <Switch
-      //     checked={openBackup}
-      //     onChange={(checked) => handleShowPanel(checked, "backup_file")}
-      //   />,
-      // ),
+      getItem(
+        t("toolbar.file_setting.start_point"),
+        "9-3",
+        <BorderOuterOutlined />
+      ),
       getItem(
         t("toolbar.file_setting.switch_map"),
         "9-4",
@@ -715,6 +714,9 @@ const Sider: React.FC<{
           window.location.reload();
         }, 6000);
         return;
+      case "9-3":
+        setOpenStartPoint(true);
+        break;
       case "9-5":
         setImportMapConfig(true);
         break;
@@ -752,6 +754,10 @@ const Sider: React.FC<{
         setImportMapConfig={setImportMapConfig}
         openImportMapConfig={openImportMapConfig}
       ></ImportMapConfigModal>
+      <StartPoint
+        openStartPoint={openStartPoint}
+        setOpenStartPoint={setOpenStartPoint}
+      />
       <UploadWarningModal></UploadWarningModal>
       <MapManager></MapManager>
     </>

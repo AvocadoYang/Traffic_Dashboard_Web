@@ -287,6 +287,7 @@
       "upload_warning_file": "Upload warning id file",
       "backup_file": "Backup",
       "switch_map": "Switch Map",
+      "start_point": "Start Point",
       "import_map": "Import locations and roads from other script"
     },
     "restart": {
@@ -1714,6 +1715,21 @@
       "GENERALLY": "General User",
       "ENGINEER": "Engineer"
     }
+  },
+  "start_point": {
+    "title": "Set Initial Point",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "location_id": "Location ID",
+    "select_location": "Select initial location...",
+    "select_error": "Please select a location",
+    "success": "🎇🎆 HAPPY NEW YEAR 🎆🎇",
+    "no_locations": "[ No Locations Found ]",
+    "configuration_required": "Configuration Required",
+    "description": "Select the initial location point for system startup. This will be used as the default starting position.",
+    "path_optimization": "Path Optimization: When dispatch has no selected AMR, the start point will be considered for shortest path calculation.",
+    "route_planning": "Route Planning: This location serves as the reference point for automated routing decisions.",
+    "critical_warning": "Critical: If this location point is deleted from the system, you must manually update and configure a new start point to maintain optimal routing functionality."
   },
   "cancel_reason": {
     "NULL": "No reason specified (Success/Completion code equivalent)",

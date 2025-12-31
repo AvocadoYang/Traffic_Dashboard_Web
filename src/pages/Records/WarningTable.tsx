@@ -10,7 +10,7 @@ import client from "@/api/axiosClient";
 // Industrial Style Components
 const IndustrialContainer = styled.div`
   background: #f5f5f5;
-  min-height: 100vh;
+  //min-height: 100vh;
   padding: 20px;
   font-family: "Roboto Mono", "Courier New", monospace;
 `;
