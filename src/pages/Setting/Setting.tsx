@@ -16,13 +16,9 @@ import { toolbarState } from "./components/siderElement";
 import { useIsMobile } from "@/hooks/useIsMoblie";
 import MapView from "./mapComponents/MapView";
 import useMap from "@/api/useMap";
+import { centerMap } from "@/utils/gloable";
+import { useAtomValue } from "jotai";
 const { Content } = Layout;
-
-const INITIAL_VIEW = {
-  scale: 1.5,
-  scrollX: 1500,
-  scrollY: 3020,
-};
 
 const Setting: React.FC = () => {
   const mapRef = useRef(null);
@@ -35,7 +31,7 @@ const Setting: React.FC = () => {
   const [dataList, setDataList] = useState(toolbarState);
   const [scale, setScale] = useState(1);
   const currentMapInfo = useMap();
-
+  const cm = useAtomValue(centerMap);
   const [splitterSize, setSplitterSize] = useState<number[] | string[]>([
     "0%",
     "100%",
@@ -111,16 +107,25 @@ const Setting: React.FC = () => {
   // }, [mapWrapRef]);
 
   useEffect(() => {
-    // 確保 DOM 已經渲染
-    if (mapWrapRef.current && currentMapInfo) {
-      // 直接設定 DOM 的捲動位置
-      setTimeout(() => {
-        ((mapWrapRef.current.scrollLeft = currentMapInfo.data?.scrollX),
-          (mapWrapRef.current.scrollTop = currentMapInfo.data?.scrollY),
-          setScale(currentMapInfo.data?.scale));
-      }, 100);
-    }
-  }, []);
+    // 1. 提早 return 確保邏輯乾淨
+    if (!mapWrapRef.current || !currentMapInfo?.data) return;
+
+    const { scrollX, scrollY, scale } = currentMapInfo.data;
+
+    // 2. 先將 Ref 存入局部變數，解決 setTimeout 內的 null 檢查問題
+    const container = mapWrapRef.current;
+
+    const timer = setTimeout(() => {
+      // 3. 使用條件判斷或非空斷言確保數值存在
+      if (scrollX !== undefined) container.scrollLeft = scrollX;
+      if (scrollY !== undefined) container.scrollTop = scrollY;
+      if (scale !== undefined) {
+        setScale(scale);
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [currentMapInfo, cm]);
 
   return (
     <>

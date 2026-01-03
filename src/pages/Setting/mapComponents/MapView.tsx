@@ -58,6 +58,7 @@ import CargoEditorElevator from "./components/AllElevator/Form/CargoEditorElevat
 import EditChargeStationConfigModal from "./components/AllChargeStation/EditChargeStationConfigModal";
 import AllGateWaitPoint from "./components/AllGateWaitPoint/AllGateWaitPoint";
 import AllLiftGate from "./components/AllGate/AllLiftGate";
+import AllStack from "./components/AllStack/AllStack";
 
 const MapView: React.FC<{
   scale: number;
@@ -212,6 +213,8 @@ const MapView: React.FC<{
       />
 
       <AllElevator />
+
+      <AllStack />
 
       <AllCargo setInitPoint={setInitPoint} handleMouseDown={handleMouseDown} />
 

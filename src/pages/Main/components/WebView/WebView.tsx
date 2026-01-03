@@ -7,7 +7,7 @@ import ScalePad from "./components/ScalePad";
 import WebMapView from "./components/WebMapView";
 import { useAtomValue, useSetAtom } from "jotai";
 import CarCardWrap from "../../Car_Card/CardWrap";
-import { darkMode, Scale } from "@/utils/gloable";
+import { centerMap, darkMode, Scale } from "@/utils/gloable";
 import MissionWrap from "../../Mission_Card/MissionWrap";
 import MissionBtn from "./components/MissionBtn";
 import CorningTest from "./components/CorningTest";
@@ -24,6 +24,7 @@ const WebView = () => {
   const isDark = useAtomValue(darkMode);
   const currentMapInfo = useMap();
   const setScale = useSetAtom(Scale);
+  const cm = useAtomValue(centerMap);
 
   useEffect(() => {
     // 1. 提早 return 確保邏輯乾淨
@@ -44,7 +45,7 @@ const WebView = () => {
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [currentMapInfo]); // 注意：如果 currentMapInfo 是非同步取得，依賴項應包含它
+  }, [currentMapInfo, cm]); // 注意：如果 currentMapInfo 是非同步取得，依賴項應包含它
 
   return (
     <Content style={{ width: "100%", overflow: "hidden" }}>

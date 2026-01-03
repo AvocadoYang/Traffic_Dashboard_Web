@@ -21,6 +21,8 @@ export const locationOption = (value) => {
       return t("edit_location_panel.Storage");
     case "GATE_WAIT_POINT":
       return t("edit_location_panel.GATE_WAIT_POINT");
+    case "STACK":
+      return t("edit_location_panel.STACK");
     default:
       return value;
   }

@@ -187,6 +187,7 @@
   "close": "關閉表單列",
 
   "map_tool": {
+    "center_map": "回原位",
     "zoom_out": "縮小",
     "zoom_in": "放大",
     "road": "路徑",
@@ -348,6 +349,7 @@
     "Dispatch": "預派點",
     "Standby": "待命區",
     "Storage": "存貨區",
+    "STACK": "堆疊",
     "GATE_WAIT_POINT": "門前等待點",
     "save_pose_notify": {
       "empty_value": "X/Y 為必填值",

@@ -28,6 +28,8 @@ export const shelfSelectedStyleLocationId = atom<string>("");
 
 export const darkMode = atom<boolean>(false);
 
+export const centerMap = atom<number>(0);
+
 export const Scale = atom<number>(1);
 
 export const mousePoint_X = atom<number>(-5); // MousePoint 編輯點位小紅點

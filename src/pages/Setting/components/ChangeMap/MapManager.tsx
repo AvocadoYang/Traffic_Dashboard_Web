@@ -13,6 +13,7 @@ import {
   UploadProps,
   Flex,
   Image,
+  Drawer,
 } from "antd";
 import {
   InboxOutlined,
@@ -672,7 +673,11 @@ const MapManager: FC = () => {
   return (
     <>
       {contextHolder}
-      <MapManagerContainer $isOpen={openSwitchMap}>
+      <Drawer
+        size={1200}
+        open={openSwitchMap}
+        onClose={() => setOpenSwitchMap(false)}
+      >
         <Header>
           <Title>
             <PictureOutlined />
@@ -776,7 +781,7 @@ const MapManager: FC = () => {
             </EmptyState>
           )}
         </Content>
-      </MapManagerContainer>
+      </Drawer>
 
       {/* Image Preview Modal */}
       <Image

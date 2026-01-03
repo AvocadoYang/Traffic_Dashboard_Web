@@ -26,6 +26,7 @@ import useMouseClick from "../hooks/useMouseClick";
 import ScalePad from "./ScalePad";
 import AllGateWaitPoint from "../../PadViwe/components/PadMapContent/AllGateWaitPoint/AllGateWaitPoint";
 import AllLiftGate from "../../PadViwe/components/PadMapContent/AllGate/AllLiftGate";
+import AllStack from "../../PadViwe/components/PadMapContent/AllStack/AllStack";
 
 const WebMapView: React.FC<{
   mapRef: RefObject<HTMLDivElement>;
@@ -78,6 +79,7 @@ const WebMapView: React.FC<{
           {/* <AllLocation mapRef={mapRef}></AllLocation> */}
           <AllAMRs></AllAMRs>
           <AllCargo></AllCargo>
+          <AllStack></AllStack>
           <AllElevator></AllElevator>
           <AllConveyor></AllConveyor>
           <AllGateWaitPoint></AllGateWaitPoint>

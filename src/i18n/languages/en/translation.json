@@ -189,6 +189,7 @@
   "close": "Close Drawer",
 
   "map_tool": {
+    "center_map": "back to center",
     "zoom_out": "Zoom Out",
     "zoom_in": "Zoom In",
     "road": "Road",
@@ -350,6 +351,7 @@
     "Dispatch": "Pre-dispatch point",
     "Standby": "Standby point",
     "Storage": "Storage point",
+    "STACK": "Stack",
     "GATE_WAIT_POINT": "Gate wait point",
     "save_pose_notify": {
       "empty_value": "X/Y is required",
