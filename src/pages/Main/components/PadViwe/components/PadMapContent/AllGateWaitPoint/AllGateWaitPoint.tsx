@@ -6,6 +6,7 @@ import { useSetAtom } from "jotai";
 import React from "react";
 import styled from "styled-components";
 import GateWaitPoint from "./GateWaitPoint";
+import { OpenDirect } from "@/pages/Main/global/jotai";
 
 const Point = styled.div.attrs<{
   left: number;
@@ -50,6 +51,12 @@ const AllGateWaitPoint = () => {
   const { data } = useMap();
   const setTooltip = useSetAtom(tooltipProp);
   const { data: locInfo } = useLoc(undefined);
+    const setOpen = useSetAtom(OpenDirect);
+
+
+    const handleClick = (locationId: string) => {
+      setOpen({locationId, open: true})
+    }
 
   const handleEnter = (locationId: string, x: number, y: number) => {
     setTooltip({
@@ -106,7 +113,7 @@ const AllGateWaitPoint = () => {
                 onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
                 onMouseLeave={() => handleLeave()}
               ></Point>
-              <WrapperStation left={displayX} top={displayY}>
+              <WrapperStation onClick={()=> handleClick(loc.locationId)} left={displayX} top={displayY}>
                 <GateWaitPoint
                   translateX={translateX}
                   translateY={translateY}

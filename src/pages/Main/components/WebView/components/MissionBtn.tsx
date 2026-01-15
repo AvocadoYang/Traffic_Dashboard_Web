@@ -3,6 +3,8 @@ import {
   CalendarOutlined,
   SwapOutlined,
   CloseOutlined,
+  UploadOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import { Button, Flex, Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
@@ -12,6 +14,10 @@ import { OpenAssignMission } from "@/pages/Main/global/jotai";
 import { useSetAtom } from "jotai";
 import QuickMissionWebView from "../../missionModal/QuickMissionWebView";
 import styled from "styled-components";
+import UploadMission from "../../missionModal/UploadMission";
+import CycleMissionV2 from "../../missionModal/CycleMissionV2";
+import CycleMissionViewer from "../../missionModal/CycleMissionViewer";
+import { Cycle, Cycle_Mission } from "@/sockets/useCycleMission";
 
 // Industrial Button Styling - Light Mode
 const MissionBtnWrap = styled.div<{ $isMinimized: boolean }>`
@@ -50,19 +56,15 @@ const IndustrialButton = styled(Button)`
 
   &.quick-mission {
     border-color: #faad14;
-    color: #faad14;
+    color: #af7603;
     background: #fffbe6;
-
     &::before {
       background: linear-gradient(90deg, transparent, rgba(250, 173, 20, 0.1));
     }
-
     &:hover {
       background: #fff1b8;
-      border-color: #faad14;
       color: #fa8c16;
       box-shadow: 0 2px 12px rgba(250, 173, 20, 0.3);
-
       &::before {
         width: 100%;
       }
@@ -73,17 +75,49 @@ const IndustrialButton = styled(Button)`
     border-color: #1890ff;
     color: #1890ff;
     background: #e6f7ff;
-
     &::before {
       background: linear-gradient(90deg, transparent, rgba(24, 144, 255, 0.1));
     }
-
     &:hover {
       background: #bae7ff;
-      border-color: #1890ff;
       color: #096dd9;
       box-shadow: 0 2px 12px rgba(24, 144, 255, 0.3);
+      &::before {
+        width: 100%;
+      }
+    }
+  }
 
+  &.cycle-mission {
+    border-color: #52c41a;
+    color: #327411;
+    background: #f6ffed;
+    &::before {
+      background: linear-gradient(90deg, transparent, rgba(82, 196, 26, 0.1));
+    }
+    &:hover {
+      background: #d9f7be;
+      border-color: #52c41a;
+      color: #389e0d;
+      box-shadow: 0 2px 12px rgba(82, 196, 26, 0.3);
+      &::before {
+        width: 100%;
+      }
+    }
+  }
+
+  &.upload-mission {
+    border-color: #722ed1;
+    color: #722ed1;
+    background: #f9f0ff;
+    &::before {
+      background: linear-gradient(90deg, transparent, rgba(114, 46, 209, 0.1));
+    }
+    &:hover {
+      background: #efdbff;
+      border-color: #722ed1;
+      color: #531dab;
+      box-shadow: 0 2px 12px rgba(114, 46, 209, 0.3);
       &::before {
         width: 100%;
       }
@@ -161,7 +195,11 @@ const MissionBtn = () => {
   const { t } = useTranslation();
   const openAssignMission = useSetAtom(OpenAssignMission);
   const [showQuickMission, setShowQuickMission] = useState(false);
+  const [showUploadMission, setShowUploadMission] = useState(false);
+  const [showCycleMission, setShowCycleMission] = useState(false);
+  const [showEditCycleMission, setShowEditCycleMission] = useState(false);
   const [$isMinimized, set$isMinimized] = useState(false);
+  const [editCyc, setEditCyc] = useState<null | Cycle>(null);
 
   useEffect(() => {
     const savedState = localStorage.getItem("missionBtnMinimized");
@@ -186,6 +224,26 @@ const MissionBtn = () => {
           </Tooltip>
         ) : (
           <ButtonGroup align="center">
+            <IndustrialButton
+              className="upload-mission"
+              onClick={() => {
+                setShowUploadMission(!showUploadMission);
+              }}
+              icon={<UploadOutlined />}
+            >
+              {t("main.card_name.upload_mission")}
+            </IndustrialButton>
+
+            <IndustrialButton
+              className="cycle-mission"
+              onClick={() => {
+                setShowCycleMission(!showCycleMission);
+              }}
+              icon={<SyncOutlined />}
+            >
+              {t("main.card_name.cycle_mission")}
+            </IndustrialButton>
+
             <IndustrialButton
               className="quick-mission"
               onClick={() => {
@@ -219,6 +277,22 @@ const MissionBtn = () => {
       <QuickMissionWebView
         showQuickMission={showQuickMission}
         setShowQuickMission={setShowQuickMission}
+      />
+      <UploadMission
+        open={showUploadMission}
+        setShowUploadMission={setShowUploadMission}
+      />
+      <CycleMissionV2
+        open={showEditCycleMission}
+        setShowCycleMission={setShowEditCycleMission}
+        editCyc={editCyc}
+        setEditCyc={setEditCyc}
+      />
+      <CycleMissionViewer
+        open={showCycleMission}
+        setShowCycleMission={setShowCycleMission}
+        setShowEditCycleMission={setShowEditCycleMission}
+        setEditCyc={setEditCyc}
       />
     </>
   );

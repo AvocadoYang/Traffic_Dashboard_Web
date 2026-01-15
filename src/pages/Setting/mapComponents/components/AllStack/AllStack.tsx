@@ -63,7 +63,7 @@ const AllStack: FC = () => {
       {data.locations
         .filter(({ areaType }) => areaType === "STACK")
         .map((loc) => {
-          console.log(loc.locationId);
+      
           const [displayX, displayY] = rosCoord2DisplayCoord({
             x: loc.x,
             y: loc.y,

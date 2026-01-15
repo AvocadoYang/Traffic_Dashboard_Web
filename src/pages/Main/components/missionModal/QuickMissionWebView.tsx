@@ -68,7 +68,14 @@ const QuickMissionContainer = styled.div<{ $visible: boolean }>`
           ${slideOut} 0.3s ease-out forwards
         `};
 
-  @media (max-width: 768px) {
+  @media (max-width: 576px) {
+    right: 0;
+    bottom: 0;
+    max-width: 100%;
+    border-radius: 0;
+  }
+
+  @media (min-width: 577px) and (max-width: 768px) {
     right: 10px;
     bottom: 10px;
     max-width: calc(100% - 20px);
@@ -79,16 +86,28 @@ const IndustrialPanel = styled.div`
   background: #ffffff;
   border: 2px solid #d9d9d9;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+
+  @media (max-width: 576px) {
+    border: none;
+    border-top: 2px solid #d9d9d9;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
+    max-height: 90vh;
+    border-radius: 0;
+  }
 `;
 
 const PanelHeader = styled.div`
   background: #fafafa;
   border-bottom: 2px solid #d9d9d9;
-  padding: 16px 20px;
+  padding: 12px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 
   &::before {
     content: "";
@@ -99,30 +118,46 @@ const PanelHeader = styled.div`
     width: 4px;
     background: #1890ff;
   }
+
+  @media (min-width: 768px) {
+    padding: 16px 20px;
+  }
 `;
 
 const PanelTitle = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   font-family: "Roboto Mono", monospace;
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 700;
   color: #1890ff;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 1px;
+
+  @media (min-width: 768px) {
+    gap: 12px;
+    font-size: 16px;
+    letter-spacing: 1.5px;
+  }
 `;
 
 const CloseButton = styled(Button)`
   background: transparent;
   border: 1px solid #d9d9d9;
   color: #8c8c8c;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+
+  @media (min-width: 768px) {
+    width: 32px;
+    height: 32px;
+  }
 
   &:hover {
     background: #fff1f0;
@@ -132,8 +167,12 @@ const CloseButton = styled(Button)`
 `;
 
 const PanelBody = styled.div`
-  padding: 24px;
+  padding: 16px;
   background: #ffffff;
+
+  @media (min-width: 768px) {
+    padding: 24px;
+  }
 `;
 
 const StatusIndicator = styled.div<{ status: "idle" | "selecting" | "ready" }>`
@@ -150,11 +189,11 @@ const StatusIndicator = styled.div<{ status: "idle" | "selecting" | "ready" }>`
       : status === "selecting"
         ? "#faad14"
         : "#d9d9d9"};
-  padding: 12px 16px;
-  margin-bottom: 20px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   font-family: "Roboto Mono", monospace;
   color: ${({ status }) =>
     status === "ready"
@@ -162,20 +201,34 @@ const StatusIndicator = styled.div<{ status: "idle" | "selecting" | "ready" }>`
       : status === "selecting"
         ? "#faad14"
         : "#8c8c8c"};
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
+
+  @media (min-width: 768px) {
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    gap: 12px;
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
 `;
 
 const FieldLabel = styled.div`
   color: #595959;
-  font-size: 11px;
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
   font-family: "Roboto Mono", monospace;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   font-weight: 600;
+
+  @media (min-width: 768px) {
+    font-size: 11px;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
 `;
 
 const LocationCard = styled.div<{
@@ -187,11 +240,16 @@ const LocationCard = styled.div<{
   border: 2px solid;
   border-color: ${({ selected, type }) =>
     selected ? (type === "load" ? "#1890ff" : "#52c41a") : "#d9d9d9"};
-  padding: 16px;
-  margin-bottom: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
   position: relative;
   transition: all 0.2s ease;
   cursor: ${({ selected }) => (selected ? "default" : "pointer")};
+
+  @media (min-width: 768px) {
+    padding: 16px;
+    margin-bottom: 12px;
+  }
 
   &:hover {
     border-color: ${({ selected, type }) =>
@@ -206,69 +264,103 @@ const LocationCard = styled.div<{
     left: 0;
     top: 0;
     bottom: 0;
-    width: 4px;
+    width: 3px;
     background: ${({ type }) => (type === "load" ? "#1890ff" : "#52c41a")};
     opacity: ${({ selected }) => (selected ? 1 : 0)};
     transition: opacity 0.2s;
+
+    @media (min-width: 768px) {
+      width: 4px;
+    }
   }
 `;
 
 const LocationHeader = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: 10px;
+  margin-bottom: 6px;
+
+  @media (min-width: 768px) {
+    gap: 12px;
+    margin-bottom: 8px;
+  }
 `;
 
 const LocationIcon = styled.div<{ type: "load" | "offload" }>`
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: ${({ type }) => (type === "load" ? "#1890ff" : "#52c41a")};
   color: #ffffff;
-  font-size: 16px;
+  font-size: 14px;
   border: 1px solid;
   border-color: ${({ type }) => (type === "load" ? "#096dd9" : "#389e0d")};
+  flex-shrink: 0;
+
+  @media (min-width: 768px) {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
 `;
 
 const LocationTitle = styled.div`
   font-family: "Roboto Mono", monospace;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
   color: #262626;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
   flex: 1;
+
+  @media (min-width: 768px) {
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
 `;
 
 const LocationValue = styled.div`
   font-family: "Roboto Mono", monospace;
-  font-size: 14px;
+  font-size: 12px;
   color: #1890ff;
   font-weight: 600;
-  padding-left: 44px;
+  padding-left: 38px;
+
+  @media (min-width: 768px) {
+    font-size: 14px;
+    padding-left: 44px;
+  }
 `;
 
 const InstructionBanner = styled.div`
   background: #fffbe6;
   border: 2px solid #faad14;
-  padding: 16px;
-  margin-bottom: 16px;
+  padding: 12px;
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   font-family: "Roboto Mono", monospace;
-  font-size: 12px;
+  font-size: 10px;
   color: #faad14;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   animation: ${keyframes`
     0%, 100% { opacity: 1; }
     50% { opacity: 0.7; }
   `} 2s ease-in-out infinite;
+
+  @media (min-width: 768px) {
+    padding: 16px;
+    margin-bottom: 16px;
+    gap: 12px;
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
 `;
 
 const IndustrialButton = styled(Button)`
@@ -277,10 +369,16 @@ const IndustrialButton = styled(Button)`
   color: #1890ff;
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
-  font-size: 11px;
-  letter-spacing: 1px;
-  height: 40px;
+  font-size: 10px;
+  letter-spacing: 0.8px;
+  height: 36px;
   font-weight: 600;
+
+  @media (min-width: 768px) {
+    font-size: 11px;
+    letter-spacing: 1px;
+    height: 40px;
+  }
 
   &:hover {
     background: #f0f5ff;
@@ -336,19 +434,30 @@ const PriorityRadioGroup = styled(Radio.Group)`
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+
+  @media (min-width: 768px) {
+    gap: 8px;
+  }
 
   .ant-radio-button-wrapper {
-    height: 40px;
-    line-height: 38px;
+    height: 36px;
+    line-height: 34px;
     border: 1px solid #d9d9d9;
     background: #fafafa;
     font-family: "Roboto Mono", monospace;
-    font-size: 11px;
+    font-size: 10px;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     font-weight: 600;
     transition: all 0.2s;
+
+    @media (min-width: 768px) {
+      height: 40px;
+      line-height: 38px;
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
 
     &:hover {
       background: #f5f5f5;
@@ -365,6 +474,31 @@ const PriorityRadioGroup = styled(Radio.Group)`
         background: #1890ff;
       }
     }
+  }
+`;
+
+const StyledSelect = styled(Select)`
+  .ant-select-selector {
+    min-height: 36px !important;
+    font-family: "Roboto Mono", monospace;
+
+    @media (min-width: 768px) {
+      min-height: 40px !important;
+    }
+  }
+`;
+
+const ResponsiveSpace = styled(Space)`
+  width: 100%;
+`;
+
+const ButtonGroup = styled(Flex)`
+  margin-top: 16px;
+  gap: 8px;
+
+  @media (min-width: 768px) {
+    margin-top: 20px;
+    gap: 12px;
   }
 `;
 
@@ -521,7 +655,7 @@ const QuickMissionWebView: React.FC<{
                 name="amrId"
                 rules={[{ required: true, message: t("utils.required") }]}
               >
-                <Select
+                <StyledSelect
                   options={AmrOption}
                   onChange={(v: string) => setAmrGenre(v)}
                   placeholder={t("utils.required")}
@@ -555,11 +689,7 @@ const QuickMissionWebView: React.FC<{
               </Form.Item>
 
               {!startQuickSetting && (
-                <Space
-                  orientation="vertical"
-                  size="middle"
-                  style={{ width: "100%" }}
-                >
+                <ResponsiveSpace direction="vertical" size="middle">
                   <LocationCard
                     type="load"
                     selected={!!loadValue}
@@ -579,9 +709,9 @@ const QuickMissionWebView: React.FC<{
                     {!loadValue && (
                       <div
                         style={{
-                          paddingLeft: "44px",
+                          paddingLeft: "38px",
                           color: "#8c8c8c",
-                          fontSize: "11px",
+                          fontSize: "10px",
                           fontFamily: "Roboto Mono, monospace",
                           textTransform: "uppercase",
                         }}
@@ -612,9 +742,9 @@ const QuickMissionWebView: React.FC<{
                     {!offloadValue && (
                       <div
                         style={{
-                          paddingLeft: "44px",
+                          paddingLeft: "38px",
                           color: "#8c8c8c",
-                          fontSize: "11px",
+                          fontSize: "10px",
                           fontFamily: "Roboto Mono, monospace",
                           textTransform: "uppercase",
                         }}
@@ -623,10 +753,10 @@ const QuickMissionWebView: React.FC<{
                       </div>
                     )}
                   </LocationCard>
-                </Space>
+                </ResponsiveSpace>
               )}
 
-              <Flex gap="middle" style={{ marginTop: 20 }}>
+              <ButtonGroup>
                 <IndustrialButton
                   className="danger"
                   size="large"
@@ -649,7 +779,7 @@ const QuickMissionWebView: React.FC<{
                       : t("utils.submit")}
                   </IndustrialButton>
                 )}
-              </Flex>
+              </ButtonGroup>
             </Form>
           </PanelBody>
         </IndustrialPanel>

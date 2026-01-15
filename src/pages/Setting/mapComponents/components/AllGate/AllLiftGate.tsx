@@ -7,6 +7,7 @@ import { tooltipProp } from "@/utils/gloable";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
 import LiftGate from "./LiftGate";
 import useLiftGateSocket from "@/sockets/useLiftGateSocket";
+import { Lift_Gate_Status } from "@/types/peripheral";
 
 const Point = styled.div.attrs<{
   left: number;
@@ -92,7 +93,7 @@ const AllLiftGate = () => {
           const LocScale = info?.find((i) => i.locationId === loc.locationId)
             ?.scale as number;
 
-          const status = gateSocket[loc.locationId].status;
+          const status = gateSocket[loc.locationId]?.status || Lift_Gate_Status.CLOSED;
 
           return (
             <div

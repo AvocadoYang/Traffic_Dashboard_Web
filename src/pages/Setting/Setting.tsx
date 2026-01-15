@@ -125,7 +125,7 @@ const Setting: React.FC = () => {
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [currentMapInfo, cm]);
+  }, [ cm]);
 
   return (
     <>

@@ -16,7 +16,6 @@ import {
   EditShelfYawPanelSwitch,
   isShowEditMission,
   isShowEditChargeMission,
-  isShowEditCycleMission,
   isShowEditBeforeLeftChargeStationMission,
   isShowEditScheduleMission,
   isShowEditIdleMission,
@@ -57,21 +56,21 @@ const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({
 
   const setOpenMissionPanel = useSetAtom(isShowEditMission); // 5-1
   const setOpenChargeMissionPanel = useSetAtom(isShowEditChargeMission); // 5-2
-  const setOpenCycleMissionPanel = useSetAtom(isShowEditCycleMission); // 5-3
+
   const setOpenBeforeLeftStationMissionPanel = useSetAtom(
-    isShowEditBeforeLeftChargeStationMission,
+    isShowEditBeforeLeftChargeStationMission
   ); // 5-4
   const setOpenScheduleMissionPanel = useSetAtom(isShowEditScheduleMission); // 5-5
   const setOpenIdleMissionPanel = useSetAtom(isShowEditIdleMission); // 5-6
   const setOpenTopicMissionPanel = useSetAtom(isShowEditTopicMission); // 5-7
   const setOpenAbortMissionPanel = useSetAtom(
-    isShowEditAbortMissionWhenHasCargoMission,
+    isShowEditAbortMissionWhenHasCargoMission
   );
 
   const setOpenPeripheralNamePanel = useSetAtom(isShowPeripheralNameTable); // 7-1
   const setOpenPeripheralGroupPanel = useSetAtom(isShowPeripheralGroupTable); // 7-2
   const setOpenEditChargeStationIconPanel = useSetAtom(
-    isShowEditChargeStationPosition,
+    isShowEditChargeStationPosition
   ); // 7-3
 
   const setOpenTagMissionPanel = useSetAtom(isShowEditMissionTag); // 6-1
@@ -126,9 +125,7 @@ const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({
       case "charge_mission":
         setOpenChargeMissionPanel(false);
         break;
-      case "cycle_mission":
-        setOpenCycleMissionPanel(false);
-        break;
+
       case "before_left_charge_station_task":
         setOpenBeforeLeftStationMissionPanel(false);
         break;

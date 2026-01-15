@@ -18,7 +18,6 @@ import {
   showZonesTableSwitch,
   isShowEditMission,
   isShowEditChargeMission,
-  isShowEditCycleMission,
   isShowEditBeforeLeftChargeStationMission,
   isShowEditScheduleMission,
   isShowEditIdleMission,
@@ -117,9 +116,7 @@ const Sider: React.FC<{
   const [openChargeMissionPanel, setOpenChargeMissionPanel] = useAtom(
     isShowEditChargeMission
   );
-  const [openCycleMissionPanel, setOpenCycleMissionPanel] = useAtom(
-    isShowEditCycleMission
-  );
+
   const [
     openBeforeLeftStationMissionPanel,
     setOpenBeforeLeftStationMissionPanel,
@@ -182,7 +179,6 @@ const Sider: React.FC<{
       openYawTable,
       openMissionPanel,
       openChargeMissionPanel,
-      openCycleMissionPanel,
       openBeforeLeftStationMissionPanel,
       openScheduleMissionPanel,
       openIdleMissionPanel,
@@ -214,7 +210,6 @@ const Sider: React.FC<{
     openYawTable,
     openMissionPanel,
     openChargeMissionPanel,
-    openCycleMissionPanel,
     openBeforeLeftStationMissionPanel,
     openScheduleMissionPanel,
     openIdleMissionPanel,
@@ -298,10 +293,6 @@ const Sider: React.FC<{
 
       case "charge_mission":
         setOpenChargeMissionPanel(check);
-        break;
-
-      case "cycle_mission":
-        setOpenCycleMissionPanel(check);
         break;
 
       case "before_left_charge_station_task":
@@ -542,15 +533,6 @@ const Sider: React.FC<{
         <Switch
           checked={openChargeMissionPanel}
           onChange={(checked) => handleShowPanel(checked, "charge_mission")}
-        />
-      ),
-
-      getItem(
-        t("toolbar.mission.cycle_mission"),
-        "6-3",
-        <Switch
-          onChange={(checked) => handleShowPanel(checked, "cycle_mission")}
-          checked={openCycleMissionPanel}
         />
       ),
 

@@ -30,7 +30,7 @@ type MissionFrom = {
   priority: MissionPriority;
 };
 
-// Industrial Modal Styling
+// Industrial Modal Styling with RWD
 const IndustrialModal = styled(Modal)`
   .ant-modal-content {
     background: #ffffff;
@@ -42,7 +42,7 @@ const IndustrialModal = styled(Modal)`
   .ant-modal-header {
     background: #fafafa;
     border-bottom: 2px solid #d9d9d9;
-    padding: 16px 24px;
+    padding: 12px 16px;
     position: relative;
     border-radius: 0;
 
@@ -55,30 +55,91 @@ const IndustrialModal = styled(Modal)`
       width: 4px;
       background: #1890ff;
     }
+
+    @media (min-width: 768px) {
+      padding: 16px 24px;
+    }
   }
 
   .ant-modal-title {
     font-family: "Roboto Mono", monospace;
-    font-size: 16px;
+    font-size: 13px;
     font-weight: 700;
     color: #1890ff;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
+
+    @media (min-width: 768px) {
+      font-size: 16px;
+      letter-spacing: 1.5px;
+      gap: 12px;
+    }
   }
 
   .ant-modal-body {
-    padding: 24px;
+    padding: 16px;
     background: #ffffff;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+
+    @media (min-width: 768px) {
+      padding: 24px;
+      max-height: none;
+      overflow-y: visible;
+    }
   }
 
   .ant-modal-footer {
     background: #fafafa;
     border-top: 2px solid #d9d9d9;
-    padding: 16px 24px;
+    padding: 12px 16px;
     border-radius: 0;
+
+    @media (min-width: 768px) {
+      padding: 16px 24px;
+    }
+  }
+
+  .ant-modal-close {
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+
+    @media (min-width: 768px) {
+      top: 16px;
+      right: 16px;
+    }
+
+    .ant-modal-close-x {
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      font-size: 18px;
+    }
+  }
+
+  /* Mobile: Full screen on very small devices */
+  @media (max-width: 576px) {
+    max-width: 100vw !important;
+    margin: 0;
+    top: 0;
+    padding: 0;
+
+    .ant-modal-content {
+      border-radius: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ant-modal-body {
+      flex: 1;
+      overflow-y: auto;
+    }
   }
 `;
 
@@ -91,8 +152,12 @@ const SectionDivider = styled.div`
     transparent 10px,
     transparent 20px
   );
-  margin: 24px 0;
+  margin: 16px 0;
   position: relative;
+
+  @media (min-width: 768px) {
+    margin: 24px 0;
+  }
 
   &::after {
     content: "";
@@ -110,37 +175,59 @@ const SectionDivider = styled.div`
 
 const FieldLabel = styled.div`
   color: #595959;
-  font-size: 11px;
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
   font-family: "Roboto Mono", monospace;
   font-weight: 600;
   margin-bottom: 8px;
+
+  @media (min-width: 768px) {
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
 `;
 
 const FormSection = styled.div`
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+
+  @media (min-width: 768px) {
+    margin-bottom: 20px;
+  }
 `;
 
 const PriorityRadioGroup = styled(Radio.Group)`
   width: 100%;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  gap: 6px;
+
+  @media (min-width: 768px) {
+    gap: 8px;
+  }
 
   .ant-radio-button-wrapper {
-    height: 44px;
-    line-height: 42px;
+    height: 38px;
+    line-height: 36px;
     border: 1px solid #d9d9d9;
     background: #fafafa;
     font-family: "Roboto Mono", monospace;
-    font-size: 11px;
+    font-size: 10px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     font-weight: 600;
     transition: all 0.2s;
     text-align: center;
     border-radius: 0;
+    padding: 0 4px;
+
+    @media (min-width: 768px) {
+      height: 44px;
+      line-height: 42px;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      padding: 0 12px;
+    }
 
     &:first-child {
       border-top-left-radius: 0;
@@ -187,11 +274,19 @@ const IndustrialButton = styled(Button)`
   color: #1890ff;
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
-  font-size: 11px;
-  letter-spacing: 1px;
-  height: 40px;
+  font-size: 10px;
+  letter-spacing: 0.8px;
+  height: 36px;
   font-weight: 600;
   border-radius: 0;
+  padding: 0 12px;
+
+  @media (min-width: 768px) {
+    font-size: 11px;
+    letter-spacing: 1px;
+    height: 40px;
+    padding: 0 16px;
+  }
 
   &:hover {
     background: #f0f5ff;
@@ -224,6 +319,11 @@ const StyledSelect = styled(Select)`
     border-radius: 0 !important;
     border: 1px solid #d9d9d9 !important;
     font-family: "Roboto Mono", monospace;
+    min-height: 36px !important;
+
+    @media (min-width: 768px) {
+      min-height: 40px !important;
+    }
 
     &:hover {
       border-color: #1890ff !important;
@@ -237,9 +337,33 @@ const StyledSelect = styled(Select)`
 `;
 
 const ActionBar = styled(Flex)`
-  padding-top: 16px;
+  padding-top: 12px;
   border-top: 1px dashed #d9d9d9;
-  margin-top: 24px;
+  margin-top: 16px;
+
+  @media (min-width: 768px) {
+    padding-top: 16px;
+    margin-top: 24px;
+  }
+`;
+
+const ResponsiveFooter = styled(Flex)`
+  gap: 8px;
+  flex-wrap: wrap;
+
+  @media (min-width: 768px) {
+    gap: 12px;
+    flex-wrap: nowrap;
+  }
+
+  button {
+    flex: 1;
+    min-width: 100px;
+
+    @media (min-width: 768px) {
+      flex: initial;
+    }
+  }
 `;
 
 const DialogMission = () => {
@@ -331,8 +455,10 @@ const DialogMission = () => {
       }
       open={openDialogMission}
       width={700}
+      style={{ top: 10 }}
+      centered
       footer={
-        <Flex gap="middle" justify="flex-end">
+        <ResponsiveFooter justify="flex-end">
           <IndustrialButton onClick={handleCancel}>
             {t("utils.cancel")}
           </IndustrialButton>
@@ -343,7 +469,7 @@ const DialogMission = () => {
           >
             {canSubmitMutation.isLoading ? "DEPLOYING..." : t("utils.submit")}
           </IndustrialButton>
-        </Flex>
+        </ResponsiveFooter>
       }
       onCancel={handleCancel}
     >

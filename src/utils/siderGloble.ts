@@ -48,9 +48,6 @@ export const isShowEditMission = atom<boolean>(false);
 /** 6-2 顯示編輯充電任務 */
 export const isShowEditChargeMission = atom<boolean>(false);
 
-/** 6-3 顯示循環任務 */
-export const isShowEditCycleMission = atom<boolean>(false);
-
 /** 6-4 顯示編輯離開充電站強制任務 */
 export const isShowEditBeforeLeftChargeStationMission = atom<boolean>(false);
 

@@ -24,7 +24,6 @@ import {
   isShowEditChargeMission,
   isShowEditChargeStationPosition,
   isShowEditCustomCargoFormat,
-  isShowEditCycleMission,
   isShowEditIdleMission,
   isShowEditMission,
   isShowEditMissionTag,
@@ -49,7 +48,6 @@ import { YawPanel } from "../formComponent/forms/shelfComponents/yaw";
 import FormCloseBtn from "../utils/FormCloseBtn";
 import EditMissionPanel from "../formComponent/forms/missionComponents/editMission/MissionPanel";
 import { ChargePanel } from "../formComponent/forms/missionComponents/chargeMission";
-import { CycleMIssionPanel } from "../formComponent/forms/missionComponents/cycleMission";
 import { BeforeLeftChargeStationPanel } from "../formComponent/forms/missionComponents/beforLeftChargeStationMission";
 import { SchedulePanel } from "../formComponent/forms/missionComponents/scheduleMission";
 import { IdleMissionPanel } from "../formComponent/forms/missionComponents/idleMission";
@@ -306,21 +304,7 @@ const SortableWrap: FC<{
                 />
               </Card>
             );
-          // 6-3 顯示循環任務
-          case "cycle_mission":
-            return (
-              <Card style={styles} ref={setNodeRef}>
-                <FormCloseBtn
-                  sortableId={sortableId}
-                  panelName="cycle_mission"
-                />
-                <CycleMIssionPanel
-                  sortableId={sortableId}
-                  attributes={attributes}
-                  listeners={listeners}
-                />
-              </Card>
-            );
+
           // 6-4 顯示離開充電站前任務
           case "before_left_charge_station_task":
             return (
@@ -525,13 +509,12 @@ const ToolComponents: FC<{
 
   const openMissionPanel = useAtomValue(isShowEditMission);
   const openChargePanel = useAtomValue(isShowEditChargeMission);
-  const openCyclePanel = useAtomValue(isShowEditCycleMission);
   const openBLCSPanel = useAtomValue(isShowEditBeforeLeftChargeStationMission);
   const openSchedulePanel = useAtomValue(isShowEditScheduleMission);
   const openIdlePanel = useAtomValue(isShowEditIdleMission);
   const openTopicPanel = useAtomValue(isShowEditTopicMission);
   const openAbortCargoMission = useAtomValue(
-    isShowEditAbortMissionWhenHasCargoMission,
+    isShowEditAbortMissionWhenHasCargoMission
   );
 
   const openPeripheralNamePanel = useAtomValue(isShowPeripheralNameTable);
@@ -641,9 +624,7 @@ const ToolComponents: FC<{
     if (formKey === "charge_mission" && openChargePanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
-    if (formKey === "cycle_mission" && openCyclePanel) {
-      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
-    }
+
     if (formKey === "before_left_charge_station_task" && openBLCSPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
