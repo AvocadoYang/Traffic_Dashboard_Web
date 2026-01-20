@@ -244,18 +244,20 @@ const CargoEditor: FC = () => {
   });
 
   if (!globalValue) return [];
-
   useEffect(() => {
     if (!openCargoModal || !globalValue.cargo) return;
 
     try {
       const parsedCargo = Array.isArray(globalValue.cargo)
-        ? globalValue.cargo.map((c) => ({
-            cargoInfoId: c.cargoInfoId,
-            metadata: c.metadata ? JSON.parse(c.metadata) : {},
-            custom_cargo_metadata_id:
-              c.customCargoMetadataId ?? c.customCargoMetadataId,
-          }))
+        ? globalValue.cargo
+            .map((c) => ({
+              placement_order: c.placement_order,
+              cargoInfoId: c.cargoInfoId,
+              metadata: c.metadata ? JSON.parse(c.metadata) : {},
+              custom_cargo_metadata_id:
+                c.customCargoMetadataId ?? c.customCargoMetadataId,
+            }))
+            .sort((a, b) => a.placement_order - b.placement_order)
         : [];
 
       const newMap: Record<number, { name: string; type: string }[]> = {};
@@ -267,7 +269,7 @@ const CargoEditor: FC = () => {
               ([name, type]) => ({
                 name,
                 type: typeof type === "string" ? type : "string",
-              })
+              }),
             );
             newMap[index] = fields;
           } catch (err) {
@@ -277,7 +279,7 @@ const CargoEditor: FC = () => {
       });
 
       setFormatFieldMap(newMap);
-      form.setFieldsValues({ cargo: parsedCargo });
+      form.setFieldsValue({ cargo: parsedCargo });
     } catch (err) {
       console.error("Failed to parse cargo:", err);
     }
@@ -295,7 +297,7 @@ const CargoEditor: FC = () => {
           ([name, type]) => ({
             name,
             type: typeof type === "string" ? type : "string",
-          })
+          }),
         )
       : [];
 
@@ -311,7 +313,7 @@ const CargoEditor: FC = () => {
       [index]: formatFields,
     }));
 
-    form.setFieldsValues({ cargo: existingCargo });
+    form.setFieldsValue({ cargo: existingCargo });
   };
 
   const renderInput = (type: string) => {
@@ -341,7 +343,8 @@ const CargoEditor: FC = () => {
         const payload = {
           locationId: globalValue.stationId,
           peripheralType: globalValue.stationType,
-          cargo: (values.cargo || []).map((entry: any) => ({
+          cargo: (values.cargo || []).map((entry: any, i: number) => ({
+            placement_order: i,
             cargoInfoId: entry.cargoInfoId,
             metadata: JSON.stringify(entry.metadata),
             customCargoMetadataId: entry.custom_cargo_metadata_id,

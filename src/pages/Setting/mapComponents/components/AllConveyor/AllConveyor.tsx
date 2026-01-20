@@ -64,7 +64,7 @@ const AllConveyor: FC = () => {
   const handleLeave = () => {
     setTooltip(null);
   };
-  if (!data) return [];
+  if (!data || !conveyorData) return [];
   return (
     <>
       {data.locations
@@ -114,11 +114,7 @@ const AllConveyor: FC = () => {
                   translateY={translateY}
                   rotate={rotate}
                   scale={LocScale}
-                  info={
-                    conveyorData?.find(
-                      (s) => s.locationId === loc.locationId
-                    ) || null
-                  }
+                  info={conveyorData[loc.locationId]}
                 />
               </WrapperStation>
             </div>

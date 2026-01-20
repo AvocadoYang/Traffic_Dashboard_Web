@@ -34,6 +34,7 @@ export type BeforeLeftStation = {
 };
 
 export type Cargo = {
+  placement_order: number;
   cargoInfoId: string | null;
   customId: string | null;
   customCargoMetadataId: string | null;

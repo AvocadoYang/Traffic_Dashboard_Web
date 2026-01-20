@@ -6,7 +6,6 @@ import CargoMissionForm from "./CargoMissionForm";
 import LayerForm from "./LayerForm";
 import { useAtom, useAtomValue } from "jotai";
 import { BaseGlobalCargoInfoModal, GlobalCargoData } from "./jotaiState";
-import { LayerType } from "@/sockets/useCargoInfo";
 import { useCargoMutations } from "@/api/useCargoMutations";
 
 const CargoModal: FC = () => {
@@ -60,7 +59,7 @@ const CargoModal: FC = () => {
     setIsEditModalOpen(false);
   };
 
-  if (!locId || !shelfInfo) return [];
+  if (!locId || !shelfInfo || !shelfInfo?.layer) return [];
 
   return (
     <>
@@ -106,7 +105,7 @@ const CargoModal: FC = () => {
               </div>
             ) : (
               <LayerForm
-                layer={shelfInfo.layer as LayerType}
+                layer={shelfInfo.layer}
                 locId={locId}
                 form={layerForm}
                 setIsEditLayer={setIsEditLayer}

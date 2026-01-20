@@ -266,7 +266,7 @@ const CargoDetail: FC = () => {
               ([name, type]) => ({
                 name,
                 type: typeof type === "string" ? type : "string",
-              })
+              }),
             );
             newMap[index] = fields;
           } catch (err) {
@@ -294,7 +294,7 @@ const CargoDetail: FC = () => {
           ([name, type]) => ({
             name,
             type: typeof type === "string" ? type : "string",
-          })
+          }),
         )
       : [];
 

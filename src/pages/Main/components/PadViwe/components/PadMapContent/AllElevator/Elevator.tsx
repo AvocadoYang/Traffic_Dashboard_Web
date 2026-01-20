@@ -110,9 +110,11 @@ const Elevator: FC<{
   customName: string;
   isManual: boolean;
   isRunning: boolean;
+  hasCargoSignal: boolean;
 }> = ({
   locationId,
   hasCargo,
+  hasCargoSignal,
   isDisable,
   isBook,
   customName,
@@ -121,7 +123,7 @@ const Elevator: FC<{
 }) => {
   const [selectMode, setQuickSettingMode] = useAtom(QuickMissionSettingMode);
   const [isStartSelecting, setStartQuickSetting] = useAtom(
-    StartQuickMissionSetting
+    StartQuickMissionSetting,
   );
   const setLoad = useSetAtom(QuickMissionLoad);
   const setOffload = useSetAtom(QuickMissionOffload);
@@ -183,9 +185,9 @@ const Elevator: FC<{
               <span className="label">Cargo Status:</span>
               <span
                 className="value"
-                style={{ color: hasCargo ? "#faad14" : "#8c8c8c" }}
+                style={{ color: hasCargoSignal ? "#faad14" : "#8c8c8c" }}
               >
-                {hasCargo ? "Loaded" : "Empty"}
+                {hasCargoSignal ? "Loaded" : "Empty"}
               </span>
             </StatusItem>
           </PopoverContent>

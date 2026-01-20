@@ -156,7 +156,7 @@ const LayerForm: FC<{
                     handleEditCargo(
                       levelValue.dbId,
                       Number(levelStr),
-                      levelValue.cargo
+                      levelValue.cargo,
                     )
                   }
                 >

@@ -801,6 +801,8 @@
       "name_warn": "任務名稱不可為空",
       "car_warn": "車輛類型必填",
 
+      "edit_car_first": "先去'車輛 &&機器人' 設定新增車種,才能來設定任務",
+
       "folder": "資料夾",
       "name": "任務名稱",
       "create_mission": "新增任務",

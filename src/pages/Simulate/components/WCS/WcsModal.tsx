@@ -101,9 +101,9 @@ const WcsModal: FC<{
       footer={<></>}
     >
       <Form form={form} layout="vertical" onFinish={onFinish}>
-        <StyledSpace direction="vertical" size="large">
+        <StyledSpace orientation="vertical" size="large">
           <StyledCard title={t("sim.conveyor.card_title")}>
-            <StyledSpace direction="vertical" size="middle">
+            <StyledSpace orientation="vertical" size="middle">
               {allConveyor?.map((station) => {
                 if (!station) return null;
                 return (

@@ -47,6 +47,7 @@ import AllConveyor from "./components/AllConveyor/AllConveyor";
 import {
   IsEditPeripheralModal,
   IsOpenCargoEditorModal,
+  IsOpenPeripheralModal,
 } from "../formComponent/forms/peripheralModal/jotai";
 import EditPeripheralModal from "../formComponent/forms/peripheralModal/EditPeripheralModal";
 import CargoEditor from "../formComponent/forms/peripheralModal/CargoEditor";
@@ -108,14 +109,14 @@ const MapView: React.FC<{
   const [, setSameVersion] = useAtom(sameVersion);
   const openEditLocationPanel = useAtomValue(EditLocationPanelSwitch);
   const openQuickEditLocationPanelSwitch = useAtomValue(
-    QuickEditLocationPanelSwitch
+    QuickEditLocationPanelSwitch,
   );
   const openEditZone = useAtomValue(EditZoneSwitch);
   const shelfSelectedStyleId = useAtomValue(shelfSelectedStyleLocationId);
   const showLocationToolTip = useAtomValue(isShowLocationTooltip);
   const showRoad = useAtomValue(isShowRoad);
   const openCargoInfo = useAtomValue(GlobalCargoInfoModal);
-  const openPeripheralModal = useAtomValue(IsEditPeripheralModal);
+  const openPeripheralModal = useAtomValue(IsOpenPeripheralModal);
   const openPeripheralCargoEditorModal = useAtomValue(IsOpenCargoEditorModal);
   const openElevatorModal = useAtomValue(EEM);
   const openModalElevatorCargoEditor = useAtomValue(EEC);
@@ -145,7 +146,7 @@ const MapView: React.FC<{
     mapImageRef,
     scale,
     locationPanelForm,
-    openEditLocationPanel
+    openEditLocationPanel,
   );
 
   //控制區域圈選
@@ -158,7 +159,7 @@ const MapView: React.FC<{
     setInitPointRecord,
     setEndPointRecord,
     setRectInfo,
-    zonePanelForm
+    zonePanelForm,
   );
 
   //控制編輯路線時的箭頭拖曳
@@ -168,7 +169,7 @@ const MapView: React.FC<{
     initPoint,
     isResizing,
     setIsResizing,
-    scale
+    scale,
   );
 
   const handleMouseDown = useCallback(
@@ -178,7 +179,7 @@ const MapView: React.FC<{
       setShowBlockId(startId);
       const result = getLocationInfoById(
         startId,
-        mapData?.locations as LocationType[]
+        mapData?.locations as LocationType[],
       );
       setDragLineInfo((pre) => {
         return { ...pre, width: 1 };
@@ -186,7 +187,7 @@ const MapView: React.FC<{
       roadPanelForm.setFieldValue("x", result.locationId);
       roadPanelForm.setFieldValue("to", undefined);
     },
-    [mapData, roadPanelForm]
+    [mapData, roadPanelForm],
   );
 
   window.addEventListener("beforeunload", () => {
