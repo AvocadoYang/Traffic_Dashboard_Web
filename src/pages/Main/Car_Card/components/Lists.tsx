@@ -195,6 +195,7 @@ export const AmrTitle = styled.h2`
 export const RowOne: React.FC<{ isDark: boolean; amrId: string }> = memo(
   ({ isDark, amrId }) => {
     const { isOnline, networkDelay, isOverdue } = useIsLogIn(amrId);
+    console.log(isOnline, networkDelay, isOverdue, '@@@@@@')
     const { t } = useTranslation();
 
     const AmrID = useMemo(() => {
@@ -210,25 +211,21 @@ export const RowOne: React.FC<{ isDark: boolean; amrId: string }> = memo(
 
           <span
             className={`login-text ${
-              isOnline
-                ? isOverdue
+            isOverdue
                   ? "overdue-text"
-                  : "online-text"
-                : "offline-text"
+                  :  "offline-text"
             }`}
           >
-            {isOnline ? (
+            { (
               isOverdue ? (
-                <WramOverdue>{t("utils.overdue")}</WramOverdue>
+                <WramOverdue>{t("utils.offline")}</WramOverdue>
               ) : (
                 t("utils.online")
               )
-            ) : (
-              t("utils.offline")
-            )}
+            ) }
           </span>
 
-          {isOnline && !isOverdue && (
+          {!isOverdue && (
             <NetworkDelay delay={networkDelay}>
               {networkDelay !== undefined ? `${networkDelay} ms` : "--"}
             </NetworkDelay>
@@ -244,15 +241,6 @@ export const RowOne: React.FC<{ isDark: boolean; amrId: string }> = memo(
           >
             {`${t("utils.category")}: ${AmrID.category}`}
           </span>
-          {isOnline ? (
-            <p className={`amr-is-registerd`}>
-              {`-- ${t("utils.is_registered")} --`}
-            </p>
-          ) : (
-            <p className={`amr-is-registerd`}>
-              {`-- ${t("utils.not_registered")} --`}
-            </p>
-          )}
         </AmrTitle>
       </CarRow1>
     );
