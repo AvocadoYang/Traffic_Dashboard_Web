@@ -86,6 +86,7 @@ const AllElevator: FC = () => {
             ?.scale as number;
 
           const cargo = eleSocket[loc.locationId]?.cargo || [];
+          const hasCargoSignal = eleSocket[loc.locationId]?.hasCargoSignal;
           const customName = eleSocket[loc.locationId]?.name || "";
           const isDisable = eleSocket[loc.locationId]?.disable;
           const isBook = eleSocket[loc.locationId]?.booker;
@@ -116,6 +117,7 @@ const AllElevator: FC = () => {
                   <Elevator
                     locationId={loc.locationId}
                     hasCargo={cargo.length > 0}
+                    hasCargoSignal={hasCargoSignal}
                     isDisable={isDisable}
                     isBook={isBook}
                     customName={customName}

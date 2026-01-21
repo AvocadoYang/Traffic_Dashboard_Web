@@ -114,11 +114,7 @@ const AllConveyor: FC = () => {
                   translateY={translateY}
                   rotate={rotate}
                   scale={LocScale}
-                  info={
-                    conveyorData?.find(
-                      (s) => s.locationId === loc.locationId
-                    ) || null
-                  }
+                  info={conveyorData?.[loc.locationId] || null}
                 />
               </WrapperStation>
             </div>

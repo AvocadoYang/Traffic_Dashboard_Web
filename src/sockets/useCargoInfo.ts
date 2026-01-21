@@ -31,13 +31,13 @@ export const layerSchema = object().test(
       if (!valid) {
         console.error(
           `Validation failed for level ${key}:`,
-          levelSchema.validateSync(value[key], { abortEarly: false })
+          levelSchema.validateSync(value[key], { abortEarly: false }),
         );
         return false;
       }
     }
     return true;
-  }
+  },
 );
 
 export type CargoInfo = {
@@ -48,17 +48,6 @@ export type CargoInfo = {
   isDropping: boolean;
 };
 
-const schema = () =>
-  array(
-    object({
-      name: string().optional().nullable(),
-      type: string().optional(),
-      locationId: string().required(),
-      layer: layerSchema.optional(),
-      isDropping: boolean().optional(),
-    }).required()
-  ).required();
-
 const profiles$ = fromEventPattern(
   (next) => {
     io.on("cargo-info", next);
@@ -66,40 +55,43 @@ const profiles$ = fromEventPattern(
   },
   (next) => {
     io.off("cargo-info", next);
-  }
+  },
 ).pipe(
-  switchMap((msg) => {
-    // console.log('Message received by switchMap:', msg);
+  switchMap((msg: unknown) => {
+    if (typeof msg !== "object" || msg === null) {
+      console.error("Invalid message format.");
+      return from([undefined]);
+    }
 
-    return from(
-      schema()
-        .validate(msg as unknown[])
-        .catch((err: ValidationError) => {
-          console.error(err.message);
-          console.error("cargo-info socket schema mismatch: ", err.value);
-          return undefined;
-        })
-    );
+    const message = msg as { [key: string]: CargoInfo };
+
+    if (message === null) {
+      return from([undefined]);
+    }
+
+    return from([message]);
   }),
   distinctUntilChanged(
-    (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
+    (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
   ),
-  share()
+  share(),
 );
 
 const useCargoInfo = () => {
-  const [cargoInfo, setCargoInfo] = useState<CargoInfo[]>();
+  const [cargoInfo, setCargoInfo] = useState<{
+    [key: string]: CargoInfo;
+  }>();
 
   useEffect(() => {
     const subscription = profiles$
       .pipe(
         distinctUntilChanged(
-          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
-        ) // Avoid state update if data is identical
+          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
+        ),
       )
       .subscribe((filteredData) => {
         if (filteredData) {
-          setCargoInfo(filteredData as CargoInfo[]);
+          setCargoInfo(filteredData);
         }
       });
 

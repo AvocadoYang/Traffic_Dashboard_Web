@@ -799,7 +799,7 @@
       "edit_detail": "Edit Mission Detail",
       "name_warn": "name is required",
       "car_warn": "car type is required",
-
+      "edit_car_first": "You must first go to 'Vehicles & Robots' to add a new vehicle type before you can set up a mission.",
       "folder": "folder",
       "name": "mission name",
       "create_mission": "create mission",

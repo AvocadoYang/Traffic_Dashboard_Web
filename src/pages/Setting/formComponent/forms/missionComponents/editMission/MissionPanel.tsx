@@ -248,7 +248,7 @@ const EditMissionPanel: FC<{
           if (selectFolder === "") return true;
           return m.mission_folder?.id === selectFolder;
         }) || [],
-    [search, allMissionTitle, handleFilterFolder]
+    [search, allMissionTitle, handleFilterFolder],
   );
 
   // Mission Mutations
@@ -265,7 +265,7 @@ const EditMissionPanel: FC<{
       onError: () => {
         messageApi.error(t("utils.error"));
       },
-    }
+    },
   );
 
   const refetchData = async () => {
@@ -296,7 +296,7 @@ const EditMissionPanel: FC<{
     amrs?.forEach(
       (item) =>
         item.name === formData.robot_type_id &&
-        (formData.robot_type_id = item.id)
+        (formData.robot_type_id = item.id),
     );
     addMutation.mutate({ ...formData, key: nanoid() });
     createMissionForm.setFieldValue("name", "");
@@ -306,7 +306,7 @@ const EditMissionPanel: FC<{
   const newCarList = amrs?.map((v) => ({ label: v.name, value: v.id }));
   const createMissionBtn = () => {
     if (!amrs?.[0]?.id) {
-      messageApi.warning(t("mission.add_mission.empty_warn"));
+      messageApi.warning(t("mission.add_mission.edit_car_first"));
       return;
     }
     setOpenWithCreateMission(true);

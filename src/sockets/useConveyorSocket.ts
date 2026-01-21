@@ -30,37 +30,6 @@ const relationshipSchema = object().test(
   },
 );
 
-const schema = () =>
-  array(
-    object({
-      locationId: string().optional().nullable(),
-      name: string().nullable(),
-      disable: boolean().required(),
-      conveyorDBId: string().optional(),
-      forkHeight: number().required(),
-      activeLoad: boolean().required(),
-      activeOffload: boolean().required(),
-      loadMissionId: string().nullable(),
-      offloadMissionId: string().nullable(),
-      booker: boolean().nullable(),
-      occupier: string().nullable(),
-      placement_priority: number().required(),
-      relationships: relationshipSchema.optional().nullable(),
-      loadPriority: number().required(),
-      offloadPriority: number().required(),
-      cargo: array(
-        object({
-          cargoInfoId: string().optional().nullable(),
-          customCargoMetadataId: string().optional().nullable(),
-          metadata: string().optional().nullable(),
-        }).optional(),
-      )
-        .optional()
-        .nullable(),
-      status: string().optional(),
-    }).required(),
-  ).required();
-
 const profiles$ = fromEventPattern(
   (next) => {
     io.on("conveyor-info", next);
@@ -70,18 +39,19 @@ const profiles$ = fromEventPattern(
     io.off("conveyor-info", next);
   },
 ).pipe(
-  switchMap((msg) => {
-    // console.log('Message received by switchMap:', msg);
+  switchMap((msg: unknown) => {
+    if (typeof msg !== "object" || msg === null) {
+      console.error("Invalid message format.");
+      return from([undefined]);
+    }
 
-    return from(
-      schema()
-        .validate(msg as unknown[])
-        .catch((err: ValidationError) => {
-          console.error(err.message);
-          console.error("conveyor-info socket schema mismatch: ", err.value);
-          return undefined;
-        }),
-    );
+    const message = msg as { [key: string]: Conveyor_Info };
+
+    if (message === null) {
+      return from([undefined]);
+    }
+
+    return from([message]);
   }),
   distinctUntilChanged(
     (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
@@ -90,7 +60,9 @@ const profiles$ = fromEventPattern(
 );
 
 const useConveyorSocket = () => {
-  const [cargoInfo, setCargoInfo] = useState<Conveyor_Info[]>();
+  const [cargoInfo, setCargoInfo] = useState<{
+    [key: string]: Conveyor_Info;
+  }>();
 
   useEffect(() => {
     const subscription = profiles$
@@ -101,7 +73,7 @@ const useConveyorSocket = () => {
       )
       .subscribe((filteredData) => {
         if (filteredData) {
-          setCargoInfo(filteredData as Conveyor_Info[]);
+          setCargoInfo(filteredData);
         }
       });
 

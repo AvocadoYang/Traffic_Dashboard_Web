@@ -10,18 +10,14 @@ import {
 import { FormInstance } from "antd/es/form/Form";
 import { FC, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useAtomValue, useSetAtom } from "jotai";
-import { IsEditPeripheralModal, IsOpenCargoEditorModal } from "./jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import {
+  IsEditPeripheralModal,
+  IsOpenCargoEditorModal,
+  IsOpenPeripheralModal,
+} from "./jotai";
 
 const { Title } = Typography;
-
-const prefixLevelName = (word: string | null | undefined) => {
-  if (!word) return "";
-  if (word === "null") return "";
-  const parts = word.split("-");
-  parts.pop();
-  return parts.join("-");
-};
 
 const CargoInfoAtPeripheral: FC<{ form: FormInstance<unknown> }> = ({
   form,
@@ -29,16 +25,18 @@ const CargoInfoAtPeripheral: FC<{ form: FormInstance<unknown> }> = ({
   const { t } = useTranslation();
   const setOpenModal = useSetAtom(IsOpenCargoEditorModal);
   const openModal = useAtomValue(IsEditPeripheralModal);
+  const setOpen = useSetAtom(IsOpenPeripheralModal);
 
   const setOpenEditCargoDetailModal = () => {
     setOpenModal(true);
+    setOpen(false);
   };
 
   useEffect(() => {
     if (!openModal || !openModal.cargo) return;
 
     form.setFieldValue("hasCargo", openModal.cargo.length > 0);
-    form.setFieldValue("name", prefixLevelName(openModal.name));
+    form.setFieldValue("name", openModal.name);
     form.setFieldValue("disable", openModal.disable);
     form.setFieldValue("loadPriority", openModal.loadPriority);
     form.setFieldValue("offloadPriority", openModal.offloadPriority);

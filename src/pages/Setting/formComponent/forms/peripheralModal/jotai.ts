@@ -19,4 +19,6 @@ export const IsEditPeripheralModal = atom<{
   offloadPriority: number;
 } | null>(null);
 
+export const IsOpenPeripheralModal = atom<boolean>(false);
+
 export const IsOpenCargoEditorModal = atom(false);

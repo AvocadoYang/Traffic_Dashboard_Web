@@ -24,7 +24,8 @@ const Point = styled.div.attrs<{
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: ${(props) => props.canrotate === "true" ? "#86c959" : "#f5ae07"};
+  background: ${(props) =>
+    props.canrotate === "true" ? "#86c959" : "#f5ae07"};
   position: absolute;
   left: ${(p) => p.left}px;
   top: ${(p) => p.top}px;
@@ -97,7 +98,7 @@ const AllCargo: React.FC = () => {
           const LocScale = info?.find((i) => i.locationId === loc.locationId)
             ?.scale as number;
           const flex_direction = info?.find(
-            (i) => i.locationId === loc.locationId
+            (i) => i.locationId === loc.locationId,
           )?.flex_direction as string;
           return (
             <div
@@ -126,9 +127,7 @@ const AllCargo: React.FC = () => {
                   scale={LocScale}
                   rotate={rotate}
                   flex_direction={flex_direction}
-                  shelfInfo={shelfInfo?.find(
-                    (s) => s.locationId === loc.locationId
-                  )}
+                  shelfInfo={shelfInfo?.[loc.locationId] || undefined}
                 />
               </WrapperForCargo>
             </div>

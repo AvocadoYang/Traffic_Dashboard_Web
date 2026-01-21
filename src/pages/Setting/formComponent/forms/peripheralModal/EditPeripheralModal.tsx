@@ -9,11 +9,12 @@ import { useMutation } from "@tanstack/react-query";
 import { Relation } from "@/api/useLoc";
 import Config from "./Config";
 import CargoInfoAtPeripheral from "./CargoInfo";
-import { IsEditPeripheralModal } from "./jotai";
+import { IsEditPeripheralModal, IsOpenPeripheralModal } from "./jotai";
 import { PeripheralTypes } from "@/types/peripheral";
 
 const EditPeripheralModal: FC = () => {
   const [openModal, setOpenModal] = useAtom(IsEditPeripheralModal);
+  const [open, setOpen] = useAtom(IsOpenPeripheralModal);
   const [formConfig] = Form.useForm();
   const [formCargo] = Form.useForm();
   const { t } = useTranslation();
@@ -38,6 +39,7 @@ const EditPeripheralModal: FC = () => {
     onSuccess: () => {
       messageApi.success(t("utils.success"));
       setOpenModal(null);
+      setOpen(false);
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
@@ -69,6 +71,7 @@ const EditPeripheralModal: FC = () => {
 
   const handleCancel = () => {
     setOpenModal(null);
+    setOpen(false);
   };
 
   const handleSubmit = async () => {
@@ -93,7 +96,7 @@ const EditPeripheralModal: FC = () => {
       {contextHolder}
       <Modal
         title={null}
-        open={openModal !== null}
+        open={open}
         onCancel={handleCancel}
         centered
         width={1000}
@@ -101,7 +104,7 @@ const EditPeripheralModal: FC = () => {
           <Button
             type="primary"
             onClick={handleSubmit}
-            loading={updateMutation.isLoading}
+            loading={updateMutation.isPending}
           >
             {t("utils.save")}
           </Button>
