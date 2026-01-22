@@ -166,7 +166,12 @@ const CargoMissionForm: FC<{
           <Select
             options={taskOption}
             placeholder={t("utils.select")}
-            showSearch
+            showSearch={{
+              filterOption: (input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase()),
+            }}
           />
         </Form.Item>
 
@@ -189,7 +194,12 @@ const CargoMissionForm: FC<{
           <Select
             options={taskOption}
             placeholder={t("utils.select")}
-            showSearch
+            showSearch={{
+              filterOption: (input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase()),
+            }}
           />
         </Form.Item>
 
@@ -218,7 +228,12 @@ const CargoMissionForm: FC<{
           <Select
             options={dirOption}
             placeholder={t("utils.select")}
-            showSearch
+            showSearch={{
+              filterOption: (input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase()),
+            }}
           />
         </Form.Item>
 
@@ -322,7 +337,12 @@ const CargoMissionForm: FC<{
                       <Select
                         options={relationOption}
                         placeholder={t("shelf.cargo_mission.select_location")}
-                        showSearch
+                        showSearch={{
+                          filterOption: (input, option) =>
+                            (option?.label ?? "")
+                              .toLowerCase()
+                              .includes(input.toLowerCase()),
+                        }}
                       />
                     </Form.Item>
                     <Form.Item

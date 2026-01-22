@@ -150,8 +150,8 @@ const BeforeLeftChargeStationForm: FC = () => {
   const missionOptions = missionTitle
     ?.filter((g) =>
       g.MissionTitleBridgeCategory.some(
-        (s) => s.Category?.tagName === "normal-mission"
-      )
+        (s) => s.Category?.tagName === "normal-mission",
+      ),
     )
     .map((v) => {
       return {
@@ -170,7 +170,7 @@ const BeforeLeftChargeStationForm: FC = () => {
       typeof payload.missionId !== "string"
     ) {
       void messageApi.warning(
-        t("mission.before_left_charge_station_mission.field_required")
+        t("mission.before_left_charge_station_mission.field_required"),
       );
       return;
     }
@@ -208,7 +208,12 @@ const BeforeLeftChargeStationForm: FC = () => {
               options={AmrOption}
               mode="multiple"
               placeholder="Select AMRs"
-              showSearch
+              showSearch={{
+                filterOption: (input, option) =>
+                  (option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase()),
+              }}
             />
           </Form.Item>
 
@@ -221,7 +226,12 @@ const BeforeLeftChargeStationForm: FC = () => {
             <IndustrialSelect
               options={missionOptions}
               placeholder="Select mission"
-              showSearch
+              showSearch={{
+                filterOption: (input, option) =>
+                  (option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase()),
+              }}
             />
           </Form.Item>
 

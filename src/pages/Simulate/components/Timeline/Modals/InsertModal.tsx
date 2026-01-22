@@ -92,7 +92,7 @@ const InsertModal: FC = () => {
   const [selectTime, setSelectTime] = useAtom(SelectTime);
   const editTask = useAtomValue(EditTask);
   const [localEditTask, setLocalEditTask] = useState<Mission_Schedule | null>(
-    null
+    null,
   ); // 沒有它會暴 id 會不正確
   // console.log(localEditTask, "-------------");
   const handleClose = () => {
@@ -121,7 +121,7 @@ const InsertModal: FC = () => {
           value: v.peripheralNameId,
         }))
         .sort((a, b) => a.label.localeCompare(b.label)) || [],
-    [peripheralName, t]
+    [peripheralName, t],
   );
 
   const amrOption = useMemo(() => {
@@ -144,7 +144,7 @@ const InsertModal: FC = () => {
       { value: "NORMAL", label: t("sim.insert_modal.normal") },
       { value: "NOTIFY", label: t("sim.insert_modal.notify") },
     ],
-    [t]
+    [t],
   );
 
   const missionOptions = useMemo(
@@ -152,21 +152,21 @@ const InsertModal: FC = () => {
       missionTitle
         ?.filter((g) =>
           g.MissionTitleBridgeCategory.some(
-            (s) => s.Category?.tagName === "normal-mission"
-          )
+            (s) => s.Category?.tagName === "normal-mission",
+          ),
         )
         .map((v) => ({
           value: v.id,
           label: v.name,
         })) || [],
-    [missionTitle]
+    [missionTitle],
   );
 
   const saveMutation = useMutation({
     mutationFn: (
       payload: Omit<Mission_Schedule, "id" | "isEnable" | "timelineMission"> & {
         timelineMission: NonNullable<Mission_Schedule["timelineMission"]>;
-      }
+      },
     ) => {
       return client.post("api/simulate/insert-timeline-mission", payload);
     },
@@ -359,7 +359,12 @@ const InsertModal: FC = () => {
               ]}
             >
               <Select
-                showSearch
+                showSearch={{
+                  filterOption: (input, option) =>
+                    (option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase()),
+                }}
                 placeholder={t("sim.insert_modal.select_amr")}
                 options={amrOption}
               />
@@ -406,7 +411,7 @@ const InsertModal: FC = () => {
                     validator: async (_, value) => {
                       if (!value || value.length === 0) {
                         return Promise.reject(
-                          new Error(t("sim.insert_modal.dynamic_required"))
+                          new Error(t("sim.insert_modal.dynamic_required")),
                         );
                       }
                     },
@@ -432,13 +437,12 @@ const InsertModal: FC = () => {
                           >
                             <Select
                               options={peripheralOption}
-                              showSearch
-                              filterOption={(input, option) =>
-                                (option?.label ?? "")
-                                  .toString()
-                                  .toLowerCase()
-                                  .includes(input.toLowerCase())
-                              }
+                              showSearch={{
+                                filterOption: (input, option) =>
+                                  (option?.label ?? "")
+                                    .toLowerCase()
+                                    .includes(input.toLowerCase()),
+                              }}
                               placeholder={t("sim.insert_modal.load_from")}
                             />
                           </Form.Item>
@@ -455,13 +459,12 @@ const InsertModal: FC = () => {
                             style={{ minWidth: 280, flex: 1 }}
                           >
                             <Select
-                              showSearch
-                              filterOption={(input, option) =>
-                                (option?.label ?? "")
-                                  .toString()
-                                  .toLowerCase()
-                                  .includes(input.toLowerCase())
-                              }
+                              showSearch={{
+                                filterOption: (input, option) =>
+                                  (option?.label ?? "")
+                                    .toLowerCase()
+                                    .includes(input.toLowerCase()),
+                              }}
                               options={peripheralOption}
                               placeholder={t("sim.insert_modal.offload_to")}
                             />

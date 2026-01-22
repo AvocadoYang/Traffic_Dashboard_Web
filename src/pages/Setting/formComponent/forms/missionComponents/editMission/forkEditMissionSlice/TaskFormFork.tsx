@@ -434,7 +434,7 @@ const TaskFormFork: FC<{
   const [selectLocationType, setSelectLocationType] =
     useState<Select_Location_Type>("custom");
   const [selectLevelType, setSelectLevelType] = useState<"custom" | "select">(
-    "custom"
+    "custom",
   );
   const [selectYaw, setSelectYaw] = useState<YawGenre>();
   const [submittable, setSubmittable] = useState<boolean>(false);
@@ -582,12 +582,12 @@ const TaskFormFork: FC<{
       setActionStatus(originFormData.operation.type as any);
       setSelectLocationType(
         (originFormData.operation.is_define_id as Select_Location_Type) ||
-          "custom"
+          "custom",
       );
       setSelectLevelType(
         (originFormData.io.fork_global?.is_define_level as
           | "select"
-          | "custom") || "custom"
+          | "custom") || "custom",
       );
       setSelectYaw(originFormData.operation.is_define_yaw as YawGenre);
       setControlClickOrder(originFormData.operation.control || []);
@@ -874,7 +874,12 @@ const TaskFormFork: FC<{
                 ]}
               >
                 <Select
-                  showSearch
+                  showSearch={{
+                    filterOption: (input, option) =>
+                      (option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase()),
+                  }}
                   style={{ width: "100%" }}
                   options={locationsOption}
                 />

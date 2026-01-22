@@ -60,6 +60,7 @@ import EditChargeStationConfigModal from "./components/AllChargeStation/EditChar
 import AllGateWaitPoint from "./components/AllGateWaitPoint/AllGateWaitPoint";
 import AllLiftGate from "./components/AllGate/AllLiftGate";
 import AllStack from "./components/AllStack/AllStack";
+import YfyPackage from "./components/YFYPackage/YfyPackage";
 
 const MapView: React.FC<{
   scale: number;
@@ -214,6 +215,8 @@ const MapView: React.FC<{
       />
 
       <AllElevator />
+
+      <YfyPackage />
 
       <AllStack />
 

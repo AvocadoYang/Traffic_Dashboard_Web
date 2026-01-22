@@ -118,7 +118,7 @@ const IndustrialButton = styled(Button)`
 
 const getIdleSelect = async () => {
   const { data } = await client.get<unknown>(
-    "api/setting/idle-task-loc-selection"
+    "api/setting/idle-task-loc-selection",
   );
 
   const schema = () =>
@@ -126,7 +126,7 @@ const getIdleSelect = async () => {
       object({
         label: string().optional(),
         value: string().optional(),
-      })
+      }),
     ).optional();
 
   return schema().validate(data, { stripUnknown: true });
@@ -140,7 +140,7 @@ const IdleMissionForm: FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const { data: idleLocSelect, isLoading } = useQuery(
     ["idle-task-selection"],
-    getIdleSelect
+    getIdleSelect,
   );
   const queryClient = useQueryClient();
 
@@ -155,8 +155,8 @@ const IdleMissionForm: FC = () => {
   const missionOptions = missionTitle
     ?.filter((g) =>
       g.MissionTitleBridgeCategory.some(
-        (s) => s.Category?.tagName === "normal-mission"
-      )
+        (s) => s.Category?.tagName === "normal-mission",
+      ),
     )
     .map((v) => {
       return {
@@ -218,8 +218,12 @@ const IdleMissionForm: FC = () => {
             mode="multiple"
             options={AmrOption}
             placeholder="Select AMRs"
-            showSearch
-            optionFilterProp="label"
+            showSearch={{
+              filterOption: (input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase()),
+            }}
           />
         </Form.Item>
 
@@ -257,8 +261,12 @@ const IdleMissionForm: FC = () => {
             options={idleLocSelect}
             loading={isLoading}
             placeholder="Select forbidden locations"
-            showSearch
-            optionFilterProp="label"
+            showSearch={{
+              filterOption: (input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase()),
+            }}
           />
         </Form.Item>
 
@@ -276,8 +284,12 @@ const IdleMissionForm: FC = () => {
           <IndustrialSelect
             options={missionOptions}
             placeholder="Select mission"
-            showSearch
-            optionFilterProp="label"
+            showSearch={{
+              filterOption: (input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase()),
+            }}
           />
         </Form.Item>
 

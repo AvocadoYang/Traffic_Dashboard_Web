@@ -109,7 +109,12 @@ const AutoMission = () => {
           shouldUpdate
         >
           <Select
-            showSearch
+            showSearch={{
+              filterOption: (input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase()),
+            }}
             options={misOptions}
             placeholder="Select a mission "
             onMouseDown={(e) => e.preventDefault()}
@@ -132,7 +137,12 @@ const AutoMission = () => {
           shouldUpdate
         >
           <Select
-            showSearch
+            showSearch={{
+              filterOption: (input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase()),
+            }}
             placeholder="Select an AMR"
             options={AmrOption}
             onMouseDown={(e) => e.preventDefault()}

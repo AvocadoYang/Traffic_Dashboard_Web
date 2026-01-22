@@ -69,7 +69,7 @@ export const SpawnCargoModal: FC = () => {
           `,
           value: v.peripheralNameId,
         })) || [],
-    [peripheralName, t]
+    [peripheralName, t],
   );
 
   const handleClose = () => {
@@ -229,15 +229,13 @@ export const SpawnCargoModal: FC = () => {
           >
             <Select
               options={peripheralOption}
-              showSearch
-              optionFilterProp="label"
               placeholder={t("sim.spawn_cargo_modal.select_notify")}
-              filterOption={(input, option) =>
-                (option?.label ?? "")
-                  .toString()
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
+              showSearch={{
+                filterOption: (input, option) =>
+                  (option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase()),
+              }}
             />
           </Form.Item>
 

@@ -74,7 +74,7 @@ const QuickEditLocationPanel: React.FC<{
   const mousePointX = useAtomValue(locationXForQuickEditLocationPanel);
   const mousePointY = useAtomValue(locationYForQuickEditLocationPanel);
   const [, setTempStoredLocationsForQuickEditPanel] = useAtom(
-    TempStoredLocationsForQuickEditPanel
+    TempStoredLocationsForQuickEditPanel,
   );
 
   const [messageApi, contextHolder] = message.useMessage();
@@ -88,12 +88,14 @@ const QuickEditLocationPanel: React.FC<{
     mutationFn: (payload: LocationType[]) => {
       return client.post("api/setting/save-edit-loc-fastShelve", payload);
     },
-    onSuccess: () => {
-      void messageApi.success("success");
-      queryClient.refetchQueries({ queryKey: ["map"] });
-      queryClient.refetchQueries({
-        queryKey: ["loc-only"],
-      });
+    onSuccess: async () => {
+      setTimeout(async () => {
+        void messageApi.success("success");
+        await queryClient.refetchQueries({ queryKey: ["map"] });
+        await queryClient.refetchQueries({
+          queryKey: ["loc-only"],
+        });
+      }, 500);
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
@@ -110,7 +112,7 @@ const QuickEditLocationPanel: React.FC<{
         "warning",
         t("quick_edit_location_panel.save_pose_notify.is_a_navigate"),
         t("quick_edit_location_panel.save_pose_notify.is_a_navigate"),
-        "bottomLeft"
+        "bottomLeft",
       );
       return false;
     }
@@ -127,7 +129,7 @@ const QuickEditLocationPanel: React.FC<{
 
     if (isDuplicate) {
       void messageApi.warning(
-        t("quick_edit_location_panel.save_pose_notify.duplicate_id")
+        t("quick_edit_location_panel.save_pose_notify.duplicate_id"),
       );
       return false;
     }
@@ -231,10 +233,10 @@ const QuickEditLocationPanel: React.FC<{
           const currentId = originId + row * multiplyX + col;
           const nextId = currentId + 1;
           const curPose = newLocationData.find(
-            (v) => Number(v.locationId) === currentId
+            (v) => Number(v.locationId) === currentId,
           );
           const nextPose = newLocationData.find(
-            (v) => Number(v.locationId) === nextId
+            (v) => Number(v.locationId) === nextId,
           );
 
           newRoadData.push({
