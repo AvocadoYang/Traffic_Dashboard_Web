@@ -21,7 +21,7 @@ const schema = object({
       y: number().required(),
       canRotate: boolean().required(),
       areaType: string().required(),
-    }).required()
+    }).required(),
   ).required(),
   roads: array(
     object({
@@ -47,7 +47,7 @@ const schema = object({
       tolerance: number().optional(),
       cost: number().optional(),
       inflationRadius: number().optional(),
-    }).required()
+    }).required(),
   ).required(),
   zones: array(
     object({
@@ -73,7 +73,7 @@ const schema = object({
         endX: number().required(),
         endY: number().required(),
       }).required(),
-    })
+    }),
   ).required(),
   mapWidth: number().required(),
   mapHeight: number().required(),
@@ -106,7 +106,10 @@ const getMap = async () => {
 };
 
 const useMap = () => {
-  return useQuery(["map"], getMap);
+  return useQuery({
+    queryKey: ["map"],
+    queryFn: () => getMap(),
+  });
 };
 
 export type MapType = InferType<typeof schema>;

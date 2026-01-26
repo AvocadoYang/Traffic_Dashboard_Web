@@ -84,7 +84,7 @@ const CargoEditorElevator: FC = () => {
               ([name, type]) => ({
                 name,
                 type: typeof type === "string" ? type : "string",
-              })
+              }),
             );
             newMap[index] = fields;
           } catch (err) {
@@ -113,7 +113,7 @@ const CargoEditorElevator: FC = () => {
           ([name, type]) => ({
             name,
             type: typeof type === "string" ? type : "string",
-          })
+          }),
         )
       : [];
 
@@ -148,7 +148,7 @@ const CargoEditorElevator: FC = () => {
     type: string,
     fieldName: string,
     uniqueKey: string | undefined,
-    isExisting: boolean
+    isExisting: boolean,
   ) => {
     // 🚫 disable only if editing existing cargo & field is unique_key
     const disabled = isExisting && uniqueKey === fieldName;
@@ -205,8 +205,8 @@ const CargoEditorElevator: FC = () => {
       .validateFields()
       .then((values) => {
         const payload = {
-          locationId: open.locationId,
-          peripheralType: "ELEVATOR",
+          locationId: open.locationId as string,
+          peripheralType: "ELEVATOR" as PeripheralTypes,
           cargo: (values.cargo || []).map((entry: any) => ({
             cargoInfoId: entry.cargoInfoId,
             metadata: JSON.stringify(entry.metadata),
@@ -244,7 +244,7 @@ const CargoEditorElevator: FC = () => {
                     const metadata = currentCargo.metadata || {};
 
                     const matched = data?.find(
-                      (v) => v.id === currentCargo.custom_cargo_metadata_id
+                      (v) => v.id === currentCargo.custom_cargo_metadata_id,
                     );
                     const uniqueKey = matched?.unique_key;
                     const isExisting = !!currentCargo.cargoInfoId;
@@ -294,7 +294,7 @@ const CargoEditorElevator: FC = () => {
                                 field.type,
                                 field.name,
                                 uniqueKey,
-                                isExisting
+                                isExisting,
                               )}
                             </Form.Item>
                           ))

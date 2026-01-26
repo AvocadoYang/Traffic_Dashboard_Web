@@ -4,6 +4,7 @@ import { rosCoord2DisplayCoord } from "@/utils/utils";
 import React, { FC } from "react";
 import styled from "styled-components";
 import Stack from "./Stack";
+import useStackSocket from "@/sockets/useStackSocket";
 
 const PointDiv = styled.div.attrs<{
   left: number;
@@ -56,6 +57,7 @@ const ContainerElevator = styled.div`
 const AllStack: FC = () => {
   const { data } = useMap();
   const { data: locInfo } = useLoc(undefined);
+  const s = useStackSocket();
 
   if (!data) return [];
   return (
@@ -63,7 +65,6 @@ const AllStack: FC = () => {
       {data.locations
         .filter(({ areaType }) => areaType === "STACK")
         .map((loc) => {
-      
           const [displayX, displayY] = rosCoord2DisplayCoord({
             x: loc.x,
             y: loc.y,
@@ -106,7 +107,7 @@ const AllStack: FC = () => {
                     transform: `translate(${translateX}px, ${translateY}px) scale(${LocScale}) rotate(${rotate}deg)`,
                   }}
                 >
-                  <Stack />
+                  <Stack info={s?.[loc.locationId]} />
                 </ContainerElevator>
               </WrapperStation>
             </div>

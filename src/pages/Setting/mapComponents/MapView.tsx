@@ -53,7 +53,7 @@ import EditPeripheralModal from "../formComponent/forms/peripheralModal/EditPeri
 import CargoEditor from "../formComponent/forms/peripheralModal/CargoEditor";
 import { SudoPeripheral } from "../formComponent/forms/other/editPeripheralIcon";
 import AllElevator from "./components/AllElevator/AllElevator";
-import { ECSM, EEC, EEM } from "../utils/settingJotai";
+import { ECSM, EEC, EEM, ESM } from "../utils/settingJotai";
 import EditElevatorModal from "./components/AllElevator/EditElevatorModal";
 import CargoEditorElevator from "./components/AllElevator/Form/CargoEditorElevator";
 import EditChargeStationConfigModal from "./components/AllChargeStation/EditChargeStationConfigModal";
@@ -61,6 +61,8 @@ import AllGateWaitPoint from "./components/AllGateWaitPoint/AllGateWaitPoint";
 import AllLiftGate from "./components/AllGate/AllLiftGate";
 import AllStack from "./components/AllStack/AllStack";
 import YfyPackage from "./components/YFYPackage/YfyPackage";
+import EditStackModal from "./components/AllStack/EditStackModal";
+import CargoEditorStack from "./components/AllStack/CargoEditorStack";
 
 const MapView: React.FC<{
   scale: number;
@@ -122,6 +124,7 @@ const MapView: React.FC<{
   const openElevatorModal = useAtomValue(EEM);
   const openModalElevatorCargoEditor = useAtomValue(EEC);
   const openEditChargeStationModal = useAtomValue(ECSM);
+  const openStackContainereditor = useAtomValue(ESM);
 
   if (currentVersion) {
     const defaultCookie = Cookies.get("version");
@@ -283,6 +286,11 @@ const MapView: React.FC<{
       {openModalElevatorCargoEditor ? <CargoEditorElevator /> : null}
 
       <CargoModal />
+
+      {/* stack編輯資料與貨物*/}
+      <EditStackModal />
+
+      {openStackContainereditor.isOpen ? <CargoEditorStack /> : null}
     </div>
   );
 };
