@@ -213,6 +213,13 @@ const FieldLabel = styled.span`
   font-weight: 600;
 `;
 
+interface CargoFormData {
+  placement_order: number;
+  cargoInfoId?: string;
+  metadata: Record<string, any>;
+  custom_cargo_metadata_id?: string;
+}
+
 const CargoEditor: FC = () => {
   const { t } = useTranslation();
   const { data } = useCustomCargoFormat();
@@ -238,25 +245,35 @@ const CargoEditor: FC = () => {
     onSuccess: () => {
       messageApi.success(t("utils.success"));
       form.resetFields();
+      setFormatFieldMap({});
       setOpenCargoModal(false);
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
-  if (!globalValue) return [];
   useEffect(() => {
-    if (!openCargoModal || !globalValue.cargo) return;
+    if (!openCargoModal || !globalValue || !globalValue.cargo) return;
 
     try {
       const parsedCargo = Array.isArray(globalValue.cargo)
         ? globalValue.cargo
-            .map((c) => ({
-              placement_order: c.placement_order,
-              cargoInfoId: c.cargoInfoId,
-              metadata: c.metadata ? JSON.parse(c.metadata) : {},
-              custom_cargo_metadata_id:
-                c.customCargoMetadataId ?? c.customCargoMetadataId,
-            }))
+            .map((c) => {
+              let metadata = {};
+
+              try {
+                metadata = c.metadata ? JSON.parse(c.metadata) : {};
+              } catch (err) {
+                console.error("Failed to parse metadata:", err);
+              }
+
+              return {
+                placement_order: c.placement_order,
+                cargoInfoId: c.cargoInfoId,
+                metadata,
+                custom_cargo_metadata_id:
+                  c.customCargoMetadataId ?? c.customCargoMetadataId,
+              };
+            })
             .sort((a, b) => a.placement_order - b.placement_order)
         : [];
 
@@ -273,6 +290,7 @@ const CargoEditor: FC = () => {
             );
             newMap[index] = fields;
           } catch (err) {
+            console.error("Failed to parse format:", err);
             newMap[index] = [];
           }
         }
@@ -283,37 +301,92 @@ const CargoEditor: FC = () => {
     } catch (err) {
       console.error("Failed to parse cargo:", err);
     }
-  }, [globalValue.cargo, openCargoModal, form, data]);
+  }, [globalValue?.cargo, openCargoModal, form, data, globalValue]);
 
   const handleCancel = () => {
     setOpenCargoModal(false);
     form.resetFields();
+    setFormatFieldMap({});
   };
 
-  const handleSelectChange = (value: string, index: number) => {
+  const handleSelectChange = (value: string, fieldName: number) => {
     const selectedFormat = data?.find((v) => v?.id === value);
     const formatFields = selectedFormat?.format
-      ? Object.entries(JSON.parse(selectedFormat.format)).map(
-          ([name, type]) => ({
-            name,
-            type: typeof type === "string" ? type : "string",
-          }),
-        )
+      ? (() => {
+          try {
+            return Object.entries(JSON.parse(selectedFormat.format)).map(
+              ([name, type]) => ({
+                name,
+                type: typeof type === "string" ? type : "string",
+              }),
+            );
+          } catch (err) {
+            console.error("Failed to parse format:", err);
+            return [];
+          }
+        })()
       : [];
 
     const existingCargo = form.getFieldValue("cargo") || [];
-    existingCargo[index] = {
-      ...(existingCargo[index] || {}),
+    existingCargo[fieldName] = {
+      ...(existingCargo[fieldName] || {}),
       custom_cargo_metadata_id: value,
       metadata: {},
     };
 
     setFormatFieldMap((prev) => ({
       ...prev,
-      [index]: formatFields,
+      [fieldName]: formatFields,
     }));
 
     form.setFieldsValue({ cargo: existingCargo });
+  };
+
+  const handleRemove = (fieldName: number) => {
+    // Get current cargo array
+    const currentCargo = form.getFieldValue("cargo") || [];
+
+    // Remove the item at fieldName index
+    const newCargo = currentCargo.filter(
+      (_: any, idx: number) => idx !== fieldName,
+    );
+
+    // Re-index formatFieldMap
+    const newMap: Record<number, { name: string; type: string }[]> = {};
+    newCargo.forEach((cargo: CargoFormData, newIndex: number) => {
+      if (cargo.custom_cargo_metadata_id) {
+        const matched = data?.find(
+          (v) => v?.id === cargo.custom_cargo_metadata_id,
+        );
+        if (matched?.format) {
+          try {
+            const fields = Object.entries(JSON.parse(matched.format)).map(
+              ([name, type]) => ({
+                name,
+                type: typeof type === "string" ? type : "string",
+              }),
+            );
+            newMap[newIndex] = fields;
+          } catch (err) {
+            console.error("Failed to parse format:", err);
+          }
+        }
+      }
+    });
+
+    setFormatFieldMap(newMap);
+    form.setFieldsValue({ cargo: newCargo });
+  };
+
+  const handleAdd = () => {
+    const currentCargo = form.getFieldValue("cargo") || [];
+    const newCargo = [
+      ...currentCargo,
+      {
+        metadata: {},
+      },
+    ];
+    form.setFieldsValue({ cargo: newCargo });
   };
 
   const renderInput = (type: string) => {
@@ -335,7 +408,7 @@ const CargoEditor: FC = () => {
   };
 
   const handleOk = () => {
-    if (!globalValue.stationId) return;
+    if (!globalValue || !globalValue.stationId) return;
 
     form
       .validateFields()
@@ -343,12 +416,14 @@ const CargoEditor: FC = () => {
         const payload = {
           locationId: globalValue.stationId,
           peripheralType: globalValue.stationType,
-          cargo: (values.cargo || []).map((entry: any, i: number) => ({
-            placement_order: i,
-            cargoInfoId: entry.cargoInfoId,
-            metadata: JSON.stringify(entry.metadata),
-            customCargoMetadataId: entry.custom_cargo_metadata_id,
-          })),
+          cargo: (values.cargo || []).map(
+            (entry: CargoFormData, i: number) => ({
+              placement_order: i,
+              cargoInfoId: entry.cargoInfoId,
+              metadata: JSON.stringify(entry.metadata || {}),
+              customCargoMetadataId: entry.custom_cargo_metadata_id,
+            }),
+          ),
         };
 
         editMutation.mutate(payload);
@@ -357,6 +432,8 @@ const CargoEditor: FC = () => {
         console.error("Form validation failed:", error);
       });
   };
+
+  if (!globalValue) return null;
 
   return (
     <>
@@ -375,7 +452,7 @@ const CargoEditor: FC = () => {
         <Wrapper>
           <Form form={form} layout="vertical">
             <Form.List name="cargo">
-              {(fields, { add, remove }) => (
+              {(fields) => (
                 <>
                   {fields.map((field, index) => {
                     const name = field.name;
@@ -386,7 +463,7 @@ const CargoEditor: FC = () => {
                     const metadata = currentCargo.metadata || {};
 
                     return (
-                      <CargoCard key={`${index}-form`}>
+                      <CargoCard key={field.key}>
                         <CardHeader>
                           <span>
                             [{String(index + 1).padStart(2, "0")}]{" "}
@@ -396,7 +473,7 @@ const CargoEditor: FC = () => {
                             className="danger"
                             size="small"
                             icon={<DeleteOutlined />}
-                            onClick={() => remove(name)}
+                            onClick={() => handleRemove(name)}
                           >
                             {t("utils.delete")}
                           </IndustrialButton>
@@ -471,7 +548,7 @@ const CargoEditor: FC = () => {
                   <Tooltip placement="bottom" title={t("amr_card.add_desc")}>
                     <IndustrialButton
                       className="dashed"
-                      onClick={() => add()}
+                      onClick={handleAdd}
                       block
                       icon={<PlusOutlined />}
                     >

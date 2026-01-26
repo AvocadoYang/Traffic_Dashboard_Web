@@ -28,6 +28,12 @@ export const StyledJsonPreview = styled.div`
   font-size: 13px;
 `;
 
+interface CargoFormData {
+  cargoInfoId?: string;
+  metadata: Record<string, any>;
+  custom_cargo_metadata_id?: string;
+}
+
 const CargoEditorElevator: FC = () => {
   const { t } = useTranslation();
   const { data } = useCustomCargoFormat();
@@ -55,24 +61,33 @@ const CargoEditorElevator: FC = () => {
     onSuccess: () => {
       messageApi.success(t("utils.success"));
       form.resetFields();
+      setFormatFieldMap({});
       setOpenModal(false);
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
-
-  if (!elevator) return [];
 
   useEffect(() => {
     if (!elevator) return;
 
     try {
       const parsedCargo = Array.isArray(elevator.cargo)
-        ? elevator.cargo.map((c) => ({
-            cargoInfoId: c.cargoInfoId,
-            metadata: c.metadata ? JSON.parse(c.metadata) : {},
-            custom_cargo_metadata_id:
-              c.customCargoMetadataId ?? c.customCargoMetadataId,
-          }))
+        ? elevator.cargo.map((c) => {
+            let metadata = {};
+
+            try {
+              metadata = c.metadata ? JSON.parse(c.metadata) : {};
+            } catch (err) {
+              console.error("Failed to parse metadata:", err);
+            }
+
+            return {
+              cargoInfoId: c.cargoInfoId,
+              metadata,
+              custom_cargo_metadata_id:
+                c.custom_cargo_metadata_id ?? c.customCargoMetadataId,
+            };
+          })
         : [];
 
       const newMap: Record<number, { name: string; type: string }[]> = {};
@@ -88,6 +103,7 @@ const CargoEditorElevator: FC = () => {
             );
             newMap[index] = fields;
           } catch (err) {
+            console.error("Failed to parse format:", err);
             newMap[index] = [];
           }
         }
@@ -104,32 +120,84 @@ const CargoEditorElevator: FC = () => {
     setOpenModal(false);
     setOpen({ locationId: null, isOpen: false });
     form.resetFields();
+    setFormatFieldMap({});
   };
 
-  const handleSelectChange = (value: string, index: number) => {
+  const handleSelectChange = (value: string, fieldName: number) => {
     const selectedFormat = data?.find((v) => v?.id === value);
     const formatFields = selectedFormat?.format
-      ? Object.entries(JSON.parse(selectedFormat.format)).map(
-          ([name, type]) => ({
-            name,
-            type: typeof type === "string" ? type : "string",
-          }),
-        )
+      ? (() => {
+          try {
+            return Object.entries(JSON.parse(selectedFormat.format)).map(
+              ([name, type]) => ({
+                name,
+                type: typeof type === "string" ? type : "string",
+              }),
+            );
+          } catch (err) {
+            console.error("Failed to parse format:", err);
+            return [];
+          }
+        })()
       : [];
 
     const existingCargo = form.getFieldValue("cargo") || [];
-    existingCargo[index] = {
-      ...(existingCargo[index] || {}),
+    existingCargo[fieldName] = {
+      ...(existingCargo[fieldName] || {}),
       custom_cargo_metadata_id: value,
       metadata: {},
     };
 
     setFormatFieldMap((prev) => ({
       ...prev,
-      [index]: formatFields,
+      [fieldName]: formatFields,
     }));
 
     form.setFieldsValue({ cargo: existingCargo });
+  };
+
+  const handleRemove = (fieldName: number) => {
+    const currentCargo = form.getFieldValue("cargo") || [];
+
+    const newCargo = currentCargo.filter(
+      (_: any, idx: number) => idx !== fieldName,
+    );
+
+    const newMap: Record<number, { name: string; type: string }[]> = {};
+    newCargo.forEach((cargo: CargoFormData, newIndex: number) => {
+      if (cargo.custom_cargo_metadata_id) {
+        const matched = data?.find(
+          (v) => v?.id === cargo.custom_cargo_metadata_id,
+        );
+        if (matched?.format) {
+          try {
+            const fields = Object.entries(JSON.parse(matched.format)).map(
+              ([name, type]) => ({
+                name,
+                type: typeof type === "string" ? type : "string",
+              }),
+            );
+            newMap[newIndex] = fields;
+          } catch (err) {
+            console.error("Failed to parse format:", err);
+          }
+        }
+      }
+    });
+
+    setFormatFieldMap(newMap);
+    form.setFieldsValue({ cargo: newCargo });
+  };
+
+  const handleAdd = () => {
+    const currentCargo = form.getFieldValue("cargo") || [];
+    const newCargo = [
+      ...currentCargo,
+      {
+        metadata: {},
+      },
+    ];
+    form.setFieldsValue({ cargo: newCargo });
   };
 
   const corningOption = [
@@ -150,13 +218,12 @@ const CargoEditorElevator: FC = () => {
     uniqueKey: string | undefined,
     isExisting: boolean,
   ) => {
-    // 🚫 disable only if editing existing cargo & field is unique_key
     const disabled = isExisting && uniqueKey === fieldName;
 
     if (type.toLowerCase() === "string" && fieldName === "container_id") {
       return (
         <div style={{ display: "flex", gap: 8 }}>
-          <Input style={{ width: "100%" }} />
+          <Input style={{ width: "100%" }} disabled={disabled} />
         </div>
       );
     }
@@ -164,6 +231,7 @@ const CargoEditorElevator: FC = () => {
     if (type.toLowerCase() === "string" && fieldName === "container_gen") {
       return (
         <Select
+          disabled={disabled}
           options={corningOption.map((c) => {
             return { value: c };
           })}
@@ -173,6 +241,7 @@ const CargoEditorElevator: FC = () => {
     if (type.toLowerCase() === "string" && fieldName === "container_type") {
       return (
         <Select
+          disabled={disabled}
           options={c_typeOption.map((c) => {
             return { value: c };
           })}
@@ -198,7 +267,6 @@ const CargoEditorElevator: FC = () => {
   };
 
   const handleOk = () => {
-    console.log("click");
     if (!open || !open.locationId) return;
 
     form
@@ -207,9 +275,9 @@ const CargoEditorElevator: FC = () => {
         const payload = {
           locationId: open.locationId as string,
           peripheralType: "ELEVATOR" as PeripheralTypes,
-          cargo: (values.cargo || []).map((entry: any) => ({
+          cargo: (values.cargo || []).map((entry: CargoFormData) => ({
             cargoInfoId: entry.cargoInfoId,
-            metadata: JSON.stringify(entry.metadata),
+            metadata: JSON.stringify(entry.metadata || {}),
             customCargoMetadataId: entry.custom_cargo_metadata_id,
           })),
         };
@@ -220,6 +288,8 @@ const CargoEditorElevator: FC = () => {
         console.error("Form validation failed:", error);
       });
   };
+
+  if (!elevator) return null;
 
   return (
     <>
@@ -233,7 +303,7 @@ const CargoEditorElevator: FC = () => {
         <Wrapper>
           <Form form={form} layout="vertical">
             <Form.List name="cargo">
-              {(fields, { add, remove }) => (
+              {(fields) => (
                 <>
                   {fields.map((field, index) => {
                     const name = field.name;
@@ -251,7 +321,7 @@ const CargoEditorElevator: FC = () => {
 
                     return (
                       <div
-                        key={`${index}-form`}
+                        key={field.key}
                         style={{
                           marginBottom: 24,
                           padding: 12,
@@ -325,7 +395,7 @@ const CargoEditorElevator: FC = () => {
                         )}
 
                         <Form.Item>
-                          <Button danger onClick={() => remove(name)}>
+                          <Button danger onClick={() => handleRemove(name)}>
                             {t("utils.delete")}
                           </Button>
                         </Form.Item>
@@ -335,7 +405,7 @@ const CargoEditorElevator: FC = () => {
 
                   <Form.Item>
                     <Tooltip placement="bottom" title={t("amr_card.add_desc")}>
-                      <Button type="dashed" onClick={() => add()} block>
+                      <Button type="dashed" onClick={handleAdd} block>
                         + {t("amr_card.add_cargo")}
                       </Button>
                     </Tooltip>

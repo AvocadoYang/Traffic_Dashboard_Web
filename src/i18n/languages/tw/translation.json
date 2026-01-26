@@ -1181,7 +1181,9 @@
     "isDefault": "預設",
     "not_defined_format": "尚未定義或是此貨物的資料格式未定義",
     "delete_desc": "且確認全場不是在任務狀態, 刪除會重新載入所有貨物相關設備紀錄. ",
-    "uniqueKey": "唯一值"
+    "uniqueKey": "唯一值",
+    "load_height": "取貨時高度",
+    "tray_size": "棧本尺寸"
   },
 
   "sim": {

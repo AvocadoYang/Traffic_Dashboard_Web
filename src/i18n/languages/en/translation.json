@@ -1177,7 +1177,9 @@
     "isDefault": "is default",
     "not_defined_format": "Not yet defined or the data format for this cargo custom info is not defined",
     "delete_desc": "And confirm that the entire site is not in a mission state, deletion will reload all cargo-related equipment records. ",
-    "uniqueKey": "unique key"
+    "uniqueKey": "unique key",
+    "load_height": "Height at pickup time",
+    "tray_size": "Stack size"
   },
 
   "sim": {
