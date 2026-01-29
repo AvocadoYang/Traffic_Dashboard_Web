@@ -1,5 +1,5 @@
 import React from "react";
-import styled, { keyframes } from "styled-components";
+import styled, { keyframes, css } from "styled-components";
 import { Stack_Info } from "@/types/peripheral";
 import { useAtom, useSetAtom } from "jotai";
 import {
@@ -67,9 +67,9 @@ const StackSvg = styled.svg<{
 
   ${({ $isHaveAction, $isDisable }) =>
     $isHaveAction && !$isDisable
-      ? `
-        animation: ${pulse} 2s infinite;
-      `
+      ? css`
+          animation: ${pulse} 2s infinite;
+        `
       : ""}
 
   &:hover {

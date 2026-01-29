@@ -94,7 +94,7 @@ const Stack: React.FC<{ info: Stack_Info | undefined }> = ({ info }) => {
   const setOpen = useSetAtom(IsOpenStackModal);
   const quickRoad = useAtomValue(IsEditingQuickRoads);
   const setQuickRoadArr = useSetAtom(QuickRoadsArray);
-  console.log(info);
+
   const handleCon = () => {
     if (!info) return;
     if (quickRoad) {
@@ -144,7 +144,7 @@ const Stack: React.FC<{ info: Stack_Info | undefined }> = ({ info }) => {
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
       >
-        <title>Stack - {cargoCount} cargo(s)</title>
+        <title>{info.name}</title>
         <path d="M2,2H4V20H2V2M22,2H20V20H22V2M6,10V14H18V10H6M6,2V6H18V2H6M6,18V22H18V18H6Z" />
       </StackSvg>
     </StackContainer>

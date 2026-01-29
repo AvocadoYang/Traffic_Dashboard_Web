@@ -300,8 +300,8 @@ const CargoEditorStack: FC = () => {
   };
 
   const yfySizeOption = [
-    { label: "1.1m", value: "1.1" },
-    { label: "1.5m", value: "1.5" },
+    { label: "1.1m", value: "1.1m" },
+    { label: "1.5m", value: "1.5m" },
   ];
 
   const handleSelectChange = (value: string, fieldName: number) => {
@@ -489,7 +489,7 @@ const CargoEditorStack: FC = () => {
                                     {t("customCargo.tray_size")}
                                   </FieldLabel>
                                 }
-                                name={[name, "addon_metadata", "current_size"]}
+                                name={[name, "addon_metadata", "cargo_size"]}
                               >
                                 <Select options={yfySizeOption} />
                               </Form.Item>
