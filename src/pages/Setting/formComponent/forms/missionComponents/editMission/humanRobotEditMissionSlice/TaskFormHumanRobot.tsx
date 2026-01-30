@@ -212,7 +212,12 @@ const TaskFormHumanRobot: FC<{
 
         <Form.Item label={t("mission.task_table.location")} name="locationId">
           <Select
-            showSearch
+            showSearch={{
+              filterOption: (input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase()),
+            }}
             allowClear
             style={{ width: "100%" }}
             options={loc}

@@ -13,6 +13,7 @@ import {
   Tooltip,
   Tag,
   Popover,
+  Checkbox,
 } from "antd";
 import { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -190,7 +191,7 @@ const AmrBadge = styled.span<{ $isDark: boolean }>`
   border-radius: 4px;
   color: #1890ff;
   font-family: "Roboto Mono", monospace;
-  font-size: 11px;
+  font-size: 20px;
   font-weight: 600;
 `;
 
@@ -250,12 +251,61 @@ const StatusBadge = styled.span<{ $status: MissionStatus; $isDark: boolean }>`
   }}
 `;
 
+const IndustrialCheckboxGroup = styled.div<{ $isDark: boolean }>`
+  background: ${({ $isDark }) => ($isDark ? "#0a0a0a" : "#fafafa")};
+  padding: 12px;
+  border: 1px solid ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#d9d9d9")};
+  border-radius: 4px;
+  margin-bottom: 16px;
+  display: inline-block;
+  width: 100%;
+
+  .ant-checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  /* Label Text Style */
+  .ant-checkbox-wrapper {
+    color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#262626")};
+    font-family: "Roboto Mono", monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &:hover .ant-checkbox-inner {
+      border-color: #1890ff;
+    }
+  }
+
+  /* Checkbox Box Style */
+  .ant-checkbox-inner {
+    background-color: ${({ $isDark }) => ($isDark ? "#000" : "#fff")};
+    border-color: ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#d9d9d9")};
+    border-radius: 2px;
+  }
+
+  /* Checked State */
+  .ant-checkbox-checked .ant-checkbox-inner {
+    background-color: #1890ff;
+    border-color: #1890ff;
+  }
+
+  /* Label when checked */
+  .ant-checkbox-wrapper-checked {
+    font-weight: 600;
+  }
+`;
+
 type SelectMissionT = {
   amrId?: string;
   taskId?: string;
   missionId?: string;
   status?: string;
 };
+
+const defaultOpenColumn = ["amrId", "missionStatus", "taskInfo"];
 
 const MissionTable = () => {
   const { t } = useTranslation();
@@ -269,6 +319,7 @@ const MissionTable = () => {
   const [, setWindowHeight] = useState(window.innerHeight);
   const [isOpenMissionHistory, setIsOpenMissionHistory] = useState(false);
   const rejectMission = useRejectMission();
+  const [checkedList, setCheckedList] = useState(defaultOpenColumn);
 
   const openHistory = () => {
     setIsOpenMissionHistory(true);
@@ -323,13 +374,15 @@ const MissionTable = () => {
       title: "AMR",
       dataIndex: "amrId",
       key: "amrId",
-      render: (code: string) => (
-        <AmrBadge $isDark={isDark}>
-          {code
-            ? code.replace("amr-0", "#")
-            : t("main_task_list.wait_suitable")}
-        </AmrBadge>
-      ),
+      render: (code: string) => {
+        return (
+          <Tooltip title={code ? code : t("main_task_list.wait_suitable")}>
+            <AmrBadge $isDark={isDark}>
+              {code ? code.split("-")[3] : t("main_task_list.wait_suitable")}
+            </AmrBadge>
+          </Tooltip>
+        );
+      },
       filters: name?.amrs.map((amrInfo) => ({
         text: `${amrInfo.amrId}`,
         value: `${amrInfo.amrId}`,
@@ -407,6 +460,16 @@ const MissionTable = () => {
     return item.key !== "taskInfo";
   });
 
+  const newColumns = columns.map((item) => ({
+    ...item,
+    hidden: !checkedList.includes(item.key as string),
+  }));
+
+  const options = columns.map(({ key, title }) => ({
+    label: title,
+    value: key,
+  }));
+
   const rowSelection = {
     selectedRowKeys,
     onChange: (selectedRowKey: React.Key[], selectedRows: MissionInfo[]) => {
@@ -423,7 +486,9 @@ const MissionTable = () => {
       return client.post(
         "/api/missions/delete-mission",
         { selectedMission: deleteList },
-        { headers: { authorization: `Bearer ${localStorage.getItem("_KMT")}` } }
+        {
+          headers: { authorization: `Bearer ${localStorage.getItem("_KMT")}` },
+        },
       );
     },
     onSuccess: () => {
@@ -481,7 +546,7 @@ const MissionTable = () => {
             className="delete-btn"
             onClick={handleDeleteMission}
             disabled={!selectInfo.length}
-            loading={deleteMissionMutation.isLoading}
+            loading={deleteMissionMutation.isPending}
             icon={<DeleteOutlined />}
           >
             {t("utils.delete")} ({selectInfo.length})
@@ -495,10 +560,28 @@ const MissionTable = () => {
           </IndustrialButton>
         </Flex>
       </ButtonWrapper>
-
+      <IndustrialCheckboxGroup $isDark={isDark}>
+        <div
+          style={{
+            marginBottom: 8,
+            fontSize: 10,
+            color: isDark ? "#666" : "#8c8c8c",
+            fontFamily: "Roboto Mono",
+          }}
+        >
+          {t("mission_history.column_select")}
+        </div>
+        <Checkbox.Group
+          value={checkedList}
+          options={options as any}
+          onChange={(value) => {
+            setCheckedList(value as string[]);
+          }}
+        />
+      </IndustrialCheckboxGroup>
       <IndustrialTableContainer $isDark={isDark}>
         <Table
-          columns={columns}
+          columns={newColumns}
           style={{ width: "100%" }}
           rowSelection={{
             type: selectionType,
@@ -536,7 +619,7 @@ const MissionTable = () => {
                     ? Math.round(
                         (m.completedAt.getTime() -
                           (m.startedAt?.getTime() || 0)) /
-                          6000
+                          6000,
                       ) / 10
                     : "",
               })) as []

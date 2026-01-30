@@ -571,7 +571,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                             validator: () => {
                               if (!backward && !forward)
                                 return Promise.reject(
-                                  "SELECT BACKWARD OR FORWARD"
+                                  "SELECT BACKWARD OR FORWARD",
                                 );
                               return Promise.resolve();
                             },
@@ -579,7 +579,12 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                         ]}
                       >
                         <Select
-                          showSearch
+                          showSearch={{
+                            filterOption: (input, option) =>
+                              (option?.label ?? "")
+                                .toLowerCase()
+                                .includes(input.toLowerCase()),
+                          }}
                           options={locationsOption}
                           placeholder="SELECT BACKWARD LOCATION"
                           style={{ width: "100%" }}
@@ -591,7 +596,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                                 "blind_fork",
                                 "forward_location_id",
                               ],
-                              undefined
+                              undefined,
                             );
                           }}
                         />
@@ -609,7 +614,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                             validator: () => {
                               if (!backward && !forward)
                                 return Promise.reject(
-                                  "SELECT FORWARD OR BACKWARD"
+                                  "SELECT FORWARD OR BACKWARD",
                                 );
                               return Promise.resolve();
                             },
@@ -617,7 +622,12 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                         ]}
                       >
                         <Select
-                          showSearch
+                          showSearch={{
+                            filterOption: (input, option) =>
+                              (option?.label ?? "")
+                                .toLowerCase()
+                                .includes(input.toLowerCase()),
+                          }}
                           options={locationsOption}
                           placeholder="SELECT FORWARD LOCATION"
                           style={{ width: "100%" }}
@@ -629,7 +639,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                                 "blind_fork",
                                 "backward_location_id",
                               ],
-                              undefined
+                              undefined,
                             );
                           }}
                         />
@@ -792,7 +802,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
           children: (
             <div>
               {controlSequence.map((control, index) =>
-                renderControlField(control, index)
+                renderControlField(control, index),
               )}
             </div>
           ),

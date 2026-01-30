@@ -85,7 +85,7 @@ const InsertFixMissionModal: FC = () => {
   const [isEdit, setIsEdit] = useAtom(IsEditSchedule);
   const [selectTime, setSelectTime] = useAtom(SelectTime);
   const [localEditTask, setLocalEditTask] = useState<Mission_Schedule | null>(
-    null
+    null,
   ); // 沒有它會暴 id 會不正確
 
   const peripheralOption = useMemo(
@@ -100,7 +100,7 @@ const InsertFixMissionModal: FC = () => {
           value: v.id,
         }))
         .sort((a, b) => a.label.localeCompare(b.label)) || [],
-    [peripheralGroup, t]
+    [peripheralGroup, t],
   );
 
   const handleClose = () => {
@@ -129,11 +129,11 @@ const InsertFixMissionModal: FC = () => {
     mutationFn: (
       payload: Omit<Mission_Schedule, "id" | "isEnable" | "timelineMission"> & {
         timelineMission: NonNullable<Mission_Schedule["timelineMission"]>;
-      }
+      },
     ) => {
       return client.post(
         "api/simulate/insert-timeline-random-group-to-group-mission",
-        payload
+        payload,
       );
     },
     onSuccess: () => {
@@ -256,7 +256,12 @@ const InsertFixMissionModal: FC = () => {
               ]}
             >
               <Select
-                showSearch
+                showSearch={{
+                  filterOption: (input, option) =>
+                    (option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase()),
+                }}
                 placeholder={t("sim.insert_modal.select_amr")}
                 options={amrOption}
               />
@@ -289,7 +294,7 @@ const InsertFixMissionModal: FC = () => {
                   validator: async (_, value) => {
                     if (!value || value.length === 0) {
                       return Promise.reject(
-                        new Error(t("sim.insert_modal.dynamic_required"))
+                        new Error(t("sim.insert_modal.dynamic_required")),
                       );
                     }
                   },
@@ -315,13 +320,12 @@ const InsertFixMissionModal: FC = () => {
                         >
                           <Select
                             options={peripheralOption}
-                            showSearch
-                            filterOption={(input, option) =>
-                              (option?.label ?? "")
-                                .toString()
-                                .toLowerCase()
-                                .includes(input.toLowerCase())
-                            }
+                            showSearch={{
+                              filterOption: (input, option) =>
+                                (option?.label ?? "")
+                                  .toLowerCase()
+                                  .includes(input.toLowerCase()),
+                            }}
                             placeholder={t("sim.insert_modal.load_from")}
                           />
                         </Form.Item>
@@ -338,13 +342,12 @@ const InsertFixMissionModal: FC = () => {
                           style={{ minWidth: 280, flex: 1 }}
                         >
                           <Select
-                            showSearch
-                            filterOption={(input, option) =>
-                              (option?.label ?? "")
-                                .toString()
-                                .toLowerCase()
-                                .includes(input.toLowerCase())
-                            }
+                            showSearch={{
+                              filterOption: (input, option) =>
+                                (option?.label ?? "")
+                                  .toLowerCase()
+                                  .includes(input.toLowerCase()),
+                            }}
                             options={peripheralOption}
                             placeholder={t("sim.insert_modal.offload_to")}
                           />

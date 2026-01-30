@@ -17,3 +17,11 @@ export const ECSM = atom<{ locationId: string | null; isOpen: boolean }>({
   locationId: null,
   isOpen: false,
 });
+
+// Edit Stack Modal
+export const ESM = atom<{ locationId: string | null; isOpen: boolean }>({
+  locationId: null,
+  isOpen: false,
+});
+//Edit stack carog
+export const ESC = atom<boolean>(false);

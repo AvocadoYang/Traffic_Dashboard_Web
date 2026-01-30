@@ -234,7 +234,12 @@ const ShelfDrawer: FC<{
                               placeholder={t(
                                 "shelf.cargo_mission.select_location",
                               )}
-                              showSearch
+                              showSearch={{
+                                filterOption: (input, option) =>
+                                  (option?.label ?? "")
+                                    .toLowerCase()
+                                    .includes(input.toLowerCase()),
+                              }}
                             />
                           </Form.Item>
                           <Form.Item

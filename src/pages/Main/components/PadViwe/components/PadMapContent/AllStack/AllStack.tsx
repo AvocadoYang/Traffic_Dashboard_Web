@@ -4,6 +4,9 @@ import { rosCoord2DisplayCoord } from "@/utils/utils";
 import React, { FC } from "react";
 import styled from "styled-components";
 import Stack from "./Stack";
+import useStackSocket from "@/sockets/useStackSocket";
+import { tooltipProp } from "@/utils/gloable";
+import { useSetAtom } from "jotai";
 
 const PointDiv = styled.div.attrs<{
   left: number;
@@ -56,6 +59,20 @@ const ContainerElevator = styled.div`
 const AllStack: FC = () => {
   const { data } = useMap();
   const { data: locInfo } = useLoc(undefined);
+  const s = useStackSocket();
+  const setTooltip = useSetAtom(tooltipProp);
+
+  const handleEnter = (locationId: string, x: number, y: number) => {
+    setTooltip({
+      x,
+      y,
+      locationId,
+    });
+  };
+  // console.log(conveyorData, 'kkk');
+  const handleLeave = () => {
+    setTooltip(null);
+  };
 
   if (!data) return [];
   return (
@@ -98,6 +115,8 @@ const AllStack: FC = () => {
                 left={displayX}
                 top={displayY}
                 key={loc.locationId}
+                onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
+                onMouseLeave={() => handleLeave()}
               ></PointDiv>
               <WrapperStation left={displayX} top={displayY}>
                 <ContainerElevator
@@ -105,7 +124,7 @@ const AllStack: FC = () => {
                     transform: `translate(${translateX}px, ${translateY}px) scale(${LocScale}) rotate(${rotate}deg)`,
                   }}
                 >
-                  <Stack />
+                  <Stack info={s?.[loc.locationId]} />
                 </ContainerElevator>
               </WrapperStation>
             </div>

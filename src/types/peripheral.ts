@@ -1,3 +1,4 @@
+import { Booker } from "@/api/type/useLocation";
 import { Relation } from "@/api/useLoc";
 
 export enum PeripheralMachineStatus {
@@ -19,6 +20,7 @@ export type PeripheralTypes =
   | "STORAGE"
   | "FORKLIFT_LOAD_STATION"
   | "ELEVATOR"
+  | "STACK"
   | "GATE_WAIT_POINT"
   | "CONVEYOR";
 
@@ -39,6 +41,7 @@ export type Cargo = {
   customId: string | null;
   customCargoMetadataId: string | null;
   metadata: string | null;
+  addon_metadata?: { height: number; size: string };
 };
 
 export type Mock_Conveyor_Config = {
@@ -113,3 +116,23 @@ export enum Lift_Gate_Status {
   VFD_Alarm = "9002",
   System_Error = "9003",
 }
+
+export type Stack_Info = {
+  name: string;
+  description: string;
+  group: string | null;
+  disable: boolean;
+  locationId: string;
+  booker?: Booker;
+  occupier?: string | null;
+
+  stackDBId: string;
+  peripheralNameDBId: string;
+  cargo: Cargo[];
+
+  loadMissionId: string;
+  offloadMissionId: string;
+
+  loadPriority: number;
+  offloadPriority: number;
+};

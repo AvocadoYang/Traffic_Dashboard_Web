@@ -136,7 +136,7 @@ const ThresholdInfo = styled.div`
 
 const getSelectedCharge = async (id: string) => {
   const { data } = await client.get<unknown>(
-    `api/setting/selected-charge?id=${id}`
+    `api/setting/selected-charge?id=${id}`,
   );
 
   const schema = () =>
@@ -153,7 +153,7 @@ const getSelectedCharge = async (id: string) => {
           fullName: string().optional(),
           id: string().optional(),
           isReal: boolean().optional(),
-        })
+        }),
       ).optional(),
     }).required();
 
@@ -182,7 +182,7 @@ const ChargeForm: FC<{ form: FormInstance<unknown>; selectKey: string }> = ({
     () => getSelectedCharge(selectKey),
     {
       enabled: !!selectKey,
-    }
+    },
   );
   const { data: missionTitle } = useAllMissionTitles();
   const { t } = useTranslation();
@@ -199,7 +199,9 @@ const ChargeForm: FC<{ form: FormInstance<unknown>; selectKey: string }> = ({
 
   const taskOption = missionTitle
     ?.filter((g) =>
-      g.MissionTitleBridgeCategory.some((s) => s.Category?.tagName === "charge")
+      g.MissionTitleBridgeCategory.some(
+        (s) => s.Category?.tagName === "charge",
+      ),
     )
     .map((v) => {
       return { value: v.id, label: v.name };
@@ -245,8 +247,12 @@ const ChargeForm: FC<{ form: FormInstance<unknown>; selectKey: string }> = ({
             mode="multiple"
             options={AmrOption}
             placeholder={t("charge.select_amr")}
-            showSearch
-            optionFilterProp="label"
+            showSearch={{
+              filterOption: (input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase()),
+            }}
           />
         </Form.Item>
 
@@ -258,8 +264,12 @@ const ChargeForm: FC<{ form: FormInstance<unknown>; selectKey: string }> = ({
           <IndustrialSelect
             options={taskOption}
             placeholder={t("charge.select_task")}
-            showSearch
-            optionFilterProp="label"
+            showSearch={{
+              filterOption: (input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase()),
+            }}
           />
         </Form.Item>
 

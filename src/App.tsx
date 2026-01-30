@@ -25,12 +25,12 @@ type NotificationType = "success" | "info" | "warning" | "error";
 function App() {
   const esc = useEcsTransaction();
   const ecsResp = useEcsTransactionResp();
-  const bar = useBarcodeSignal();
+  // const bar = useBarcodeSignal();
   const [api, contextHolder] = notification.useNotification();
 
   const openNotificationWithIconEcsReq = (
     type: NotificationType,
-    msg: string
+    msg: string,
   ) => {
     api[type]({
       title: "ECS Requests",
@@ -40,7 +40,7 @@ function App() {
 
   const openNotificationWithIconResp = (
     type: NotificationType,
-    msg: string
+    msg: string,
   ) => {
     api[type]({
       showProgress: true,
@@ -52,7 +52,7 @@ function App() {
 
   const openNotificationWithIconBarcodeReq = (
     type: NotificationType,
-    msg: string
+    msg: string,
   ) => {
     api[type]({
       title: "BARCODE READ",
@@ -72,11 +72,11 @@ function App() {
     }
   }, [esc]);
 
-  useEffect(() => {
-    if (bar !== "") {
-      openNotificationWithIconBarcodeReq("info", `${bar}`);
-    }
-  }, [bar]);
+  // useEffect(() => {
+  //   if (bar !== "") {
+  //     openNotificationWithIconBarcodeReq("info", `${bar}`);
+  //   }
+  // }, [bar]);
 
   const ProtectedRoute = () => {
     const token = localStorage.getItem("token");

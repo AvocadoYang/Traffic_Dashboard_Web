@@ -518,7 +518,7 @@ const QuickMissionWebView: React.FC<{
   const [loadValue, setLoad] = useAtom(QuickMissionLoad);
   const [offloadValue, setOffload] = useAtom(QuickMissionOffload);
   const [startQuickSetting, setStartQuickSetting] = useAtom(
-    StartQuickMissionSetting
+    StartQuickMissionSetting,
   );
   const setQuickSettingMode = useSetAtom(QuickMissionSettingMode);
   const { t } = useTranslation();
@@ -689,7 +689,7 @@ const QuickMissionWebView: React.FC<{
               </Form.Item>
 
               {!startQuickSetting && (
-                <ResponsiveSpace direction="vertical" size="middle">
+                <ResponsiveSpace orientation="vertical" size="middle">
                   <LocationCard
                     type="load"
                     selected={!!loadValue}
