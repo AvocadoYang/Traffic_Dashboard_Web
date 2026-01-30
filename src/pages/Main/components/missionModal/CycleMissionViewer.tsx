@@ -17,6 +17,7 @@ import {
   Collapse,
   Badge,
   Flex,
+  Popconfirm,
 } from "antd";
 import React, { Dispatch, FC, SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
@@ -458,7 +459,7 @@ const CycleMissionViewer: FC<{
   const activeCycles = data.filter((c) => c.IsActive).length;
   const totalMissions = data.reduce(
     (acc, cycle) => acc + cycle.Payload.length,
-    0
+    0,
   );
 
   return (
@@ -567,12 +568,16 @@ const CycleMissionViewer: FC<{
                     />
                   </Tooltip>
                   <Tooltip title={t("mission.cycle_mission.delete_cycle")}>
-                    <IndustrialButton
-                      className="danger"
-                      icon={<DeleteOutlined />}
-                      onClick={() => handleRemove(cycle.Id)}
-                      loading={removeMutation.isPending}
-                    />
+                    <Popconfirm
+                      title="Sure to delete?"
+                      onConfirm={() => handleRemove(cycle.Id)}
+                    >
+                      <IndustrialButton
+                        className="danger"
+                        icon={<DeleteOutlined />}
+                        loading={removeMutation.isPending}
+                      />
+                    </Popconfirm>
                   </Tooltip>
                 </ActionButtons>
               </CycleHeader>

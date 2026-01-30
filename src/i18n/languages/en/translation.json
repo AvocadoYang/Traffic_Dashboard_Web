@@ -126,7 +126,8 @@
     "unknown": "unknown",
     "rcs": "RCS",
     "user": "USER",
-    "wcs": "WCS"
+    "wcs": "WCS",
+    "column_select": "Specifies the task content to display."
   },
 
   "maintenance": {

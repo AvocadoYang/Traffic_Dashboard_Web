@@ -125,7 +125,8 @@
     "unknown": "未知",
     "rcs": "交管",
     "user": "使用者",
-    "wcs": "第三方"
+    "wcs": "第三方",
+    "column_select": "指定顯示任務內容"
   },
 
   "maintenance": {
