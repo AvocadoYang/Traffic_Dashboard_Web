@@ -2,6 +2,7 @@ import {
   Button,
   Flex,
   Form,
+  FormInstance,
   InputNumber,
   message,
   Modal,
@@ -425,7 +426,8 @@ const TaskFormFork: FC<{
   editTaskKey: string;
   selectedMissionCar: string;
   selectedMissionKey: string;
-}> = ({ editTaskKey, selectedMissionKey }) => {
+  form: FormInstance<any>;
+}> = ({ editTaskKey, selectedMissionKey, form }) => {
   const { data: originFormData } = useOneTaskDetailFork(editTaskKey);
   const [actionState, setActionStatus] = useState<Action_Type>("move");
   const [messageApi, contextHolder] = message.useMessage();
@@ -439,7 +441,6 @@ const TaskFormFork: FC<{
   const [selectYaw, setSelectYaw] = useState<YawGenre>();
   const [submittable, setSubmittable] = useState<boolean>(false);
   const { t } = useTranslation();
-  const [form] = Form.useForm();
   const values = Form.useWatch([], form);
 
   const {

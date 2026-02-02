@@ -12,7 +12,6 @@ import {
   Flex,
   Tooltip,
   Tag,
-  Popover,
   Checkbox,
 } from "antd";
 import { memo, useEffect, useState } from "react";
@@ -26,12 +25,7 @@ import { useMutation } from "@tanstack/react-query";
 import useName from "@/api/useAmrName";
 import MissionHistory from "./MissionHistory";
 import { useRejectMission } from "@/sockets/useRejectMission";
-import {
-  QuestionCircleFilled,
-  DeleteOutlined,
-  HistoryOutlined,
-} from "@ant-design/icons";
-import MissionRejectReasonInfo from "./MissionRejectReasonInfo";
+import { DeleteOutlined, HistoryOutlined } from "@ant-design/icons";
 import { MissionStatus } from "@/types/mission";
 import I18nCancelReason from "@/i18n/I18nCancelReason";
 
@@ -191,7 +185,7 @@ const AmrBadge = styled.span<{ $isDark: boolean }>`
   border-radius: 4px;
   color: #1890ff;
   font-family: "Roboto Mono", monospace;
-  font-size: 20px;
+  font-size: 13px;
   font-weight: 600;
 `;
 
