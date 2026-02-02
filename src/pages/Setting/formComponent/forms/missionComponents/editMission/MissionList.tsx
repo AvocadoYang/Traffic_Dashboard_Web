@@ -1,4 +1,4 @@
-import { Button, Flex, message, Modal, Popconfirm, Tooltip } from "antd";
+import { Button, Flex, Form, message, Modal, Popconfirm, Tooltip } from "antd";
 import { Dispatch, FC, SetStateAction, useState } from "react";
 import { nanoid } from "nanoid";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -149,7 +149,7 @@ const MissionList: FC<{
 }) => {
   const [open, setOpen] = useState(false);
   const [editTaskKey, setEditTaskKey] = useState("");
-
+  const [ForkForm] = Form.useForm();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
   const [messageApi, contextHolder] = message.useMessage();
@@ -200,6 +200,7 @@ const MissionList: FC<{
 
   const handleCancel = () => {
     setOpen(false);
+    ForkForm.resetFields();
   };
 
   return (
@@ -265,6 +266,7 @@ const MissionList: FC<{
               editTaskKey={editTaskKey}
               selectedMissionCar={selectedMissionCar}
               selectedMissionKey={selectedMissionKey}
+              form={ForkForm}
             />
           )}
 
