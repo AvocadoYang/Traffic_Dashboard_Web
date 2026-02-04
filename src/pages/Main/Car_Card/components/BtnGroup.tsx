@@ -1,6 +1,6 @@
 /* eslint-disable no-void */
 
-import { Flex, Button, message } from "antd";
+import { Flex, Button, message, Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
 import { FC, useState } from "react";
 import client from "@/api/axiosClient";
@@ -17,6 +17,7 @@ import {
   PlayCircleOutlined,
   EditOutlined,
   FireOutlined,
+  CloudSyncOutlined,
 } from "@ant-design/icons";
 import MaintenancePanel from "./MaintenancePanel";
 
@@ -30,40 +31,10 @@ const IndustrialContainer = styled(Flex)`
   box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.02);
   position: relative;
 
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(24, 144, 255, 0.02) 2px,
-      rgba(24, 144, 255, 0.02) 4px
-    );
-    pointer-events: none;
+  /* Responsive Padding */
+  @media (max-width: 1200px) {
+    padding: 12px;
   }
-`;
-
-const SectionHeader = styled.div`
-  background: #fafafa;
-  border: 1px solid #d9d9d9;
-  border-left: 3px solid #1890ff;
-  padding: 8px 12px;
-  margin-bottom: 16px;
-  font-family: "Roboto Mono", monospace;
-  color: #1890ff;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: 11px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
 `;
 
 const IndustrialButton = styled(Button)`
@@ -176,7 +147,7 @@ const IndustrialButton = styled(Button)`
   &.update-btn {
     background: #ffffff;
     border: 1px solid #faad14;
-    color: #faad14;
+    color: #88610d;
 
     &:hover {
       background: #fffbe6;
@@ -198,6 +169,19 @@ const IndustrialButton = styled(Button)`
       box-shadow: 0 2px 8px rgba(250, 173, 20, 0.4);
     }
   }
+
+  &.update-position-btn {
+    background: #ffffff;
+    border: 1px solid #faad14;
+    color: #88610d;
+
+    &:hover {
+      background: #fffbe6;
+      border-color: #ffc53d;
+      color: #ffc53d;
+      box-shadow: 0 2px 8px rgba(250, 173, 20, 0.3);
+    }
+  }
 `;
 
 const ButtonGroup = styled.div`
@@ -207,6 +191,18 @@ const ButtonGroup = styled.div`
   width: 100%;
   position: relative;
   z-index: 1;
+
+  /* Switch to Grid on small screens to save vertical space */
+  @media (max-width: 1200px) {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 2 buttons per row */
+    gap: 8px;
+  }
+
+  @media (max-width: 480px) {
+    /* Optional: for very small screens, stay in 2 columns but smaller gap */
+    gap: 6px;
+  }
 `;
 
 const Divider = styled.div`
@@ -221,19 +217,20 @@ const Divider = styled.div`
   margin: 12px 0;
   position: relative;
 
+  /* Hide or span full width on mobile */
+  @media (max-width: 1200px) {
+    grid-column: span 3; /* Spans across both columns */
+    margin: 8px 0;
+  }
+
   &::after {
-    content: "";
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 6px;
-    height: 6px;
-    background: #1890ff;
-    border: 2px solid #ffffff;
-    box-shadow: 0 0 0 2px #d9d9d9;
+    /* ... your existing styles ... */
   }
 `;
+
+// If MaintenancePanel is a custom component, you might need to wrap it
+// in the JSX to ensure it spans 2 columns in the grid:
+// <div style={{ gridColumn: 'span 2' }}><MaintenancePanel ... /></div>
 
 const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
   const { t } = useTranslation();
@@ -286,6 +283,16 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
     },
     onSuccess: () => {
       void messageApi.success(t("utils.success"));
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
+  const updatePositionMutation = useMutation({
+    mutationFn: () => {
+      return client.post("api/amr/update-position", { amrId });
+    },
+    onSuccess: () => {
+      messageApi.success(t("utils.success"));
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
@@ -377,6 +384,16 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
           >
             {t("amr_detail.reset")}
           </IndustrialButton>
+
+          <Tooltip title="當編輯完點位路徑時記得按" placement="bottom">
+            <IndustrialButton
+              className="update-position-btn"
+              onClick={() => updatePositionMutation.mutate()}
+              icon={<CloudSyncOutlined />}
+            >
+              {t("amr_detail.update_position")}
+            </IndustrialButton>
+          </Tooltip>
         </ButtonGroup>
       </IndustrialContainer>
 

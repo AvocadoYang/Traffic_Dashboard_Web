@@ -490,7 +490,7 @@ const MissionHistory: FC<{
       render: (_, record) => {
         if (record.startedAt && record.completedAt) {
           const duration = moment.duration(
-            moment(record.completedAt).diff(moment(record.startedAt))
+            moment(record.completedAt).diff(moment(record.startedAt)),
           );
           const minutes = Math.floor(duration.asMinutes());
           const seconds = duration.seconds();

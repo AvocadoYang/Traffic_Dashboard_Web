@@ -775,6 +775,32 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
           </IndustrialControlCard>
         );
 
+      case "fork_shift":
+        return (
+          <IndustrialControlCard key={`${control}-${index}`}>
+            <CardHeader>
+              <StepBadge>#{index + 1}</StepBadge>
+              <CardTitle>{getControlLabel(control)}</CardTitle>
+            </CardHeader>
+            <CardBody>
+              <Form.Item
+                label={
+                  <FieldLabel className="required">fork shift (mm)</FieldLabel>
+                }
+                name={[...fieldName, "fork_shift"]}
+                rules={[{ required: true, message: "REQUIRED FIELD" }]}
+              >
+                <InputNumber
+                  min={1}
+                  addonAfter="mm"
+                  placeholder="Enter baffle"
+                  style={{ width: "100%" }}
+                />
+              </Form.Item>
+            </CardBody>
+          </IndustrialControlCard>
+        );
+
       default:
         return null;
     }
