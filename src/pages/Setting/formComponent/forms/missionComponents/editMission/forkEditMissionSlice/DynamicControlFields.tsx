@@ -801,6 +801,81 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
           </IndustrialControlCard>
         );
 
+      case "straight_backward":
+        return (
+          <IndustrialControlCard key={`${control}-${index}`}>
+            <CardHeader>
+              <StepBadge>#{index + 1}</StepBadge>
+              <CardTitle>{getControlLabel(control)}</CardTitle>
+            </CardHeader>
+            <CardBody>
+              <Form.Item
+                label={
+                  <FieldLabel className="required">
+                    straight backward (mm)
+                  </FieldLabel>
+                }
+                name={[...fieldName, "straight_backward"]}
+                rules={[{ required: true, message: "REQUIRED FIELD" }]}
+              >
+                <InputNumber
+                  min={1}
+                  addonAfter="mm"
+                  placeholder="Enter number"
+                  style={{ width: "100%" }}
+                />
+              </Form.Item>
+            </CardBody>
+          </IndustrialControlCard>
+        );
+
+      case "rotate":
+        return (
+          <IndustrialControlCard key={`${control}-${index}`}>
+            <CardHeader>
+              <StepBadge>#{index + 1}</StepBadge>
+              <CardTitle>{getControlLabel(control)}</CardTitle>
+            </CardHeader>
+            <CardBody>
+              <Form.Item
+                label={<FieldLabel className="required">rotate</FieldLabel>}
+                name={[...fieldName, "rotate"]}
+                rules={[{ required: true, message: "REQUIRED FIELD" }]}
+              >
+                <InputNumber
+                  placeholder="Enter number"
+                  style={{ width: "100%" }}
+                />
+              </Form.Item>
+            </CardBody>
+          </IndustrialControlCard>
+        );
+
+      case "check_cargo_height":
+        return (
+          <IndustrialControlCard key={`${control}-${index}`}>
+            <CardHeader>
+              <StepBadge>#{index + 1}</StepBadge>
+              <CardTitle>{getControlLabel(control)}</CardTitle>
+            </CardHeader>
+            <CardBody>
+              <Form.Item
+                label={
+                  <FieldLabel className="required">
+                    check cargo height
+                  </FieldLabel>
+                }
+                name={[...fieldName, "check_cargo_height"]}
+                rules={[{ required: true, message: "REQUIRED FIELD" }]}
+              >
+                <InputNumber
+                  placeholder="Enter number"
+                  style={{ width: "100%" }}
+                />
+              </Form.Item>
+            </CardBody>
+          </IndustrialControlCard>
+        );
       default:
         return null;
     }

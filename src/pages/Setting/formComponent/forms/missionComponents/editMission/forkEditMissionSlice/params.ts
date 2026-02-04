@@ -16,6 +16,7 @@ export const controlList = {
   load: [
     "C",
     "B",
+    "rotate",
     "tilt", //
     "clamp", //
     "fork_height", //
@@ -24,9 +25,11 @@ export const controlList = {
     "baffle", //
     "shelf_detection",
     "fork_shift",
+    "straight_backward",
   ],
   offload: [
     "B",
+    "rotate",
     "tilt",
     "clamp",
     "blind_fork",
@@ -35,9 +38,12 @@ export const controlList = {
     "baffle",
     "shelf_detection",
     "fork_shift",
+    "straight_backward",
+    "check_cargo_height",
   ],
   spin: ["S"],
   fork: [
+    "rotate",
     "tilt",
     "clamp",
     "fork_height",
@@ -47,6 +53,7 @@ export const controlList = {
     "shelf_detection",
     "QR",
     "fork_shift",
+    "straight_backward",
   ],
   charge: ["fork_height"],
   cargo_limit: ["fork_height"],

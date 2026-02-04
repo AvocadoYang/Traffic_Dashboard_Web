@@ -405,7 +405,7 @@ const UploadMission: FC<UploadMissionProps> = ({
 
   const mutation = useMutation({
     mutationFn: (formData: FormData) =>
-      client.post("/api/missions/update_mission", formData, {
+      client.post("/api/missions/upload_mission", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       }),
     onSuccess: () => {
