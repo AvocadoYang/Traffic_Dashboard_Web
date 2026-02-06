@@ -127,7 +127,9 @@
     "rcs": "RCS",
     "user": "USER",
     "wcs": "WCS",
-    "column_select": "Specifies the task content to display."
+    "column_select": "Specifies the task content to display.",
+    "cancel_reason": "cancel reason",
+    "filter": "column filter"
   },
 
   "maintenance": {
@@ -1594,6 +1596,7 @@
     "show_manual": "Show Manual Operation",
     "hide_manual": "Hide Manual Operation",
     "reset": "Reset",
+    "update_position": "sync with QAMS locations and road",
     "force_to_standby": "force machine to standby",
     "stop": "Stop",
     "continue": "Continue",

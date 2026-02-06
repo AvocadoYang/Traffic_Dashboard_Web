@@ -14,6 +14,10 @@ const TitleBar = styled.div<{ $isDark: boolean }>`
   margin-bottom: 20px;
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  @media (max-width: 1500px) {
+    display: none;
+  }
 `;
 
 const Title = styled.span<{ $isDark: boolean }>`
@@ -23,6 +27,10 @@ const Title = styled.span<{ $isDark: boolean }>`
   text-transform: uppercase;
   letter-spacing: 1px;
   color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#262626")};
+
+  @media (max-width: 1200px) {
+    font-size: 12px;
+  }
 `;
 
 const InfoIcon = styled(QuestionCircleFilled)<{ $isDark: boolean }>`
@@ -34,6 +42,10 @@ const InfoIcon = styled(QuestionCircleFilled)<{ $isDark: boolean }>`
   &:hover {
     color: ${({ $isDark }) => ($isDark ? "#40a9ff" : "#40a9ff")};
     transform: scale(1.1);
+  }
+
+  @media (max-width: 1200px) {
+    font-size: 12px;
   }
 `;
 

@@ -25,7 +25,11 @@ import { useMutation } from "@tanstack/react-query";
 import useName from "@/api/useAmrName";
 import MissionHistory from "./MissionHistory";
 import { useRejectMission } from "@/sockets/useRejectMission";
-import { DeleteOutlined, HistoryOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  FilterOutlined,
+  HistoryOutlined,
+} from "@ant-design/icons";
 import { MissionStatus } from "@/types/mission";
 import I18nCancelReason from "@/i18n/I18nCancelReason";
 
@@ -314,6 +318,7 @@ const MissionTable = () => {
   const [isOpenMissionHistory, setIsOpenMissionHistory] = useState(false);
   const rejectMission = useRejectMission();
   const [checkedList, setCheckedList] = useState(defaultOpenColumn);
+  const [showFilters, setShowFilters] = useState(false);
 
   const openHistory = () => {
     setIsOpenMissionHistory(true);
@@ -552,27 +557,37 @@ const MissionTable = () => {
           >
             {t("mission_history.open")}
           </IndustrialButton>
+
+          <IndustrialButton
+            className="history-btn"
+            onClick={() => setShowFilters(!showFilters)}
+            icon={<FilterOutlined />}
+          >
+            {t("mission_history.filter")}
+          </IndustrialButton>
         </Flex>
       </ButtonWrapper>
-      <IndustrialCheckboxGroup $isDark={isDark}>
-        <div
-          style={{
-            marginBottom: 8,
-            fontSize: 10,
-            color: isDark ? "#666" : "#8c8c8c",
-            fontFamily: "Roboto Mono",
-          }}
-        >
-          {t("mission_history.column_select")}
-        </div>
-        <Checkbox.Group
-          value={checkedList}
-          options={options as any}
-          onChange={(value) => {
-            setCheckedList(value as string[]);
-          }}
-        />
-      </IndustrialCheckboxGroup>
+      {showFilters && (
+        <IndustrialCheckboxGroup $isDark={isDark}>
+          <div
+            style={{
+              marginBottom: 8,
+              fontSize: 10,
+              color: isDark ? "#666" : "#8c8c8c",
+              fontFamily: "Roboto Mono",
+            }}
+          >
+            {t("mission_history.column_select")}
+          </div>
+          <Checkbox.Group
+            value={checkedList}
+            options={options as any}
+            onChange={(value) => {
+              setCheckedList(value as string[]);
+            }}
+          />
+        </IndustrialCheckboxGroup>
+      )}
       <IndustrialTableContainer $isDark={isDark}>
         <Table
           columns={newColumns}

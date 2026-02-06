@@ -126,7 +126,9 @@
     "rcs": "交管",
     "user": "使用者",
     "wcs": "第三方",
-    "column_select": "指定顯示任務內容"
+    "column_select": "指定顯示任務內容",
+    "cancel_reason": "刪除原因",
+    "filter": "選擇任務顯示內容"
   },
 
   "maintenance": {
@@ -1600,6 +1602,7 @@
     "show_manual": "顯示手動操作",
     "hide_manual": "隱藏手動操作",
     "reset": "重新準備",
+    "update_position": "同步交管點位路線",
     "force_to_standby": "強制狀態回待命",
     "stop": "停止",
     "continue": "解除停止",

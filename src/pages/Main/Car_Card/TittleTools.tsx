@@ -22,6 +22,9 @@ const TitleBar = styled.div<{ $isDark: boolean }>`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   width: 100%;
   cursor: pointer; /* To indicate the whole bar is clickable */
+  @media (max-width: 1500px) {
+    display: none;
+  }
 `;
 
 const Title = styled.span<{ $isDark: boolean }>`
@@ -31,6 +34,10 @@ const Title = styled.span<{ $isDark: boolean }>`
   text-transform: uppercase;
   letter-spacing: 1px;
   color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#262626")};
+
+  @media (max-width: 1200px) {
+    font-size: 12px;
+  }
 `;
 // ----------------------------------------------------------------
 
@@ -84,10 +91,10 @@ const TittleTools: React.FC<{}> = () => {
         value.map((amrCategory) => ({
           value: amrCategory,
           label: amrCategory,
-        }))
+        })),
       );
     },
-    [setSelectedOption]
+    [setSelectedOption],
   );
 
   return (
