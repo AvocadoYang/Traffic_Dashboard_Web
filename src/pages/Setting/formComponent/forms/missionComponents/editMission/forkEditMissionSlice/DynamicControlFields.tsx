@@ -818,10 +818,15 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                 name={[...fieldName, "straight_backward"]}
                 rules={[{ required: true, message: "REQUIRED FIELD" }]}
               >
-                <InputNumber
-                  min={1}
-                  addonAfter="mm"
-                  placeholder="Enter number"
+                <Select
+                  showSearch={{
+                    filterOption: (input, option) =>
+                      (option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase()),
+                  }}
+                  options={locationsOption}
+                  placeholder="SELECT LOCATION"
                   style={{ width: "100%" }}
                 />
               </Form.Item>
