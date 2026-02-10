@@ -579,7 +579,7 @@ const TaskFormFork: FC<{
   }, [submittable, controlClickOrder, selectLocationType, values]);
 
   useEffect(() => {
-    if (originFormData) {
+    if (originFormData && editTaskKey) {
       setActionStatus(originFormData.operation.type as any);
       setSelectLocationType(
         (originFormData.operation.is_define_id as Select_Location_Type) ||
@@ -592,22 +592,24 @@ const TaskFormFork: FC<{
       );
       setSelectYaw(originFormData.operation.is_define_yaw as YawGenre);
       setControlClickOrder(originFormData.operation.control || []);
-      form.setFieldsValue({
-        action_type: originFormData.operation.type,
-        locationId: originFormData.operation.locationId?.toString(),
-        is_define_yaw: originFormData.operation.is_define_yaw,
-        yaw: originFormData.operation.yaw,
-        tolerance: originFormData.operation.tolerance,
-        lookahead: originFormData.operation.lookahead,
-        io: originFormData.io,
 
-        is_define_id: originFormData.operation.is_define_id,
-        is_define_level:
-          originFormData.io.fork_global?.is_define_level || "custom",
-        level: (originFormData.io.fork_global?.level + 1) | 0,
-      });
+      setTimeout(() => {
+        form.setFieldsValue({
+          action_type: originFormData.operation.type,
+          locationId: originFormData.operation.locationId?.toString(),
+          is_define_yaw: originFormData.operation.is_define_yaw,
+          yaw: originFormData.operation.yaw,
+          tolerance: originFormData.operation.tolerance,
+          lookahead: originFormData.operation.lookahead,
+          io: originFormData.io,
+          is_define_id: originFormData.operation.is_define_id,
+          is_define_level:
+            originFormData.io.fork_global?.is_define_level || "custom",
+          level: (originFormData.io.fork_global?.level + 1) | 0,
+        });
+      }, 0);
     }
-  }, [originFormData, form]);
+  }, [originFormData, form, editTaskKey]);
 
   useEffect(() => {
     if (controlClickOrder.length === 0) {

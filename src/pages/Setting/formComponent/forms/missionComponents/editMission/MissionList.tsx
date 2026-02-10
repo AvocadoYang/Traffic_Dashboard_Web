@@ -190,6 +190,7 @@ const MissionList: FC<{
   };
 
   const showModal = (key: string) => {
+    ForkForm.resetFields();
     setEditTaskKey(key);
     setOpen(true);
   };
@@ -200,7 +201,7 @@ const MissionList: FC<{
 
   const handleCancel = () => {
     setOpen(false);
-    ForkForm.resetFields();
+    setEditTaskKey("");
   };
 
   return (
@@ -260,9 +261,11 @@ const MissionList: FC<{
           open={open}
           onCancel={handleCancel}
           footer={null}
+          destroyOnHidden={true}
         >
           {isFork(selectedMissionCar) && (
             <TaskFormFork
+              key={editTaskKey}
               editTaskKey={editTaskKey}
               selectedMissionCar={selectedMissionCar}
               selectedMissionKey={selectedMissionKey}

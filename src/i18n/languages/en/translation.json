@@ -791,7 +791,10 @@
       "delete": "Delete",
       "no_control_sequence": "No control sequence",
       "available_controls": "Available controls",
-      "target_location": "Location"
+      "target_location": "Location",
+      "custom_extra": "This value is directly the fork height",
+      "select_add_label": "Base offset (Offset)",
+      "select_add_extra": "This value will be added to the system-selected base height"
     },
     "add_mission": {
       "title": "Edit Mission",

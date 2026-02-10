@@ -790,7 +790,10 @@
       "delete": "刪除",
       "no_control_sequence": "無控制序列",
       "available_controls": "可用控件",
-      "target_location": "地點"
+      "target_location": "地點",
+      "custom_extra": "此數值直接為枒杈高度",
+      "select_add_label": "基礎偏移量 (Offset)",
+      "select_add_extra": "此數值將累加至系統選擇的基礎高度上"
     },
 
     "add_mission": {

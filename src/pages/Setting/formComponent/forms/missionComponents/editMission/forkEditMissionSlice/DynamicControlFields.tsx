@@ -493,6 +493,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                     { label: "CUSTOM", value: "custom" },
                     { label: "LEVEL", value: "level" },
                     { label: "SELECT", value: "select" },
+                    { label: "SELECT ADD", value: "select_add" },
                   ]}
                 />
               </Form.Item>
@@ -518,6 +519,32 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                         }
                         name={[...fieldName, "fork_height", "height"]}
                         rules={[{ required: true, message: "REQUIRED FIELD" }]}
+                        extra={t("mission.task_form_fork.custom_extra")}
+                      >
+                        <InputNumber
+                          min={0}
+                          addonAfter="mm"
+                          placeholder="Enter height"
+                          style={{ width: "100%" }}
+                        />
+                      </Form.Item>
+                    );
+                  }
+
+                  if (
+                    heightType === "select_add" ||
+                    heightType?.startsWith("preset")
+                  ) {
+                    return (
+                      <Form.Item
+                        label={
+                          <FieldLabel className="required">
+                            {t("mission.task_form_fork.select_add_label")}
+                          </FieldLabel>
+                        }
+                        name={[...fieldName, "fork_height", "add_height"]}
+                        rules={[{ required: true, message: "REQUIRED FIELD" }]}
+                        extra={t("mission.task_form_fork.select_add_extra")}
                       >
                         <InputNumber
                           min={0}
