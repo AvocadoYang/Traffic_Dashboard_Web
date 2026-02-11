@@ -792,8 +792,9 @@
       "available_controls": "可用控件",
       "target_location": "地點",
       "custom_extra": "此數值直接為枒杈高度",
-      "select_add_label": "基礎偏移量 (Offset)",
-      "select_add_extra": "此數值將累加至系統選擇的基礎高度上"
+      "stack_add_label": "基礎偏移量 (Offset)",
+      "stack_add_extra": "此數值將累加至系統選擇的基礎高度上",
+      "level_select_warn": "如果 FORK_HEIGHT 類型是 STACK 或是 STACK_ADD 可以不用針對次項目設定"
     },
 
     "add_mission": {

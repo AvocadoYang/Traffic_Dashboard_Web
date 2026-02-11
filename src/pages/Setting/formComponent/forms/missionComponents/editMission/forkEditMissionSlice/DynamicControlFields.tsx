@@ -493,7 +493,8 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                     { label: "CUSTOM", value: "custom" },
                     { label: "LEVEL", value: "level" },
                     { label: "SELECT", value: "select" },
-                    { label: "SELECT ADD", value: "select_add" },
+                    { label: "STACK", value: "stack" },
+                    { label: "STACK ADD", value: "stack_add" },
                   ]}
                 />
               </Form.Item>
@@ -532,19 +533,19 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                   }
 
                   if (
-                    heightType === "select_add" ||
+                    heightType === "stack_add" ||
                     heightType?.startsWith("preset")
                   ) {
                     return (
                       <Form.Item
                         label={
                           <FieldLabel className="required">
-                            {t("mission.task_form_fork.select_add_label")}
+                            {t("mission.task_form_fork.stack_add_label")}
                           </FieldLabel>
                         }
                         name={[...fieldName, "fork_height", "add_height"]}
                         rules={[{ required: true, message: "REQUIRED FIELD" }]}
-                        extra={t("mission.task_form_fork.select_add_extra")}
+                        extra={t("mission.task_form_fork.stack_add_extra")}
                       >
                         <InputNumber
                           min={0}

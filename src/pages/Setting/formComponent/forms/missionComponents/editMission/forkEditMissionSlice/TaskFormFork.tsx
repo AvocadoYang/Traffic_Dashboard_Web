@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Flex,
   Form,
@@ -392,6 +393,10 @@ const SegmentedOption = styled.button<{ isActive: boolean }>`
   `}
 `;
 
+const WarnMsg = styled.div`
+  color: "#505050";
+`;
+
 interface IndustrialSegmentedProps {
   options: Array<{ label: string; value: string | number }>;
   value?: string | number;
@@ -627,6 +632,17 @@ const TaskFormFork: FC<{
     }
     setSubmittable(true);
   }, [form, values, controlClickOrder, selectLocationType]);
+
+  // 這個方法很方便
+  // 可以去比較深層的dynamic field 來看有哪些選項
+  // 來動態調整邏輯
+  const forkData = form.getFieldValue(["io", "fork"]) || {};
+
+  const isStackMode = Object.values(forkData).some(
+    (step: any) =>
+      step?.fork_height?.is_define_height === "stack" ||
+      step?.fork_height?.is_define_height === "stack_add",
+  );
 
   return (
     <IndustrialContainer>
@@ -946,41 +962,42 @@ const TaskFormFork: FC<{
         )}
 
         {/* Level Configuration */}
-        {(actionState === "load" || actionState === "offload") && (
-          <IndustrialCard>
-            <SectionHeader>
-              <SettingOutlined />
-              [05] {t("mission.task_form_fork.level_config")}
-            </SectionHeader>
-            <Form.Item
-              label={
-                <FieldLabel>
-                  {t("mission.task_form_fork.select_level_type")}
-                </FieldLabel>
-              }
-              name="is_define_level"
-            >
-              <Select
-                value={selectLevelType}
-                onChange={(e: "select" | "custom") => setSelectLevelType(e)}
-                options={SelectLevelOptions}
-                style={{ width: "100%" }}
-              />
-            </Form.Item>
+        {(actionState === "load" || actionState === "offload") &&
+          isStackMode === false && (
+            <IndustrialCard>
+              <SectionHeader>
+                <SettingOutlined />
+                [05] {t("mission.task_form_fork.level_config")}{" "}
+              </SectionHeader>
 
-            {selectLevelType === "custom" && (
               <Form.Item
                 label={
-                  <FieldLabel>{t("mission.task_form_fork.level")}</FieldLabel>
+                  <FieldLabel>
+                    {t("mission.task_form_fork.select_level_type")}
+                  </FieldLabel>
                 }
-                name="level"
-                rules={[{ required: true, message: t("utils.required") }]}
+                name="is_define_level"
               >
-                <InputNumber min={1} style={{ width: "100%" }} />
+                <Select
+                  value={selectLevelType}
+                  onChange={(e: "select" | "custom") => setSelectLevelType(e)}
+                  options={SelectLevelOptions}
+                  style={{ width: "100%" }}
+                />
               </Form.Item>
-            )}
-          </IndustrialCard>
-        )}
+              {selectLevelType === "custom" && (
+                <Form.Item
+                  label={
+                    <FieldLabel>{t("mission.task_form_fork.level")}</FieldLabel>
+                  }
+                  name="level"
+                  rules={[{ required: true, message: t("utils.required") }]}
+                >
+                  <InputNumber min={1} style={{ width: "100%" }} />
+                </Form.Item>
+              )}
+            </IndustrialCard>
+          )}
 
         {/* Wait Configuration */}
         {controlClickOrder.some((item) => item.startsWith("W")) && (

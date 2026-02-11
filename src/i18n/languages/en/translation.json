@@ -793,8 +793,9 @@
       "available_controls": "Available controls",
       "target_location": "Location",
       "custom_extra": "This value is directly the fork height",
-      "select_add_label": "Base offset (Offset)",
-      "select_add_extra": "This value will be added to the system-selected base height"
+      "stack_add_label": "Base offset (Offset)",
+      "stack_add_extra": "This value will be added to the system-selected base height",
+      "level_select_warn": "如果 FORK_HEIGHT 類型是 STACK 或是 STACK_ADD 可以不用針對次項目設定"
     },
     "add_mission": {
       "title": "Edit Mission",
