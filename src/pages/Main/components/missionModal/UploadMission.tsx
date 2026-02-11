@@ -344,6 +344,38 @@ const UploadIcon = styled(CloudUploadOutlined)`
   color: #52c41a;
 `;
 
+const TutorialContainer = styled.div`
+  margin-top: 12px;
+  border: 2px solid #d9d9d9;
+  border-radius: 4px;
+  overflow: hidden;
+  line-height: 0;
+
+  img {
+    width: 100%;
+    height: auto;
+    filter: grayscale(20%); /* Optional: matches industrial look */
+    &:hover {
+      filter: none;
+    }
+  }
+`;
+
+const HelpLink = styled.a`
+  color: #1890ff;
+  font-size: 10px;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  &:hover {
+    color: #40a9ff;
+  }
+`;
+
 interface UploadMissionProps {
   open: boolean;
   setShowUploadMission: Dispatch<SetStateAction<boolean>>;
@@ -360,7 +392,7 @@ const UploadMission: FC<UploadMissionProps> = ({
     "uploading" | "success" | "error" | null
   >(null);
   const [messageApi, contextHolder] = message.useMessage();
-
+  const [showTutorial, setShowTutorial] = useState(false);
   const handleClose = () => {
     setShowUploadMission(false);
     setFileList([]);
@@ -486,6 +518,10 @@ const UploadMission: FC<UploadMissionProps> = ({
             <div className="instruction-title">
               <CheckCircleOutlined />
               {t("upload.instructions_title")}
+              {/* Help Button */}
+              <HelpLink onClick={() => setShowTutorial(true)}>
+                {t("upload.view_tutorial")}?
+              </HelpLink>
             </div>
             <ul className="instruction-list">
               <li>
@@ -512,6 +548,20 @@ const UploadMission: FC<UploadMissionProps> = ({
               </span>
             </div>
           </InstructionPanel>
+
+          <Modal
+            title={t("upload.tutorial_preview")}
+            open={showTutorial}
+            onCancel={() => setShowTutorial(false)}
+            footer={null}
+            width={1200}
+            centered
+          >
+            <TutorialContainer>
+              {/* Assumes tutorial.gif is in your /public folder */}
+              <img src="/tutorial_import_misssion.gif" alt="How to upload" />
+            </TutorialContainer>
+          </Modal>
 
           <StyledDragger {...uploadProps}>
             <p className="ant-upload-drag-icon">

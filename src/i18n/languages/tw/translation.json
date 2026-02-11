@@ -1565,7 +1565,12 @@
     "failed": "上傳失敗",
     "select_file_first": "請先選擇一個檔案",
     "file_too_large": "檔案必須小於 10MB！",
-    "upload_failed": "上傳失敗。請重試。"
+    "upload_failed": "上傳失敗。請重試。",
+    "view_tutorial": "查看教學",
+    "tutorial_preview": "系統教學：檔案上傳",
+    "clear": "清除所有排程",
+    "pause": "暫停排程",
+    "resume": "繼續排程"
   },
 
   "conveyor": {
