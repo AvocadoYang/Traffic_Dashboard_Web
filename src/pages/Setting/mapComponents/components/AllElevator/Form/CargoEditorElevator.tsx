@@ -220,18 +220,23 @@ const CargoEditorElevator: FC = () => {
   ) => {
     const disabled = isExisting && uniqueKey === fieldName;
 
-    if (type.toLowerCase() === "string" && fieldName === "container_id") {
-      return (
-        <div style={{ display: "flex", gap: 8 }}>
-          <Input style={{ width: "100%" }} disabled={disabled} />
-        </div>
-      );
-    }
+    // if (type.toLowerCase() === "string" && fieldName === "container_id") {
+    //   return (
+    //     <div style={{ display: "flex", gap: 8 }}>
+    //       <Input
+    //         style={{ width: "100%" }}
+    //         // disabled={disabled}
+    //         min={0}
+    //         max={10}
+    //       />
+    //     </div>
+    //   );
+    // }
 
     if (type.toLowerCase() === "string" && fieldName === "container_gen") {
       return (
         <Select
-          disabled={disabled}
+          // disabled={disabled}
           options={corningOption.map((c) => {
             return { value: c };
           })}
@@ -241,7 +246,7 @@ const CargoEditorElevator: FC = () => {
     if (type.toLowerCase() === "string" && fieldName === "container_type") {
       return (
         <Select
-          disabled={disabled}
+          // disabled={disabled}
           options={c_typeOption.map((c) => {
             return { value: c };
           })}
@@ -251,18 +256,18 @@ const CargoEditorElevator: FC = () => {
 
     switch (type.toLowerCase()) {
       case "string":
-        return <Input disabled={disabled} />;
+        return <Input />;
       case "number":
-        return <Input type="number" disabled={disabled} />;
+        return <Input type="number" />;
       case "boolean":
         return (
-          <Select disabled={disabled}>
+          <Select>
             <Select.Option value="true">{t("utils.yes")}</Select.Option>
             <Select.Option value="false">{t("utils.no")}</Select.Option>
           </Select>
         );
       default:
-        return <Input disabled={disabled} />;
+        return <Input />;
     }
   };
 
@@ -275,11 +280,14 @@ const CargoEditorElevator: FC = () => {
         const payload = {
           locationId: open.locationId as string,
           peripheralType: "ELEVATOR" as PeripheralTypes,
-          cargo: (values.cargo || []).map((entry: CargoFormData) => ({
-            cargoInfoId: entry.cargoInfoId,
-            metadata: JSON.stringify(entry.metadata || {}),
-            customCargoMetadataId: entry.custom_cargo_metadata_id,
-          })),
+          cargo: (values.cargo || []).map(
+            (entry: CargoFormData, i: number) => ({
+              cargoInfoId: entry.cargoInfoId,
+              metadata: JSON.stringify(entry.metadata || {}),
+              customCargoMetadataId: entry.custom_cargo_metadata_id,
+              placement_order: i,
+            }),
+          ),
         };
 
         editMutation.mutate(payload);
