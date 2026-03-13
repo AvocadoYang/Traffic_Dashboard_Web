@@ -329,7 +329,7 @@ const CargoDetail: FC = () => {
     // if (type.toLowerCase() === "string" && fieldName === "container_id") {
     //   return (
     //     <div style={{ display: "flex", gap: 8 }}>
-    //       <Input style={{ width: "100%" }} />
+    //       <Input style={{ width: "100%" }} min={0} max={10} />
     //     </div>
     //   );
     // }

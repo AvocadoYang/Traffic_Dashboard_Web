@@ -60,17 +60,17 @@ function App() {
     });
   };
 
-  useEffect(() => {
-    if (ecsResp !== "") {
-      openNotificationWithIconResp("error", ecsResp);
-    }
-  }, [ecsResp]);
+  // useEffect(() => {
+  //   if (ecsResp !== "") {
+  //     openNotificationWithIconResp("error", ecsResp);
+  //   }
+  // }, [ecsResp]);
 
-  useEffect(() => {
-    if (esc !== "") {
-      openNotificationWithIconEcsReq("info", esc);
-    }
-  }, [esc]);
+  // useEffect(() => {
+  //   if (esc !== "") {
+  //     openNotificationWithIconEcsReq("info", esc);
+  //   }
+  // }, [esc]);
 
   // useEffect(() => {
   //   if (bar !== "") {
