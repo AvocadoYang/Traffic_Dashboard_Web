@@ -93,6 +93,12 @@ export const isShowEditBackup = atom<boolean>(false);
 // /** 9-3 顯示起始位置設定 */
 // export const isShowStartPoint = atom<boolean>(false);
 
+/** 10-1 顯示電梯任務 */
+export const isShowEditElevatorMission = atom<boolean>(false);
+
+/** 10-2 顯示夾具高度 */
+export const isShowEditClampHeight = atom<boolean>(false);
+
 /** 地點tooltip */
 export const isShowLocationTooltip = atom<boolean>(false);
 

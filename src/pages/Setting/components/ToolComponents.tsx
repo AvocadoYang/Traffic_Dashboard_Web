@@ -23,7 +23,9 @@ import {
   isShowEditBeforeLeftChargeStationMission,
   isShowEditChargeMission,
   isShowEditChargeStationPosition,
+  isShowEditClampHeight,
   isShowEditCustomCargoFormat,
+  isShowEditElevatorMission,
   isShowEditIdleMission,
   isShowEditMission,
   isShowEditMissionTag,
@@ -62,6 +64,8 @@ import { AbortCargoMissionPanel } from "../formComponent/forms/missionComponents
 import CustomCargoInfoPanel from "../formComponent/forms/other/customCargoInfo/CustomCargoInfoPanel";
 import EditPeripheralIcon from "../formComponent/forms/other/editPeripheralIcon/EditPeripheralIcon";
 import { PeripheralGroupPanel, PeripheralNamePanel } from "./peripherals";
+import ElevatorMissionPanel from "../formComponent/forms/file/corning/ElevatorMissionPanel";
+import ClampHeightPanel from "../formComponent/forms/file/corning/ClampHeightPanel";
 
 const SortableWrap: FC<{
   sortableId: ToolBarItemType;
@@ -477,6 +481,38 @@ const SortableWrap: FC<{
                 />
               </Card>
             );
+
+          //
+          case "elevator_mission":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="elevator_mission"
+                />
+                <ElevatorMissionPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
+
+          // 8-2 顯示編輯備份檔案
+          case "clamp_height":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="clamp_height"
+                />
+                <ClampHeightPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
           default:
             return null;
         }
@@ -514,7 +550,7 @@ const ToolComponents: FC<{
   const openIdlePanel = useAtomValue(isShowEditIdleMission);
   const openTopicPanel = useAtomValue(isShowEditTopicMission);
   const openAbortCargoMission = useAtomValue(
-    isShowEditAbortMissionWhenHasCargoMission
+    isShowEditAbortMissionWhenHasCargoMission,
   );
 
   const openPeripheralNamePanel = useAtomValue(isShowPeripheralNameTable);
@@ -525,6 +561,9 @@ const ToolComponents: FC<{
   const openCargoFormatPanel = useAtomValue(isShowEditCustomCargoFormat);
   const openWarningPanel = useAtomValue(isShowEditWarningId);
   const openBackupPanel = useAtomValue(isShowEditBackup);
+
+  const openElevatorMission = useAtomValue(isShowEditElevatorMission);
+  const openClampHieght = useAtomValue(isShowEditClampHeight);
 
   return dataList.map((form) => {
     const { key: formKey } = form;
@@ -662,6 +701,12 @@ const ToolComponents: FC<{
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     if (formKey === "backup_file" && openBackupPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "elevator_mission" && openElevatorMission) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "clamp_height" && openClampHieght) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     return [];
