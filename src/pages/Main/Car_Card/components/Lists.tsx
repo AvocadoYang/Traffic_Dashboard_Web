@@ -211,24 +211,16 @@ export const RowOne: React.FC<{ isDark: boolean; amrId: string }> = memo(
           <span
             className={`login-text ${
               isOnline
-                ? isOverdue
-                  ? "overdue-text"
-                  : "online-text"
+                ? "online-text"
                 : "offline-text"
             }`}
           >
-            {isOnline ? (
-              isOverdue ? (
-                <WramOverdue>{t("utils.overdue")}</WramOverdue>
-              ) : (
-                t("utils.online")
-              )
-            ) : (
+            {isOnline ?  t("utils.online") : (
               t("utils.offline")
             )}
           </span>
 
-          {isOnline && !isOverdue && (
+          {isOnline && (
             <NetworkDelay delay={networkDelay}>
               {networkDelay !== undefined ? `${networkDelay} ms` : "--"}
             </NetworkDelay>
@@ -244,15 +236,6 @@ export const RowOne: React.FC<{ isDark: boolean; amrId: string }> = memo(
           >
             {`${t("utils.category")}: ${AmrID.category}`}
           </span>
-          {isOnline ? (
-            <p className={`amr-is-registerd`}>
-              {`-- ${t("utils.is_registered")} --`}
-            </p>
-          ) : (
-            <p className={`amr-is-registerd`}>
-              {`-- ${t("utils.not_registered")} --`}
-            </p>
-          )}
         </AmrTitle>
       </CarRow1>
     );
