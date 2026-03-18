@@ -30,7 +30,6 @@ import {
   ManualTag,
   MissionTag,
   PowerTag,
-  StateTag,
 } from "./Tags";
 import useRoadConditions from "@/sockets/useAmrRoadConditions";
 
@@ -218,18 +217,10 @@ export const RowOne: React.FC<{ isDark: boolean; amrId: string }> = memo(
                 : "offline-text"
             }`}
           >
-            {isOnline ? (
-              isOverdue ? (
-                <WramOverdue>{t("utils.overdue")}</WramOverdue>
-              ) : (
-                t("utils.online")
-              )
-            ) : (
-              t("utils.offline")
-            )}
+            {isOverdue ? t("utils.offline") : t("utils.online")}
           </span>
 
-          {isOnline && !isOverdue && (
+          {!isOverdue && (
             <NetworkDelay delay={networkDelay}>
               {networkDelay !== undefined ? `${networkDelay} ms` : "--"}
             </NetworkDelay>
@@ -544,7 +535,6 @@ export const CarTag: React.FC<{ openFullInfo: boolean; amrId: string }> = memo(
         <ChargingTag amrId={amrId} />
         <PowerTag amrId={amrId} />
         <IsPause amrId={amrId} />
-        <StateTag amrId={amrId} />
         {isOverdue ? <></> : <IsPosAccurate amrId={amrId}></IsPosAccurate>}
       </Flex>
     );

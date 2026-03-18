@@ -300,6 +300,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
   const getControlLabel = (control: string) => {
     const labels: Record<string, string> = {
       tilt: "TILT CONTROL",
+      liftctrl: "LIFT CONTROL",
       pallet_detection: "PALLET DETECTION",
       shelf_detection: "SHELF DETECTION",
       fork_height: "FORK HEIGHT",
@@ -354,6 +355,67 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                 <WarningOutlined />
                 VALID RANGE: -6.0° TO +6.0°
               </WarningText>
+            </CardBody>
+          </IndustrialControlCard>
+        );
+
+      case "liftctrl":
+        return (
+          <IndustrialControlCard key={`${control}-${index}`}>
+            <CardHeader>
+              <StepBadge>#{index + 1}</StepBadge>
+              <CardTitle>{getControlLabel(control)}</CardTitle>
+            </CardHeader>
+            <CardBody>
+              <Form.Item
+                label={<FieldLabel className="required">LIFT MODE</FieldLabel>}
+                name={[...fieldName, "lift"]}
+                rules={[{ required: true, message: "REQUIRED FIELD" }]}
+              >
+                <IndustrialSegmented
+                  options={[
+                    { label: "UP", value: "up" },
+                    { label: "DOWN", value: "down" },
+                  ]}
+                />
+              </Form.Item>
+            </CardBody>
+          </IndustrialControlCard>
+        );
+
+      case "NS":
+        return (
+          <IndustrialControlCard key={`${control}-${index}`}>
+            <CardHeader>
+              <StepBadge>#{index + 1}</StepBadge>
+              <CardTitle>{getControlLabel(control)}</CardTitle>
+            </CardHeader>
+            <CardBody>
+              <Form.Item
+                label={<FieldLabel className="required">NS MODE</FieldLabel>}
+                name={[...fieldName, "NS", "direction"]}
+                rules={[{ required: true, message: "REQUIRED FIELD" }]}
+              >
+                <IndustrialSegmented
+                  options={[
+                    { label: "FORWARD", value: "forward" },
+                    { label: "BACKWARD", value: "backward" },
+                  ]}
+                />
+              </Form.Item>
+
+              <Form.Item
+                label={<FieldLabel className="required">scale</FieldLabel>}
+                name={[...fieldName, "NS", "scale"]}
+                rules={[{ required: true, message: "REQUIRED FIELD" }]}
+              >
+                <InputNumber
+                  step={1}
+                  addonAfter="mm"
+                  placeholder="Enter distance"
+                  style={{ width: "100%" }}
+                />
+              </Form.Item>
             </CardBody>
           </IndustrialControlCard>
         );

@@ -26,6 +26,7 @@ export const controlList = {
     "shelf_detection",
     "fork_shift",
     "straight_backward",
+    "liftctrl",
   ],
   offload: [
     "B",
@@ -40,6 +41,7 @@ export const controlList = {
     "fork_shift",
     "straight_backward",
     "check_cargo_height",
+    "liftctrl",
   ],
   spin: ["S"],
   fork: [
@@ -54,6 +56,9 @@ export const controlList = {
     "QR",
     "fork_shift",
     "straight_backward",
+    "liftctrl",
+    "QR",
+    "NS",
   ],
   charge: ["fork_height"],
   cargo_limit: ["fork_height"],

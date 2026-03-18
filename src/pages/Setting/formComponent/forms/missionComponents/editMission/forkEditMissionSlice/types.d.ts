@@ -35,6 +35,10 @@ export type Fork_Movement = {
     backward_location_id?: string;
     forward_location_id?: string;
   };
+
+  liftctrl?: {
+    lift?: string;
+  };
 };
 
 export type Fork_Action = {
