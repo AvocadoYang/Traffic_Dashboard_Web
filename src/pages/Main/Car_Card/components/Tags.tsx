@@ -15,6 +15,20 @@ import { memo } from "react";
 import { ErrorResponse } from "@/utils/globalType";
 import { useTranslation } from "react-i18next";
 import { useMockInfo } from "@/sockets/useMockInfo";
+import { useSystemState } from "@/sockets/useSystemState";
+
+export const StateTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
+  const s = useSystemState(amrId);
+
+  if (!s) return null;
+  return (
+    <>
+      <Tag color={"blue"} style={{ margin: 0, cursor: "pointer" }}>
+        {s.state || ""}
+      </Tag>
+    </>
+  );
+});
 
 export const ManualTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const { isManual } = useIsManual(amrId);

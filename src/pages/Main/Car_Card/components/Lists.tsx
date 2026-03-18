@@ -30,6 +30,7 @@ import {
   ManualTag,
   MissionTag,
   PowerTag,
+  StateTag,
 } from "./Tags";
 import useRoadConditions from "@/sockets/useAmrRoadConditions";
 
@@ -256,7 +257,7 @@ export const RowOne: React.FC<{ isDark: boolean; amrId: string }> = memo(
         </AmrTitle>
       </CarRow1>
     );
-  }
+  },
 );
 
 // ======Second row in info card ============
@@ -274,7 +275,7 @@ const LocValue: React.FC<{ amrId: string; isDark: boolean }> = memo(
         {`${closeLoc ? closeLoc : "--"}`}
       </p>
     );
-  }
+  },
 );
 const CardSpeed: React.FC<{ amrId: string; isDark: boolean }> = memo(
   ({ isDark, amrId }) => {
@@ -287,7 +288,7 @@ const CardSpeed: React.FC<{ amrId: string; isDark: boolean }> = memo(
         <span className={`${isDark ? "symbol-dark" : "symbol"}`}>{"cm/s"}</span>
       </p>
     );
-  }
+  },
 );
 const Power: React.FC<{ amrId: string; isDark: boolean }> = memo(
   ({ amrId, isDark }) => {
@@ -306,7 +307,7 @@ const Power: React.FC<{ amrId: string; isDark: boolean }> = memo(
         </p>
       </>
     );
-  }
+  },
 );
 const Yaw: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const { yaw } = useYaw(amrId);
@@ -463,7 +464,7 @@ export const RowThread: React.FC<{ isDark: boolean; amrId: string }> = memo(
         <Statue amrId={amrId}></Statue>
       </CarRow3>
     );
-  }
+  },
 );
 
 // ======= Fourth row in info ===============
@@ -507,7 +508,7 @@ export const RowFourth: React.FC<{ isDark: boolean; amrId: string }> = memo(
         <RoadStatue amrId={amrId}></RoadStatue>
       </CarRow3>
     );
-  }
+  },
 );
 
 export const RowFifth: React.FC<{ isDark: boolean; amrId: string }> = memo(
@@ -521,7 +522,7 @@ export const RowFifth: React.FC<{ isDark: boolean; amrId: string }> = memo(
         <MaintenanceStatue amrId={amrId}></MaintenanceStatue>
       </CarRow3>
     );
-  }
+  },
 );
 
 // ======= Tag Wrap ==============
@@ -543,8 +544,9 @@ export const CarTag: React.FC<{ openFullInfo: boolean; amrId: string }> = memo(
         <ChargingTag amrId={amrId} />
         <PowerTag amrId={amrId} />
         <IsPause amrId={amrId} />
+        <StateTag amrId={amrId} />
         {isOverdue ? <></> : <IsPosAccurate amrId={amrId}></IsPosAccurate>}
       </Flex>
     );
-  }
+  },
 );
