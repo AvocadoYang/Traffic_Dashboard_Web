@@ -1875,5 +1875,8 @@
     "CAN_NOT_GET_CORRECT_ANGLE": "無法獲取正確的角度",
     "MISSION_TIMEOUT": "任務執行超時",
     "INTERNAL_LOGIC_FAILURE": "內部任務邏輯失敗/異常"
+  },
+  "stack": {
+    "edit_config_title": "編輯堆疊參數"
   }
 }

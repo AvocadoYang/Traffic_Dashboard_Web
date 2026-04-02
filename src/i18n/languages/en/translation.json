@@ -1866,5 +1866,8 @@
     "CAN_NOT_GET_CORRECT_ANGLE": "Unable to obtain the correct angle",
     "MISSION_TIMEOUT": "Mission execution timed out",
     "INTERNAL_LOGIC_FAILURE": "Internal mission logic failure/exception"
+  },
+  "stack": {
+    "edit_config_title": "Edit stack config"
   }
 }
