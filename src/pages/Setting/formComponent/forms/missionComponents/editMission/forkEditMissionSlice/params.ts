@@ -15,7 +15,6 @@ export const controlList = {
   move: ["F", "fork_height", "B", "W", "NS"],
   load: [
     "C",
-    "B",
     "rotate",
     "tilt", //
     "clamp", //
@@ -29,7 +28,6 @@ export const controlList = {
     "liftctrl",
   ],
   offload: [
-    "B",
     "rotate",
     "tilt",
     "clamp",
@@ -60,7 +58,7 @@ export const controlList = {
     "QR",
     "NS",
   ],
-  charge: ["fork_height"],
+  charge: ["fork_height", "charge"],
   cargo_limit: ["fork_height"],
   load_from_other: ["F", "fork_height", "B", "W"],
   offload_from_other: ["F", "fork_height", "B", "W"],

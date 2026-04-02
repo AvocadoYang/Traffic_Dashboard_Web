@@ -304,6 +304,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
       pallet_detection: "PALLET DETECTION",
       shelf_detection: "SHELF DETECTION",
       fork_height: "FORK HEIGHT",
+      charge: "charge",
       blind_fork: "BLIND FORK",
       clamp: "CLAMP CONTROL",
       baffle: "BAFFLE CONTROL",
@@ -742,6 +743,32 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                     </>
                   );
                 }}
+              </Form.Item>
+            </CardBody>
+          </IndustrialControlCard>
+        );
+
+      case "charge":
+        return (
+          <IndustrialControlCard key={`${control}-${index}`}>
+            <CardHeader>
+              <StepBadge>#{index + 1}</StepBadge>
+              <CardTitle>{getControlLabel(control)}</CardTitle>
+            </CardHeader>
+            <CardBody>
+              <Form.Item
+                label={
+                  <FieldLabel className="required">Charge Mode</FieldLabel>
+                }
+                name={[...fieldName, "charge"]}
+                rules={[{ required: true, message: "REQUIRED FIELD" }]}
+              >
+                <IndustrialSegmented
+                  options={[
+                    { label: "CHARGE_START", value: "charge_start" },
+                    { label: "CHARGE_STOP", value: "charge_stop" },
+                  ]}
+                />
               </Form.Item>
             </CardBody>
           </IndustrialControlCard>
