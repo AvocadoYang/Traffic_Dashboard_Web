@@ -31,6 +31,7 @@ import {
   isShowEditCustomCargoFormat,
   isShowPeripheralNameTable,
   isShowPeripheralGroupTable,
+  isShowYfyAutoMission,
 } from "@/utils/siderGloble";
 import { ToolBarItemType } from "../components/siderElement";
 
@@ -58,19 +59,19 @@ const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({
   const setOpenChargeMissionPanel = useSetAtom(isShowEditChargeMission); // 5-2
 
   const setOpenBeforeLeftStationMissionPanel = useSetAtom(
-    isShowEditBeforeLeftChargeStationMission
+    isShowEditBeforeLeftChargeStationMission,
   ); // 5-4
   const setOpenScheduleMissionPanel = useSetAtom(isShowEditScheduleMission); // 5-5
   const setOpenIdleMissionPanel = useSetAtom(isShowEditIdleMission); // 5-6
   const setOpenTopicMissionPanel = useSetAtom(isShowEditTopicMission); // 5-7
   const setOpenAbortMissionPanel = useSetAtom(
-    isShowEditAbortMissionWhenHasCargoMission
+    isShowEditAbortMissionWhenHasCargoMission,
   );
 
   const setOpenPeripheralNamePanel = useSetAtom(isShowPeripheralNameTable); // 7-1
   const setOpenPeripheralGroupPanel = useSetAtom(isShowPeripheralGroupTable); // 7-2
   const setOpenEditChargeStationIconPanel = useSetAtom(
-    isShowEditChargeStationPosition
+    isShowEditChargeStationPosition,
   ); // 7-3
 
   const setOpenTagMissionPanel = useSetAtom(isShowEditMissionTag); // 6-1
@@ -79,6 +80,8 @@ const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({
   const setOpenWarningId = useSetAtom(isShowEditWarningId); // 7-1
   const setOpenUploadWarningIDModal = useSetAtom(isOpenUploadWarningIDModal); //7-2
   const setOpenBackup = useSetAtom(isShowEditBackup); // 7-3
+
+  const setOpenYfyAutoMission = useSetAtom(isShowYfyAutoMission); // 7-3
 
   const handleClose = () => {
     switch (panelName) {
@@ -175,6 +178,8 @@ const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({
         // No corresponding setters provided for these cases
         console.warn(`No handler for panel: ${panelName}`);
         break;
+      case "yfy_auto_mission":
+        setOpenYfyAutoMission(false);
       default:
         console.warn(`Unknown panel name: ${panelName}`);
         break;

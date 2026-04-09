@@ -111,3 +111,6 @@ export const isShowLocation = atom<boolean>(true);
 
 /** 顯示目前路徑 */
 export const isShowRoad = atom<boolean>(true);
+
+/** 10-1 顯示編輯備份 */
+export const isShowYfyAutoMission = atom<boolean>(false);

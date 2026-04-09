@@ -33,6 +33,7 @@ import {
   isShowPeripheralGroupTable,
   isShowPeripheralNameTable,
   isShowRegisterAMR,
+  isShowYfyAutoMission,
   QuickEditLocationPanelSwitch,
   QuickEditRoadSwitch,
   RoadListTableSwitch,
@@ -62,6 +63,7 @@ import { AbortCargoMissionPanel } from "../formComponent/forms/missionComponents
 import CustomCargoInfoPanel from "../formComponent/forms/other/customCargoInfo/CustomCargoInfoPanel";
 import EditPeripheralIcon from "../formComponent/forms/other/editPeripheralIcon/EditPeripheralIcon";
 import { PeripheralGroupPanel, PeripheralNamePanel } from "./peripherals";
+import AutoMission from "./yfySpecial/AutoMission";
 
 const SortableWrap: FC<{
   sortableId: ToolBarItemType;
@@ -477,6 +479,20 @@ const SortableWrap: FC<{
                 />
               </Card>
             );
+          case "yfy_auto_mission":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="yfy_auto_mission"
+                />
+                <AutoMission
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
           default:
             return null;
         }
@@ -514,7 +530,7 @@ const ToolComponents: FC<{
   const openIdlePanel = useAtomValue(isShowEditIdleMission);
   const openTopicPanel = useAtomValue(isShowEditTopicMission);
   const openAbortCargoMission = useAtomValue(
-    isShowEditAbortMissionWhenHasCargoMission
+    isShowEditAbortMissionWhenHasCargoMission,
   );
 
   const openPeripheralNamePanel = useAtomValue(isShowPeripheralNameTable);
@@ -525,6 +541,8 @@ const ToolComponents: FC<{
   const openCargoFormatPanel = useAtomValue(isShowEditCustomCargoFormat);
   const openWarningPanel = useAtomValue(isShowEditWarningId);
   const openBackupPanel = useAtomValue(isShowEditBackup);
+
+  const openAutoMission = useAtomValue(isShowYfyAutoMission);
 
   return dataList.map((form) => {
     const { key: formKey } = form;
@@ -662,6 +680,9 @@ const ToolComponents: FC<{
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     if (formKey === "backup_file" && openBackupPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "yfy_auto_mission" && openAutoMission) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     return [];
