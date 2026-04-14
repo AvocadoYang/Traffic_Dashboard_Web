@@ -36,8 +36,8 @@ export type Corning_Cargo = {
   container_type: string;
 };
 
-const c_genOption = ["5", "5.5", "6-Metal", "6-Wooden", "6-Inno", "6-KC"];
-const c_typeOption = ["Full", "Pallet", "Wooden", "Unknown", "Empty"];
+const c_genOption = ["5", "5.5", "6-Metal", "6-Wooden", "6-Inno", "6-KC","Wrapper"];
+const c_typeOption = ["Full", "Pallet", "Wooden", "Unknown", "Empty","Wrapper"];
 
 const CorningTest: FC = () => {
   const script = useMockInfo();

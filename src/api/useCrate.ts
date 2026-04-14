@@ -13,6 +13,7 @@ const getData = async () => {
     "6-KC": number;
     "5.5": number;
     "6-TC": number;
+    "Wrapper":number
     // [key: string]: number;
   };
 };
