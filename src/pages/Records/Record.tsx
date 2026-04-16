@@ -1,6 +1,6 @@
 import Layout, { Content } from "antd/es/layout/layout";
 import { useIsMobile } from "@/hooks/useIsMoblie";
-import Header from "@/components/Header";
+import Header from "@/components/Common/Header";
 import { FC } from "react";
 import WarningTable from "./WarningTable";
 import AlarmTable from "./AlarmTable";

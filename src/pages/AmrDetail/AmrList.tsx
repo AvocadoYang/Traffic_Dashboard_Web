@@ -1,7 +1,7 @@
 import { Card, Col, Empty, Layout, List, Row, Typography } from "antd";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-import Header from "@/components/Header";
+import Header from "@/components/Common/Header";
 import { useIsMobile } from "@/hooks/useIsMoblie";
 import { useAllAmrStatus } from "@/sockets/useAMRInfo";
 import { useTranslation } from "react-i18next";

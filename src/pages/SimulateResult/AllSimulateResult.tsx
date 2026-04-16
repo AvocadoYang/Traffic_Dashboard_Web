@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Table, Typography, Layout } from "antd";
 import moment from "moment";
 import useSimResult, { SimulationResult } from "@/api/useSimResult";
-import Header from "@/components/Header";
+import Header from "@/components/Common/Header";
 import { Content } from "antd/es/layout/layout";
 import { useIsMobile } from "@/hooks/useIsMoblie";
 import { useTranslation } from "react-i18next";
