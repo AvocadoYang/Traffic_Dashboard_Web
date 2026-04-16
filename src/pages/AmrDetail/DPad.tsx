@@ -14,7 +14,7 @@ import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import client from "@/api/axiosClient";
 import { useMutation } from "@tanstack/react-query";
-import MaintenancePanel from "../Main/Car_Card/components/MaintenancePanel";
+import MaintenancePanel from "../../components/Main/Car/MaintenancePanel";
 
 const IndustrialContainer = styled(Flex)`
   width: 100%;

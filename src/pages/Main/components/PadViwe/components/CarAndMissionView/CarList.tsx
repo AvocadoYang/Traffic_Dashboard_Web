@@ -1,7 +1,7 @@
 import { memo } from "react";
 import "../../style.css";
 import { RollbackOutlined } from "@ant-design/icons";
-import CarCardWrap from "../../../../Car_Card/CardWrap";
+import CarCardWrap from "../../../../../../components/Main/Car/CardWrap";
 import { useSetAtom } from "jotai";
 import { OpenCarCardInfo } from "@/pages/Main/jotai.ts";
 
