@@ -1073,6 +1073,7 @@
       "no_cycle_missions_available": "[ 無可用循環任務 ]",
       "missions": "任務",
       "amr_label": "AMR",
+      "start_from": "開始任務順序",
       "priority_label": "優先級",
       "active_status": "啟動",
       "inactive_status": "停止",

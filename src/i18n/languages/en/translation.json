@@ -1069,6 +1069,7 @@
       "no_cycle_missions_available": "[ No Cycle Missions Available ]",
       "missions": "MISSIONS",
       "amr_label": "AMR",
+      "start_from": "start from",
       "priority_label": "Priority",
       "active_status": "ACTIVE",
       "inactive_status": "INACTIVE",
