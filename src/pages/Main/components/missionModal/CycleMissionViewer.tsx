@@ -18,6 +18,8 @@ import {
   Badge,
   Flex,
   Popconfirm,
+  Popover,
+  InputNumber,
 } from "antd";
 import React, { Dispatch, FC, SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
@@ -403,9 +405,25 @@ const CycleMissionViewer: FC<{
   const data = useCycleMission();
   const { t } = useTranslation();
   const [messageApi, contextHolder] = message.useMessage();
+  const [startIndexMap, setStartIndexMap] = React.useState<
+    Record<string, number>
+  >({});
+
+  const getStartIndex = (cycleId: string, missionIndex: number) =>
+    startIndexMap[`${cycleId}-${missionIndex}`] ?? missionIndex;
+
+  const setStartIndex = (cycleId: string, missionIndex: number, val: number) =>
+    setStartIndexMap((prev) => ({
+      ...prev,
+      [`${cycleId}-${missionIndex}`]: val,
+    }));
 
   const OnOffMutation = useMutation({
-    mutationFn: (data: { id: string; isActive: boolean }) => {
+    mutationFn: (data: {
+      id: string;
+      isActive: boolean;
+      startIndex: number;
+    }) => {
       return client.post("api/missions/acive-cycle", data);
     },
     onSuccess: () => {
@@ -424,10 +442,15 @@ const CycleMissionViewer: FC<{
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
-  const handleOnOff = (id: string, isActive: boolean) => {
+  const handleOnOff = (
+    id: string,
+    isActive: boolean,
+    startIndex: number = 0,
+  ) => {
     OnOffMutation.mutate({
       id,
       isActive,
+      startIndex,
     });
   };
 
@@ -562,7 +585,13 @@ const CycleMissionViewer: FC<{
                   >
                     <StyledSwitch
                       checked={cycle.IsActive}
-                      onChange={(checked) => handleOnOff(cycle.Id, checked)}
+                      onChange={(checked) => {
+                        if (checked) {
+                          handleOnOff(cycle.Id, true, 0);
+                        } else {
+                          handleOnOff(cycle.Id, false, 0);
+                        }
+                      }}
                       checkedChildren={<PoweroffOutlined />}
                       unCheckedChildren={<PoweroffOutlined />}
                     />
@@ -583,20 +612,93 @@ const CycleMissionViewer: FC<{
               </CycleHeader>
 
               <MissionList>
-                {cycle.Payload.map((mission, index) => (
-                  <MissionItem key={index}>
-                    <MissionIndex>#{index + 1}</MissionIndex>
-                    <MissionContent>
-                      <div className="mission-type">{mission.missionType}</div>
-                      <div className="mission-details">
-                        {t("mission.cycle_mission.amr_label")}: {mission.amrId}{" "}
-                        | {t("mission.cycle_mission.priority_label")}:{" "}
-                        {getPriorityLabel(mission.priority)} |{" "}
-                        {getMissionDisplay(mission)}
-                      </div>
-                    </MissionContent>
-                  </MissionItem>
-                ))}
+                {cycle.Payload.map((mission, index) => {
+                  const key = `${cycle.Id}-${index}`;
+                  return (
+                    <Popover
+                      key={index}
+                      trigger="click"
+                      disabled={cycle.IsActive}
+                      content={
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 8,
+                            width: 220,
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontFamily: "'Roboto Mono', monospace",
+                              fontSize: 11,
+                              textTransform: "uppercase",
+                              color: "#595959",
+                            }}
+                          >
+                            {t("mission.cycle_mission.start_from")} #
+                          </span>
+                          <InputNumber
+                            min={0}
+                            max={cycle.Payload.length - 1}
+                            value={getStartIndex(cycle.Id, index)}
+                            onChange={(val) =>
+                              setStartIndex(cycle.Id, index, val ?? index)
+                            }
+                            style={{
+                              width: "100%",
+                              fontFamily: "'Roboto Mono', monospace",
+                            }}
+                          />
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: 8,
+                              justifyContent: "flex-end",
+                            }}
+                          >
+                            <Button
+                              size="small"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {t("utils.cancel")}
+                            </Button>
+                            <Button
+                              size="small"
+                              type="primary"
+                              onClick={() =>
+                                handleOnOff(
+                                  cycle.Id,
+                                  true,
+                                  getStartIndex(cycle.Id, index),
+                                )
+                              }
+                            >
+                              {t("utils.confirm")}
+                            </Button>
+                          </div>
+                        </div>
+                      }
+                    >
+                      <MissionItem
+                        style={{
+                          cursor: cycle.IsActive ? "default" : "pointer",
+                        }}
+                      >
+                        <MissionIndex>#{index + 1}</MissionIndex>
+                        <MissionContent>
+                          <div className="mission-type">
+                            {mission.missionType}
+                          </div>
+                          <div className="mission-details">
+                            {t("mission.cycle_mission.amr_label")}:{" "}
+                            {mission.amrId} |{getMissionDisplay(mission)}
+                          </div>
+                        </MissionContent>
+                      </MissionItem>
+                    </Popover>
+                  );
+                })}
               </MissionList>
             </CycleCard>
           ))
