@@ -12,11 +12,11 @@ const schema = () =>
 
 const state$ = fromEventPattern(
   (next) => {
-    io.on("state", next);
+    io.on("amr-state", next);
     return next;
   },
   (next) => {
-    io.off("state", next);
+    io.off("amr-state", next);
   },
 ).pipe(
   switchMap((msg) =>

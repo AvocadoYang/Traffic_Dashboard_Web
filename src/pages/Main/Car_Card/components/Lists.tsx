@@ -30,6 +30,7 @@ import {
   ManualTag,
   MissionTag,
   PowerTag,
+  StateTag,
 } from "./Tags";
 import useRoadConditions from "@/sockets/useAmrRoadConditions";
 
@@ -535,6 +536,7 @@ export const CarTag: React.FC<{ openFullInfo: boolean; amrId: string }> = memo(
         <ChargingTag amrId={amrId} />
         <PowerTag amrId={amrId} />
         <IsPause amrId={amrId} />
+        <StateTag amrId={amrId} />
         {isOverdue ? <></> : <IsPosAccurate amrId={amrId}></IsPosAccurate>}
       </Flex>
     );

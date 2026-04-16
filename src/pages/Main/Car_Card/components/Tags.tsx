@@ -19,7 +19,6 @@ import { useSystemState } from "@/sockets/useSystemState";
 
 export const StateTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const s = useSystemState(amrId);
-
   if (!s) return null;
   return (
     <>
