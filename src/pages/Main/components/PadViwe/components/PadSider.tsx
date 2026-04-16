@@ -6,10 +6,10 @@ import {
   AlertOutlined,
 } from "@ant-design/icons";
 import { useState } from "react";
-import { viewBtn } from "@/pages/Main/global/jotai";
+import { viewBtn } from "@/pages/Main/jotai.ts";
 import { useAtom } from "jotai";
 import "../style.css";
-import { ViewBtn } from "@/pages/Main/global/jotai";
+import { ViewBtn } from "@/pages/Main/jotai.ts";
 import { useTranslation } from "react-i18next";
 
 type MenuItem = Required<MenuProps>["items"][number];

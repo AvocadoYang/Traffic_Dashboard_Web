@@ -12,7 +12,7 @@ import { nanoid } from "nanoid";
 import { Label, LabelTooltip, LabelWrapper, Line, Point, PointMain } from "@/pages/Setting/mapComponents/components/AllLocation/components/PointAndLine";
 import { useAtomValue, useSetAtom } from "jotai";
 import { mouseDetectLoc, tooltipProp } from "@/utils/gloable";
-import { OpenDirect } from "@/pages/Main/global/jotai";
+import { OpenDirect } from "@/pages/Main/jotai.ts";
 import useMouseMove from "@/pages/Main/components/WebView/hooks/useMoseMove";
 import { mousePosition } from "@/utils/siderGloble";
 

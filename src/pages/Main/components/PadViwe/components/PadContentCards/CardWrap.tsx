@@ -8,7 +8,7 @@ import {
   OpenMissionCardInfo,
   OpenQuickMission,
   viewBtn,
-} from "@/pages/Main/global/jotai";
+} from "@/pages/Main/jotai.ts";
 import { Card, Button, Space } from "antd";
 import { useAtomValue, useSetAtom } from "jotai";
 import { memo, useCallback, useEffect, useState } from "react";

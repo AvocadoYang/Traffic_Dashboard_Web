@@ -1,7 +1,7 @@
 import { Form, message, Modal, Select, Radio, RadioChangeEvent } from "antd";
 import { useAtom } from "jotai";
 import React, { useMemo, useState } from "react";
-import { OpenDirect } from "../../global/jotai";
+import { OpenDirect } from "../../jotai.ts";
 import useName from "@/api/useAmrName";
 import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";

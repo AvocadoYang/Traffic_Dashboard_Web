@@ -3,7 +3,7 @@ import {
   QuickMissionOffload,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
-} from "@/pages/Main/global/jotai";
+} from "@/pages/Main/jotai.ts";
 import { Tooltip } from "antd";
 import { useAtom, useSetAtom } from "jotai";
 import React, { FC } from "react";
