@@ -8,11 +8,12 @@ import AmrDetail from "./pages/AmrDetail/AmrDetail";
 import AmrList from "./pages/AmrDetail/AmrList";
 import AllSimulateResult from "./pages/SimulateResult/AllSimulateResult";
 import { useEcsTransaction } from "./sockets/useEcsTransaction";
-import { notification } from "antd";
+import { message, notification } from "antd";
 import { useEffect } from "react";
 import { useEcsTransactionResp } from "./sockets/useEcsTransactionResp";
 import { useBarcodeSignal } from "./sockets/useBarcodeSignal";
 import { Navigate, Outlet } from "react-router-dom";
+import { useSystemAlarm } from "./sockets/useSystemAlarm";
 const client = new QueryClient({
   defaultOptions: {
     queries: {
@@ -25,9 +26,10 @@ type NotificationType = "success" | "info" | "warning" | "error";
 function App() {
   const esc = useEcsTransaction();
   const ecsResp = useEcsTransactionResp();
+  const systemAlarm = useSystemAlarm();
   // const bar = useBarcodeSignal();
   const [api, contextHolder] = notification.useNotification();
-
+  const [messageApi, alarmContextHolder] = message.useMessage();
   const openNotificationWithIconEcsReq = (
     type: NotificationType,
     msg: string,
@@ -59,6 +61,12 @@ function App() {
       description: msg,
     });
   };
+
+  useEffect(() => {
+    if (systemAlarm.message !== "") {
+      messageApi.warning(systemAlarm.message);
+    }
+  }, [systemAlarm]);
 
   // useEffect(() => {
   //   if (ecsResp !== "") {
@@ -92,6 +100,7 @@ function App() {
   return (
     <QueryClientProvider client={client}>
       {contextHolder}
+      {alarmContextHolder}
       <BrowserRouter
         future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
       >
