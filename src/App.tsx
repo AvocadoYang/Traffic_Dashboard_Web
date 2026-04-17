@@ -1,19 +1,15 @@
 import MonitorCenter from "./pages/SWMoniter/SWMoniter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Routes, Route, HashRouter, BrowserRouter } from "react-router-dom";
+import { Routes, Route, BrowserRouter } from "react-router-dom";
 import { Main, LogIn, Setting, Register, Simulate, Records } from "./pages";
 import MissionAnalysis from "./pages/MissionAnalysis/MissionAnalysis";
 import CargoHistory from "./pages/CargoHistory/CargoHistory";
 import AmrDetail from "./pages/AmrDetail/AmrDetail";
 import AmrList from "./pages/AmrDetail/AmrList";
 import AllSimulateResult from "./pages/SimulateResult/AllSimulateResult";
-import { useEcsTransaction } from "./sockets/useEcsTransaction";
-import { message, notification } from "antd";
-import { useEffect } from "react";
-import { useEcsTransactionResp } from "./sockets/useEcsTransactionResp";
-import { useBarcodeSignal } from "./sockets/useBarcodeSignal";
 import { Navigate, Outlet } from "react-router-dom";
-import { useSystemAlarm } from "./sockets/useSystemAlarm";
+import { SystemAlarmOverlay } from "./pages/Main/components/SystemAlarm";
+
 const client = new QueryClient({
   defaultOptions: {
     queries: {
@@ -21,70 +17,11 @@ const client = new QueryClient({
     },
   },
 });
-type NotificationType = "success" | "info" | "warning" | "error";
 
 function App() {
-  const esc = useEcsTransaction();
-  const ecsResp = useEcsTransactionResp();
-  const systemAlarm = useSystemAlarm();
+  // const esc = useEcsTransaction();
+  // const ecsResp = useEcsTransactionResp();
   // const bar = useBarcodeSignal();
-  const [api, contextHolder] = notification.useNotification();
-  const [messageApi, alarmContextHolder] = message.useMessage();
-  const openNotificationWithIconEcsReq = (
-    type: NotificationType,
-    msg: string,
-  ) => {
-    api[type]({
-      title: "ECS Requests",
-      description: msg,
-    });
-  };
-
-  const openNotificationWithIconResp = (
-    type: NotificationType,
-    msg: string,
-  ) => {
-    api[type]({
-      showProgress: true,
-      pauseOnHover: true,
-      title: "ECS Response",
-      description: msg,
-    });
-  };
-
-  const openNotificationWithIconBarcodeReq = (
-    type: NotificationType,
-    msg: string,
-  ) => {
-    api[type]({
-      title: "BARCODE READ",
-      description: msg,
-    });
-  };
-
-  useEffect(() => {
-    if (systemAlarm.message !== "") {
-      messageApi.warning(systemAlarm.message);
-    }
-  }, [systemAlarm]);
-
-  // useEffect(() => {
-  //   if (ecsResp !== "") {
-  //     openNotificationWithIconResp("error", ecsResp);
-  //   }
-  // }, [ecsResp]);
-
-  // useEffect(() => {
-  //   if (esc !== "") {
-  //     openNotificationWithIconEcsReq("info", esc);
-  //   }
-  // }, [esc]);
-
-  // useEffect(() => {
-  //   if (bar !== "") {
-  //     openNotificationWithIconBarcodeReq("info", `${bar}`);
-  //   }
-  // }, [bar]);
 
   const ProtectedRoute = () => {
     const token = localStorage.getItem("token");
@@ -99,8 +36,7 @@ function App() {
   // const ipcHandle = (): void => window.electron.ipc.send('ping')
   return (
     <QueryClientProvider client={client}>
-      {contextHolder}
-      {alarmContextHolder}
+      <SystemAlarmOverlay />
       <BrowserRouter
         future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
       >
