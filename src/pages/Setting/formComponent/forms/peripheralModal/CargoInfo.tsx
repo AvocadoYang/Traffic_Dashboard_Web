@@ -31,7 +31,7 @@ const CargoInfoAtPeripheral: FC<{ form: FormInstance<unknown> }> = ({
     setOpenModal(true);
     setOpen(false);
   };
-
+  console.log("render");
   useEffect(() => {
     if (!openModal || !openModal.cargo) return;
 

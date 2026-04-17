@@ -55,6 +55,12 @@ const EditStackModal: FC = () => {
         loadPriority: editStack.loadPriority,
         offloadPriority: editStack.offloadPriority,
       });
+
+      formCargo.setFieldValue("name", editStack.name);
+      formCargo.setFieldValue("description", editStack.description);
+      formCargo.setFieldValue("disable", editStack.disable);
+      formCargo.setFieldValue("loadPriority", editStack.loadPriority);
+      formCargo.setFieldValue("offloadPriority", editStack.offloadPriority);
     }
   }, [editStack, formConfig]);
 

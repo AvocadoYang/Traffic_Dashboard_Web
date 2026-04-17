@@ -1074,6 +1074,7 @@
       "no_cycle_missions_available": "[ 無可用循環任務 ]",
       "missions": "任務",
       "amr_label": "AMR",
+      "start_from": "開始任務順序",
       "priority_label": "優先級",
       "active_status": "啟動",
       "inactive_status": "停止",
@@ -1876,5 +1877,8 @@
     "CAN_NOT_GET_CORRECT_ANGLE": "無法獲取正確的角度",
     "MISSION_TIMEOUT": "任務執行超時",
     "INTERNAL_LOGIC_FAILURE": "內部任務邏輯失敗/異常"
+  },
+  "stack": {
+    "edit_config_title": "編輯堆疊參數"
   }
 }
