@@ -27,6 +27,7 @@ import ScalePad from "./ScalePad";
 import AllGateWaitPoint from "../../PadViwe/components/PadMapContent/AllGateWaitPoint/AllGateWaitPoint";
 import AllLiftGate from "../../PadViwe/components/PadMapContent/AllGate/AllLiftGate";
 import AllStack from "../../PadViwe/components/PadMapContent/AllStack/AllStack";
+import YfyPackage from "../../PadViwe/components/PadMapContent/YFYPackage/YfyPackage";
 
 const WebMapView: React.FC<{
   mapRef: RefObject<HTMLDivElement>;
@@ -89,6 +90,7 @@ const WebMapView: React.FC<{
           {showLocationToolTip ? <ToolTip /> : []}
           <AllZones scale={scale}></AllZones>
           <AllChargeStation></AllChargeStation>
+          <YfyPackage />
           {showChargeConfig ? <StatusPanel locId={showChargeConfig} /> : null}
           <ScalePad></ScalePad>
         </>

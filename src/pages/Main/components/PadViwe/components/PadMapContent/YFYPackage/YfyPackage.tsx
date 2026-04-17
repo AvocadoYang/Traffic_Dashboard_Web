@@ -1,16 +1,10 @@
 import useMap from "@/api/useMap";
 import { nanoid } from "nanoid";
-import { FC, memo, useCallback, useEffect, useMemo, useState } from "react";
+import { FC, memo, useCallback, useMemo } from "react";
 import { useAtomValue, useSetAtom } from "jotai";
 import { tooltipProp } from "@/utils/gloable";
-import { draggableLineInitialPoint } from "@/pages/Setting/hooks/hook";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
-import {
-  EditRoadPanelSwitch,
-  EditZoneSwitch,
-  isShowLocation,
-} from "@/utils/siderGloble";
-import { DraggableLine, Point } from "../AllLocation/components/PointAndLine";
+import { isShowLocation } from "@/utils/siderGloble";
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import {
   IsEditingQuickRoads,
@@ -47,6 +41,35 @@ const pulseCargo = keyframes`
   50% {
     transform: scale(1.05);
     box-shadow: 0 0 0 4px rgba(82, 196, 26, 0);
+  }
+`;
+
+const Point = styled.div.attrs<{
+  left: number;
+  top: number;
+  canrotate: string;
+}>(({ left, top, canrotate }) => ({
+  style: { left, top, canrotate },
+}))<{
+  left: number;
+  top: number;
+  canrotate: string;
+}>`
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: ${(props) =>
+    props.canrotate === "true" ? "#86c959" : "#f5ae07"};
+  position: absolute;
+  left: ${(p) => p.left}px;
+  top: ${(p) => p.top}px;
+  z-index: 300000;
+  box-shadow: 0 0 4px rgba(245, 129, 20, 0.6);
+  transform: translate(-50%, -50%);
+  &:hover {
+    background: red;
+    width: 5px;
+    height: 5px;
   }
 `;
 
