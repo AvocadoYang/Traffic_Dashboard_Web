@@ -8,9 +8,9 @@ import { LockOutlined } from "@ant-design/icons";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { font } from "@/styles/variables";
-import { buttonVariants } from "@/styles/mixins";
+// import { buttonVariants } from "@/styles/mixins";
 import { useFontFamily } from "@/hooks/useFontFamily";
-import { DefaultButton, PrimaryButton, DangerButton, GhostButton } from "@/styles/mixins";
+// import { DefaultButton, PrimaryButton, DangerButton, GhostButton } from "@/styles/mixins";
 
 
 const IndustrialModal = styled(Modal) <{ $fontFamily: string }>`
@@ -221,7 +221,7 @@ const ChangePasswordModal: FC<{
           </Form.Item> */}
           <Form.Item>
             <Space style={{ width: "100%", justifyContent: "flex-end" }}>
-              <DefaultButton onClick={handleClose}>
+              {/* <DefaultButton onClick={handleClose}>
                 {t("utils.cancel", "CANCEL")}
               </DefaultButton>
               <PrimaryButton
@@ -229,7 +229,7 @@ const ChangePasswordModal: FC<{
                 loading={cMutation.isPending}
               >
                 {t("utils.confirm", "CONFIRM")}
-              </PrimaryButton>
+              </PrimaryButton> */}
             </Space>
           </Form.Item>
         </Form>

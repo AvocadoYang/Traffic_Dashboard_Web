@@ -7,7 +7,7 @@ import MapTitle from "./mapComponents/components/MapTitle";
 import IdleRobotPanel from "./components/AMR/IdleRobotPanel";
 import SelectScript from "./components/SelectScript";
 import WcsPad from "./components/WCS/WcsPad";
-import Header from "../../components/Header";
+// import Header from "../../components/common/Header";
 import { useIsMobile } from "../../hooks/useIsMoblie";
 import Timeline from "./components/Timeline/Timeline";
 import SwitchPanelHeightBtn from "./components/Timeline/SwitchPanelHeightBtn";
@@ -27,7 +27,7 @@ const Simulate: FC = () => {
 
   return (
     <Layout style={{ height: `${isMobile ? "100dvh" : "100%"}` }}>
-      <Header isMobile={isMobile} />
+      {/* <Header isMobile={isMobile} /> */}
       <Content>
         <Layout style={{ height: "100%", width: "100%" }}>
           <div

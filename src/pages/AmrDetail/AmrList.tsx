@@ -1,7 +1,7 @@
 import { Card, Col, Empty, Layout, List, Row, Typography } from "antd";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-import Header from "@/components/Header";
+// import Header from "@/components/common/Header";
 import { useIsMobile } from "@/hooks/useIsMoblie";
 import { useAllAmrStatus } from "@/sockets/useAMRInfo";
 import { useTranslation } from "react-i18next";
@@ -177,9 +177,10 @@ const AmrList = () => {
   const colSpan = isMobile ? 24 : 12;
 
   return (
-    <Layout style={{ minHeight: "100vh", background: "#f5f5f5" }}>
-      <Header isMobile={isMobile} />
-      <IndustrialContainer>
+    // <Layout style={{ minHeight: "100vh", background: "#f5f5f5" }}>
+    //   <Header isMobile={isMobile} />
+    // </Layout>
+         <IndustrialContainer>
         <PageHeader>
           <RobotOutlined style={{ fontSize: 24 }} />
           <h2>{t("page_amr")}</h2>
@@ -264,7 +265,6 @@ const AmrList = () => {
         )}
         {/* REPLACEMENT END */}
       </IndustrialContainer>
-    </Layout>
   );
 };
 

@@ -3,79 +3,116 @@ import styled from "styled-components";
 import { Button } from "antd";
 import { font } from "./variables";
 
-// ======= 基礎按鈕 mixin =======
+// ======= 按鈕 =======
 export const buttonBase = css`
-  font-family: ${font.fontFamily.en};
-  text-transform: uppercase;
-  font-size: ${font.size.xs};
-  letter-spacing: 1px;
-  height: 36px;
-  font-weight: ${font.weight.semibold};
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 6px;
-  transition: all 0.2s;
-  border-radius: 0;
+  letter-spacing: 2px;
+  border: 1px solid #d9d9d9;
   cursor: pointer;
 `;
 
-// ======= 按鈕變體 css =======
-export const buttonVariants = {
-  default: css`
-    ${buttonBase}
-    background: ${font.color.bg_white_1};
-    border: 1px solid ${font.color.white};
-    color: ${font.color.gray};
-
-    &:hover {
-      background: ${font.color.bg_white_2};
-      border-color: ${font.color.border_gray_1};
-      color: ${font.color.black};
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
+// 尺寸
+export const buttonSizes = {
+  small: css`
+    padding: 4px 10px;
+    font-size: 12px;
+    height: 28px;
+    border-radius: 4px;
   `,
 
-  primary: css`
-    ${buttonBase}
-    background: ${font.color.blue};
-    border: 1px solid ${font.color.blue};
-    color: ${font.color.bg_white_1};
-
-    &:hover {
-      background: ${font.color.bg_blue};
-      border-color: ${font.color.bg_blue};
-      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
-    }
+  medium: css`
+    padding: 6px 16px;
+    font-size: 14px;
+    height: 36px;
+    border-radius: 6px;
   `,
 
-  danger: css`
-    ${buttonBase}
-    background: #fff1f0;
-    border: 1px solid ${font.color.red};
-    color: ${font.color.red};
-
-    &:hover {
-      border-color: #ff7875;
-      color: #ff7875;
-      box-shadow: 0 2px 8px rgba(255, 77, 79, 0.2);
-    }
-  `,
-
-  ghost: css`
-    ${buttonBase}
-    background: transparent;
-    border: 1px solid ${font.color.white};
-    color: ${font.color.gray};
-
-    &:hover {
-      border-color: ${font.color.blue};
-      color: ${font.color.blue};
-    }
+  large: css`
+    padding: 8px 20px;
+    font-size: 16px;
+    height: 44px;
+    border-radius: 8px;
   `,
 };
 
-// ======= 按鈕元件 =======
-export const DefaultButton = styled(Button)`${buttonVariants.default}`;
-export const PrimaryButton = styled(Button)`${buttonVariants.primary}`;
-export const DangerButton  = styled(Button)`${buttonVariants.danger}`;
-export const GhostButton   = styled(Button)`${buttonVariants.ghost}`;
+// Button component
+export const StyledButton = styled(Button) <{
+  size: "small" | "medium" | "large";
+}>`
+  ${buttonBase}
+  ${({ size }) => buttonSizes[size]}
+`;
+
+// ======= 文字 =======
+
+// 標題 base
+const baseTitle = css`
+  font-family: ${font.fontFamily.en};
+  text-transform: uppercase;
+  font-weight: ${font.weight.bold};
+`;
+
+// 標題尺寸
+export const titleSizes = {
+  xxs: css`
+    ${baseTitle};
+    font-size: ${font.size.sm};
+    letter-spacing: 0.5px;
+  `,
+
+  xs: css`
+    ${baseTitle};
+    font-size: ${font.size.md};
+    letter-spacing: 1px;
+  `,
+
+  small: css`
+    ${baseTitle};
+    font-size: ${font.size.lg};
+    letter-spacing: 1px;
+  `,
+
+  medium: css`
+    ${baseTitle};
+    font-size: ${font.size["2xl"]};
+    letter-spacing: 2px;
+  `,
+
+  large: css`
+    ${baseTitle};
+    font-size: ${font.size["3xl"]};
+    letter-spacing: 3px;
+  `,
+};
+
+// 內文 base
+const baseBody = css`
+  font-family: ${font.fontFamily.en};
+  font-weight: ${font.weight.medium};
+  letter-spacing: 1px;
+`;
+
+// 內文尺寸
+export const bodySizes = {
+  xs: css`
+    ${baseBody};
+    font-size: ${font.size.xs};
+  `,
+
+  small: css`
+    ${baseBody};
+    font-size: ${font.size.sm};
+  `,
+
+  medium: css`
+    ${baseBody};
+    font-size: ${font.size.md};
+  `,
+
+  large: css`
+    ${baseBody};
+    font-size: ${font.size.lg};
+  `,
+};
