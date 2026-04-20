@@ -61,6 +61,13 @@ const MessageContent = styled.div`
   word-break: break-all;
 `;
 
+const Timestamp = styled.div`
+  font-size: 0.75rem;
+  opacity: 0.7;
+  margin-top: 4px;
+  font-family: monospace;
+`;
+
 export const SystemAlarmOverlay = () => {
   const systemAlarm = useSystemAlarm();
   const [displayMsg, setDisplayMsg] = useState("");
@@ -73,20 +80,18 @@ export const SystemAlarmOverlay = () => {
   };
 
   useEffect(() => {
-    if (systemAlarm.message && systemAlarm.message !== "") {
+    if (systemAlarm.message) {
       if (timerRef.current) clearTimeout(timerRef.current);
 
-      setDisplayMsg(systemAlarm.message);
       setVisible(true);
+
+      // 邏輯：Level 1 -> 3秒, Level 2 -> 5秒, Level 3+ -> 7秒
+      const duration = Math.min(3000 + systemAlarm.level * 2000, 10000);
 
       timerRef.current = setTimeout(() => {
         setVisible(false);
-      }, 6000);
+      }, duration);
     }
-
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
   }, [systemAlarm]);
 
   return (
@@ -99,11 +104,24 @@ export const SystemAlarmOverlay = () => {
             exit={{ y: 20, opacity: 0, scale: 0.9 }}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
           >
-            <span>🚨</span>
-            <MessageContent>{displayMsg}</MessageContent>
-            <CloseButton onClick={handleClose} aria-label="Close alarm">
-              ×
-            </CloseButton>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <span>🚨</span>
+                <MessageContent>{systemAlarm.message}</MessageContent>
+                <CloseButton onClick={() => setVisible(false)}>×</CloseButton>
+              </div>
+
+              {/* 小小的時間戳記 */}
+              <Timestamp>
+                {systemAlarm.tstamp?.toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })}
+              </Timestamp>
+            </div>
           </AlarmCard>
         </AlarmContainer>
       )}
