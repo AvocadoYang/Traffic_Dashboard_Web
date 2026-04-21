@@ -1,10 +1,11 @@
 import styled from "styled-components";
 import Layout, { Content } from "antd/es/layout/layout";
-import Header from "@/components/Header";
 import { FC } from "react";
+import { Flex } from "antd";
 import WarningTable from "./WarningTable";
 import AlarmTable from "./AlarmTable";
 import SystemAlarmTable from "./SystemAlarmTable";
+import Header from "@/components/Common/Header/Header";
 
 const StyledLayout = styled(Layout)`
   min-height: 100dvh;
@@ -52,3 +53,4 @@ const Record: FC = () => {
 };
 
 export default Record;
+

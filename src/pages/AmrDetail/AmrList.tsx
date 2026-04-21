@@ -177,9 +177,10 @@ const AmrList = () => {
   const colSpan = isMobile ? 24 : 12;
 
   return (
-    <Layout style={{ minHeight: "100vh", background: "#f5f5f5" }}>
-      <Header isMobile={isMobile} />
-      <IndustrialContainer>
+    // <Layout style={{ minHeight: "100vh", background: "#f5f5f5" }}>
+    //   <Header isMobile={isMobile} />
+    // </Layout>
+         <IndustrialContainer>
         <PageHeader>
           <RobotOutlined style={{ fontSize: 24 }} />
           <h2>{t("page_amr")}</h2>
@@ -264,7 +265,6 @@ const AmrList = () => {
         )}
         {/* REPLACEMENT END */}
       </IndustrialContainer>
-    </Layout>
   );
 };
 

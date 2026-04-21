@@ -1,7 +1,7 @@
 import { Button, Form, message, Modal, Select } from "antd";
 import { useAtom } from "jotai";
 import { useTranslation } from "react-i18next";
-import { OpenAutoMission } from "../../global/jotai";
+import { OpenAutoMission } from "../../jotai.ts";
 import { memo, useMemo } from "react";
 import useName from "@/api/useAmrName";
 import useAllMissionTitles from "@/api/useMissionTitle";

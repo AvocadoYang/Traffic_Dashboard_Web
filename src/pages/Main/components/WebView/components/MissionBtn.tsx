@@ -10,7 +10,7 @@ import { Button, Flex, Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
 import { DialogMission } from "../../missionModal";
 import { memo, useState, useEffect } from "react";
-import { OpenAssignMission } from "@/pages/Main/global/jotai";
+import { OpenAssignMission } from "@/pages/Main/jotai.ts";
 import { useSetAtom } from "jotai";
 import QuickMissionWebView from "../../missionModal/QuickMissionWebView";
 import styled from "styled-components";

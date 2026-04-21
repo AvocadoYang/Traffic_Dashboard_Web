@@ -2,11 +2,11 @@ import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { useMutation } from "@tanstack/react-query";
-import { Button, Form, Input, message, Modal, Space } from "antd";
-import { Dispatch, FC, SetStateAction } from "react";
+import { Button, Form, Input, message, Modal, Select, Space } from "antd";
+import React, { Dispatch, FC, SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import { LockOutlined } from "@ant-design/icons";
+import { UserAddOutlined } from "@ant-design/icons";
 
 const IndustrialModal = styled(Modal)`
   .ant-modal-content {
@@ -107,8 +107,7 @@ const IndustrialButton = styled(Button)`
     }
   }
 `;
-
-const ChangePasswordModal: FC<{
+const CreateUserModel: FC<{
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }> = ({ open, setOpen }) => {
@@ -116,32 +115,26 @@ const ChangePasswordModal: FC<{
   const { t } = useTranslation();
   const [form] = Form.useForm();
 
-  const cMutation = useMutation({
-    mutationFn: (data: { oldPassword: string; newPassword: string }) =>
-      client.patch("api/logInAndOut/changePassword", data),
-    onSuccess: () => {
-      messageApi.success(t("utils.success"));
-      form.resetFields();
-      setOpen(false);
-    },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
-  });
-
   const handleClose = () => {
     form.resetFields();
     setOpen(false);
   };
 
-  const handleSubmit = (values: {
-    oldPassword: string;
-    newPassword: string;
-    confirmPassword: string;
-  }) => {
-    cMutation.mutate({
-      oldPassword: values.oldPassword,
-      newPassword: values.newPassword,
-    });
-  };
+  // Define roles with translation keys
+  const roleOptions = [
+    { label: t("create_user.roles.GENERALLY"), value: "GENERALLY" },
+    { label: t("create_user.roles.ENGINEER"), value: "ENGINEER" },
+  ];
+
+  const cMutation = useMutation({
+    mutationFn: (data: { username: string; password: string; role: string }) =>
+      client.post("api/logInAndOut/register", data),
+    onSuccess: () => {
+      messageApi.success(t("utils.success"));
+      handleClose();
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
 
   if (!open) return null;
 
@@ -152,30 +145,38 @@ const ChangePasswordModal: FC<{
         open
         title={
           <>
-            <LockOutlined /> {t("changePassword.title", "CHANGE PASSWORD")}
+            <UserAddOutlined /> {t("create_user.title")}
           </>
         }
         onCancel={handleClose}
         footer={null}
-        destroyOnClose
       >
-        <Form form={form} layout="vertical" onFinish={handleSubmit}>
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={(v) => cMutation.mutate(v)}
+        >
           <Form.Item
-            label={t("changePassword.oldPassword", "OLD PASSWORD")}
-            name="oldPassword"
+            label={t("create_user.username")}
+            name="username"
             rules={[{ required: true, message: t("utils.required") }]}
           >
-            <Input.Password />
+            <Input />
           </Form.Item>
 
           <Form.Item
-            label={t("changePassword.newPassword", "NEW PASSWORD")}
-            name="newPassword"
+            label={t("create_user.password")}
+            name="password"
             rules={[
               { required: true, message: t("utils.required") },
+              { min: 8, message: t("create_user.passwordMin") },
               {
-                min: 6,
-                message: t("utils.passwordMin", "At least 6 characters"),
+                pattern: /^\S+$/,
+                message: t("create_user.passwordNoSpace"),
+              },
+              {
+                pattern: /^(?=.*[a-z])(?=.*[A-Z])/,
+                message: t("create_user.passwordCase"),
               },
             ]}
           >
@@ -183,42 +184,24 @@ const ChangePasswordModal: FC<{
           </Form.Item>
 
           <Form.Item
-            label={t("changePassword.confirmPassword", "CONFIRM PASSWORD")}
-            name="confirmPassword"
-            dependencies={["newPassword"]}
-            rules={[
-              { required: true, message: t("utils.required") },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue("newPassword") === value) {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject(
-                    new Error(
-                      t(
-                        "changePassword.passwordNotMatch",
-                        "Passwords do not match"
-                      )
-                    )
-                  );
-                },
-              }),
-            ]}
+            label={t("create_user.role")}
+            name="role"
+            rules={[{ required: true, message: t("utils.required") }]}
           >
-            <Input.Password />
+            <Select options={roleOptions} />
           </Form.Item>
 
           <Form.Item>
             <Space style={{ width: "100%", justifyContent: "flex-end" }}>
               <IndustrialButton onClick={handleClose}>
-                {t("utils.cancel", "CANCEL")}
+                {t("utils.cancel")}
               </IndustrialButton>
               <IndustrialButton
                 className="primary"
                 htmlType="submit"
                 loading={cMutation.isPending}
               >
-                {t("utils.confirm", "CONFIRM")}
+                {t("utils.confirm")}
               </IndustrialButton>
             </Space>
           </Form.Item>
@@ -228,4 +211,4 @@ const ChangePasswordModal: FC<{
   );
 };
 
-export default ChangePasswordModal;
+export default CreateUserModel;

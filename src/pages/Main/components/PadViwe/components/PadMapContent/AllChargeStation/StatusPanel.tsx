@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { Button, Flex, message, Modal } from "antd";
 import { useSetAtom } from "jotai";
-import { OpenChargeStationModal } from "@/pages/Main/global/jotai";
+import { OpenChargeStationModal } from "@/pages/Main/jotai.ts";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@tanstack/react-query";
 import styled from "styled-components";

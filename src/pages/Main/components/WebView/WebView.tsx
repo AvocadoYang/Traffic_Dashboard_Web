@@ -6,7 +6,7 @@ import ZoomPad from "./components/ZoomPad";
 import ScalePad from "./components/ScalePad";
 import WebMapView from "./components/WebMapView";
 import { useAtomValue, useSetAtom } from "jotai";
-import CarCardWrap from "../../Car_Card/CardWrap";
+import CarCardWrap from "../../../../components/Main/Car/CardWrap";
 import { centerMap, darkMode, Scale } from "@/utils/gloable";
 import MissionWrap from "../../Mission_Card/MissionWrap";
 import MissionBtn from "./components/MissionBtn";

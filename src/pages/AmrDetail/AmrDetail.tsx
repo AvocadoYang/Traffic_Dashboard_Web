@@ -30,7 +30,7 @@ import {
 import { useRecentMission } from "@/sockets/useMissions";
 import { useTranslation } from "react-i18next";
 import DPad from "./DPad";
-import EditCargoCarrier from "../Main/Car_Card/components/EditCargoCarrier";
+import EditCargoCarrier from "../../components/Main/Car/EditCargoCarrier";
 import styled from "styled-components";
 
 const { Title, Text } = Typography;

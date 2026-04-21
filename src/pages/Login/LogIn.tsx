@@ -1,274 +1,224 @@
 import React from "react";
-import { Col, message, Row, Tooltip, Form, Input, Button, Space } from "antd";
+import { message, Tooltip, Form, Input, Space } from "antd";
 import {
   EyeInvisibleOutlined,
   EyeTwoTone,
   UserOutlined,
   LockOutlined,
+  CheckCircleFilled,
+  CloseCircleFilled
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { io } from "socket.io-client";
 import client from "@/api/axiosClient";
 import { Err } from "@/utils/responseErr";
-import { useTranslation } from "react-i18next";
-import styled from "styled-components";
+import styled, { keyframes, css } from "styled-components";
+import { font } from "@/styles/variables";
+import { StyledButton, titleSizes, bodySizes } from "@/styles/mixins";
 
+// ======= 動畫 =======
+const pulse = keyframes`
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+`;
+
+// ======= 背景 =======
 const BackgroundContainer = styled.div`
   background-image: url("/View.svg");
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
   min-height: 100vh;
-  height: 100vh;
-  width: 100vw;
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  padding: 40px;
-  position: relative;
+  justify-content: center;
+  padding: 20px;
 
   &::before {
     content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(
-      135deg,
-      rgba(0, 0, 0, 0.3) 0%,
-      rgba(0, 0, 0, 0.1) 100%
-    );
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 100%);
     pointer-events: none;
   }
 
-  @media (max-width: 768px) {
-    padding: 20px;
-    justify-content: center;
+  // 768px 以上
+  @media (min-width: 768px) {
+    justify-content: flex-end;
+    padding: 40px;
   }
 `;
 
+// ======= 登入卡片 =======
 const LoginCard = styled.div`
   position: relative;
   z-index: 1;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
-  border: 1px solid #d9d9d9;
-  border-left: 4px solid #1890ff;
+  border: 1px solid ${font.color.white_2};
+  border-left: 4px solid ${font.color.blue};
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  padding: 48px;
+  font-family: ${font.fontFamily.en};
   width: 100%;
-  max-width: 480px;
-  font-family: "Roboto Mono", monospace;
+  max-width: 100%;
+  padding: 32px 24px;
 
-  @media (max-width: 768px) {
-    max-width: 100%;
-    padding: 32px 24px;
+// 768px 以上
+  @media (min-width: 768px) {
+    max-width: 480px;
+    padding: 48px;
   }
 `;
 
+// ======= Header =======
 const LoginHeader = styled.div`
   margin-bottom: 40px;
-  border-bottom: 2px solid #1890ff;
   padding-bottom: 16px;
+  border-bottom: 2px solid ${font.color.blue};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 `;
 
 const LoginTitle = styled.h1`
-  font-family: "Roboto Mono", monospace;
-  font-size: 28px;
-  font-weight: 700;
-  color: #1890ff;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  margin: 0;
-  text-align: center;
-
-  &::before {
-    content: "[";
-    margin-right: 8px;
-    color: #fa8c16;
-  }
-
-  &::after {
-    content: "]";
-    margin-left: 8px;
-    color: #fa8c16;
-  }
+  ${titleSizes.large};
+  color: ${font.color.blue};
 `;
 
 const SystemLabel = styled.div`
-  font-family: "Roboto Mono", monospace;
-  font-size: 11px;
-  color: #595959;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  text-align: center;
-  margin-top: 8px;
-  font-weight: 600;
+  ${titleSizes.small};
+  color: ${font.color.gray};
 `;
 
+// ======= Form =======
 const StyledForm = styled(Form)`
   .ant-form-item-label > label {
-    font-family: "Roboto Mono", monospace;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #595959;
-    font-weight: 600;
+    ${titleSizes.small};
+    color: ${font.color.gray};
   }
 
   .ant-input,
   .ant-input-password {
-    font-family: "Roboto Mono", monospace;
-    border: 1px solid #d9d9d9;
-    border-radius: 0;
-    height: 48px;
-    font-size: 13px;
-    background: #ffffff;
+    ${bodySizes.large};
 
-    &:hover {
-      border-color: #1890ff;
-    }
-
+    &:hover { border-color: ${font.color.blue}; }
     &:focus {
-      border-color: #1890ff;
+      border-color: ${font.color.blue};
       box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
     }
   }
 
-  .ant-input-affix-wrapper {
-    font-family: "Roboto Mono", monospace;
-    border: 1px solid #d9d9d9;
-    border-radius: 0;
-    padding: 0 16px;
-    background: #ffffff;
-
-    &:hover {
-      border-color: #1890ff;
-    }
-
-    &.ant-input-affix-wrapper-focused {
-      border-color: #1890ff;
-      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
-    }
-
-    .ant-input {
-      height: 46px;
-      border: none;
-      box-shadow: none;
-
-      &:focus {
-        box-shadow: none;
-      }
-    }
+  .ant-input::placeholder,
+  .ant-input-affix-wrapper input::placeholder {
+    ${bodySizes.medium};
   }
 
-  .ant-input-prefix {
-    color: #8c8c8c;
-    font-size: 16px;
-    margin-right: 12px;
+ .ant-input-affix-wrapper {
+  border: 1px solid ${font.color.white_2};
+  border-radius: 5px;
+  padding: 0 16px;
+
+  &:hover { border-color: ${font.color.blue}; }
+
+  &.ant-input-affix-wrapper-focused {
+    border-color: ${font.color.blue};
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
   }
 
-  .ant-input-suffix {
-    color: #8c8c8c;
+  .ant-input {
+    height: 46px;
+    border: none;
+    box-shadow: none;
+    &:focus { box-shadow: none; }
   }
+}
+
+.ant-input-prefix {
+  color: ${font.color.border_gray_1};
+  font-size: ${font.size["xl"]};
+  margin-right: 12px;
+}
 `;
 
-const IndustrialButton = styled(Button)`
-  background: #1890ff;
-  border: 1px solid #1890ff;
-  color: #ffffff;
-  font-family: "Roboto Mono", monospace;
-  text-transform: uppercase;
-  font-size: 13px;
-  letter-spacing: 2px;
-  height: 48px;
-  font-weight: 700;
-  border-radius: 0;
-  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
-
-  &:hover {
-    background: #40a9ff;
-    border-color: #40a9ff;
-    color: #ffffff;
-    box-shadow: 0 6px 16px rgba(24, 144, 255, 0.5);
-    transform: translateY(-2px);
-  }
-
-  &:active {
-    background: #0c7cd5;
-    border-color: #0c7cd5;
-    transform: translateY(0);
-  }
-
-  &:disabled {
-    background: #d9d9d9;
-    border-color: #d9d9d9;
-    color: #8c8c8c;
-  }
-`;
-
+// ======= 忘記密碼 =======
 const ForgotLink = styled.div`
+  ${titleSizes.xxs};
   text-align: right;
   margin-bottom: 24px;
+  color: ${font.color.gray};
 
-  a {
-    font-family: "Roboto Mono", monospace;
-    font-size: 11px;
-    color: #595959;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    text-decoration: none;
-    transition: all 0.2s;
-
-    &:hover {
-      color: #1890ff;
-      text-decoration: underline;
+  &:hover {
+      color: ${font.color.blue};
     }
-  }
 `;
 
+// ======= 登入按鈕 =======
+const LoginButton = styled(StyledButton)`
+  width: 100%;
+  background: ${font.color.blue};
+  color: ${font.color.white_1};
+`;
+
+// ======= 底部狀態列 =======
 const StatusBar = styled.div`
   margin-top: 32px;
   padding-top: 20px;
-  border-top: 1px solid #e8e8e8;
+  border-top: 1px solid ${font.color.border_gray_2} ;
   display: flex;
   justify-content: space-between;
   align-items: center;
 `;
 
 const StatusDot = styled.div<{ $active?: boolean }>`
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: ${(props) => (props.$active ? "#52c41a" : "#d9d9d9")};
-  box-shadow: ${(props) =>
-    props.$active ? "0 0 8px rgba(82, 196, 26, 0.6)" : "none"};
-  animation: ${(props) => (props.$active ? "pulse 2s infinite" : "none")};
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  @keyframes pulse {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.5;
-    }
-  }
+  ${({ $active }) =>
+    $active &&
+    css`
+      animation: ${pulse} 2s infinite;
+    `}
 `;
 
-const StatusText = styled.span`
-  font-family: "Roboto Mono", monospace;
-  font-size: 10px;
-  color: #8c8c8c;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+const StatusText = styled.span<{ $active?: boolean }>`
+  ${titleSizes.xxs};
+  color: ${({ $active }) =>
+    $active ? font.color.green : font.color.border_gray_1};
 `;
 
+// ======= 元件 =======
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
   const { t } = useTranslation();
+  const [isActive, setIsActive] = React.useState<boolean | null>(null);
+
+  // 判斷是否連線
+  React.useEffect(() => {
+    const socket = io("http://localhost:4000", {
+      reconnection: true,
+      reconnectionAttempts: 5,
+      timeout: 2000
+    });
+
+    socket.on("connect", () => {
+      console.log("🟢 connected");
+      setIsActive(true);
+    });
+
+    socket.on("connect_error", () => {
+      console.log("❌ connect error");
+      setIsActive(false);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   const editMutation = useMutation({
     mutationFn: (payload: { username: string; password: string }) =>
@@ -292,6 +242,7 @@ const Login: React.FC = () => {
       {contextHolder}
       <BackgroundContainer>
         <LoginCard>
+
           <LoginHeader>
             <LoginTitle>LOGIN</LoginTitle>
             <SystemLabel>Warehouse Management System</SystemLabel>
@@ -322,32 +273,44 @@ const Login: React.FC = () => {
 
             <Tooltip
               title="Sorry, you cannot recover your account. This function is still in beta 😣"
-              trigger="click"
-            >
+              placement="topRight">
               <ForgotLink>
-                <a>Forgot password?</a>
+                Forgot password?
               </ForgotLink>
             </Tooltip>
-
-            <Form.Item style={{ marginBottom: 0 }}>
-              <IndustrialButton
-                type="primary"
+            <Form.Item >
+              <LoginButton
+                size="large"
                 htmlType="submit"
-                block
                 loading={editMutation.isPending}
               >
                 {editMutation.isPending ? "AUTHENTICATING..." : "LOGIN"}
-              </IndustrialButton>
+              </LoginButton>
             </Form.Item>
           </StyledForm>
 
           <StatusBar>
             <Space align="center" size="small">
-              <StatusDot $active />
-              <StatusText>System Online</StatusText>
+              <StatusDot $active={isActive === true}>
+                {isActive === true ? (
+                  <CheckCircleFilled style={{ color: "#52c41a" }} />
+                ) : (
+                  <CloseCircleFilled style={{ color: "#ff4d4f" }} />
+                )}
+              </StatusDot>
+
+              <StatusText $active={isActive === true}>
+                {isActive === null
+                  ? "Connecting..."
+                  : isActive
+                    ? "System Online"
+                    : "System Offline"}
+              </StatusText>
             </Space>
+
             <StatusText>v2.0.1</StatusText>
           </StatusBar>
+
         </LoginCard>
       </BackgroundContainer>
     </>
