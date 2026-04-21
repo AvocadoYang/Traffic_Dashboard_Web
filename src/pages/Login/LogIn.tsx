@@ -5,10 +5,13 @@ import {
   EyeTwoTone,
   UserOutlined,
   LockOutlined,
+  CheckCircleFilled,
+  CloseCircleFilled
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { io } from "socket.io-client";
 import client from "@/api/axiosClient";
 import { Err } from "@/utils/responseErr";
 import styled, { keyframes, css } from "styled-components";
@@ -90,7 +93,7 @@ const SystemLabel = styled.div`
   color: ${font.color.gray};
 `;
 
-// ======= 表單 =======
+// ======= Form =======
 const StyledForm = styled(Form)`
   .ant-form-item-label > label {
     ${titleSizes.small};
@@ -170,11 +173,9 @@ const StatusBar = styled.div`
 `;
 
 const StatusDot = styled.div<{ $active?: boolean }>`
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: ${({ $active }) => ($active ? font.color.green : font.color.white_2)};
-  box-shadow: ${({ $active }) => ($active ? "0 0 8px rgba(82, 196, 26, 0.6)" : "none")};
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   ${({ $active }) =>
     $active &&
@@ -183,9 +184,10 @@ const StatusDot = styled.div<{ $active?: boolean }>`
     `}
 `;
 
-const StatusText = styled.span`
+const StatusText = styled.span<{ $active?: boolean }>`
   ${titleSizes.xxs};
-  color: ${font.color.border_gray_1};
+  color: ${({ $active }) =>
+    $active ? font.color.green : font.color.border_gray_1};
 `;
 
 // ======= 元件 =======
@@ -193,6 +195,30 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
   const { t } = useTranslation();
+  const [isActive, setIsActive] = React.useState<boolean | null>(null);
+
+  // 判斷是否連線
+  React.useEffect(() => {
+    const socket = io("http://localhost:4000", {
+      reconnection: true,
+      reconnectionAttempts: 5,
+      timeout: 2000
+    });
+
+    socket.on("connect", () => {
+      console.log("🟢 connected");
+      setIsActive(true);
+    });
+
+    socket.on("connect_error", () => {
+      console.log("❌ connect error");
+      setIsActive(false);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   const editMutation = useMutation({
     mutationFn: (payload: { username: string; password: string }) =>
@@ -252,7 +278,6 @@ const Login: React.FC = () => {
                 Forgot password?
               </ForgotLink>
             </Tooltip>
-
             <Form.Item >
               <LoginButton
                 size="large"
@@ -266,9 +291,23 @@ const Login: React.FC = () => {
 
           <StatusBar>
             <Space align="center" size="small">
-              <StatusDot $active />
-              <StatusText>System Online</StatusText>
+              <StatusDot $active={isActive === true}>
+                {isActive === true ? (
+                  <CheckCircleFilled style={{ color: "#52c41a" }} />
+                ) : (
+                  <CloseCircleFilled style={{ color: "#ff4d4f" }} />
+                )}
+              </StatusDot>
+
+              <StatusText $active={isActive === true}>
+                {isActive === null
+                  ? "Connecting..."
+                  : isActive
+                    ? "System Online"
+                    : "System Offline"}
+              </StatusText>
             </Space>
+
             <StatusText>v2.0.1</StatusText>
           </StatusBar>
 
