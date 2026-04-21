@@ -10,7 +10,7 @@ import {
   RowFifth,
   EmergencyIcon,
 } from "./Lists";
-import "@/styles/Main/Car/car_info.scss";
+import "@/styles/Main/Car/car_info.css";
 import { useMemo, useState } from "react";
 import { ConfigProvider, Popover, Modal } from "antd";
 import BtnGroup from "./BtnGroup";

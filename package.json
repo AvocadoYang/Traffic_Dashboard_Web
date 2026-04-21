@@ -78,7 +78,6 @@
     "react-use": "^17.4.0",
     "recharts": "^3.1.0",
     "rxjs": "^7.5.5",
-    "sass": "^1.99.0",
     "serve": "^14.2.3",
     "server": "^1.0.39",
     "socket.io-client": "^4.4.1",

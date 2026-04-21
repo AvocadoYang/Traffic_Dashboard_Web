@@ -1,6 +1,6 @@
 import { memo, useMemo } from "react";
 import styled, { keyframes, css } from "styled-components";
-import "@/styles/Main/Car/car_info.scss";
+import "@/styles/Main/Car/car_info.css";
 
 import {
   EnvironmentOutlined,

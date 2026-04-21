@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import style from "@/styles/Main/Car/CardWrap.module.scss";  
+import style from "@/styles/Main/Car/CardWrap.module.css";  
 import Cards from "./Cards";
 import TittleTools from "./TittleTools";
 
