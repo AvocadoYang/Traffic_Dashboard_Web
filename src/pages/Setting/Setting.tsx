@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { Layout, Form, Splitter, Flex } from "antd";
-import Header from "../../components/Common/Header";
+import Header from "../../components/Header";
 import { ZoomPad, Sider, BKBtn, ToolComponents } from "./components";
 import { useResetSiderSwitch } from "./hooks";
 import "./setting.css";
@@ -129,9 +129,13 @@ const Setting: React.FC = () => {
 
   return (
     <>
-      <Layout style={{ height: `${isMobile ? "100dvh" : "100%"}` }}>
+      {/* <Layout style={{ height: `${isMobile ? "100dvh" : "100%"}` }}>
         <Header isMobile={isMobile}></Header>
-        <Content>
+       
+      </Layout> */}
+
+
+       <Content>
           <Layout style={{ height: "100%", width: "100%" }}>
             <Sider setHasOpenTool={setHasOpenTool} />
             <Content
@@ -177,7 +181,6 @@ const Setting: React.FC = () => {
             </Content>
           </Layout>
         </Content>
-      </Layout>
     </>
   );
 };

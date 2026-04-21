@@ -1,126 +1,56 @@
-import MonitorCenter from "./pages/SWMoniter/SWMoniter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Routes, Route, HashRouter, BrowserRouter } from "react-router-dom";
+import { Routes, Route, BrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { Main, LogIn, Setting, Register, Simulate, Records } from "./pages";
+import MonitorCenter from "./pages/SWMoniter/SWMoniter";
 import MissionAnalysis from "./pages/MissionAnalysis/MissionAnalysis";
 import CargoHistory from "./pages/CargoHistory/CargoHistory";
 import AmrDetail from "./pages/AmrDetail/AmrDetail";
 import AmrList from "./pages/AmrDetail/AmrList";
 import AllSimulateResult from "./pages/SimulateResult/AllSimulateResult";
-import { useEcsTransaction } from "./sockets/useEcsTransaction";
-import { notification } from "antd";
-import { useEffect } from "react";
-import { useEcsTransactionResp } from "./sockets/useEcsTransactionResp";
-import { useBarcodeSignal } from "./sockets/useBarcodeSignal";
-import { Navigate, Outlet } from "react-router-dom";
+import MainLayout from "@/layouts/MainLayout";
+
+// ======= Query Client =======
 const client = new QueryClient({
   defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-    },
+    queries: { refetchOnWindowFocus: false },
   },
 });
-type NotificationType = "success" | "info" | "warning" | "error";
+
+// ======= 登入驗證守衛 =======
+const ProtectedRoute = () => {
+  const token = localStorage.getItem("token");
+  if (!token) return <Navigate to="/login" replace />;
+  return <Outlet />;
+};
 
 function App() {
-  const esc = useEcsTransaction();
-  const ecsResp = useEcsTransactionResp();
-  // const bar = useBarcodeSignal();
-  const [api, contextHolder] = notification.useNotification();
-
-  const openNotificationWithIconEcsReq = (
-    type: NotificationType,
-    msg: string,
-  ) => {
-    api[type]({
-      title: "ECS Requests",
-      description: msg,
-    });
-  };
-
-  const openNotificationWithIconResp = (
-    type: NotificationType,
-    msg: string,
-  ) => {
-    api[type]({
-      showProgress: true,
-      pauseOnHover: true,
-      title: "ECS Response",
-      description: msg,
-    });
-  };
-
-  const openNotificationWithIconBarcodeReq = (
-    type: NotificationType,
-    msg: string,
-  ) => {
-    api[type]({
-      title: "BARCODE READ",
-      description: msg,
-    });
-  };
-
-  // useEffect(() => {
-  //   if (ecsResp !== "") {
-  //     openNotificationWithIconResp("error", ecsResp);
-  //   }
-  // }, [ecsResp]);
-
-  // useEffect(() => {
-  //   if (esc !== "") {
-  //     openNotificationWithIconEcsReq("info", esc);
-  //   }
-  // }, [esc]);
-
-  // useEffect(() => {
-  //   if (bar !== "") {
-  //     openNotificationWithIconBarcodeReq("info", `${bar}`);
-  //   }
-  // }, [bar]);
-
-  const ProtectedRoute = () => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      return <Navigate to="/login" replace />;
-    }
-
-    return <Outlet />;
-  };
-
-  // const ipcHandle = (): void => window.electron.ipc.send('ping')
   return (
     <QueryClientProvider client={client}>
-      {contextHolder}
       <BrowserRouter
         future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
       >
         <Routes>
-          <Route path="/login" element={<LogIn />}></Route>
+          {/* 不需要 Header、不需要驗證 */}
+          <Route path="/login" element={<LogIn />} />
 
+          {/* 需要登入驗證 + 有 Header */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Register />}></Route>
-            <Route path="/setting" element={<Setting></Setting>}></Route>
-            <Route path="/simulate" element={<Simulate />}></Route>
-            <Route
-              path="/mission-analysis"
-              element={<MissionAnalysis />}
-            ></Route>
-            <Route path="/cargo-history" element={<CargoHistory />}></Route>
-            <Route
-              path="/simulate-result"
-              element={<AllSimulateResult />}
-            ></Route>
-            <Route path="/" element={<Main />}></Route>
-            <Route
-              path="/test"
-              element={<MonitorCenter></MonitorCenter>}
-            ></Route>
-            <Route path="/records" element={<Records />}></Route>
-            <Route path="/amr" element={<AmrList />} />
-            <Route path="/amr/:amrId" element={<AmrDetail />} />
-            <Route path="*" element={<h1>Not Found</h1>} />
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<Main />} />
+              <Route path="/dashboard" element={<Register />} />
+              <Route path="/setting" element={<Setting />} />
+              <Route path="/simulate" element={<Simulate />} />
+              <Route path="/mission-analysis" element={<MissionAnalysis />} />
+              <Route path="/cargo-history" element={<CargoHistory />} />
+              <Route path="/simulate-result" element={<AllSimulateResult />} />
+              <Route path="/records" element={<Records />} />
+              <Route path="/amr" element={<AmrList />} />
+              <Route path="/amr/:amrId" element={<AmrDetail />} />
+              <Route path="/test" element={<MonitorCenter />} />
+              <Route path="*" element={<h1>Not Found</h1>} />
+            </Route>
           </Route>
+
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
@@ -128,3 +58,4 @@ function App() {
 }
 
 export default App;
+

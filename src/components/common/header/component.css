@@ -1,5 +1,10 @@
+<<<<<<< HEAD:src/components/common/header/component.css
+/* .demo-logo {
+  background-image: url("../assets/kenmec_without_background.png");
+=======
 .demo-logo {
   background-image: url("../../assets/kenmec_without_background.png");
+>>>>>>> cbf162ee29bde9bee24eae6f33f8e5be181d8b88:src/components/Common/component.css
   background-size: contain;
   background-repeat: no-repeat;
   height: 100%;
@@ -122,7 +127,7 @@
 .select-lang span {
   color: rgb(34, 31, 31) !important;
   font-weight: bold;
-}
+} */
 
 /* .custom-header svg {
   fill: rgb(29, 83, 246);

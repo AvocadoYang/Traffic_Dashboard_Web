@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Table, Typography, Layout } from "antd";
 import moment from "moment";
 import useSimResult, { SimulationResult } from "@/api/useSimResult";
-import Header from "@/components/Common/Header";
+import Header from "@/components/Header";
 import { Content } from "antd/es/layout/layout";
 import { useIsMobile } from "@/hooks/useIsMoblie";
 import { useTranslation } from "react-i18next";
@@ -79,7 +79,7 @@ const AllSimulateResult = () => {
 
   return (
     <Layout style={{ height: `${isMobile ? "100dvh" : "100%"}` }}>
-      <Header isMobile={isMobile} />
+      {/* <Header isMobile={isMobile} /> */}
       <Content>
         <Layout style={{ height: "100%", width: "100%" }}>
           <PageContainer>
