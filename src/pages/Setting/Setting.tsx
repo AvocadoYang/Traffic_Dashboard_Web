@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { Layout, Form, Splitter, Flex } from "antd";
-// import Header from "../../components/common/Header";
+import Header from "../../components/Header";
 import { ZoomPad, Sider, BKBtn, ToolComponents } from "./components";
 import { useResetSiderSwitch } from "./hooks";
 import "./setting.css";

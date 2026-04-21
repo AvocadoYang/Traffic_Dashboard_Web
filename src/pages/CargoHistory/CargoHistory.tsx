@@ -18,6 +18,8 @@
 // export default CargoHistory;
 import { Content } from "antd/es/layout/layout";
 import HistoryTable from "./HIstoryTable";
+import { useIsMobile } from "@/hooks/useIsMoblie";
+import Header from "@/components/Header";
 
 const CargoHistory = () => {
   return (

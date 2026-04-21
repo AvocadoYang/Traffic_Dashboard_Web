@@ -1,4 +1,4 @@
-import { InfoWrap } from "./components/InfoWrap";
+import { InfoWrap } from "./InfoWrap";
 import {
   RowOne,
   RowThread,
@@ -9,11 +9,11 @@ import {
   RowFourth,
   RowFifth,
   EmergencyIcon,
-} from "./components/Lists";
-import "./car_info.css";
+} from "./Lists";
+import "@/styles/Main/Car/car_info.scss";
 import { useMemo, useState } from "react";
 import { ConfigProvider, Popover, Modal } from "antd";
-import BtnGroup from "./components/BtnGroup";
+import BtnGroup from "./BtnGroup";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   AmrCarSelectFilter,
