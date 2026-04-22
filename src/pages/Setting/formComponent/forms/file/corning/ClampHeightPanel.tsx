@@ -85,8 +85,7 @@ const ClampHeightPanel: FC<{
       "6-Wooden": number;
       "6-KC": number;
       "5.5": number;
-      "6-TC": number;
-      "Wrapper": number
+      Pallet: number;
     };
 
     const changes = Object.entries(payload).map(([key, value]) => {
@@ -109,8 +108,7 @@ const ClampHeightPanel: FC<{
       "6-Wooden": data["6-Wooden"],
       "6-KC": data["6-KC"],
       "5.5": data["5.5"],
-      "6-TC": data["6-TC"],
-      "Wrapper":data["Wrapper"]
+      Pallet: data["Pallet"],
     });
   }, [data, ForkForm]);
 
@@ -180,16 +178,8 @@ const ClampHeightPanel: FC<{
             </Form.Item>
 
             <Form.Item
-              label={<FieldLabel>"6 TC"</FieldLabel>}
-              name="6-TC"
-              rules={[{ required: true }]}
-            >
-              <InputNumber min={1} style={{ width: "100%" }} />
-            </Form.Item>
-
-            <Form.Item
-              label={<FieldLabel>"Wrapper"</FieldLabel>}
-              name="Wrapper"
+              label={<FieldLabel>"Pallet"</FieldLabel>}
+              name="Pallet"
               rules={[{ required: true }]}
             >
               <InputNumber min={1} style={{ width: "100%" }} />

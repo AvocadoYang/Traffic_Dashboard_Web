@@ -12,8 +12,7 @@ const getData = async () => {
     "6-Wooden": number;
     "6-KC": number;
     "5.5": number;
-    "6-TC": number;
-    "Wrapper":number
+    Pallet: number;
     // [key: string]: number;
   };
 };
