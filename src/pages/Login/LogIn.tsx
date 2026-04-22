@@ -156,10 +156,12 @@ const ForgotLink = styled.div`
 `;
 
 // ======= 登入按鈕 =======
-const LoginButton = styled(StyledButton)`
+const LoginButton = styled(StyledButton) <{ $offline?: boolean }>`
   width: 100%;
-  background: ${font.color.blue};
-  color: ${font.color.white_1};
+   &:disabled {
+    border: none;
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ctext y='20' font-size='20'%3E🚫%3C/text%3E%3C/svg%3E") 12 12, not-allowed;
+  }
 `;
 
 // ======= 底部狀態列 =======
@@ -283,6 +285,7 @@ const Login: React.FC = () => {
                 size="large"
                 htmlType="submit"
                 loading={editMutation.isPending}
+                disabled={isActive === false}
               >
                 {editMutation.isPending ? "AUTHENTICATING..." : "LOGIN"}
               </LoginButton>
