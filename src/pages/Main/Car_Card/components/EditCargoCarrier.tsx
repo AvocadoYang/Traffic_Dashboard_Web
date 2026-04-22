@@ -233,7 +233,7 @@ const corningOption = [
   "Wrapper"
 ];
 
-const c_typeOption = ["Full", "Pallet", "Wooden", "Unknown", "Empty", "Wrapper"];
+const c_typeOption = ["Full", "Pallet", "Wooden", "Unknown", "Empty","Wrapper"];
 
 const EditCargoCarrier: FC<{
   amrId: string;

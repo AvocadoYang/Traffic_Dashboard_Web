@@ -86,7 +86,7 @@ const ClampHeightPanel: FC<{
       "6-KC": number;
       "5.5": number;
       "6-TC": number;
-      "Wrapper":number
+      "Wrapper": number
     };
 
     const changes = Object.entries(payload).map(([key, value]) => {
@@ -187,7 +187,7 @@ const ClampHeightPanel: FC<{
               <InputNumber min={1} style={{ width: "100%" }} />
             </Form.Item>
 
-               <Form.Item
+            <Form.Item
               label={<FieldLabel>"Wrapper"</FieldLabel>}
               name="Wrapper"
               rules={[{ required: true }]}

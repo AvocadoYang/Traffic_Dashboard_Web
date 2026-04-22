@@ -6,7 +6,7 @@ import {
   UploadOutlined,
   SyncOutlined,
 } from "@ant-design/icons";
-import { Button, Flex, Tooltip } from "antd";
+import { Button, Flex, message, Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
 import { DialogMission } from "../../missionModal";
 import { memo, useState, useEffect } from "react";
@@ -18,6 +18,10 @@ import UploadMission from "../../missionModal/UploadMission";
 import CycleMissionV2 from "../../missionModal/CycleMissionV2";
 import CycleMissionViewer from "../../missionModal/CycleMissionViewer";
 import { Cycle, Cycle_Mission } from "@/sockets/useCycleMission";
+import { useMutation } from "@tanstack/react-query";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
+import client from "@/api/axiosClient";
 
 // Industrial Button Styling - Light Mode
 const MissionBtnWrap = styled.div<{ $isMinimized: boolean }>`
@@ -124,6 +128,27 @@ const IndustrialButton = styled(Button)`
     }
   }
 
+  &.barcode-mission {
+    /* 初始狀態：淡紅底、磚紅邊、紅字 */
+    border-color: #ff4d4f;
+    color: #a61d24;
+    background: #fff1f0;
+
+    &::before {
+      background: linear-gradient(90deg, transparent, rgba(255, 77, 79, 0.1));
+    }
+
+    &:hover {
+      background: #ffccc7;
+      border-color: #ff4d4f;
+      color: #cf1322;
+      box-shadow: 0 2px 12px rgba(255, 77, 79, 0.3);
+      &::before {
+        width: 100%;
+      }
+    }
+  }
+
   .anticon {
     font-size: 14px;
   }
@@ -200,6 +225,17 @@ const MissionBtn = () => {
   const [showEditCycleMission, setShowEditCycleMission] = useState(false);
   const [$isMinimized, set$isMinimized] = useState(false);
   const [editCyc, setEditCyc] = useState<null | Cycle>(null);
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const submitMutation = useMutation({
+    mutationFn: () => {
+      return client.post("api/corning/trigger-elevator-mission");
+    },
+    onSuccess: () => {
+      void messageApi.success(t("utils.success"));
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
 
   useEffect(() => {
     const savedState = localStorage.getItem("missionBtnMinimized");
@@ -214,6 +250,7 @@ const MissionBtn = () => {
 
   return (
     <>
+      {contextHolder}
       <MissionBtnWrap $isMinimized={$isMinimized}>
         {$isMinimized ? (
           <Tooltip title={t("main.card_name.mission")} placement="bottom">
@@ -224,6 +261,16 @@ const MissionBtn = () => {
           </Tooltip>
         ) : (
           <ButtonGroup align="center">
+            <IndustrialButton
+              className="barcode-mission"
+              onClick={() => {
+                submitMutation.mutate();
+              }}
+              icon={<UploadOutlined />}
+            >
+              {t("main.card_name.elevate_mission")}
+            </IndustrialButton>
+
             <IndustrialButton
               className="upload-mission"
               onClick={() => {
