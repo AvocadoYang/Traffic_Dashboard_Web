@@ -11,7 +11,7 @@ const LanguageSelect: React.FC<LanguageSelectProps> = ({ onChange }) => (
       components: {
         Select: {
           controlHeight: 36,
-          borderRadius: 7,
+          borderRadius: 8,
           colorBorder: font.color.gray,
           colorText: font.color.gray,
           optionSelectedColor: font.color.blue,
