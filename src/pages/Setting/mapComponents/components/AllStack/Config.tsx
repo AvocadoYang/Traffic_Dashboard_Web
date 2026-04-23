@@ -44,7 +44,7 @@ const Config: FC<{
         }}
       >
         <StyledForm form={formConfig} layout="vertical" size="large">
-          <StyledTitle level={3}>{t("conveyor.title")}</StyledTitle>
+          <StyledTitle level={3}>{t("stack.edit_config_title")}</StyledTitle>
 
           <Form.Item
             label={

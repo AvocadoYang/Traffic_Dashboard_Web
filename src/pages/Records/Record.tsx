@@ -1,24 +1,53 @@
+import styled from "styled-components";
 import Layout, { Content } from "antd/es/layout/layout";
-import { useIsMobile } from "@/hooks/useIsMoblie";
 import Header from "@/components/Header";
 import { FC } from "react";
 import WarningTable from "./WarningTable";
 import AlarmTable from "./AlarmTable";
-import { Flex } from "antd";
+import SystemAlarmTable from "./SystemAlarmTable";
+
+const StyledLayout = styled(Layout)`
+  min-height: 100dvh;
+  height: 100%;
+`;
+
+const StyledContent = styled(Content)`
+  padding: 16px;
+  overflow: auto;
+
+  @media (max-width: 768px) {
+    padding: 8px;
+  }
+`;
+
+const TableGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  width: 100%;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+`;
 
 const Record: FC = () => {
-  const { isMobile } = useIsMobile();
-
   return (
-    <Layout style={{ height: `${isMobile ? "100dvh" : "100%"}` }}>
-      <Header isMobile={isMobile}></Header>
-      <Content>
-        <Flex>
-          <WarningTable></WarningTable>
+    <StyledLayout>
+      <Header isMobile={false} />
+      <StyledContent>
+        <TableGrid>
+          <SystemAlarmTable />
+          <WarningTable />
           <AlarmTable />
-        </Flex>
-      </Content>
-    </Layout>
+        </TableGrid>
+      </StyledContent>
+    </StyledLayout>
   );
 };
 

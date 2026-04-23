@@ -47,6 +47,7 @@
     "dayjs": "^1.11.10",
     "dnd-core": "^16.0.1",
     "exceljs": "^4.4.0",
+    "framer-motion": "^12.38.0",
     "http-server": "^14.1.1",
     "i18next": "22.0.3",
     "ip": "^2.0.1",

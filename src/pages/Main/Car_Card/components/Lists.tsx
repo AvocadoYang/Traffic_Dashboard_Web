@@ -194,8 +194,7 @@ export const AmrTitle = styled.h2`
 
 export const RowOne: React.FC<{ isDark: boolean; amrId: string }> = memo(
   ({ isDark, amrId }) => {
-    const { isOnline, networkDelay, isOverdue } = useIsLogIn(amrId);
-    console.log(isOnline, networkDelay, isOverdue, '@@@@@@')
+    const {  networkDelay, isOverdue } = useIsLogIn(amrId);
     const { t } = useTranslation();
 
     const AmrID = useMemo(() => {
@@ -212,11 +211,11 @@ export const RowOne: React.FC<{ isDark: boolean; amrId: string }> = memo(
           <span
             className={`login-text ${
               isOverdue
-                ? "offline-text" 
-                :  "online-text" 
+                ? "offline-text"
+                :"online-text"
             }`}
           >
-            {isOverdue ?  t("utils.offline") : (
+            {isOverdue ? t("utils.offline")  : (
               t("utils.online")
             )}
           </span>

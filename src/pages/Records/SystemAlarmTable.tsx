@@ -4,7 +4,8 @@ import { WarningOutlined, DatabaseOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { useMutation } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
-import useWarningHistory from "@/api/useWarningHistory";
+import useSystemAlarmHhistory from "@/api/useSystemAlarmHhistory";
+import { SystemAlarmData } from "@/sockets/useSystemAlarm";
 import {
   IndustrialContainer,
   IndustrialCard,
@@ -21,24 +22,20 @@ import {
   paginationTotalStyle,
 } from "./industrialStyles";
 
-const ACCENT = "#ffa641";
-const TAG_BG = "#fff8f0";
+const ACCENT = "#1890ff";
+const TAG_BG = "#e6f7ff";
 
-interface WarningRecord {
-  id: string;
-  warning_id: number;
-  createdAt: Date;
-  warning: { info_ch: string };
-}
-
-const WarningTable: FC = () => {
+const SystemAlarmTable: FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [messageApi, contextHolder] = message.useMessage();
-  const { data, isLoading, refetch } = useWarningHistory(currentPage, pageSize);
+  const { data, isLoading, refetch } = useSystemAlarmHhistory(
+    currentPage,
+    pageSize,
+  );
 
   const deleteMutation = useMutation({
-    mutationFn: () => client.post("/api/records/delete-all-warning"),
+    mutationFn: () => client.post("/api/records/delete-all-system-alarm"),
     onSuccess: () => {
       refetch();
       messageApi.info("nice");
@@ -62,28 +59,28 @@ const WarningTable: FC = () => {
     };
   };
 
-  const columns: ColumnsType<WarningRecord> = [
+  const columns: ColumnsType<SystemAlarmData> = [
     {
-      title: "Warning ID",
-      dataIndex: "warning_id",
-      key: "warning_id",
-      width: 90,
-      render: (id: number) => (
+      title: "Level",
+      dataIndex: "level",
+      key: "level",
+      width: 80,
+      render: (level: number) => (
         <IdTag $accent={ACCENT} $bg={TAG_BG}>
-          {id}
+          {level}
         </IdTag>
       ),
     },
     {
-      title: "Description",
-      dataIndex: "Description",
-      key: "Description",
-      render: (_: unknown, record) => <IdDesc>{record.warning.info_ch}</IdDesc>,
+      title: "Message",
+      dataIndex: "message",
+      key: "message",
+      render: (_: unknown, record) => <IdDesc>{record.message}</IdDesc>,
     },
     {
       title: "Timestamp",
-      dataIndex: "createdAt",
-      key: "createdAt",
+      dataIndex: "tstamp",
+      key: "tstamp",
       width: 140,
       render: (date: Date) => {
         const { dateStr, timeStr } = formatDateTime(date);
@@ -94,8 +91,8 @@ const WarningTable: FC = () => {
           </TimeDisplay>
         );
       },
-      sorter: (a, b) =>
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      sorter: (a: SystemAlarmData, b: SystemAlarmData) =>
+        (a.tstamp as Date).getTime() - (b.tstamp as Date).getTime(),
       defaultSortOrder: "descend",
     },
   ];
@@ -107,7 +104,7 @@ const WarningTable: FC = () => {
         <StatusBar $accent={ACCENT}>
           <StatusBarTitle>
             <WarningOutlined style={{ fontSize: 16 }} />
-            WARNING HISTORY
+            SYSTEM ALARM HISTORY
           </StatusBarTitle>
           <MetricsRow>
             <Popconfirm
@@ -136,7 +133,7 @@ const WarningTable: FC = () => {
         <IndustrialCard>
           <SectionHeader $accent={ACCENT}>
             <DatabaseOutlined />
-            [01] WARNING RECORDS DATABASE
+            [01] SYSTEM ALARM RECORDS DATABASE
           </SectionHeader>
           <StyledTable
             $accent={ACCENT}
@@ -166,7 +163,9 @@ const WarningTable: FC = () => {
                   <div className="empty-icon">
                     <WarningOutlined />
                   </div>
-                  <div className="empty-text">[ No Warning Records Found ]</div>
+                  <div className="empty-text">
+                    [ No System Alarm Records Found ]
+                  </div>
                 </EmptyStateContainer>
               ),
             }}
@@ -177,4 +176,4 @@ const WarningTable: FC = () => {
   );
 };
 
-export default WarningTable;
+export default SystemAlarmTable;

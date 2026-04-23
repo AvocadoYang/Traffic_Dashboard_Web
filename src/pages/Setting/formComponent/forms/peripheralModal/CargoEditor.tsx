@@ -1,5 +1,14 @@
 import useCustomCargoFormat from "@/api/useCustomCargoFormat";
-import { Button, Form, Input, message, Modal, Select, Tooltip } from "antd";
+import {
+  Button,
+  Form,
+  Input,
+  message,
+  Modal,
+  Popconfirm,
+  Select,
+  Tooltip,
+} from "antd";
 import { FC, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
@@ -251,6 +260,18 @@ const CargoEditor: FC = () => {
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
+  const deleteAllMutation = useMutation({
+    mutationFn: (payload: { locationId: string }) =>
+      client.post("/api/peripherals/delete-all-cargo-info", payload),
+    onSuccess: () => {
+      messageApi.success(t("utils.success"));
+      form.resetFields();
+      setFormatFieldMap({});
+      setOpenCargoModal(false);
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
   useEffect(() => {
     if (!openCargoModal || !globalValue || !globalValue.cargo) return;
 
@@ -442,6 +463,17 @@ const CargoEditor: FC = () => {
         title={
           <>
             <ToolOutlined /> {t("amr_card.update_cargo")}
+            <Popconfirm
+              title="Delete the task"
+              description="Are you sure to delete all?"
+              onConfirm={() =>
+                deleteAllMutation.mutate({ locationId: globalValue.stationId })
+              }
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button danger>刪除所有</Button>
+            </Popconfirm>
           </>
         }
         open={openCargoModal}
