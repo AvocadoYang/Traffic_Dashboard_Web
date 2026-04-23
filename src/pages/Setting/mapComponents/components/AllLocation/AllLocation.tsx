@@ -12,6 +12,7 @@ import {
   isShowLocation,
 } from "@/utils/siderGloble";
 import {
+  EBLM,
   IsEditingQuickRoads,
   QuickRoadsArray,
 } from "@/pages/Setting/utils/settingJotai";
@@ -27,6 +28,7 @@ const AllLocation: FC<{
   const openEditZone = useAtomValue(EditZoneSwitch);
   const quickRoad = useAtomValue(IsEditingQuickRoads);
   const setQuickRoadArr = useSetAtom(QuickRoadsArray);
+  const setOpenEBLM = useSetAtom(EBLM);
 
   const handleQuickRoad = (locationId: string) => {
     if (!quickRoad) return;
@@ -48,6 +50,15 @@ const AllLocation: FC<{
   const handleLeave = useCallback(() => {
     setTooltip(null);
   }, []);
+
+  const handleClick = (e: any, locationId: string) => {
+    if (!openEditRoadPanel || openEditZone) {
+      setOpenEBLM({ locationId: locationId, isOpen: true });
+    } else {
+      setInitPoint({ clientX: e.clientX, clientY: e.clientY });
+      handleMouseDown((e.target as HTMLInputElement).id);
+    }
+  };
 
   if (!data || !showLocation) return;
   return (
@@ -84,11 +95,7 @@ const AllLocation: FC<{
                 onClick={() => handleQuickRoad(loc.locationId)}
                 onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
                 onMouseLeave={() => handleLeave()}
-                onMouseDown={(e) => {
-                  if (!openEditRoadPanel || openEditZone) return;
-                  setInitPoint({ clientX: e.clientX, clientY: e.clientY });
-                  handleMouseDown((e.target as HTMLInputElement).id);
-                }}
+                onMouseDown={(e) => handleClick(e, loc.locationId)}
               ></Point>
               <DraggableLine
                 locId={loc.locationId.toString()}
