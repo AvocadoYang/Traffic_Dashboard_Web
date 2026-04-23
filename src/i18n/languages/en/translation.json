@@ -1871,5 +1871,11 @@
   },
   "stack": {
     "edit_config_title": "Edit stack config"
+  },
+  "blind_location": {
+    "title": "Blind location mission",
+    "locationId": "locationId",
+    "location_name": "location name",
+    "mission": "mission"
   }
 }

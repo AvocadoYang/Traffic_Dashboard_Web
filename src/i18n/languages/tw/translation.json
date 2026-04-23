@@ -1880,5 +1880,12 @@
   },
   "stack": {
     "edit_config_title": "編輯堆疊參數"
+  },
+
+  "blind_location": {
+    "title": "地點幫定任務",
+    "locationId": "位置編號",
+    "location_name": "位置名稱",
+    "mission": "任務"
   }
 }
