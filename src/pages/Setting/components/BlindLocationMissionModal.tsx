@@ -1,15 +1,16 @@
 import { useAtom } from "jotai";
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import { EBLM } from "../utils/settingJotai";
 import { Form, Input, InputNumber, message, Modal, Select } from "antd";
 import styled from "styled-components";
 import { SettingOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import useAllMissionTitles from "@/api/useMissionTitle";
+import MissionTableSelect from "@/pages/Main/components/missionModal/MissionTableSelect";
 
 const IndustrialCard = styled.div`
   background: #ffffff;
@@ -54,20 +55,18 @@ const BlindLocationMissionModal: FC<{}> = () => {
   const [form] = Form.useForm();
   const { t } = useTranslation();
   const [messageApi, contextHolder] = message.useMessage();
-  const { data: missionTitle } = useAllMissionTitles();
+  const [placeholder, setPlaceholder] = useState("");
 
-  const missionOptions = missionTitle
-    ?.filter((g) =>
-      g.MissionTitleBridgeCategory.some(
-        (s) => s.Category?.tagName === "normal-mission",
-      ),
-    )
-    .map((v) => {
-      return {
-        value: v.id,
-        label: v.name,
-      };
-    });
+  const { data: defaultData, refetch } = useQuery({
+    queryKey: ["blind-mission-location", open.locationId],
+    queryFn: () =>
+      client
+        .get(
+          `/api/setting/blind-mission-location?locationId=${open.locationId}`,
+        )
+        .then((res) => res.data),
+    enabled: !!open.isOpen && !!open.locationId, // 只有當 modal 開啟且有 ID 時才查詢
+  });
 
   const saveMutation = useMutation({
     mutationFn: (payload: {
@@ -108,6 +107,19 @@ const BlindLocationMissionModal: FC<{}> = () => {
     console.log(values);
   };
 
+  React.useEffect(() => {
+    if (defaultData) {
+      form.setFieldsValue({
+        name: defaultData.name,
+        missionTitleId: defaultData.missionTitleId,
+      });
+      setPlaceholder(defaultData.missionName);
+    } else {
+      // 如果 modal 關閉或沒有資料，可以選擇清除表單
+      form.resetFields();
+    }
+  }, [defaultData, open.isOpen, form]);
+
   return (
     <>
       {contextHolder}
@@ -140,7 +152,13 @@ const BlindLocationMissionModal: FC<{}> = () => {
               name="missionTitleId"
               rules={[{ required: true, message: t("utils.required") }]}
             >
-              <Select options={missionOptions} style={{ width: "100%" }} />
+              <MissionTableSelect
+                onSelect={(record) => {
+                  form.setFieldValue("missionTitleId", record.id);
+                  void messageApi.success(`Selected mission: ${record.name}`);
+                }}
+                placeholder={placeholder}
+              />
             </Form.Item>
           </IndustrialCard>
         </Form>
