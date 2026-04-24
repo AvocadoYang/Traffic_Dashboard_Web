@@ -229,11 +229,10 @@ const corningOption = [
   "6-Wooden",
   "6-KC",
   "5.5",
-  "6-TC",
-  "Wrapper"
+  "Pallet",
 ];
 
-const c_typeOption = ["Full", "Pallet", "Wooden", "Unknown", "Empty","Wrapper"];
+const c_typeOption = ["Full", "Pallet", "Wooden", "Unknown", "Empty"];
 
 const EditCargoCarrier: FC<{
   amrId: string;
@@ -288,7 +287,7 @@ const EditCargoCarrier: FC<{
         const newMap: Record<number, { name: string; type: string }[]> = {};
         parsedCargo.forEach((c, index) => {
           const matched = data?.find(
-            (v) => v?.id === c.custom_cargo_metadata_id
+            (v) => v?.id === c.custom_cargo_metadata_id,
           );
           if (matched?.format) {
             try {
@@ -296,7 +295,7 @@ const EditCargoCarrier: FC<{
                 ([name, type]) => ({
                   name,
                   type: typeof type === "string" ? type : "string",
-                })
+                }),
               );
               newMap[index] = fields;
             } catch (err) {
@@ -326,7 +325,7 @@ const EditCargoCarrier: FC<{
           ([name, type]) => ({
             name,
             type: typeof type === "string" ? type : "string",
-          })
+          }),
         )
       : [];
 

@@ -1,10 +1,14 @@
+import client from "@/api/axiosClient";
 import {
   QuickMissionLoad,
   QuickMissionOffload,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
 } from "@/pages/Main/global/jotai";
-import { Flex, Popover, Tooltip } from "antd";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
+import { useMutation } from "@tanstack/react-query";
+import { Button, Flex, message, Popover, Tooltip } from "antd";
 import { useAtom, useSetAtom } from "jotai";
 import React, { FC } from "react";
 import styled from "styled-components";
@@ -127,6 +131,17 @@ const Elevator: FC<{
   );
   const setLoad = useSetAtom(QuickMissionLoad);
   const setOffload = useSetAtom(QuickMissionOffload);
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const resetMutation = useMutation({
+    mutationFn: () => client.post("/api/corning/force-reset-elevator"),
+    onSuccess: () => {
+      messageApi.success("ok");
+    },
+    onError: (e: ErrorResponse) => {
+      messageApi.warning("操作過於頻繁，請於 5 秒後再試");
+    },
+  });
 
   const canBeClickInSelection =
     isStartSelecting &&
@@ -160,9 +175,17 @@ const Elevator: FC<{
 
   return (
     <>
+      {contextHolder}
       <Popover
         content={
           <PopoverContent vertical gap={8}>
+            {locationId === "12001" ? (
+              <Button onClick={() => resetMutation.mutate()} danger>
+                強制復歸
+              </Button>
+            ) : (
+              ""
+            )}
             <StatusItem>
               <span className="label">Manual Mode:</span>
               <span

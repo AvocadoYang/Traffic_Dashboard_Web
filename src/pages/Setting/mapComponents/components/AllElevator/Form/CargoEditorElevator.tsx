@@ -207,11 +207,10 @@ const CargoEditorElevator: FC = () => {
     "6-Wooden",
     "6-KC",
     "5.5",
-    "6-TC",
-    "Wrapper"
+    "Pallet",
   ];
 
-  const c_typeOption = ["Full", "Pallet", "Wooden", "Unknown", "Empty","Wrapper"];
+  const c_typeOption = ["Full", "Pallet", "Wooden", "Unknown", "Empty"];
 
   const renderInput = (
     type: string,
