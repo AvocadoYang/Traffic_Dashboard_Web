@@ -35,6 +35,7 @@ import {
   isShowEditCustomCargoFormat,
   isShowPeripheralNameTable,
   isShowPeripheralGroupTable,
+  isShowEditBlindLocationMission,
 } from "@/utils/siderGloble";
 import {
   AimOutlined,
@@ -67,7 +68,7 @@ function getItem(
   key: React.Key,
   icon?: React.ReactNode,
   children?: MenuItem[],
-  type?: "group"
+  type?: "group",
 ): MenuItem {
   return {
     key,
@@ -87,13 +88,13 @@ const Sider: React.FC<{
   const queryClient = useQueryClient();
 
   const [openEditLocationPanel, setOpenEditLocationPanel] = useAtom(
-    EditLocationPanelSwitch
+    EditLocationPanelSwitch,
   );
   const [quickEditLocationPanel, setQuickEditLocationPanel] = useAtom(
-    QuickEditLocationPanelSwitch
+    QuickEditLocationPanelSwitch,
   );
   const [showAllLocationListTable, setShowAllLocationListTable] = useAtom(
-    EditLocationListTableSwitch
+    EditLocationListTableSwitch,
   );
 
   const [openEditRoadPanel, setOpenEditRoadPanel] =
@@ -108,13 +109,13 @@ const Sider: React.FC<{
 
   const [openEditShelfPanel, setOpenEditShelf] = useAtom(EditShelfPanelSwitch);
   const [openEditShelfCategory, setOpenEditShelfCategory] = useAtom(
-    EditShelfCategoryPanelSwitch
+    EditShelfCategoryPanelSwitch,
   );
   const [openYawTable, setOpenYawTable] = useAtom(EditShelfYawPanelSwitch);
 
   const [openMissionPanel, setOpenMissionPanel] = useAtom(isShowEditMission);
   const [openChargeMissionPanel, setOpenChargeMissionPanel] = useAtom(
-    isShowEditChargeMission
+    isShowEditChargeMission,
   );
 
   const [
@@ -122,13 +123,13 @@ const Sider: React.FC<{
     setOpenBeforeLeftStationMissionPanel,
   ] = useAtom(isShowEditBeforeLeftChargeStationMission);
   const [openScheduleMissionPanel, setOpenScheduleMissionPanel] = useAtom(
-    isShowEditScheduleMission
+    isShowEditScheduleMission,
   );
   const [openIdleMissionPanel, setOpenIdleMissionPanel] = useAtom(
-    isShowEditIdleMission
+    isShowEditIdleMission,
   );
   const [openTopicMissionPanel, setOpenTopicMissionPanel] = useAtom(
-    isShowEditTopicMission
+    isShowEditTopicMission,
   );
   const [openEditAbortCargoMissionPanel, setEditAbortCargoMissionPanel] =
     useAtom(isShowEditAbortMissionWhenHasCargoMission);
@@ -141,12 +142,12 @@ const Sider: React.FC<{
   const [openEditChargeStationIconPanel, setOpenEditChargeStationIconPanel] =
     useAtom(isShowEditChargeStationPosition);
   const [openCustomCargoFormat, setOpenCustomCargoFormat] = useAtom(
-    isShowEditCustomCargoFormat
+    isShowEditCustomCargoFormat,
   );
 
   const [openWarningId, setOpenWarningId] = useAtom(isShowEditWarningId);
   const [OpenUploadWarningIDModal, setOpenUploadWarningIDModal] = useAtom(
-    isOpenUploadWarningIDModal
+    isOpenUploadWarningIDModal,
   );
   const [openImportMapConfig, setImportMapConfig] = useState(false);
   const [openBackup, setOpenBackup] = useAtom(isShowEditBackup);
@@ -157,10 +158,14 @@ const Sider: React.FC<{
   const setShowLocationToolTip = useSetAtom(isShowLocationTooltip);
 
   const [openPeripheralNameMap, setOpenPeripheralNameMap] = useAtom(
-    isShowPeripheralNameTable
+    isShowPeripheralNameTable,
   );
   const [openPeripheralGroupMap, setOpenPeripheralGroupMap] = useAtom(
-    isShowPeripheralGroupTable
+    isShowPeripheralGroupTable,
+  );
+
+  const [openBlindMis, setOpenBlindMis] = useAtom(
+    isShowEditBlindLocationMission,
   );
 
   const [collapsed, setCollapsed] = useState(false);
@@ -194,6 +199,7 @@ const Sider: React.FC<{
       quickEditRoad,
       openPeripheralNameMap,
       openPeripheralGroupMap,
+      openBlindMis,
     ].some((item) => item);
 
     setHasOpenTool(isOpen);
@@ -225,6 +231,7 @@ const Sider: React.FC<{
     quickEditRoad,
     openPeripheralNameMap,
     openPeripheralGroupMap,
+    openBlindMis,
   ]);
 
   const handleShowPanel = async (check: boolean, itemType: ToolBarItemType) => {
@@ -325,6 +332,10 @@ const Sider: React.FC<{
         setOpenPeripheralGroupMap(check);
         break;
 
+      case "blind_mission":
+        setOpenBlindMis(check);
+        break;
+
       // ===================
       // === amr robot ===
 
@@ -376,7 +387,7 @@ const Sider: React.FC<{
           <Switch
             onChange={(checked) => handleShowPanel(checked, "location_panel")}
             checked={openEditLocationPanel}
-          />
+          />,
         ),
         getItem(
           t("toolbar.location.quick_edit_locations"),
@@ -386,7 +397,7 @@ const Sider: React.FC<{
               handleShowPanel(checked, "quick_location_panel")
             }
             checked={quickEditLocationPanel}
-          />
+          />,
         ),
         getItem(
           t("toolbar.location.show_locations_table"),
@@ -394,9 +405,9 @@ const Sider: React.FC<{
           <Switch
             checked={showAllLocationListTable}
             onChange={(checked) => handleShowPanel(checked, "location_list")}
-          />
+          />,
         ),
-      ]
+      ],
     ),
     getItem(
       t("toolbar.road.roads.roads"),
@@ -409,7 +420,7 @@ const Sider: React.FC<{
           <Switch
             onChange={(checked) => handleShowPanel(checked, "road_panel")}
             checked={openEditRoadPanel}
-          />
+          />,
         ),
         getItem(
           t("toolbar.road.roads.show_roads_table"),
@@ -417,7 +428,7 @@ const Sider: React.FC<{
           <Switch
             checked={showAllRoadListTable}
             onChange={(checked) => handleShowPanel(checked, "show_roads_table")}
-          />
+          />,
         ),
         getItem(
           t("toolbar.road.roads.quick_edit_road"),
@@ -425,9 +436,9 @@ const Sider: React.FC<{
           <Switch
             checked={quickEditRoad}
             onChange={(checked) => handleShowPanel(checked, "quick_road_panel")}
-          />
+          />,
         ),
-      ]
+      ],
     ),
     getItem(
       t("toolbar.zone.zones.zones"),
@@ -440,7 +451,7 @@ const Sider: React.FC<{
           <Switch
             value={openEditZone}
             onChange={(checked) => handleShowPanel(checked, "edit_zone")}
-          />
+          />,
         ),
         getItem(
           t("toolbar.zone.zones.show_zone_list"),
@@ -448,7 +459,7 @@ const Sider: React.FC<{
           <Switch
             value={showAllZones}
             onChange={(checked) => handleShowPanel(checked, "show_zone_list")}
-          />
+          />,
         ),
         getItem(
           t("toolbar.zone.zones.show_zone_table"),
@@ -456,9 +467,9 @@ const Sider: React.FC<{
           <Switch
             value={showZonesTable}
             onChange={(checked) => handleShowPanel(checked, "show_zone_table")}
-          />
+          />,
         ),
-      ]
+      ],
     ),
     getItem(
       t("toolbar.shelve.shelves.shelves&pallet"),
@@ -471,7 +482,7 @@ const Sider: React.FC<{
           <Switch
             checked={openEditShelfPanel}
             onChange={(checked) => handleShowPanel(checked, "edit_shelve")}
-          />
+          />,
         ),
         getItem(
           t("toolbar.shelve.shelves.edit_shelve_type"),
@@ -479,7 +490,7 @@ const Sider: React.FC<{
           <Switch
             checked={openEditShelfCategory}
             onChange={(checked) => handleShowPanel(checked, "edit_shelve_type")}
-          />
+          />,
         ),
         getItem(
           t("toolbar.shelve.shelves.edit_yaw"),
@@ -487,7 +498,7 @@ const Sider: React.FC<{
           <Switch
             checked={openYawTable}
             onChange={(checked) => handleShowPanel(checked, "edit_yaw")}
-          />
+          />,
         ),
         // getItem(
         //   t('toolbar.shelve.shelves.edit_pallet'),
@@ -497,7 +508,7 @@ const Sider: React.FC<{
         //     onChange={(checked) => handleShowPanel(checked, 'edit_pallet')}
         //   />
         // )
-      ]
+      ],
     ),
     getItem(t("toolbar.amr_setting.robot"), "5", <CarOutlined />, [
       getItem(
@@ -506,7 +517,7 @@ const Sider: React.FC<{
         <Switch
           checked={openAMRConfig}
           onChange={(checked) => handleShowPanel(checked, "edit_amr_config")}
-        />
+        />,
       ),
       getItem(
         t("toolbar.amr_setting.register_amr"),
@@ -514,7 +525,7 @@ const Sider: React.FC<{
         <Switch
           checked={openRegisterAMR}
           onChange={(checked) => handleShowPanel(checked, "edit_register_amr")}
-        />
+        />,
       ),
     ]),
     getItem(t("toolbar.mission.mission"), "6", <ScheduleOutlined />, [
@@ -524,7 +535,7 @@ const Sider: React.FC<{
         <Switch
           checked={openMissionPanel}
           onChange={(checked) => handleShowPanel(checked, "edit_mission")}
-        />
+        />,
       ),
 
       getItem(
@@ -533,7 +544,7 @@ const Sider: React.FC<{
         <Switch
           checked={openChargeMissionPanel}
           onChange={(checked) => handleShowPanel(checked, "charge_mission")}
-        />
+        />,
       ),
 
       getItem(
@@ -544,7 +555,7 @@ const Sider: React.FC<{
             handleShowPanel(checked, "before_left_charge_station_task")
           }
           checked={openBeforeLeftStationMissionPanel}
-        />
+        />,
       ),
 
       getItem(
@@ -554,7 +565,7 @@ const Sider: React.FC<{
           defaultChecked={false}
           onChange={(checked) => handleShowPanel(checked, "schedule_mission")}
           checked={openScheduleMissionPanel}
-        />
+        />,
       ),
 
       getItem(
@@ -563,7 +574,7 @@ const Sider: React.FC<{
         <Switch
           checked={openIdleMissionPanel}
           onChange={(checked) => handleShowPanel(checked, "idle_mission")}
-        />
+        />,
       ),
 
       getItem(
@@ -572,7 +583,7 @@ const Sider: React.FC<{
         <Switch
           checked={openTopicMissionPanel}
           onChange={(checked) => handleShowPanel(checked, "topic_mission")}
-        />
+        />,
       ),
       getItem(
         t("toolbar.mission.abort_mission_when_has_cargo_mission"),
@@ -582,7 +593,15 @@ const Sider: React.FC<{
           onChange={(checked) =>
             handleShowPanel(checked, "abort_cargo_mission")
           }
-        />
+        />,
+      ),
+      getItem(
+        t("toolbar.mission.blind_mission"),
+        "6-9",
+        <Switch
+          checked={openBlindMis}
+          onChange={(checked) => handleShowPanel(checked, "blind_mission")}
+        />,
       ),
     ]),
 
@@ -595,7 +614,7 @@ const Sider: React.FC<{
           onChange={(checked) =>
             handleShowPanel(checked, "peripheral_name_table")
           }
-        />
+        />,
       ),
       getItem(
         t("toolbar.peripheral.group_table"),
@@ -605,7 +624,7 @@ const Sider: React.FC<{
           onChange={(checked) =>
             handleShowPanel(checked, "peripheral_group_table")
           }
-        />
+        />,
       ),
 
       getItem(
@@ -614,7 +633,7 @@ const Sider: React.FC<{
         <Switch
           checked={openEditChargeStationIconPanel}
           onChange={(checked) => handleShowPanel(checked, "edit_icon_style")}
-        />
+        />,
       ),
     ]),
 
@@ -625,7 +644,7 @@ const Sider: React.FC<{
         <Switch
           checked={openTagMissionPanel}
           onChange={(checked) => handleShowPanel(checked, "edit_tag")}
-        />
+        />,
       ),
 
       getItem(
@@ -634,7 +653,7 @@ const Sider: React.FC<{
         <Switch
           checked={openCustomCargoFormat}
           onChange={(checked) => handleShowPanel(checked, "custom_cargo_info")}
-        />
+        />,
       ),
     ]),
     getItem(t("toolbar.file_setting.file_setting"), "9", <FileOutlined />, [
@@ -644,7 +663,7 @@ const Sider: React.FC<{
         <Switch
           checked={openWarningId}
           onChange={(checked) => handleShowPanel(checked, "warning_id")}
-        />
+        />,
       ),
       getItem(
         t("toolbar.file_setting.upload_warning_file"),
@@ -654,22 +673,22 @@ const Sider: React.FC<{
           onChange={(checked) =>
             handleShowPanel(checked, "upload_warning_file")
           }
-        />
+        />,
       ),
       getItem(
         t("toolbar.file_setting.start_point"),
         "9-3",
-        <BorderOuterOutlined />
+        <BorderOuterOutlined />,
       ),
       getItem(
         t("toolbar.file_setting.switch_map"),
         "9-4",
-        <DeliveredProcedureOutlined />
+        <DeliveredProcedureOutlined />,
       ),
       getItem(
         t("toolbar.file_setting.import_map"),
         "9-5",
-        <DeliveredProcedureOutlined />
+        <DeliveredProcedureOutlined />,
       ),
       getItem(t("toolbar.restart.restart"), "9-6", <RedoOutlined />),
     ]),

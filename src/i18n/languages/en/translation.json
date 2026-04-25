@@ -271,7 +271,8 @@
       "schedule_mission": "Schedule mission",
       "idle_mission": "Idle mission",
       "topic_mission": "Topic mission",
-      "abort_mission_when_has_cargo_mission": "Delete mission when there is cargo to process"
+      "abort_mission_when_has_cargo_mission": "Delete mission when there is cargo to process",
+      "blind_mission": "Blind location mission"
     },
     "peripheral": {
       "title": "Device",
@@ -960,7 +961,9 @@
       "available_less_than_aggressive": "available get mission can not less than aggressive",
       "haventSetChargeMission": "haven't set charge mission"
     },
-
+    "blind_mission": {
+      "title": "Blind location mission"
+    },
     "cycle_mission": {
       "cycle_mission": "Cycle Mission",
       "random": "Random",

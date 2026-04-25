@@ -1,15 +1,14 @@
 import { useAtom } from "jotai";
 import React, { FC, useState } from "react";
 import { EBLM } from "../utils/settingJotai";
-import { Form, Input, InputNumber, message, Modal, Select } from "antd";
+import { Form, Input, message, Modal } from "antd";
 import styled from "styled-components";
 import { SettingOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import useAllMissionTitles from "@/api/useMissionTitle";
 import MissionTableSelect from "@/pages/Main/components/missionModal/MissionTableSelect";
 
 const IndustrialCard = styled.div`
@@ -56,6 +55,7 @@ const BlindLocationMissionModal: FC<{}> = () => {
   const { t } = useTranslation();
   const [messageApi, contextHolder] = message.useMessage();
   const [placeholder, setPlaceholder] = useState("");
+  const queryClient = useQueryClient();
 
   const { data: defaultData, refetch } = useQuery({
     queryKey: ["blind-mission-location", open.locationId],
@@ -78,6 +78,7 @@ const BlindLocationMissionModal: FC<{}> = () => {
     },
     onSuccess: async () => {
       messageApi.success(t("utils.success"));
+      queryClient.refetchQueries({ queryKey: ["all-blind-missions"] });
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
@@ -104,7 +105,6 @@ const BlindLocationMissionModal: FC<{}> = () => {
       ...values,
       locationId: open.locationId,
     });
-    console.log(values);
   };
 
   React.useEffect(() => {
@@ -142,7 +142,13 @@ const BlindLocationMissionModal: FC<{}> = () => {
                 <FieldLabel>{t("blind_location.location_name")}</FieldLabel>
               }
               name="name"
-              rules={[{ required: true, message: t("utils.required") }]}
+              rules={[
+                { required: true, message: t("utils.required") },
+                {
+                  pattern: /^\S+$/,
+                  message: "肏你媽不可以空白健 懂沒?",
+                },
+              ]}
             >
               <Input min={1} style={{ width: "100%" }} />
             </Form.Item>

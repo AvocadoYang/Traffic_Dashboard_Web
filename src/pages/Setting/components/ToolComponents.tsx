@@ -21,6 +21,7 @@ import {
   isShowEditAbortMissionWhenHasCargoMission,
   isShowEditBackup,
   isShowEditBeforeLeftChargeStationMission,
+  isShowEditBlindLocationMission,
   isShowEditChargeMission,
   isShowEditChargeStationPosition,
   isShowEditCustomCargoFormat,
@@ -62,6 +63,7 @@ import { AbortCargoMissionPanel } from "../formComponent/forms/missionComponents
 import CustomCargoInfoPanel from "../formComponent/forms/other/customCargoInfo/CustomCargoInfoPanel";
 import EditPeripheralIcon from "../formComponent/forms/other/editPeripheralIcon/EditPeripheralIcon";
 import { PeripheralGroupPanel, PeripheralNamePanel } from "./peripherals";
+import BlindLocationPanel from "../formComponent/forms/missionComponents/blindMission/BlindLocationPanel";
 
 const SortableWrap: FC<{
   sortableId: ToolBarItemType;
@@ -380,6 +382,21 @@ const SortableWrap: FC<{
                 />
               </Card>
             );
+          //6-8 縣市刪除任務身上有貨處理機制
+          case "blind_mission":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="blind_mission"
+                />
+                <BlindLocationPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
 
           case "peripheral_name_table":
             return (
@@ -514,8 +531,9 @@ const ToolComponents: FC<{
   const openIdlePanel = useAtomValue(isShowEditIdleMission);
   const openTopicPanel = useAtomValue(isShowEditTopicMission);
   const openAbortCargoMission = useAtomValue(
-    isShowEditAbortMissionWhenHasCargoMission
+    isShowEditAbortMissionWhenHasCargoMission,
   );
+  const openBlindPanel = useAtomValue(isShowEditBlindLocationMission);
 
   const openPeripheralNamePanel = useAtomValue(isShowPeripheralNameTable);
   const openPeripheralGroupPanel = useAtomValue(isShowPeripheralGroupTable);
@@ -638,6 +656,9 @@ const ToolComponents: FC<{
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     if (formKey === "abort_cargo_mission" && openAbortCargoMission) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "blind_mission" && openBlindPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
 

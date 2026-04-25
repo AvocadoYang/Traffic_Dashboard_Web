@@ -269,7 +269,8 @@
       "schedule_mission": "定時任務",
       "idle_mission": "閒置任務",
       "topic_mission": "Topic任務",
-      "abort_mission_when_has_cargo_mission": "刪除任務有貨處理"
+      "abort_mission_when_has_cargo_mission": "刪除任務有貨處理",
+      "blind_mission": "地點綁定任務"
     },
     "peripheral": {
       "title": "設備",
@@ -1088,6 +1089,9 @@
         "NORMAL": "普通",
         "TRIVIAL": "次要"
       }
+    },
+    "blind_mission": {
+      "title": "綁定地點任務"
     }
   },
 

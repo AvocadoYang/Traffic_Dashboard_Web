@@ -63,6 +63,9 @@ export const isShowEditTopicMission = atom<boolean>(false);
 /** 6-8 顯示刪除任務身上有貨處理機制任務 */
 export const isShowEditAbortMissionWhenHasCargoMission = atom<boolean>(false);
 
+/** 6-9 顯示地點綁定任務 */
+export const isShowEditBlindLocationMission = atom<boolean>(false);
+
 /** 7-1 顯示設備名稱表 */
 export const isShowPeripheralNameTable = atom<boolean>(false);
 

@@ -36,6 +36,7 @@ export const formList = [
   { key: "idle_mission" },
   { key: "topic_mission" },
   { key: "abort_cargo_mission" },
+  { key: "blind_mission" },
   // ===================
   // === peripheral ===
   { key: "peripheral_name_table" },
