@@ -81,6 +81,9 @@ export const isShowEditChargeStationPosition = atom<boolean>(false);
 /** 8-3 顯示自定義貨物格式 */
 export const isShowEditCustomCargoFormat = atom<boolean>(false);
 
+/** 8-4 顯示貨物表格 */
+export const isShowContainerTable = atom<boolean>(false);
+
 /** 9-1 顯示編輯warning id */
 export const isShowEditWarningId = atom<boolean>(false);
 

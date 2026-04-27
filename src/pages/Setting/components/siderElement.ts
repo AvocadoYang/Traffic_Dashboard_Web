@@ -47,6 +47,7 @@ export const formList = [
   { key: "edit_icon_style" },
   { key: "edit_region_name" },
   { key: "custom_cargo_info" },
+  { key: "container_table" },
   // ===================
   // === config ===
   { key: "warning_id" },

@@ -284,7 +284,8 @@
       "edit_gauge": "Edit Gauge",
       "edit_tag": "Edit Tag",
       "edit_peripheral_style": "Edit peripheral style",
-      "custom_cargo_info": "custom cargo info"
+      "custom_cargo_info": "custom cargo info",
+      "container_table": "container table"
     },
     "file_setting": {
       "file_setting": "File Setting",
@@ -1610,6 +1611,7 @@
     "hide_manual": "Hide Manual Operation",
     "reset": "Reset",
     "update_position": "sync with QAMS locations and road",
+    "force_shutdown": "force shutdown",
     "force_to_standby": "force machine to standby",
     "stop": "Stop",
     "continue": "Continue",
@@ -1879,5 +1881,9 @@
     "locationId": "locationId",
     "location_name": "location name",
     "mission": "mission"
+  },
+  "container_table": {
+    "title": "Current Cargo Information at Locations",
+    "container_info": "container info"
   }
 }

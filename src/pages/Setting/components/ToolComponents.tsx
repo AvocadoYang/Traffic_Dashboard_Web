@@ -18,6 +18,7 @@ import {
   EditShelfYawPanelSwitch,
   EditZoneSwitch,
   isShowAMRConfig,
+  isShowContainerTable,
   isShowEditAbortMissionWhenHasCargoMission,
   isShowEditBackup,
   isShowEditBeforeLeftChargeStationMission,
@@ -64,6 +65,7 @@ import CustomCargoInfoPanel from "../formComponent/forms/other/customCargoInfo/C
 import EditPeripheralIcon from "../formComponent/forms/other/editPeripheralIcon/EditPeripheralIcon";
 import { PeripheralGroupPanel, PeripheralNamePanel } from "./peripherals";
 import BlindLocationPanel from "../formComponent/forms/missionComponents/blindMission/BlindLocationPanel";
+import AllContainerTable from "../formComponent/forms/AllContainerTable";
 
 const SortableWrap: FC<{
   sortableId: ToolBarItemType;
@@ -494,6 +496,21 @@ const SortableWrap: FC<{
                 />
               </Card>
             );
+          // 8-4 顯示貨物表格
+          case "container_table":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="container_table"
+                />
+                <AllContainerTable
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
           default:
             return null;
         }
@@ -541,6 +558,8 @@ const ToolComponents: FC<{
   const openTagPanel = useAtomValue(isShowEditMissionTag);
   const openChargeStylePanel = useAtomValue(isShowEditChargeStationPosition);
   const openCargoFormatPanel = useAtomValue(isShowEditCustomCargoFormat);
+  const openContainerTablePanel = useAtomValue(isShowContainerTable);
+
   const openWarningPanel = useAtomValue(isShowEditWarningId);
   const openBackupPanel = useAtomValue(isShowEditBackup);
 
@@ -677,6 +696,9 @@ const ToolComponents: FC<{
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     if (formKey === "custom_cargo_info" && openCargoFormatPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "container_table" && openContainerTablePanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     if (formKey === "warning_id" && openWarningPanel) {

@@ -36,6 +36,7 @@ import {
   isShowPeripheralNameTable,
   isShowPeripheralGroupTable,
   isShowEditBlindLocationMission,
+  isShowContainerTable,
 } from "@/utils/siderGloble";
 import {
   AimOutlined,
@@ -144,6 +145,8 @@ const Sider: React.FC<{
   const [openCustomCargoFormat, setOpenCustomCargoFormat] = useAtom(
     isShowEditCustomCargoFormat,
   );
+  const [openContainerTable, setOpenContainerTable] =
+    useAtom(isShowContainerTable);
 
   const [openWarningId, setOpenWarningId] = useAtom(isShowEditWarningId);
   const [OpenUploadWarningIDModal, setOpenUploadWarningIDModal] = useAtom(
@@ -191,6 +194,7 @@ const Sider: React.FC<{
       openEditAbortCargoMissionPanel,
       openTagMissionPanel,
       openEditChargeStationIconPanel,
+      openContainerTable,
       openCustomCargoFormat,
       openRegisterAMR,
       openAMRConfig,
@@ -223,6 +227,7 @@ const Sider: React.FC<{
     openEditAbortCargoMissionPanel,
     openTagMissionPanel,
     openEditChargeStationIconPanel,
+    openContainerTable,
     openCustomCargoFormat,
     openRegisterAMR,
     openAMRConfig,
@@ -320,6 +325,10 @@ const Sider: React.FC<{
 
       case "abort_cargo_mission":
         setEditAbortCargoMissionPanel(check);
+        break;
+
+      case "container_table":
+        setOpenContainerTable(check);
         break;
 
       // ===================
@@ -653,6 +662,15 @@ const Sider: React.FC<{
         <Switch
           checked={openCustomCargoFormat}
           onChange={(checked) => handleShowPanel(checked, "custom_cargo_info")}
+        />,
+      ),
+
+      getItem(
+        t("toolbar.others.container_table"),
+        "8-3",
+        <Switch
+          checked={openContainerTable}
+          onChange={(checked) => handleShowPanel(checked, "container_table")}
         />,
       ),
     ]),
