@@ -13,51 +13,10 @@ export const actonList = [
 
 export const controlList = {
   move: ["F", "fork_height", "B", "W", "NS"],
-  load: [
-    "C",
-    "rotate",
-    "tilt", //
-    "clamp", //
-    "fork_height", //
-    "blind_fork", //
-    "pallet_detection", //
-    "baffle", //
-    "shelf_detection",
-    "fork_shift",
-    "straight_backward",
-    "liftctrl",
-  ],
-  offload: [
-    "rotate",
-    "tilt",
-    "clamp",
-    "blind_fork",
-    "fork_height",
-    "pallet_detection",
-    "baffle",
-    "shelf_detection",
-    "fork_shift",
-    "straight_backward",
-    "check_cargo_height",
-    "liftctrl",
-  ],
+  load: ["liftctrl", "NS"],
+  offload: ["liftctrl", "NS"],
   spin: ["S"],
-  fork: [
-    "rotate",
-    "tilt",
-    "clamp",
-    "fork_height",
-    "blind_fork",
-    "pallet_detection",
-    "baffle",
-    "shelf_detection",
-    "QR",
-    "fork_shift",
-    "straight_backward",
-    "liftctrl",
-    "QR",
-    "NS",
-  ],
+  fork: ["liftctrl", "NS"],
   charge: ["fork_height", "charge"],
   cargo_limit: ["fork_height"],
   load_from_other: ["F", "fork_height", "B", "W"],
