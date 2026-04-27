@@ -1,5 +1,5 @@
 //import AMRPerformance from './AMRPerformance';
-import Header from "@/components/common/header/header";
+
 import { Layout } from "antd";
 import { BatteryUsageChart } from "./BatteryUsageChart";
 import ChartsOverview from "./ChartsOverview";
@@ -10,6 +10,7 @@ import MissionTable from "./MissionTable";
 import { DashboardContainer } from "./styles";
 import WarningsPanel from "./WarningsPanel";
 import { useIsMobile } from "@/hooks/useIsMoblie";
+import Header from "@/components/Common/Header/Header";
 
 const MissionAnalysis = () => {
   const { isMobile } = useIsMobile();

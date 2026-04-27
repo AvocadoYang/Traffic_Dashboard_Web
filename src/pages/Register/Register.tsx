@@ -1,5 +1,5 @@
 import React from "react";
-import Header from "@/components/common/header/header";
+import Header from "@/components/Common/Header/Header";
 import { Layout } from "antd";
 import { useIsMobile } from "@/hooks/useIsMoblie";
 

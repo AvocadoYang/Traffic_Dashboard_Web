@@ -1,7 +1,7 @@
 import { Layout } from "antd";
 import { Outlet } from "react-router-dom";
 import { useIsMobile } from "@/hooks/useIsMoblie";
-import Header from "@/components/common/header/header";
+import Header from "@/components/Common/Header/Header";
 
 const MainLayout = () => {
   const { isMobile } = useIsMobile();
