@@ -47,10 +47,11 @@ export const useSystemAlarm = () => {
   const [warningList, setWarningList] = useState<SystemAlarmData>({
     message: "",
     level: 0,
+    tstamp: undefined,
   });
   useEffect(() => {
     const sub = warningId$.subscribe((infos) => {
-      setWarningList(infos);
+      setWarningList({ ...infos, tstamp: infos.tstamp || new Date() });
     });
     return () => {
       sub.unsubscribe();
