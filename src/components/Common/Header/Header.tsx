@@ -5,8 +5,7 @@ import styled from "styled-components";
 import MissionBtn from "@/pages/Main/components/WebView/components/MissionBtn";
 import StartSimModal from "@/pages/SimulateResult/StartSimModal";
 import { useHeader } from "./UseHeader";
-import NavMenu from "./NavMenu";
-import MobileNav from "./MobileNav";
+import { Nav, Hamburger } from "@/components/Common/Header/Nav";
 import SimControl from "./SimControl";
 import LanguageSelect from "./LanguageSelect";
 import UserMenu from "./UserMenu";
@@ -28,9 +27,19 @@ const StyledHeader = styled(AntdHeader)`
 
 const Logo = styled.img`
   cursor: pointer;
-  height: 40px;
+  height: 80px;
   width: auto;
   object-fit: contain;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+
+  //PC版
+  @media (min-width: 768px) {
+    position: static;
+    transform: none;
+    left: auto;
+  }
 `;
 
 const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
@@ -58,9 +67,8 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
 
       <StyledHeader>
         <Logo src={logo} onClick={() => navigate("/")} />
-
-        {isMobile ? (
-          <MobileNav
+        {/* {isMobile ? (
+          <Hamburger
             items={navItems}
             onMenuClick={handleMenuClick}
             onLanguageChange={handleLanguageChange}
@@ -69,7 +77,7 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
           />
         ) : (
           <>
-            <NavMenu items={navItems} onClick={handleMenuClick} />
+            <Nav items={navItems} onClick={handleMenuClick} />
             <Flex gap="middle" align="center">
               {location.pathname === "/" && <MissionBtn />}
               <SimControl
@@ -81,7 +89,29 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
               <UserMenu username={username} onMenuClick={handleUserMenuClick} />
             </Flex>
           </>
-        )}
+        )} */}
+        {isMobile
+          ? <Hamburger
+            items={navItems}
+            onMenuClick={handleMenuClick}
+            drawerOpen={drawerOpen}
+            setDrawerOpen={setDrawerOpen}
+          />
+          : <Nav
+            items={navItems}
+            onClick={handleMenuClick}
+          />
+        }
+        <Flex gap="middle" align="center">
+          {location.pathname === "/" && <MissionBtn />}
+          <SimControl
+            isSimulating={!!script?.isSimulate}
+            onStart={() => setIsSimulateOpen(true)}
+            onStop={handleAbortSim}
+          />
+          <LanguageSelect onChange={handleLanguageChange} />
+          <UserMenu username={username} onMenuClick={handleUserMenuClick} />
+        </Flex>
       </StyledHeader>
 
       <StartSimModal
