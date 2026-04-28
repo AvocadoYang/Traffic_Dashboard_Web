@@ -8,12 +8,15 @@ import {
   from,
   fromEventPattern,
   map,
+  merge,
   MonoTypeOperatorFunction,
+  of,
   pluck,
   scan,
   share,
   switchMap,
   tap,
+  timer,
   withLatestFrom,
 } from "rxjs";
 import { io } from "./socketConnect";
@@ -219,12 +222,12 @@ const schema = () =>
           cargoInfoId: string().nullable(),
           customCargoMetadataId: string().nullable(),
           metadata: string().nullable(),
-        }).optional()
+        }).optional(),
       ).optional(),
       networkDelay: number().optional(),
       isOverdue: boolean().optional(),
       maintenanceLevel: number().optional(),
-    }).required()
+    }).required(),
   ).required();
 
 const profiles$ = fromEventPattern(
@@ -234,7 +237,7 @@ const profiles$ = fromEventPattern(
   },
   (next) => {
     io.off("amr-profile", next);
-  }
+  },
 ).pipe(
   switchMap((msg) =>
     from(
@@ -242,17 +245,17 @@ const profiles$ = fromEventPattern(
         .validate(
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           msg as unknown[],
-          { stripUnknown: true }
+          { stripUnknown: true },
         )
         .catch((err: ValidationError) => {
           console.error(err.message);
           console.error("amr-profile socket schema mismatch: ", err.value);
           return undefined;
-        })
-    )
+        }),
+    ),
   ),
   filter(isDefined),
-  share()
+  share(),
 );
 
 export type Pose = { x: number; y: number; yaw: number };
@@ -276,11 +279,11 @@ const regularYaw = (): MonoTypeOperatorFunction<Pose> => (source$) => {
       diff = diff > 180 ? diff - 360 : diff;
       diff = diff < -180 ? diff + 360 : diff;
       return acc + diff;
-    })
+    }),
   );
   return $coord.pipe(
     withLatestFrom($yaw),
-    map(([{ x, y }, yaw]) => ({ x, y, yaw }))
+    map(([{ x, y }, yaw]) => ({ x, y, yaw })),
   );
 };
 
@@ -302,7 +305,7 @@ export const useAMR = (amrId: string) => {
     const profile$ = profiles$.pipe(
       map((p) => p.find((x) => x.amrId === amrId)),
       filter(isDefined),
-      share()
+      share(),
     );
 
     const sub1 = profile$
@@ -321,8 +324,8 @@ export const useAMR = (amrId: string) => {
         // tap(({ yaw }) => console.log(yaw)),
         distinctUntilChanged(
           (prev, cur) =>
-            prev.x === cur.x && prev.y === cur.y && prev.yaw === cur.yaw
-        )
+            prev.x === cur.x && prev.y === cur.y && prev.yaw === cur.yaw,
+        ),
         // throttleTime(1000),
       )
       .subscribe(({ x, y, yaw }) => {
@@ -346,7 +349,7 @@ export const useAMR = (amrId: string) => {
           x: Number((x || 0).toFixed(5)),
           y: Number((y || 0).toFixed(5)),
           yaw: Number((yaw || 0).toFixed(5)),
-        }))
+        })),
       )
       .subscribe(({ x, y, yaw }) => {
         setOriginPose({ x, y, yaw: sanitizeDegree(yaw) });
@@ -373,7 +376,7 @@ export const useAmrPose = (amrId: string) => {
     const profile$ = profiles$.pipe(
       map((p) => p.find((x) => x.amrId === amrId)),
       filter(isDefined),
-      share()
+      share(),
     );
 
     const amrPose$ = profile$
@@ -392,8 +395,8 @@ export const useAmrPose = (amrId: string) => {
         // tap(({ yaw }) => console.log(yaw)),
         distinctUntilChanged(
           (prev, cur) =>
-            prev.x === cur.x && prev.y === cur.y && prev.yaw === cur.yaw
-        )
+            prev.x === cur.x && prev.y === cur.y && prev.yaw === cur.yaw,
+        ),
         // throttleTime(1000),
       )
       .subscribe(({ x, y, yaw }) => {
@@ -421,7 +424,7 @@ export const useIsLogIn = (amrId: string) => {
     const profile$ = profiles$.pipe(
       map((p) => p.find((x) => x.amrId === amrId)),
       filter(isDefined),
-      share()
+      share(),
     );
     const logIn$ = profile$
       .pipe(
@@ -432,8 +435,8 @@ export const useIsLogIn = (amrId: string) => {
           isPosAccurate: info.isPosAccurate,
         })),
         distinctUntilChanged(
-          (pre, current) => JSON.stringify(pre) === JSON.stringify(current)
-        )
+          (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
+        ),
       )
       .subscribe(({ isOnline, delay, isOverdue, isPosAccurate }) => {
         setData({
@@ -477,11 +480,11 @@ export const useAllAmrStatus = () => {
                 isOverdue: info.isOverdue || false,
                 isPosAccurate: info.isPosAccurate || false,
               }))
-              .sort((a, b) => a.amrId.localeCompare(b.amrId)) // <-- sort by amrId
+              .sort((a, b) => a.amrId.localeCompare(b.amrId)), // <-- sort by amrId
         ),
         distinctUntilChanged(
-          (pre, current) => JSON.stringify(pre) === JSON.stringify(current)
-        )
+          (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
+        ),
       )
       .subscribe((amrStatusArr) => {
         setData(amrStatusArr);
@@ -501,18 +504,18 @@ export const useCloseLoc = (amrId: string) => {
     const profile$ = profiles$.pipe(
       map((p) => p.find((x) => x.amrId === amrId)),
       filter(isDefined),
-      share()
+      share(),
     );
     const closeLoc$ = profile$
       .pipe(
         map((info) => info.pose?.closeLoc),
-        distinctUntilChanged()
+        distinctUntilChanged(),
       )
       .subscribe((closeLoc) =>
         setCloseLoc((pre) => {
           if (!closeLoc) return pre;
           return closeLoc;
-        })
+        }),
       );
 
     return () => {
@@ -534,7 +537,7 @@ export const useAmrDetail = (amrId: string) => {
     const profile$ = profiles$.pipe(
       map((p) => p.find((x) => x.amrId === amrId)),
       filter(isDefined),
-      share()
+      share(),
     );
     const sub = profile$
       .pipe(
@@ -547,8 +550,8 @@ export const useAmrDetail = (amrId: string) => {
           (a, b) =>
             a.locationId === b.locationId &&
             a.battery === b.battery &&
-            a.status === b.status
-        )
+            a.status === b.status,
+        ),
       )
       .subscribe(setData);
 
@@ -567,12 +570,12 @@ export const useBattery = (amrId: string) => {
     const profile$ = profiles$.pipe(
       map((p) => p.find((x) => x.amrId === amrId)),
       filter(isDefined),
-      share()
+      share(),
     );
     const battery$ = profile$
       .pipe(
         map((info) => info.IO?.battery_info.battery),
-        distinctUntilChanged()
+        distinctUntilChanged(),
       )
       .subscribe((battery) => setBattery(battery));
 
@@ -586,19 +589,19 @@ export const useBattery = (amrId: string) => {
 
 export const usePosIsAccurate = (amrId: string) => {
   const [isPosAccurate, setIsPoseAccurate] = useState<boolean | undefined>(
-    undefined
+    undefined,
   );
   useEffect(() => {
     const profile$ = profiles$.pipe(
       map((p) => p.find((x) => x.amrId === amrId)),
       filter(isDefined),
-      share()
+      share(),
     );
     const isAccurate$ = profile$
       .pipe(
         map((info) => info.isPosAccurate),
         filter((info) => info !== undefined),
-        distinctUntilChanged()
+        distinctUntilChanged(),
       )
       .subscribe((isAccurate) => setIsPoseAccurate(isAccurate));
 
@@ -612,19 +615,19 @@ export const usePosIsAccurate = (amrId: string) => {
 
 export const useIsPause = (amrId: string) => {
   const [isPosAccurate, setIsPoseAccurate] = useState<boolean | undefined>(
-    undefined
+    undefined,
   );
   useEffect(() => {
     const profile$ = profiles$.pipe(
       map((p) => p.find((x) => x.amrId === amrId)),
       filter(isDefined),
-      share()
+      share(),
     );
     const isAccurate$ = profile$
       .pipe(
         map((info) => info.isPause),
         filter((info) => info !== undefined),
-        distinctUntilChanged()
+        distinctUntilChanged(),
       )
       .subscribe((isAccurate) => setIsPoseAccurate(isAccurate));
 
@@ -642,7 +645,7 @@ export const useYaw = (amrId: string) => {
     const profile$ = profiles$.pipe(
       map((p) => p.find((x) => x.amrId === amrId)),
       filter(isDefined),
-      share()
+      share(),
     );
     const yaw$ = profile$
       .pipe(
@@ -653,9 +656,9 @@ export const useYaw = (amrId: string) => {
         filter((v) => v !== undefined),
         filter((v) => v !== 0),
         distinctUntilChanged(
-          (pre, current) => JSON.stringify(pre) === JSON.stringify(current)
+          (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
         ),
-        debounceTime(1000)
+        debounceTime(1000),
       )
       .subscribe((yaw) => {
         setYaw(yaw);
@@ -676,14 +679,14 @@ export const useAMRAllIO = (amrId: string) => {
     const profile$ = profiles$.pipe(
       map((p) => p.find((x) => x.amrId === amrId)),
       filter(isDefined),
-      share()
+      share(),
     );
     const io$ = profile$
       .pipe(
         map((info) => info.IO),
         distinctUntilChanged(
-          (pre, current) => JSON.stringify(pre) === JSON.stringify(current)
-        )
+          (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
+        ),
       )
       .subscribe((io) => {
         setIO((io as FleetInfo["IO"]) ?? null);
@@ -703,7 +706,7 @@ export const useXY = (amrId: string) => {
     const profile$ = profiles$.pipe(
       map((p) => p.find((x) => x.amrId === amrId)),
       filter(isDefined),
-      share()
+      share(),
     );
     const XY$ = profile$
       .pipe(
@@ -719,7 +722,7 @@ export const useXY = (amrId: string) => {
             return true;
           }
           return cur.x - pre.x < 0.01 && cur.y - pre.y < 0.01;
-        })
+        }),
       )
       .subscribe((loc) => setLoc(loc as { x: number; y: number } | undefined));
 
@@ -737,7 +740,7 @@ export const useAmrStatus = (amrId: string) => {
     const profile$ = profiles$.pipe(
       map((p) => p.find((x) => x.amrId === amrId)),
       filter(isDefined),
-      share()
+      share(),
     );
     const battery$ = profile$
       .pipe(
@@ -751,8 +754,8 @@ export const useAmrStatus = (amrId: string) => {
           return tipText;
         }),
         distinctUntilChanged(
-          (pre, current) => JSON.stringify(pre) === JSON.stringify(current)
-        )
+          (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
+        ),
       )
       .subscribe((info) => {
         setStatus(info);
@@ -795,7 +798,7 @@ export const useMaintenanceStatus = (amrId: string) => {
     const maintenance$ = profiles$.pipe(
       map((p) => p.find((x) => x.amrId === amrId)),
       filter(isDefined),
-      share()
+      share(),
     );
     const battery$ = maintenance$
       .pipe(
@@ -804,8 +807,8 @@ export const useMaintenanceStatus = (amrId: string) => {
           return translateMaintenance(maintenanceLevel);
         }),
         distinctUntilChanged(
-          (pre, current) => JSON.stringify(pre) === JSON.stringify(current)
-        )
+          (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
+        ),
       )
       .subscribe((info) => {
         setStatus(info);
@@ -825,14 +828,14 @@ export const useIsWorking = (amrId: string) => {
     const profile$ = profiles$.pipe(
       map((p) => p.find((x) => x.amrId === amrId)),
       filter(isDefined),
-      share()
+      share(),
     );
     const isWorking$ = profile$
       .pipe(
         map((info) => info.doingTask),
         distinctUntilChanged(
-          (pre, current) => JSON.stringify(pre) === JSON.stringify(current)
-        )
+          (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
+        ),
       )
       .subscribe((isWorking) => setIsWorking(isWorking));
 
@@ -844,22 +847,28 @@ export const useIsWorking = (amrId: string) => {
   return { isWorking };
 };
 
-export const useSpeed = (amrId: string) => {
+export const useSpeed = (amrId: string, timeoutMs: number = 5000) => {
   const [speed, setSpeed] = useState<number | undefined>(0);
 
   useEffect(() => {
     const sub = profiles$
       .pipe(
-        debounceTime(500),
         map((p) => p.find((x) => x.amrId === amrId)),
         filter(isDefined),
         map((info) => info.IO?.linear_x),
-        filter(isDefined)
+        filter(isDefined),
+        // switchMap 會在每次收到新速度時，重啟一個計時器
+        switchMap((val) =>
+          merge(
+            of(val), // 立即發送當前速度
+            timer(timeoutMs).pipe(map(() => 0)), // 若 timeoutMs 內沒收到新資料，發送 0
+          ),
+        ),
       )
       .subscribe(setSpeed);
 
     return () => sub.unsubscribe();
-  }, [amrId]);
+  }, [amrId, timeoutMs]);
 
   return { speed };
 };
@@ -870,14 +879,14 @@ export const useIsManual = (amrId: string) => {
     const profile$ = profiles$.pipe(
       map((p) => p.find((x) => x.amrId === amrId)),
       filter(isDefined),
-      share()
+      share(),
     );
     const manual$ = profile$
       .pipe(
         map((info) => info.IO?.manual_mode),
         distinctUntilChanged(
-          (pre, current) => JSON.stringify(pre) === JSON.stringify(current)
-        )
+          (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
+        ),
       )
       .subscribe((isWorking) => setIsManual(isWorking));
 
@@ -901,7 +910,7 @@ export const useIsCarry = (amrId: string) => {
     const profile$ = profiles$.pipe(
       map((p) => p.find((x) => x.amrId === amrId)),
       filter(isDefined),
-      share()
+      share(),
     );
     const isCarry$ = profile$
       .pipe(
@@ -910,11 +919,11 @@ export const useIsCarry = (amrId: string) => {
           cargo: info.cargo as Cargo[],
         })),
         distinctUntilChanged(
-          (pre, current) => JSON.stringify(pre) === JSON.stringify(current)
-        )
+          (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
+        ),
       )
       .subscribe(({ hasCargo, cargo }) =>
-        setIsCarry({ isCarry: hasCargo, cargo })
+        setIsCarry({ isCarry: hasCargo, cargo }),
       );
 
     return () => {
@@ -931,14 +940,14 @@ export const useIsCharging = (amrId: string) => {
     const profile$ = profiles$.pipe(
       map((p) => p.find((x) => x.amrId === amrId)),
       filter(isDefined),
-      share()
+      share(),
     );
     const isCarry$ = profile$
       .pipe(
         map((info) => info.IO?.battery_info.charging),
         distinctUntilChanged(
-          (pre, current) => JSON.stringify(pre) === JSON.stringify(current)
-        )
+          (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
+        ),
       )
       .subscribe((isWorking) => setIsCharge(isWorking));
 

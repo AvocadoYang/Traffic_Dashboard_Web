@@ -19,6 +19,8 @@ const schema = object({
       locationId: string().required(),
       x: number().required(),
       y: number().required(),
+      offset_x: number().required(),
+      offset_y: number().required(),
       canRotate: boolean().required(),
       areaType: string().required(),
     }).required(),

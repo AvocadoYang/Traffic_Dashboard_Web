@@ -39,6 +39,7 @@ import { errorHandler } from "@/utils/utils";
 import useMap from "@/api/useMap";
 import FormHr from "../../utils/FormHr";
 import SubmitButton from "@/utils/SubmitButton";
+import useContainerLocation, { Loc_For_CD } from "@/api/useContainerLocation";
 
 // Industrial Styled Components
 const IndustrialContainer = styled.div`
@@ -327,7 +328,7 @@ export type LocationSubmit = {
   canRotate: boolean;
 };
 
-const AllLocationTable: React.FC<{
+const AllContainerTable: React.FC<{
   sortableId: string;
   attributes: import("@dnd-kit/core").DraggableAttributes;
   listeners:
@@ -337,71 +338,17 @@ const AllLocationTable: React.FC<{
   const [locationPanelForm] = Form.useForm();
   const searchInput = useRef<InputRef>(null);
   const [editingKey, setEditingKey] = useState<string | null>(null);
-  const { data: mapData, refetch } = useMap();
+  const { data: mapData, refetch } = useContainerLocation();
   const setTooltip = useSetAtom(tooltipProp);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [messageApi, contextHolders] = message.useMessage();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const saveLocationMutation = useMutation({
-    mutationFn: (payload: LocationType) => {
-      return client.post("api/setting/edit-edit-loc", payload);
-    },
-    onSuccess: () => {
-      void messageApi.success(t("utils.success"));
-      queryClient.refetchQueries({ queryKey: ["map"] });
-    },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
-  });
-
-  const deleteLocationMutation = useMutation({
-    mutationFn: (data: { id: string; locationId: string }) => {
-      return client.post("api/setting/delete-edit-loc", data);
-    },
-    onSuccess: () => {
-      void messageApi.success(t("utils.success"));
-      queryClient.refetchQueries({ queryKey: ["map"] });
-    },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
-  });
-
-  const deleteMultiLocationMutation = useMutation({
-    mutationFn: (id: string[]) => {
-      return client.post("api/setting/delete-multi-edit-loc", { id });
-    },
-    onSuccess: () => {
-      void messageApi.success(t("utils.success"));
-      queryClient.refetchQueries({ queryKey: ["map"] });
-      setSelectedRowKeys([]);
-    },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
-  });
-
-  const deleteMultiItem = () => {
-    if (selectedRowKeys.length === 0) return;
-    deleteMultiLocationMutation.mutate(selectedRowKeys as string[]);
-  };
-
   const isEditing = (record: LocationType) => record.locationId === editingKey;
-
-  const edit = (record: Partial<LocationType> & { locationId: string }) => {
-    locationPanelForm.setFieldValue("x", Number(record.x));
-    locationPanelForm.setFieldValue("y", Number(record.y));
-    locationPanelForm.setFieldValue("offset_x", Number(record.offset_x));
-    locationPanelForm.setFieldValue("offset_y", Number(record.offset_y));
-    locationPanelForm.setFieldValue("canRotate", record.canRotate);
-    locationPanelForm.setFieldValue("areaType", record.areaType);
-    locationPanelForm.setFieldValue("locationId", record.locationId);
-    setEditingKey(record.locationId);
-  };
 
   const handleSearch = (confirm: FilterDropdownProps["confirm"]) => {
     confirm();
-  };
-
-  const handleReset = (clearFilters: () => void) => {
-    clearFilters();
   };
 
   const getColumnSearchProps = (
@@ -436,7 +383,7 @@ const AllLocationTable: React.FC<{
           </IndustrialButton>
           <IndustrialButton
             className="reload-btn"
-            onClick={() => clearFilters && handleReset(clearFilters)}
+            onClick={() => clearFilters}
             size="small"
           >
             {t("utils.reset")}
@@ -475,42 +422,8 @@ const AllLocationTable: React.FC<{
     render: (text: string) => text,
   });
 
-  const savePos = (id: string, oldLocationId: string) => {
-    const payload = locationPanelForm.getFieldsValue() as LocationType;
-    const isNegative = Number(payload.locationId) <= 0;
-
-    if (isNegative) {
-      messageApi.warning(
-        t("edit_location_panel.save_pose_notify.is_a_navigate"),
-      );
-      return;
-    }
-
-    const sanitizedPayload = {
-      ...payload,
-      id,
-      newLocationId: payload.locationId.toString(),
-      oldLocationId,
-    };
-
-    saveLocationMutation.mutate(sanitizedPayload);
-  };
-
   const cancel = () => {
     setEditingKey(null);
-  };
-
-  const save = (id: string, locationId: string) => {
-    savePos(id, locationId);
-    setEditingKey(null);
-  };
-
-  const deleteLocationInList = (id: string | undefined, locationId: string) => {
-    if (!id) {
-      messageApi.error("ID IS MISSING");
-      return;
-    }
-    deleteLocationMutation.mutate({ id, locationId });
   };
 
   const handleHover = (locationId: string, x: number, y: number) => {
@@ -526,64 +439,38 @@ const AllLocationTable: React.FC<{
       title: t("utils.location"),
       dataIndex: "locationId",
       key: "locationId",
-      editable: false,
       width: "30%",
-      sorter: (a: LocationType, b: LocationType) =>
+      sorter: (a: Loc_For_CD, b: Loc_For_CD) =>
         Number(a.locationId) - Number(b.locationId),
       ...getColumnSearchProps("locationId"),
       render: (text: string) => <LocationIdBadge>{text}</LocationIdBadge>,
     },
     {
-      title: "X",
-      dataIndex: "x",
+      title: t("utils.location"),
+      dataIndex: "locationName",
+      key: "locationName",
       width: "30%",
-      editable: true,
-      key: "x",
-      render: (text: string) => <CoordinateText>{text}</CoordinateText>,
+      render: (text: string) => <LocationIdBadge>{text}</LocationIdBadge>,
     },
     {
-      title: "Y",
-      dataIndex: "y",
-      width: "30%",
-      editable: true,
-      key: "y",
-      render: (text: string) => <CoordinateText>{text}</CoordinateText>,
-    },
-    {
-      title: "offset_x",
-      dataIndex: "offset_x",
-      width: "30%",
-      editable: true,
-      key: "offset_x",
-      render: (text: string) => <CoordinateText>{text}</CoordinateText>,
-    },
-    {
-      title: "offset_y",
-      dataIndex: "offset_y",
-      width: "30%",
-      editable: true,
-      key: "offset_y",
-      render: (text: string) => <CoordinateText>{text}</CoordinateText>,
-    },
-    {
-      title: "ROTATABLE",
-      dataIndex: "canRotate",
-      key: "canRotate",
-      width: "12%",
-      editable: true,
-      render: (_: unknown, record: LocationType) => {
-        return <Checkbox checked={record.canRotate} disabled />;
+      title: t("container_table.container_info"),
+      key: "container_info",
+      render: (_: any, record: Loc_For_CD) => {
+        // 檢查 container 是否存在且裡面有資料
+        if (!record.container || Object.keys(record.container).length === 0) {
+          return <span>-</span>; // 或顯示為空
+        }
+        return <>{JSON.stringify(record.container)}</>;
       },
     },
     {
       title: t("utils.point_type"),
       dataIndex: "areaType",
-      editable: false,
       key: "areaType",
       width: "18%",
-      sorter: (a: LocationType, b: LocationType) =>
+      sorter: (a: Loc_For_CD, b: Loc_For_CD) =>
         a.areaType.localeCompare(b.areaType),
-      render: (_: unknown, record: LocationType) => {
+      render: (_: unknown, record: Loc_For_CD) => {
         const label =
           record.areaType === "EXTRA"
             ? t("utils.location_property.none")
@@ -595,104 +482,22 @@ const AllLocationTable: React.FC<{
         );
       },
     },
-    {
-      title: "ACTIONS",
-      dataIndex: "operation",
-      key: "operation",
-      width: "30%",
-      render: (_: unknown, record: LocationType) => {
-        const editable = isEditing(record);
-        return editable ? (
-          <Flex gap="small">
-            <IndustrialButton
-              className="save-btn"
-              onClick={() => {
-                if (record.id && record.locationId) {
-                  save(record.id, record.locationId);
-                } else {
-                  messageApi.warning("ID IS MISSING");
-                }
-              }}
-              icon={<SaveOutlined />}
-              size="small"
-            >
-              {t("utils.save")}
-            </IndustrialButton>
-            <IndustrialButton
-              className="cancel-btn"
-              onClick={() => cancel()}
-              icon={<CloseOutlined />}
-              size="small"
-            >
-              {t("utils.cancel")}
-            </IndustrialButton>
-          </Flex>
-        ) : (
-          <Flex gap="small">
-            <IndustrialButton
-              className="edit-btn"
-              disabled={editingKey !== null}
-              onClick={() => edit(record)}
-              icon={<EditOutlined />}
-              size="small"
-            >
-              {t("utils.edit")}
-            </IndustrialButton>
-            <Popconfirm
-              title={t("utils.delete")}
-              description={t("edit_location_panel.table_notify.are_you_sure")}
-              onConfirm={() =>
-                deleteLocationInList(record.id, record.locationId)
-              }
-              onCancel={cancel}
-              okText={t("utils.yes")}
-              cancelText={t("utils.no")}
-            >
-              <IndustrialButton
-                className="delete-btn"
-                icon={<DeleteTwoTone twoToneColor="#ff4d4f" />}
-                size="small"
-              >
-                {t("utils.delete")}
-              </IndustrialButton>
-            </Popconfirm>
-          </Flex>
-        );
-      },
-    },
   ];
 
-  const mergedColumns = columns.map((col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record: LocationType) => ({
-        record,
-        inputtype: col.dataIndex,
-        dataIndex: col.dataIndex,
-        key: col.key,
-        title: col.title,
-        editing: isEditing(record),
-      }),
-    };
-  });
+  if (!mapData) return <>loading...</>;
 
   return (
     <IndustrialContainer onMouseLeave={handleMouseLeave}>
       {contextHolders}
       <PanelHeader {...listeners} {...attributes}>
-        {t("sider_output_form_name.locationList")}
+        {t("container_table.title")}
       </PanelHeader>
       <FormHr />
       <Flex gap="middle" justify="flex-start" align="start" vertical>
         <Flex gap="middle">
           <IndustrialButton
             className="delete-btn"
-            onClick={() => deleteMultiItem()}
             icon={<DeleteTwoTone twoToneColor="#ff4d4f" />}
-            loading={deleteMultiLocationMutation.isLoading}
             disabled={selectedRowKeys.length === 0}
           >
             {t("utils.delete")} ({selectedRowKeys.length})
@@ -710,22 +515,22 @@ const AllLocationTable: React.FC<{
         <IndustrialTableContainer>
           <Form form={locationPanelForm} component={false}>
             <Table
-              rowSelection={{
-                type: "checkbox",
-                onChange: (selectedRowKeys: React.Key[]) => {
-                  setSelectedRowKeys([...selectedRowKeys]);
-                },
-              }}
-              rowKey={(property) => property.id}
+              // rowSelection={{
+              //   type: "checkbox",
+              //   onChange: (selectedRowKeys: React.Key[]) => {
+              //     setSelectedRowKeys([...selectedRowKeys]);
+              //   },
+              // }}
+              rowKey={(property) => property.locationId}
               components={{
                 body: {
                   cell: EditableCell,
                 },
               }}
-              dataSource={mapData?.locations.map((loc) => {
+              dataSource={mapData?.map((loc) => {
                 return { ...loc, x: loc.x.toFixed(3), y: loc.y.toFixed(3) };
               })}
-              columns={mergedColumns as []}
+              columns={columns as []}
               pagination={{
                 onChange: cancel,
                 pageSize: 10,
@@ -751,4 +556,4 @@ const AllLocationTable: React.FC<{
   );
 };
 
-export default memo(AllLocationTable);
+export default memo(AllContainerTable);

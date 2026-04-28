@@ -52,6 +52,11 @@ const AllLocation: FC<{
   }, []);
 
   const handleClick = (e: any, locationId: string) => {
+    if (quickRoad) {
+      handleQuickRoad(locationId);
+      return;
+    }
+
     if (!openEditRoadPanel || openEditZone) {
       setOpenEBLM({ locationId: locationId, isOpen: true });
     } else {
@@ -92,7 +97,6 @@ const AllLocation: FC<{
                 left={displayX}
                 top={displayY}
                 key={nanoid()}
-                onClick={() => handleQuickRoad(loc.locationId)}
                 onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
                 onMouseLeave={() => handleLeave()}
                 onMouseDown={(e) => handleClick(e, loc.locationId)}

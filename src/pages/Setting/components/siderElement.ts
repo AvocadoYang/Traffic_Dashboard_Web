@@ -36,6 +36,7 @@ export const formList = [
   { key: "idle_mission" },
   { key: "topic_mission" },
   { key: "abort_cargo_mission" },
+  { key: "blind_mission" },
   // ===================
   // === peripheral ===
   { key: "peripheral_name_table" },
@@ -46,6 +47,7 @@ export const formList = [
   { key: "edit_icon_style" },
   { key: "edit_region_name" },
   { key: "custom_cargo_info" },
+  { key: "container_table" },
   // ===================
   // === config ===
   { key: "warning_id" },
