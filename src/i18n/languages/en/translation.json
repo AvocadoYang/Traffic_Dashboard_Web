@@ -264,7 +264,8 @@
       "schedule_mission": "Schedule mission",
       "idle_mission": "Idle mission",
       "topic_mission": "Topic mission",
-      "abort_mission_when_has_cargo_mission": "Delete mission when there is cargo to process"
+      "abort_mission_when_has_cargo_mission": "Delete mission when there is cargo to process",
+      "blind_mission": "Blind location mission"
     },
     "peripheral": {
       "title": "Device",
@@ -276,7 +277,8 @@
       "edit_gauge": "Edit Gauge",
       "edit_tag": "Edit Tag",
       "edit_peripheral_style": "Edit peripheral style",
-      "custom_cargo_info": "custom cargo info"
+      "custom_cargo_info": "custom cargo info",
+      "container_table": "container table"
     },
     "file_setting": {
       "file_setting": "File Setting",
@@ -920,6 +922,7 @@
       "available_less_than_aggressive": "available get mission can not less than aggressive",
       "haventSetChargeMission": "haven't set charge mission"
     },
+
     "cycle_mission": {
       "cycle_mission": "Cycle Mission",
       "random": "Random",
@@ -1544,6 +1547,7 @@
     "hide_manual": "Hide Manual Operation",
     "reset": "Reset",
     "update_position": "sync with QAMS locations and road",
+    "force_shutdown": "force shutdown",
     "force_to_standby": "force machine to standby",
     "stop": "Stop",
     "continue": "Continue",
@@ -1798,5 +1802,15 @@
   },
   "stack": {
     "edit_config_title": "Edit stack config"
+  },
+  "blind_location": {
+    "title": "Blind location mission",
+    "locationId": "locationId",
+    "location_name": "location name",
+    "mission": "mission"
+  },
+  "container_table": {
+    "title": "Current Cargo Information at Locations",
+    "container_info": "container info"
   }
 }
