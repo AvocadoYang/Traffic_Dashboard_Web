@@ -18,9 +18,11 @@ import {
   EditShelfYawPanelSwitch,
   EditZoneSwitch,
   isShowAMRConfig,
+  isShowContainerTable,
   isShowEditAbortMissionWhenHasCargoMission,
   isShowEditBackup,
   isShowEditBeforeLeftChargeStationMission,
+  isShowEditBlindLocationMission,
   isShowEditChargeMission,
   isShowEditChargeStationPosition,
   isShowEditClampHeight,
@@ -66,6 +68,8 @@ import EditPeripheralIcon from "../formComponent/forms/other/editPeripheralIcon/
 import { PeripheralGroupPanel, PeripheralNamePanel } from "./peripherals";
 import ElevatorMissionPanel from "../formComponent/forms/file/corning/ElevatorMissionPanel";
 import ClampHeightPanel from "../formComponent/forms/file/corning/ClampHeightPanel";
+import BlindLocationPanel from "../formComponent/forms/missionComponents/blindMission/BlindLocationPanel";
+import AllContainerTable from "../formComponent/forms/AllContainerTable";
 
 const SortableWrap: FC<{
   sortableId: ToolBarItemType;
@@ -384,6 +388,21 @@ const SortableWrap: FC<{
                 />
               </Card>
             );
+          //6-8 縣市刪除任務身上有貨處理機制
+          case "blind_mission":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="blind_mission"
+                />
+                <BlindLocationPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
 
           case "peripheral_name_table":
             return (
@@ -513,6 +532,21 @@ const SortableWrap: FC<{
                 />
               </Card>
             );
+          // 8-4 顯示貨物表格
+          case "container_table":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="container_table"
+                />
+                <AllContainerTable
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
           default:
             return null;
         }
@@ -552,6 +586,7 @@ const ToolComponents: FC<{
   const openAbortCargoMission = useAtomValue(
     isShowEditAbortMissionWhenHasCargoMission,
   );
+  const openBlindPanel = useAtomValue(isShowEditBlindLocationMission);
 
   const openPeripheralNamePanel = useAtomValue(isShowPeripheralNameTable);
   const openPeripheralGroupPanel = useAtomValue(isShowPeripheralGroupTable);
@@ -559,6 +594,8 @@ const ToolComponents: FC<{
   const openTagPanel = useAtomValue(isShowEditMissionTag);
   const openChargeStylePanel = useAtomValue(isShowEditChargeStationPosition);
   const openCargoFormatPanel = useAtomValue(isShowEditCustomCargoFormat);
+  const openContainerTablePanel = useAtomValue(isShowContainerTable);
+
   const openWarningPanel = useAtomValue(isShowEditWarningId);
   const openBackupPanel = useAtomValue(isShowEditBackup);
 
@@ -679,6 +716,9 @@ const ToolComponents: FC<{
     if (formKey === "abort_cargo_mission" && openAbortCargoMission) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
+    if (formKey === "blind_mission" && openBlindPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
 
     if (formKey === "peripheral_name_table" && openPeripheralNamePanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
@@ -695,6 +735,9 @@ const ToolComponents: FC<{
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     if (formKey === "custom_cargo_info" && openCargoFormatPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "container_table" && openContainerTablePanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     if (formKey === "warning_id" && openWarningPanel) {
