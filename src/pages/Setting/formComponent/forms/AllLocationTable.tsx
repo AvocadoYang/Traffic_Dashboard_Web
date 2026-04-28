@@ -388,6 +388,8 @@ const AllLocationTable: React.FC<{
   const edit = (record: Partial<LocationType> & { locationId: string }) => {
     locationPanelForm.setFieldValue("x", Number(record.x));
     locationPanelForm.setFieldValue("y", Number(record.y));
+    locationPanelForm.setFieldValue("offset_x", Number(record.offset_x));
+    locationPanelForm.setFieldValue("offset_y", Number(record.offset_y));
     locationPanelForm.setFieldValue("canRotate", record.canRotate);
     locationPanelForm.setFieldValue("areaType", record.areaType);
     locationPanelForm.setFieldValue("locationId", record.locationId);
@@ -403,7 +405,7 @@ const AllLocationTable: React.FC<{
   };
 
   const getColumnSearchProps = (
-    dataIndex: DataIndex
+    dataIndex: DataIndex,
   ): TableColumnType<LocationType> => ({
     filterDropdown: ({
       setSelectedKeys,
@@ -479,7 +481,7 @@ const AllLocationTable: React.FC<{
 
     if (isNegative) {
       messageApi.warning(
-        t("edit_location_panel.save_pose_notify.is_a_navigate")
+        t("edit_location_panel.save_pose_notify.is_a_navigate"),
       );
       return;
     }
@@ -524,7 +526,7 @@ const AllLocationTable: React.FC<{
       title: t("utils.location"),
       dataIndex: "locationId",
       key: "locationId",
-      editable: true,
+      editable: false,
       width: "30%",
       sorter: (a: LocationType, b: LocationType) =>
         Number(a.locationId) - Number(b.locationId),
@@ -545,6 +547,22 @@ const AllLocationTable: React.FC<{
       width: "30%",
       editable: true,
       key: "y",
+      render: (text: string) => <CoordinateText>{text}</CoordinateText>,
+    },
+    {
+      title: "offset_x",
+      dataIndex: "offset_x",
+      width: "30%",
+      editable: true,
+      key: "offset_x",
+      render: (text: string) => <CoordinateText>{text}</CoordinateText>,
+    },
+    {
+      title: "offset_y",
+      dataIndex: "offset_y",
+      width: "30%",
+      editable: true,
+      key: "offset_y",
       render: (text: string) => <CoordinateText>{text}</CoordinateText>,
     },
     {
@@ -720,7 +738,7 @@ const AllLocationTable: React.FC<{
                     handleHover(
                       record.locationId,
                       Number(record.x),
-                      Number(record.y)
+                      Number(record.y),
                     ),
                 };
               }}
