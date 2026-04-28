@@ -269,7 +269,8 @@
       "schedule_mission": "定時任務",
       "idle_mission": "閒置任務",
       "topic_mission": "Topic任務",
-      "abort_mission_when_has_cargo_mission": "刪除任務有貨處理"
+      "abort_mission_when_has_cargo_mission": "刪除任務有貨處理",
+      "blind_mission": "地點綁定任務"
     },
     "peripheral": {
       "title": "設備",
@@ -281,7 +282,8 @@
       "edit_gauge": "編輯錶頭",
       "edit_tag": "標籤設定",
       "edit_peripheral_style": "編輯設備樣式",
-      "custom_cargo_info": "自定義貨物資訊"
+      "custom_cargo_info": "自定義貨物資訊",
+      "container_table": "貨物表格"
     },
     "file_setting": {
       "file_setting": "檔案設定",
@@ -1088,6 +1090,9 @@
         "NORMAL": "普通",
         "TRIVIAL": "次要"
       }
+    },
+    "blind_mission": {
+      "title": "綁定地點任務"
     }
   },
 
@@ -1613,6 +1618,7 @@
     "hide_manual": "隱藏手動操作",
     "reset": "重新準備",
     "update_position": "同步交管點位路線",
+    "force_shutdown": "強制關機",
     "force_to_standby": "強制狀態回待命",
     "stop": "停止",
     "continue": "解除停止",
@@ -1879,5 +1885,17 @@
   },
   "stack": {
     "edit_config_title": "編輯堆疊參數"
+  },
+
+  "blind_location": {
+    "title": "地點幫定任務",
+    "locationId": "位置編號",
+    "location_name": "位置名稱",
+    "mission": "任務"
+  },
+
+  "container_table": {
+    "title": "現存於點位上的貨物資訊",
+    "container_info": "貨物資訊"
   }
 }
