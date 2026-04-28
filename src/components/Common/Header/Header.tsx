@@ -55,60 +55,50 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
     handleMenuClick, handleLanguageChange, handleUserMenuClick,
   } = useHeader();
 
-  const navItems = [
+  type NavItem = {
+    key: number;
+    label: string;
+    children?: { key: number; label: string }[];
+  };
+
+  const NavItems: NavItem[] = [
     t("page_view"), t("page_amr"), t("page_cargo_history"),
     t("page_setting"), t("page_simulate"),
     t("page_simulate_result"), t("page_record"),
-  ].map((label, i) => ({ key: i + 1, label }));
+  ].map((label, i) => ({ key: i + 1, label })).concat({
+    key: 8,
+    label: t("page_personal_info"),
+    children: [
+      { key: 81, label: t("page_create_user") },
+      { key: 82, label: t("page_change_password") },
+    ],
+  });
 
-  return (
+  return ( 
     <>
       {contextHolder}
-
       <StyledHeader>
         <Logo src={logo} onClick={() => navigate("/")} />
-        {/* {isMobile ? (
+        {isMobile ? (
           <Hamburger
-            items={navItems}
+            items={NavItems}
             onMenuClick={handleMenuClick}
-            onLanguageChange={handleLanguageChange}
             drawerOpen={drawerOpen}
             setDrawerOpen={setDrawerOpen}
           />
         ) : (
-          <>
-            <Nav items={navItems} onClick={handleMenuClick} />
-            <Flex gap="middle" align="center">
-              {location.pathname === "/" && <MissionBtn />}
-              <SimControl
-                isSimulating={!!script?.isSimulate}
-                onStart={() => setIsSimulateOpen(true)}
-                onStop={handleAbortSim}
-              />
-              <LanguageSelect onChange={handleLanguageChange} />
-              <UserMenu username={username} onMenuClick={handleUserMenuClick} />
-            </Flex>
-          </>
-        )} */}
-        {isMobile
-          ? <Hamburger
-            items={navItems}
-            onMenuClick={handleMenuClick}
-            drawerOpen={drawerOpen}
-            setDrawerOpen={setDrawerOpen}
-          />
-          : <Nav
-            items={navItems}
+          <Nav
+            items={NavItems}
             onClick={handleMenuClick}
           />
-        }
+        )}
         <Flex gap="middle" align="center">
-          {location.pathname === "/" && <MissionBtn />}
+          {/* {location.pathname === "/" && <MissionBtn />}
           <SimControl
             isSimulating={!!script?.isSimulate}
             onStart={() => setIsSimulateOpen(true)}
             onStop={handleAbortSim}
-          />
+          /> */}
           <LanguageSelect onChange={handleLanguageChange} />
           <UserMenu username={username} onMenuClick={handleUserMenuClick} />
         </Flex>
@@ -127,6 +117,6 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
       <CreateUserModel open={openCreateUser} setOpen={setOpenCreateUser} />
     </>
   );
-};
+}; 
 
 export default memo(Header);
