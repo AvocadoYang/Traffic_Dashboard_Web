@@ -67,7 +67,6 @@
       "wait_side": "Waiting Side"
     }
   },
-
   "peripheral": {
     "Charging": "Charging",
     "Dispatch": "Dispatch",
@@ -80,7 +79,6 @@
     "LiftGate": "Lift Gate",
     "Palletizer": "Palletizer"
   },
-
   "mission_history": {
     "open": "Open History",
     "mission_id": "Mission ID",
@@ -131,7 +129,6 @@
     "cancel_reason": "cancel reason",
     "filter": "column filter"
   },
-
   "maintenance": {
     "update": "update maintenance level",
     "unknown": "initial value",
@@ -142,7 +139,6 @@
     "forbidden_user_mission": "Cannot accept user missions",
     "broken": "The vehicle is damaged"
   },
-
   "amr_card": {
     "delete_current_mission": "Delete mission",
     "force_delete_mission": "FOrce delete mission",
@@ -155,11 +151,9 @@
     "add_desc": "Added means this vehicle carries more than one cargo at the same time. After releasing the cargo, all cargo information will be transferred to the release point.",
     "cargo_item": "cargo Items"
   },
-
   "scale_pad": {
     "title": "Change simulate speed"
   },
-
   "change_map": {
     "view_maps": "View Maps",
     "upload_map": "Upload Map",
@@ -167,7 +161,6 @@
     "import_map": "Import locations and roads from other script",
     "no_img_found": "No image found"
   },
-
   "mode": {
     "manual_mode": "manual",
     "is_mission": "Is working",
@@ -179,7 +172,6 @@
     "isPause": "Pause",
     "unknown": "unknown"
   },
-
   "locations": {
     "none": "none",
     "charge_station": "charge station",
@@ -190,7 +182,6 @@
   "test_translation": "test translation",
   "open": "Open Drawer",
   "close": "Close Drawer",
-
   "map_tool": {
     "center_map": "back to center",
     "zoom_out": "Zoom Out",
@@ -200,7 +191,6 @@
     "road_tooltip": "Road Tooltip",
     "location_tooltip": "Road Tooltip"
   },
-
   "page_view": "View",
   "page_setting": "Setting",
   "page_dashboard": "Dashboard",
@@ -211,10 +201,13 @@
   "page_analysis": "Mission analysis",
   "page_cargo_history": "Cargo History",
   "page_amr": "Amf info",
+  "page_personal_info": "Personal Info",
+  "page_create_user": "Create User",
+  "page_change_password": "Change Password",
+
   "main_task_list": {
     "wait_suitable": "wait suitable"
   },
-
   "toolbar": {
     "location": {
       "locations": "Locations",
@@ -271,7 +264,8 @@
       "schedule_mission": "Schedule mission",
       "idle_mission": "Idle mission",
       "topic_mission": "Topic mission",
-      "abort_mission_when_has_cargo_mission": "Delete mission when there is cargo to process"
+      "abort_mission_when_has_cargo_mission": "Delete mission when there is cargo to process",
+      "blind_mission": "Blind location mission"
     },
     "peripheral": {
       "title": "Device",
@@ -283,7 +277,8 @@
       "edit_gauge": "Edit Gauge",
       "edit_tag": "Edit Tag",
       "edit_peripheral_style": "Edit peripheral style",
-      "custom_cargo_info": "custom cargo info"
+      "custom_cargo_info": "custom cargo info",
+      "container_table": "container table"
     },
     "file_setting": {
       "file_setting": "File Setting",
@@ -298,7 +293,6 @@
       "restart": "restart system"
     }
   },
-
   "sider_output_form_name": {
     "locationPanel": "Edit Location",
     "roadPanel": "Edit Road",
@@ -306,7 +300,6 @@
     "zoneTable": "Zone Table",
     "locationList": "Location List"
   },
-
   "quick_edit_location_panel": {
     "quick_edit_location_panel": "Quick Edit locations",
     "areaType": "AreaType",
@@ -317,13 +310,11 @@
     "dir_y": "y direction",
     "is_connect_road": "Auto Produce Road",
     "save": "Save",
-
     "save_pose_notify": {
       "is_a_navigate": "Location ID can't be a negative number or zero",
       "duplicate_id": "ID is duplicated with existing ID"
     }
   },
-
   "quick_edit_road_panel": {
     "title": "Quick Edit Path",
     "disabled_tooltip": "After selecting, the vehicle cannot travel this path",
@@ -335,7 +326,6 @@
     "clear_points": "Reselect",
     "error_min_spots": "at least two point"
   },
-
   "edit_location_panel": {
     "none": "normal",
     "charge_station": "charge station",
@@ -366,12 +356,10 @@
       "no_more_than_360": "No more than 360",
       "cannot_be_less_than_-360": "No less than -360"
     },
-
     "table_notify": {
       "are_you_sure": "Are you sure delete？"
     }
   },
-
   "edit_road_panel": {
     "road_table": "Road Table",
     "road": "Road",
@@ -387,7 +375,6 @@
     "end_point": "End Point",
     "add": "Add New Road",
     "priority": "Priority",
-
     "save_road_notify": {
       "warn": "road setting error",
       "warn_number_only": "Only Number",
@@ -398,13 +385,11 @@
       "road_exists": "This road already exists"
     }
   },
-
   "all_location_list_form": {
     "all_loc": "All Location",
     "stored_loc": "Stored Location",
     "tmp_loc": "Temporary Location"
   },
-
   "edit_zone_panel": {
     "start_x": "Start X",
     "start_y": "Start Y",
@@ -456,7 +441,6 @@
       "invalid_frame": "Invalid selection"
     }
   },
-
   "zone_table_form": {
     "zone_name": "Zone name",
     "start_point": "Start point",
@@ -466,7 +450,6 @@
     "layer": "Layer",
     "lidar": "Lidar"
   },
-
   "multiStyle": {
     "editX": "Edit X?",
     "editY": "Edit Y?",
@@ -480,7 +463,6 @@
     "flexDirection": "Flex Direction",
     "selectDirection": "Select direction"
   },
-
   "shelf": {
     "shelf": "Shelf",
     "load_priority": "Load priority",
@@ -543,7 +525,6 @@
       "info_error": "error read info error"
     }
   },
-
   "edit_shelf_panel": {
     "edit_shelf": "Edit Shelf",
     "category": "Category",
@@ -604,7 +585,6 @@
       "stale": "not in use"
     }
   },
-
   "import_map": {
     "title": "Import Points, Paths, and Zones from Another Script",
     "info": "This feature will copy points, paths, and zones from another script into the currently selected script. If any data already exists, it will not be overwritten.",
@@ -612,7 +592,6 @@
     "confirm_title": "Confirm Import",
     "confirm_content": "Are you sure you want to import this script? This action may overwrite existing data."
   },
-
   "charge": {
     "id": "id",
     "coreFail": "no connect",
@@ -630,16 +609,13 @@
     "mins": "mins",
     "charge": "charge",
     "disable": "disable",
-
     "updateTime": "update time",
-
     "auto_mode": "auto mode",
     "current": "current",
     "complete": "complete",
     "fault": "fault",
     "process": "process",
     "standby": "standby",
-
     "error": "error",
     "moduleCommunicationFailure": "module communication failure",
     "reverseBetterConnection": "reverse battery connection",
@@ -648,7 +624,6 @@
     "overVoltage": "over voltage",
     "overCurrent": "over current",
     "totalFault": "total fault",
-
     "other": "other",
     "infraredInPlace": "infrared in place",
     "compress": "compress",
@@ -668,7 +643,6 @@
     "full_rate_min": "Full charge threshold must be at least 70%",
     "available_min": "Available task threshold must be at least 11%",
     "submit": "Submit",
-
     "section_basic": "[01] Basic Configuration",
     "section_threshold": "[02] Threshold Settings",
     "threshold_note_title": "Note:",
@@ -677,7 +651,6 @@
     "tooltip_passive": "Battery level for passive charging mode",
     "tooltip_full": "Battery level considered fully charged",
     "tooltip_available_get_task": "Minimum battery level to accept new tasks",
-
     "model": {
       "station_id": "Station ID",
       "ip_address": "IP Address",
@@ -690,7 +663,6 @@
       "ip": "IP"
     }
   },
-
   "main": {
     "pad_view": {
       "sider": {
@@ -743,7 +715,6 @@
       "click_shelves_or_cancel": "Click the shelves in the map or press ESC to cancel"
     }
   },
-
   "mission": {
     "task_form_fork": {
       "system_title": "TASK CONFIGURATION SYSTEM v2.1",
@@ -845,7 +816,6 @@
       "wait": "Wait Time (seconds)",
       "task_operation": "operation",
       "task_fork_movement": "fork movement",
-
       "custom": "Custom",
       "select": "Auto",
       "default": "Default",
@@ -859,14 +829,12 @@
       "is_define_heigh": "Fork Height Option",
       "height": "Height",
       "level": "Level",
-
       "tolerance": "tolerance",
       "lookahead": "lookahead",
       "camera_config": "camera config",
       "camera_config_info": "This setting defines the height at which the recognition camera observes the pallet. If the camera is mounted above the forks, set it to the same height as the forks. If it's mounted below, set it to a height higher than the forks.",
       "modify_dis": "modify dis",
       "modify_dis_info": "please as FAE engineer",
-
       "by_target_shelf_setting": "by target shelf setting",
       "calculate_by_agv_and_shelf_angle": "calculate by agv shelf angle",
       "has_cargo_to_process": "Shelf Status",
@@ -900,7 +868,6 @@
       "location_required": "Please select a location.",
       "wait_other_amr_required": "Please select a robot to wait for.",
       "wait_genre_required": "Please select a wait genre.",
-
       "is_custom_location": "Location Selection Mode",
       "location_tooltip": "Choose how to set the location: 'Custom' lets you enter a specific location ID, 'Auto' uses the location from a fast-mission, and 'Auto (Idle Charge Station)' finds an available charging station.",
       "location_custom": "Custom (Enter Location ID)",
@@ -909,14 +876,11 @@
       "location_select_desc": "Automatically sets the location based on the fast-mission.",
       "location_charge_station": "Auto (Idle Charge Station)",
       "location_charge_station_desc": "Automatically finds an available charging station.",
-
       "level_title": "Level Setting",
       "custom_level": "Custom（enter shelf level）",
       "level_select": "Auto（Fast Mission）",
-
       "back_to_load_place": "Auto (back to load prepare point)",
       "back_to_load_place_desc": "back to load prepare point",
-
       "prepare_point": "Auto (Prepare Point)",
       "prepare_point_desc": "Automatically finds an prepare point",
       "is_custom_yaw": "Yaw Selection Mode",
@@ -930,7 +894,6 @@
       "yaw_required": "Please enter the yaw angle.",
       "yaw_range": "Yaw must be between -180 and 180 degrees."
     },
-
     "task_table_human_robot": {
       "sort": "Sort",
       "status": "Status",
@@ -946,7 +909,6 @@
       "offload": "offload",
       "upper_control": "Upper Control"
     },
-
     "charge_mission": {
       "charge_mission": "Charge mission",
       "executing": "Execution",
@@ -980,7 +942,6 @@
       "executing": "Execution",
       "stale": "Stale"
     },
-
     "schedule_mission": {
       "schedule_mission": "Schedule mission",
       "car": "Car",
@@ -1086,7 +1047,6 @@
       }
     }
   },
-
   "other": {
     "edit_mission_tag": {
       "title": "Edit mission tag",
@@ -1121,7 +1081,6 @@
       "error_message": "Unable to update. Please contact FAE engineer"
     }
   },
-
   "file": {
     "warning_list": {
       "warning_table": "Warning Table",
@@ -1140,7 +1099,6 @@
       "genre_name_ch": "Genre(chinese)",
       "genre_name_en": "Genre(english)",
       "add_new_genre": "Add New Genre",
-
       "id_duplicate_warn": "this warning ID is duplicate, please change"
     },
     "backup_file": {
@@ -1152,7 +1110,6 @@
       "restore_warn": "Confirm to restore this record, please turn off all vehicles, delete all tasks before executing, the system will restart"
     }
   },
-
   "car_control_translate": {
     "cargo_limit": "Cargo limit",
     "move": "move",
@@ -1172,7 +1129,6 @@
     "W": "wait",
     "verity_cargo": "verity cargo via camera"
   },
-
   "customCargo": {
     "warn": "WARN !!",
     "create": "Create Format",
@@ -1189,13 +1145,11 @@
     "load_height": "Height at pickup time",
     "tray_size": "Stack size"
   },
-
   "sim": {
     "add_car": "Add car",
     "start_sim": "Start simulate",
     "stop_sim": "Stop simulate",
     "reset_sim": "Reset simulate",
-
     "timeline": {
       "name": "Name",
       "location": "Location",
@@ -1215,7 +1169,6 @@
       "disabled": "DISABLED",
       "unknown": "UNKNOWN"
     },
-
     "table_schedule": {
       "title": "Table Schedule",
       "detail": "Details",
@@ -1225,16 +1178,13 @@
       "shift_cargo": "🔄 Transfer cargo",
       "add_range_event": "Add a new range event",
       "range_time_event": "Range time event",
-
       "fixed_event": "Fixed event"
     },
-
     "range_table": {
       "range": "range",
       "gap_time": "Interval time (minutes)",
       "activeTimes": "event active times"
     },
-
     "spawn_cargo_modal": {
       "title": "Spawn Cargo",
       "time": "Time",
@@ -1260,7 +1210,6 @@
       "updated": "Updated successfully",
       "required": "This field is required"
     },
-
     "spawn_cargo_group": {
       "add": "Add Spawn Cargo Random By Group",
       "insert_random_spawn_cargo_group": "Insert Random Spawn Cargo Group",
@@ -1275,7 +1224,6 @@
       "range": "range",
       "spawn_group": "Spawn cargo at group"
     },
-
     "shift_cargo_group": {
       "add": "Add Shift Cargo Random By Group",
       "insert_random_shift_cargo_group": "Insert Random Shift Cargo Group",
@@ -1290,12 +1238,10 @@
       "range": "range",
       "shift_group": "Shift cargo at group"
     },
-
     "dynamic_mission_group": {
       "mission_group": "Mission group",
       "range": "range"
     },
-
     "shift_cargo_modal": {
       "title": "Shift Cargo",
       "time": "Time",
@@ -1307,7 +1253,6 @@
       "update": "Update",
       "required": "This field is required"
     },
-
     "insert_modal": {
       "mission": "Mission",
       "spawn_cargo": "SPAWN cargo",
@@ -1319,10 +1264,8 @@
       "edit_title": "Edit Task Event",
       "amr": "Vehicle",
       "priority": "Priority",
-
       "type": "Mission type",
       "type_dynamic": "Dynamic",
-
       "type_normal": "Normal Task",
       "type_notify": "Notify Task",
       "normal_mission": "Select Normal Task",
@@ -1439,7 +1382,6 @@
       "no_scripts": "No scripts available",
       "error_loading": "Failed to load scripts"
     },
-
     "start_sim_modal": {
       "inactive_sim": "Stop simulate",
       "active_sim": "Start simulation",
@@ -1458,7 +1400,6 @@
       "current_time": "Current Time",
       "start_mock_info": "Unable to start the simulation? First, set the vehicle information on the map in the simulation page."
     },
-
     "results": {
       "title": "Simulation results",
       "duration": "Simulation duration",
@@ -1483,7 +1424,6 @@
         "carried": "carried"
       }
     },
-
     "conveyor": {
       "title": "Warehouse Control System Settings",
       "card_title": "Conveyor Station Activation",
@@ -1607,6 +1547,7 @@
     "hide_manual": "Hide Manual Operation",
     "reset": "Reset",
     "update_position": "sync with QAMS locations and road",
+    "force_shutdown": "force shutdown",
     "force_to_standby": "force machine to standby",
     "stop": "Stop",
     "continue": "Continue",
@@ -1625,11 +1566,9 @@
     "io": "IO information",
     "no_io": "No IO information"
   },
-
   "peripheral_style": {
     "areaType": "地點功能"
   },
-
   "peripheral_name_table": {
     "locationId": "Location ID",
     "type": "Type",
@@ -1681,40 +1620,33 @@
   },
   "mission_reject_reason": {
     "title": "Mission Assignment Rejection Reasons",
-
     "cat1": "Priority & Queue Issues",
     "cat1_1": "Higher priority mission exists in queue",
     "cat1_2": "Another pending mission has an earlier order number",
     "cat1_3": "System processes missions in priority order",
-
     "cat2": "AGV Availability Issues",
     "cat2_1": "No suitable AGV available",
     "cat2_2": "No AGV found that can handle this mission",
     "cat2_3": "All AGVs are busy or unavailable",
     "cat2_4": "Specified AGVs are not available (offline, busy, or unregistered)",
-
     "cat3": "AGV Maintenance Issues",
     "cat3_1": "AGV maintenance level blocks this mission type",
     "cat3_2": "None of the specified AGVs pass maintenance check",
-
     "cat4": "Path & Navigation Issues",
     "cat4_1": "Path verification failed",
     "cat4_2": "Path contains invalid or non-existent location(s)",
     "cat4_3": "Travel time estimation failed",
     "cat4_4": "No valid path between start and destination",
     "cat4_5": "AGV path is blocked by cargo or bookings",
-
     "cat5": "AGV State Issues",
     "cat5_1": "AGV status or payload is unavailable",
     "cat5_2": "AGV is in manual mode",
     "cat5_3": "AGV is not registered",
     "cat5_4": "AGV is already executing another mission",
-
     "cat6": "Mission State Issues",
     "cat6_1": "Mission has already been completed",
     "cat6_2": "Mission has already been assigned",
     "cat6_3": "AGV at charging station requires exit clearance",
-
     "cat7": "Mission Compatibility Issues",
     "cat7_1": "AGV has cargo and cannot proceed to charging station",
     "cat7_2": "Mission requires a different AGV"
@@ -1870,5 +1802,15 @@
   },
   "stack": {
     "edit_config_title": "Edit stack config"
+  },
+  "blind_location": {
+    "title": "Blind location mission",
+    "locationId": "locationId",
+    "location_name": "location name",
+    "mission": "mission"
+  },
+  "container_table": {
+    "title": "Current Cargo Information at Locations",
+    "container_info": "container info"
   }
 }
