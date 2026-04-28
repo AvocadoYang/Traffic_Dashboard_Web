@@ -89,7 +89,7 @@ const LoginTitle = styled.h1`
 `;
 
 const SystemLabel = styled.div`
-  ${titleSizes.small};
+  ${titleSizes.xxs};
   color: ${font.color.gray};
 `;
 

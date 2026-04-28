@@ -103,12 +103,12 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
           />
         }
         <Flex gap="middle" align="center">
-          {location.pathname === "/" && <MissionBtn />}
-          <SimControl
+          {/* {location.pathname === "/" && <MissionBtn />} */}
+          {/* <SimControl
             isSimulating={!!script?.isSimulate}
             onStart={() => setIsSimulateOpen(true)}
             onStop={handleAbortSim}
-          />
+          /> */}
           <LanguageSelect onChange={handleLanguageChange} />
           <UserMenu username={username} onMenuClick={handleUserMenuClick} />
         </Flex>
