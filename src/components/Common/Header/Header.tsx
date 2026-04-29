@@ -1,11 +1,24 @@
 import { Layout, Flex } from "antd";
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  FaMap,
+  FaTruck,
+  FaBox,
+  FaCog,
+  FaPlayCircle,
+  FaChartBar,
+  FaExclamationTriangle,
+  FaUser,
+  FaUserPlus,
+  FaKey,
+} from "react-icons/fa";
+import { NavItem } from "@/types/Common/nav";
 import styled from "styled-components";
 import MissionBtn from "@/pages/Main/components/WebView/components/MissionBtn";
 import StartSimModal from "@/pages/SimulateResult/StartSimModal";
 import { useHeader } from "./UseHeader";
-import { Nav, Hamburger } from "@/components/Common/Header/Nav";
+import { Nav } from "@/components/Common/Header/Nav";
 import SimControl from "./SimControl";
 import LanguageSelect from "./LanguageSelect";
 import UserMenu from "./UserMenu";
@@ -55,52 +68,92 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
     handleMenuClick, handleLanguageChange, handleUserMenuClick,
   } = useHeader();
 
-  type NavItem = {
-    key: number;
-    label: string;
-    children?: { key: number; label: string }[];
-  };
-
-  const NavItems: NavItem[] = [
-    t("page_view"), t("page_amr"), t("page_cargo_history"),
-    t("page_setting"), t("page_simulate"),
-    t("page_simulate_result"), t("page_record"),
-  ].map((label, i) => ({ key: i + 1, label })).concat({
-    key: 8,
+ const NavItems: NavItem[] = [
+  {
+    key: "1",
+    label: t("page_view"),
+    icon: <FaMap size={16} />,
+  },
+  {
+    key: "2",
+    label: t("page_amr"),
+    icon: <FaTruck size={16} />,
+  },
+  {
+    key: "3",
+    label: t("page_cargo_history"),
+    icon: <FaBox size={16} />,
+  },
+  {
+    key: "4",
+    label: t("page_setting"),
+    icon: <FaCog size={16} />,
+  },
+  {
+    key: "5",
+    label: t("page_simulate"),
+    icon: <FaPlayCircle size={16} />,
+  },
+  {
+    key: "6",
+    label: t("page_simulate_result"),
+    icon: <FaChartBar size={16} />,
+  },
+  {
+    key: "7",
+    label: t("page_record"),
+    icon: <FaExclamationTriangle size={16} />,
+  },
+  {
+    key: "8",
     label: t("page_personal_info"),
+    icon: <FaUser size={16} />,
     children: [
-      { key: 81, label: t("page_create_user") },
-      { key: 82, label: t("page_change_password") },
+      {
+        key: "81",
+        label: t("page_create_user"),
+        icon: <FaUserPlus size={14} />,
+      },
+      {
+        key: "82",
+        label: t("page_change_password"),
+        icon: <FaKey size={14} />,
+      },
     ],
-  });
+  },
+];
 
-  return ( 
+  return (
     <>
       {contextHolder}
       <StyledHeader>
-        <Logo src={logo} onClick={() => navigate("/")} />
-        {isMobile ? (
-          <Hamburger
-            items={NavItems}
-            onMenuClick={handleMenuClick}
-            drawerOpen={drawerOpen}
-            setDrawerOpen={setDrawerOpen}
-          />
-        ) : (
+        <Flex gap="small" align="center">
           <Nav
             items={NavItems}
             onClick={handleMenuClick}
+            drawerOpen={drawerOpen}
+            setDrawerOpen={setDrawerOpen}
           />
-        )}
-        <Flex gap="middle" align="center">
-          {/* {location.pathname === "/" && <MissionBtn />}
+
+          <Logo src={logo} onClick={() => navigate("/")} />
+        </Flex>
+
+        <Flex gap="middle" align="center" style={{ flex: 1, justifyContent: "center" }}>
+          {location.pathname === "/" && <MissionBtn />}
           <SimControl
             isSimulating={!!script?.isSimulate}
             onStart={() => setIsSimulateOpen(true)}
             onStop={handleAbortSim}
-          />  */}
-          {/* <LanguageSelect onChange={handleLanguageChange} /> */}
-          <UserMenu username={username} onMenuClick={handleUserMenuClick} />
+          />
+        </Flex>
+
+
+        <Flex gap="middle" align="center">
+          <LanguageSelect onChange={handleLanguageChange} />
+          <UserMenu
+            username={username}
+            onMenuClick={handleUserMenuClick}
+          />
         </Flex>
       </StyledHeader>
 
@@ -117,6 +170,6 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
       <CreateUserModel open={openCreateUser} setOpen={setOpenCreateUser} />
     </>
   );
-}; 
+};
 
 export default memo(Header);
