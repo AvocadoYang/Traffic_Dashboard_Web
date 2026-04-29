@@ -20,6 +20,7 @@ import {
   useXY,
   useMaintenanceStatus,
   useSpeed,
+  MaintenanceLevel,
 } from "@/sockets/useAMRInfo";
 import { useTranslation } from "react-i18next";
 import {
@@ -472,8 +473,17 @@ const RoadStatue: React.FC<{ amrId: string }> = ({ amrId }) => {
 };
 
 const MaintenanceStatue: React.FC<{ amrId: string }> = ({ amrId }) => {
-  const status = useMaintenanceStatus(amrId);
-  return <RoadStyle style={{ color: "#585757" }}>{status.status}</RoadStyle>;
+  const { status, level } = useMaintenanceStatus(amrId);
+
+  // Use a specific color for non-normal levels, otherwise fall back to default
+  const isNormal = level === MaintenanceLevel.NORMAL || level === undefined;
+  const textColor = isNormal ? "#585757" : "#cf1322"; // e.g., using a red-like shade for warnings
+
+  return (
+    <RoadStyle style={{ color: textColor, fontWeight: isNormal ? 400 : 600 }}>
+      {status}
+    </RoadStyle>
+  );
 };
 
 export const RowFourth: React.FC<{ isDark: boolean; amrId: string }> = memo(

@@ -771,6 +771,7 @@ export const useAmrStatus = (amrId: string) => {
 
 export const useMaintenanceStatus = (amrId: string) => {
   const [status, setStatus] = useState<string>("");
+  const [level, setLevel] = useState<MaintenanceLevel | undefined>(undefined);
   const { t } = useTranslation();
 
   const translateMaintenance = (value: MaintenanceLevel | undefined) => {
@@ -800,26 +801,18 @@ export const useMaintenanceStatus = (amrId: string) => {
       filter(isDefined),
       share(),
     );
-    const battery$ = maintenance$
-      .pipe(
-        map((info) => {
-          const { maintenanceLevel } = info;
-          return translateMaintenance(maintenanceLevel);
-        }),
-        distinctUntilChanged(
-          (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
-        ),
-      )
-      .subscribe((info) => {
-        setStatus(info);
-      });
+
+    const subscription = maintenance$.subscribe((info) => {
+      setStatus(translateMaintenance(info.maintenanceLevel));
+      setLevel(info.maintenanceLevel);
+    });
 
     return () => {
-      battery$.unsubscribe();
+      subscription.unsubscribe();
     };
   }, [amrId]);
 
-  return { status };
+  return { status, level }; // Return level here
 };
 
 export const useIsWorking = (amrId: string) => {

@@ -20,6 +20,7 @@ import {
   ThunderboltOutlined,
 } from "@ant-design/icons";
 import {
+  MaintenanceLevel,
   useAMRAllIO,
   useAmrDetail,
   useAmrPose,
@@ -344,13 +345,16 @@ const AmrDetail = () => {
                   </>
                 }
               >
-                <Text>
-                  {maintenance && typeof maintenance === "object"
-                    ? maintenance.status || JSON.stringify(maintenance)
-                    : maintenance
-                      ? String(maintenance)
-                      : "-"}
-                </Text>
+                <IndustrialTag
+                  color={
+                    maintenance.level !== undefined &&
+                    maintenance.level !== MaintenanceLevel.NORMAL
+                      ? "volcano"
+                      : "default"
+                  }
+                >
+                  {maintenance.status || "-"}
+                </IndustrialTag>
               </Descriptions.Item>
             </IndustrialDescriptions>
 
@@ -498,7 +502,7 @@ const AmrDetail = () => {
                     </b>
                     <div>{t("amr_detail.no_metadata")}</div>
                   </div>
-                )
+                ),
               )
             : t("amr_detail.no_metadata")}
         </pre>
