@@ -1,30 +1,35 @@
 import client from "@/api/axiosClient";
-import { ErrorResponse } from "@/utils/globalType";
-import { errorHandler } from "@/utils/utils";
-import { useMutation } from "@tanstack/react-query";
-import { Button, Form, Input, message, Modal, Space } from "antd";
+import styled from "styled-components";
 import { Dispatch, FC, SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
-import styled from "styled-components";
+import { useMutation } from "@tanstack/react-query";
+import { Button, Form, Input, message, Modal, Space } from "antd";
 import { LockOutlined } from "@ant-design/icons";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
+import { font } from "@/styles/variables";
+// import { buttonVariants } from "@/styles/mixins";
+import { useFontFamily } from "@/hooks/useFontFamily";
+// import { DefaultButton, PrimaryButton, DangerButton, GhostButton } from "@/styles/mixins";
 
-const IndustrialModal = styled(Modal)`
+
+const IndustrialModal = styled(Modal) <{ $fontFamily: string }>`
   .ant-modal-content {
-    background: #f5f5f5;
-    font-family: "Roboto Mono", monospace;
+    background: ${font.color.bg_gray};
+    font-family: ${({ $fontFamily }) => $fontFamily};
   }
 
   .ant-modal-header {
     background: #ffffff;
-    border-bottom: 2px solid #1890ff;
+    border-bottom: 2px solid ${font.color.blue};
     padding: 16px 24px;
   }
 
   .ant-modal-title {
-    color: #1890ff;
-    font-family: "Roboto Mono", monospace;
-    font-weight: 600;
-    font-size: 13px;
+    color: ${font.color.blue};
+    font-family: ${({ $fontFamily }) => $fontFamily};
+    font-weight: ${font.weight.bold};
+    font-size: ${font.size.xxl};
     text-transform: uppercase;
     letter-spacing: 1px;
     display: flex;
@@ -34,79 +39,76 @@ const IndustrialModal = styled(Modal)`
 
   .ant-modal-body {
     padding: 24px;
-    background: #f5f5f5;
+    background: ${font.color.bg_gray};
   }
 
   .ant-form-item-label > label {
-    font-family: "Roboto Mono", monospace;
-    font-size: 11px;
+    font-family: ${({ $fontFamily }) => $fontFamily};
+    font-size: ${font.size.xl};
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: #595959;
-    font-weight: 600;
+    color: ${font.color.gray};
+    font-weight: ${font.weight.semibold};
   }
 
   .ant-input,
   .ant-select-selector,
   .ant-input-password {
-    font-family: "Roboto Mono", monospace;
-    border: 1px solid #d9d9d9;
+    font-family: ${({ $fontFamily }) => $fontFamily};
+    border: 1px solid ${font.color.white};
 
-    &:hover {
-      border-color: #1890ff;
-    }
+    &:hover { border-color: ${font.color.blue}; }
 
     &:focus {
-      border-color: #1890ff;
+      border-color: ${font.color.blue};
       box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
     }
   }
 
   .ant-input-affix-wrapper {
-    font-family: "Roboto Mono", monospace;
-    border: 1px solid #d9d9d9;
+    font-family: ${({ $fontFamily }) => $fontFamily};
+    border: 1px solid ${font.color.white};
 
-    &:hover {
-      border-color: #1890ff;
-    }
+    &:hover { border-color: ${font.color.blue}; }
 
     &.ant-input-affix-wrapper-focused {
-      border-color: #1890ff;
+      border-color: ${font.color.blue};
       box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
     }
   }
 `;
 
-const IndustrialButton = styled(Button)`
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  color: #595959;
-  font-family: "Roboto Mono", monospace;
-  text-transform: uppercase;
-  font-size: 11px;
-  letter-spacing: 1px;
-  height: 36px;
-  font-weight: 600;
+// 按鈕樣式
+// const IndustrialButton = styled(Button) <{ $fontFamily: string }>`
+//   background:${font.color.bg_white_1};;
+//   border: 1px solid ${font.color.white};
+//   color: ${font.color.gray};
+//   font-family: ${({ $fontFamily }) => $fontFamily};
+//   text-transform: uppercase;
+//   font-size: ${font.size.xl};
+//   height: 40px;
+//   font-weight: ${font.weight.semibold};
+//   gap: 8px;
 
-  &:hover {
-    background: #fafafa;
-    border-color: #8c8c8c;
-    color: #262626;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
+//   &:hover {
+//     background: ${font.color.bg_white_2};
+//     border-color: ${font.color.border_gray_1};
+//     color: ${font.color.black};
+//     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+//   }
 
-  &.primary {
-    background: #1890ff;
-    border-color: #1890ff;
-    color: #ffffff;
+//   &.primary {
+//     background: ${font.color.blue};
+//     border-color: ${font.color.blue};
+//     color: ${font.color.bg_white_1};
 
-    &:hover {
-      background: #40a9ff;
-      border-color: #40a9ff;
-      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
-    }
-  }
-`;
+//     &:hover {
+//       background: ${font.color.bg_blue};
+//       border-color: ${font.color.blue};
+//       box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
+//     }
+//   }
+// `;
 
 const ChangePasswordModal: FC<{
   open: boolean;
@@ -115,6 +117,7 @@ const ChangePasswordModal: FC<{
   const [messageApi, contextHolder] = message.useMessage();
   const { t } = useTranslation();
   const [form] = Form.useForm();
+  const fontFamily = useFontFamily();
 
   const cMutation = useMutation({
     mutationFn: (data: { oldPassword: string; newPassword: string }) =>
@@ -150,6 +153,7 @@ const ChangePasswordModal: FC<{
       {contextHolder}
       <IndustrialModal
         open
+        $fontFamily={fontFamily}  // ← 傳入字體
         title={
           <>
             <LockOutlined /> {t("changePassword.title", "CHANGE PASSWORD")}
@@ -173,10 +177,7 @@ const ChangePasswordModal: FC<{
             name="newPassword"
             rules={[
               { required: true, message: t("utils.required") },
-              {
-                min: 6,
-                message: t("utils.passwordMin", "At least 6 characters"),
-              },
+              { min: 6, message: t("utils.passwordMin", "At least 6 characters") },
             ]}
           >
             <Input.Password />
@@ -194,12 +195,7 @@ const ChangePasswordModal: FC<{
                     return Promise.resolve();
                   }
                   return Promise.reject(
-                    new Error(
-                      t(
-                        "changePassword.passwordNotMatch",
-                        "Passwords do not match"
-                      )
-                    )
+                    new Error(t("changePassword.passwordNotMatch", "Passwords do not match"))
                   );
                 },
               }),
@@ -208,18 +204,32 @@ const ChangePasswordModal: FC<{
             <Input.Password />
           </Form.Item>
 
-          <Form.Item>
+          {/* <Form.Item>
             <Space style={{ width: "100%", justifyContent: "flex-end" }}>
-              <IndustrialButton onClick={handleClose}>
+              <IndustrialButton $fontFamily={fontFamily} onClick={handleClose}>
                 {t("utils.cancel", "CANCEL")}
               </IndustrialButton>
               <IndustrialButton
+                $fontFamily={fontFamily}
                 className="primary"
                 htmlType="submit"
                 loading={cMutation.isPending}
               >
                 {t("utils.confirm", "CONFIRM")}
               </IndustrialButton>
+            </Space>
+          </Form.Item> */}
+          <Form.Item>
+            <Space style={{ width: "100%", justifyContent: "flex-end" }}>
+              {/* <DefaultButton onClick={handleClose}>
+                {t("utils.cancel", "CANCEL")}
+              </DefaultButton>
+              <PrimaryButton
+                htmlType="submit"
+                loading={cMutation.isPending}
+              >
+                {t("utils.confirm", "CONFIRM")}
+              </PrimaryButton> */}
             </Space>
           </Form.Item>
         </Form>

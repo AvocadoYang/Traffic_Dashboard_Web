@@ -7,7 +7,7 @@ import {
   QuickMissionOffload,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
-} from "@/pages/Main/global/jotai";
+} from "@/jotai.ts";
 
 const pulse = keyframes`
   0% {
