@@ -678,8 +678,10 @@ const MapManager: FC = () => {
         open={openSwitchMap}
         onClose={() => setOpenSwitchMap(false)}
       >
-        <Header>
-          <Title>
+        {/* <Header>
+          
+        </Header> */}
+        <Title>
             <PictureOutlined />
             {t("map_manager.title")}
           </Title>
@@ -687,7 +689,6 @@ const MapManager: FC = () => {
             icon={<CloseOutlined />}
             onClick={() => setOpenSwitchMap(false)}
           />
-        </Header>
 
         <Content>
           {/* Upload Section */}

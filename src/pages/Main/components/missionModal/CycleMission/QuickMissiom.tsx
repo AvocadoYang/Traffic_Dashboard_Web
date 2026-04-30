@@ -1,7 +1,7 @@
 import { Button, Form, message, Modal, Radio, Select, Tag } from "antd";
 import { useAtom } from "jotai";
 import { useTranslation } from "react-i18next";
-import { OpenQuickMission } from "../../../global/jotai";
+import { OpenQuickMission } from "../../../../../jotai.ts/index.js";
 import useName from "@/api/useAmrName";
 import { useEffect, useMemo, useState } from "react";
 import useShelvesInfo from "@/api/useShelvesInfo";
