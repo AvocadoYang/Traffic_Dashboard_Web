@@ -16,7 +16,6 @@ import {
 import { NavItem } from "@/types/Common/Nav";
 import styled from "styled-components";
 import MissionBtn from "@/components/Main/Mission/MissionBtn";
-import BottomNav from "@/components/Main/Mission/MissionBtn";
 import StartSimModal from "@/pages/SimulateResult/StartSimModal";
 import { useHeader } from "./UseHeader";
 import { Nav } from "@/components/Common/Nav";
@@ -151,7 +150,7 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
 
 
         <Flex gap="middle" align="center">
-          <LanguageSelect onChange={handleLanguageChange} />
+          <LanguageSelect onChange={handleLanguageChange} isMobile={isMobile} />
           <UserMenu
             username={username}
             onMenuClick={handleUserMenuClick}
