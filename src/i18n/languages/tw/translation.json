@@ -209,6 +209,9 @@
   "page_analysis": "任務統計",
   "page_cargo_history": "貨物紀錄",
   "page_amr": "車輛資訊",
+  "page_personal_info": "個人資訊",
+  "page_create_user": "建立用戶",
+  "page_change_password": "修改密碼",
 
   "main_task_list": {
     "wait_suitable": "等待適合"

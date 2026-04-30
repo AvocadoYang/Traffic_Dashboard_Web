@@ -1,4 +1,4 @@
-import { OpenChargeStationModal } from "@/pages/Main/global/jotai";
+import { OpenChargeStationModal } from "@/jotai.ts";
 import {
   ECSM,
   IsEditingQuickRoads,
