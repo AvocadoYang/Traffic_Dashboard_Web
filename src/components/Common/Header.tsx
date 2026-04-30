@@ -69,60 +69,60 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
     handleMenuClick, handleLanguageChange, handleUserMenuClick,
   } = useHeader();
 
- const NavItems: NavItem[] = [
-  {
-    key: "1",
-    label: t("page_view"),
-    icon: <FaMap size={16} />,
-  },
-  {
-    key: "2",
-    label: t("page_amr"),
-    icon: <FaTruck size={16} />,
-  },
-  {
-    key: "3",
-    label: t("page_cargo_history"),
-    icon: <FaBox size={16} />,
-  },
-  {
-    key: "4",
-    label: t("page_setting"),
-    icon: <FaCog size={16} />,
-  },
-  {
-    key: "5",
-    label: t("page_simulate"),
-    icon: <FaPlayCircle size={16} />,
-  },
-  {
-    key: "6",
-    label: t("page_simulate_result"),
-    icon: <FaChartBar size={16} />,
-  },
-  {
-    key: "7",
-    label: t("page_record"),
-    icon: <FaExclamationTriangle size={16} />,
-  },
-  {
-    key: "8",
-    label: t("page_personal_info"),
-    icon: <FaUser size={16} />,
-    children: [
-      {
-        key: "81",
-        label: t("page_create_user"),
-        icon: <FaUserPlus size={14} />,
-      },
-      {
-        key: "82",
-        label: t("page_change_password"),
-        icon: <FaKey size={14} />,
-      },
-    ],
-  },
-];
+  const NavItems: NavItem[] = [
+    {
+      key: "1",
+      label: t("page_view"),
+      icon: <FaMap size={16} />,
+    },
+    {
+      key: "2",
+      label: t("page_amr"),
+      icon: <FaTruck size={16} />,
+    },
+    {
+      key: "3",
+      label: t("page_cargo_history"),
+      icon: <FaBox size={16} />,
+    },
+    {
+      key: "4",
+      label: t("page_setting"),
+      icon: <FaCog size={16} />,
+    },
+    {
+      key: "5",
+      label: t("page_simulate"),
+      icon: <FaPlayCircle size={16} />,
+    },
+    {
+      key: "6",
+      label: t("page_simulate_result"),
+      icon: <FaChartBar size={16} />,
+    },
+    {
+      key: "7",
+      label: t("page_record"),
+      icon: <FaExclamationTriangle size={16} />,
+    },
+    {
+      key: "8",
+      label: t("page_personal_info"),
+      icon: <FaUser size={16} />,
+      children: [
+        {
+          key: "81",
+          label: t("page_create_user"),
+          icon: <FaUserPlus size={14} />,
+        },
+        {
+          key: "82",
+          label: t("page_change_password"),
+          icon: <FaKey size={14} />,
+        },
+      ],
+    },
+  ];
 
   return (
     <>
@@ -140,12 +140,13 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
         </Flex>
 
         <Flex gap="middle" align="center" style={{ flex: 1, justifyContent: "center" }}>
-          {location.pathname === "/" && <MissionBtn />}
-          <SimControl
-            isSimulating={!!script?.isSimulate}
-            onStart={() => setIsSimulateOpen(true)}
-            onStop={handleAbortSim}
-          />
+          {location.pathname === "/" && (
+            <MissionBtn
+              isSimulating={!!script?.isSimulate}
+              onStart={() => setIsSimulateOpen(true)}
+              onStop={handleAbortSim}
+            />
+          )}
         </Flex>
 
 

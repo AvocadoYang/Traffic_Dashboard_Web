@@ -1,0 +1,129 @@
+.demo-logo {
+  background-image: url("../../assets/kenmec_without_background.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  height: 100%;
+  width: 8%;
+  cursor: pointer;
+  background-position: center;
+}
+
+.light-mode-icon,
+.dark-mode-icon {
+  color: blue;
+  text-align: center;
+  font-size: 150%;
+  margin-top: 5px;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.light-mode-icon svg {
+  fill: rgb(248, 232, 7);
+}
+
+@media (max-width: 767px) {
+  .demo-logo {
+    width: 30%;
+  }
+}
+
+@media (min-width: 767px) {
+}
+.custom-header {
+  /* background-color: rgba(240, 202, 167, 0.925); */
+  background-color: #f5f5f5;
+  /* background-color: #fff7eb; */
+  border-radius: 0 0 2px 2px;
+  /* border-bottom: 1.5px solid gainsboro; */
+}
+
+.dark-mode {
+  background-color: #262626;
+}
+
+.custom-header > ul {
+  background-color: #f5f5f5;
+}
+
+.dark-mode > ul {
+  background-color: #262626;
+}
+
+.custom-header span {
+  color: rgb(34, 31, 31) !important;
+  font-weight: bold;
+}
+
+.alert-icon span {
+  color: rgb(255, 255, 255) !important;
+}
+
+.shake-icon {
+  animation: move 3s 0s infinite;
+  -webkit-animation: move 3s 0s infinite;
+  transform-origin: bottom;
+  -webkit-transform-origin: bottom;
+}
+
+@keyframes move {
+  0%,
+  65% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  70% {
+    -webkit-transform: rotate(6deg);
+    transform: rotate(6deg);
+  }
+
+  75% {
+    -webkit-transform: rotate(-6deg);
+    transform: rotate(-6deg);
+  }
+
+  80% {
+    -webkit-transform: rotate(6deg);
+    transform: rotate(6deg);
+  }
+
+  85% {
+    -webkit-transform: rotate(-6deg);
+    transform: rotate(-6deg);
+  }
+
+  90% {
+    -webkit-transform: rotate(6deg);
+    transform: rotate(6deg);
+  }
+
+  95% {
+    -webkit-transform: rotate(-6deg);
+    transform: rotate(-6deg);
+  }
+
+  100% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+}
+
+.dark-mode span {
+  color: rgb(236, 236, 236) !important;
+  font-weight: bold;
+}
+
+.custom-header span:hover {
+  color: rgb(9, 115, 253) !important;
+  font-weight: bold;
+}
+
+.select-lang span {
+  color: rgb(34, 31, 31) !important;
+  font-weight: bold;
+}
+
+/* .custom-header svg {
+  fill: rgb(29, 83, 246);
+} */
