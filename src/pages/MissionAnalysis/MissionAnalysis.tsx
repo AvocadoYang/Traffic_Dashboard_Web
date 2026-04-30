@@ -1,5 +1,5 @@
 //import AMRPerformance from './AMRPerformance';
-import Header from "@/components/Common/Header/Header";
+import Header from "@/components/Common/Header";
 import { Layout } from "antd";
 import { BatteryUsageChart } from "./BatteryUsageChart";
 import ChartsOverview from "./ChartsOverview";

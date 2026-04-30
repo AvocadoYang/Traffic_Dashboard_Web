@@ -9,7 +9,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import CarCardWrap from "../../../../components/Main/Car/CardWrap";
 import { centerMap, darkMode, Scale } from "@/utils/gloable";
 import MissionWrap from "../../Mission_Card/MissionWrap";
-import MissionBtn from "./components/MissionBtn";
+// import MissionBtn from "../../../../components/Common/MissionBtn";
 import CorningTest from "./components/CorningTest";
 import ElevatorIO from "./components/ElevatorIO";
 import TestBarcode from "./components/TestBarcode";

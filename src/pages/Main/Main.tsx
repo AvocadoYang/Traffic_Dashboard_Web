@@ -34,9 +34,8 @@
 import React from "react";
 import { Layout } from "antd";
 import WebView from "./components/WebView/WebView";
-import Header from "../../components/Header";
 import "./components/PadViwe/style.css";
-import PadView from "./components/PadViwe/PadView";
+// import PadView from "./components/PadViwe/PadView";
 import { useIsMobile } from "@/hooks/useIsMoblie";
 
 const Main: React.FC = () => {
@@ -45,7 +44,7 @@ const Main: React.FC = () => {
     <Layout style={{ height: isMobile ? "100dvh" : "100%" }}>
       {isMobile ? (
         <Layout style={{ height: "100%" }}>
-          <PadView />
+          {/* <PadView /> */}
         </Layout>
       ) : (
         <WebView />

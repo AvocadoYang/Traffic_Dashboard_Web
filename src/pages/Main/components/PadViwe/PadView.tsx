@@ -1,8 +1,8 @@
-import PadSider from "./components/PadSider";
+// import PadSider from "./components/PadSider";
 import PadContent from "./components/PadContent";
 import { memo } from "react";
 import { useAtomValue } from "jotai";
-import { Open2DMap } from "../../jotai.ts";
+// import { Open2DMap } from "../../jotai.ts";
 import PadMapContent from "./components/PadMapContent/PadMapContent";
 const PadView = () => {
   const open2DMap = useAtomValue(Open2DMap);
@@ -12,7 +12,7 @@ const PadView = () => {
         <PadMapContent></PadMapContent>
       ) : (
         <>
-          <PadSider></PadSider>
+          {/* <PadSider></PadSider> */}
           <PadContent></PadContent>
         </>
       )}
