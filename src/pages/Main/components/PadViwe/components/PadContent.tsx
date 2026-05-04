@@ -2,7 +2,7 @@ import {
   OpenCarCardInfo,
   OpenMissionCardInfo,
   viewBtn,
-} from "@/pages/Main/jotai.ts";
+} from "@/jotai.ts";
 import { Layout } from "antd";
 import { useAtom, useAtomValue } from "jotai";
 import CardWrap from "./PadContentCards/CardWrap";

@@ -16,7 +16,7 @@ import {
   QuickMissionOffload,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
-} from "../../jotai.ts";
+} from "../../../../jotai.ts/index.js";
 import styled, { keyframes, css } from "styled-components";
 import { useMutation } from "@tanstack/react-query";
 import client from "@/api/axiosClient";

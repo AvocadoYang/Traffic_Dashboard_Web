@@ -3,7 +3,7 @@ import "../../style.css";
 import { RollbackOutlined } from "@ant-design/icons";
 import MissionWrap from "../../../../Mission_Card/MissionWrap";
 import { useSetAtom } from "jotai";
-import { OpenMissionCardInfo } from "@/pages/Main/jotai.ts";
+import { OpenMissionCardInfo } from "@/jotai.ts";
 
 const MissionList = () => {
   const setOpenMissionCardInfo = useSetAtom(OpenMissionCardInfo);

@@ -7,7 +7,7 @@ import {
   QuickMissionOffload,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
-} from "@/pages/Main/jotai.ts";
+} from "@/jotai.ts";
 import { LoadingStation } from "../AllCargo.tsx/LoadingStation";
 
 const ConveyorContainer = styled.div`

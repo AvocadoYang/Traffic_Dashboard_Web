@@ -3,7 +3,7 @@ import "../../style.css";
 import { RollbackOutlined } from "@ant-design/icons";
 import CarCardWrap from "../../../../../../components/Main/Car/CardWrap";
 import { useSetAtom } from "jotai";
-import { OpenCarCardInfo } from "@/pages/Main/jotai.ts";
+import { OpenCarCardInfo } from "@/jotai.ts";
 
 const CarList = () => {
   const setOpenCarCardInfo = useSetAtom(OpenCarCardInfo);

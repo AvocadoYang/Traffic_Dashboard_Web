@@ -5,7 +5,7 @@ import { Flex } from "antd";
 import WarningTable from "./WarningTable";
 import AlarmTable from "./AlarmTable";
 import SystemAlarmTable from "./SystemAlarmTable";
-import Header from "@/components/Common/Header/Header";
+import Header from "@/components/Common/Header";
 
 const StyledLayout = styled(Layout)`
   min-height: 100dvh;

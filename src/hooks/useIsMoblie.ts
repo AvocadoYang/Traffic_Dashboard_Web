@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSetAtom } from "jotai";
-import { viewBtn, ViewBtn } from "@/pages/Main/jotai.ts";
+import { viewBtn, ViewBtn } from "@/jotai.ts";
 
 export const useIsMobile = () => {
   const setOpenEditLocationPanel = useSetAtom(viewBtn);

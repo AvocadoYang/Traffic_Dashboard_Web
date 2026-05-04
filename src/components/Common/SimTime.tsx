@@ -13,7 +13,7 @@ const TimeDisplay = styled.span`
   background: #ffffff;
 `;
 
-const SimTime: FC<{}> = () => {
+const SimTime: ReactFC<{}> = () => {
   const timeline = useTimelineSocket();
   return <TimeDisplay>{timeline}</TimeDisplay>;
 };

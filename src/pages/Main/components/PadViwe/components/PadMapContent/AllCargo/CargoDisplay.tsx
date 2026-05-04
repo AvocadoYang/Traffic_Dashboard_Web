@@ -3,7 +3,7 @@ import {
   QuickMissionOffload,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
-} from "@/pages/Main/jotai.ts";
+} from "@/jotai.ts";
 import { useAtom, useSetAtom } from "jotai";
 import { FC } from "react";
 import styled from "styled-components";
