@@ -13,21 +13,30 @@ const { useBreakpoint } = Grid;
 
 // ─── Global Style ─────────────────────────────
 const GlobalMenuStyle = createGlobalStyle`
-  .ant-menu-item {
+  .ant-menu-item,
+  .ant-menu-submenu-title {
     ${titleSizes.small};
     color: ${font.color.gray} !important;
     border-bottom: 1px solid ${font.color.border_gray_1} !important;
-  }
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
 
-  .ant-menu-item:last-child {
-    border-bottom: none !important;
-  }
+    &:last-child {
+      border-bottom: none !important;
+    }
 
-  .ant-menu-item:hover {
-    color: ${font.color.blue} !important;
-    background: rgba(24, 144, 255, 0.08) !important;
+    &:hover {
+      color: ${font.color.blue} !important;
+      background: rgba(24, 144, 255, 0.08) !important;
+    }
+
+    &.ant-menu-item-selected {
+      color: ${font.color.blue} !important;
+      border-left-color: ${font.color.blue} !important;
+      background: rgba(24, 144, 255, 0.08) !important;
+    }
   }
-`;
+`as unknown as React.FC;
 
 // ─── Styled Components ─────────────────────────
 const StyledDrawer = styled(Drawer)`
@@ -47,13 +56,22 @@ const StyledDrawer = styled(Drawer)`
 `;
 
 const StyledMenu = styled(Menu)`
-.ant-menu-item,
-.ant-menu-submenu-title {
-    ${bodySizes.large};
+  .ant-menu-item,
+  .ant-menu-submenu-title {
+    ${titleSizes.small};
     color: ${font.color.gray} !important;
-    border-bottom: 1px solid ${font.color.border_gray_1};
-    border-left: 4px solid transparent;    
+    border-bottom: 1px solid ${font.color.border_gray_1} !important;
+    border-left: 4px solid transparent;
     border-right: 4px solid transparent;
+
+    &:last-child {
+      border-bottom: none !important;
+    }
+
+    &:hover {
+      color: ${font.color.blue} !important;
+      background: rgba(24, 144, 255, 0.08) !important;
+    }
 
     &.ant-menu-item-selected {
       color: ${font.color.blue} !important;

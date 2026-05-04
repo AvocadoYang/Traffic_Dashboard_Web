@@ -3,6 +3,8 @@ export const font = {
     zh: '"Noto Sans TC", sans-serif',
     en: '"Roboto Mono", monospace',
   },
+
+  // 卡片：monstrerrat
   size: {
     xs: "12px",
     sm: "14px",
