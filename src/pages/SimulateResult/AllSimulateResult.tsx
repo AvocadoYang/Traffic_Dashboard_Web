@@ -79,7 +79,7 @@ const AllSimulateResult = () => {
 
   return (
     <Layout style={{ height: `${isMobile ? "100dvh" : "100%"}` }}>
-      <Header isMobile={isMobile} />
+      {/* <Header isMobile={isMobile} /> */}
       <Content>
         <Layout style={{ height: "100%", width: "100%" }}>
           <PageContainer>
