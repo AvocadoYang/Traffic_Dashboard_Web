@@ -9,6 +9,7 @@ import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import useCargoInfo from "@/sockets/useCargoInfo";
 import styled from "styled-components";
 import { tooltipProp } from "@/utils/gloable";
+import { OpenDirect } from "@/pages/Main/global/jotai";
 
 const Point = styled.div.attrs<{
   left: number;
@@ -58,6 +59,7 @@ const AllCargo: React.FC = () => {
   const showLocation = useAtomValue(isShowLocation);
   const { data } = useMap();
   const setTooltip = useSetAtom(tooltipProp);
+  const setOpen = useSetAtom(OpenDirect);
 
   const handleEnter = (locationId: string, x: number, y: number) => {
     setTooltip({
@@ -65,6 +67,11 @@ const AllCargo: React.FC = () => {
       y,
       locationId,
     });
+  };
+
+  const handleDireMove = (locationId: string) => {
+    // console.log("???");
+    setOpen({ open: true, locationId });
   };
 
   const handleLeave = () => {
@@ -115,6 +122,10 @@ const AllCargo: React.FC = () => {
                 left={displayX}
                 top={displayY}
                 key={nanoid()}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleDireMove(loc.locationId.toString());
+                }}
                 onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
                 onMouseLeave={() => handleLeave()}
               ></Point>
