@@ -49,6 +49,7 @@ const BUTTON_CONFIG = [
     color: "#722ed1",
     bg: "#f9f0ff",
     stateKey: "showUploadMission" as const,
+    mobileVisible: true,
   },
   {
     key: "cycle",
@@ -58,6 +59,7 @@ const BUTTON_CONFIG = [
     color: "#327411",
     bg: "#f6ffed",
     stateKey: "showCycleMission" as const,
+    mobileVisible: true,
   },
   {
     key: "quick",
@@ -67,6 +69,7 @@ const BUTTON_CONFIG = [
     color: "#af7603",
     bg: "#fffbe6",
     stateKey: "showQuickMission" as const,
+    mobileVisible: false,
   },
   {
     key: "new",
@@ -76,6 +79,7 @@ const BUTTON_CONFIG = [
     color: "#1890ff",
     bg: "#e6f7ff",
     stateKey: null,
+    mobileVisible: true,
   },
 ] as const;
 
@@ -180,10 +184,11 @@ const NavItem = styled.button<{ $color: string; $bg: string }>`
 `;
 
 // ─── Desktop Component ───────────────────────────────────
-const DesktopMissionBtn: React.FC<ModalState & SimControlProps> = ({
+const DesktopMissionBtn: React.FC<ModalState & SimControlProps & { showSimControl?: boolean }> = ({
   isSimulating,
   onStart,
   onStop,
+  showSimControl = true,
   ...modalState
 }) => {
   const { t } = useTranslation();
@@ -209,17 +214,17 @@ const DesktopMissionBtn: React.FC<ModalState & SimControlProps> = ({
             {t(i18nKey)}
           </IndustrialButton>
         ))}
-        <SimControl isSimulating={isSimulating} onStart={onStart} onStop={onStop} />
+        {showSimControl && (
+          <SimControl isSimulating={isSimulating} onStart={onStart} onStop={onStop} />
+        )}
       </ButtonGroup>
     </MissionBtnWrap>
   );
 };
 
 // ─── Mobile Component ────────────────────────────────────
-const MobileMissionNav: React.FC<ModalState & SimControlProps> = ({
-  isSimulating,
-  onStart,
-  onStop,
+const MobileMissionNav: React.FC<ModalState & SimControlProps & { showAll?: boolean }> = ({
+  showAll = false,
   ...modalState
 }) => {
   const { t } = useTranslation();
@@ -234,18 +239,19 @@ const MobileMissionNav: React.FC<ModalState & SimControlProps> = ({
 
   return (
     <BottomNav>
-      {BUTTON_CONFIG.map(({ key, icon, i18nKey, color, bg, stateKey }) => (
-        <NavItem
-          key={key}
-          $color={color}
-          $bg={bg}
-          onClick={() => handleClick(stateKey)}
-        >
-          {icon}
-          {t(i18nKey)}
-        </NavItem>
-      ))}
-      <SimControl isSimulating={isSimulating} onStart={onStart} onStop={onStop} isMobile />
+      {BUTTON_CONFIG
+        .filter((item) => showAll || item.mobileVisible)
+        .map(({ key, icon, i18nKey, color, bg, stateKey }) => (
+          <NavItem
+            key={key}
+            $color={color}
+            $bg={bg}
+            onClick={() => handleClick(stateKey)}
+          >
+            {icon}
+            {t(i18nKey)}
+          </NavItem>
+        ))}
     </BottomNav>
   );
 };
@@ -254,8 +260,10 @@ const MobileMissionNav: React.FC<ModalState & SimControlProps> = ({
 type MissionBtnProps = SimControlProps;
 
 const MissionBtn: React.FC<MissionBtnProps> = ({ isSimulating, onStart, onStop }) => {
-  const { md } = useBreakpoint();
+  const { md, lg } = useBreakpoint();
   const isMobile = !md;
+  const isTablet = md && !lg;
+  const isDesktop = !!lg;
 
   const [showUploadMission, setShowUploadMission] = useState(false);
   const [showCycleMission, setShowCycleMission] = useState(false);
@@ -278,10 +286,9 @@ const MissionBtn: React.FC<MissionBtnProps> = ({ isSimulating, onStart, onStop }
 
   return (
     <>
-      {isMobile
-        ? <MobileMissionNav {...modalState} {...simProps} />
-        : <DesktopMissionBtn {...modalState} {...simProps} />
-      }
+      {isMobile && <MobileMissionNav {...modalState} {...simProps} />}
+      {isTablet && <MobileMissionNav {...modalState} {...simProps} showAll />}
+      {isDesktop && <DesktopMissionBtn {...modalState} {...simProps} />}
       <DialogMission />
       <UploadMission
         open={showUploadMission}
