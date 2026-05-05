@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 export type SystemAlarmData = {
   level: number;
   message: string;
+  alarmType: AlarmType;
   tstamp?: Date;
 };
 
@@ -14,6 +15,7 @@ const schema = () =>
   object({
     level: number().required(),
     message: string().required(),
+    alarmType: string().required(),
   });
 
 const warningId$ = fromEventPattern(
@@ -43,11 +45,14 @@ const warningId$ = fromEventPattern(
   share(),
 );
 
+export type AlarmType = "error" | "warn" | "success";
+
 export const useSystemAlarm = () => {
   const [warningList, setWarningList] = useState<SystemAlarmData>({
     message: "",
     level: 0,
     tstamp: undefined,
+    alarmType: "error",
   });
   useEffect(() => {
     const sub = warningId$.subscribe((infos) => {
