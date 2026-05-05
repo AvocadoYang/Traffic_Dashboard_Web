@@ -541,7 +541,7 @@ const TaskFormFork: FC<{
   const canSelectIsDefinedId = () => {
     const excludedActions = [
       "spin",
-      "fork",
+      // "fork",
       "charge",
       "cargo_limit",
       "verity_cargo",

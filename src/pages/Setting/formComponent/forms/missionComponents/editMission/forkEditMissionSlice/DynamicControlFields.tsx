@@ -404,19 +404,6 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                   ]}
                 />
               </Form.Item>
-
-              <Form.Item
-                label={<FieldLabel className="required">scale</FieldLabel>}
-                name={[...fieldName, "NS", "scale"]}
-                rules={[{ required: true, message: "REQUIRED FIELD" }]}
-              >
-                <InputNumber
-                  step={1}
-                  addonAfter="mm"
-                  placeholder="Enter distance"
-                  style={{ width: "100%" }}
-                />
-              </Form.Item>
             </CardBody>
           </IndustrialControlCard>
         );
