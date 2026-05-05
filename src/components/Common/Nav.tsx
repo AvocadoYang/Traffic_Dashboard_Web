@@ -135,7 +135,12 @@ export const Nav: React.FC<NavMenuProps> = ({
           <StyledMenu
             mode="vertical"
             items={items}
-            onClick={onClick}
+            selectedKeys={[]}
+            onClick={(e) => {
+              onClick(e);
+              setDrawerOpen(false);
+            }}
+            getPopupContainer={(trigger) => trigger.parentElement!}
           />
         </StyledDrawer>
       </ConfigProvider>

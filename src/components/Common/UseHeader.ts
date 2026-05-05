@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";  
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAtom } from "jotai";
 import { useTranslation } from "react-i18next";
@@ -85,7 +85,20 @@ export const useHeader = () => {
       "4": "/setting", "5": "/simulate",
       "6": "/simulate-result", "7": "/records",
     };
-    if (routes[e.key]) navigate(routes[e.key]);
+
+    if (routes[e.key]) {
+      navigate(routes[e.key]);
+      return;
+    }
+
+    switch (e.key) {
+      case "81":
+        setOpenCreateUser(true);
+        break;
+      case "82":
+        setOpenChangePassword(true);
+        break;
+    }
   };
 
   const handleLanguageChange = (value: string) => {

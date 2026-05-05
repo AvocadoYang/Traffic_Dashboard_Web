@@ -3,4 +3,7 @@ export type NavItem = {
   label: string;
   icon?: React.ReactNode;
   children?: NavItem[];
+  mobileVisible?: boolean;
+  tabletVisible?: boolean;
+  desktopVisible?: boolean;
 };

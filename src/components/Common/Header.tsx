@@ -19,12 +19,12 @@ import MissionBtn from "@/components/Main/Mission/MissionBtn";
 import StartSimModal from "@/pages/SimulateResult/StartSimModal";
 import { useHeader } from "./UseHeader";
 import { Nav } from "@/components/Common/Nav";
-import SimControl from "./SimControl";
 import LanguageSelect from "./LanguageSelect";
 import UserMenu from "./UserMenu";
 import ChangePasswordModal from "./ChangePasswordModal";
 import CreateUserModel from "./CreateUserModel";
 import logo from "@/assets/kenmec_without_background.png";
+import { useIsMobile } from "@/hooks/useIsMoblie";
 
 const { Header: AntdHeader } = Layout;
 
@@ -47,7 +47,6 @@ const Logo = styled.img`
   left: 50%;
   transform: translateX(-50%);
 
-  //PC版
   @media (min-width: 768px) {
     position: static;
     transform: none;
@@ -57,6 +56,7 @@ const Logo = styled.img`
 
 const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
   const { t } = useTranslation();
+  const { isTablet } = useIsMobile();
   const {
     contextHolder, navigate, location, script, username,
     canSim,
@@ -73,41 +73,65 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
       key: "1",
       label: t("page_view"),
       icon: <FaMap size={16} />,
+      mobileVisible: false,
+      tabletVisible: false,
+      desktopVisible: true,
     },
     {
       key: "2",
       label: t("page_amr"),
       icon: <FaTruck size={16} />,
+      mobileVisible: false,
+      tabletVisible: false,
+      desktopVisible: true,
     },
     {
       key: "3",
       label: t("page_cargo_history"),
       icon: <FaBox size={16} />,
+      mobileVisible: true,
+      tabletVisible: true,
+      desktopVisible: true,
     },
     {
       key: "4",
       label: t("page_setting"),
       icon: <FaCog size={16} />,
+      mobileVisible: false,
+      tabletVisible: false,
+      desktopVisible: true,
     },
     {
       key: "5",
       label: t("page_simulate"),
       icon: <FaPlayCircle size={16} />,
+      mobileVisible: false,
+      tabletVisible: false,
+      desktopVisible: true,
     },
     {
       key: "6",
       label: t("page_simulate_result"),
       icon: <FaChartBar size={16} />,
+      mobileVisible: false,
+      tabletVisible: false,
+      desktopVisible: true,
     },
     {
       key: "7",
       label: t("page_record"),
       icon: <FaExclamationTriangle size={16} />,
+      mobileVisible: true,
+      tabletVisible: true,
+      desktopVisible: true,
     },
     {
       key: "8",
       label: t("page_personal_info"),
       icon: <FaUser size={16} />,
+      mobileVisible: true,
+      tabletVisible: true,
+      desktopVisible: true,
       children: [
         {
           key: "81",
@@ -123,18 +147,23 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
     },
   ];
 
+  const currentNavItems = isMobile
+    ? NavItems.filter((item) => item.mobileVisible)
+    : isTablet
+    ? NavItems.filter((item) => item.tabletVisible)
+    : NavItems.filter((item) => item.desktopVisible);
+
   return (
     <>
       {contextHolder}
       <StyledHeader>
         <Flex gap="small" align="center">
           <Nav
-            items={NavItems}
+            items={currentNavItems}
             onClick={handleMenuClick}
             drawerOpen={drawerOpen}
             setDrawerOpen={setDrawerOpen}
           />
-
           <Logo src={logo} onClick={() => navigate("/")} />
         </Flex>
 
@@ -147,7 +176,6 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
             />
           )}
         </Flex>
-
 
         <Flex gap="middle" align="center">
           <LanguageSelect onChange={handleLanguageChange} isMobile={isMobile} />
