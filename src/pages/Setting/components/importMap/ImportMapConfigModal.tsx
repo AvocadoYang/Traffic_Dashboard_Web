@@ -1,12 +1,12 @@
-import { Button, Modal } from 'antd';
-import { FC, memo, useState } from 'react';
-import SelectScript from './SelectScript';
-import { useTranslation } from 'react-i18next';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import client from '@/api/axiosClient';
-import { ErrorResponse } from '@/utils/globalType';
-import { errorHandler } from '@/utils/utils';
-import { message } from 'antd';
+import { Button, Modal } from "antd";
+import { FC, memo, useState } from "react";
+import SelectScript from "./SelectScript";
+import { useTranslation } from "react-i18next";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import client from "@/api/axiosClient";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
+import { message } from "antd";
 
 const ImportMapConfigModal: FC<{
   openImportMapConfig: boolean;
@@ -20,21 +20,21 @@ const ImportMapConfigModal: FC<{
 
   const importMutation = useMutation({
     mutationFn: (id: string) => {
-      return client.post('api/setting/import-map-config', { id });
+      return client.post("api/setting/import-map-config", { id });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['all-scripts'] });
-      queryClient.invalidateQueries({ queryKey: ['simulate-script'] });
-      queryClient.invalidateQueries({ queryKey: ['script-robot'] });
-      queryClient.invalidateQueries({ queryKey: ['mock-robot'] });
-      queryClient.invalidateQueries({ queryKey: ['map束map'] });
-      void messageApi.success(t('utils.success'), 5);
+      queryClient.invalidateQueries({ queryKey: ["all-scripts"] });
+      queryClient.invalidateQueries({ queryKey: ["simulate-script"] });
+      queryClient.invalidateQueries({ queryKey: ["script-robot"] });
+      queryClient.invalidateQueries({ queryKey: ["mock-robot"] });
+      queryClient.invalidateQueries({ queryKey: ["map束map"] });
+      void messageApi.success(t("utils.success"), 5);
       setImportMapConfig(false);
       setSelectedScriptId(null);
     },
     onError: (e: ErrorResponse) => {
       errorHandler(e, messageApi);
-    }
+    },
   });
 
   const handleCancel = () => {
@@ -50,7 +50,7 @@ const ImportMapConfigModal: FC<{
 
   return (
     <Modal
-      title={t('import_map.title')}
+      title={t("import_map.title")}
       open={openImportMapConfig}
       onCancel={handleCancel}
       footer={(_, { CancelBtn }) => (
@@ -62,7 +62,7 @@ const ImportMapConfigModal: FC<{
             disabled={!selectedScriptId || importMutation.isLoading}
             loading={importMutation.isLoading}
           >
-            {t('import_map.import')}
+            {t("import_map.import")}
           </Button>
         </>
       )}

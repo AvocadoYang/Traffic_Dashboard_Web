@@ -1,1 +1,1 @@
-export { default as EditTagPanel } from './EditTagPane';
+export { default as EditTagPanel } from "./EditTagPane";

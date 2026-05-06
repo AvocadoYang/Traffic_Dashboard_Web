@@ -3,6 +3,8 @@ export type LocationType = {
   locationId: string;
   x: number;
   y: number;
+  offset_x: number;
+  offset_y: number;
   areaType: string;
   rotation: number;
   canRotate: boolean;
@@ -12,6 +14,9 @@ export type ZoneType = {
   name?: string;
   color?: AggregationColor2;
   category?: string[];
+  layer: string;
+  lidar_back: boolean;
+  lidar_front: boolean;
   startX: number;
   startY: number;
   endX: number;
@@ -37,7 +42,7 @@ export type RoadListType = {
   y1: number;
   x2: number;
   y2: number;
-  roadType: 'oneWayRoad' | 'twoWayRoad';
+  roadType: "oneWayRoad" | "twoWayRoad";
   checkboxGroup?: string[];
   disabled: boolean;
   limit: boolean;

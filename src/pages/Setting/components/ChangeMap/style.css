@@ -11,16 +11,15 @@
   z-index: 10000;
 }
 
-
 .show {
   transition: left 0.4s ease-in-out;
   left: calc(50%); /* 滑入到可見區域 */
 }
 
-.tittle-wrap{
+.tittle-wrap {
   height: 8%;
 }
-.body-wrap{
+.body-wrap {
   padding: 10px 20px 10px 20px;
   overflow-y: scroll;
   height: 92%;
@@ -34,7 +33,6 @@
   left: 15px;
   z-index: 20000;
 }
-
 
 .info-wrap {
   height: 100%;
@@ -55,4 +53,3 @@
   height: 55vh;
   width: 100%;
 }
-

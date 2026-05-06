@@ -1,4 +1,4 @@
-import { CSS, Transform } from '@dnd-kit/utilities';
+import { CSS, Transform } from "@dnd-kit/utilities";
 
 /**
  * Returns the style object for a Card component.
@@ -10,12 +10,12 @@ import { CSS, Transform } from '@dnd-kit/utilities';
 export default (
   transform: Transform | null,
   transition: string | undefined,
-  _sortableId?: string
+  _sortableId?: string,
 ) => {
   return {
     transform: CSS.Transform.toString(transform),
     transition,
-    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
-    borderTop: `5px solid #315E7D`
+    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+    borderTop: `5px solid #315E7D`,
   };
 };

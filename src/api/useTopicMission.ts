@@ -1,9 +1,9 @@
-import { array, boolean, number, object, string } from 'yup';
-import client from './axiosClient';
-import { useQuery } from '@tanstack/react-query';
+import { array, boolean, number, object, string } from "yup";
+import client from "./axiosClient";
+import { useQuery } from "@tanstack/react-query";
 
 const getTopic = async () => {
-  const { data } = await client.get<unknown>('api/setting/topic-task');
+  const { data } = await client.get<unknown>("api/setting/topic-task");
 
   const schema = () =>
     array(
@@ -13,13 +13,13 @@ const getTopic = async () => {
         topicId: number().required(),
         active: boolean().required(),
         taskName: string().required(),
-        taskId: string().required()
-      }).required()
+        taskId: string().required(),
+      }).required(),
     ).required();
 
   return schema().validate(data, { stripUnknown: true });
 };
 
 export const useTopicMission = () => {
-  return useQuery(['topic-task'], getTopic);
+  return useQuery(["topic-task"], getTopic);
 };

@@ -1,4 +1,4 @@
-import { atom } from 'jotai';
+import { atom } from "jotai";
 
 /** 1-1 編輯點位開關 */
 export const EditLocationPanelSwitch = atom<boolean>(false);
@@ -36,8 +36,6 @@ export const EditShelfCategoryPanelSwitch = atom<boolean>(false);
 /** 4-3 顯示 編輯YAW */
 export const EditShelfYawPanelSwitch = atom<boolean>(false);
 
-export const SideSwitchToShowForm = atom<boolean>(false);
-
 /** 5-1 顯示編輯註冊車輛 */
 export const isShowRegisterAMR = atom<boolean>(false);
 
@@ -49,9 +47,6 @@ export const isShowEditMission = atom<boolean>(false);
 
 /** 6-2 顯示編輯充電任務 */
 export const isShowEditChargeMission = atom<boolean>(false);
-
-/** 6-3 顯示循環任務 */
-export const isShowEditCycleMission = atom<boolean>(false);
 
 /** 6-4 顯示編輯離開充電站強制任務 */
 export const isShowEditBeforeLeftChargeStationMission = atom<boolean>(false);
@@ -68,14 +63,26 @@ export const isShowEditTopicMission = atom<boolean>(false);
 /** 6-8 顯示刪除任務身上有貨處理機制任務 */
 export const isShowEditAbortMissionWhenHasCargoMission = atom<boolean>(false);
 
-/** 7-1 顯示編輯標籤 */
+/** 6-9 顯示地點綁定任務 */
+export const isShowEditBlindLocationMission = atom<boolean>(false);
+
+/** 7-1 顯示設備名稱表 */
+export const isShowPeripheralNameTable = atom<boolean>(false);
+
+/** 7-2 顯示設備群組表 */
+export const isShowPeripheralGroupTable = atom<boolean>(false);
+
+/** 8-1 顯示編輯標籤 */
 export const isShowEditMissionTag = atom<boolean>(false);
 
-/** 7-2 顯示編輯充電站icon位置 */
+/** 8-2 顯示編輯充電站icon位置 */
 export const isShowEditChargeStationPosition = atom<boolean>(false);
 
-/** 7-3 顯示自定義貨物格式 */
+/** 8-3 顯示自定義貨物格式 */
 export const isShowEditCustomCargoFormat = atom<boolean>(false);
+
+/** 8-4 顯示貨物表格 */
+export const isShowContainerTable = atom<boolean>(false);
 
 /** 9-1 顯示編輯warning id */
 export const isShowEditWarningId = atom<boolean>(false);
@@ -89,8 +96,18 @@ export const isOpenSwitchMap = atom<boolean>(false);
 /** 9-2 顯示編輯備份 */
 export const isShowEditBackup = atom<boolean>(false);
 
+// /** 9-3 顯示起始位置設定 */
+// export const isShowStartPoint = atom<boolean>(false);
+
 /** 地點tooltip */
 export const isShowLocationTooltip = atom<boolean>(false);
+
+export const mousePosition = atom<{ clientX: number; clientY: number }>({
+  clientX: 0,
+  clientY: 0,
+});
+
+export const mouseMoveSwitch = atom<boolean>(true);
 
 /** 路線tooltip */
 export const isShowRoadTooltip = atom<boolean>(false);

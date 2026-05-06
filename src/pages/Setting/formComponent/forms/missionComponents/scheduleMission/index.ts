@@ -1,1 +1,1 @@
-export { default as SchedulePanel } from './SchedulePanel';
+export { default as SchedulePanel } from "./SchedulePanel";

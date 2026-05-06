@@ -1,354 +1,509 @@
-import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Card, Typography, Tag, Progress, Descriptions, Table, Button, Modal, Flex } from 'antd';
-import styled from 'styled-components';
-import ReactJsonView from '@uiw/react-json-view';
+import { useState } from "react";
+import { useParams, Link } from "react-router-dom";
 import {
-  ArrowLeftOutlined
-  // UpOutlined,
-  // DownOutlined,
-  // LeftOutlined,
-  // RightOutlined,
-} from '@ant-design/icons';
+  Card,
+  Typography,
+  Tag,
+  Progress,
+  Descriptions,
+  Table,
+  Button,
+  Modal,
+  Flex,
+} from "antd";
+import ReactJsonView from "@uiw/react-json-view";
+import {
+  ArrowLeftOutlined,
+  RobotOutlined,
+  EnvironmentOutlined,
+  ToolOutlined,
+  ThunderboltOutlined,
+} from "@ant-design/icons";
 import {
   useAMRAllIO,
   useAmrDetail,
   useAmrPose,
   useIsCarry,
   useIsLogIn,
-  useMaintenanceStatus
-} from '@/sockets/useAMRInfo';
-import { useRecentMission } from '@/sockets/useMissions';
-import { useTranslation } from 'react-i18next';
-import DPad from './DPad';
-import EditCargoCarrier from '../Main/Car_Card/components/EditCargoCarrier';
+  useMaintenanceStatus,
+} from "@/sockets/useAMRInfo";
+import { useRecentMission } from "@/sockets/useMissions";
+import { useTranslation } from "react-i18next";
+import DPad from "./DPad";
+import EditCargoCarrier from "../../components/Main/Car/EditCargoCarrier";
+import styled from "styled-components";
 
 const { Title, Text } = Typography;
 
-const Container = styled.div`
-  max-width: 700px;
+const DetailContainer = styled.div`
+  max-width: 900px;
   margin: 40px auto;
   padding: 24px;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  border: 2px solid #d9d9d9;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   max-height: 90vh;
-  overflow-y: scroll;
+  overflow-y: auto;
+  font-family: "Roboto Mono", monospace;
 
   @media (max-width: 900px) {
     max-width: 98vw;
-    padding: 12px;
-    margin: 16px auto;
-  }
-  @media (max-width: 600px) {
-    padding: 4vw 2vw;
-    border-radius: 8px;
-    margin: 8px auto;
+    padding: 16px;
+    margin: 20px auto;
   }
 `;
 
-const PoseWrapper = styled.div`
-  max-width: 15em;
-  min-width: 15em;
+const BackButton = styled(Button)`
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1px;
+  height: 36px;
+  font-weight: 600;
+  border-radius: 0;
+  margin-bottom: 24px;
+
+  &:hover {
+    background: #f0f5ff;
+    border-color: #1890ff;
+    color: #1890ff;
+  }
 `;
 
-const TableWrapper = styled.div`
-  width: 100%;
-  overflow-x: auto;
-  margin-bottom: 16px;
+const DetailHeader = styled.div`
+  background: #fafafa;
+  border: 1px solid #d9d9d9;
+  border-left: 4px solid #1890ff;
+  padding: 16px 20px;
+  margin-bottom: 24px;
 
-  .ant-table {
-    min-width: 480px;
+  h2 {
+    margin: 0 0 12px 0;
+    color: #1890ff;
+    font-family: "Roboto Mono", monospace;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+`;
+
+const IndustrialTag = styled(Tag)`
+  font-family: "Roboto Mono", monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 0;
+`;
+
+const IndustrialDescriptions = styled(Descriptions)`
+  .ant-descriptions-item-label {
+    font-family: "Roboto Mono", monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    color: #595959;
+    background: #fafafa !important;
   }
 
-  @media (max-width: 600px) {
-    .ant-table {
-      min-width: 360px;
+  .ant-descriptions-item-content {
+    font-family: "Roboto Mono", monospace;
+    font-size: 12px;
+  }
+
+  .ant-descriptions-bordered .ant-descriptions-item-label,
+  .ant-descriptions-bordered .ant-descriptions-item-content {
+    border-color: #d9d9d9;
+  }
+`;
+
+const IndustrialButton = styled(Button)`
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1px;
+  height: 40px;
+  font-weight: 600;
+  border-radius: 0;
+  transition: all 0.2s;
+
+  &.ant-btn-primary {
+    background: #1890ff;
+    border-color: #1890ff;
+
+    &:hover {
+      background: #40a9ff;
+      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
     }
   }
 `;
 
-const FixedDescWrapper = styled.div`
-  position: relative;
-  overflow: hidden;
-  padding-right: 24px;
-
-  .ant-descriptions {
-    margin-bottom: 0;
+const IndustrialTable = styled(Table)`
+  .ant-table {
+    border: 1px solid #d9d9d9;
+    border-radius: 0;
+    font-family: "Roboto Mono", monospace;
   }
 
-  @media (max-width: 600px) {
-    padding-right: 16px;
+  .ant-table-thead > tr > th {
+    background: #fafafa;
+    border-bottom: 2px solid #d9d9d9;
+    color: #595959;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+
+    &::before {
+      display: none;
+    }
+  }
+
+  .ant-table-tbody > tr > td {
+    font-size: 12px;
   }
 `;
 
-const StatusWrapper = styled.div`
-  height: 2em;
-  width: 15em;
-  text-overflow: clip;
+const SectionTitle = styled(Title)`
+  &&& {
+    margin: 24px 0 16px 0;
+    font-family: "Roboto Mono", monospace;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #262626;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #d9d9d9;
+  }
 `;
 
 const AmrDetail = () => {
   const { amrId } = useParams<{ amrId: string }>();
-  let prefixAmrId = '';
-  if (amrId?.startsWith('mock')) {
+  let prefixAmrId = "";
+  if (amrId?.startsWith("mock")) {
     prefixAmrId = `#` + amrId.slice(5);
   } else {
-    prefixAmrId = amrId || '';
+    prefixAmrId = amrId || "";
   }
 
-  const amr = useAmrDetail(prefixAmrId || '');
-  const currier = useIsCarry(prefixAmrId || '');
-  const maintenance = useMaintenanceStatus(prefixAmrId || '');
-  const { pose } = useAmrPose(prefixAmrId || '');
-  const { recentMission } = useRecentMission(prefixAmrId || '');
-  const connectionStatus = useIsLogIn(prefixAmrId || '');
-  const io = useAMRAllIO(prefixAmrId || '');
+  const amr = useAmrDetail(prefixAmrId || "");
+  const currier = useIsCarry(prefixAmrId || "");
+  const maintenance = useMaintenanceStatus(prefixAmrId || "");
+  const { pose } = useAmrPose(prefixAmrId || "");
+  const { recentMission } = useRecentMission(prefixAmrId || "");
+  const connectionStatus = useIsLogIn(prefixAmrId || "");
+  const io = useAMRAllIO(prefixAmrId || "");
   const [showControlPanel, setShowControlPanel] = useState(false);
   const [showCargoMetadata, setShowCargoMetadata] = useState(false);
   const [showIO, setShowIO] = useState(false);
   const [editCargoModalOpen, setEditCargoModalOpen] = useState(false);
   const { t } = useTranslation();
 
-  // Prepare table data from recentMission
   const missionTasks = recentMission
     ? [
         {
           key: recentMission.missionId,
           id: recentMission.missionId,
-          desc: recentMission.full_name?.join(' / ') || recentMission.sub_name || '-',
+          desc:
+            recentMission.full_name?.join(" / ") ||
+            recentMission.sub_name ||
+            "-",
           status: recentMission.missionStatus,
           time: recentMission.startedAt
             ? new Date(recentMission.startedAt).toLocaleTimeString()
-            : '-'
-        }
+            : "-",
+        },
       ]
     : [];
 
   return (
     <>
-      <Container>
+      <DetailContainer>
         <Link to="/amr">
-          <Button icon={<ArrowLeftOutlined />}>{t('amr_detail.back')}</Button>
+          <BackButton icon={<ArrowLeftOutlined />}>
+            {t("amr_detail.back")}
+          </BackButton>
         </Link>
         {amr ? (
           <>
-            <Flex vertical gap="small">
-              <Title level={2} style={{ marginBottom: 0, fontSize: '2rem' }}>
+            <DetailHeader>
+              <h2>
+                <RobotOutlined />
                 {prefixAmrId}
-              </Title>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 16,
-                  flexWrap: 'wrap',
-                  marginBottom: 16
-                }}
-              >
-                <Tag color={connectionStatus.isOnline ? 'green' : 'red'}>
-                  {connectionStatus.isOnline ? t('amr_detail.online') : t('amr_detail.offline')}
-                </Tag>
-                <Tag color={connectionStatus.isOverdue ? 'red' : 'blue'}>
-                  {connectionStatus.isOverdue ? t('amr_detail.overdue') : t('amr_detail.normal')}
-                </Tag>
-                <Tag color={connectionStatus.isPosAccurate ? 'green' : 'orange'}>
+              </h2>
+              <Flex gap="small" wrap="wrap">
+                <IndustrialTag
+                  color={connectionStatus.isOnline ? "green" : "red"}
+                >
+                  {connectionStatus.isOnline
+                    ? t("amr_detail.online")
+                    : t("amr_detail.offline")}
+                </IndustrialTag>
+                <IndustrialTag
+                  color={connectionStatus.isOverdue ? "red" : "blue"}
+                >
+                  {connectionStatus.isOverdue
+                    ? t("amr_detail.overdue")
+                    : t("amr_detail.normal")}
+                </IndustrialTag>
+                <IndustrialTag
+                  color={connectionStatus.isPosAccurate ? "green" : "orange"}
+                >
                   {connectionStatus.isPosAccurate
-                    ? t('amr_detail.accurate')
-                    : t('amr_detail.inaccurate')}
-                </Tag>
-                <Tag color="default">
-                  {t('amr_detail.delay', { ms: connectionStatus.networkDelay })}
-                </Tag>
-              </div>
-            </Flex>
-            <FixedDescWrapper>
-              <Descriptions bordered column={1} size="middle" style={{ marginBottom: 24 }}>
-                <Descriptions.Item label={t('amr_detail.battery')}>
-                  <Progress
-                    percent={amr.battery}
-                    size="small"
-                    status={amr.battery < 20 ? 'exception' : 'active'}
-                  />
-                </Descriptions.Item>
+                    ? t("amr_detail.accurate")
+                    : t("amr_detail.inaccurate")}
+                </IndustrialTag>
+                <IndustrialTag color="default">
+                  {t("amr_detail.delay", { ms: connectionStatus.networkDelay })}
+                </IndustrialTag>
+              </Flex>
+            </DetailHeader>
 
-                <Descriptions.Item label={t('amr_detail.status')}>
-                  <StatusWrapper>{amr.status || '-'}</StatusWrapper>
-                </Descriptions.Item>
+            <IndustrialDescriptions
+              bordered
+              column={1}
+              size="middle"
+              style={{ marginBottom: 24 }}
+            >
+              <Descriptions.Item
+                label={
+                  <>
+                    <ThunderboltOutlined /> {t("amr_detail.battery")}
+                  </>
+                }
+              >
+                <Progress
+                  percent={amr.battery}
+                  size="small"
+                  status={amr.battery < 20 ? "exception" : "active"}
+                />
+              </Descriptions.Item>
 
-                <Descriptions.Item label={t('amr_detail.location')}>
-                  <Text>{amr.locationId || '-'}</Text>
-                </Descriptions.Item>
-                <Descriptions.Item label={t('amr_detail.current_position')}>
-                  <Text>
-                    {pose && typeof pose === 'object' ? (
-                      <PoseWrapper>
-                        {`x: ${pose.x ?? '-'}, y: ${pose.y ?? '-'}, θ: ${pose.yaw ?? '-'}`}
-                      </PoseWrapper>
-                    ) : (
-                      <PoseWrapper>-</PoseWrapper>
-                    )}
-                  </Text>
-                </Descriptions.Item>
-                <Descriptions.Item label={t('amr_detail.carrying_cargo')}>
+              <Descriptions.Item label={t("amr_detail.status")}>
+                <Text style={{ fontWeight: 600 }}>{amr.status || "-"}</Text>
+              </Descriptions.Item>
+
+              <Descriptions.Item
+                label={
+                  <>
+                    <EnvironmentOutlined /> {t("amr_detail.location")}
+                  </>
+                }
+              >
+                <Text>{amr.locationId || "-"}</Text>
+              </Descriptions.Item>
+
+              <Descriptions.Item label={t("amr_detail.current_position")}>
+                <Text>
+                  {pose && typeof pose === "object"
+                    ? `X: ${pose.x ?? "-"} | Y: ${pose.y ?? "-"} | θ: ${pose.yaw ?? "-"}`
+                    : "-"}
+                </Text>
+              </Descriptions.Item>
+
+              <Descriptions.Item label={t("amr_detail.carrying_cargo")}>
+                <Flex gap="small" wrap="wrap">
                   {currier.isCarry ? (
                     <>
-                      <Tag color="volcano">{t('utils.yes')}</Tag>
-                      <Button
+                      <IndustrialTag color="volcano">
+                        {t("utils.yes")}
+                      </IndustrialTag>
+                      <IndustrialButton
                         size="small"
-                        style={{ marginLeft: 8 }}
                         onClick={() => setShowCargoMetadata(true)}
                       >
-                        {t('amr_detail.show_cargo_metadata')}
-                      </Button>
-                      <Button
-                        size="small"
-                        type="primary"
-                        style={{ marginLeft: 8 }}
-                        onClick={() => setEditCargoModalOpen(true)}
-                      >
-                        {t('amr_card.update_cargo')}
-                      </Button>
+                        {t("amr_detail.show_cargo_metadata")}
+                      </IndustrialButton>
                     </>
                   ) : (
-                    t('utils.no')
+                    <IndustrialTag>{t("utils.no")}</IndustrialTag>
                   )}
-                </Descriptions.Item>
-                <Descriptions.Item label={t('amr_detail.maintenance')}>
-                  <Text>
-                    {maintenance && typeof maintenance === 'object'
-                      ? maintenance.status || JSON.stringify(maintenance)
-                      : maintenance
-                        ? String(maintenance)
-                        : '-'}
-                  </Text>
-                </Descriptions.Item>
-              </Descriptions>
-            </FixedDescWrapper>
-            <Button
-              type="primary"
-              onClick={() => setShowControlPanel((v) => !v)}
-              style={{ marginBottom: showControlPanel ? 0 : 24, width: '100%', maxWidth: 300 }}
-            >
-              {showControlPanel ? t('amr_detail.hide_manual') : t('amr_detail.show_manual')}
-            </Button>
+                  <IndustrialButton
+                    size="small"
+                    type="primary"
+                    onClick={() => setEditCargoModalOpen(true)}
+                  >
+                    {t("amr_card.update_cargo")}
+                  </IndustrialButton>
+                </Flex>
+              </Descriptions.Item>
+
+              <Descriptions.Item
+                label={
+                  <>
+                    <ToolOutlined /> {t("amr_detail.maintenance")}
+                  </>
+                }
+              >
+                <Text>
+                  {maintenance && typeof maintenance === "object"
+                    ? maintenance.status || JSON.stringify(maintenance)
+                    : maintenance
+                      ? String(maintenance)
+                      : "-"}
+                </Text>
+              </Descriptions.Item>
+            </IndustrialDescriptions>
+
+            <Flex gap="middle" wrap="wrap" style={{ marginBottom: 24 }}>
+              <IndustrialButton
+                type="primary"
+                onClick={() => setShowControlPanel((v) => !v)}
+                style={{ flex: 1, minWidth: 200 }}
+              >
+                {showControlPanel
+                  ? t("amr_detail.hide_manual")
+                  : t("amr_detail.show_manual")}
+              </IndustrialButton>
+
+              <IndustrialButton
+                type="primary"
+                onClick={() => setShowIO((v) => !v)}
+                style={{ flex: 1, minWidth: 200 }}
+              >
+                {showIO ? t("amr_detail.hide_io") : t("amr_detail.show_io")}
+              </IndustrialButton>
+            </Flex>
+
             {showControlPanel && <DPad amrId={prefixAmrId} />}
 
-            <Button
-              type="primary"
-              onClick={() => setShowIO((v) => !v)}
-              style={{ marginBottom: 12, width: '100%', maxWidth: 300, marginLeft: 8 }}
-            >
-              {showIO ? t('amr_detail.hide_io', '隱藏 IO') : t('amr_detail.show_io', '顯示 IO')}
-            </Button>
             {showIO && (
-              <Card style={{ marginTop: 16, padding: 16 }}>
-                <Title level={4} style={{ fontSize: '1.1em' }}>
-                  {t('amr_detail.io')}
-                </Title>
-                <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+              <Card
+                style={{
+                  marginBottom: 24,
+                  border: "2px solid #d9d9d9",
+                  borderRadius: 0,
+                }}
+              >
+                <SectionTitle level={4}>
+                  <ToolOutlined />
+                  {t("amr_detail.io")}
+                </SectionTitle>
+                <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
                   {io && Object.keys(io).length > 0 ? (
                     <ReactJsonView
                       displayDataTypes={false}
                       value={io}
                       collapsed={false}
                       enableClipboard={false}
-                      style={{ fontSize: 14 }}
+                      style={{ fontSize: 12, fontFamily: "Roboto Mono" }}
                     />
                   ) : (
-                    t('amr_detail.no_io')
+                    t("amr_detail.no_io")
                   )}
                 </pre>
               </Card>
             )}
-            <Title level={4} style={{ fontSize: '1.1em' }}>
-              {t('amr_detail.recent_tasks')}
-            </Title>
-            <TableWrapper>
-              <Table
-                dataSource={missionTasks}
-                pagination={false}
-                size="small"
-                columns={[
-                  {
-                    title: t('amr_detail.task_id'),
-                    dataIndex: 'id',
-                    key: 'id',
-                    render(value: string) {
-                      return `${value.slice(0, 5)}...`;
-                    }
+
+            <SectionTitle level={4}>
+              {t("amr_detail.recent_tasks")}
+            </SectionTitle>
+            <IndustrialTable
+              dataSource={missionTasks}
+              pagination={false}
+              size="middle"
+              columns={[
+                {
+                  title: t("amr_detail.task_id"),
+                  dataIndex: "id",
+                  key: "id",
+                  render(value: string) {
+                    return `${value.slice(0, 8)}...`;
                   },
-                  { title: t('amr_detail.desc'), dataIndex: 'desc', key: 'desc' },
-                  {
-                    title: t('amr_detail.status'),
-                    dataIndex: 'status',
-                    key: 'status',
-                    render: (status) => (
-                      <Tag
-                        color={
-                          status === 'Completed'
-                            ? 'green'
-                            : status === 'In Progress'
-                              ? 'blue'
-                              : 'default'
-                        }
-                      >
-                        {t('amr_detail.status')}: {status}
-                      </Tag>
-                    )
-                  },
-                  { title: t('amr_detail.time'), dataIndex: 'time', key: 'time' }
-                ]}
-                style={{ marginTop: 12 }}
-                locale={{ emptyText: t('amr_detail.no_mission') }}
-              />
-            </TableWrapper>
+                },
+                {
+                  title: t("amr_detail.desc"),
+                  dataIndex: "desc",
+                  key: "desc",
+                },
+                {
+                  title: t("amr_detail.status"),
+                  dataIndex: "status",
+                  key: "status",
+                  render: (status) => (
+                    <IndustrialTag
+                      color={
+                        status === "Completed"
+                          ? "green"
+                          : status === "In Progress"
+                            ? "blue"
+                            : "default"
+                      }
+                    >
+                      {status}
+                    </IndustrialTag>
+                  ),
+                },
+                {
+                  title: t("amr_detail.time"),
+                  dataIndex: "time",
+                  key: "time",
+                },
+              ]}
+              locale={{ emptyText: t("amr_detail.no_mission") }}
+            />
           </>
         ) : (
-          <Card>
-            <Title level={4}>{t('amr_detail.amr_not_found')}</Title>
-            <Text type="secondary">{t('amr_detail.no_data')}</Text>
+          <Card
+            style={{
+              border: "2px solid #d9d9d9",
+              borderRadius: 0,
+            }}
+          >
+            <Title level={4}>{t("amr_detail.amr_not_found")}</Title>
+            <Text type="secondary">{t("amr_detail.no_data")}</Text>
           </Card>
         )}
-      </Container>
+      </DetailContainer>
+
       <Modal
         open={showCargoMetadata}
         onCancel={() => setShowCargoMetadata(false)}
         footer={null}
-        title={t('amr_detail.cargo_metadata')}
+        title={t("amr_detail.cargo_metadata")}
       >
-        <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+        <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
           {Array.isArray(currier.cargo) && currier.cargo.length > 0
             ? currier.cargo.map((cargo, idx) =>
-                cargo.metadata && cargo.metadata !== 'null' ? (
+                cargo.metadata && cargo.metadata !== "null" ? (
                   <div key={idx} style={{ marginBottom: 16 }}>
                     <b>
-                      {t('amr_detail.carrying_cargo')} #{idx + 1}
+                      {t("amr_detail.carrying_cargo")} #{idx + 1}
                     </b>
                     <ReactJsonView
                       displayDataTypes={false}
                       value={
-                        typeof cargo.metadata === 'string'
+                        typeof cargo.metadata === "string"
                           ? JSON.parse(cargo.metadata)
                           : cargo.metadata
                       }
                       collapsed={false}
                       enableClipboard={false}
-                      style={{ fontSize: 14 }}
+                      style={{ fontSize: 12 }}
                     />
                   </div>
                 ) : (
                   <div key={idx}>
                     <b>
-                      {t('amr_detail.carrying_cargo')} #{idx + 1}
+                      {t("amr_detail.carrying_cargo")} #{idx + 1}
                     </b>
-                    <div>{t('amr_detail.no_metadata')}</div>
+                    <div>{t("amr_detail.no_metadata")}</div>
                   </div>
                 )
               )
-            : t('amr_detail.no_metadata')}
+            : t("amr_detail.no_metadata")}
         </pre>
       </Modal>
+
       <EditCargoCarrier
         amrId={prefixAmrId}
         isModalOpen={editCargoModalOpen}

@@ -1,17 +1,17 @@
-import { RectInfo } from '@/pages/Setting/hooks/hook';
-import { FC, memo } from 'react';
-import styled from 'styled-components';
+import { RectInfo } from "@/pages/Setting/hooks/hook";
+import { FC, memo } from "react";
+import styled from "styled-components";
 
 const Frame = styled.div.attrs<{
-  left: number
-  top: number
-  width: number
-  height: number
+  left: number;
+  top: number;
+  width: number;
+  height: number;
 }>(({ left, top, width, height }) => ({
-  style: { left, top, width: `${width}px`, height: `${height}px` }
+  style: { left, top, width: `${width}px`, height: `${height}px` },
 }))<{
-  left: number
-  top: number
+  left: number;
+  top: number;
 }>`
   position: absolute;
   z-index: 100;

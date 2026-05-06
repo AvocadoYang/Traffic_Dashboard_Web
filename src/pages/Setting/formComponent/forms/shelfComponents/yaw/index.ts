@@ -1,1 +1,1 @@
-export { default as YawPanel } from './YawPanel';
+export { default as YawPanel } from "./YawPanel";

@@ -31,7 +31,6 @@
   font-size: 1.3rem;
 }
 
-
 .dark-mode-title {
   color: aliceblue;
 }
@@ -199,11 +198,9 @@
 }
 /* ===== row4 end =====*/
 
-
 .mission-wrap-2d::-webkit-scrollbar {
   width: 6px;
   height: 6px;
-
 }
 .dark-mode-wrap::-webkit-scrollbar {
   width: 6px;
@@ -250,27 +247,22 @@
   background-color: #262626;
 }
 
-
-
-
 .custom-table thead > tr > th {
   background-color: #f5f5f5 !important;
-
 }
 
 .custom-table tbody > tr {
   background-color: #f5f5f5 !important;
 }
 
-.custom-table-dark  thead > tr > th {
+.custom-table-dark thead > tr > th {
   background-color: #262626 !important;
   color: white !important;
 }
 
-.custom-table-dark  thead > tr > th span {
+.custom-table-dark thead > tr > th span {
   color: white;
 }
-
 
 .custom-table-dark tbody > tr {
   background-color: #262626 !important;

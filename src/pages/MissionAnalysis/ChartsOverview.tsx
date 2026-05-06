@@ -1,7 +1,7 @@
-import React from 'react';
-import { Card } from 'antd';
-import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
-import styled from 'styled-components';
+import React from "react";
+import { Card } from "antd";
+import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
+import styled from "styled-components";
 
 const ChartWrapper = styled.div`
   display: grid;
@@ -10,15 +10,22 @@ const ChartWrapper = styled.div`
 `;
 
 const statusData = [
-  { name: 'Pending', value: 10 },
-  { name: 'Assigned', value: 15 },
-  { name: 'Executing', value: 8 },
-  { name: 'Completed', value: 40 },
-  { name: 'Aborting', value: 2 },
-  { name: 'Canceled', value: 5 }
+  { name: "Pending", value: 10 },
+  { name: "Assigned", value: 15 },
+  { name: "Executing", value: 8 },
+  { name: "Completed", value: 40 },
+  { name: "Aborting", value: 2 },
+  { name: "Canceled", value: 5 },
 ];
 
-const COLORS = ['#108ee9', '#fa8c16', '#52c41a', '#13c2c2', '#f5222d', '#d9d9d9'];
+const COLORS = [
+  "#108ee9",
+  "#fa8c16",
+  "#52c41a",
+  "#13c2c2",
+  "#f5222d",
+  "#d9d9d9",
+];
 
 const ChartsOverview: React.FC = () => {
   return (
@@ -35,7 +42,10 @@ const ChartsOverview: React.FC = () => {
             label
           >
             {statusData.map((_entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              <Cell
+                key={`cell-${index}`}
+                fill={COLORS[index % COLORS.length]}
+              />
             ))}
           </Pie>
           <Tooltip />

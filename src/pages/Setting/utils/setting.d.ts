@@ -1,5 +1,5 @@
 export type Modify = {
-  delete: string[]
-  edit: string[]
-  add: string[]
-}
+  delete: string[];
+  edit: string[];
+  add: string[];
+};

@@ -1,24 +1,23 @@
- 
-import { useQuery } from '@tanstack/react-query';
-import { object, string } from 'yup';
-import httpClient from './axiosClient';
+import { useQuery } from "@tanstack/react-query";
+import { object, string } from "yup";
+import httpClient from "./axiosClient";
 
 const versionSchema = object({
-  version: string().required()
+  version: string().required(),
 }).required();
 
 const getVersion = async () => {
-  const { data } = await httpClient.get<unknown>('api/test/version');
+  const { data } = await httpClient.get<unknown>("api/test/version");
 
   const validatedData = await versionSchema.validate(data, {
-    stripUnknown: true
+    stripUnknown: true,
   });
   return validatedData;
 };
 
 const useVerityVersion = () => {
-  return useQuery(['verity-version'], getVersion, {
-    refetchInterval: 3000
+  return useQuery(["verity-version"], getVersion, {
+    refetchInterval: 3000,
   });
 };
 

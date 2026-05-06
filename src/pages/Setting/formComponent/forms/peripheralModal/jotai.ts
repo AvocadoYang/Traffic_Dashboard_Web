@@ -1,6 +1,6 @@
-import { Relation } from '@/api/useLoc';
-import { Cargo, PeripheralTypes } from '@/types/peripheral';
-import { atom } from 'jotai';
+import { Relation } from "@/api/useLoc";
+import { Cargo, PeripheralTypes } from "@/types/peripheral";
+import { atom } from "jotai";
 
 export const IsEditPeripheralModal = atom<{
   stationType: PeripheralTypes;
@@ -12,9 +12,29 @@ export const IsEditPeripheralModal = atom<{
   activeOffload: boolean;
   loadMissionId: string;
   offloadMissionId: string;
-  placement_priority: number;
-  relationships: Relation;
+  placement_priority?: number;
+  relationships?: Relation;
   cargo: Cargo[];
+  loadPriority: number;
+  offloadPriority: number;
 } | null>(null);
 
+export const IsOpenPeripheralModal = atom<boolean>(false);
+
 export const IsOpenCargoEditorModal = atom(false);
+
+export const EditStackConfig = atom<{
+  stationId: string;
+  name: string;
+  description: string;
+  disable: boolean;
+
+  loadMissionId: string;
+  offloadMissionId: string;
+
+  cargo: Cargo[];
+  loadPriority: number;
+  offloadPriority: number;
+} | null>(null);
+
+export const IsOpenStackModal = atom<boolean>(false);

@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
-import { array, boolean, number, object, string } from 'yup';
-import client from './axiosClient';
+import { useQuery } from "@tanstack/react-query";
+import { array, boolean, number, object, string } from "yup";
+import client from "./axiosClient";
 
 const versionSchema = array(
   object({
@@ -10,20 +10,20 @@ const versionSchema = array(
     info_en: string().required(),
     solution_ch: string(),
     solution_en: string(),
-  }).optional()
+  }).optional(),
 ).required();
 
 const getTable = async () => {
-  const { data } = await client.get<unknown>('api/setting/warning_list');
-  console.log(data)
+  const { data } = await client.get<unknown>("api/setting/warning_list");
+  console.log(data);
   const validatedData = await versionSchema.validate(data, {
-    stripUnknown: true
+    stripUnknown: true,
   });
   return validatedData;
 };
 
 const useWarningTable = () => {
-  return useQuery(['warning-table'], getTable);
+  return useQuery(["warning-table"], getTable);
 };
 
 export default useWarningTable;

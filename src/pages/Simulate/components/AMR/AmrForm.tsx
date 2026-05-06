@@ -1,12 +1,13 @@
-import useMap from '@/api/useMap';
-import SubmitButton from '@/utils/SubmitButton';
-import { Button, Form, Input, message, Modal, Select } from 'antd';
-import { Dispatch, FC, SetStateAction, useEffect, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { EditFormType } from './amr';
-import useScriptRobot from '@/api/useScriptRobot';
-import client from '@/api/axiosClient';
-import { useMutation } from '@tanstack/react-query';
+import useMap from "@/api/useMap";
+import SubmitButton from "@/utils/SubmitButton";
+import { Button, Form, Input, InputNumber, message, Modal, Select } from "antd";
+import { Dispatch, FC, SetStateAction, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { EditFormType } from "./amr";
+import useScriptRobot from "@/api/useScriptRobot";
+import client from "@/api/axiosClient";
+import { useMutation } from "@tanstack/react-query";
+import useRobotType from "@/api/useRobotType";
 
 const AmrForm: FC<{
   id: string;
@@ -19,19 +20,27 @@ const AmrForm: FC<{
   const [form] = Form.useForm();
   const { data: robot, refetch } = useScriptRobot();
   const [messageApi, contextHolder] = message.useMessage();
+  const { data: allRobotType } = useRobotType();
+
+  const robotTypeOption = allRobotType?.map((y) => {
+    return {
+      label: `robot name: ${y.name}, prefix: ${y.value}`,
+      value: y.id,
+    };
+  });
 
   const deleteMutation = useMutation({
     mutationFn: () => {
-      return client.post('api/simulate/delete-robot', { id });
+      return client.post("api/simulate/delete-robot", { id });
     },
     onSuccess: async () => {
       refetch();
-      void messageApi.success(t('utils.success'));
+      void messageApi.success(t("utils.success"));
       setIsOpen(false);
     },
     onError: () => {
-      void messageApi.error(t('utils.error'));
-    }
+      void messageApi.error(t("utils.error"));
+    },
   });
 
   const deleteHandler = () => {
@@ -44,21 +53,31 @@ const AmrForm: FC<{
   const locationOptions = useMemo(() => {
     const items =
       map?.locations
-        .filter((v) => v.areaType !== 'Storage')
+        .filter((v) => v.areaType !== "STORAGE")
         .map((v) => ({ label: v.locationId, value: v.locationId })) || [];
 
-    return [{ label: t('sim.robot.unset'), value: 'unset' }, ...items];
+    return [{ label: t("sim.robot.unset"), value: "unset" }, ...items];
   }, [map?.locations]);
 
   const editHandler = () => {
-    const full_name = form.getFieldValue('full_name') as string;
-    const script_placement_location = form.getFieldValue('script_placement_location') as string;
+    const robotTypeId = form.getFieldValue("robot_type") as string;
+    const carNum = form.getFieldValue("car_number") as number;
+    const script_placement_location = form.getFieldValue(
+      "script_placement_location"
+    ) as string;
+    const loadSpeed = form.getFieldValue("loadSpeed") as number;
+    const offloadSpeed = form.getFieldValue("offloadSpeed") as number;
+    const move_speed = form.getFieldValue("move_speed") as number;
 
     const payload = {
-      full_name,
-      script_placement_location
+      robotTypeId,
+      carNum,
+      script_placement_location,
+      loadSpeed,
+      offloadSpeed,
+      move_speed,
     };
-
+    console.log(payload);
     handleEditMutation(payload);
   };
 
@@ -67,15 +86,24 @@ const AmrForm: FC<{
 
     const info = robot?.find((v) => v?.id === id);
 
-    form.setFieldValue('full_name', info?.full_name);
-    form.setFieldValue('script_placement_location', info?.script_placement_location);
+    const nameArr = info?.full_name.split("-") as string[];
+
+    form.setFieldValue("robot_type", info?.Robot_type.id);
+    form.setFieldValue("car_number", nameArr[nameArr?.length - 1]);
+    form.setFieldValue(
+      "script_placement_location",
+      info?.script_placement_location
+    );
+    form.setFieldValue("loadSpeed", info?.load_speed);
+    form.setFieldValue("offloadSpeed", info?.offload_speed);
+    form.setFieldValue("move_speed", info?.move_speed);
   }, [isOpen]);
 
   return (
     <>
       {contextHolder}
       <Modal
-        title={t('sim.robot.modal.edit')}
+        title={t("sim.robot.modal.edit")}
         open={isOpen}
         onCancel={handleCancel}
         footer={() => (
@@ -86,7 +114,7 @@ const AmrForm: FC<{
               color="danger"
               variant="filled"
             >
-              {t('utils.delete')}
+              {t("utils.delete")}
             </Button>
             <SubmitButton form={form} onOk={editHandler} isModel />
           </>
@@ -94,19 +122,51 @@ const AmrForm: FC<{
       >
         <Form form={form} style={{ maxWidth: 600 }}>
           <Form.Item
-            name="full_name"
-            label={t('sim.robot.modal.full_name')}
+            name="robot_type"
+            label={"name"}
             rules={[{ required: true }]}
           >
-            <Input />
+            <Select options={robotTypeOption} />
+          </Form.Item>
+
+          <Form.Item
+            name="car_number"
+            label={"car number"}
+            rules={[{ required: true }]}
+          >
+            <InputNumber />
           </Form.Item>
 
           <Form.Item
             name="script_placement_location"
-            label={t('sim.robot.modal.placement')}
+            label={"initial location"}
             rules={[{ required: true }]}
           >
             <Select options={locationOptions} />
+          </Form.Item>
+
+          <Form.Item
+            name="loadSpeed"
+            label={"load speed"}
+            rules={[{ required: true }]}
+          >
+            <InputNumber />
+          </Form.Item>
+
+          <Form.Item
+            name="offloadSpeed"
+            label={"offload speed"}
+            rules={[{ required: true }]}
+          >
+            <InputNumber />
+          </Form.Item>
+
+          <Form.Item
+            name="move_speed"
+            label={"move speed"}
+            rules={[{ required: true }]}
+          >
+            <InputNumber />
           </Form.Item>
         </Form>
       </Modal>
