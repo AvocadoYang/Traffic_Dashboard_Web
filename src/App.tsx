@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Routes, Route, BrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { Main, LogIn, Setting, Register, Simulate, Records } from "./pages";
+import { getCookie } from "@/api/axiosClient";
 import MonitorCenter from "./pages/SWMoniter/SWMoniter";
 import MissionAnalysis from "./pages/MissionAnalysis/MissionAnalysis";
 import CargoHistory from "./pages/CargoHistory/CargoHistory";
@@ -18,7 +19,7 @@ const client = new QueryClient({
 
 // ======= 登入驗證守衛 =======
 const ProtectedRoute = () => {
-  const token = localStorage.getItem("token");
+  const token = getCookie("token");
   if (!token) return <Navigate to="/login" replace />;
   return <Outlet />;
 };

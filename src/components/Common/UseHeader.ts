@@ -9,13 +9,15 @@ import { useMockInfo } from "@/sockets/useMockInfo";
 import { errorHandler } from "@/utils/utils";
 import { ErrorResponse } from "@/utils/globalType";
 import { jwtDecode } from "jwt-decode";
+import { getCookie } from "@/api/axiosClient";
 import client from "@/api/axiosClient";
 import useName from "@/api/useAmrName";
 import dayjs from "dayjs";
 
+
 const getUsername = (): string => {
   try {
-    const token = localStorage.getItem("token");
+    const token = getCookie("token");
     return token ? jwtDecode<{ username: string }>(token).username : "";
   } catch {
     return "";

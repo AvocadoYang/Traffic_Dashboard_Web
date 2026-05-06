@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { io } from "socket.io-client";
-import client from "@/api/axiosClient";
+import client, { setCookie } from "@/api/axiosClient";
 import { Err } from "@/utils/responseErr";
 import styled, { keyframes, css } from "styled-components";
 import { font } from "@/styles/variables";
@@ -226,7 +226,8 @@ const Login: React.FC = () => {
     mutationFn: (payload: { username: string; password: string }) =>
       client.post("api/logInAndOut/login", payload),
     onSuccess: (res) => {
-      localStorage.setItem("token", res.data.token);
+      console.log('onSuccess', res.data)
+      setCookie("token", res.data.token, 24 * 7);
       messageApi.success(t("utils.success"));
       navigate("/", { replace: true });
     },
