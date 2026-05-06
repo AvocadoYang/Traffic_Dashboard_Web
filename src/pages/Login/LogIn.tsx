@@ -286,7 +286,7 @@ const Login: React.FC = () => {
                 size="large"
                 htmlType="submit"
                 loading={editMutation.isPending}
-                disabled={isActive === false}
+                // disabled={isActive === false}
               >
                 {editMutation.isPending ? "AUTHENTICATING..." : "LOGIN"}
               </LoginButton>

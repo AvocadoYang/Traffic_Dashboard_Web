@@ -2,7 +2,7 @@ import { Menu, Drawer, Button, ConfigProvider } from "antd";
 import { MenuOutlined } from "@ant-design/icons";
 import styled, { createGlobalStyle } from "styled-components";
 import { font } from "@/styles/variables";
-import { bodySizes, titleSizes } from "@/styles/mixins";
+import { titleSizes } from "@/styles/mixins";
 import { NavItem } from "@/types/Common/Nav";
 import { Grid } from "antd";
 
