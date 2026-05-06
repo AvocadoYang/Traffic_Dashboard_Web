@@ -1,1 +1,1 @@
-export { default as IdleMissionPanel } from './IdleMissionPanel';
+export { default as IdleMissionPanel } from "./IdleMissionPanel";

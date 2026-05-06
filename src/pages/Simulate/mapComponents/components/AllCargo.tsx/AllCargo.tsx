@@ -1,21 +1,21 @@
-import useMap from '@/api/useMap';
-import { rosCoord2DisplayCoord } from '@/utils/utils';
-import { memo } from 'react';
-import Cargo from './Cargo';
-import { tooltipProp } from '@/utils/gloable';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { isShowLocation } from '@/utils/siderGloble';
-import { Point } from '../AllLocation/components/PointAndLine';
-import { nanoid } from 'nanoid';
-import useLoc, { LocWithoutArr } from '@/api/useLoc';
-import useCargoInfo from '@/sockets/useCargoInfo';
-import styled from 'styled-components';
+import useMap from "@/api/useMap";
+import { rosCoord2DisplayCoord } from "@/utils/utils";
+import { memo } from "react";
+import Cargo from "./Cargo";
+import { tooltipProp } from "@/utils/gloable";
+import { useAtomValue, useSetAtom } from "jotai";
+import { isShowLocation } from "@/utils/siderGloble";
+import { Point } from "../AllLocation/components/PointAndLine";
+import { nanoid } from "nanoid";
+import useLoc, { LocWithoutArr } from "@/api/useLoc";
+import useCargoInfo from "@/sockets/useCargoInfo";
+import styled from "styled-components";
 
 const WrapperForCargo = styled.div.attrs<{
   left: number;
   top: number;
 }>(({ left, top }) => ({
-  style: { left, top }
+  style: { left, top },
 }))<{
   left: number;
   top: number;
@@ -36,7 +36,7 @@ const AllCargo: React.FC = () => {
     setTooltip({
       x,
       y,
-      locationId
+      locationId,
     });
   };
 
@@ -47,7 +47,7 @@ const AllCargo: React.FC = () => {
   return (
     <>
       {data.locations
-        .filter(({ areaType }) => areaType === 'Storage')
+        .filter(({ areaType }) => areaType === "STORAGE")
         .map((loc) => {
           const [displayX, displayY] = rosCoord2DisplayCoord({
             x: loc.x,
@@ -55,17 +55,22 @@ const AllCargo: React.FC = () => {
             mapHeight: data?.mapHeight,
             mapOriginX: data?.mapOriginX,
             mapOriginY: data.mapOriginY,
-            mapResolution: data.mapResolution
+            mapResolution: data.mapResolution,
           });
 
           const info = locInfo as LocWithoutArr[];
 
-          const translateX = info?.find((i) => i.locationId === loc.locationId)?.translateX || 0;
-          const translateY = info?.find((i) => i.locationId === loc.locationId)?.translateY || 0;
-          const rotate = info?.find((i) => i.locationId === loc.locationId)?.rotate || 0;
-          const LocScale = info?.find((i) => i.locationId === loc.locationId)?.scale || 0.1;
-          const flex_direction =
-            info?.find((i) => i.locationId === loc.locationId)?.flex_direction || 'row';
+          const translateX = info?.find((i) => i.locationId === loc.locationId)
+            ?.translateX as number;
+          const translateY = info?.find((i) => i.locationId === loc.locationId)
+            ?.translateY as number;
+          const rotate = info?.find((i) => i.locationId === loc.locationId)
+            ?.rotate as number;
+          const LocScale = info?.find((i) => i.locationId === loc.locationId)
+            ?.scale as number;
+          const flex_direction = info?.find(
+            (i) => i.locationId === loc.locationId,
+          )?.flex_direction as string;
           return (
             <div
               draggable={false}
@@ -73,7 +78,7 @@ const AllCargo: React.FC = () => {
               onDragStart={(event) => {
                 event.preventDefault();
               }}
-              style={{ borderRadius: '50%' }}
+              style={{ borderRadius: "50%" }}
             >
               <Point
                 id={loc.locationId.toString()}
@@ -93,7 +98,7 @@ const AllCargo: React.FC = () => {
                   scale={LocScale}
                   rotate={rotate}
                   flex_direction={flex_direction}
-                  shelfInfo={shelfInfo?.find((s) => s.locationId === loc.locationId)}
+                  shelfInfo={shelfInfo?.[loc.locationId] || undefined}
                 />
               </WrapperForCargo>
             </div>

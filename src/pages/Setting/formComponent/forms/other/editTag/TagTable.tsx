@@ -1,6 +1,6 @@
-import { nanoid } from 'nanoid';
-import { FC, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { nanoid } from "nanoid";
+import { FC, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Button,
   ColorPicker,
@@ -12,13 +12,18 @@ import {
   Popover,
   Table,
   Typography,
-  message
-} from 'antd';
-import { CloseOutlined, DeleteTwoTone, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
-import { useMutation } from '@tanstack/react-query';
-import useCategory from '@/api/useCategory';
-import client from '@/api/axiosClient';
-import SubmitButton from '@/utils/SubmitButton';
+  message,
+} from "antd";
+import {
+  CloseOutlined,
+  DeleteTwoTone,
+  EditOutlined,
+  InfoCircleOutlined,
+} from "@ant-design/icons";
+import { useMutation } from "@tanstack/react-query";
+import useCategory from "@/api/useCategory";
+import client from "@/api/axiosClient";
+import SubmitButton from "@/utils/SubmitButton";
 
 // bitch ant design not support the type
 interface Color {
@@ -51,10 +56,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
   let inputNode;
   const { t } = useTranslation();
   switch (dataIndex) {
-    case 'tagName':
-      inputNode = <Input style={{ width: '150px' }} />;
+    case "tagName":
+      inputNode = <Input style={{ width: "150px" }} />;
       break;
-    case 'color':
+    case "color":
       inputNode = <ColorPicker format="hex" size="small" showText />;
       break;
     default:
@@ -70,8 +75,8 @@ const EditableCell: React.FC<EditableCellProps> = ({
           rules={[
             {
               required: true,
-              message: t('utils.required')
-            }
+              message: t("utils.required"),
+            },
           ]}
           hasFeedback
         >
@@ -94,44 +99,46 @@ const TagTable: FC = () => {
 
   const editMutation = useMutation({
     mutationFn: (payload: DataType) => {
-      return client.post('api/setting/edit-category', payload);
+      return client.post("api/setting/edit-category", payload);
     },
     onSuccess() {
       void refetch();
-    }
+    },
   });
 
   const addMutation = useMutation({
     mutationFn: () => {
-      return client.post('api/setting/add-category');
+      return client.post("api/setting/add-category");
     },
     onSuccess() {
       void refetch();
-    }
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (payload: { id: string }) => {
-      return client.post('api/setting/delete-category', payload);
+      return client.post("api/setting/delete-category", payload);
     },
     onSuccess() {
       void refetch();
-    }
+    },
   });
 
   const edit = (record: Partial<DataType> & { id: string }) => {
     if (
-      record.tagName === 'none' ||
-      record.tagName === 'dynamic-mission' ||
-      record.tagName === 'normal-mission' ||
-      record.tagName === 'charge'
+      record.tagName === "none" ||
+      record.tagName === "dynamic-mission" ||
+      record.tagName === "normal-mission" ||
+      record.tagName === "charge"
     ) {
-      void messageApi.warning(t('other.edit_mission_tag.forbidden_edit_default'));
+      void messageApi.warning(
+        t("other.edit_mission_tag.forbidden_edit_default"),
+      );
       return;
     }
 
-    form.setFieldValue('tagName', record.tagName);
-    form.setFieldValue('color', record.color);
+    form.setFieldValue("tagName", record.tagName);
+    form.setFieldValue("color", record.color);
 
     setEditingKey(record.id);
   };
@@ -146,31 +153,37 @@ const TagTable: FC = () => {
 
   const handleDelete = (record: Partial<DataType> & { id: string }) => {
     if (
-      record.tagName === 'none' ||
-      record.tagName === 'dynamic-mission' ||
-      record.tagName === 'normal-mission' ||
-      record.tagName === 'charge'
+      record.tagName === "none" ||
+      record.tagName === "dynamic-mission" ||
+      record.tagName === "normal-mission" ||
+      record.tagName === "charge"
     ) {
-      void messageApi.warning(t('other.edit_mission_tag.forbidden_edit_default'));
+      void messageApi.warning(
+        t("other.edit_mission_tag.forbidden_edit_default"),
+      );
       return;
     }
 
     deleteMutation.mutate({ id: record.id });
   };
 
-  const isColorWithToHexString = (obj: Color): obj is { toHexString: () => string } => {
-    return obj && typeof obj.toHexString === 'function';
+  const isColorWithToHexString = (
+    obj: Color,
+  ): obj is { toHexString: () => string } => {
+    return obj && typeof obj.toHexString === "function";
   };
 
   const save = (key: string) => {
-    const color = form.getFieldValue('color') as Color;
+    const color = form.getFieldValue("color") as Color;
 
-    const hexColor = isColorWithToHexString(color) ? color.toHexString() : (color as string);
+    const hexColor = isColorWithToHexString(color)
+      ? color.toHexString()
+      : (color as string);
 
     const payload = {
       id: key,
-      tagName: form.getFieldValue('tagName') as string,
-      color: hexColor
+      tagName: form.getFieldValue("tagName") as string,
+      color: hexColor,
     };
 
     editMutation.mutate(payload);
@@ -179,16 +192,16 @@ const TagTable: FC = () => {
 
   const columns = [
     {
-      title: t('other.edit_mission_tag.tag'),
-      dataIndex: 'tagName',
-      key: 'tagName',
+      title: t("other.edit_mission_tag.tag"),
+      dataIndex: "tagName",
+      key: "tagName",
       width: 300,
-      editable: true
+      editable: true,
     },
     {
-      title: t('other.edit_mission_tag.color'),
-      dataIndex: 'color',
-      key: 'color',
+      title: t("other.edit_mission_tag.color"),
+      dataIndex: "color",
+      key: "color",
       width: 100,
       editable: true,
       render: (_v: unknown, record: DataType) => {
@@ -199,15 +212,15 @@ const TagTable: FC = () => {
             size="small"
             showText
             value={record.color}
-            onChange={(v) => form.setFieldValue('color', v.toHexString())}
+            onChange={(v) => form.setFieldValue("color", v.toHexString())}
           />
         );
-      }
+      },
     },
     {
-      title: '',
+      title: "",
       width: 30,
-      dataIndex: 'operation',
+      dataIndex: "operation",
       key: nanoid(),
 
       render(_v: unknown, record: DataType) {
@@ -229,8 +242,13 @@ const TagTable: FC = () => {
               }}
               style={{ marginRight: 8 }}
             >
-              <Button icon={<CloseOutlined />} color="danger" variant="filled" type="link">
-                {t('utils.cancel')}
+              <Button
+                icon={<CloseOutlined />}
+                color="danger"
+                variant="filled"
+                type="link"
+              >
+                {t("utils.cancel")}
               </Button>
             </Typography.Link>
           </Flex>
@@ -242,17 +260,24 @@ const TagTable: FC = () => {
                 edit(record);
               }}
             >
-              <Button icon={<EditOutlined />} color="primary" variant="filled" type="link">
-                {t('utils.edit')}
+              <Button
+                icon={<EditOutlined />}
+                color="primary"
+                variant="filled"
+                type="link"
+              >
+                {t("utils.edit")}
               </Button>
             </Typography.Link>
             <Popconfirm
-              title={t('utils.delete')}
-              description={t('utils.delete_warn')}
-              onConfirm={() => handleDelete({ id: record.id, tagName: record.tagName })}
+              title={t("utils.delete")}
+              description={t("utils.delete_warn")}
+              onConfirm={() =>
+                handleDelete({ id: record.id, tagName: record.tagName })
+              }
               onCancel={cancel}
-              okText={t('utils.yes')}
-              cancelText={t('utils.no')}
+              okText={t("utils.yes")}
+              cancelText={t("utils.no")}
             >
               <Button
                 icon={<DeleteTwoTone twoToneColor="#f30303" />}
@@ -260,13 +285,13 @@ const TagTable: FC = () => {
                 variant="filled"
                 type="link"
               >
-                {t('utils.delete')}
+                {t("utils.delete")}
               </Button>
             </Popconfirm>
           </Flex>
         );
-      }
-    }
+      },
+    },
   ];
 
   const mergedColumns = columns.map((col) => {
@@ -280,18 +305,18 @@ const TagTable: FC = () => {
 
         dataIndex: col.dataIndex,
         title: col.title,
-        editing: isEditing(record)
-      })
+        editing: isEditing(record),
+      }),
     };
   });
 
   return (
     <>
       {contextHolder}
-      <div style={{ width: '100%' }}>
+      <div style={{ width: "100%" }}>
         <Flex justify="space-between">
           <Button color="primary" variant="filled" onClick={() => handleAdd()}>
-            {t('utils.add')}
+            {t("utils.add")}
           </Button>
           <Popover trigger="click" content={<DescribeTag></DescribeTag>}>
             <InfoCircleOutlined />
@@ -304,8 +329,8 @@ const TagTable: FC = () => {
           rowKey={() => nanoid()}
           components={{
             body: {
-              cell: EditableCell
-            }
+              cell: EditableCell,
+            },
           }}
           columns={mergedColumns}
           dataSource={category as DataType[]}
@@ -323,22 +348,22 @@ const DescribeTag = () => {
     <Descriptions bordered column={2} size="small">
       <Descriptions.Item>charge</Descriptions.Item>
 
-      <Descriptions.Item>{t('mission.add_mission.charge')}</Descriptions.Item>
+      <Descriptions.Item>{t("mission.add_mission.charge")}</Descriptions.Item>
 
       <Descriptions.Item>force</Descriptions.Item>
 
-      <Descriptions.Item>{t('mission.add_mission.force')}</Descriptions.Item>
+      <Descriptions.Item>{t("mission.add_mission.force")}</Descriptions.Item>
 
       <Descriptions.Item>normal-mission</Descriptions.Item>
 
       <Descriptions.Item>
-        {t('mission.add_mission.normal_mission_tag_description')}
+        {t("mission.add_mission.normal_mission_tag_description")}
       </Descriptions.Item>
 
       <Descriptions.Item>dynamic-mission</Descriptions.Item>
 
       <Descriptions.Item>
-        {t('mission.add_mission.dynamic_mission_tag_description')}
+        {t("mission.add_mission.dynamic_mission_tag_description")}
       </Descriptions.Item>
     </Descriptions>
   );

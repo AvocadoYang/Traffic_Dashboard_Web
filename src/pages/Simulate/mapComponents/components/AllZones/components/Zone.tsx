@@ -1,8 +1,8 @@
-import useMap from '@/api/useMap';
-import { rosCoord2DisplayCoord } from '@/utils/utils';
-import { FC, memo, useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { EyeInvisibleOutlined, EyeOutlined } from '@ant-design/icons';
+import useMap from "@/api/useMap";
+import { rosCoord2DisplayCoord } from "@/utils/utils";
+import { FC, memo, useEffect, useState } from "react";
+import styled from "styled-components";
+import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
 
 type ZoneInfo = {
   id: string;
@@ -32,8 +32,8 @@ const Frame = styled.div.attrs<{
     width: `${width}px`,
     height: `${height}px`,
     background: color,
-    border: '2px solid rgba(251, 23, 3, 0.32)'
-  }
+    border: "2px solid rgba(251, 23, 3, 0.32)",
+  },
 }))<{
   left: number;
   top: number;
@@ -48,8 +48,8 @@ const FrameName = styled.div.attrs<{
 }>(({ left, top }) => ({
   style: {
     left,
-    top
-  }
+    top,
+  },
 }))<{
   left: number;
   top: number;
@@ -60,7 +60,10 @@ const FrameName = styled.div.attrs<{
   position: absolute;
 `;
 
-const Zone: FC<{ id: string; info: ZoneInfo; scale: number }> = ({ id, info }) => {
+const Zone: FC<{ id: string; info: ZoneInfo; scale: number }> = ({
+  id,
+  info,
+}) => {
   const { data } = useMap();
   const [axis, setAxis] = useState({ x: -5000, y: -5000 });
   const [size, setSize] = useState({ width: 0, height: 0 });
@@ -74,7 +77,7 @@ const Zone: FC<{ id: string; info: ZoneInfo; scale: number }> = ({ id, info }) =
       mapHeight: data.mapHeight,
       mapOriginX: data.mapOriginX,
       mapOriginY: data.mapOriginY,
-      mapResolution: data.mapResolution
+      mapResolution: data.mapResolution,
     });
 
     const [endXDisplay, endYDisplay] = rosCoord2DisplayCoord({
@@ -83,13 +86,16 @@ const Zone: FC<{ id: string; info: ZoneInfo; scale: number }> = ({ id, info }) =
       mapHeight: data.mapHeight,
       mapOriginX: data.mapOriginX,
       mapOriginY: data.mapOriginY,
-      mapResolution: data.mapResolution
+      mapResolution: data.mapResolution,
     });
 
-    setAxis({ x: Math.min(startXDisplay, endXDisplay), y: Math.min(startYDisplay, endYDisplay) });
+    setAxis({
+      x: Math.min(startXDisplay, endXDisplay),
+      y: Math.min(startYDisplay, endYDisplay),
+    });
     setSize({
       width: Math.abs(endXDisplay - startXDisplay),
-      height: Math.abs(endYDisplay - startYDisplay)
+      height: Math.abs(endYDisplay - startYDisplay),
     });
   }, [info, data]);
 
@@ -98,9 +104,15 @@ const Zone: FC<{ id: string; info: ZoneInfo; scale: number }> = ({ id, info }) =
     <>
       <FrameName left={axis.x} top={axis.y - 18} draggable={false}>
         {hidden ? (
-          <EyeOutlined style={{ cursor: 'pointer' }} onClick={() => setHidden(false)} />
+          <EyeOutlined
+            style={{ cursor: "pointer" }}
+            onClick={() => setHidden(false)}
+          />
         ) : (
-          <EyeInvisibleOutlined style={{ cursor: 'pointer' }} onClick={() => setHidden(true)} />
+          <EyeInvisibleOutlined
+            style={{ cursor: "pointer" }}
+            onClick={() => setHidden(true)}
+          />
         )}
 
         {` ${info.name}`}

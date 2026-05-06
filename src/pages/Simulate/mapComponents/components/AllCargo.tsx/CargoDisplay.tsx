@@ -1,6 +1,6 @@
-import { Button } from 'antd';
-import { FC } from 'react';
-import styled from 'styled-components';
+import { Button } from "antd";
+import { FC } from "react";
+import styled from "styled-components";
 
 // Styled components for enhanced UI
 const Block = styled(Button)<{
@@ -10,8 +10,9 @@ const Block = styled(Button)<{
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: ${({ $hasCargo }) => ($hasCargo ? '#ffe73c80' : '#f5f5f580')};
-  border: '1px dashed #727272';
+  background-color: ${({ $hasCargo }) =>
+    $hasCargo ? "#ffe73c80" : "#f5f5f580"};
+  border: "1px dashed #727272";
   border-radius: 3px;
   min-width: 15px;
   max-height: 15px;
@@ -21,17 +22,18 @@ const Block = styled(Button)<{
   position: relative;
   flex-grow: 1;
   z-index: 1;
-  cursor: 'pointer';
+  cursor: "pointer";
   opacity: ${({ $isDisable }) => ($isDisable ? 0.6 : 1)};
-  box-shadow: '0 0 8px rgba(24, 144, 255, 0.3)';
+  box-shadow: "0 0 8px rgba(24, 144, 255, 0.3)";
 
   &:hover:not(:disabled) {
-    background-color: ${({ $hasCargo }) => ($hasCargo ? '#ffe73cb3' : '#e8e8e8b3')};
+    background-color: ${({ $hasCargo }) =>
+      $hasCargo ? "#ffe73cb3" : "#e8e8e8b3"};
     transform: scale(1.05);
   }
 
   &:disabled::after {
-    content: 'X';
+    content: "X";
     position: absolute;
     top: 50%;
     left: 50%;
@@ -52,7 +54,7 @@ const Block = styled(Button)<{
 const BlockSpan = styled.span<{ rotate: number; $hasCargo: boolean }>`
   font-size: 12px;
   font-weight: 500;
-  color: ${({ $hasCargo }) => ($hasCargo ? '#000' : '#333')};
+  color: ${({ $hasCargo }) => ($hasCargo ? "#000" : "#333")};
   transform: ${({ rotate }) => `rotate(${-rotate}deg)`};
   white-space: nowrap;
   user-select: none;
@@ -66,8 +68,20 @@ const CargoDisplay: FC<{
   isDisable: boolean;
   locId: string;
   rotate: number;
-  handleMouseDown: (e: React.MouseEvent<HTMLElement>, locId: string, level: number) => void;
-}> = ({ level, levelName, cargoValue, isDisable, locId, rotate, handleMouseDown }) => {
+  handleMouseDown: (
+    e: React.MouseEvent<HTMLElement>,
+    locId: string,
+    level: number,
+  ) => void;
+}> = ({
+  level,
+  levelName,
+  cargoValue,
+  isDisable,
+  locId,
+  rotate,
+  handleMouseDown,
+}) => {
   return (
     <Block
       key={level}

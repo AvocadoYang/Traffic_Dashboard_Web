@@ -1,4 +1,4 @@
-import { robotType, robotControl, robotUpperControl } from './params';
+import { robotType, robotControl, robotUpperControl } from "./params";
 
 export type Robot_Type = (typeof robotType)[number];
 export type Robot_Control = (typeof robotControl)[number];

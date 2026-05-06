@@ -1,19 +1,19 @@
-import { useQuery } from '@tanstack/react-query';
-import { array, number, object, string } from 'yup';
-import client from './axiosClient';
+import { useQuery } from "@tanstack/react-query";
+import { array, number, object, string } from "yup";
+import client from "./axiosClient";
 
 const getLoc = async () => {
-  const { data } = await client.get<unknown>('api/setting/all-loc-only');
+  const { data } = await client.get<unknown>("api/setting/all-loc-only");
 
   const strSchema = string().optional().nullable();
 
   const relationshipSchema = object().test(
-    'relation-type',
-    'relationship has format error',
+    "relation-type",
+    "relationship has format error",
     (value) => {
       if (!value || Object.keys(value).length === 0) return true;
 
-      if (typeof value !== 'object' || Array.isArray(value)) return false;
+      if (typeof value !== "object" || Array.isArray(value)) return false;
 
       for (const key in value) {
         const levelValue = value[key];
@@ -22,7 +22,7 @@ const getLoc = async () => {
       }
 
       return true;
-    }
+    },
   );
 
   const schema = () =>
@@ -35,30 +35,30 @@ const getLoc = async () => {
         translateY: number().required(),
         rotate: number().required(),
         scale: number().required(),
-        flex_direction: string().required('all loc only req'),
+        flex_direction: string().required("all loc only req"),
         placement_priority: number().required(),
         relationships: relationshipSchema.optional().nullable(),
         prepare_point: object({
           id: string().required(),
-          locationId: string().required()
+          locationId: string().required(),
         })
           .optional()
-          .nullable()
-      }).required()
+          .nullable(),
+      }).required(),
     ).required();
 
   return schema().validate(data);
 };
 
 const useLoc = (locId: string | undefined) => {
-  return useQuery(['loc-only', locId], {
+  return useQuery(["loc-only", locId], {
     queryFn: getLoc,
     select: (data) => {
       if (locId) {
         return data.find((location) => location.locationId === locId);
       }
       return data;
-    }
+    },
   });
 };
 

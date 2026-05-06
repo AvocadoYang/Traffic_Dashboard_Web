@@ -1,17 +1,168 @@
-import { ControlTwoTone, DeleteTwoTone, EditOutlined } from '@ant-design/icons';
-import client from '@/api/axiosClient';
-import { MTType } from '@/api/useMissionTitle';
-import { Err } from '@/utils/responseErr';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button, Flex, message, Popconfirm, Table, TableColumnsType, Tag } from 'antd';
-import { FC } from 'react';
-import { useTranslation } from 'react-i18next';
-import styled from 'styled-components';
-import { Mission_Title } from './mission';
+import { ControlTwoTone, DeleteTwoTone, EditOutlined } from "@ant-design/icons";
+import client from "@/api/axiosClient";
+import { MTType } from "@/api/useMissionTitle";
+import { Err } from "@/utils/responseErr";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  Button,
+  Flex,
+  message,
+  Popconfirm,
+  Select,
+  Table,
+  TableColumnsType,
+  Tag,
+} from "antd";
+import { FC } from "react";
+import { useTranslation } from "react-i18next";
+import styled from "styled-components";
+import { Mission_Title } from "./mission";
+import useMissionFolder from "@/api/useMissionFolder";
+
+// Industrial Styled Components
+const IndustrialTableContainer = styled.div`
+  font-family: "Roboto Mono", monospace;
+  width: 100%;
+
+  .ant-table {
+    background: #ffffff;
+    border: 1px solid #d9d9d9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .ant-table-thead > tr > th {
+    background: #fafafa;
+    color: #262626;
+    font-weight: 600;
+
+    font-size: 11px;
+    letter-spacing: 1px;
+    border-bottom: 2px solid #d9d9d9;
+    font-family: "Roboto Mono", monospace;
+    padding: 16px;
+  }
+
+  .ant-table-tbody > tr {
+    background: #ffffff;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #f0f5ff !important;
+      box-shadow: 0 2px 4px rgba(24, 144, 255, 0.1);
+    }
+  }
+
+  .ant-table-tbody > tr > td {
+    border-bottom: 1px solid #f0f0f0;
+    font-family: "Roboto Mono", monospace;
+    font-size: 12px;
+    color: #595959;
+    padding: 16px;
+  }
+
+  .ant-pagination {
+    font-family: "Roboto Mono", monospace;
+  }
+`;
+
+const MissionName = styled.p`
+  margin: 0;
+  font-weight: 600;
+  color: #262626;
+  font-size: 13px;
+
+  letter-spacing: 0.5px;
+`;
+
+const RobotType = styled.p`
+  margin: 0;
+  padding: 4px 10px;
+  background: #e6f7ff;
+  border: 1px solid #1890ff;
+  border-radius: 4px;
+  color: #1890ff;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-block;
+
+  letter-spacing: 1px;
+`;
 
 const TagWrapper = styled.div`
   display: flex;
-  gap: 1em;
+  gap: 8px;
+  flex-wrap: wrap;
+`;
+
+const IndustrialTag = styled(Tag)`
+  font-family: "Roboto Mono", monospace;
+  font-size: 10px;
+
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+`;
+
+const ActionButtonGroup = styled.div`
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+`;
+
+const IndustrialButton = styled(Button)`
+  font-family: "Roboto Mono", monospace;
+
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  height: 32px;
+  padding: 0 16px;
+  font-weight: 600;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+
+  &.delete-btn {
+    background: #fff1f0;
+    border: 1px solid #ff4d4f;
+    color: #ff4d4f;
+
+    &:hover {
+      background: #ff4d4f;
+      border-color: #ff4d4f;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3);
+    }
+  }
+
+  &.edit-btn {
+    background: #e6f7ff;
+    border: 1px solid #1890ff;
+    color: #1890ff;
+
+    &:hover {
+      background: #1890ff;
+      border-color: #1890ff;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+    }
+  }
+
+  &.control-btn {
+    background: #f9f0ff;
+    border: 1px solid #722ed1;
+    color: #722ed1;
+
+    &:hover {
+      background: #722ed1;
+      border-color: #722ed1;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(114, 46, 209, 0.3);
+    }
+  }
+
+  .anticon {
+    font-size: 14px;
+  }
 `;
 
 const MissionTable: FC<{
@@ -28,36 +179,58 @@ const MissionTable: FC<{
   setSelectedMissionKey,
   setSelectedMissionCar,
   allMissionTitle,
-  setMissionName
+  setMissionName,
 }) => {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
   const [messageApi, contextHolders] = message.useMessage();
+  const { data: folders, refetch: refetchFolders } = useMissionFolder();
   const deleteMutation = useMutation({
     mutationFn: (deleteId: string) => {
       return client.post(
-        'api/setting/delete-mission-title',
+        "api/setting/delete-mission-title",
         {
-          id: deleteId
+          id: deleteId,
         },
         {
-          headers: { authorization: `Bearer ${localStorage.getItem('_KMT')}` }
+          headers: { authorization: `Bearer ${localStorage.getItem("_KMT")}` },
         }
       );
     },
     onSuccess: async () => {
       await queryClient.refetchQueries({
-        queryKey: ['all-mission-title-detail']
+        queryKey: ["all-mission-title-detail"],
       });
       await queryClient.refetchQueries({
-        queryKey: ['all-relate-task']
+        queryKey: ["all-relate-task"],
       });
-
-      setSelectedMissionKey('');
+      setSelectedMissionKey("");
+      messageApi.success(t("utils.success"));
     },
     onError(error: Err) {
       messageApi.error(error.response.data.message);
-    }
+    },
+  });
+
+  const editMutation = useMutation({
+    mutationFn: (payload: { folderId: string; missionId: string }) => {
+      return client.post("api/setting/change-mission-folder", payload);
+    },
+    onSuccess: async () => {
+      messageApi.success(t("utils.success"));
+      await queryClient.refetchQueries({ queryKey: ["mission-folder"] });
+      await queryClient.refetchQueries({ queryKey: ["all-relate-task"] });
+      await queryClient.refetchQueries({
+        queryKey: ["all-mission-title-detail"],
+      });
+    },
+    onError(error: Err) {
+      messageApi.error(error.response.data.message);
+    },
+  });
+
+  const folderOption = folders?.map((s) => {
+    return { label: s.name, value: s.id };
   });
 
   const handleDelete = (key: string) => {
@@ -71,7 +244,7 @@ const MissionTable: FC<{
     setSelectedMissionKey(record.id);
     setMissionName(record.name);
     try {
-      await queryClient.refetchQueries({ queryKey: ['all-relate-task'] });
+      await queryClient.refetchQueries({ queryKey: ["all-relate-task"] });
     } catch (e) {
       console.log(e);
     }
@@ -80,93 +253,125 @@ const MissionTable: FC<{
   const showModal = (key: string) => {
     setEditMissionKey(key);
     setOpenMissionModel(true);
-    setSelectedMissionKey('');
+    setSelectedMissionKey("");
+  };
+
+  const handleSelectFolder = (folderId: string, missionId: string) => {
+    editMutation.mutate({ folderId, missionId });
   };
 
   const columns: TableColumnsType<Mission_Title> = [
     {
-      title: t('mission.add_mission.name'),
-      dataIndex: 'name',
-      key: 'name',
-      render: (text: string) => <p>{text}</p>,
-      // sorter: (a, b) => a.name.localeCompare(b.name),
-      defaultSortOrder: 'ascend'
+      title: t("mission.add_mission.name"),
+      dataIndex: "name",
+      key: "name",
+
+      render: (text: string) => <MissionName>{text}</MissionName>,
+      defaultSortOrder: "ascend",
     },
     {
-      title: t('mission.add_mission.car'),
-      dataIndex: 'car_type',
-      key: 'car_type',
+      title: t("mission.add_mission.car"),
+      dataIndex: "car_type",
+      key: "car_type",
+
       render: (_, record) => {
-        return <p>{record.Robot_types?.name}</p>;
+        return <RobotType>{record.Robot_types?.name || "-"}</RobotType>;
       },
-      sorter: (a, b) => a.name.localeCompare(b.name)
+      sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
-      title: t('mission.add_mission.tag'),
-      dataIndex: 'tag',
-      key: 'tag',
+      title: t("mission.add_mission.folder"),
+      dataIndex: "folder_path",
+      key: "folder_path",
+
+      render(value, record, index) {
+        return (
+          <Select
+            value={record?.mission_folder?.id || null}
+            style={{ width: 250 }}
+            options={folderOption}
+            onChange={(v) => handleSelectFolder(v, record.id)}
+          />
+        );
+      },
+    },
+    {
+      title: t("mission.add_mission.tag"),
+      dataIndex: "tag",
+      key: "tag",
+
       render: (_, record) => {
         const tags = record.MissionTitleBridgeCategory?.map((c, idx) => (
-          <Tag key={c.Category?.id || idx} color={c.Category?.color}>
+          <IndustrialTag key={c.Category?.id || idx} color={c.Category?.color}>
             {c.Category?.tagName}
-          </Tag>
+          </IndustrialTag>
         ));
-        return <TagWrapper>{tags || <></>}</TagWrapper>;
-      }
+        return (
+          <TagWrapper>
+            {tags || <span style={{ color: "#8c8c8c" }}>-</span>}
+          </TagWrapper>
+        );
+      },
     },
     {
-      title: '',
-      dataIndex: 'operation',
-      key: 'operation',
+      title: "ACTIONS",
+      dataIndex: "operation",
+      key: "operation",
+
       render: (_, record) => {
         return (
-          <>
-            <Flex gap="small">
-              <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.id)}>
-                <Button
-                  icon={<DeleteTwoTone twoToneColor="#f30303" />}
-                  color="danger"
-                  variant="filled"
-                  type="link"
-                >
-                  {t('utils.delete')}
-                </Button>
-              </Popconfirm>
-
-              <Button
-                onClick={() => showModal(record.id)}
-                color="primary"
-                variant="filled"
-                icon={<EditOutlined />}
+          <ActionButtonGroup>
+            <Popconfirm
+              title={t("utils.delete_warn") || "Sure to delete?"}
+              onConfirm={() => handleDelete(record.id)}
+            >
+              <IndustrialButton
+                className="delete-btn"
+                icon={<DeleteTwoTone twoToneColor="#ff4d4f" />}
+                size="small"
               >
-                {t('mission.add_mission.edit_info')}
-              </Button>
+                {t("utils.delete")}
+              </IndustrialButton>
+            </Popconfirm>
 
-              <Button
-                onClick={() => handleClick(record)}
-                color="purple"
-                variant="filled"
-                icon={<ControlTwoTone twoToneColor="#5273e0" />}
-              >
-                {t('mission.add_mission.edit_detail')}
-              </Button>
-            </Flex>
-          </>
+            <IndustrialButton
+              className="edit-btn"
+              onClick={() => showModal(record.id)}
+              icon={<EditOutlined />}
+              size="small"
+            >
+              {t("mission.add_mission.edit_info")}
+            </IndustrialButton>
+
+            <IndustrialButton
+              className="control-btn"
+              onClick={() => handleClick(record)}
+              icon={<ControlTwoTone twoToneColor="#722ed1" />}
+              size="small"
+            >
+              {t("mission.add_mission.edit_detail")}
+            </IndustrialButton>
+          </ActionButtonGroup>
         );
-      }
-    }
+      },
+    },
   ];
 
   return (
-    <>
+    <IndustrialTableContainer>
       {contextHolders}
       <Table
         bordered
         dataSource={allMissionTitle}
         columns={columns as []}
         rowKey={(record) => record.id}
+        pagination={{
+          pageSize: 20,
+          showSizeChanger: true,
+          showTotal: (total) => `TOTAL: ${total} MISSIONS`,
+        }}
       />
-    </>
+    </IndustrialTableContainer>
   );
 };
 

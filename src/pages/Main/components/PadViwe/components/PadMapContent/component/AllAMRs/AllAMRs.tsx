@@ -1,6 +1,6 @@
-import AMR from './components/AMR';
-import { memo } from 'react';
-import useName from '@/api/useAmrName';
+import { memo } from "react";
+import useName from "@/api/useAmrName";
+import AMR from "./components/AMR";
 
 const MemoizedAMR = memo(AMR, (prevProps, nextProps) => {
   return prevProps.amrId === nextProps.amrId;

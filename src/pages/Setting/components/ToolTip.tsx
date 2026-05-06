@@ -1,15 +1,15 @@
-import useMap from '@/api/useMap';
-import { tooltipProp } from '@/utils/gloable';
-import { rosCoord2DisplayCoord } from '@/utils/utils';
-import { useAtomValue } from 'jotai';
-import { FC } from 'react';
-import styled from 'styled-components';
+import useMap from "@/api/useMap";
+import { tooltipProp } from "@/utils/gloable";
+import { rosCoord2DisplayCoord } from "@/utils/utils";
+import { useAtomValue } from "jotai";
+import { FC } from "react";
+import styled from "styled-components";
 
 const TooltipWrapper = styled.div.attrs<{
   left: number;
   top: number;
 }>(({ left, top }) => ({
-  style: { left: left + 12, top }
+  style: { left: left + 12, top },
 }))<{
   left: number;
   top: number;
@@ -42,11 +42,11 @@ const ToolTip: FC = () => {
     mapHeight: data?.mapHeight,
     mapOriginX: data?.mapOriginX,
     mapOriginY: data.mapOriginY,
-    mapResolution: data.mapResolution
+    mapResolution: data.mapResolution,
   });
   return (
-    <TooltipWrapper left={displayX} top={displayY} className={'show'}>
-      {' '}
+    <TooltipWrapper left={displayX} top={displayY} className={"show"}>
+      {" "}
       {toolTipProps.locationId}
     </TooltipWrapper>
   );

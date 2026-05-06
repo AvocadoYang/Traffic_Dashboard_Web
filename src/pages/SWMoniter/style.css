@@ -1,0 +1,55 @@
+.carousel-wrap {
+    background-color: #f9f9f9; /* 半透明背景 */
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0);  /* 柔和陰影 */
+    border-radius: 16px;
+    width: 100%;
+    position: relative;
+   
+}
+
+.gauge-wrap {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    border-radius: 16px ;
+    padding: 8px;
+    background-color: #f9f9f9;
+}
+
+
+
+.gauge-item {
+    display: inline-block;
+    width: 33.33%;
+    vertical-align: top;
+    margin-right: 10px;
+}
+
+.outlined {
+    color: #e5e3e4;
+    position: absolute;
+    top: 55%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 1;
+    transition: 0.2;
+}
+
+.outlined:hover {
+    font-size: 20px;
+    color: gray;
+}
+
+.left {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+}
+
+.right {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+}

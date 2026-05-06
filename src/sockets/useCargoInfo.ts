@@ -1,49 +1,44 @@
-import { array, string, object, ValidationError, boolean, number } from 'yup';
-import { from, fromEventPattern, share, switchMap, distinctUntilChanged } from 'rxjs';
-import { useEffect, useState } from 'react';
-import { io } from './socketConnect';
-import { Cargo } from '@/types/peripheral';
+import { array, string, object, ValidationError, boolean, number } from "yup";
+import {
+  from,
+  fromEventPattern,
+  share,
+  switchMap,
+  distinctUntilChanged,
+} from "rxjs";
+import { useEffect, useState } from "react";
+import { io } from "./socketConnect";
+import { LayerType } from "@/api/type/useLocation";
 
 export const levelSchema = object({
   levelName: string().optional().nullable(),
+  description: string().optional().nullable(),
   booked: boolean().optional().nullable(),
   cargo_limit: number().optional(),
   disable: boolean().optional(),
-  hasCargo: boolean().optional()
+  hasCargo: boolean().optional(),
 });
 
 export const layerSchema = object().test(
-  'is-layer-type',
-  'socket Invalid layer format',
+  "is-layer-type",
+  "socket Invalid layer format",
   (value) => {
-    if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+    if (!value || typeof value !== "object" || Array.isArray(value))
+      return false;
 
     for (const key in value) {
       const valid = levelSchema.isValidSync(value[key]);
       if (!valid) {
         console.error(
           `Validation failed for level ${key}:`,
-          levelSchema.validateSync(value[key], { abortEarly: false })
+          levelSchema.validateSync(value[key], { abortEarly: false }),
         );
         return false;
       }
     }
     return true;
-  }
+  },
 );
-export type LayerType = {
-  [level: number]: {
-    dbId: string;
-    height: number;
-    levelName: string;
-    booked: boolean;
-    cargo_limit: number;
-    disable: boolean;
-    hasCargo: boolean;
-
-    cargo: Cargo[];
-  };
-};
 
 export type CargoInfo = {
   name?: string;
@@ -53,54 +48,50 @@ export type CargoInfo = {
   isDropping: boolean;
 };
 
-const schema = () =>
-  array(
-    object({
-      name: string().optional().nullable(),
-      type: string().optional(),
-      locationId: string().required(),
-      layer: layerSchema.optional(),
-      isDropping: boolean().optional()
-    }).required()
-  ).required();
-
 const profiles$ = fromEventPattern(
   (next) => {
-    io.on('cargo-info', next);
+    io.on("cargo-info", next);
     return next;
   },
   (next) => {
-    io.off('cargo-info', next);
-  }
+    io.off("cargo-info", next);
+  },
 ).pipe(
-  switchMap((msg) => {
-    // console.log('Message received by switchMap:', msg);
+  switchMap((msg: unknown) => {
+    if (typeof msg !== "object" || msg === null) {
+      console.error("Invalid message format.");
+      return from([undefined]);
+    }
 
-    return from(
-      schema()
-        .validate(msg as unknown[])
-        .catch((err: ValidationError) => {
-          console.error(err.message);
-          console.error('cargo-info socket schema mismatch: ', err.value);
-          return undefined;
-        })
-    );
+    const message = msg as { [key: string]: CargoInfo };
+
+    if (message === null) {
+      return from([undefined]);
+    }
+
+    return from([message]);
   }),
-  distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-  share()
+  distinctUntilChanged(
+    (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
+  ),
+  share(),
 );
 
 const useCargoInfo = () => {
-  const [cargoInfo, setCargoInfo] = useState<CargoInfo[]>();
+  const [cargoInfo, setCargoInfo] = useState<{
+    [key: string]: CargoInfo;
+  }>();
 
   useEffect(() => {
     const subscription = profiles$
       .pipe(
-        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)) // Avoid state update if data is identical
+        distinctUntilChanged(
+          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
+        ),
       )
       .subscribe((filteredData) => {
         if (filteredData) {
-          setCargoInfo(filteredData as CargoInfo[]);
+          setCargoInfo(filteredData);
         }
       });
 

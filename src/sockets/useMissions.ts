@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import {
   filter,
   from,
@@ -7,29 +7,39 @@ import {
   pluck,
   share,
   distinctUntilChanged,
-  switchMap
-} from 'rxjs';
-import { isDefined, objectKeys } from 'ts-extras';
-import { array, boolean, date, mixed, number, object, string, ValidationError } from 'yup';
-import { InferObservableType } from '@/utils/globalType';
-import { io } from './socketConnect';
+  switchMap,
+} from "rxjs";
+import { isDefined, objectKeys } from "ts-extras";
+import {
+  array,
+  boolean,
+  date,
+  mixed,
+  number,
+  object,
+  string,
+  ValidationError,
+} from "yup";
+import { InferObservableType } from "@/utils/globalType";
+import { io } from "./socketConnect";
+import { CancelReason } from "@/types/mission";
 
 const missionTypeMap = {
-  'sprinkle': 'sprinkle',
-  'shipment': 'shipment',
-  'custom': 'custom',
-  'remove-pallet': 'remove-pallet',
-  'plain-move': 'plain-move',
-  'deliver-pallet': 'deliver-pallet'
+  sprinkle: "sprinkle",
+  shipment: "shipment",
+  custom: "custom",
+  "remove-pallet": "remove-pallet",
+  "plain-move": "plain-move",
+  "deliver-pallet": "deliver-pallet",
 } as const;
 
 const missionStatusMap = {
-  PENDING: 'pending',
-  ASSIGNED: 'assigned',
-  EXECUTING: 'executing',
-  ABORTING: 'aborting',
-  CANCELED: 'canceled',
-  COMPLETED: 'completed'
+  PENDING: "pending",
+  ASSIGNED: "assigned",
+  EXECUTING: "executing",
+  ABORTING: "aborting",
+  CANCELED: "canceled",
+  COMPLETED: "completed",
 } as const;
 
 const schema = () =>
@@ -56,19 +66,21 @@ const schema = () =>
         startedAt: date().optional(),
         completedAt: date().optional(),
         info: string().optional().nullable(),
+        cancelReason: number().optional().nullable(),
+        status: number().required(),
         order: number().required(),
-        priority: number().required()
+        priority: number().required(),
       }).required()
-    ).required()
+    ).required(),
   }).required();
 
 const missionReports$ = fromEventPattern(
   (next) => {
-    io.on('mission', next);
+    io.on("mission", next);
     return next;
   },
   (next) => {
-    io.off('mission', next);
+    io.off("mission", next);
   }
 ).pipe(
   switchMap((msg) =>
@@ -77,7 +89,7 @@ const missionReports$ = fromEventPattern(
         .validate(msg, { stripUnknown: true })
         .catch((err: ValidationError) => {
           console.error(err.message);
-          console.error('mission socket schema mismatch: ', err.value);
+          console.error("mission socket schema mismatch: ", err.value);
           return undefined;
         })
     )
@@ -88,26 +100,28 @@ const missionReports$ = fromEventPattern(
       ...m,
       key: m.missionId,
       missionType: missionTypeMap[m.missionType],
-      missionStatus: missionStatusMap[m.missionStatus]
+      missionStatus: missionStatusMap[m.missionStatus],
     }));
 
     return {
       ...e,
-      missions
+      missions,
     };
   }),
   share()
 );
 
 export const useMissions = () => {
-  const [missions, setMissions] = useState<InferObservableType<typeof missionReports$>['missions']>(
-    []
-  );
+  const [missions, setMissions] = useState<
+    InferObservableType<typeof missionReports$>["missions"]
+  >([]);
   useEffect(() => {
     const sub = missionReports$
       .pipe(
-        pluck('missions'),
-        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+        pluck("missions"),
+        distinctUntilChanged(
+          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
+        )
       )
       .subscribe((ms) => {
         setMissions(ms);
@@ -121,11 +135,11 @@ export const useMissions = () => {
 };
 
 export const useMissionsOnce = () => {
-  const [missions, setMissions] = useState<InferObservableType<typeof missionReports$>['missions']>(
-    []
-  );
+  const [missions, setMissions] = useState<
+    InferObservableType<typeof missionReports$>["missions"]
+  >([]);
   useEffect(() => {
-    const sub = missionReports$.pipe(pluck('missions')).subscribe((ms) => {
+    const sub = missionReports$.pipe(pluck("missions")).subscribe((ms) => {
       setMissions(ms);
       sub.unsubscribe();
     });
@@ -134,18 +148,24 @@ export const useMissionsOnce = () => {
 };
 
 export const useRecentMission = (amrId: string) => {
-  const [recentMission, setRecentMission] = useState<MissionInfo | undefined>(undefined);
+  const [recentMission, setRecentMission] = useState<MissionInfo | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     const sub = missionReports$
       .pipe(
-        pluck('missions'),
+        pluck("missions"),
         filter(Array.isArray),
         map(
           (missions: MissionInfo[]) =>
             missions
               .filter((m) => m.amrId === amrId)
-              .sort((a, b) => (b.startedAt?.getTime?.() || 0) - (a.startedAt?.getTime?.() || 0))[0]
+              .sort(
+                (a, b) =>
+                  (b.startedAt?.getTime?.() || 0) -
+                  (a.startedAt?.getTime?.() || 0)
+              )[0]
         ),
         distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
       )
@@ -176,6 +196,7 @@ export type MissionInfo = {
   forkEndAt?: Date;
   completedAt?: Date;
   info?: string | null;
+  cancelReason?: CancelReason;
   priority?: number;
   order: number;
 };

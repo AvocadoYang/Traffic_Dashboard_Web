@@ -1,10 +1,10 @@
-import { FC, memo } from 'react';
-import { rosCoord2DisplayCoord } from '@/utils/utils';
-import useMap from '@/api/useMap';
-import { useClaimedRoads } from '@/sockets/useClaimedResources';
-import Road from './Road';
-import { hoverRoad } from '@/utils/gloable';
-import { useAtomValue } from 'jotai';
+import { FC, memo } from "react";
+import { rosCoord2DisplayCoord } from "@/utils/utils";
+import useMap from "@/api/useMap";
+import { useClaimedRoads } from "@/sockets/useClaimedResources";
+import Road from "./Road";
+import { hoverRoad } from "@/utils/gloable";
+import { useAtomValue } from "jotai";
 
 const MemoizedRoad = memo(Road, (prevProps, nextProps) => {
   return (
@@ -22,14 +22,25 @@ const AllRoads: FC<{}> = () => {
   return (
     <div draggable={false}>
       {data.roads.map(
-        ({ roadId, roadType, x1, y1, x2, y2, validYawList, disabled, limit, priority }) => {
+        ({
+          roadId,
+          roadType,
+          x1,
+          y1,
+          x2,
+          y2,
+          validYawList,
+          disabled,
+          limit,
+          priority,
+        }) => {
           const [displayX1, displayY1] = rosCoord2DisplayCoord({
             x: x1,
             y: y1,
             mapHeight: data.mapHeight,
             mapOriginX: data.mapOriginX,
             mapOriginY: data.mapOriginY,
-            mapResolution: data.mapResolution
+            mapResolution: data.mapResolution,
           });
 
           const [displayX2, displayY2] = rosCoord2DisplayCoord({
@@ -38,7 +49,7 @@ const AllRoads: FC<{}> = () => {
             mapHeight: data.mapHeight,
             mapOriginX: data.mapOriginX,
             mapOriginY: data.mapOriginY,
-            mapResolution: data.mapResolution
+            mapResolution: data.mapResolution,
           });
 
           const currentClaimedStatus = claimedRoads.get(roadId);
@@ -59,7 +70,7 @@ const AllRoads: FC<{}> = () => {
               isRoadOnHover={roadOnHover === roadId}
             />
           );
-        }
+        },
       )}
     </div>
   );

@@ -1,1 +1,1 @@
-export { default as TopicMissionPanel } from './TopicMissionPanel';
+export { default as TopicMissionPanel } from "./TopicMissionPanel";

@@ -1,31 +1,233 @@
-import useCustomCargoFormat from '@/api/useCustomCargoFormat';
-import { Button, Form, Input, message, Modal, Select, Tooltip } from 'antd';
-import { FC, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import styled from 'styled-components';
-import { QuestionCircleOutlined } from '@ant-design/icons';
-import ReactJsonView from '@uiw/react-json-view';
-import client from '@/api/axiosClient';
-import { useMutation } from '@tanstack/react-query';
-import { errorHandler } from '@/utils/utils';
-import { ErrorResponse } from '@/utils/globalType';
-import { Cargo, PeripheralTypes } from '@/types/peripheral';
-import { useAtom, useAtomValue } from 'jotai';
-import { IsEditPeripheralModal, IsOpenCargoEditorModal } from './jotai';
+import useCustomCargoFormat from "@/api/useCustomCargoFormat";
+import {
+  Button,
+  Form,
+  Input,
+  message,
+  Modal,
+  Popconfirm,
+  Select,
+  Tooltip,
+} from "antd";
+import { FC, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import styled from "styled-components";
+import {
+  QuestionCircleOutlined,
+  ToolOutlined,
+  PlusOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
+import ReactJsonView from "@uiw/react-json-view";
+import client from "@/api/axiosClient";
+import { useMutation } from "@tanstack/react-query";
+import { errorHandler } from "@/utils/utils";
+import { ErrorResponse } from "@/utils/globalType";
+import { Cargo, PeripheralTypes } from "@/types/peripheral";
+import { useAtom, useAtomValue } from "jotai";
+import { IsEditPeripheralModal, IsOpenCargoEditorModal } from "./jotai";
+
+const IndustrialModal = styled(Modal)`
+  .ant-modal-content {
+    background: #f5f5f5;
+    font-family: "Roboto Mono", monospace;
+  }
+
+  .ant-modal-header {
+    background: #ffffff;
+    border-bottom: 2px solid #1890ff;
+    padding: 16px 24px;
+  }
+
+  .ant-modal-title {
+    color: #1890ff;
+    font-family: "Roboto Mono", monospace;
+    font-weight: 600;
+    font-size: 13px;
+
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ant-modal-body {
+    padding: 24px;
+    background: #f5f5f5;
+  }
+
+  .ant-form-item-label > label {
+    font-family: "Roboto Mono", monospace;
+    font-size: 11px;
+
+    letter-spacing: 1px;
+    color: #595959;
+    font-weight: 600;
+  }
+
+  .ant-input,
+  .ant-select-selector,
+  .ant-input-number {
+    font-family: "Roboto Mono", monospace;
+    border: 1px solid #d9d9d9;
+
+    &:hover {
+      border-color: #1890ff;
+    }
+
+    &:focus {
+      border-color: #1890ff;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+    }
+  }
+`;
 
 const Wrapper = styled.div`
   max-height: 72vh;
   overflow-y: auto;
   padding-right: 8px;
+  font-family: "Roboto Mono", monospace;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #fafafa;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #d9d9d9;
+    border-radius: 0;
+
+    &:hover {
+      background: #bfbfbf;
+    }
+  }
 `;
 
-export const StyledJsonPreview = styled.div`
-  padding: 12px;
-  border: 1px dashed #ccc;
-  border-radius: 8px;
+const CargoCard = styled.div`
+  margin-bottom: 20px;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  border-left: 3px solid #1890ff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-left-color: #fa8c16;
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+`;
+
+const CardHeader = styled.div`
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  border-left: 3px solid #fa8c16;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  font-family: "Roboto Mono", monospace;
+  color: #fa8c16;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+`;
+
+const StyledJsonPreview = styled.div`
+  padding: 16px;
+  border: 1px solid #d9d9d9;
+  border-left: 3px solid #1890ff;
   background-color: #fafafa;
   font-size: 13px;
+  font-family: "Roboto Mono", monospace;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
 `;
+
+const IndustrialButton = styled(Button)`
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  color: #1890ff;
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1px;
+  height: 36px;
+
+  &:hover {
+    background: #f0f5ff;
+    border-color: #1890ff;
+    color: #1890ff;
+    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+  }
+
+  &.danger {
+    border-color: #ff4d4f;
+    color: #ff4d4f;
+
+    &:hover {
+      background: #fff1f0;
+      border-color: #ff7875;
+      color: #ff7875;
+      box-shadow: 0 2px 8px rgba(255, 77, 79, 0.2);
+    }
+  }
+
+  &.primary {
+    background: #1890ff;
+    border-color: #1890ff;
+    color: #ffffff;
+    font-weight: 600;
+
+    &:hover {
+      background: #40a9ff;
+      border-color: #40a9ff;
+      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
+    }
+  }
+
+  &.dashed {
+    border: 1px dashed #d9d9d9;
+    background: #fafafa;
+    color: #1890ff;
+
+    &:hover {
+      background: #f0f5ff;
+      border-color: #1890ff;
+      border-style: dashed;
+    }
+  }
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #d9d9d9;
+`;
+
+const FieldLabel = styled.span`
+  color: #595959;
+  font-size: 11px;
+  letter-spacing: 1px;
+  font-family: "Roboto Mono", monospace;
+  font-weight: 600;
+`;
+
+interface CargoFormData {
+  placement_order: number;
+  cargoInfoId?: string;
+  metadata: Record<string, any>;
+  custom_cargo_metadata_id?: string;
+}
 
 const CargoEditor: FC = () => {
   const { t } = useTranslation();
@@ -40,7 +242,7 @@ const CargoEditor: FC = () => {
 
   const options = data?.map((v) => ({
     label: v?.custom_name,
-    value: v?.id
+    value: v?.id,
   }));
 
   const editMutation = useMutation({
@@ -48,27 +250,52 @@ const CargoEditor: FC = () => {
       locationId: string;
       cargo: Cargo[];
       peripheralType: PeripheralTypes;
-    }) => client.post('/api/peripherals/update-cargo-info-peripheral', payload),
+    }) => client.post("/api/peripherals/update-cargo-info-peripheral", payload),
     onSuccess: () => {
-      messageApi.success(t('utils.success'));
+      messageApi.success(t("utils.success"));
       form.resetFields();
+      setFormatFieldMap({});
       setOpenCargoModal(false);
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
-  if (!globalValue) return [];
+  const deleteAllMutation = useMutation({
+    mutationFn: (payload: { locationId: string }) =>
+      client.post("/api/peripherals/delete-all-cargo-info", payload),
+    onSuccess: () => {
+      messageApi.success(t("utils.success"));
+      form.resetFields();
+      setFormatFieldMap({});
+      setOpenCargoModal(false);
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
 
   useEffect(() => {
-    if (!openCargoModal || !globalValue.cargo) return;
+    if (!openCargoModal || !globalValue || !globalValue.cargo) return;
 
     try {
       const parsedCargo = Array.isArray(globalValue.cargo)
-        ? globalValue.cargo.map((c) => ({
-            cargoInfoId: c.cargoInfoId,
-            metadata: c.metadata ? JSON.parse(c.metadata) : {},
-            custom_cargo_metadata_id: c.customCargoMetadataId ?? c.customCargoMetadataId
-          }))
+        ? globalValue.cargo
+            .map((c) => {
+              let metadata = {};
+
+              try {
+                metadata = c.metadata ? JSON.parse(c.metadata) : {};
+              } catch (err) {
+                console.error("Failed to parse metadata:", err);
+              }
+
+              return {
+                placement_order: c.placement_order,
+                cargoInfoId: c.cargoInfoId,
+                metadata,
+                custom_cargo_metadata_id:
+                  c.customCargoMetadataId ?? c.customCargoMetadataId,
+              };
+            })
+            .sort((a, b) => a.placement_order - b.placement_order)
         : [];
 
       const newMap: Record<number, { name: string; type: string }[]> = {};
@@ -76,12 +303,15 @@ const CargoEditor: FC = () => {
         const matched = data?.find((v) => v?.id === c.custom_cargo_metadata_id);
         if (matched?.format) {
           try {
-            const fields = Object.entries(JSON.parse(matched.format)).map(([name, type]) => ({
-              name,
-              type: typeof type === 'string' ? type : 'string'
-            }));
+            const fields = Object.entries(JSON.parse(matched.format)).map(
+              ([name, type]) => ({
+                name,
+                type: typeof type === "string" ? type : "string",
+              }),
+            );
             newMap[index] = fields;
           } catch (err) {
+            console.error("Failed to parse format:", err);
             newMap[index] = [];
           }
         }
@@ -90,50 +320,107 @@ const CargoEditor: FC = () => {
       setFormatFieldMap(newMap);
       form.setFieldsValue({ cargo: parsedCargo });
     } catch (err) {
-      console.error('Failed to parse cargo:', err);
+      console.error("Failed to parse cargo:", err);
     }
-  }, [globalValue.cargo, openCargoModal, form, data]);
+  }, [globalValue?.cargo, openCargoModal, form, data, globalValue]);
 
   const handleCancel = () => {
     setOpenCargoModal(false);
     form.resetFields();
+    setFormatFieldMap({});
   };
 
-  const handleSelectChange = (value: string, index: number) => {
+  const handleSelectChange = (value: string, fieldName: number) => {
     const selectedFormat = data?.find((v) => v?.id === value);
     const formatFields = selectedFormat?.format
-      ? Object.entries(JSON.parse(selectedFormat.format)).map(([name, type]) => ({
-          name,
-          type: typeof type === 'string' ? type : 'string'
-        }))
+      ? (() => {
+          try {
+            return Object.entries(JSON.parse(selectedFormat.format)).map(
+              ([name, type]) => ({
+                name,
+                type: typeof type === "string" ? type : "string",
+              }),
+            );
+          } catch (err) {
+            console.error("Failed to parse format:", err);
+            return [];
+          }
+        })()
       : [];
 
-    const existingCargo = form.getFieldValue('cargo') || [];
-    existingCargo[index] = {
-      ...(existingCargo[index] || {}),
+    const existingCargo = form.getFieldValue("cargo") || [];
+    existingCargo[fieldName] = {
+      ...(existingCargo[fieldName] || {}),
       custom_cargo_metadata_id: value,
-      metadata: {}
+      metadata: {},
     };
 
     setFormatFieldMap((prev) => ({
       ...prev,
-      [index]: formatFields
+      [fieldName]: formatFields,
     }));
 
     form.setFieldsValue({ cargo: existingCargo });
   };
 
-  const renderInput = (type: string, _name: string) => {
+  const handleRemove = (fieldName: number) => {
+    // Get current cargo array
+    const currentCargo = form.getFieldValue("cargo") || [];
+
+    // Remove the item at fieldName index
+    const newCargo = currentCargo.filter(
+      (_: any, idx: number) => idx !== fieldName,
+    );
+
+    // Re-index formatFieldMap
+    const newMap: Record<number, { name: string; type: string }[]> = {};
+    newCargo.forEach((cargo: CargoFormData, newIndex: number) => {
+      if (cargo.custom_cargo_metadata_id) {
+        const matched = data?.find(
+          (v) => v?.id === cargo.custom_cargo_metadata_id,
+        );
+        if (matched?.format) {
+          try {
+            const fields = Object.entries(JSON.parse(matched.format)).map(
+              ([name, type]) => ({
+                name,
+                type: typeof type === "string" ? type : "string",
+              }),
+            );
+            newMap[newIndex] = fields;
+          } catch (err) {
+            console.error("Failed to parse format:", err);
+          }
+        }
+      }
+    });
+
+    setFormatFieldMap(newMap);
+    form.setFieldsValue({ cargo: newCargo });
+  };
+
+  const handleAdd = () => {
+    const currentCargo = form.getFieldValue("cargo") || [];
+    const newCargo = [
+      ...currentCargo,
+      {
+        metadata: {},
+      },
+    ];
+    form.setFieldsValue({ cargo: newCargo });
+  };
+
+  const renderInput = (type: string) => {
     switch (type.toLowerCase()) {
-      case 'string':
+      case "string":
         return <Input />;
-      case 'number':
+      case "number":
         return <Input type="number" />;
-      case 'boolean':
+      case "boolean":
         return (
           <Select>
-            <Select.Option value="true">{t('utils.yes')}</Select.Option>
-            <Select.Option value="false">{t('utils.no')}</Select.Option>
+            <Select.Option value="true">{t("utils.yes")}</Select.Option>
+            <Select.Option value="false">{t("utils.no")}</Select.Option>
           </Select>
         );
       default:
@@ -142,7 +429,7 @@ const CargoEditor: FC = () => {
   };
 
   const handleOk = () => {
-    if (!globalValue.stationId) return;
+    if (!globalValue || !globalValue.stationId) return;
 
     form
       .validateFields()
@@ -150,61 +437,95 @@ const CargoEditor: FC = () => {
         const payload = {
           locationId: globalValue.stationId,
           peripheralType: globalValue.stationType,
-          cargo: (values.cargo || []).map((entry: any) => ({
-            cargoInfoId: entry.cargoInfoId,
-            metadata: JSON.stringify(entry.metadata),
-            customCargoMetadataId: entry.custom_cargo_metadata_id
-          }))
+          cargo: (values.cargo || []).map(
+            (entry: CargoFormData, i: number) => ({
+              placement_order: i,
+              cargoInfoId: entry.cargoInfoId,
+              metadata: JSON.stringify(entry.metadata || {}),
+              customCargoMetadataId: entry.custom_cargo_metadata_id,
+            }),
+          ),
         };
 
         editMutation.mutate(payload);
       })
       .catch((error) => {
-        console.error('Form validation failed:', error);
+        console.error("Form validation failed:", error);
       });
   };
+
+  if (!globalValue) return null;
 
   return (
     <>
       {contextHolder}
-      <Modal
-        title={t('amr_card.update_cargo')}
+      <IndustrialModal
+        title={
+          <>
+            <ToolOutlined /> {t("amr_card.update_cargo")}
+            <Popconfirm
+              title="Delete the task"
+              description="Are you sure to delete all?"
+              onConfirm={() =>
+                deleteAllMutation.mutate({ locationId: globalValue.stationId })
+              }
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button danger>刪除所有</Button>
+            </Popconfirm>
+          </>
+        }
         open={openCargoModal}
         onCancel={handleCancel}
-        footer={<></>}
+        footer={null}
+        width={700}
       >
         <Wrapper>
           <Form form={form} layout="vertical">
             <Form.List name="cargo">
-              {(fields, { add, remove }) => (
+              {(fields) => (
                 <>
                   {fields.map((field, index) => {
                     const name = field.name;
-                    const currentCargo = form.getFieldValue(['cargo', name]) || {};
-                    const hasMetadataSchema = !!currentCargo.custom_cargo_metadata_id;
+                    const currentCargo =
+                      form.getFieldValue(["cargo", name]) || {};
+                    const hasMetadataSchema =
+                      !!currentCargo.custom_cargo_metadata_id;
                     const metadata = currentCargo.metadata || {};
-                    // console.log(metadata);
-                    // console.log(hasMetadataSchema);
+
                     return (
-                      <div
-                        key={`${index}-form`}
-                        style={{
-                          marginBottom: 24,
-                          padding: 12,
-                          border: '1px dashed #ccc',
-                          borderRadius: 4
-                        }}
-                      >
-                        <Form.Item name={[name, 'cargoInfoId']} hidden>
+                      <CargoCard key={field.key}>
+                        <CardHeader>
+                          <span>
+                            [{String(index + 1).padStart(2, "0")}]{" "}
+                            {t("amr_card.cargo_item")}
+                          </span>
+                          <IndustrialButton
+                            className="danger"
+                            size="small"
+                            icon={<DeleteOutlined />}
+                            onClick={() => handleRemove(name)}
+                          >
+                            {t("utils.delete")}
+                          </IndustrialButton>
+                        </CardHeader>
+
+                        <Form.Item name={[name, "cargoInfoId"]} hidden>
                           <Input />
                         </Form.Item>
 
                         <Form.Item
-                          label={t('customCargo.name')}
-                          name={[name, 'custom_cargo_metadata_id']}
+                          label={
+                            <FieldLabel>{t("customCargo.name")}</FieldLabel>
+                          }
+                          name={[name, "custom_cargo_metadata_id"]}
                         >
                           <Select
-                            disabled={!hasMetadataSchema && Object.keys(metadata).length !== 0}
+                            disabled={
+                              !hasMetadataSchema &&
+                              Object.keys(metadata).length !== 0
+                            }
                             options={options}
                             onChange={(val) => handleSelectChange(val, name)}
                           />
@@ -214,19 +535,29 @@ const CargoEditor: FC = () => {
                           (formatFieldMap[name] || []).map((field) => (
                             <Form.Item
                               key={`${name}-${field.name}`}
-                              label={field.name}
-                              name={[name, 'metadata', field.name]}
+                              label={<FieldLabel>{field.name}</FieldLabel>}
+                              name={[name, "metadata", field.name]}
                             >
-                              {renderInput(field.type, field.name)}
+                              {renderInput(field.type)}
                             </Form.Item>
                           ))
                         ) : (
                           <Form.Item
                             label={
                               <>
-                                {t('amr_card.metadata')}
-                                <Tooltip placement="right" title={t('amr_card.metadata_desc')}>
-                                  <QuestionCircleOutlined />
+                                <FieldLabel>
+                                  {t("amr_card.metadata")}
+                                </FieldLabel>
+                                <Tooltip
+                                  placement="right"
+                                  title={t("amr_card.metadata_desc")}
+                                >
+                                  <QuestionCircleOutlined
+                                    style={{
+                                      marginLeft: 8,
+                                      color: "#1890ff",
+                                    }}
+                                  />
                                 </Tooltip>
                               </>
                             }
@@ -242,31 +573,39 @@ const CargoEditor: FC = () => {
                             </StyledJsonPreview>
                           </Form.Item>
                         )}
-
-                        <Form.Item>
-                          <Button danger onClick={() => remove(name)}>
-                            {t('utils.delete')}
-                          </Button>
-                        </Form.Item>
-                      </div>
+                      </CargoCard>
                     );
                   })}
 
-                  <Form.Item>
-                    <Tooltip placement="bottom" title={t('amr_card.add_desc')}>
-                      <Button type="dashed" onClick={() => add()} block>
-                        + {t('amr_card.add_cargo')}
-                      </Button>
-                    </Tooltip>
-                  </Form.Item>
+                  <Tooltip placement="bottom" title={t("amr_card.add_desc")}>
+                    <IndustrialButton
+                      className="dashed"
+                      onClick={handleAdd}
+                      block
+                      icon={<PlusOutlined />}
+                    >
+                      {t("amr_card.add_cargo")}
+                    </IndustrialButton>
+                  </Tooltip>
                 </>
               )}
             </Form.List>
 
-            <Button onClick={handleOk}>{t('utils.save')}</Button>
+            <ButtonGroup>
+              <IndustrialButton
+                className="primary"
+                onClick={handleOk}
+                loading={editMutation.isPending}
+              >
+                {t("utils.save")}
+              </IndustrialButton>
+              <IndustrialButton onClick={handleCancel}>
+                {t("utils.cancel")}
+              </IndustrialButton>
+            </ButtonGroup>
           </Form>
         </Wrapper>
-      </Modal>
+      </IndustrialModal>
     </>
   );
 };

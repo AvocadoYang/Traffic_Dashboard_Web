@@ -1,3 +1,5 @@
+import { Cargo } from "@/types/peripheral";
+
 export type ChargeStationResponseObj = {
   responseTime: Date;
   current: {
@@ -52,17 +54,28 @@ type ChargeStation = {
   info: ChargeStationResponseObj;
 };
 
+export type AmrId = string | null;
+export type ReservationMap = Map<LocationId, AmrId>;
+export type LocationId = string;
+export type Not_Specify = "none";
+export type Booker = AmrId | Not_Specify;
+
 export type LayerType = {
   [level: number]: {
     dbId: string;
+    cargo: Cargo[];
     levelName: string;
-    booked: boolean;
+    description: string;
+    quantity: number; //corning special
+    group: string | null;
+    booker: Booker;
     cargo_limit: number;
     disable: boolean;
-    hasCargo: boolean;
     cargoInfoId: string | null;
     customCargoMetadataId: string | null;
     metadata: string | null;
+    loadPriority: number;
+    offloadPriority: number;
   };
 };
 

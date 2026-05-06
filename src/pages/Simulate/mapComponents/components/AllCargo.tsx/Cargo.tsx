@@ -1,13 +1,13 @@
-import { message } from 'antd';
-import { FC, memo, useCallback } from 'react';
+import { message } from "antd";
+import { FC, memo, useCallback } from "react";
 
-import { WrapperType } from './types';
-import styled from 'styled-components';
-import { useCargoMutations } from '../../../../../api/useCargoMutations';
-import CargoDisplay from './CargoDisplay';
-import { CargoInfo } from '@/sockets/useCargoInfo';
-import { prefixLevelName } from '@/utils/globalFunction';
-import { LoadingStation } from './LoadingStation';
+import { WrapperType } from "./types";
+import styled from "styled-components";
+import { useCargoMutations } from "../../../../../api/useCargoMutations";
+import CargoDisplay from "./CargoDisplay";
+import { CargoInfo } from "@/sockets/useCargoInfo";
+import { prefixLevelName } from "@/utils/globalFunction";
+import { LoadingStation } from "./LoadingStation";
 
 const Wrapper = styled.div<WrapperType>`
   position: relative;
@@ -21,8 +21,6 @@ const Wrapper = styled.div<WrapperType>`
   transform: ${(props) =>
     `translate(${props.translatex}em, ${props.translatey}em) scale(${props.scale}) rotate(${props.rotate}deg)`};
 `;
-
-const WrapperDiv = memo(Wrapper);
 
 const MemoizedCargo = memo(CargoDisplay, (prevProps, nextProps) => {
   return (
@@ -43,13 +41,30 @@ const Cargo: FC<{
   scale: number;
   flex_direction: string;
   shelfInfo: CargoInfo | undefined;
-}> = ({ id, locId, translateX, translateY, rotate, scale, flex_direction, shelfInfo }) => {
+}> = ({
+  id,
+  locId,
+  translateX,
+  translateY,
+  rotate,
+  scale,
+  flex_direction,
+  shelfInfo,
+}) => {
   const [messageApi, contextHolder] = message.useMessage();
   const { editColumnMutation } = useCargoMutations(messageApi);
   const handleMouseDown = useCallback(
-    (event: React.MouseEvent<HTMLElement>, targetId: string, targetLevel: number) => {
+    (
+      event: React.MouseEvent<HTMLElement>,
+      targetId: string,
+      targetLevel: number
+    ) => {
       if (event.button !== 1) return;
-      editColumnMutation.mutate({ locationId: targetId, level: targetLevel, id });
+      editColumnMutation.mutate({
+        locationId: targetId,
+        level: targetLevel,
+        id,
+      });
     },
     [editColumnMutation]
   );
@@ -58,17 +73,17 @@ const Cargo: FC<{
   return (
     <>
       {contextHolder}
-      <WrapperDiv
+      <Wrapper
         flex_direction={flex_direction}
         translatex={translateX}
         translatey={translateY}
         scale={scale}
         rotate={rotate}
       >
-        {' '}
+        {" "}
         {Object.entries(shelfInfo.layer).map(([levelStr, info]) => {
           const level = Number(levelStr);
-          const cargoValue = info.hasCargo || false;
+          const cargoValue = info.cargo.length > 0;
           const isDisable = info.disable;
 
           return (
@@ -84,7 +99,7 @@ const Cargo: FC<{
             />
           );
         })}
-      </WrapperDiv>
+      </Wrapper>
     </>
   );
 };

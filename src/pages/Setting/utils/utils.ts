@@ -1,9 +1,14 @@
-import { LocationType } from '@/utils/jotai';
-import { hsl } from 'color-convert';
-import { MD5 } from 'crypto-js';
+import { LocationType } from "@/utils/jotai";
+import { hsl } from "color-convert";
+import { MD5 } from "crypto-js";
 
-export const getLocationInfoById = (locationId: string, locationList: Array<LocationType>) => {
-  const result = locationList.filter((v) => v.locationId.toString() === locationId);
+export const getLocationInfoById = (
+  locationId: string,
+  locationList: Array<LocationType>,
+) => {
+  const result = locationList.filter(
+    (v) => v.locationId.toString() === locationId,
+  );
   return result[0];
 };
 

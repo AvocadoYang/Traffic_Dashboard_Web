@@ -1,4 +1,4 @@
-import { LocationType } from '@/utils/jotai';
+import { LocationType } from "@/utils/jotai";
 /** For All Location List Form */
 export interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
@@ -12,6 +12,8 @@ export type ZoneTableData = {
   id: string;
   name: string;
   category: string[];
+  layer: string;
+  lidar: { front: boolean, back: boolean};
   tagSetting: {
     forbidden_car: string[];
     hight_limit: number | null;

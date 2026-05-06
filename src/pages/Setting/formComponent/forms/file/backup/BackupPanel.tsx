@@ -1,16 +1,16 @@
-import dayjs from 'dayjs';
-import { Button, Popconfirm, Table, message, Form, Flex } from 'antd';
-import { ColumnsType } from 'antd/es/table';
-import { FC } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useMutation } from '@tanstack/react-query';
-import client from '@/api/axiosClient';
-import useVersion from '@/api/useVersion';
-import { ErrorResponse } from '@/utils/globalType';
-import { errorHandler } from '@/utils/utils';
-import GlobalLoading from '@/utils/GlobalLoading';
-import FormHr from '@/pages/Setting/utils/FormHr';
-import { LoginOutlined, PlusOutlined } from '@ant-design/icons';
+import dayjs from "dayjs";
+import { Button, Popconfirm, Table, message, Form, Flex } from "antd";
+import { ColumnsType } from "antd/es/table";
+import { FC } from "react";
+import { useTranslation } from "react-i18next";
+import { useMutation } from "@tanstack/react-query";
+import client from "@/api/axiosClient";
+import useVersion from "@/api/useVersion";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
+import GlobalLoading from "@/utils/GlobalLoading";
+import FormHr from "@/pages/Setting/utils/FormHr";
+import { LoginOutlined, PlusOutlined } from "@ant-design/icons";
 type Backup = {
   createAt: string;
   dbPath: string;
@@ -19,8 +19,10 @@ type Backup = {
 
 const BackupPanel: FC<{
   sortableId: string;
-  attributes: import('@dnd-kit/core').DraggableAttributes;
-  listeners: import('@dnd-kit/core/dist/hooks/utilities').SyntheticListenerMap | undefined;
+  attributes: import("@dnd-kit/core").DraggableAttributes;
+  listeners:
+    | import("@dnd-kit/core/dist/hooks/utilities").SyntheticListenerMap
+    | undefined;
 }> = ({ attributes, listeners }) => {
   const { data: backup, refetch } = useVersion();
   const { t } = useTranslation();
@@ -29,41 +31,41 @@ const BackupPanel: FC<{
 
   const backupMutation = useMutation({
     mutationFn: () => {
-      return client.post('api/setting/backup-now', {
-        headers: { authorization: `Bearer ${localStorage.getItem('_KMT')}` }
+      return client.post("api/setting/backup-now", {
+        headers: { authorization: `Bearer ${localStorage.getItem("_KMT")}` },
       });
     },
     onSuccess: async () => {
-      void messageApi.success(t('utils.success'));
+      void messageApi.success(t("utils.success"));
       await refetch();
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => {
       return client.post(
-        'api/setting/delete-backup',
+        "api/setting/delete-backup",
         { id },
         {
-          headers: { authorization: `Bearer ${localStorage.getItem('_KMT')}` }
-        }
+          headers: { authorization: `Bearer ${localStorage.getItem("_KMT")}` },
+        },
       );
     },
     onSuccess: async () => {
-      void messageApi.success(t('utils.success'));
+      void messageApi.success(t("utils.success"));
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const restoreMutation = useMutation({
     mutationFn: (id: string) => {
-      return client.post('api/setting/restore-now', { id });
+      return client.post("api/setting/restore-now", { id });
     },
     onSuccess: async () => {
-      void messageApi.success(t('utils.success'));
+      void messageApi.success(t("utils.success"));
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const deleteHandler = (id: string) => {
@@ -81,46 +83,50 @@ const BackupPanel: FC<{
 
   const columns: ColumnsType<Backup> = [
     {
-      title: t('file.backup_file.create_at'),
-      dataIndex: 'createAt',
-      key: 'createAt',
+      title: t("file.backup_file.create_at"),
+      dataIndex: "createAt",
+      key: "createAt",
       render: (_v, record) => {
-        const formatDate = dayjs(record.createAt).format('YYYY/MM/DD HH:mm:ss');
+        const formatDate = dayjs(record.createAt).format("YYYY/MM/DD HH:mm:ss");
 
         return <p>{formatDate}</p>;
       },
-      sorter: (a, b) => new Date(a.createAt).getTime() - new Date(b.createAt).getTime()
+      sorter: (a, b) =>
+        new Date(a.createAt).getTime() - new Date(b.createAt).getTime(),
     },
     {
-      title: t('file.backup_file.backup_path'),
-      dataIndex: 'dbPath',
-      key: 'dbPath'
+      title: t("file.backup_file.backup_path"),
+      dataIndex: "dbPath",
+      key: "dbPath",
     },
     {
-      title: '',
-      dataIndex: 'restore',
-      key: 'restore',
+      title: "",
+      dataIndex: "restore",
+      key: "restore",
 
       render: (_v, record) => {
         return (
           <Flex gap="middle">
-            <Popconfirm title="you sure" onConfirm={() => deleteHandler(record.id)}>
+            <Popconfirm
+              title="you sure"
+              onConfirm={() => deleteHandler(record.id)}
+            >
               <Button color="danger" variant="filled">
-                {t('utils.delete')}
+                {t("utils.delete")}
               </Button>
             </Popconfirm>
             <Popconfirm
-              title={t('file.backup_file.restore_warn')}
+              title={t("file.backup_file.restore_warn")}
               onConfirm={() => restoreData(record.id)}
             >
               <Button icon={<LoginOutlined />} color="primary" variant="filled">
-                {t('file.backup_file.restore')}
+                {t("file.backup_file.restore")}
               </Button>
             </Popconfirm>
           </Flex>
         );
-      }
-    }
+      },
+    },
   ];
 
   if (restoreMutation.isLoading) return <GlobalLoading />;
@@ -129,7 +135,7 @@ const BackupPanel: FC<{
       {contextHolder}
       <div>
         <h3 className="drop_button_style" {...listeners} {...attributes}>
-          {t('file.warning_list.warning_table')}
+          {t("file.warning_list.warning_table")}
         </h3>
         <FormHr />
 
@@ -142,7 +148,7 @@ const BackupPanel: FC<{
               color="primary"
               variant="filled"
             >
-              {t('file.backup_file.backup_now')}
+              {t("file.backup_file.backup_now")}
             </Button>
             <Table
               rowKey={(record) => record?.id as string}

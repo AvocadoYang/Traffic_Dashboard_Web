@@ -1,120 +1,524 @@
 import {
+  Alert,
   Button,
   Flex,
   Form,
-  Input,
+  FormInstance,
   InputNumber,
   message,
-  Segmented,
+  Modal,
   Select,
   Tooltip,
-  Typography
-} from 'antd';
-import { QuestionCircleOutlined, RedoOutlined } from '@ant-design/icons';
-import { FC, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+} from "antd";
 import {
-  Action_Type,
-  Control_Types,
-  Select_Active_Robot_Type,
-  Select_Fork_Height_Type,
-  Select_Location_Type
-} from './types';
-import { controlList } from './params';
-import { useMutation } from '@tanstack/react-query';
-import client from '@/api/axiosClient';
-import { Err } from '@/utils/responseErr';
-import useOneTaskDetailFork from '@/api/useOneTaskDetailFork';
-import useTaskOptions from './hook/useTaskOptions';
+  RedoOutlined,
+  DeleteOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
+  WarningOutlined,
+  CheckCircleOutlined,
+  ToolOutlined,
+  SettingOutlined,
+} from "@ant-design/icons";
+import { FC, useEffect, useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import styled from "styled-components";
+import { useMutation } from "@tanstack/react-query";
+import client from "@/api/axiosClient";
+import { Err } from "@/utils/responseErr";
+import useOneTaskDetailFork from "@/api/useOneTaskDetailFork";
+import useTaskOptions from "./hook/useTaskOptions";
+import { Action_Type, Select_Location_Type } from "./types";
+import { controlList } from "./params";
+import DynamicControlFields from "./DynamicControlFields";
 
 enum YawGenre {
   CUSTOM,
   SELECT,
-  CALCULATE_BY_AGV_AND_SHELF_ANGLE
+  CALCULATE_BY_AGV_AND_SHELF_ANGLE,
 }
 
-type Form_Value = {
-  action_type: string;
-  control: string[];
-  wait: number;
-  is_define_id: 'custom' | 'select' | 'available_charge_station' | 'back_to_load_place';
-  locationId: string;
-  is_define_yaw: YawGenre;
-  yaw: number;
-  fork_height_select: 'custom' | 'select' | 'default';
-  height: number;
-  level: number;
-  active_wait_amr: 'enable' | 'disable';
-  waitOtherAmr: string;
-  wait_genre: string;
+// Industrial Style Components - Light Mode
+const IndustrialContainer = styled.div`
+  background: #f5f5f5;
+  min-height: 100vh;
+  padding: 20px;
+  font-family: "Roboto Mono", "Courier New", monospace;
+`;
+
+const StatusBar = styled.div`
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  border-left: 4px solid #1890ff;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: "Roboto Mono", monospace;
+  color: #1890ff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+`;
+
+const SectionHeader = styled.div`
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  border-left: 3px solid #fa8c16;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  font-family: "Roboto Mono", monospace;
+  color: #fa8c16;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+`;
+
+const IndustrialCard = styled.div`
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  margin-bottom: 20px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+
+  &:hover {
+    border-color: #bfbfbf;
+  }
+`;
+
+const ControlDisplay = styled.div<{ hasValue: boolean }>`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 350px;
+  padding: ${({ hasValue }) => (hasValue ? "16px" : "20px")};
+  background: ${({ hasValue }) => (hasValue ? "#f0f5ff" : "#fafafa")};
+  border: 2px solid ${({ hasValue }) => (hasValue ? "#1890ff" : "#d9d9d9")};
+  position: relative;
+  font-family: "Roboto Mono", monospace;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: ${({ hasValue }) =>
+      hasValue
+        ? "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(24, 144, 255, 0.03) 2px, rgba(24, 144, 255, 0.03) 4px)"
+        : "none"};
+    pointer-events: none;
+  }
+
+  ${({ hasValue }) =>
+    hasValue &&
+    `box-shadow: inset 0 0 20px rgba(24, 144, 255, 0.08), 0 2px 8px rgba(24, 144, 255, 0.12);`}
+`;
+
+const EmptyStateText = styled.div`
+  color: #8c8c8c;
+  font-size: 13px;
+  text-align: center;
+  padding: 20px;
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border: 1px dashed #d9d9d9;
+  background: #fafafa;
+`;
+
+const ControlItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  border-left: 3px solid #1890ff;
+  transition: all 0.2s ease;
+  position: relative;
+  font-family: "Roboto Mono", monospace;
+
+  &::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, #1890ff, transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  &:hover {
+    background: #fafafa;
+    border-left-color: #fa8c16;
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    &::after {
+      opacity: 1;
+    }
+  }
+`;
+
+const ControlLabel = styled.span`
+  flex: 1;
+  font-weight: 500;
+  font-size: 13px;
+  color: #262626;
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+`;
+
+const ControlIndex = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 24px;
+  padding: 0 8px;
+  background: #e6f7ff;
+  border: 1px solid #1890ff;
+  color: #1890ff;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: "Roboto Mono", monospace;
+  box-shadow: 0 1px 4px rgba(24, 144, 255, 0.15);
+`;
+
+const IndustrialButton = styled(Button)`
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  color: #1890ff;
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1px;
+  height: 36px;
+
+  &:hover {
+    background: #f0f5ff;
+    border-color: #1890ff;
+    color: #1890ff;
+    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+  }
+
+  &.danger {
+    border-color: #ff4d4f;
+    color: #ff4d4f;
+
+    &:hover {
+      background: #fff1f0;
+      border-color: #ff7875;
+      color: #ff7875;
+      box-shadow: 0 2px 8px rgba(255, 77, 79, 0.2);
+    }
+  }
+
+  &.primary {
+    background: #1890ff;
+    border-color: #1890ff;
+    color: #ffffff;
+    font-weight: 600;
+
+    &:hover {
+      background: #40a9ff;
+      border-color: #40a9ff;
+      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
+    }
+  }
+
+  &:disabled {
+    background: #f5f5f5;
+    border-color: #d9d9d9;
+    color: #bfbfbf;
+  }
+`;
+
+const ValidationPanel = styled.div<{ status: "success" | "warning" | "error" }>`
+  background: #ffffff;
+  border: 2px solid;
+  border-color: ${({ status }) =>
+    status === "success"
+      ? "#52c41a"
+      : status === "warning"
+        ? "#faad14"
+        : "#ff4d4f"};
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: "Roboto Mono", monospace;
+  color: ${({ status }) =>
+    status === "success"
+      ? "#52c41a"
+      : status === "warning"
+        ? "#faad14"
+        : "#ff4d4f"};
+  box-shadow: inset 0 0 20px
+    ${({ status }) =>
+      status === "success"
+        ? "rgba(82, 196, 26, 0.08)"
+        : status === "warning"
+          ? "rgba(250, 173, 20, 0.08)"
+          : "rgba(255, 77, 79, 0.08)"};
+`;
+
+const MetricDisplay = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  background: #fafafa;
+  border: 1px solid #d9d9d9;
+  font-family: "Roboto Mono", monospace;
+  font-size: 12px;
+  color: #1890ff;
+
+  .label {
+    color: #8c8c8c;
+    text-transform: uppercase;
+    font-size: 10px;
+  }
+
+  .value {
+    color: #1890ff;
+    font-weight: 600;
+  }
+`;
+
+const ActionButtonGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+
+  button {
+    background: transparent;
+    border: none;
+    color: #8c8c8c;
+    padding: 2px;
+    height: 20px;
+    width: 24px;
+
+    &:hover:not(:disabled) {
+      color: #1890ff;
+    }
+
+    &:disabled {
+      color: #d9d9d9;
+    }
+  }
+`;
+
+const FieldLabel = styled.span`
+  color: #595959;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: "Roboto Mono", monospace;
+`;
+
+// Custom Industrial Segmented Control - Light Mode
+const IndustrialSegmentedContainer = styled.div`
+  display: flex;
+  width: 100%;
+  background: #fafafa;
+  border: 1px solid #d9d9d9;
+  position: relative;
+  overflow: hidden;
+`;
+
+const SegmentedOption = styled.button<{ isActive: boolean }>`
+  flex: 1;
+  padding: 10px 16px;
+  background: ${({ isActive }) => (isActive ? "#ffffff" : "transparent")};
+  border: none;
+  border-right: 1px solid #d9d9d9;
+  color: ${({ isActive }) => (isActive ? "#1890ff" : "#8c8c8c")};
+  font-family: "Roboto Mono", monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+
+  &:last-child {
+    border-right: none;
+  }
+
+  &:hover:not(:disabled) {
+    background: #f0f5ff;
+    color: ${({ isActive }) => (isActive ? "#1890ff" : "#40a9ff")};
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  ${({ isActive }) =>
+    isActive &&
+    `
+    &::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #1890ff;
+      box-shadow: 0 0 8px rgba(24, 144, 255, 0.5);
+    }
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(to right, transparent, #1890ff, transparent);
+    }
+  `}
+`;
+
+const WarnMsg = styled.div`
+  color: "#505050";
+`;
+
+interface IndustrialSegmentedProps {
+  options: Array<{ label: string; value: string | number }>;
+  value?: string | number;
+  onChange?: (value: any) => void;
+  disabled?: boolean;
+}
+
+const IndustrialSegmented: React.FC<IndustrialSegmentedProps> = ({
+  options,
+  value,
+  onChange,
+  disabled = false,
+}) => {
+  return (
+    <IndustrialSegmentedContainer>
+      {options.map((option) => (
+        <SegmentedOption
+          key={option.value}
+          isActive={value === option.value}
+          onClick={() => onChange?.(option.value)}
+          disabled={disabled}
+          type="button"
+        >
+          {option.label}
+        </SegmentedOption>
+      ))}
+    </IndustrialSegmentedContainer>
+  );
 };
 
 const TaskFormFork: FC<{
   editTaskKey: string;
   selectedMissionCar: string;
   selectedMissionKey: string;
-}> = ({ editTaskKey, selectedMissionKey }) => {
+  form: FormInstance<any>;
+}> = ({ editTaskKey, selectedMissionKey, form }) => {
   const { data: originFormData } = useOneTaskDetailFork(editTaskKey);
-  const [actionState, setActionStatus] = useState<Action_Type>();
+  const [actionState, setActionStatus] = useState<Action_Type>("move");
   const [messageApi, contextHolder] = message.useMessage();
   const [isSpecialAction, setIsSpecialAction] = useState(false);
   const [controlClickOrder, setControlClickOrder] = useState<string[]>([]);
-  const [selectLocationType, setSelectLocationType] = useState<Select_Location_Type>();
+  const [selectLocationType, setSelectLocationType] =
+    useState<Select_Location_Type>("custom");
+  const [selectLevelType, setSelectLevelType] = useState<"custom" | "select">(
+    "custom",
+  );
   const [selectYaw, setSelectYaw] = useState<YawGenre>();
-  const [selectForkHeight, setSelectForkHeight] = useState<Select_Fork_Height_Type>();
-  const [otherSpecial, setOtherSpecial] = useState(false);
-  const [selectActiveWaitRobot, setSelectActiveWaitRobot] = useState<Select_Active_Robot_Type>();
   const [submittable, setSubmittable] = useState<boolean>(false);
   const { t } = useTranslation();
-  const [form] = Form.useForm();
   const values = Form.useWatch([], form);
-  const isIncludeSpin = controlClickOrder.map((v) => v.split('-')[0]).includes('S');
-  const isIncludeH = controlClickOrder.map((v) => v.split('-')[0]).includes('H');
+
   const {
-    robotOption,
     locationsOption,
     NormalActionListOptions,
     SpecialActionListOptions,
     SelectLocationOptions,
+    SelectLevelOptions,
     SelectYawOptions,
-    SelectForkHeightOptions,
-    SelectActiveWaitRobotOptions,
-    SelectWaitRobotOptions
   } = useTaskOptions(actionState as Action_Type);
 
-  const handleControlClick = (controlValue: string) => {
-    setControlClickOrder((prevOrder) => {
-      if (prevOrder.includes(controlValue)) {
-        return prevOrder.filter((item) => item !== controlValue);
-      }
-      return [...prevOrder, controlValue];
+  const deleteControlElementFromIndex = (index: number) => {
+    setControlClickOrder((prev) => {
+      const newOrder = prev.filter((_, i) => i !== index);
+      setTimeout(() => {
+        const currentForkValues = form.getFieldValue(["io", "fork"]) || {};
+        const newForkValues = {};
+        let newIndex = 0;
+        Object.keys(currentForkValues).forEach((key, oldIndex) => {
+          if (oldIndex !== index) {
+            newForkValues[newIndex.toString()] = currentForkValues[key];
+            newIndex++;
+          }
+        });
+        form.setFieldValue(["io", "fork"], newForkValues);
+      }, 0);
+      return newOrder;
     });
+  };
 
-    setTimeout(() => {
-      form.setFieldsValue({ control: controlClickOrder });
-    }, 0);
+  const handleControlClick = (movement: string) => {
+    setControlClickOrder((prev) => [...prev, movement]);
+  };
+
+  const moveControlIndex = (from: number, to: number) => {
+    setControlClickOrder((prev) => {
+      const newOrder = [...prev];
+      const [moved] = newOrder.splice(from, 1);
+      newOrder.splice(to, 0, moved);
+      const current = form.getFieldValue(["io", "fork"]) || {};
+      const keys = Object.keys(current);
+      const reorderedForkValues = {};
+      const reorderedKeys = [...keys];
+      const [removedKey] = reorderedKeys.splice(from, 1);
+      reorderedKeys.splice(to, 0, removedKey);
+      reorderedKeys.forEach((oldKey, newIndex) => {
+        reorderedForkValues[newIndex] = current[oldKey];
+      });
+      setTimeout(() => {
+        form.setFieldValue(["io", "fork"], reorderedForkValues);
+      }, 0);
+      return newOrder;
+    });
   };
 
   const editMutation = useMutation({
     mutationFn: (payload) => {
-      return client.post('api/setting/update-task-fork', payload);
+      return client.post("api/setting/update-task-fork", payload);
     },
     onSuccess: async () => {
-      messageApi.success(t('utils.success'));
+      messageApi.success(t("utils.success"));
     },
     onError(error: Err) {
       messageApi.error(error.response.data.message);
-    }
+    },
   });
 
   const onFinish = () => {
     const payload = form.getFieldsValue();
-
-    if (actionState === 'spin' && !isIncludeSpin) {
-      messageApi.warning(t('mission.task_table.spin_warn'));
+    if (controlClickOrder.length === 0) {
+      messageApi.warning(t("mission.task_table.control_warn"));
       return;
     }
-
     const newPayload = {
       ...payload,
       is_define_id: selectLocationType,
@@ -123,132 +527,165 @@ const TaskFormFork: FC<{
       id: editTaskKey,
       is_define_yaw: selectYaw,
       missionTitleId: selectedMissionKey,
-      fork_height_select: selectForkHeight
     };
-
-    if (controlClickOrder.length === 0) {
-      messageApi.warning(t('mission.task_table.control_warn'));
-      return;
-    }
-
     editMutation.mutate(newPayload);
   };
 
-  const updateControlClickOrder = () => {
-    if (!originFormData) return;
-
-    const type = originFormData.operation.type as Action_Type;
-    if (!controlList[type]) {
-      console.warn(`Invalid action type: ${type}`);
-      setControlClickOrder([]);
-      setActionStatus(undefined);
-      return;
-    }
-
-    setActionStatus(type);
-
-    const controlSequence = controlList[type];
-    const indexedControls = controlSequence
-      .map((v, i) => `${v}-${i}`)
-      .filter((v) => originFormData.operation.control?.includes(v.split('-')[0]));
-
-    setControlClickOrder(indexedControls);
+  const changeActiontype = (e: Action_Type) => {
+    setControlClickOrder([]);
+    setActionStatus(e);
+    form.setFieldValue("locationId", 0);
+    form.setFieldValue(["io", "fork"], {});
   };
 
-  useEffect(() => {
-    if (originFormData) {
-      updateControlClickOrder();
+  const canSelectIsDefinedId = () => {
+    const excludedActions = [
+      "spin",
+      "fork",
+      "charge",
+      "cargo_limit",
+      "verity_cargo",
+    ];
+    return !excludedActions.includes(actionState);
+  };
 
-      setSelectLocationType(
-        (originFormData.operation.is_define_id as Select_Location_Type) || 'custom'
-      );
-      setSelectYaw(
-        originFormData.operation.is_define_yaw !== undefined
-          ? (originFormData.operation.is_define_yaw as YawGenre)
-          : undefined
-      );
-      setSelectForkHeight(originFormData.io?.fork?.is_define_height as Select_Fork_Height_Type);
-      setOtherSpecial(originFormData.operation.waitGenre !== null);
-      setSelectActiveWaitRobot(originFormData.operation.waitGenre !== null ? 'enable' : 'disable');
-
-      form.setFieldsValue({
-        action_type: originFormData.operation.type,
-        control: originFormData.operation.control?.map((v: string, i: number) => `${v}-${i}`),
-        wait: originFormData.operation.wait,
-        is_define_id: originFormData.operation.is_define_id,
-        locationId: originFormData.operation.locationId?.toString(),
-        is_define_yaw: originFormData.operation.is_define_yaw,
-        yaw: originFormData.operation.yaw,
-        fork_height_select: originFormData.io?.fork?.is_define_height,
-        height: originFormData.io?.fork?.height,
-        level: (originFormData.io?.fork?.level ?? 0) + 1 || 1,
-        active_wait_amr: originFormData.operation.waitGenre !== null ? 'enable' : 'disable',
-        waitOtherAmr: originFormData.operation.waitOtherAmr,
-        wait_genre: originFormData.operation.waitGenre,
-        tolerance: originFormData.operation.tolerance,
-        lookahead: originFormData.operation.lookahead,
-        camera_config: originFormData.io?.camera?.config || 0,
-        modify_dis: originFormData.io?.camera?.modify_dis || 0
-      });
+  const getValidationStatus = useMemo(() => {
+    if (submittable) {
+      return {
+        status: "success" as const,
+        message: "[OK] CONFIGURATION VALID",
+        icon: <CheckCircleOutlined />,
+      };
     }
-  }, [originFormData, form]);
-
-  useEffect(() => {
-    if (!otherSpecial) {
-      form.setFieldsValue({
-        waitOtherAmr: null,
-        wait_genre: null
-      });
-    }
-  }, [otherSpecial]);
-
-  useEffect(() => {
-    const value = form.getFieldsValue() as Form_Value;
-
     if (controlClickOrder.length === 0) {
-      // console.log('bitch 1');
-      setSubmittable(false);
-      return;
+      return {
+        status: "warning" as const,
+        message: "[WARN] NO CONTROL SEQUENCE DEFINED",
+        icon: <WarningOutlined />,
+      };
     }
-
-    if (controlClickOrder.includes('W')) {
-      if (value.wait <= 0) {
-        // console.log('bitch 2');
-        setSubmittable(false);
-        return;
-      }
-    }
-
-    if (selectLocationType === 'custom' && !value.locationId && actionState !== 'spin') {
-      // console.log('bitch 3');
-      setSubmittable(false);
-      return;
-    }
-
-    if (value?.active_wait_amr && value.active_wait_amr === 'enable') {
-      if (!value.waitOtherAmr || !value.wait_genre) {
-        //     console.log('bitch 4');
-        setSubmittable(false);
-        return;
-      }
-    }
-
+    const needsLocation = canSelectIsDefinedId();
     if (
-      selectYaw === YawGenre.CUSTOM &&
-      isIncludeSpin &&
-      (value.yaw === undefined || value.yaw < -180 || value.yaw > 180)
+      needsLocation &&
+      selectLocationType === "custom" &&
+      !values?.locationId
     ) {
-      // console.log('bitch 5');
+      return {
+        status: "error" as const,
+        message: "[ERROR] LOCATION REQUIRED",
+        icon: <WarningOutlined />,
+      };
+    }
+    return {
+      status: "warning" as const,
+      message: "[WARN] INCOMPLETE CONFIGURATION",
+      icon: <WarningOutlined />,
+    };
+  }, [submittable, controlClickOrder, selectLocationType, values]);
+
+  useEffect(() => {
+    if (originFormData && editTaskKey) {
+      setActionStatus(originFormData.operation.type as any);
+      setSelectLocationType(
+        (originFormData.operation.is_define_id as Select_Location_Type) ||
+          "custom",
+      );
+      setSelectLevelType(
+        (originFormData.io.fork_global?.is_define_level as
+          | "select"
+          | "custom") || "custom",
+      );
+      setSelectYaw(originFormData.operation.is_define_yaw as YawGenre);
+      setControlClickOrder(originFormData.operation.control || []);
+
+      setTimeout(() => {
+        form.setFieldsValue({
+          action_type: originFormData.operation.type,
+          locationId: originFormData.operation.locationId?.toString(),
+          is_define_yaw: originFormData.operation.is_define_yaw,
+          yaw: originFormData.operation.yaw,
+          tolerance: originFormData.operation.tolerance,
+          lookahead: originFormData.operation.lookahead,
+          io: originFormData.io,
+          is_define_id: originFormData.operation.is_define_id,
+          is_define_level:
+            originFormData.io.fork_global?.is_define_level || "custom",
+          level: (originFormData.io.fork_global?.level + 1) | 0,
+        });
+      }, 0);
+    }
+  }, [originFormData, form, editTaskKey]);
+
+  useEffect(() => {
+    if (controlClickOrder.length === 0) {
       setSubmittable(false);
       return;
     }
-
+    const value = form.getFieldsValue();
+    if (
+      selectLocationType === "custom" &&
+      !value.locationId &&
+      canSelectIsDefinedId()
+    ) {
+      setSubmittable(false);
+      return;
+    }
     setSubmittable(true);
-  }, [form, values]);
+  }, [form, values, controlClickOrder, selectLocationType]);
+
+  // 這個方法很方便
+  // 可以去比較深層的dynamic field 來看有哪些選項
+  // 來動態調整邏輯
+  const forkData = form.getFieldValue(["io", "fork"]) || {};
+
+  const isStackMode = Object.values(forkData).some(
+    (step: any) =>
+      step?.fork_height?.is_define_height === "stack" ||
+      step?.fork_height?.is_define_height === "stack_add",
+  );
 
   return (
-    <>
+    <IndustrialContainer>
       {contextHolder}
+
+      {/* Status Bar */}
+      <StatusBar>
+        <Flex align="center" gap="middle">
+          <ToolOutlined style={{ fontSize: 16 }} />
+          <span style={{ fontWeight: 600 }}>
+            {t("mission.task_form_fork.system_title")}
+          </span>
+          <MetricDisplay>
+            <span className="label">
+              {t("mission.task_form_fork.task_id")}:
+            </span>
+            <span className="value">{editTaskKey || "N/A"}</span>
+          </MetricDisplay>
+        </Flex>
+        <Flex gap="middle">
+          <MetricDisplay>
+            <span className="label">{t("mission.task_form_fork.status")}:</span>
+            <span className="value">
+              {submittable
+                ? t("mission.task_form_fork.ready")
+                : t("mission.task_form_fork.config")}
+            </span>
+          </MetricDisplay>
+          <MetricDisplay>
+            <span className="label">{t("mission.task_form_fork.steps")}:</span>
+            <span className="value">{controlClickOrder.length}</span>
+          </MetricDisplay>
+        </Flex>
+      </StatusBar>
+
+      {/* Validation Panel */}
+      <ValidationPanel status={getValidationStatus.status}>
+        {getValidationStatus.icon}
+        <span style={{ fontWeight: 600, letterSpacing: 1 }}>
+          {getValidationStatus.message}
+        </span>
+      </ValidationPanel>
+
       <Form
         form={form}
         autoComplete="off"
@@ -257,397 +694,356 @@ const TaskFormFork: FC<{
         onFinish={onFinish}
         layout="vertical"
       >
-        <Flex gap="large" justify="space-between">
-          <Form.Item label={t('mission.task_table_human_robot.action')} name="action_type">
-            <Segmented
-              onChange={(e: Action_Type) => setActionStatus(e)}
-              options={isSpecialAction ? SpecialActionListOptions : NormalActionListOptions}
-            />
-          </Form.Item>
-          <Tooltip
-            title={
-              isSpecialAction ? t('mission.task_table.normal') : t('mission.task_table.special')
-            }
-          >
-            <Button
-              type={isSpecialAction ? 'primary' : 'default'}
-              onClick={() => setIsSpecialAction(!isSpecialAction)}
+        {/* Action Type Selection */}
+        <IndustrialCard>
+          <SectionHeader>
+            <SettingOutlined />
+            [01] {t("mission.task_form_fork.action_type")}
+          </SectionHeader>
+          <Flex gap="middle" justify="space-between" align="center" wrap="wrap">
+            <Form.Item
+              label={
+                <FieldLabel>
+                  {t("mission.task_form_fork.select_action")}
+                </FieldLabel>
+              }
+              name="action_type"
+              style={{ flex: 1, minWidth: 300, marginBottom: 0 }}
             >
-              {isSpecialAction ? 'N' : 'S'}
-            </Button>
-          </Tooltip>
-        </Flex>
-
-        <Flex align="center" justify="space-between">
-          {actionState !== undefined ? (
-            <Form.Item label={t('mission.task_table.action')} name="control">
-              <Flex gap="small">
-                {controlList[actionState].map((v, i) => {
-                  const uniqueValue = `${v}-${i}`;
-                  const movement = v as Control_Types;
-                  let text = '';
-
-                  switch (movement) {
-                    case 'F':
-                      text = t('car_control_translate.F');
-                      break;
-                    case 'H':
-                      text = t('car_control_translate.H');
-                      break;
-                    case 'S':
-                      text = t('car_control_translate.S');
-                      break;
-                    case 'B':
-                      text = t('car_control_translate.B');
-                      break;
-                    case 'W':
-                      text = t('car_control_translate.W');
-                      break;
-                    default:
-                      text = 'unknown movement';
-                  }
-
-                  return (
-                    <Tooltip key={uniqueValue} title={text} mouseEnterDelay={0.5}>
-                      <Button
-                        type={controlClickOrder.includes(uniqueValue) ? 'primary' : 'default'}
-                        onClick={() => handleControlClick(uniqueValue)}
-                      >
-                        {v}
-                      </Button>
-                    </Tooltip>
-                  );
-                })}
-              </Flex>
+              <IndustrialSegmented
+                onChange={(e: Action_Type) => changeActiontype(e)}
+                options={
+                  isSpecialAction
+                    ? SpecialActionListOptions
+                    : NormalActionListOptions
+                }
+              />
             </Form.Item>
-          ) : (
-            []
-          )}
-          <Flex>
-            <Input
-              disabled
-              style={{ width: 200, marginBottom: 24 }}
-              value={controlClickOrder.flatMap((v) => v.split('-')[0]).join(', ')}
-            />
-            <Tooltip title={t('utils.reset')}>
-              <Button
-                style={{ marginBottom: 24 }}
+            <Tooltip
+              title={
+                isSpecialAction
+                  ? t("mission.task_form_fork.switch_to_normal")
+                  : t("mission.task_form_fork.switch_to_special")
+              }
+            >
+              <IndustrialButton
+                onClick={() => setIsSpecialAction(!isSpecialAction)}
+              >
+                {isSpecialAction
+                  ? t("mission.task_form_fork.normal")
+                  : t("mission.task_form_fork.special")}
+              </IndustrialButton>
+            </Tooltip>
+          </Flex>
+        </IndustrialCard>
+
+        {/* Control Sequence Builder */}
+        <IndustrialCard>
+          <SectionHeader>
+            <ToolOutlined />
+            [02] {t("mission.task_form_fork.control_sequence")}
+          </SectionHeader>
+
+          <Flex align="flex-start" gap="middle" style={{ marginBottom: 20 }}>
+            <ControlDisplay hasValue={controlClickOrder.length > 0}>
+              {controlClickOrder.length > 0 ? (
+                <Flex
+                  vertical
+                  gap="6px"
+                  style={{ width: "100%", position: "relative", zIndex: 1 }}
+                >
+                  {controlClickOrder.map((ctrl, idx) => (
+                    <ControlItem key={idx}>
+                      <ControlIndex>#{idx + 1}</ControlIndex>
+                      <ControlLabel>{ctrl}</ControlLabel>
+
+                      <ActionButtonGroup>
+                        <Tooltip title={t("mission.task_form_fork.move_up")}>
+                          <Button
+                            type="text"
+                            size="small"
+                            disabled={idx === 0}
+                            icon={<ArrowUpOutlined />}
+                            onClick={() => moveControlIndex(idx, idx - 1)}
+                          />
+                        </Tooltip>
+                        <Tooltip title={t("mission.task_form_fork.move_down")}>
+                          <Button
+                            type="text"
+                            size="small"
+                            disabled={idx === controlClickOrder.length - 1}
+                            icon={<ArrowDownOutlined />}
+                            onClick={() => moveControlIndex(idx, idx + 1)}
+                          />
+                        </Tooltip>
+                      </ActionButtonGroup>
+
+                      <Tooltip title={t("mission.task_form_fork.delete")}>
+                        <Button
+                          type="text"
+                          size="small"
+                          icon={<DeleteOutlined />}
+                          onClick={() => deleteControlElementFromIndex(idx)}
+                          style={{ color: "#ff4444" }}
+                        />
+                      </Tooltip>
+                    </ControlItem>
+                  ))}
+                </Flex>
+              ) : (
+                <EmptyStateText>
+                  [{" "}
+                  {t("mission.task_form_fork.no_control_sequence") ||
+                    "No control sequence selected"}{" "}
+                  ]
+                </EmptyStateText>
+              )}
+            </ControlDisplay>
+
+            <Tooltip title={t("mission.task_form_fork.reset_all")}>
+              <IndustrialButton
+                className={controlClickOrder.length > 0 ? "danger" : ""}
                 icon={<RedoOutlined />}
-                onClick={() => setControlClickOrder([])}
+                onClick={() => {
+                  setControlClickOrder([]);
+                  form.setFieldValue(["io", "fork"], {});
+                }}
+                style={{ height: 40, width: 40 }}
               />
             </Tooltip>
           </Flex>
-        </Flex>
 
-        {controlClickOrder.some((item) => item.startsWith('W')) && (
-          <Form.Item label={t('mission.task_table.wait')} name="wait">
-            <InputNumber min={1} placeholder="1" addonAfter="s" />
-          </Form.Item>
-        )}
+          {/* Control Buttons */}
+          {controlList[actionState]?.length > 0 && (
+            <div>
+              <div
+                style={{
+                  color: "#666",
+                  fontSize: 10,
+                  textTransform: "uppercase",
+                  marginBottom: 8,
+                  letterSpacing: 1,
+                }}
+              >
+                {t("mission.task_form_fork.available_controls")}:
+              </div>
+              <Flex wrap gap="small">
+                {(controlList[actionState] || []).map((movement) => (
+                  <IndustrialButton
+                    key={movement}
+                    onClick={() => handleControlClick(movement)}
+                  >
+                    {movement}
+                  </IndustrialButton>
+                ))}
+              </Flex>
+            </div>
+          )}
+        </IndustrialCard>
 
-        <Form.Item
-          label={
-            <Flex gap="small" align="center">
-              <span>{t('mission.task_table.is_custom_location')}</span>
-              <Tooltip title={t('mission.task_table.location_tooltip')}>
-                <QuestionCircleOutlined style={{ color: '#8c8c8c' }} />
-              </Tooltip>
-            </Flex>
-          }
-          name="is_define_id"
-        >
-          <Select
-            value={selectLocationType}
-            onChange={(e: Select_Location_Type) => setSelectLocationType(e)}
-            options={SelectLocationOptions}
+        {/* Dynamic Control Configuration */}
+        <IndustrialCard>
+          <SectionHeader>
+            <SettingOutlined />
+            [03] {t("mission.task_form_fork.control_params")}
+          </SectionHeader>
+          <DynamicControlFields
+            controlSequence={controlClickOrder}
+            form={form}
+            locationsOption={locationsOption}
           />
+        </IndustrialCard>
 
-          {selectLocationType === 'custom' && (
-            <Typography.Text type="secondary" style={{ marginTop: 8, display: 'block' }}>
-              {t('mission.task_table.location_custom_desc')}
-            </Typography.Text>
-          )}
-          {selectLocationType === 'select' && (
-            <Typography.Text type="secondary" style={{ marginTop: 8, display: 'block' }}>
-              {t('mission.task_table.location_select_desc')}
-            </Typography.Text>
-          )}
-          {selectLocationType === 'available_charge_station' && (
-            <Typography.Text type="secondary" style={{ marginTop: 8, display: 'block' }}>
-              {t('mission.task_table.location_charge_station_desc')}
-            </Typography.Text>
-          )}
-          {selectLocationType === 'prepare_point' && (
-            <Typography.Text type="secondary" style={{ marginTop: 8, display: 'block' }}>
-              {t('mission.task_table.prepare_point_desc')}
-            </Typography.Text>
-          )}
-          {selectLocationType === 'back_to_load_place' && (
-            <Typography.Text type="secondary" style={{ marginTop: 8, display: 'block' }}>
-              {t('mission.task_table.back_to_load_place_desc')}
-            </Typography.Text>
-          )}
-        </Form.Item>
+        {/* Location Settings */}
+        {canSelectIsDefinedId() && (
+          <IndustrialCard>
+            <SectionHeader>
+              <SettingOutlined />
+              [04] {t("mission.task_form_fork.location_config")}
+            </SectionHeader>
+            <Form.Item
+              label={
+                <FieldLabel>
+                  {t("mission.task_form_fork.select_location_type")}
+                </FieldLabel>
+              }
+              name="is_define_id"
+            >
+              <Select
+                value={selectLocationType}
+                onChange={(e: Select_Location_Type) => setSelectLocationType(e)}
+                options={SelectLocationOptions}
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
 
-        {selectLocationType === 'custom' && actionState !== 'spin' && (
-          <Form.Item
-            label={t('mission.task_table.location')}
-            name="locationId"
-            rules={[{ required: true, message: t('mission.task_table.location_required') }]}
-          >
-            <Select style={{ width: 210 }} options={locationsOption} />
-          </Form.Item>
+            {selectLocationType === "custom" && (
+              <Form.Item
+                label={
+                  <FieldLabel>
+                    {t("mission.task_form_fork.target_location")}
+                  </FieldLabel>
+                }
+                name="locationId"
+                rules={[
+                  {
+                    required: true,
+                    message: t("mission.task_table.location_required"),
+                  },
+                ]}
+              >
+                <Select
+                  showSearch={{
+                    filterOption: (input, option) =>
+                      (option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase()),
+                  }}
+                  style={{ width: "100%" }}
+                  options={locationsOption}
+                />
+              </Form.Item>
+            )}
+          </IndustrialCard>
         )}
 
-        {(actionState === 'spin' || isIncludeSpin) && (
-          <Form.Item
-            label={
-              <Flex gap="small" align="center">
-                <span>{t('mission.task_table.is_custom_yaw')}</span>
-                <Tooltip title={t('mission.task_table.yaw_tooltip')}>
-                  <QuestionCircleOutlined style={{ color: '#8c8c8c' }} />
-                </Tooltip>
-              </Flex>
-            }
-            name="is_define_yaw"
-          >
-            <Segmented
-              value={selectYaw}
-              onChange={(e: YawGenre) => setSelectYaw(e)}
-              options={SelectYawOptions}
-            />
+        {/* Yaw Configuration for Spin */}
+        {actionState === "spin" && (
+          <IndustrialCard>
+            <SectionHeader>
+              <SettingOutlined />
+              [05] {t("mission.task_form_fork.yaw_config")}
+            </SectionHeader>
+            <Form.Item
+              label={
+                <FieldLabel>
+                  {t("mission.task_form_fork.select_yaw_type")}
+                </FieldLabel>
+              }
+              name="is_define_yaw"
+            >
+              <IndustrialSegmented
+                value={selectYaw}
+                onChange={(e: YawGenre) => setSelectYaw(e)}
+                options={SelectYawOptions}
+              />
+            </Form.Item>
+
             {selectYaw === YawGenre.CUSTOM && (
-              <Typography.Text type="secondary" style={{ marginTop: 8, display: 'block' }}>
-                {t('mission.task_table.yaw_custom_desc')}
-              </Typography.Text>
+              <Form.Item
+                label={
+                  <FieldLabel>
+                    {t("mission.task_form_fork.yaw_angle")}
+                  </FieldLabel>
+                }
+                name="yaw"
+                rules={[
+                  {
+                    required: true,
+                    message: t("mission.task_table.yaw_required"),
+                  },
+                  {
+                    type: "number",
+                    min: -180,
+                    max: 180,
+                    message: t("mission.task_table.yaw_range"),
+                  },
+                ]}
+              >
+                <InputNumber
+                  min={-180}
+                  max={180}
+                  addonAfter="°"
+                  style={{ width: "100%" }}
+                />
+              </Form.Item>
             )}
-            {selectYaw === YawGenre.SELECT && (
-              <Typography.Text type="secondary" style={{ marginTop: 8, display: 'block' }}>
-                {t('mission.task_table.yaw_select_desc')}
-              </Typography.Text>
-            )}
-            {selectYaw === YawGenre.CALCULATE_BY_AGV_AND_SHELF_ANGLE && (
-              <Typography.Text type="secondary" style={{ marginTop: 8, display: 'block' }}>
-                {t('mission.task_table.yaw_calculate_desc')}
-              </Typography.Text>
-            )}
-          </Form.Item>
+          </IndustrialCard>
         )}
 
-        {selectYaw === YawGenre.CUSTOM && isIncludeSpin && (
-          <Form.Item
-            label={t('mission.task_table.yaw')}
-            name="yaw"
-            rules={[
-              { required: true, message: t('mission.task_table.yaw_required') },
-              { type: 'number', min: -180, max: 180, message: t('mission.task_table.yaw_range') }
-            ]}
-          >
-            <InputNumber min={-180} max={180} addonAfter="°" />
-          </Form.Item>
-        )}
+        {/* Level Configuration */}
+        {(actionState === "load" || actionState === "offload") &&
+          isStackMode === false && (
+            <IndustrialCard>
+              <SectionHeader>
+                <SettingOutlined />
+                [05] {t("mission.task_form_fork.level_config")}{" "}
+              </SectionHeader>
 
-        {(actionState === 'load' || actionState === 'offload' || isIncludeH) && (
-          <Form.Item
-            label={
-              <Flex gap="small" align="center">
-                <span>{t('mission.task_table.is_define_height')}</span>
-                <Tooltip title={t('mission.task_table.fork_height_tooltip')}>
-                  <QuestionCircleOutlined style={{ color: '#8c8c8c' }} />
-                </Tooltip>
-              </Flex>
-            }
-            name="fork_height_select"
-          >
-            <Segmented
-              value={selectForkHeight}
-              onChange={(e: Select_Fork_Height_Type) => setSelectForkHeight(e)}
-              options={SelectForkHeightOptions}
-            />
-            {selectForkHeight === 'level' && (
-              <Typography.Text type="secondary" style={{ marginTop: 8, display: 'block' }}>
-                {t('mission.task_table.fork_height_level_desc')}
-              </Typography.Text>
-            )}
-            {selectForkHeight === 'custom' && (
-              <Typography.Text type="secondary" style={{ marginTop: 8, display: 'block' }}>
-                {t('mission.task_table.fork_height_custom_desc')}
-              </Typography.Text>
-            )}
-            {selectForkHeight === 'select' && (
-              <Typography.Text type="secondary" style={{ marginTop: 8, display: 'block' }}>
-                {t('mission.task_table.fork_height_select_desc')}
-              </Typography.Text>
-            )}
-            {selectForkHeight === 'default' && (
-              <Typography.Text type="secondary" style={{ marginTop: 8, display: 'block' }}>
-                {t('mission.task_table.fork_height_default_desc')}
-              </Typography.Text>
-            )}
-          </Form.Item>
-        )}
+              <Form.Item
+                label={
+                  <FieldLabel>
+                    {t("mission.task_form_fork.select_level_type")}
+                  </FieldLabel>
+                }
+                name="is_define_level"
+              >
+                <Select
+                  value={selectLevelType}
+                  onChange={(e: "select" | "custom") => setSelectLevelType(e)}
+                  options={SelectLevelOptions}
+                  style={{ width: "100%" }}
+                />
+              </Form.Item>
+              {selectLevelType === "custom" && (
+                <Form.Item
+                  label={
+                    <FieldLabel>{t("mission.task_form_fork.level")}</FieldLabel>
+                  }
+                  name="level"
+                  rules={[{ required: true, message: t("utils.required") }]}
+                >
+                  <InputNumber min={1} style={{ width: "100%" }} />
+                </Form.Item>
+              )}
+            </IndustrialCard>
+          )}
 
-        {selectForkHeight === 'custom' && isIncludeH && (
-          <Form.Item
-            label={
-              <Flex gap="small" align="center">
-                <span>{t('mission.task_table.height')}</span>
-                <Tooltip title={t('mission.task_table.camera_config')}>
-                  <QuestionCircleOutlined style={{ color: '#8c8c8c' }} />
-                </Tooltip>
-              </Flex>
-            }
-            name="height"
-            rules={[{ required: true, message: t('mission.task_table.height_required') }]}
-          >
-            <InputNumber min={1} placeholder="1" addonAfter="mm" />
-          </Form.Item>
-        )}
-
-        {selectForkHeight === 'level' && isIncludeH && (
-          <Form.Item
-            label={
-              <Flex gap="small" align="center">
-                <span>{t('mission.task_table.level')}</span>
-                <Tooltip title={t('mission.task_table.camera_config')}>
-                  <QuestionCircleOutlined style={{ color: '#8c8c8c' }} />
-                </Tooltip>
-              </Flex>
-            }
-            name="level"
-            rules={[{ required: true, message: t('mission.task_table.height_required') }]}
-          >
-            <InputNumber min={1} placeholder="1" addonAfter={t('utils.floor')} />
-          </Form.Item>
-        )}
-
-        {actionState === 'load' ? (
-          <>
+        {/* Wait Configuration */}
+        {controlClickOrder.some((item) => item.startsWith("W")) && (
+          <IndustrialCard>
+            <SectionHeader>
+              <SettingOutlined />
+              [06] {t("mission.task_form_fork.wait_config")}
+            </SectionHeader>
             <Form.Item
               label={
-                <Flex gap="small" align="center">
-                  <span>{t('mission.task_table.camera_config')}</span>
-                  <Tooltip title={t('mission.task_table.camera_config')}>
-                    <QuestionCircleOutlined style={{ color: '#8c8c8c' }} />
-                  </Tooltip>
-                </Flex>
+                <FieldLabel>{t("mission.task_form_fork.wait_time")}</FieldLabel>
               }
-              name="camera_config"
-              rules={[{ required: true, message: t('utils.required') }]}
+              name="wait"
             >
-              <InputNumber min={0} placeholder="1" addonAfter="mm" />
+              <InputNumber
+                min={1}
+                placeholder="1"
+                addonAfter="s"
+                style={{ width: "100%" }}
+              />
             </Form.Item>
-
-            <Form.Item
-              label={
-                <Flex gap="small" align="center">
-                  <span>{t('mission.task_table.modify_dis')}</span>
-                  <Tooltip title={t('mission.task_table.modify_dis_info')}>
-                    <QuestionCircleOutlined style={{ color: '#8c8c8c' }} />
-                  </Tooltip>
-                </Flex>
-              }
-              name="modify_dis"
-              rules={[{ required: true, message: t('utils.required') }]}
-            >
-              <InputNumber min={0} placeholder="1" addonAfter="meter" />
-            </Form.Item>
-          </>
-        ) : (
-          []
+          </IndustrialCard>
         )}
 
-        {actionState === 'move' ? (
-          <>
-            <Form.Item
-              label={
-                <Flex gap="small" align="center">
-                  <span>{t('mission.task_table.tolerance')}</span>
-                  <Tooltip title={t('mission.task_table.tolerance')}>
-                    <QuestionCircleOutlined style={{ color: '#8c8c8c' }} />
-                  </Tooltip>
-                </Flex>
-              }
-              name="tolerance"
-              rules={[{ required: true, message: t('utils.required') }]}
-            >
-              <InputNumber min={1} placeholder="1" addonAfter="mm" />
-            </Form.Item>
-
-            <Form.Item
-              label={
-                <Flex gap="small" align="center">
-                  <span>{t('mission.task_table.lookahead')}</span>
-                  <Tooltip title={t('mission.task_table.lookahead')}>
-                    <QuestionCircleOutlined style={{ color: '#8c8c8c' }} />
-                  </Tooltip>
-                </Flex>
-              }
-              name="lookahead"
-              rules={[{ required: true, message: t('utils.required') }]}
-            >
-              <InputNumber min={1} placeholder="1" addonAfter="mm" />
-            </Form.Item>
-          </>
-        ) : (
-          []
-        )}
-
-        <Flex gap="middle" style={{ marginBottom: 24 }}>
-          <Button
-            onClick={() => setOtherSpecial(!otherSpecial)}
-            type={otherSpecial ? 'primary' : 'default'}
+        {/* Submit Section */}
+        <Flex
+          align="center"
+          justify="center"
+          gap="middle"
+          style={{ padding: "40px 0 20px" }}
+        >
+          <IndustrialButton
+            className="primary"
+            size="large"
+            htmlType="submit"
+            disabled={!submittable}
+            loading={editMutation.isPending}
+            style={{ minWidth: 160 }}
           >
-            {t('mission.task_table.other_special')}
-          </Button>
-          <Tooltip title={t('mission.task_table.special_movement_info')}>
-            <QuestionCircleOutlined />
-          </Tooltip>
-        </Flex>
-
-        {otherSpecial && (
-          <Form.Item label={t('mission.task_table.active_wait_amr')} name="active_wait_amr">
-            <Segmented
-              onChange={(e: Select_Active_Robot_Type) => setSelectActiveWaitRobot(e)}
-              options={SelectActiveWaitRobotOptions}
-            />
-          </Form.Item>
-        )}
-
-        {otherSpecial && selectActiveWaitRobot === 'enable' && (
-          <Form.Item
-            label={t('mission.task_table.wait_genre')}
-            name="waitOtherAmr"
-            rules={[{ required: true, message: t('mission.task_table.wait_other_amr_required') }]}
-          >
-            <Select options={robotOption} />
-          </Form.Item>
-        )}
-
-        {otherSpecial && selectActiveWaitRobot === 'enable' && (
-          <Form.Item
-            label={t('mission.task_table.wait_genre')}
-            name="wait_genre"
-            rules={[{ required: true, message: t('mission.task_table.wait_genre_required') }]}
-          >
-            <Segmented options={SelectWaitRobotOptions} />
-          </Form.Item>
-        )}
-
-        <Flex align="center" justify="center">
-          <Form.Item>
-            <Button
-              type="primary"
-              disabled={!submittable}
-              htmlType="submit"
-              loading={editMutation.isLoading}
-            >
-              {t('utils.save')}
-            </Button>
-          </Form.Item>
+            {editMutation.isPending
+              ? t("mission.task_form_fork.saving")
+              : t("mission.task_form_fork.deploy")}
+          </IndustrialButton>
         </Flex>
       </Form>
-    </>
+    </IndustrialContainer>
   );
 };
 

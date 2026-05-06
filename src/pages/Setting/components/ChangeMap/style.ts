@@ -1,5 +1,5 @@
-import { Button, Form } from 'antd';
-import styled from 'styled-components';
+import { Button, Form } from "antd";
+import styled from "styled-components";
 
 export const ImageContainer = styled.div<{
   url: string;
@@ -45,7 +45,7 @@ export const ShowImageContainer = styled.div<{
 
 export const ShowImageText = styled.div<{ is_edit: string }>`
   position: absolute;
-  top: ${({ is_edit }) => (is_edit === 'true' ? '60%' : '75%')};
+  top: ${({ is_edit }) => (is_edit === "true" ? "60%" : "75%")};
   left: 50%;
   width: auto;
   transform: translate(-50%, -50%);

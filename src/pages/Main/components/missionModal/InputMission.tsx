@@ -1,5 +1,5 @@
 const InputMission = () => {
-  return <></>
-}
+  return <></>;
+};
 
-export default InputMission
+export default InputMission;

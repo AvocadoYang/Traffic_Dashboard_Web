@@ -1,16 +1,18 @@
-import { FC, useMemo } from 'react';
-import useMap from '@/api/useMap';
-import Icon from './Icon';
+import { FC, useMemo } from "react";
+import useMap from "@/api/useMap";
+import Icon from "./Icon";
 
-import '../style.css';
-import { useAmrPose } from '@/sockets/useAMRInfo';
-import { rosCoord2DisplayCoord } from '@/utils/utils';
-import styled from 'styled-components';
-import { useAtomValue } from 'jotai';
-import { amrId2ColorRainbow } from '@/utils/utils';
-import { AmrFilterCarCard, hintAmr, showZoneForbidden } from '@/utils/gloable';
-import { useWarningId } from '@/sockets/useWarning';
-
+import "../style.css";
+import { useAmrPose } from "@/sockets/useAMRInfo";
+import { rosCoord2DisplayCoord } from "@/utils/utils";
+import styled from "styled-components";
+import { useAtomValue } from "jotai";
+import { amrId2ColorRainbow } from "@/utils/utils";
+import { AmrFilterCarCard, hintAmr, showZoneForbidden } from "@/utils/gloable";
+import { useWarningId } from "@/sockets/useWarning";
+import ForkLiftIcon from "./amrs/ForkliftIcon";
+import { useAmrBBox } from "@/sockets/useBBox";
+import BBox from "./amrs/BBox";
 
 const Tip = styled.div.attrs<{
   left: number;
@@ -19,10 +21,10 @@ const Tip = styled.div.attrs<{
   style: {
     transform: `translate(-42%, -160%) `,
     left,
-    top,
-    transition: 'x 1s, y 1s'
-  }
-})) <{
+    top: top -10,
+    transition: "x 1s, y 1s",
+  },
+}))<{
   left: number;
   top: number;
 }>`
@@ -41,7 +43,7 @@ const Tip = styled.div.attrs<{
   font-weight: bold;
 
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: -9px; /* 調整三角形位置 */
     left: 50%;
@@ -61,13 +63,13 @@ const ErrorTip = styled.div.attrs<{
     transform: `translate(-42%, -160%) `,
     left,
     top,
-    transition: 'x 1s, y 1s'
-  }
-})) <{
+    transition: "x 1s, y 1s",
+  },
+}))<{
   left: number;
   top: number;
 }>`
- position: absolute;
+  position: absolute;
   display: flex;
   padding: 2px;
   align-items: center;
@@ -76,7 +78,8 @@ const ErrorTip = styled.div.attrs<{
   background-color: rgba(252, 252, 252, 0.75);
   z-index: 50;
   color: #fafafa;
-  font-weight: bold;`
+  font-weight: bold;
+`;
 
 const agvFormate = (x1: number, y1: number) => {
   const theta = (3 * Math.PI) / 2;
@@ -101,20 +104,24 @@ const AMR: FC<{
   }, [zoneForbidden]);
 
   const showTooltip = useMemo(() => {
-    return hintAmrId2.has(amrId) || hintAmrId === amrId || zoneForbidden.has(amrId);
+    return (
+      hintAmrId2.has(amrId) || hintAmrId === amrId || zoneForbidden.has(amrId)
+    );
   }, [hintAmrId2, hintAmrId, zoneForbidden]);
 
   const { pose } = useAmrPose(amrId);
-  if (!pose || !map) return null;
+  const bbox = useAmrBBox(amrId);
+ 
+  if (!pose || !map || !bbox || !bbox.length) return null;
 
   const { x: newX, y: newY } = agvFormate(pose.x, pose.y);
   const [left, top] = rosCoord2DisplayCoord({
-    x: amrId.includes('SW15') ? newX + 3.5 : pose.x,
-    y: amrId.includes('SW15') ? newY + 0.4 : pose.y,
+    x: amrId.includes("SW15") ? newX + 3.5 : pose.x,
+    y: amrId.includes("SW15") ? newY + 0.4 : pose.y,
     mapResolution: map.mapResolution,
     mapOriginX: map.mapOriginX,
     mapOriginY: map.mapOriginY,
-    mapHeight: map.mapHeight
+    mapHeight: map.mapHeight,
   });
 
   // 會一直被渲染是正常的 不要包memo
@@ -122,19 +129,22 @@ const AMR: FC<{
     <>
       {showTooltip ? (
         <Tip left={left} top={top}>
-          <p>{`${isForbidden ? '🚫 ' : ''}${amrId}`}</p>
+          <p>{`${isForbidden ? "🚫 " : ""}${amrId}`}</p>
           {/* <ArrowDownOutlined className="hint-icon" /> */}
         </Tip>
       ) : (
         []
       )}
 
-      <Icon amrId={amrId} color={color} left={left} top={top}></Icon>
-      {
-        errorMessage?.length
-          ? <ErrorTip left={left} top={top + Math.sqrt(top) - 5}>❗</ErrorTip>
-          : null
-      }
+
+      <ForkLiftIcon amrId={amrId} color={color} left={left} yaw={pose.yaw} top={top}></ForkLiftIcon>
+      <BBox amrId={amrId} bbox={bbox} color={color}></BBox>
+      {/* <Icon amrId={amrId} color={color} left={left} top={top}></Icon> */}
+      {errorMessage?.length ? (
+        <ErrorTip left={left} top={top + Math.sqrt(top) - 5}>
+          ❗
+        </ErrorTip>
+      ) : null}
     </>
   );
 };

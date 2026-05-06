@@ -1,0 +1,56 @@
+import { CancelReason } from "@/types/mission";
+import React, { FC } from "react";
+import { useTranslation } from "react-i18next";
+
+const reasonKeyMap: { [key in CancelReason]: string } = {
+  [CancelReason.NULL]: "NULL",
+  [CancelReason.CANCEL]: "CANCEL",
+  [CancelReason.CHARGE_STATION_OFFLINE]: "CHARGE_STATION_OFFLINE",
+  [CancelReason.IPC_CHARGE_PANEL_OFF]: "IPC_CHARGE_PANEL_OFF",
+  [CancelReason.REJECT_BY_CHARGE_STATION]: "REJECT_BY_CHARGE_STATION",
+  [CancelReason.NOT_COMPRESS]: "NOT_COMPRESS",
+  [CancelReason.HAS_NEXT_MISSION]: "HAS_NEXT_MISSION",
+  [CancelReason.USER_ABORT]: "USER_ABORT",
+  [CancelReason.WCS_ABORT]: "WCS_ABORT",
+  [CancelReason.MOCK_DISCONNECTED]: "MOCK_DISCONNECTED",
+  [CancelReason.AMR_DISCONNECTED]: "AMR_DISCONNECTED",
+  [CancelReason.ROSBRIDGE_DISCONNECTED]: "ROSBRIDGE_DISCONNECTED",
+  [CancelReason.AMR_CHARGE_HAS_PROBLEM]: "AMR_CHARGE_HAS_PROBLEM",
+  [CancelReason.AMR_IS_NOT_REGISTERED_YET]: "AMR_IS_NOT_REGISTERED_YET",
+  [CancelReason.AMR_IS_RUNNING]: "AMR_IS_RUNNING",
+  [CancelReason.AMR_IS_NOT_IN_AUTO_MODE]: "AMR_IS_NOT_IN_AUTO_MODE",
+  [CancelReason.PLEASE_CLOSE_ENFORCE_CHARGE]: "PLEASE_CLOSE_ENFORCE_CHARGE",
+  [CancelReason.PLEASE_ELIMINATE_AMR_ERRORS_FIRST]:
+    "PLEASE_ELIMINATE_AMR_ERRORS_FIRST",
+  [CancelReason.TYPE_CODE_NOT_DEFINE]: "TYPE_CODE_NOT_DEFINE",
+  [CancelReason.AMR_TIMEOUT]: "AMR_TIMEOUT",
+  [CancelReason.NO_VALID_POSE]: "NO_VALID_POSE",
+  [CancelReason.CRUSH_IN_MOVE]: "CRUSH_IN_MOVE",
+  [CancelReason.CRUSH_IN_NAVIGATION]: "CRUSH_IN_NAVIGATION",
+  [CancelReason.CRUSH_IN_SPIN]: "CRUSH_IN_SPIN",
+  [CancelReason.ROUTE_NOT_ACCESSIBLE]: "ROUTE_NOT_ACCESSIBLE",
+  [CancelReason.CRUSH_IN_GAUGE_RECOGNITION]: "CRUSH_IN_GAUGE_RECOGNITION",
+  [CancelReason.CAN_NOT_GET_AI_RESULT]: "CAN_NOT_GET_AI_RESULT",
+  [CancelReason.CAN_NOT_GET_GAUGE_ID]: "CAN_NOT_GET_GAUGE_ID",
+  [CancelReason.GAUGE_VALUE_ABNORMAL]: "GAUGE_VALUE_ABNORMAL",
+  [CancelReason.CAN_NOT_OPEN_CHARGE_BOARD]: "CAN_NOT_OPEN_CHARGE_BOARD",
+  [CancelReason.LOCATION_ERROR]: "LOCATION_ERROR",
+  [CancelReason.NOT_RECEIVE_CHARGE_BAR_WHEN_START_CHARGE]:
+    "NOT_RECEIVE_CHARGE_BAR_WHEN_START_CHARGE",
+  [CancelReason.CHARGE_FAILED]: "CHARGE_FAILED",
+  [CancelReason.BATTERY_LOW_ABORT]: "BATTERY_LOW_ABORT",
+  [CancelReason.CONTROL_CODE_NOT_DEFINE]: "CONTROL_CODE_NOT_DEFINE",
+  [CancelReason.CAN_NOT_GET_SHORTEST_PATH]: "CAN_NOT_GET_SHORTEST_PATH",
+  [CancelReason.INCORRECT_SHORTEST_PATH]: "INCORRECT_SHORTEST_PATH",
+  [CancelReason.CAN_NOT_GET_CORRECT_ANGLE]: "CAN_NOT_GET_CORRECT_ANGLE",
+  [CancelReason.MISSION_TIMEOUT]: "MISSION_TIMEOUT",
+  [CancelReason.INTERNAL_LOGIC_FAILURE]: "INTERNAL_LOGIC_FAILURE",
+};
+
+const I18nCancelReason: FC<{ reason: CancelReason }> = ({ reason }) => {
+  const { t } = useTranslation();
+  const key = reasonKeyMap[reason];
+  return <>{t(`cancel_reason.${key}`)}</>;
+};
+
+export default I18nCancelReason;

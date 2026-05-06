@@ -1,7 +1,7 @@
-import { Layout } from 'antd';
-import { CloseBtn, ZoomPad } from './component/ZomPadAndCloseBtn';
-import { memo, useRef, useState } from 'react';
-import PadMapView from './component/PadMapView';
+import { Layout } from "antd";
+import { CloseBtn, ZoomPad } from "./component/ZomPadAndCloseBtn";
+import { memo, useRef, useState } from "react";
+import PadMapView from "./component/PadMapView";
 
 const { Content } = Layout;
 

@@ -1,17 +1,19 @@
-import { memo, RefObject, useRef } from 'react';
-import { MapImage } from '@/pages/Setting/mapComponents/components';
-import { AllLocation } from './components';
-import ToolTip from '@/pages/Setting/components/ToolTip';
-import { useAtomValue } from 'jotai';
-import { isShowLocationTooltip, isShowRoad } from '@/utils/siderGloble';
-import AllRoads from './components/AllRoads/AllRoads';
-import AllCargo from './components/AllCargo.tsx/AllCargo';
-import { AllChargeStation } from './components/AllChargeStation';
-import CreateScriptForm from '../components/CreateScriptForm';
-import AllInMapAMRs from '../components/AMR/AllInMapAMRs';
-import { globalScale } from '../utils/mapStatus';
-import AllConveyor from './components/AllConveyor/AllConveyor';
-import EditConveyorModal from './components/AllConveyor/EditConveyorModal';
+import { memo, RefObject, useRef } from "react";
+import { MapImage } from "@/pages/Setting/mapComponents/components";
+import { AllLocation } from "./components";
+import ToolTip from "@/pages/Setting/components/ToolTip";
+import { useAtomValue } from "jotai";
+import { isShowLocationTooltip, isShowRoad } from "@/utils/siderGloble";
+import AllRoads from "./components/AllRoads/AllRoads";
+import AllCargo from "./components/AllCargo.tsx/AllCargo";
+import CreateScriptForm from "../components/CreateScriptForm";
+import AllInMapAMRs from "../components/AMR/AllInMapAMRs";
+import { globalScale } from "../utils/mapStatus";
+import AllConveyor from "./components/AllConveyor/AllConveyor";
+import { AllElevator } from "./components/AllElevator";
+import AllChargeStation from "./components/AllChargeStation/AllChargeStation";
+import AllGateWaitPoint from "./components/AllGateWaitPoint/AllGateWaitPoint";
+import AllLiftGate from "./components/AllGate/AllLiftGate";
 
 const MapView: React.FC<{
   mapRef: RefObject<HTMLDivElement>;
@@ -26,8 +28,8 @@ const MapView: React.FC<{
     <div
       style={{
         transform: `scale(${scale})`,
-        transformOrigin: '0% 0%',
-        position: 'relative'
+        transformOrigin: "0% 0%",
+        position: "relative",
       }}
       className="map-view"
       ref={mapRef}
@@ -40,10 +42,10 @@ const MapView: React.FC<{
       <AllCargo />
 
       <AllChargeStation />
-
+      <AllElevator />
       <AllConveyor />
-      <EditConveyorModal />
-
+      <AllGateWaitPoint></AllGateWaitPoint>
+      <AllLiftGate></AllLiftGate>
       {showLocationToolTip ? <ToolTip /> : []}
 
       {/* 一開始創建新的模擬任務的modal 必須填完才能使用 */}

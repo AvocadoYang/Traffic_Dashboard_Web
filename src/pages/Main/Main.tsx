@@ -1,28 +1,38 @@
-import React from 'react';
-import { Layout } from 'antd';
-import WebView from './components/WebView/WebView';
-import Header from '../../components/Header';
-import './components/PadViwe/style.css';
-import PadView from './components/PadViwe/PadView';
-import { useIsMobile } from '@/hooks/useIsMoblie';
+import React from "react";
+import { Layout } from "antd";
+import CommonTabs from "@/components/Common/Tab";
+import CarCardWrap from "@/components/Main/Car/CardWrap";
+import MissionWrap from "@/pages/Main/Mission_Card/MissionWrap";
+import WebView from "./components/WebView/WebView";
+import "./components/PadViwe/style.css";
+// import PadView from "./components/PadViwe/PadView";
+import { useIsMobile } from "@/hooks/useIsMoblie";
 
-// import { Scene } from './3D'
-// import CarCardWrap from './Car_Card/CardWrap'
-// import MissionWrap from './Mission_Card/MissionWrap'
+
+const items = [
+  {
+    key: '1',
+    label: '車子資訊',
+    children: <CarCardWrap />,
+  },
+  {
+    key: '2',
+    label: '任務資訊',
+    children: <MissionWrap />,
+  },
+]
 
 const Main: React.FC = () => {
-  const { isMobile } = useIsMobile();
+  const { isDesktop } = useIsMobile();
+
   return (
-    <Layout style={{ height: `${isMobile ? '100dvh' : '100%'}` }}>
-      <Header isMobile={isMobile}></Header>
-      {isMobile ? (
-        <>
-          <Layout style={{ height: '100%' }}>
-            <PadView></PadView>
-          </Layout>
-        </>
+    <Layout style={{ height: isDesktop ? "100%" : "100dvh" }}>
+      {isDesktop ? (
+        <WebView />
       ) : (
-        <WebView></WebView>
+        <Layout style={{ height: "100%" }}>
+          <CommonTabs items={items} />
+        </Layout>
       )}
     </Layout>
   );

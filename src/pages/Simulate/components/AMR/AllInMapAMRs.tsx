@@ -1,8 +1,8 @@
-import { FC, memo, RefObject } from 'react';
-import useScriptRobot from '@/api/useScriptRobot';
-import AmrIcon from './AmrIcon';
-import { amrId2Color, rosCoord2DisplayCoord } from '@/utils/utils';
-import useMap from '@/api/useMap';
+import { FC, memo, RefObject } from "react";
+import useScriptRobot from "@/api/useScriptRobot";
+import AmrIcon from "./AmrIcon";
+import { amrId2Color, rosCoord2DisplayCoord } from "@/utils/utils";
+import useMap from "@/api/useMap";
 
 const AllInMapAMRs: FC<{
   mapRef: RefObject<HTMLDivElement>;
@@ -16,9 +16,11 @@ const AllInMapAMRs: FC<{
   return (
     <>
       {robot
-        .filter((v) => v?.script_placement_location !== 'unset')
+        .filter((v) => v?.script_placement_location !== "unset")
         .map((b) => {
-          const detail = map.locations.find((v) => v.locationId === b?.script_placement_location);
+          const detail = map.locations.find(
+            (v) => v.locationId === b?.script_placement_location,
+          );
 
           const [left, top] = rosCoord2DisplayCoord({
             x: detail?.x as number,
@@ -26,7 +28,7 @@ const AllInMapAMRs: FC<{
             mapResolution: map.mapResolution,
             mapOriginX: map.mapOriginX,
             mapOriginY: map.mapOriginY,
-            mapHeight: map.mapHeight
+            mapHeight: map.mapHeight,
           });
 
           return (

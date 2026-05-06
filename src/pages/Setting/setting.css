@@ -8,15 +8,13 @@
   /* overflow-y: scroll; 這個用或是沒用都會造成打點問題 */
 }
 
-
 .setting-sider svg {
   fill: rgb(10, 9, 9);
 }
 
-.setting-sider dev{
+.setting-sider dev {
   background-color: #f5f5f5 !important;
 }
-
 
 /* .setting-sider-menu li:hover {
   font-size: 15px;

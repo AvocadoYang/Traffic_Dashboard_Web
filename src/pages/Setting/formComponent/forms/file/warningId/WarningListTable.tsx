@@ -1,6 +1,6 @@
-import { nanoid } from 'nanoid';
-import { FC, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { nanoid } from "nanoid";
+import { FC, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Button,
   Flex,
@@ -11,15 +11,20 @@ import {
   Radio,
   Table,
   Typography,
-  message
-} from 'antd';
-import { CloseOutlined, DeleteTwoTone, EditOutlined, SaveOutlined } from '@ant-design/icons';
-import { useMutation } from '@tanstack/react-query';
-import TextArea from 'antd/es/input/TextArea';
-import useWarningTable from '@/api/useWarningTable';
-import client from '@/api/axiosClient';
-import { ErrorResponse } from '@/utils/globalType';
-import { errorHandler } from '@/utils/utils';
+  message,
+} from "antd";
+import {
+  CloseOutlined,
+  DeleteTwoTone,
+  EditOutlined,
+  SaveOutlined,
+} from "@ant-design/icons";
+import { useMutation } from "@tanstack/react-query";
+import TextArea from "antd/es/input/TextArea";
+import useWarningTable from "@/api/useWarningTable";
+import client from "@/api/axiosClient";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
 
 interface WarningRecord {
   id: number;
@@ -54,27 +59,27 @@ const EditableCell: React.FC<EditableCellProps> = ({
   const { t } = useTranslation();
   let inputNode;
   switch (dataIndex) {
-    case 'id':
+    case "id":
       inputNode = <InputNumber />;
       break;
-    case 'is_open_buzzer':
+    case "is_open_buzzer":
       inputNode = (
         <Radio.Group>
-          <Radio value={false}>{t('utils.no')}</Radio>
-          <Radio value>{t('utils.yes')}</Radio>
+          <Radio value={false}>{t("utils.no")}</Radio>
+          <Radio value>{t("utils.yes")}</Radio>
         </Radio.Group>
       );
       break;
-    case 'info_ch':
+    case "info_ch":
       inputNode = <TextArea />;
       break;
-    case 'info_en':
+    case "info_en":
       inputNode = <TextArea />;
       break;
-    case 'solution_ch':
+    case "solution_ch":
       inputNode = <TextArea />;
       break;
-    case 'solution_en':
+    case "solution_en":
       inputNode = <TextArea />;
       break;
 
@@ -91,8 +96,8 @@ const EditableCell: React.FC<EditableCellProps> = ({
           rules={[
             {
               required: true,
-              message: 'Please Input !'
-            }
+              message: "Please Input !",
+            },
           ]}
         >
           {inputNode}
@@ -114,33 +119,33 @@ const WarningListTable: FC = () => {
 
   const editMutation = useMutation({
     mutationFn: (payload: WarningRecord) => {
-      return client.post('api/setting/edit-warning', payload);
+      return client.post("api/setting/edit-warning", payload);
     },
     onSuccess() {
-      messageApi.success('success');
+      messageApi.success("success");
 
       void refetch();
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (payload: { id: number }) => {
-      return client.post('api/setting/delete-warning', payload);
+      return client.post("api/setting/delete-warning", payload);
     },
     onSuccess: async () => {
       void refetch();
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi)
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const edit = (record: Partial<WarningRecord> & { id: number }) => {
-    form.setFieldValue('id', record.id);
-    form.setFieldValue('is_open_buzzer', record.is_open_buzzer);
-    form.setFieldValue('info_ch', record.info_ch);
-    form.setFieldValue('info_en', record.info_en);
-    form.setFieldValue('solution_ch', record.solution_ch);
-    form.setFieldValue('solution_en', record.solution_en);
+    form.setFieldValue("id", record.id);
+    form.setFieldValue("is_open_buzzer", record.is_open_buzzer);
+    form.setFieldValue("info_ch", record.info_ch);
+    form.setFieldValue("info_en", record.info_en);
+    form.setFieldValue("solution_ch", record.solution_ch);
+    form.setFieldValue("solution_en", record.solution_en);
 
     setEditingKey(record.id);
   };
@@ -158,7 +163,7 @@ const WarningListTable: FC = () => {
 
     const payload = {
       ...data,
-      origin_id: key
+      origin_id: key,
     };
 
     editMutation.mutate(payload);
@@ -167,51 +172,51 @@ const WarningListTable: FC = () => {
 
   const columns = [
     {
-      title: t('file.warning_list.error_code'),
-      dataIndex: 'id',
-      key: 'id',
+      title: t("file.warning_list.error_code"),
+      dataIndex: "id",
+      key: "id",
       editable: true,
-      sorter: (a: WarningRecord, b: WarningRecord) => a.id - b.id
+      sorter: (a: WarningRecord, b: WarningRecord) => a.id - b.id,
     },
     {
-      title: t('file.warning_list.buzzer'),
-      dataIndex: 'is_open_buzzer',
-      key: 'is_open_buzzer',
+      title: t("file.warning_list.buzzer"),
+      dataIndex: "is_open_buzzer",
+      key: "is_open_buzzer",
       editable: true,
       render(_: unknown, record: WarningRecord) {
-        return record.is_open_buzzer ? t('utils.yes') : t('utils.no');
-      }
+        return record.is_open_buzzer ? t("utils.yes") : t("utils.no");
+      },
     },
     {
-      title: t('file.warning_list.info_ch'),
-      dataIndex: 'info_ch',
-      key: 'info_ch',
-      editable: true
+      title: t("file.warning_list.info_ch"),
+      dataIndex: "info_ch",
+      key: "info_ch",
+      editable: true,
     },
     {
-      title: t('file.warning_list.info_en'),
-      dataIndex: 'info_en',
-      key: 'info_en',
-      editable: true
-    },
-
-    {
-      title: t('file.warning_list.solution_ch'),
-      dataIndex: 'solution_ch',
-      key: 'solution_ch',
-      editable: true
+      title: t("file.warning_list.info_en"),
+      dataIndex: "info_en",
+      key: "info_en",
+      editable: true,
     },
 
     {
-      title: t('file.warning_list.solution_en'),
-      dataIndex: 'solution_en',
-      key: 'solution_en',
-      editable: true
+      title: t("file.warning_list.solution_ch"),
+      dataIndex: "solution_ch",
+      key: "solution_ch",
+      editable: true,
+    },
+
+    {
+      title: t("file.warning_list.solution_en"),
+      dataIndex: "solution_en",
+      key: "solution_en",
+      editable: true,
     },
     {
-      title: '',
+      title: "",
       width: 30,
-      dataIndex: 'operation',
+      dataIndex: "operation",
       key: nanoid(),
 
       render(_v: unknown, record: WarningRecord) {
@@ -225,8 +230,13 @@ const WarningListTable: FC = () => {
               }}
               style={{ marginRight: 8 }}
             >
-              <Button icon={<SaveOutlined />} color="primary" variant="filled" type="link">
-                {t('utils.save')}
+              <Button
+                icon={<SaveOutlined />}
+                color="primary"
+                variant="filled"
+                type="link"
+              >
+                {t("utils.save")}
               </Button>
             </Typography.Link>
             <Typography.Link
@@ -235,8 +245,13 @@ const WarningListTable: FC = () => {
               }}
               style={{ marginRight: 8 }}
             >
-              <Button icon={<CloseOutlined />} color="danger" variant="filled" type="link">
-                {t('utils.cancel')}
+              <Button
+                icon={<CloseOutlined />}
+                color="danger"
+                variant="filled"
+                type="link"
+              >
+                {t("utils.cancel")}
               </Button>
             </Typography.Link>
           </Flex>
@@ -248,16 +263,21 @@ const WarningListTable: FC = () => {
                 edit(record);
               }}
             >
-              <Button icon={<EditOutlined />} color="primary" variant="filled" type="link">
-                {t('utils.edit')}
+              <Button
+                icon={<EditOutlined />}
+                color="primary"
+                variant="filled"
+                type="link"
+              >
+                {t("utils.edit")}
               </Button>
             </Typography.Link>
             <Popconfirm
-              title={t('utils.delete')}
+              title={t("utils.delete")}
               onConfirm={() => handleDelete(record)}
               onCancel={cancel}
-              okText={t('utils.yes')}
-              cancelText={t('utils.no')}
+              okText={t("utils.yes")}
+              cancelText={t("utils.no")}
             >
               <Button
                 icon={<DeleteTwoTone twoToneColor="#f30303" />}
@@ -265,13 +285,13 @@ const WarningListTable: FC = () => {
                 variant="filled"
                 type="link"
               >
-                {t('utils.delete')}
+                {t("utils.delete")}
               </Button>
             </Popconfirm>
           </Flex>
         );
-      }
-    }
+      },
+    },
   ];
 
   const mergedColumns = columns.map((col) => {
@@ -284,8 +304,8 @@ const WarningListTable: FC = () => {
         record,
         dataIndex: col.dataIndex,
         title: col.title,
-        editing: isEditing(record)
-      })
+        editing: isEditing(record),
+      }),
     };
   });
 
@@ -295,12 +315,11 @@ const WarningListTable: FC = () => {
 
       <Form form={form} component={false}>
         <Table
-
           rowKey={(record) => record.id}
           components={{
             body: {
-              cell: EditableCell
-            }
+              cell: EditableCell,
+            },
           }}
           columns={mergedColumns}
           dataSource={warningData as WarningRecord[]}
