@@ -5,11 +5,15 @@ import { AlarmType, useSystemAlarm } from "@/sockets/useSystemAlarm";
 
 const AlarmContainer = styled.div`
   position: fixed;
-  bottom: 30px; /* 改為 bottom 避開導航欄 */
+  bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10000;
   pointer-events: none;
+  /* Add these for stacking */
+  display: flex;
+  flex-direction: column-reverse; /* Newest at bottom, stack upwards */
+  gap: 12px;
 `;
 
 // 2. 定義顏色主題
@@ -29,6 +33,11 @@ const THEMES: Record<AlarmType, { bg: string; shadow: string; icon: string }> =
       bg: "rgba(82, 196, 26, 0.95)",
       shadow: "rgba(82, 196, 26, 0.3)",
       icon: "✅",
+    },
+    info: {
+      bg: "rgba(24, 144, 255, 0.95)",
+      shadow: "rgba(24, 144, 255, 0.3)",
+      icon: "ℹ️", // Information emoji
     },
   };
 
@@ -93,70 +102,82 @@ const Timestamp = styled.div`
 
 export const SystemAlarmOverlay = () => {
   const systemAlarm = useSystemAlarm();
-  const [displayMsg, setDisplayMsg] = useState("");
-  const [visible, setVisible] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const currentTheme =
-    THEMES[systemAlarm.alarmType as AlarmType] || THEMES.error;
+  // Store an array of active alarms
+  const [alarms, setAlarms] = useState<any[]>([]);
 
-  const handleClose = () => {
-    setVisible(false);
-    if (timerRef.current) clearTimeout(timerRef.current);
+  // Function to remove an alarm by ID
+  const removeAlarm = (id: string) => {
+    setAlarms((prev) => prev.filter((a) => a.id !== id));
   };
 
   useEffect(() => {
     if (systemAlarm.message) {
-      if (timerRef.current) clearTimeout(timerRef.current);
-
-      setVisible(true);
-
-      // 邏輯：Level 1 -> 3秒, Level 2 -> 5秒, Level 3+ -> 7秒
+      const id = Date.now().toString(); // Simple unique ID
       const duration = Math.min(3000 + systemAlarm.level * 2000, 10000);
 
-      timerRef.current = setTimeout(() => {
-        setVisible(false);
+      const newAlarm = {
+        ...systemAlarm,
+        id,
+      };
+
+      // Add new alarm to list
+      setAlarms((prev) => [...prev, newAlarm]);
+
+      // Set timer to remove this specific alarm
+      setTimeout(() => {
+        removeAlarm(id);
       }, duration);
     }
   }, [systemAlarm]);
 
   return (
-    <AnimatePresence>
-      {visible && (
-        <AlarmContainer>
-          <AlarmCard
-            $type={systemAlarm.alarmType as AlarmType} // 傳入當前類型
-            initial={{ y: 50, opacity: 0, scale: 0.9 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: 20, opacity: 0, scale: 0.9 }}
-            transition={{ type: "spring", stiffness: 400, damping: 30 }}
-          >
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                width: "100%",
-              }}
+    <AlarmContainer>
+      <AnimatePresence>
+        {alarms.map((alarm) => {
+          const theme = THEMES[alarm.alarmType as AlarmType] || THEMES.error;
+
+          return (
+            <AlarmCard
+              key={alarm.id} // Important for Framer Motion!
+              $type={alarm.alarmType as AlarmType}
+              initial={{ y: 50, opacity: 0, scale: 0.9 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
+              layout // Smoothly slide other cards when one disappears
             >
               <div
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "100%",
+                }}
               >
-                {/* 動態顯示圖示 */}
-                <span>{currentTheme.icon}</span>
-                <MessageContent>{systemAlarm.message}</MessageContent>
-                <CloseButton onClick={() => setVisible(false)}>×</CloseButton>
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  <span>{theme.icon}</span>
+                  <MessageContent>
+                    {/* Add your line-break logic from earlier if needed! */}
+                    {alarm.message.split("|").map((part: string, i: number) => (
+                      <div key={i}>{part.trim()}</div>
+                    ))}
+                  </MessageContent>
+                  <CloseButton onClick={() => removeAlarm(alarm.id)}>
+                    ×
+                  </CloseButton>
+                </div>
+                <Timestamp>
+                  {alarm.tstamp?.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  })}
+                </Timestamp>
               </div>
-
-              <Timestamp>
-                {systemAlarm.tstamp?.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                })}
-              </Timestamp>
-            </div>
-          </AlarmCard>
-        </AlarmContainer>
-      )}
-    </AnimatePresence>
+            </AlarmCard>
+          );
+        })}
+      </AnimatePresence>
+    </AlarmContainer>
   );
 };
