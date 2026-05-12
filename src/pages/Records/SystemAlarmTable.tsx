@@ -75,7 +75,11 @@ const SystemAlarmTable: FC = () => {
       title: "Message",
       dataIndex: "message",
       key: "message",
-      render: (_: unknown, record) => <IdDesc>{record.message}</IdDesc>,
+      render: (text: string) => (
+        <IdDesc style={{ whiteSpace: "pre-line", display: "block" }}>
+          {text.split("|").join("|\n")}
+        </IdDesc>
+      ),
     },
     {
       title: "Timestamp",
