@@ -1179,7 +1179,8 @@
     "S": "自轉",
     "H": "枒杈升降",
     "W": "等待",
-    "verity_cargo": "相機辨識貨物"
+    "verity_cargo": "相機辨識貨物",
+    "peripheral_action": "設備 ||　使用者確認"
   },
 
   "customCargo": {

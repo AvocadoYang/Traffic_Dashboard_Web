@@ -447,6 +447,7 @@ const TaskFormFork: FC<{
   const [submittable, setSubmittable] = useState<boolean>(false);
   const { t } = useTranslation();
   const values = Form.useWatch([], form);
+  const [peripheralAction, setPeripheralAction] = useState("NULL");
 
   const {
     locationsOption,
@@ -515,7 +516,7 @@ const TaskFormFork: FC<{
 
   const onFinish = () => {
     const payload = form.getFieldsValue();
-    if (controlClickOrder.length === 0) {
+    if (controlClickOrder.length === 0 && actionState !== "peripheral_action") {
       messageApi.warning(t("mission.task_table.control_warn"));
       return;
     }
@@ -546,7 +547,10 @@ const TaskFormFork: FC<{
       "cargo_limit",
       "verity_cargo",
     ];
-    return !excludedActions.includes(actionState);
+    return (
+      !excludedActions.includes(actionState) &&
+      peripheralAction !== "USER_CONFORM_NEXT_TASK_STEP"
+    );
   };
 
   const getValidationStatus = useMemo(() => {
@@ -597,6 +601,7 @@ const TaskFormFork: FC<{
       );
       setSelectYaw(originFormData.operation.is_define_yaw as YawGenre);
       setControlClickOrder(originFormData.operation.control || []);
+      setPeripheralAction(originFormData.io?.peripheral_action?.type || "NULL");
 
       setTimeout(() => {
         form.setFieldsValue({
@@ -611,13 +616,15 @@ const TaskFormFork: FC<{
           is_define_level:
             originFormData.io.fork_global?.is_define_level || "custom",
           level: (originFormData.io.fork_global?.level + 1) | 0,
+          peripheral_action_type:
+            originFormData.io?.peripheral_action?.type || "NULL",
         });
       }, 0);
     }
   }, [originFormData, form, editTaskKey]);
 
   useEffect(() => {
-    if (controlClickOrder.length === 0) {
+    if (controlClickOrder.length === 0 && actionState !== "peripheral_action") {
       setSubmittable(false);
       return;
     }
@@ -643,6 +650,14 @@ const TaskFormFork: FC<{
       step?.fork_height?.is_define_height === "stack" ||
       step?.fork_height?.is_define_height === "stack_add",
   );
+
+  const peripheralActionOption = [
+    { label: "使用者確認", value: "USER_CONFORM_NEXT_TASK_STEP" },
+    { label: "開啟捲門", value: "OPEN_ROLLING_DOOR" },
+    { label: "關閉捲門", value: "CLOSE_ROLLING_DOOR" },
+    { label: "檢查門是否開啟起(維修開啟)", value: "READ_ROLLING_DOOR_OPEN" },
+    { label: "檢查門是否開關閉(維修關閉)", value: "READ_ROLLING_DOOR_CLOSE" },
+  ];
 
   return (
     <IndustrialContainer>
@@ -738,121 +753,150 @@ const TaskFormFork: FC<{
         </IndustrialCard>
 
         {/* Control Sequence Builder */}
-        <IndustrialCard>
-          <SectionHeader>
-            <ToolOutlined />
-            [02] {t("mission.task_form_fork.control_sequence")}
-          </SectionHeader>
+        {actionState !== "peripheral_action" && (
+          <IndustrialCard>
+            <SectionHeader>
+              <ToolOutlined />
+              [02] {t("mission.task_form_fork.control_sequence")}
+            </SectionHeader>
 
-          <Flex align="flex-start" gap="middle" style={{ marginBottom: 20 }}>
-            <ControlDisplay hasValue={controlClickOrder.length > 0}>
-              {controlClickOrder.length > 0 ? (
-                <Flex
-                  vertical
-                  gap="6px"
-                  style={{ width: "100%", position: "relative", zIndex: 1 }}
+            <Flex align="flex-start" gap="middle" style={{ marginBottom: 20 }}>
+              <ControlDisplay hasValue={controlClickOrder.length > 0}>
+                {controlClickOrder.length > 0 ? (
+                  <Flex
+                    vertical
+                    gap="6px"
+                    style={{ width: "100%", position: "relative", zIndex: 1 }}
+                  >
+                    {controlClickOrder.map((ctrl, idx) => (
+                      <ControlItem key={idx}>
+                        <ControlIndex>#{idx + 1}</ControlIndex>
+                        <ControlLabel>{ctrl}</ControlLabel>
+
+                        <ActionButtonGroup>
+                          <Tooltip title={t("mission.task_form_fork.move_up")}>
+                            <Button
+                              type="text"
+                              size="small"
+                              disabled={idx === 0}
+                              icon={<ArrowUpOutlined />}
+                              onClick={() => moveControlIndex(idx, idx - 1)}
+                            />
+                          </Tooltip>
+                          <Tooltip
+                            title={t("mission.task_form_fork.move_down")}
+                          >
+                            <Button
+                              type="text"
+                              size="small"
+                              disabled={idx === controlClickOrder.length - 1}
+                              icon={<ArrowDownOutlined />}
+                              onClick={() => moveControlIndex(idx, idx + 1)}
+                            />
+                          </Tooltip>
+                        </ActionButtonGroup>
+
+                        <Tooltip title={t("mission.task_form_fork.delete")}>
+                          <Button
+                            type="text"
+                            size="small"
+                            icon={<DeleteOutlined />}
+                            onClick={() => deleteControlElementFromIndex(idx)}
+                            style={{ color: "#ff4444" }}
+                          />
+                        </Tooltip>
+                      </ControlItem>
+                    ))}
+                  </Flex>
+                ) : (
+                  <EmptyStateText>
+                    [{" "}
+                    {t("mission.task_form_fork.no_control_sequence") ||
+                      "No control sequence selected"}{" "}
+                    ]
+                  </EmptyStateText>
+                )}
+              </ControlDisplay>
+
+              <Tooltip title={t("mission.task_form_fork.reset_all")}>
+                <IndustrialButton
+                  className={controlClickOrder.length > 0 ? "danger" : ""}
+                  icon={<RedoOutlined />}
+                  onClick={() => {
+                    setControlClickOrder([]);
+                    form.setFieldValue(["io", "fork"], {});
+                  }}
+                  style={{ height: 40, width: 40 }}
+                />
+              </Tooltip>
+            </Flex>
+
+            {/* Control Buttons */}
+            {controlList[actionState]?.length > 0 && (
+              <div>
+                <div
+                  style={{
+                    color: "#666",
+                    fontSize: 10,
+                    textTransform: "uppercase",
+                    marginBottom: 8,
+                    letterSpacing: 1,
+                  }}
                 >
-                  {controlClickOrder.map((ctrl, idx) => (
-                    <ControlItem key={idx}>
-                      <ControlIndex>#{idx + 1}</ControlIndex>
-                      <ControlLabel>{ctrl}</ControlLabel>
-
-                      <ActionButtonGroup>
-                        <Tooltip title={t("mission.task_form_fork.move_up")}>
-                          <Button
-                            type="text"
-                            size="small"
-                            disabled={idx === 0}
-                            icon={<ArrowUpOutlined />}
-                            onClick={() => moveControlIndex(idx, idx - 1)}
-                          />
-                        </Tooltip>
-                        <Tooltip title={t("mission.task_form_fork.move_down")}>
-                          <Button
-                            type="text"
-                            size="small"
-                            disabled={idx === controlClickOrder.length - 1}
-                            icon={<ArrowDownOutlined />}
-                            onClick={() => moveControlIndex(idx, idx + 1)}
-                          />
-                        </Tooltip>
-                      </ActionButtonGroup>
-
-                      <Tooltip title={t("mission.task_form_fork.delete")}>
-                        <Button
-                          type="text"
-                          size="small"
-                          icon={<DeleteOutlined />}
-                          onClick={() => deleteControlElementFromIndex(idx)}
-                          style={{ color: "#ff4444" }}
-                        />
-                      </Tooltip>
-                    </ControlItem>
+                  {t("mission.task_form_fork.available_controls")}:
+                </div>
+                <Flex wrap gap="small">
+                  {(controlList[actionState] || []).map((movement) => (
+                    <IndustrialButton
+                      key={movement}
+                      onClick={() => handleControlClick(movement)}
+                    >
+                      {movement}
+                    </IndustrialButton>
                   ))}
                 </Flex>
-              ) : (
-                <EmptyStateText>
-                  [{" "}
-                  {t("mission.task_form_fork.no_control_sequence") ||
-                    "No control sequence selected"}{" "}
-                  ]
-                </EmptyStateText>
-              )}
-            </ControlDisplay>
-
-            <Tooltip title={t("mission.task_form_fork.reset_all")}>
-              <IndustrialButton
-                className={controlClickOrder.length > 0 ? "danger" : ""}
-                icon={<RedoOutlined />}
-                onClick={() => {
-                  setControlClickOrder([]);
-                  form.setFieldValue(["io", "fork"], {});
-                }}
-                style={{ height: 40, width: 40 }}
-              />
-            </Tooltip>
-          </Flex>
-
-          {/* Control Buttons */}
-          {controlList[actionState]?.length > 0 && (
-            <div>
-              <div
-                style={{
-                  color: "#666",
-                  fontSize: 10,
-                  textTransform: "uppercase",
-                  marginBottom: 8,
-                  letterSpacing: 1,
-                }}
-              >
-                {t("mission.task_form_fork.available_controls")}:
               </div>
-              <Flex wrap gap="small">
-                {(controlList[actionState] || []).map((movement) => (
-                  <IndustrialButton
-                    key={movement}
-                    onClick={() => handleControlClick(movement)}
-                  >
-                    {movement}
-                  </IndustrialButton>
-                ))}
-              </Flex>
-            </div>
-          )}
-        </IndustrialCard>
+            )}
+          </IndustrialCard>
+        )}
 
         {/* Dynamic Control Configuration */}
-        <IndustrialCard>
-          <SectionHeader>
-            <SettingOutlined />
-            [03] {t("mission.task_form_fork.control_params")}
-          </SectionHeader>
-          <DynamicControlFields
-            controlSequence={controlClickOrder}
-            form={form}
-            locationsOption={locationsOption}
-          />
-        </IndustrialCard>
+        {actionState !== "peripheral_action" && (
+          <IndustrialCard>
+            <SectionHeader>
+              <SettingOutlined />
+              [03] {t("mission.task_form_fork.control_params")}
+            </SectionHeader>
+            <DynamicControlFields
+              controlSequence={controlClickOrder}
+              form={form}
+              locationsOption={locationsOption}
+            />
+          </IndustrialCard>
+        )}
+
+        {actionState === "peripheral_action" && (
+          <IndustrialCard>
+            <SectionHeader>
+              <SettingOutlined />
+              [07] 設備控制選項
+            </SectionHeader>
+            <Form.Item
+              label={
+                <FieldLabel>
+                  {t("mission.task_form_fork.select_location_type")}
+                </FieldLabel>
+              }
+              name="peripheral_action_type"
+            >
+              <Select
+                options={peripheralActionOption}
+                onChange={(v) => setPeripheralAction(v)}
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
+          </IndustrialCard>
+        )}
 
         {/* Location Settings */}
         {canSelectIsDefinedId() && (
@@ -877,33 +921,34 @@ const TaskFormFork: FC<{
               />
             </Form.Item>
 
-            {selectLocationType === "custom" && (
-              <Form.Item
-                label={
-                  <FieldLabel>
-                    {t("mission.task_form_fork.target_location")}
-                  </FieldLabel>
-                }
-                name="locationId"
-                rules={[
-                  {
-                    required: true,
-                    message: t("mission.task_table.location_required"),
-                  },
-                ]}
-              >
-                <Select
-                  showSearch={{
-                    filterOption: (input, option) =>
-                      (option?.label ?? "")
-                        .toLowerCase()
-                        .includes(input.toLowerCase()),
-                  }}
-                  style={{ width: "100%" }}
-                  options={locationsOption}
-                />
-              </Form.Item>
-            )}
+            {selectLocationType === "custom" &&
+              peripheralAction !== "USER_CONFORM_NEXT_TASK_STEP" && (
+                <Form.Item
+                  label={
+                    <FieldLabel>
+                      {t("mission.task_form_fork.target_location")}
+                    </FieldLabel>
+                  }
+                  name="locationId"
+                  rules={[
+                    {
+                      required: true,
+                      message: t("mission.task_table.location_required"),
+                    },
+                  ]}
+                >
+                  <Select
+                    showSearch={{
+                      filterOption: (input, option) =>
+                        (option?.label ?? "")
+                          .toLowerCase()
+                          .includes(input.toLowerCase()),
+                    }}
+                    style={{ width: "100%" }}
+                    options={locationsOption}
+                  />
+                </Form.Item>
+              )}
           </IndustrialCard>
         )}
 

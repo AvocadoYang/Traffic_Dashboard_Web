@@ -67,6 +67,9 @@ export type Fork_Action = {
       config: number;
       modify_dis: number;
     };
+    peripheral_action: {
+      type: string;
+    };
   };
   cargo_limit: {
     load: number;

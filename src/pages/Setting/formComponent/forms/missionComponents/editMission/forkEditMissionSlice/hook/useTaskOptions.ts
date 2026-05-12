@@ -62,6 +62,8 @@ const useTaskOptions = (action: Action_Type) => {
       case "verity_cargo":
         text = t("car_control_translate.verity_cargo");
         break;
+      case "peripheral_action":
+        text = t("car_control_translate.peripheral_action");
       default:
         text;
     }
