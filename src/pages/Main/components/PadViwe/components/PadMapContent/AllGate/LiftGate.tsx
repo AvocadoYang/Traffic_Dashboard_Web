@@ -31,11 +31,11 @@ const SvgStyle = styled.svg<{
       case Lift_Gate_Status.CLOSING:
         return "#faad14"; // orange
       case Lift_Gate_Status.CLOSED:
-        return "#999"; // gray
+        return "#fc0000"; // gray
       case Lift_Gate_Status.E_STOP:
       case Lift_Gate_Status.VFD_Alarm:
       case Lift_Gate_Status.System_Error:
-        return "#ff4d4f"; // red
+        return "#c0c0c0"; // red
       default:
         return "#076aff";
     }
