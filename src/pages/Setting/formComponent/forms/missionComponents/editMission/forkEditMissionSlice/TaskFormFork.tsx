@@ -4,6 +4,7 @@ import {
   Flex,
   Form,
   FormInstance,
+  Input,
   InputNumber,
   message,
   Modal,
@@ -618,6 +619,8 @@ const TaskFormFork: FC<{
           level: (originFormData.io.fork_global?.level + 1) | 0,
           peripheral_action_type:
             originFormData.io?.peripheral_action?.type || "NULL",
+          peripheral_action_message:
+            originFormData.io?.peripheral_action?.message || "",
         });
       }, 0);
     }
@@ -882,11 +885,7 @@ const TaskFormFork: FC<{
               [07] 設備控制選項
             </SectionHeader>
             <Form.Item
-              label={
-                <FieldLabel>
-                  {t("mission.task_form_fork.select_location_type")}
-                </FieldLabel>
-              }
+              label={<FieldLabel>選擇類別</FieldLabel>}
               name="peripheral_action_type"
             >
               <Select
@@ -897,6 +896,22 @@ const TaskFormFork: FC<{
             </Form.Item>
           </IndustrialCard>
         )}
+
+        {actionState === "peripheral_action" &&
+          peripheralAction === "USER_CONFORM_NEXT_TASK_STEP" && (
+            <IndustrialCard>
+              <SectionHeader>
+                <SettingOutlined />
+                [08] 警告自訂內容
+              </SectionHeader>
+              <Form.Item
+                label={<FieldLabel>內容</FieldLabel>}
+                name="peripheral_action_message"
+              >
+                <Input />
+              </Form.Item>
+            </IndustrialCard>
+          )}
 
         {/* Location Settings */}
         {canSelectIsDefinedId() && (

@@ -69,6 +69,7 @@ export type Fork_Action = {
     };
     peripheral_action: {
       type: string;
+      message: string;
     };
   };
   cargo_limit: {

@@ -5,40 +5,14 @@ import {  array, boolean, object, string, ValidationError } from "yup";
 import { useEffect, useState } from "react";
 
 
-
-const schema = () =>
-    object({
-      amrId: string().required(),
-    })
-  
-
-const userConformStep$ = fromEventPattern(
-  (next) => {
-    io.on("user-conform-next-step", next);
-    return next;
-  },
-  (next) => {
-    io.off("user-conform-next-step", next);
-  },
-).pipe(
-  switchMap((msg) =>
-    from(
-      schema()
-        .validate(msg, { stripUnknown: true })
-        .catch((err: ValidationError) => {
-          console.error(err.message);
-          console.error(
-            "claimed-resources socket schema mismatch: ",
-            err.value,
-          );
-          return undefined;
-        }),
-    ),
-  ),
-  filter(isDefined),
-  share(),
-);
-
+export interface UserConformData {
+  amrId: string;
+  inner?: {
+    fullName: string;
+    subName: string;
+    message: string;
+  };
+}
 // useConformHooks.ts
 
 export const useUserConformTaskStep = () => {
@@ -80,23 +54,30 @@ export const useUserConformTaskStep = () => {
 };
 
 export const useConformManager = () => {
-  const [pendingIds, setPendingIds] = useState<string[]>([]);
+  // 1. 修改 State 型別：從 string[] 改為 UserConformData[]
+  const [pendingTasks, setPendingTasks] = useState<UserConformData[]>([]);
 
   useEffect(() => {
-    // 1. 初始列表
-    const hInit = (list: string[]) => setPendingIds(list);
+    // 初始列表
+    const hInit = (list: UserConformData[]) => setPendingTasks(list);
     io.on("init-user-conform-next-step-list", hInit);
 
-    // 2. 新增告警
-    const hAdd = (data: { amrId: string }) => {
-      setPendingIds((prev) => Array.from(new Set([...prev, data.amrId])));
+    // 新增告警
+    const hAdd = (data: UserConformData) => {
+      setPendingTasks((prev) => {
+        // 檢查是否已存在，避免重複加入
+        const exists = prev.some((item) => item.amrId === data.amrId);
+        if (exists) return prev;
+        return [...prev, data];
+      });
     };
     io.on("user-conform-next-step", hAdd);
 
-    // 3. 移除告警 (同步關鍵)
+    // 移除告警
     const hRemove = (data: { amrId: string }) => {
-      console.log("收到移除指令:", data.amrId); // 先確認 Console 有印出這行
-      setPendingIds((prev) => prev.filter((id) => id !== data.amrId));
+      setPendingTasks((prev) =>
+        prev.filter((item) => item.amrId !== data.amrId),
+      );
     };
     io.on("remove-user-conform-step", hRemove);
 
@@ -107,7 +88,7 @@ export const useConformManager = () => {
     };
   }, []);
 
-  return pendingIds;
+  return pendingTasks;
 };
 
 
