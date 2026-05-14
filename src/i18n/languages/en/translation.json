@@ -1175,7 +1175,8 @@
     "S": "spin",
     "H": "fork movement",
     "W": "wait",
-    "verity_cargo": "verity cargo via camera"
+    "verity_cargo": "verity cargo via camera",
+    "peripheral_action": "peripheral or user conform"
   },
 
   "customCargo": {
