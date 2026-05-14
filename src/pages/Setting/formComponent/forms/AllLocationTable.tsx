@@ -489,7 +489,7 @@ const AllLocationTable: React.FC<{
     const sanitizedPayload = {
       ...payload,
       id,
-      newLocationId: payload.locationId.toString(),
+      newLocationId: oldLocationId,
       oldLocationId,
     };
 

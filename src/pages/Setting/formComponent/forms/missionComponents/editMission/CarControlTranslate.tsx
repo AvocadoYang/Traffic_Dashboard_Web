@@ -21,12 +21,9 @@ const CarControlTranslate = ({ word }: { word: Action_Type }) => {
       return <>{t("car_control_translate.charge")}</>;
     case "cargo_limit":
       return <>{t("car_control_translate.cargo_limit")}</>;
-    case "load_from_other":
-      return t("car_control_translate.load_from_other");
 
-    case "offload_from_other":
-      return t("car_control_translate.offload_from_other");
-
+    case "peripheral_action":
+      return <>{t("car_control_translate.peripheral_action")}</>;
     default:
       return <>{word}</>;
   }

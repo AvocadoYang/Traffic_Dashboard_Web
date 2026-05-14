@@ -45,7 +45,7 @@ const warningId$ = fromEventPattern(
   share(),
 );
 
-export type AlarmType = "error" | "warn" | "success";
+export type AlarmType = "error" | "warn" | "success" | "info";
 
 export const useSystemAlarm = () => {
   const [warningList, setWarningList] = useState<SystemAlarmData>({
