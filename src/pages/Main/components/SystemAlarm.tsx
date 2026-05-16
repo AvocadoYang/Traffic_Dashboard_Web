@@ -1,24 +1,56 @@
 import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
-import { useSystemAlarm } from "@/sockets/useSystemAlarm";
+import { AlarmType, useSystemAlarm } from "@/sockets/useSystemAlarm";
 
 const AlarmContainer = styled.div`
   position: fixed;
-  bottom: 30px; /* 改為 bottom 避開導航欄 */
+  bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10000;
   pointer-events: none;
+  /* Add these for stacking */
+  display: flex;
+  flex-direction: column-reverse; /* Newest at bottom, stack upwards */
+  gap: 12px;
 `;
 
-const AlarmCard = styled(motion.div)`
+// 2. 定義顏色主題
+const THEMES: Record<AlarmType, { bg: string; shadow: string; icon: string }> =
+  {
+    error: {
+      bg: "rgba(255, 77, 79, 0.95)",
+      shadow: "rgba(255, 77, 79, 0.3)",
+      icon: "🚨",
+    },
+    warn: {
+      bg: "rgba(250, 173, 20, 0.95)",
+      shadow: "rgba(250, 173, 20, 0.3)",
+      icon: "⚠️",
+    },
+    success: {
+      bg: "rgba(82, 196, 26, 0.95)",
+      shadow: "rgba(82, 196, 26, 0.3)",
+      icon: "✅",
+    },
+    info: {
+      bg: "rgba(24, 144, 255, 0.95)",
+      shadow: "rgba(24, 144, 255, 0.3)",
+      icon: "ℹ️", // Information emoji
+    },
+  };
+
+// 3. 讓 Styled Component 接收 $type 屬性 (使用 $ 前綴避免屬性傳遞到 DOM)
+const AlarmCard = styled(motion.div)<{ $type: AlarmType }>`
   pointer-events: auto;
-  background: rgba(255, 77, 79, 0.95);
+  /* 動態背景色 */
+  background: ${(props) => THEMES[props.$type].bg};
   color: white;
   padding: 12px 20px 12px 24px;
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(255, 77, 79, 0.3);
+  /* 動態陰影 */
+  box-shadow: 0 8px 32px ${(props) => THEMES[props.$type].shadow};
   display: flex;
   align-items: center;
   gap: 16px;
@@ -61,52 +93,91 @@ const MessageContent = styled.div`
   word-break: break-all;
 `;
 
+const Timestamp = styled.div`
+  font-size: 0.75rem;
+  opacity: 0.7;
+  margin-top: 4px;
+  font-family: monospace;
+`;
+
 export const SystemAlarmOverlay = () => {
   const systemAlarm = useSystemAlarm();
-  const [displayMsg, setDisplayMsg] = useState("");
-  const [visible, setVisible] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  // Store an array of active alarms
+  const [alarms, setAlarms] = useState<any[]>([]);
 
-  const handleClose = () => {
-    setVisible(false);
-    if (timerRef.current) clearTimeout(timerRef.current);
+  // Function to remove an alarm by ID
+  const removeAlarm = (id: string) => {
+    setAlarms((prev) => prev.filter((a) => a.id !== id));
   };
 
   useEffect(() => {
-    if (systemAlarm.message && systemAlarm.message !== "") {
-      if (timerRef.current) clearTimeout(timerRef.current);
+    if (systemAlarm.message) {
+      const id = Date.now().toString(); // Simple unique ID
+      const duration = Math.min(3000 + systemAlarm.level * 2000, 10000);
 
-      setDisplayMsg(systemAlarm.message);
-      setVisible(true);
+      const newAlarm = {
+        ...systemAlarm,
+        id,
+      };
 
-      timerRef.current = setTimeout(() => {
-        setVisible(false);
-      }, 6000);
+      // Add new alarm to list
+      setAlarms((prev) => [...prev, newAlarm]);
+
+      // Set timer to remove this specific alarm
+      setTimeout(() => {
+        removeAlarm(id);
+      }, duration);
     }
-
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
   }, [systemAlarm]);
 
   return (
-    <AnimatePresence>
-      {visible && (
-        <AlarmContainer>
-          <AlarmCard
-            initial={{ y: 50, opacity: 0, scale: 0.9 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: 20, opacity: 0, scale: 0.9 }}
-            transition={{ type: "spring", stiffness: 400, damping: 30 }}
-          >
-            <span>🚨</span>
-            <MessageContent>{displayMsg}</MessageContent>
-            <CloseButton onClick={handleClose} aria-label="Close alarm">
-              ×
-            </CloseButton>
-          </AlarmCard>
-        </AlarmContainer>
-      )}
-    </AnimatePresence>
+    <AlarmContainer>
+      <AnimatePresence>
+        {alarms.map((alarm) => {
+          const theme = THEMES[alarm.alarmType as AlarmType] || THEMES.error;
+
+          return (
+            <AlarmCard
+              key={alarm.id} // Important for Framer Motion!
+              $type={alarm.alarmType as AlarmType}
+              initial={{ y: 50, opacity: 0, scale: 0.9 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
+              layout // Smoothly slide other cards when one disappears
+            >
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "100%",
+                }}
+              >
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  <span>{theme.icon}</span>
+                  <MessageContent>
+                    {/* Add your line-break logic from earlier if needed! */}
+                    {alarm.message.split("|").map((part: string, i: number) => (
+                      <div key={i}>{part.trim()}</div>
+                    ))}
+                  </MessageContent>
+                  <CloseButton onClick={() => removeAlarm(alarm.id)}>
+                    ×
+                  </CloseButton>
+                </div>
+                <Timestamp>
+                  {alarm.tstamp?.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  })}
+                </Timestamp>
+              </div>
+            </AlarmCard>
+          );
+        })}
+      </AnimatePresence>
+    </AlarmContainer>
   );
 };

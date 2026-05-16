@@ -36,6 +36,8 @@ import {
   isShowPeripheralNameTable,
   isShowPeripheralGroupTable,
   isShowYfyAutoMission,
+  isShowEditBlindLocationMission,
+  isShowContainerTable,
 } from "@/utils/siderGloble";
 import {
   AimOutlined,
@@ -144,6 +146,8 @@ const Sider: React.FC<{
   const [openCustomCargoFormat, setOpenCustomCargoFormat] = useAtom(
     isShowEditCustomCargoFormat,
   );
+  const [openContainerTable, setOpenContainerTable] =
+    useAtom(isShowContainerTable);
 
   const [openWarningId, setOpenWarningId] = useAtom(isShowEditWarningId);
   const [OpenUploadWarningIDModal, setOpenUploadWarningIDModal] = useAtom(
@@ -162,6 +166,10 @@ const Sider: React.FC<{
   );
   const [openPeripheralGroupMap, setOpenPeripheralGroupMap] = useAtom(
     isShowPeripheralGroupTable,
+  );
+
+  const [openBlindMis, setOpenBlindMis] = useAtom(
+    isShowEditBlindLocationMission,
   );
 
   const [opneYfyAutoMission, setOpenYfyAutoMission] =
@@ -190,6 +198,7 @@ const Sider: React.FC<{
       openEditAbortCargoMissionPanel,
       openTagMissionPanel,
       openEditChargeStationIconPanel,
+      openContainerTable,
       openCustomCargoFormat,
       openRegisterAMR,
       openAMRConfig,
@@ -199,6 +208,7 @@ const Sider: React.FC<{
       openPeripheralNameMap,
       openPeripheralGroupMap,
       opneYfyAutoMission,
+      openBlindMis,
     ].some((item) => item);
 
     setHasOpenTool(isOpen);
@@ -222,6 +232,7 @@ const Sider: React.FC<{
     openEditAbortCargoMissionPanel,
     openTagMissionPanel,
     openEditChargeStationIconPanel,
+    openContainerTable,
     openCustomCargoFormat,
     openRegisterAMR,
     openAMRConfig,
@@ -231,6 +242,7 @@ const Sider: React.FC<{
     openPeripheralNameMap,
     openPeripheralGroupMap,
     opneYfyAutoMission,
+    openBlindMis,
   ]);
 
   const handleShowPanel = async (check: boolean, itemType: ToolBarItemType) => {
@@ -321,6 +333,10 @@ const Sider: React.FC<{
         setEditAbortCargoMissionPanel(check);
         break;
 
+      case "container_table":
+        setOpenContainerTable(check);
+        break;
+
       // ===================
       // === peripheral ===
       case "peripheral_name_table":
@@ -329,6 +345,10 @@ const Sider: React.FC<{
 
       case "peripheral_group_table":
         setOpenPeripheralGroupMap(check);
+        break;
+
+      case "blind_mission":
+        setOpenBlindMis(check);
         break;
 
       // ===================
@@ -593,6 +613,14 @@ const Sider: React.FC<{
           }
         />,
       ),
+      getItem(
+        t("toolbar.mission.blind_mission"),
+        "6-9",
+        <Switch
+          checked={openBlindMis}
+          onChange={(checked) => handleShowPanel(checked, "blind_mission")}
+        />,
+      ),
     ]),
 
     getItem(t("toolbar.peripheral.title"), "7", <DeploymentUnitOutlined />, [
@@ -643,6 +671,15 @@ const Sider: React.FC<{
         <Switch
           checked={openCustomCargoFormat}
           onChange={(checked) => handleShowPanel(checked, "custom_cargo_info")}
+        />,
+      ),
+
+      getItem(
+        t("toolbar.others.container_table"),
+        "8-3",
+        <Switch
+          checked={openContainerTable}
+          onChange={(checked) => handleShowPanel(checked, "container_table")}
         />,
       ),
     ]),
