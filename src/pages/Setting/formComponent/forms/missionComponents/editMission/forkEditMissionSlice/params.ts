@@ -6,6 +6,7 @@ export const actonList = [
   "fork",
   "charge",
   "cargo_limit",
+  "peripheral_action",
   // "load_from_other",
   // "offload_from_other",
   "verity_cargo",
