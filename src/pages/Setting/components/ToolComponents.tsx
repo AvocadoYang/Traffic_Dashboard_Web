@@ -499,7 +499,15 @@ const SortableWrap: FC<{
               </Card>
             );
           case "yfy_auto_mission":
-          // 8-4 顯示貨物表格
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="yfy_auto_mission"
+                />
+                <AutoMission panelName="yfy_auto_mission" />
+              </Card>
+            );
           case "container_table":
             return (
               <Card style={styles} ref={setNodeRef}>
