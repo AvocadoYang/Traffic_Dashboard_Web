@@ -1,4 +1,3 @@
-// ============= RegisterForm.tsx =============
 import client from "@/api/axiosClient";
 import useAMRsample from "@/api/useAMRsample";
 import { Err } from "@/utils/responseErr";
@@ -38,7 +37,6 @@ const StyledForm = styled(Form)`
   .ant-input-number-input {
     font-family: "Roboto Mono", monospace;
     font-size: 12px;
-
     border-radius: 4px;
 
     &:hover {
@@ -118,6 +116,7 @@ type When_Finish = {
   robot_type: string;
   full_name: string;
   serialNum: string;
+  ip?: string; // 擴充型別以支援 IP 欄位
 };
 
 const RegisterForm: FC<{
@@ -130,6 +129,10 @@ const RegisterForm: FC<{
   const { t } = useTranslation();
   const { data: robotTypes } = useAMRsample();
   const values = Form.useWatch([], form);
+
+  // 🌟 關鍵點 1：單獨訂閱監聽 robot_type 的值
+  const selectedRobotType = Form.useWatch("robot_type", form);
+
   const [submittable, setSubmittable] = useState<boolean>(false);
   const [messageApi, contextHolder] = message.useMessage();
   const queryClient = useQueryClient();
@@ -183,6 +186,10 @@ const RegisterForm: FC<{
     const paddedFullName = String(values.full_name).padStart(3, "0");
     const prefixAmrName = values.robot_type + "-" + paddedFullName;
 
+    // 🌟 如果當前非特定機種，提交時排除 ip 欄位避免髒資料
+    const ipValue =
+      values.robot_type === "anfa-mi15-10" ? values.ip : undefined;
+
     if (isEdit) {
       if (!editData?.id) {
         messageApi.error("ID IS MISSING");
@@ -194,6 +201,7 @@ const RegisterForm: FC<{
         full_name: prefixAmrName,
         serialNum: values.serialNum,
         robot_type: values.robot_type,
+        ...(ipValue && { ip: ipValue }),
       };
 
       editMutation.mutate(payload);
@@ -204,6 +212,7 @@ const RegisterForm: FC<{
       full_name: prefixAmrName,
       serialNum: values.serialNum,
       robot_type: values.robot_type,
+      ...(ipValue && { ip: ipValue }),
     };
     createMutation.mutate(payload);
   };
@@ -214,8 +223,18 @@ const RegisterForm: FC<{
       return Promise.resolve();
     }
     return Promise.reject(
-      new Error(t("setting_amr.register_amr.invalid_serial_number"))
+      new Error(t("setting_amr.register_amr.invalid_serial_number")),
     );
+  };
+
+  // 🌟 關鍵點 2：新增標準 IPv4 的格式驗證器
+  const validateIpAddress = (_: any, value: string) => {
+    const ipRegex =
+      /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+    if (!value || ipRegex.test(value)) {
+      return Promise.resolve();
+    }
+    return Promise.reject(new Error("INVALID IP ADDRESS"));
   };
 
   useEffect(() => {
@@ -234,6 +253,7 @@ const RegisterForm: FC<{
       robot_type: editData?.robot_type,
       full_name: numberName,
       serialNum: editData?.serialNum,
+      ip: editData?.ip, // 如果編輯資料裡有 IP，也寫入表單
     });
   }, [isEdit, editData]);
 
@@ -250,6 +270,12 @@ const RegisterForm: FC<{
             style={{ width: "100%" }}
             options={robotTypeOptions}
             placeholder="SELECT ROBOT TYPE"
+            // 當切換 robot_type 且新值不等於 anfa-mi15-10 時，自動清空表單內的 IP 欄位殘留值
+            onChange={(val) => {
+              if (val !== "anfa-mi15-10") {
+                form.setFieldValue("ip", undefined);
+              }
+            }}
           />
         </Form.Item>
 
@@ -276,6 +302,20 @@ const RegisterForm: FC<{
         >
           <Input placeholder="58:11:22:3f:f3:b7" />
         </Form.Item>
+
+        {/* 🌟 關鍵點 3：條件判定渲染 IP 欄位 */}
+        {selectedRobotType === "anfa-mi15-10" && (
+          <Form.Item
+            name="ip"
+            label={"IP"}
+            rules={[
+              { required: true, message: t("utils.required") },
+              { validator: validateIpAddress }, // 修正為正確的 IP 驗證器
+            ]}
+          >
+            <Input placeholder="192.168.1.1" />
+          </Form.Item>
+        )}
 
         <Form.Item>
           <Flex gap="middle">
