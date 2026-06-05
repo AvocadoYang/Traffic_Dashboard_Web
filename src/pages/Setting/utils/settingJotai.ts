@@ -25,3 +25,9 @@ export const ESM = atom<{ locationId: string | null; isOpen: boolean }>({
 });
 //Edit stack carog
 export const ESC = atom<boolean>(false);
+
+//Edit blind location mission modal
+export const EBLM = atom<{ locationId: string | null; isOpen: boolean }>({
+  locationId: null,
+  isOpen: false,
+});

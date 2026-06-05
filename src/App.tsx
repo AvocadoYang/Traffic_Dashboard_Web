@@ -9,6 +9,7 @@ import AmrList from "./pages/AmrDetail/AmrList";
 import AllSimulateResult from "./pages/SimulateResult/AllSimulateResult";
 import { Navigate, Outlet } from "react-router-dom";
 import { SystemAlarmOverlay } from "./pages/Main/components/SystemAlarm";
+import { UserConformOverlay } from "./pages/Main/components/UserConformTaskStep";
 
 const client = new QueryClient({
   defaultOptions: {
@@ -37,6 +38,7 @@ function App() {
   return (
     <QueryClientProvider client={client}>
       <SystemAlarmOverlay />
+      <UserConformOverlay />
       <BrowserRouter
         future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
       >
