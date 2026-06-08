@@ -253,7 +253,7 @@
       }
     },
     "amr_setting": {
-      "robot": "robot",
+      "robot": "amr",
       "register_amr": "Register Robot",
       "amr_config": "Add AMR type",
       "amr_name": "AMR name",
