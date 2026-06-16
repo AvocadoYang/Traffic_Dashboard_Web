@@ -443,6 +443,8 @@ type MapInfo = {
   scrollX: number;
   scrollY: number;
   scale: number;
+  map_group: string;
+  floor: number;
 };
 
 const MapManager: FC = () => {
@@ -458,7 +460,7 @@ const MapManager: FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const queryClient = useQueryClient();
   const { data: maps, refetch } = useAllMapInfo();
-
+  console.log(maps, "sssss");
   // Upload Mutation
   const uploadMutation = useMutation({
     mutationFn: (formData: FormData) => {
@@ -539,6 +541,8 @@ const MapManager: FC = () => {
       scrollX: record.scrollX,
       scrollY: record.scrollY,
       scale: record.scale,
+      map_group: record.map_group,
+      floor: record.floor,
     });
     setEditModalOpen(true);
   };
@@ -667,6 +671,16 @@ const MapManager: FC = () => {
           </Popconfirm>
         </Flex>
       ),
+    },
+    {
+      title: "map_group",
+      dataIndex: "map_group",
+      key: "map_group",
+    },
+    {
+      title: "floor",
+      dataIndex: "floor",
+      key: "floor",
     },
   ];
 
@@ -852,6 +866,18 @@ const MapManager: FC = () => {
             name="scale"
             rules={[{ required: true }]}
           >
+            <IndustrialInputNumber min={0.1} style={{ width: "100%" }} />
+          </Form.Item>
+
+          <Form.Item
+            label={"map_group"}
+            name="map_group"
+            rules={[{ required: true }]}
+          >
+            <IndustrialInput min={0.1} style={{ width: "100%" }} />
+          </Form.Item>
+
+          <Form.Item label={"floor"} name="floor" rules={[{ required: true }]}>
             <IndustrialInputNumber min={0.1} style={{ width: "100%" }} />
           </Form.Item>
         </StyledForm>
