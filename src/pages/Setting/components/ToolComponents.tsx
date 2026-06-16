@@ -17,6 +17,7 @@ import {
   EditShelfPanelSwitch,
   EditShelfYawPanelSwitch,
   EditZoneSwitch,
+  isLockByMission,
   isShowAMRConfig,
   isShowContainerTable,
   isShowEditAbortMissionWhenHasCargoMission,
@@ -70,6 +71,7 @@ import ElevatorMissionPanel from "../formComponent/forms/file/corning/ElevatorMi
 import ClampHeightPanel from "../formComponent/forms/file/corning/ClampHeightPanel";
 import BlindLocationPanel from "../formComponent/forms/missionComponents/blindMission/BlindLocationPanel";
 import AllContainerTable from "../formComponent/forms/AllContainerTable";
+import LockByMissionPanel from "../formComponent/forms/file/corning/LockByMissionPanel";
 
 const SortableWrap: FC<{
   sortableId: ToolBarItemType;
@@ -547,6 +549,20 @@ const SortableWrap: FC<{
                 />
               </Card>
             );
+          case "lock_by_mission":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="lock_by_mission"
+                />
+                <LockByMissionPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
           default:
             return null;
         }
@@ -601,6 +617,7 @@ const ToolComponents: FC<{
 
   const openElevatorMission = useAtomValue(isShowEditElevatorMission);
   const openClampHieght = useAtomValue(isShowEditClampHeight);
+    const openLockByMission = useAtomValue(isLockByMission);
 
   return dataList.map((form) => {
     const { key: formKey } = form;
@@ -752,6 +769,11 @@ const ToolComponents: FC<{
     if (formKey === "clamp_height" && openClampHieght) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
+        if (formKey === "lock_by_mission" && openLockByMission) {
+          return (
+            <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>
+          );
+        }
     return [];
   });
 };

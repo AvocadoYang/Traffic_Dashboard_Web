@@ -105,6 +105,10 @@ export const isShowEditElevatorMission = atom<boolean>(false);
 /** 10-2 顯示夾具高度 */
 export const isShowEditClampHeight = atom<boolean>(false);
 
+/** 10-3 顯示夾具高度 */
+export const isLockByMission = atom<boolean>(false);
+
+
 /** 地點tooltip */
 export const isShowLocationTooltip = atom<boolean>(false);
 

@@ -39,6 +39,7 @@ import {
   isShowContainerTable,
   isShowEditElevatorMission,
   isShowEditClampHeight,
+  isLockByMission,
 } from "@/utils/siderGloble";
 import {
   AimOutlined,
@@ -180,6 +181,8 @@ const Sider: React.FC<{
     isShowEditBlindLocationMission,
   );
 
+    const [openLockByMission, setOpenLockByMission] = useAtom(isLockByMission);
+
   const [collapsed, setCollapsed] = useState(false);
   const { t } = useTranslation();
   useEffect(() => {
@@ -215,6 +218,7 @@ const Sider: React.FC<{
       openElevatorMission,
       openClampForkHeight,
       openBlindMis,
+      openLockByMission,
     ].some((item) => item);
 
     setHasOpenTool(isOpen);
@@ -250,6 +254,7 @@ const Sider: React.FC<{
     openElevatorMission,
     openClampForkHeight,
     openBlindMis,
+    openLockByMission,
   ]);
 
   const handleShowPanel = async (check: boolean, itemType: ToolBarItemType) => {
@@ -400,6 +405,10 @@ const Sider: React.FC<{
 
       case "elevator_mission":
         setOpenElevatorMission(check);
+        break;
+
+      case "lock_by_mission":
+        setOpenLockByMission(check);
         break;
       //=======
     }
@@ -747,6 +756,15 @@ const Sider: React.FC<{
         <Switch
           checked={openClampForkHeight}
           onChange={(checked) => handleShowPanel(checked, "clamp_height")}
+        />,
+      ),
+
+      getItem(
+        "卡任務",
+        "10-3",
+        <Switch
+          checked={openLockByMission}
+          onChange={(checked) => handleShowPanel(checked, "lock_by_mission")}
         />,
       ),
     ]),

@@ -56,6 +56,7 @@ export const formList = [
 
   { key: "elevator_mission" },
   { key: "clamp_height" },
+  { key: "lock_by_mission" },
 ] as const;
 
 export const toolbarState = formList.map((item) => ({ ...item }));
