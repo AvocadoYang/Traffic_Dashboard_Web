@@ -198,7 +198,18 @@ const RegisterTable: FC<{
   setIsEdit: Dispatch<SetStateAction<boolean>>;
   editData: When_Finish | undefined;
   setEditData: Dispatch<SetStateAction<When_Finish | undefined>>;
-}> = ({ isEdit, setIsEdit, setEditData }) => {
+  editAndyConfig: boolean;
+  setEditAndyConfig: Dispatch<SetStateAction<boolean>>;
+
+  editAndyConfigAmrId: string;
+  setEditAndyConfigAmrId: Dispatch<SetStateAction<string>>;
+}> = ({
+  isEdit,
+  setIsEdit,
+  setEditData,
+  setEditAndyConfig,
+  setEditAndyConfigAmrId,
+}) => {
   const { data, refetch } = useRegisterAmr();
   const [messageApi, contextHolder] = message.useMessage();
   const { t } = useTranslation();
@@ -237,6 +248,12 @@ const RegisterTable: FC<{
       full_name: record.full_name,
       serialNum: record.serialNum,
     });
+  };
+
+  const handleConfig = (record: DataType) => {
+    setEditAndyConfig(true);
+
+    setEditAndyConfigAmrId(record.full_name);
   };
 
   const handleActive = (isActive: boolean, id: string) => {
@@ -336,6 +353,15 @@ const RegisterTable: FC<{
                 {t("utils.delete")}
               </IndustrialButton>
             </Popconfirm>
+
+            <IndustrialButton
+              className="edit-btn"
+              onClick={() => handleConfig(record)}
+              icon={<EditOutlined />}
+              size="small"
+            >
+              andy
+            </IndustrialButton>
           </Flex>
         );
       },

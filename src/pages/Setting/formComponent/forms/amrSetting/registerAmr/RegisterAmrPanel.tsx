@@ -1,11 +1,12 @@
 // ============= RegisterAmrPanel.tsx =============
 import FormHr from "@/pages/Setting/utils/FormHr";
-import { Flex } from "antd";
+import { Flex, Form, Modal } from "antd";
 import { FC, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import RegisterForm from "./RegisterForm";
 import RegisterTable from "./RegisterTable";
+import AndyConfigModel from "./AndyConfigModel";
 
 const IndustrialContainer = styled.div`
   font-family: "Roboto Mono", monospace;
@@ -55,6 +56,9 @@ const RegisterAmrPanel: FC<{
   const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
   const [editData, setEditData] = useState<When_Finish>();
+  const [editAndyConfig, setEditAndyConfig] = useState(false);
+  const [editAndyConfigAmrId, setEditAndyConfigAmrId] = useState("");
+
 
   const props = {
     editData,
@@ -72,8 +76,20 @@ const RegisterAmrPanel: FC<{
 
       <Flex gap="middle" justify="flex-start" align="start" vertical>
         <RegisterForm {...props} />
-        <RegisterTable {...props} />
+        <RegisterTable
+          {...props}
+          setEditAndyConfig={setEditAndyConfig}
+          editAndyConfig={editAndyConfig}
+          editAndyConfigAmrId={editAndyConfigAmrId}
+          setEditAndyConfigAmrId={setEditAndyConfigAmrId}
+        />
       </Flex>
+      <AndyConfigModel
+        setEditAndyConfig={setEditAndyConfig}
+        editAndyConfig={editAndyConfig}
+        editAndyConfigAmrId={editAndyConfigAmrId}
+        setEditAndyConfigAmrId={setEditAndyConfigAmrId}
+      />
     </IndustrialContainer>
   );
 };
