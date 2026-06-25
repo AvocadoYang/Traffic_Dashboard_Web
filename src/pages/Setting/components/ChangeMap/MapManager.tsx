@@ -477,6 +477,18 @@ const MapManager: FC = () => {
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
+   // Sync Mutation
+   const syncMutation = useMutation({
+    mutationFn: async () => {
+      const res = await client.post("api/setting/map-sync");
+      return res;
+    },
+    onSuccess: async (data) => {
+      messageApi.success(t("utils.success"));
+      await refetch();
+    }
+  })
+
   // Edit Mutation
   const editMutation = useMutation({
     mutationFn: (payload: any) => {
@@ -771,6 +783,15 @@ const MapManager: FC = () => {
           <SectionHeader>
             <PictureOutlined />
             {t("map_manager.existing_maps")} ({maps?.allMap?.length || 0})
+            <IndustrialButton
+              className="view-btn"
+              size="small"
+              onClick={() => syncMutation.mutate()}
+              loading={syncMutation.isPending}
+              disabled={syncMutation.isPending}
+          >
+            {t("map_manager.sync_map")}
+          </IndustrialButton>
           </SectionHeader>
           {maps?.allMap && maps.allMap.length > 0 ? (
             <IndustrialTable

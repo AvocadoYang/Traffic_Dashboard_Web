@@ -169,6 +169,7 @@
   },
 
   "mode": {
+    "error": "error",
     "manual_mode": "manual",
     "is_mission": "Is working",
     "is_carry": "is carry",
@@ -1777,6 +1778,7 @@
     "origin_y": "Origin Y",
     "actions": "Actions",
     "view": "View",
+    "sync_map": "Map sync",
     "edit": "Edit",
     "delete": "Delete",
     "active": "Active",

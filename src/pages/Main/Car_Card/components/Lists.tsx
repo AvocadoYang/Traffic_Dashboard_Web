@@ -28,6 +28,7 @@ import {
   IsPause,
   IsPosAccurate,
   ManualTag,
+  MiR_Error,
   MissionTag,
   PowerTag,
 } from "./Tags";
@@ -267,7 +268,7 @@ const CardSpeed: React.FC<{ amrId: string; isDark: boolean }> = memo(
         {Math.abs(Number(speed) * 100)
           .toFixed(2)
           .toString()}
-        <span className={`${isDark ? "symbol-dark" : "symbol"}`}>{"cm/s"}</span>
+        <span className={`${isDark ? "symbol-dark" : "symbol"}`}>{"m/s"}</span>
       </p>
     );
   }
@@ -526,7 +527,8 @@ export const CarTag: React.FC<{ openFullInfo: boolean; amrId: string }> = memo(
         <ChargingTag amrId={amrId} />
         <PowerTag amrId={amrId} />
         <IsPause amrId={amrId} />
-        {isOverdue ? <></> : <IsPosAccurate amrId={amrId}></IsPosAccurate>}
+        { amrId.includes('mi') ? <MiR_Error amrId={amrId}></MiR_Error>: <></>}
+        {isOverdue || amrId.includes('mi') ? <></> : <IsPosAccurate amrId={amrId}></IsPosAccurate>}
       </Flex>
     );
   }
