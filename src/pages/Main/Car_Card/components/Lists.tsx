@@ -265,9 +265,12 @@ const CardSpeed: React.FC<{ amrId: string; isDark: boolean }> = memo(
     const { speed } = useSpeed(amrId);
     return (
       <p className="value">
-        {Math.abs(Number(speed) * 100)
-          .toFixed(2)
-          .toString()}
+        {
+          // Math.abs(Number(speed) * 100)
+          // .toFixed(2)
+          // .toString()
+          "--"
+        }
         <span className={`${isDark ? "symbol-dark" : "symbol"}`}>{"m/s"}</span>
       </p>
     );
