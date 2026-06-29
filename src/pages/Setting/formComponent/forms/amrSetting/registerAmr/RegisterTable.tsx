@@ -304,6 +304,11 @@ const RegisterTable: FC<{
       },
     },
     {
+      title: "IP",
+      dataIndex: "ip",
+      key: "ip",
+    },
+    {
       title: "ACTIONS",
       dataIndex: "option",
       key: "option",

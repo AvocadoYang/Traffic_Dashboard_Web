@@ -251,7 +251,7 @@
       }
     },
     "amr_setting": {
-      "robot": "車輛 ＆＆ 機器人",
+      "robot": "車輛",
       "register_amr": "新增車輛",
       "amr_config": "新增車種",
       "amr_name": "車種名稱",
