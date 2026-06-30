@@ -286,7 +286,7 @@ const Power: React.FC<{ amrId: string; isDark: boolean }> = memo(
         />
         <p className="value">
           {/* {fleetInfo.data.IO?.battery} */}
-          {`${battery ? battery : "--"}`}
+          {`${battery ? battery.toFixed(1) : "--"}`}
           <span
             className={`${isDark ? "symbol-dark" : "symbol"}`}
           >{`${battery ? "%" : ""}`}</span>
