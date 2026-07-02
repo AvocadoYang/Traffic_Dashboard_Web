@@ -677,6 +677,18 @@
     "tooltip_full": "視為已充滿的電量百分比",
     "tooltip_available_get_task": "接受新任務的最低電量百分比",
 
+    "section_trigger_delay": "[03] 觸發延遲設定",
+    "aggressiveTriggerDelayMin": "激進觸發延遲",
+    "aggressiveTriggerDelayMin_min": "激進觸發延遲至少為 0 分鐘",
+    "tooltip_aggressiveTriggerDelayMin": "觸發激進充電前的延遲時間",
+    "passiveTriggerDelayMin": "被動觸發延遲",
+    "passiveTriggerDelayMin_min": "被動觸發延遲至少為 0 分鐘",
+    "tooltip_passiveTriggerDelayMin": "觸發被動充電前的延遲時間",
+    "availableGetTaskTriggerDelayMin": "可接任務觸發延遲",
+    "availableGetTaskTriggerDelayMin_min": "可接任務觸發延遲至少為 0 分鐘",
+    "tooltip_availableGetTaskTriggerDelayMin": "觸發接受任務前的延遲時間",
+    "unit_min": "分鐘",
+
     "model": {
       "ip": "IP",
       "station_id": "站點 ID",
