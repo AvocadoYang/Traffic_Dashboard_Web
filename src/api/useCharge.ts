@@ -12,19 +12,22 @@ const schema = array(
     availableGetTaskThreshold: number().optional().nullable(),
     passiveThreshold: number().optional().nullable(),
 
+    aggressiveTriggerDelayMin: number().optional().nullable(),
+    availableGetTaskTriggerDelayMin: number().optional().nullable(),
+    passiveTriggerDelayMin: number().optional().nullable(),
     amr: array(
       object({
         fullName: string().optional(),
         id: string().optional(),
         isReal: boolean().optional(),
-      })
+      }),
     )
       .optional()
       .nullable(),
 
     titleId: string().optional().nullable(),
     title: string().optional().nullable(),
-  }).optional()
+  }).optional(),
 ).required();
 
 const getData = async () => {
