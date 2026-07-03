@@ -253,7 +253,7 @@
       }
     },
     "amr_setting": {
-      "robot": "robot",
+      "robot": "amr",
       "register_amr": "Register Robot",
       "amr_config": "Add AMR type",
       "amr_name": "AMR name",
@@ -679,6 +679,18 @@
     "tooltip_passive": "Battery level for passive charging mode",
     "tooltip_full": "Battery level considered fully charged",
     "tooltip_available_get_task": "Minimum battery level to accept new tasks",
+
+    "section_trigger_delay": "[03] Trigger Delay Settings",
+    "aggressiveTriggerDelayMin": "Aggressive trigger delay",
+    "aggressiveTriggerDelayMin_min": "Aggressive trigger delay must be at least 0 minutes",
+    "tooltip_aggressiveTriggerDelayMin": "Delay before aggressive charging is triggered",
+    "passiveTriggerDelayMin": "Passive trigger delay",
+    "passiveTriggerDelayMin_min": "Passive trigger delay must be at least 0 minutes",
+    "tooltip_passiveTriggerDelayMin": "Delay before passive charging is triggered",
+    "availableGetTaskTriggerDelayMin": "Available task trigger delay",
+    "availableGetTaskTriggerDelayMin_min": "Available task trigger delay must be at least 0 minutes",
+    "tooltip_availableGetTaskTriggerDelayMin": "Delay before accepting tasks is triggered",
+    "unit_min": "min",
 
     "model": {
       "station_id": "Station ID",

@@ -76,6 +76,12 @@ const AllChargeStation: FC = () => {
             ?.scale as number;
 
           const booker = charSocket[loc.locationId]?.booker as string;
+          const barOut = charSocket[loc.locationId]?.barOut as "0" | "1";
+          const isMQTTConnect = charSocket[loc.locationId]?.isMQTTConnect;
+          const isStationCodeAlive =
+            charSocket[loc.locationId]?.isStationCodeAlive || false;
+          const isTCPConnect = charSocket[loc.locationId]?.isTCPConnect;
+
 
           return (
             <div
@@ -108,6 +114,10 @@ const AllChargeStation: FC = () => {
                   translateY={translateY}
                   rotate={rotate}
                   scale={LocScale}
+                  isMQTTConnect={isMQTTConnect}
+                  isStationCodeAlive={isStationCodeAlive}
+                  isTCPConnect={isTCPConnect}
+                  barOut={barOut}
                 />
               </WrapperStation>
             </div>
