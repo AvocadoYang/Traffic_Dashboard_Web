@@ -147,6 +147,9 @@ const getSelectedCharge = async (id: string) => {
       fullThreshold: number().optional().nullable(),
       availableGetTaskThreshold: number().optional().nullable(),
       passiveThreshold: number().optional().nullable(),
+      aggressiveTriggerDelayMin: number().optional().nullable(),
+      availableGetTaskTriggerDelayMin: number().optional().nullable(),
+      passiveTriggerDelayMin: number().optional().nullable(),
       titleId: string().optional().nullable(),
       amr: array(
         object({
@@ -168,6 +171,9 @@ const getSelectedCharge = async (id: string) => {
     fullThreshold: parsed.fullThreshold ?? null,
     availableGetTaskThreshold: parsed.availableGetTaskThreshold ?? null,
     passiveThreshold: parsed.passiveThreshold ?? null,
+    aggressiveTriggerDelayMin: parsed.aggressiveTriggerDelayMin,
+    availableGetTaskTriggerDelayMin: parsed.availableGetTaskTriggerDelayMin,
+    passiveTriggerDelayMin: parsed.passiveTriggerDelayMin,
     titleId: parsed.titleId ? parsed.titleId : null,
     amrIds,
   };
@@ -218,6 +224,10 @@ const ChargeForm: FC<{ form: FormInstance<unknown>; selectKey: string }> = ({
       fullThreshold: selectedCharge.fullThreshold ?? null,
       availableGetTaskThreshold:
         selectedCharge.availableGetTaskThreshold ?? null,
+      aggressiveTriggerDelayMin: selectedCharge.aggressiveTriggerDelayMin,
+      availableGetTaskTriggerDelayMin:
+        selectedCharge.availableGetTaskTriggerDelayMin,
+      passiveTriggerDelayMin: selectedCharge.passiveTriggerDelayMin,
     });
   }, [form, selectKey, selectedCharge]);
 
@@ -279,13 +289,13 @@ const ChargeForm: FC<{ form: FormInstance<unknown>; selectKey: string }> = ({
           label={t("charge.aggressive")}
           name="aggressiveThreshold"
           rules={[
-            { type: "number", max: 70, message: t("charge.aggressive_max") },
+            { type: "number", max: 100, message: t("charge.aggressive_max") },
           ]}
           tooltip={t("charge.tooltip_aggressive")}
         >
           <IndustrialInputNumber
             min={0}
-            max={70}
+            max={100}
             style={{ width: "100%" }}
             addonAfter="%"
           />
@@ -297,7 +307,6 @@ const ChargeForm: FC<{ form: FormInstance<unknown>; selectKey: string }> = ({
           rules={[
             {
               type: "number",
-              max: 40,
               message: t("charge.passiveThreshold_max"),
             },
           ]}
@@ -305,7 +314,7 @@ const ChargeForm: FC<{ form: FormInstance<unknown>; selectKey: string }> = ({
         >
           <IndustrialInputNumber
             min={0}
-            max={40}
+            max={100}
             style={{ width: "100%" }}
             addonAfter="%"
           />
@@ -315,12 +324,12 @@ const ChargeForm: FC<{ form: FormInstance<unknown>; selectKey: string }> = ({
           label={t("charge.full_rate")}
           name="fullThreshold"
           rules={[
-            { type: "number", min: 70, message: t("charge.full_rate_min") },
+            { type: "number", min: 100, message: t("charge.full_rate_min") },
           ]}
           tooltip={t("charge.tooltip_full")}
         >
           <IndustrialInputNumber
-            min={70}
+            min={0}
             max={100}
             style={{ width: "100%" }}
             addonAfter="%"
@@ -336,10 +345,69 @@ const ChargeForm: FC<{ form: FormInstance<unknown>; selectKey: string }> = ({
           tooltip={t("charge.tooltip_available_get_task")}
         >
           <IndustrialInputNumber
-            min={11}
+            min={0}
             max={100}
             style={{ width: "100%" }}
             addonAfter="%"
+          />
+        </Form.Item>
+
+        <SectionHeader>{t("charge.section_trigger_delay")}</SectionHeader>
+
+        <Form.Item
+          label={t("charge.aggressiveTriggerDelayMin")}
+          name="aggressiveTriggerDelayMin"
+          rules={[
+            {
+              type: "number",
+              min: 0,
+              message: t("charge.aggressiveTriggerDelayMin_min"),
+            },
+          ]}
+          tooltip={t("charge.tooltip_aggressiveTriggerDelayMin")}
+        >
+          <IndustrialInputNumber
+            min={0}
+            style={{ width: "100%" }}
+            addonAfter={t("charge.unit_min")}
+          />
+        </Form.Item>
+
+        <Form.Item
+          label={t("charge.passiveTriggerDelayMin")}
+          name="passiveTriggerDelayMin"
+          rules={[
+            {
+              type: "number",
+              min: 0,
+              message: t("charge.passiveTriggerDelayMin_min"),
+            },
+          ]}
+          tooltip={t("charge.tooltip_passiveTriggerDelayMin")}
+        >
+          <IndustrialInputNumber
+            min={0}
+            style={{ width: "100%" }}
+            addonAfter={t("charge.unit_min")}
+          />
+        </Form.Item>
+
+        <Form.Item
+          label={t("charge.availableGetTaskTriggerDelayMin")}
+          name="availableGetTaskTriggerDelayMin"
+          rules={[
+            {
+              type: "number",
+              min: 0,
+              message: t("charge.availableGetTaskTriggerDelayMin_min"),
+            },
+          ]}
+          tooltip={t("charge.tooltip_availableGetTaskTriggerDelayMin")}
+        >
+          <IndustrialInputNumber
+            min={0}
+            style={{ width: "100%" }}
+            addonAfter={t("charge.unit_min")}
           />
         </Form.Item>
       </StyledForm>
