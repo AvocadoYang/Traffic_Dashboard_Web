@@ -146,6 +146,7 @@
   "amr_card": {
     "delete_current_mission": "Delete mission",
     "force_delete_mission": "FOrce delete mission",
+    "charge_reset": "Charge reset",
     "emergency_stop": "Start emergency stop",
     "continue_move": "Release emergency stop",
     "update_cargo": "update carrier info",
