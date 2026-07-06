@@ -247,6 +247,16 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
+   const resetChargeMutation = useMutation({
+     mutationFn: () => {
+       return client.post("/api/amr/amr-charge-reset", { amrId });
+     },
+     onSuccess: () => {
+       void messageApi.success(t("utils.success"));
+     },
+     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+   });
+
   const resetMutation = useMutation({
     mutationFn: () => {
       return client.post("api/amr/reset", { amrId });
@@ -331,6 +341,14 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
             icon={<ThunderboltOutlined />}
           >
             {t("charge.charge")}
+          </IndustrialButton>
+
+          <IndustrialButton
+            className="charge-btn"
+            onClick={() => resetChargeMutation.mutate()}
+            icon={<ThunderboltOutlined />}
+          >
+            {t("amr_card.charge_reset")}
           </IndustrialButton>
 
           <Divider />
