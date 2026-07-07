@@ -26,33 +26,58 @@ const IndustrialContainer = styled(Flex)`
   width: 100%;
   border: 2px solid #d9d9d9;
   border-left: 4px solid #1890ff;
-  padding: 20px;
+  padding: 12px;
   background: #ffffff;
   box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.02);
   position: relative;
 
-  /* Responsive Padding */
-  @media (max-width: 1200px) {
-    padding: 12px;
+  @media (max-width: 1600px) {
+    padding: 8px;
   }
 `;
 
 const IndustrialButton = styled(Button)`
   width: 100%;
-  height: 44px;
-  font-family: "Roboto Mono", monospace;
-  text-transform: uppercase;
-  font-size: 11px;
-  letter-spacing: 1px;
-  font-weight: 600;
+  height: 56px;
+  font-family:
+    "Inter",
+    "PingFang TC",
+    "Microsoft JhengHei",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  text-transform: none;
+  font-size: 12px;
+  letter-spacing: 0.2px;
+  font-weight: 700;
   border-radius: 0;
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
+  white-space: normal;
+  line-height: 1.3;
+  text-align: center;
+  padding: 6px 4px;
+
+  .anticon,
+  svg {
+    font-size: 18px;
+  }
+
+  @media (max-width: 900px) {
+    height: 50px;
+    font-size: 11px;
+
+    .anticon,
+    svg {
+      font-size: 16px;
+    }
+  }
 
   &::before {
     content: "";
@@ -70,27 +95,31 @@ const IndustrialButton = styled(Button)`
   }
 
   &.charge-btn {
-    background: #ffffff;
+    background: #f6ffed;
     border: 1px solid #52c41a;
-    color: #52c41a;
+    border-left: 4px solid #52c41a;
+    color: #237804;
 
     &:hover {
-      background: #f6ffed;
+      background: #d9f7be;
       border-color: #73d13d;
-      color: #73d13d;
+      border-left-color: #73d13d;
+      color: #135200;
       box-shadow: 0 2px 8px rgba(82, 196, 26, 0.3);
     }
   }
 
   &.delete-btn {
-    background: #ffffff;
+    background: #fff1f0;
     border: 1px solid #ff4d4f;
-    color: #ff4d4f;
+    border-left: 4px solid #ff4d4f;
+    color: #a8071a;
 
     &:hover {
-      background: #fff1f0;
+      background: #ffccc7;
       border-color: #ff7875;
-      color: #ff7875;
+      border-left-color: #ff7875;
+      color: #820014;
       box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3);
     }
   }
@@ -98,11 +127,14 @@ const IndustrialButton = styled(Button)`
   &.force-delete-btn {
     background: #ff4d4f;
     border: 1px solid #ff4d4f;
+    border-left: 4px solid #cf1322;
     color: #ffffff;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
 
     &:hover {
       background: #ff7875;
       border-color: #ff7875;
+      border-left-color: #cf1322;
       box-shadow: 0 2px 8px rgba(255, 77, 79, 0.4);
     }
   }
@@ -110,13 +142,16 @@ const IndustrialButton = styled(Button)`
   &.emergency-btn {
     background: #ff4d4f;
     border: 2px solid #cf1322;
+    border-left: 4px solid #820014;
     color: #ffffff;
-    font-weight: 700;
+    font-weight: 800;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
     animation: pulse 2s ease-in-out infinite;
 
     &:hover {
       background: #ff7875;
       border-color: #ff4d4f;
+      border-left-color: #820014;
       box-shadow: 0 0 20px rgba(255, 77, 79, 0.5);
     }
 
@@ -132,27 +167,31 @@ const IndustrialButton = styled(Button)`
   }
 
   &.continue-btn {
-    background: #ffffff;
+    background: #f0f5ff;
     border: 1px solid #1890ff;
-    color: #1890ff;
+    border-left: 4px solid #1890ff;
+    color: #0050b3;
 
     &:hover {
-      background: #f0f5ff;
+      background: #d6e4ff;
       border-color: #40a9ff;
-      color: #40a9ff;
+      border-left-color: #40a9ff;
+      color: #003a8c;
       box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
     }
   }
 
   &.update-btn {
-    background: #ffffff;
+    background: #fffbe6;
     border: 1px solid #faad14;
-    color: #88610d;
+    border-left: 4px solid #faad14;
+    color: #613400;
 
     &:hover {
-      background: #fffbe6;
+      background: #fff1b8;
       border-color: #ffc53d;
-      color: #ffc53d;
+      border-left-color: #ffc53d;
+      color: #613400;
       box-shadow: 0 2px 8px rgba(250, 173, 20, 0.3);
     }
   }
@@ -160,52 +199,65 @@ const IndustrialButton = styled(Button)`
   &.reset-btn {
     background: #faad14;
     border: 1px solid #faad14;
+    border-left: 4px solid #ad6800;
     color: #ffffff;
-    font-weight: 700;
+    font-weight: 800;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 
     &:hover {
       background: #ffc53d;
       border-color: #ffc53d;
+      border-left-color: #ad6800;
       box-shadow: 0 2px 8px rgba(250, 173, 20, 0.4);
     }
   }
 
   &.update-position-btn {
-    background: #ffffff;
+    background: #fffbe6;
     border: 1px solid #faad14;
-    color: #88610d;
+    border-left: 4px solid #faad14;
+    color: #613400;
 
     &:hover {
-      background: #fffbe6;
+      background: #fff1b8;
       border-color: #ffc53d;
-      color: #ffc53d;
+      border-left-color: #ffc53d;
+      color: #613400;
       box-shadow: 0 2px 8px rgba(250, 173, 20, 0.3);
+    }
+  }
+
+  &.shutdown-btn {
+    background: #f5f5f5;
+    border: 1px solid #595959;
+    border-left: 4px solid #262626;
+    color: #262626;
+
+    &:hover {
+      background: #e8e8e8;
+      border-color: #8c8c8c;
+      border-left-color: #262626;
+      color: #000000;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
   }
 `;
 
 const ButtonGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
   width: 100%;
   position: relative;
   z-index: 1;
 
-  /* Switch to Grid on small screens to save vertical space */
-  @media (max-width: 1200px) {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 2 buttons per row */
-    gap: 8px;
-  }
-
-  @media (max-width: 480px) {
-    /* Optional: for very small screens, stay in 2 columns but smaller gap */
+  @media (max-width: 900px) {
     gap: 6px;
   }
 `;
 
 const Divider = styled.div`
+  grid-column: 1 / -1; /* 永遠跨滿 4 欄整行 */
   height: 2px;
   background: repeating-linear-gradient(
     90deg,
@@ -214,18 +266,7 @@ const Divider = styled.div`
     transparent 8px,
     transparent 16px
   );
-  margin: 12px 0;
-  position: relative;
-
-  /* Hide or span full width on mobile */
-  @media (max-width: 1200px) {
-    grid-column: span 3; /* Spans across both columns */
-    margin: 8px 0;
-  }
-
-  &::after {
-    /* ... your existing styles ... */
-  }
+  margin: 6px 0;
 `;
 
 // If MaintenancePanel is a custom component, you might need to wrap it
