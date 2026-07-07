@@ -145,6 +145,7 @@
   "amr_card": {
     "delete_current_mission": "刪除任務",
     "force_delete_mission": "強制刪除任務",
+    "charge_reset": "校正充電",
     "emergency_stop": "工作暫停",
     "continue_move": "解除暫停",
     "update_cargo": "編輯攜帶貨物資訊",
@@ -808,7 +809,13 @@
       "custom_extra": "此數值直接為枒杈高度",
       "stack_add_label": "基礎偏移量 (Offset)",
       "stack_add_extra": "此數值將累加至系統選擇的基礎高度上",
-      "level_select_warn": "如果 FORK_HEIGHT 類型是 STACK 或是 STACK_ADD 可以不用針對次項目設定"
+      "level_select_warn": "如果 FORK_HEIGHT 類型是 STACK 或是 STACK_ADD 可以不用針對次項目設定",
+      "lidar": "光達",
+      "mode": "模式",
+      "lidar_auto": "自動",
+      "lidar_select": "自定",
+      "front_lidar": "前光達",
+      "rear_lidar": "後光達"
     },
 
     "add_mission": {
