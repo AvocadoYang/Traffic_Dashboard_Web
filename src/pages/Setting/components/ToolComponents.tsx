@@ -38,6 +38,7 @@ import {
   isShowPeripheralGroupTable,
   isShowPeripheralNameTable,
   isShowRegisterAMR,
+  isShowSystemAlarm,
   QuickEditLocationPanelSwitch,
   QuickEditRoadSwitch,
   RoadListTableSwitch,
@@ -71,6 +72,7 @@ import ElevatorMissionPanel from "../formComponent/forms/file/corning/ElevatorMi
 import ClampHeightPanel from "../formComponent/forms/file/corning/ClampHeightPanel";
 import BlindLocationPanel from "../formComponent/forms/missionComponents/blindMission/BlindLocationPanel";
 import AllContainerTable from "../formComponent/forms/AllContainerTable";
+import SystemAlarmPanel from "../formComponent/forms/missionComponents/editMission/SystemAlarmPanel";
 import LockByMissionPanel from "../formComponent/forms/file/corning/LockByMissionPanel";
 
 const SortableWrap: FC<{
@@ -549,6 +551,20 @@ const SortableWrap: FC<{
                 />
               </Card>
             );
+          case "show_system_alarm":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="show_system_alarm"
+                />
+                <SystemAlarmPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
           case "lock_by_mission":
             return (
               <Card style={styles} ref={setNodeRef}>
@@ -614,6 +630,7 @@ const ToolComponents: FC<{
 
   const openWarningPanel = useAtomValue(isShowEditWarningId);
   const openBackupPanel = useAtomValue(isShowEditBackup);
+    const openSystemAlarmPanel = useAtomValue(isShowSystemAlarm);
 
   const openElevatorMission = useAtomValue(isShowEditElevatorMission);
   const openClampHieght = useAtomValue(isShowEditClampHeight);
@@ -763,17 +780,9 @@ const ToolComponents: FC<{
     if (formKey === "backup_file" && openBackupPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
-    if (formKey === "elevator_mission" && openElevatorMission) {
-      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
-    }
-    if (formKey === "clamp_height" && openClampHieght) {
-      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
-    }
-        if (formKey === "lock_by_mission" && openLockByMission) {
-          return (
-            <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>
-          );
-        }
+     if (formKey === "show_system_alarm" && isShowSystemAlarm) {
+       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+     }
     return [];
   });
 };
