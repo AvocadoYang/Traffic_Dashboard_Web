@@ -40,6 +40,7 @@ import {
   isShowEditElevatorMission,
   isShowEditClampHeight,
   isLockByMission,
+  isShowSystemAlarm,
 } from "@/utils/siderGloble";
 import {
   AimOutlined,
@@ -181,7 +182,8 @@ const Sider: React.FC<{
     isShowEditBlindLocationMission,
   );
 
-    const [openLockByMission, setOpenLockByMission] = useAtom(isLockByMission);
+  const [openLockByMission, setOpenLockByMission] = useAtom(isLockByMission);
+  const [showSystemAlarm, setShowSystemAlarm] = useAtom(isShowSystemAlarm);
 
   const [collapsed, setCollapsed] = useState(false);
   const { t } = useTranslation();
@@ -219,6 +221,7 @@ const Sider: React.FC<{
       openClampForkHeight,
       openBlindMis,
       openLockByMission,
+      showSystemAlarm,
     ].some((item) => item);
 
     setHasOpenTool(isOpen);
@@ -255,6 +258,7 @@ const Sider: React.FC<{
     openClampForkHeight,
     openBlindMis,
     openLockByMission,
+    showSystemAlarm,
   ]);
 
   const handleShowPanel = async (check: boolean, itemType: ToolBarItemType) => {
@@ -409,6 +413,9 @@ const Sider: React.FC<{
 
       case "lock_by_mission":
         setOpenLockByMission(check);
+        break;
+      case "show_system_alarm":
+        setShowSystemAlarm(check);
         break;
       //=======
     }
@@ -739,6 +746,14 @@ const Sider: React.FC<{
         <DeliveredProcedureOutlined />,
       ),
       getItem(t("toolbar.restart.restart"), "9-6", <RedoOutlined />),
+      getItem(
+        t("toolbar.file_setting.system_alarm"),
+        "9-7",
+        <Switch
+          checked={showSystemAlarm}
+          onChange={(checked) => handleShowPanel(checked, "show_system_alarm")}
+        />,
+      ),
     ]),
     getItem("康寧專用", "10", <AndroidOutlined />, [
       getItem(

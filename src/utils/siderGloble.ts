@@ -96,8 +96,8 @@ export const isOpenSwitchMap = atom<boolean>(false);
 /** 9-2 顯示編輯備份 */
 export const isShowEditBackup = atom<boolean>(false);
 
-// /** 9-3 顯示起始位置設定 */
-// export const isShowStartPoint = atom<boolean>(false);
+// /** 9-5 告警設定顯示 */
+export const isShowSystemAlarm = atom<boolean>(false);
 
 /** 10-1 顯示電梯任務 */
 export const isShowEditElevatorMission = atom<boolean>(false);
