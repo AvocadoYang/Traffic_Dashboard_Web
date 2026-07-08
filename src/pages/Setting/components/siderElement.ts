@@ -53,6 +53,7 @@ export const formList = [
   { key: "warning_id" },
   { key: "upload_warning_file" },
   { key: "backup_file" },
+  { key: "show_system_alarm" },
 ] as const;
 
 export const toolbarState = formList.map((item) => ({ ...item }));
