@@ -630,11 +630,11 @@ const ToolComponents: FC<{
 
   const openWarningPanel = useAtomValue(isShowEditWarningId);
   const openBackupPanel = useAtomValue(isShowEditBackup);
-    const openSystemAlarmPanel = useAtomValue(isShowSystemAlarm);
+  const openSystemAlarmPanel = useAtomValue(isShowSystemAlarm);
 
   const openElevatorMission = useAtomValue(isShowEditElevatorMission);
   const openClampHieght = useAtomValue(isShowEditClampHeight);
-    const openLockByMission = useAtomValue(isLockByMission);
+  const openLockByMission = useAtomValue(isLockByMission);
 
   return dataList.map((form) => {
     const { key: formKey } = form;
@@ -780,9 +780,21 @@ const ToolComponents: FC<{
     if (formKey === "backup_file" && openBackupPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
-     if (formKey === "show_system_alarm" && isShowSystemAlarm) {
-       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
-     }
+    if (formKey === "show_system_alarm" && openSystemAlarmPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+
+    if (formKey === "elevator_mission" && openElevatorMission) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+
+    if (formKey === "clamp_height" && openClampHieght) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+
+    if (formKey === "lock_by_mission" && openLockByMission) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
     return [];
   });
 };

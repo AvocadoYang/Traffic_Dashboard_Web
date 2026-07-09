@@ -92,10 +92,10 @@ const SystemAlarmPanel: FC<{
     <>
       <IndustrialContainer>
         <PanelHeader {...listeners} {...attributes}>
-          {t("mission.add_mission.title")}
+          {t("toolbar.file_setting.system_alarm")}
         </PanelHeader>
         <FormHr />
-        <Typography.Title level={4}>System Alarm</Typography.Title>
+        <Typography.Title level={4}>可設定是否開啟提醒</Typography.Title>
 
         <Table
           rowKey="code"
