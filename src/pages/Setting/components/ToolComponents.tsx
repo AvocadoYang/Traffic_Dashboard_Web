@@ -36,6 +36,7 @@ import {
   isShowPeripheralNameTable,
   isShowRegisterAMR,
   isShowYfyAutoMission,
+  isShowSystemAlarm,
   QuickEditLocationPanelSwitch,
   QuickEditRoadSwitch,
   RoadListTableSwitch,
@@ -68,6 +69,7 @@ import { PeripheralGroupPanel, PeripheralNamePanel } from "./peripherals";
 import AutoMission from "./yfySpecial/AutoMission";
 import BlindLocationPanel from "../formComponent/forms/missionComponents/blindMission/BlindLocationPanel";
 import AllContainerTable from "../formComponent/forms/AllContainerTable";
+import SystemAlarmPanel from "../formComponent/forms/missionComponents/editMission/SystemAlarmPanel";
 
 const SortableWrap: FC<{
   sortableId: ToolBarItemType;
@@ -515,10 +517,22 @@ const SortableWrap: FC<{
                   sortableId={sortableId}
                   panelName="yfy_auto_mission"
                 />
-                <AutoMission
-                  panelName="container_table"
-                />
+                <AutoMission panelName="container_table" />
                 <AllContainerTable
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
+          case "show_system_alarm":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="show_system_alarm"
+                />
+                <SystemAlarmPanel
                   sortableId={sortableId}
                   attributes={attributes}
                   listeners={listeners}
@@ -576,6 +590,7 @@ const ToolComponents: FC<{
 
   const openWarningPanel = useAtomValue(isShowEditWarningId);
   const openBackupPanel = useAtomValue(isShowEditBackup);
+  const openSystemAlarmPanel = useAtomValue(isShowSystemAlarm);
 
   const openAutoMission = useAtomValue(isShowYfyAutoMission);
 
@@ -724,6 +739,9 @@ const ToolComponents: FC<{
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     if (formKey === "yfy_auto_mission" && openAutoMission) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "show_system_alarm" && isShowSystemAlarm) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     return [];

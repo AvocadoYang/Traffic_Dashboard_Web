@@ -38,6 +38,7 @@ import {
   isShowYfyAutoMission,
   isShowEditBlindLocationMission,
   isShowContainerTable,
+  isShowSystemAlarm,
 } from "@/utils/siderGloble";
 import {
   AimOutlined,
@@ -174,6 +175,7 @@ const Sider: React.FC<{
 
   const [opneYfyAutoMission, setOpenYfyAutoMission] =
     useAtom(isShowYfyAutoMission);
+  const [showSystemAlarm, setShowSystemAlarm] = useAtom(isShowSystemAlarm);
 
   const [collapsed, setCollapsed] = useState(false);
   const { t } = useTranslation();
@@ -209,6 +211,7 @@ const Sider: React.FC<{
       openPeripheralGroupMap,
       opneYfyAutoMission,
       openBlindMis,
+      showSystemAlarm,
     ].some((item) => item);
 
     setHasOpenTool(isOpen);
@@ -243,6 +246,7 @@ const Sider: React.FC<{
     openPeripheralGroupMap,
     opneYfyAutoMission,
     openBlindMis,
+    showSystemAlarm,
   ]);
 
   const handleShowPanel = async (check: boolean, itemType: ToolBarItemType) => {
@@ -385,6 +389,9 @@ const Sider: React.FC<{
         break;
       case "backup_file":
         setOpenBackup(check);
+        break;
+      case "show_system_alarm":
+        setShowSystemAlarm(check);
         break;
       //=======
 
@@ -718,6 +725,14 @@ const Sider: React.FC<{
         <DeliveredProcedureOutlined />,
       ),
       getItem(t("toolbar.restart.restart"), "9-6", <RedoOutlined />),
+      getItem(
+        t("toolbar.file_setting.system_alarm"),
+        "9-7",
+        <Switch
+          checked={showSystemAlarm}
+          onChange={(checked) => handleShowPanel(checked, "show_system_alarm")}
+        />,
+      ),
     ]),
 
     getItem("永豐餘專用", "10", <FileOutlined />, [

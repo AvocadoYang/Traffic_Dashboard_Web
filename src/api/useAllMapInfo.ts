@@ -15,7 +15,9 @@ const schema = object({
       scale: number().required(),
       scrollX: number().required(),
       scrollY: number().required(),
-    })
+      floor: number().required(),
+      map_group: string().optional().nullable(),
+    }),
   ).required(),
   systemFilePath: string().required(),
 }).required();

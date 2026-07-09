@@ -55,6 +55,7 @@ export const formList = [
   { key: "backup_file" },
 
   { key: "yfy_auto_mission" },
+  { key: "show_system_alarm" },
 ] as const;
 
 export const toolbarState = formList.map((item) => ({ ...item }));

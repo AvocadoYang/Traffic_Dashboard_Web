@@ -35,6 +35,9 @@ type ChargeData = {
   autoTimeZone: string;
   titleId: string;
   title: string;
+  aggressiveTriggerDelayMin: number;
+  availableGetTaskTriggerDelayMin: number;
+  passiveTriggerDelayMin: number;
 };
 
 type FormData = {
@@ -49,6 +52,9 @@ type FormData = {
   availableGetTaskThreshold: number;
   activeAuto: boolean;
   autoTimeZone: number;
+  aggressiveTriggerDelayMin: number;
+  availableGetTaskTriggerDelayMin: number;
+  passiveTriggerDelayMin: number;
 };
 
 // Industrial Styled Components
@@ -314,6 +320,20 @@ const ThresholdValue = styled.span`
   font-weight: 700;
 `;
 
+const DelayValue = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  padding: 2px 8px;
+  background: #fff7e6;
+  border: 1px solid #faad14;
+  color: #d48806;
+  font-family: "Roboto Mono", monospace;
+  font-size: 11px;
+  font-weight: 700;
+`;
+
 const AmrList = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -548,6 +568,45 @@ const ChargePanel: FC<{
       },
     },
     {
+      title: t("charge.aggressiveTriggerDelayMin"),
+      dataIndex: "aggressiveTriggerDelayMin",
+      key: "aggressiveTriggerDelayMin",
+      render(_, record) {
+        return (
+          <DelayValue>
+            {record.aggressiveTriggerDelayMin ?? "-"}
+            {t("charge.unit_min")}
+          </DelayValue>
+        );
+      },
+    },
+    {
+      title: t("charge.passiveTriggerDelayMin"),
+      dataIndex: "passiveTriggerDelayMin",
+      key: "passiveTriggerDelayMin",
+      render(_, record) {
+        return (
+          <DelayValue>
+            {record.passiveTriggerDelayMin ?? "-"}
+            {t("charge.unit_min")}
+          </DelayValue>
+        );
+      },
+    },
+    {
+      title: t("charge.availableGetTaskTriggerDelayMin"),
+      dataIndex: "availableGetTaskTriggerDelayMin",
+      key: "availableGetTaskTriggerDelayMin",
+      render(_, record) {
+        return (
+          <DelayValue>
+            {record.availableGetTaskTriggerDelayMin ?? "-"}
+            {t("charge.unit_min")}
+          </DelayValue>
+        );
+      },
+    },
+    {
       title: "Actions",
       dataIndex: "action",
       key: "action",
@@ -570,7 +629,7 @@ const ChargePanel: FC<{
                   handleActive(
                     false,
                     record.id,
-                    record.amr.map((v) => v.fullName)
+                    record.amr.map((v) => v.fullName),
                   )
                 }
                 icon={<CloseCircleOutlined />}
@@ -585,7 +644,7 @@ const ChargePanel: FC<{
                   handleActive(
                     true,
                     record.id,
-                    record.amr.map((v) => v.fullName)
+                    record.amr.map((v) => v.fullName),
                   )
                 }
                 icon={<PlayCircleOutlined />}
@@ -600,7 +659,7 @@ const ChargePanel: FC<{
               onConfirm={() =>
                 handleDelete(
                   record.id,
-                  record.amr.map((v) => v.fullName)
+                  record.amr.map((v) => v.fullName),
                 )
               }
               okText="Yes"
@@ -651,6 +710,7 @@ const ChargePanel: FC<{
             rowKey={(record: any) => record.id}
             columns={columns as []}
             dataSource={data as ChargeData[]}
+            scroll={{ x: "max-content" }}
             pagination={{
               pageSize: 10,
               showTotal: (total, range) => (
