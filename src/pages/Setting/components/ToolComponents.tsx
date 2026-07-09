@@ -741,7 +741,7 @@ const ToolComponents: FC<{
     if (formKey === "yfy_auto_mission" && openAutoMission) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
-    if (formKey === "show_system_alarm" && isShowSystemAlarm) {
+    if (formKey === "show_system_alarm" && openSystemAlarmPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     return [];
