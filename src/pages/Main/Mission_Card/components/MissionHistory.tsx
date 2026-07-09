@@ -10,11 +10,16 @@ import {
   Flex,
   RadioChangeEvent,
   Input,
+  DatePicker,
 } from "antd";
 import { Dispatch, FC, SetStateAction, useState, memo, useEffect } from "react";
 import { ColumnsType } from "antd/es/table";
 import moment from "moment";
-import { SyncOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import {
+  SyncOutlined,
+  ExclamationCircleOutlined,
+  DownloadOutlined,
+} from "@ant-design/icons";
 import useAllMissionHistory from "@/api/useMissionHistory";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
@@ -24,7 +29,11 @@ import { useAtomValue } from "jotai";
 import { useRejectMission } from "@/sockets/useRejectMission";
 import { CancelReason, MissionStatus } from "@/types/mission";
 import I18nCancelReason from "@/i18n/I18nCancelReason";
+import { useMutation } from "@tanstack/react-query";
+import { Dayjs } from "dayjs";
+import client from "@/api/axiosClient";
 
+const { RangePicker } = DatePicker;
 // Define the Mission interface based on your schema
 interface Mission {
   id: string;
@@ -299,6 +308,42 @@ const MissionHistory: FC<{
   };
   const [size, setSize] = useState(980);
   const [searchText, setSearchText] = useState("");
+  const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
+
+  const exportMutation = useMutation({
+    mutationFn: async () => {
+      if (!dateRange) {
+        throw new Error("請先選擇時間區間");
+      }
+      const [start, end] = dateRange;
+      const res = await client.get("/api/records/export-mission", {
+        params: {
+          start: start.startOf("day").toISOString(),
+          end: end.endOf("day").toISOString(),
+        },
+        responseType: "blob",
+      });
+      return res.data as Blob;
+    },
+    onSuccess: (blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const [start, end] = dateRange!;
+      link.href = url;
+      link.download = `mission_history_${start.format("YYYYMMDD")}_${end.format(
+        "YYYYMMDD",
+      )}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      alert("匯出成功");
+    },
+    onError: (err: any) => {
+      alert("匯出失敗");
+    },
+  });
+
 
   const filteredMissions = missions?.data?.filter((m) => {
     const missionIdMatch = m.id
@@ -616,6 +661,21 @@ const MissionHistory: FC<{
                 style={{ width: 260 }}
                 onChange={(e) => setSearchText(e.target.value)}
               />
+
+              <RangePicker
+                value={dateRange}
+                onChange={(val) => setDateRange(val as [Dayjs, Dayjs] | null)}
+                allowClear
+              />
+
+              <Button
+                icon={<DownloadOutlined />}
+                disabled={!dateRange}
+                loading={exportMutation.isPending}
+                onClick={() => exportMutation.mutate()}
+              >
+                {t("mission_history.export") || "匯出 Excel"}
+              </Button>
 
               <IndustrialButton
                 className="refresh-btn"
