@@ -1,8 +1,13 @@
 import { FC, useState } from "react";
-import { message, Popconfirm } from "antd";
-import { WarningOutlined, DatabaseOutlined } from "@ant-design/icons";
+import { message, Popconfirm, DatePicker, Button } from "antd";
+import {
+  WarningOutlined,
+  DatabaseOutlined,
+  DownloadOutlined,
+} from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { useMutation } from "@tanstack/react-query";
+import dayjs, { Dayjs } from "dayjs";
 import client from "@/api/axiosClient";
 import useAlarmHistory from "@/api/useAlarmHistory";
 import {
@@ -21,6 +26,8 @@ import {
   paginationTotalStyle,
 } from "./industrialStyles";
 
+const { RangePicker } = DatePicker;
+
 const ACCENT = "#ff4d4f";
 const TAG_BG = "#fff1f0";
 
@@ -34,6 +41,7 @@ interface WarningRecord {
 const AlarmTable: FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+  const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
   const [messageApi, contextHolder] = message.useMessage();
   const { data, isLoading, refetch } = useAlarmHistory(currentPage, pageSize);
 
@@ -42,6 +50,40 @@ const AlarmTable: FC = () => {
     onSuccess: () => {
       refetch();
       messageApi.info("nice");
+    },
+  });
+
+  const exportMutation = useMutation({
+    mutationFn: async () => {
+      if (!dateRange) {
+        throw new Error("請先選擇時間區間");
+      }
+      const [start, end] = dateRange;
+      const res = await client.get("/api/records/export-alarm", {
+        params: {
+          start: start.startOf("day").toISOString(),
+          end: end.endOf("day").toISOString(),
+        },
+        responseType: "blob",
+      });
+      return res.data as Blob;
+    },
+    onSuccess: (blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const [start, end] = dateRange!;
+      link.href = url;
+      link.download = `alarm_history_${start.format("YYYYMMDD")}_${end.format(
+        "YYYYMMDD",
+      )}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      messageApi.success("匯出成功");
+    },
+    onError: (err: any) => {
+      messageApi.error(err?.message || "匯出失敗");
     },
   });
 
@@ -110,6 +152,21 @@ const AlarmTable: FC = () => {
             ALARM HISTORY
           </StatusBarTitle>
           <MetricsRow>
+            <RangePicker
+              value={dateRange}
+              onChange={(val) => setDateRange(val as [Dayjs, Dayjs] | null)}
+              allowClear
+              style={{ marginRight: 8 }}
+            />
+            <Button
+              icon={<DownloadOutlined />}
+              disabled={!dateRange}
+              loading={exportMutation.isPending}
+              onClick={() => exportMutation.mutate()}
+              style={{ marginRight: 8 }}
+            >
+              匯出 Excel
+            </Button>
             <Popconfirm
               onConfirm={() => deleteMutation.mutate()}
               title="Are you sure?"

@@ -295,7 +295,8 @@
       "backup_file": "Backup",
       "switch_map": "Switch Map",
       "start_point": "Start Point",
-      "import_map": "Import locations and roads from other script"
+      "import_map": "Import locations and roads from other script",
+      "system_alarm": "system alarm"
     },
     "restart": {
       "restart": "restart system"
