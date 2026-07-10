@@ -128,7 +128,8 @@
     "wcs": "第三方",
     "column_select": "指定顯示任務內容",
     "cancel_reason": "刪除原因",
-    "filter": "選擇任務顯示內容"
+    "filter": "選擇任務顯示內容",
+    "export": "匯出"
   },
 
   "maintenance": {
@@ -293,7 +294,8 @@
       "backup_file": "備份檔案",
       "switch_map": "變更地圖",
       "start_point": "起始位置",
-      "import_map": "引入其他腳本點位路徑"
+      "import_map": "引入其他腳本點位路徑",
+      "system_alarm": "系統告警顯示"
     },
     "restart": {
       "restart": "重起系統"
