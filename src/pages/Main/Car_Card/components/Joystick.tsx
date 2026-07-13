@@ -102,7 +102,7 @@ const Joystick: React.FC<JoystickProps> = ({
         y: Math.round((-dy / maxRadius) * 100), // 反轉 Y，讓上方為正。
       });
     },
-    [maxRadius, onMove]
+    [maxRadius, onMove],
   );
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -120,7 +120,7 @@ const Joystick: React.FC<JoystickProps> = ({
     event.currentTarget.releasePointerCapture(event.pointerId);
     setDragging(false);
     setOffset({ x: 0, y: 0 }); // 放開後回到中心。
-    // 歸零交給 onEnd 統一處理，避免 onMove 也送一次零造成重複。
+    onMove?.({ x: 0, y: 0 });
     onEnd?.();
   };
 
