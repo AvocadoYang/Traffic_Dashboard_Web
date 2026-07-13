@@ -35,6 +35,7 @@ import {
   isShowPeripheralGroupTable,
   isShowPeripheralNameTable,
   isShowRegisterAMR,
+  isShowSystemAlarm,
   QuickEditLocationPanelSwitch,
   QuickEditRoadSwitch,
   RoadListTableSwitch,
@@ -66,6 +67,7 @@ import EditPeripheralIcon from "../formComponent/forms/other/editPeripheralIcon/
 import { PeripheralGroupPanel, PeripheralNamePanel } from "./peripherals";
 import BlindLocationPanel from "../formComponent/forms/missionComponents/blindMission/BlindLocationPanel";
 import AllContainerTable from "../formComponent/forms/AllContainerTable";
+import SystemAlarmPanel from "../formComponent/forms/missionComponents/editMission/SystemAlarmPanel";
 
 const SortableWrap: FC<{
   sortableId: ToolBarItemType;
@@ -511,6 +513,20 @@ const SortableWrap: FC<{
                 />
               </Card>
             );
+          case "show_system_alarm":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="show_system_alarm"
+                />
+                <SystemAlarmPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
           default:
             return null;
         }
@@ -562,6 +578,7 @@ const ToolComponents: FC<{
 
   const openWarningPanel = useAtomValue(isShowEditWarningId);
   const openBackupPanel = useAtomValue(isShowEditBackup);
+    const openSystemAlarmPanel = useAtomValue(isShowSystemAlarm);
 
   return dataList.map((form) => {
     const { key: formKey } = form;
@@ -705,6 +722,9 @@ const ToolComponents: FC<{
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     if (formKey === "backup_file" && openBackupPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "show_system_alarm" && isShowSystemAlarm) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     return [];
