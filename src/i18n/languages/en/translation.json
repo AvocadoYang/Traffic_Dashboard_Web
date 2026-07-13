@@ -129,7 +129,8 @@
     "wcs": "WCS",
     "column_select": "Specifies the task content to display.",
     "cancel_reason": "cancel reason",
-    "filter": "column filter"
+    "filter": "column filter",
+    "export": "Export"
   },
 
   "maintenance": {

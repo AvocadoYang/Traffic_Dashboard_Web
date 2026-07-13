@@ -656,7 +656,7 @@ const MissionHistory: FC<{
             </IndustrialTypography>
             <Flex gap={"large"} align="center">
               <Input.Search
-                placeholder="Search missionId or mission name"
+                placeholder="搜尋任務名稱或是任務ID"
                 allowClear
                 style={{ width: 260 }}
                 onChange={(e) => setSearchText(e.target.value)}

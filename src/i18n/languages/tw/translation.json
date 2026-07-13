@@ -128,7 +128,8 @@
     "wcs": "第三方",
     "column_select": "指定顯示任務內容",
     "cancel_reason": "刪除原因",
-    "filter": "選擇任務顯示內容"
+    "filter": "選擇任務顯示內容",
+    "export": "匯出"
   },
 
   "maintenance": {
