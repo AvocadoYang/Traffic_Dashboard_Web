@@ -11,11 +11,8 @@ import {
   EmergencyIcon,
 } from "./components/Lists";
 import "./car_info.css";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Subject } from "rxjs";
-import { throttleTime } from "rxjs/operators";
+import { useMemo, useState } from "react";
 import { ConfigProvider, Popover, Modal, Button } from "antd";
-import type { JoystickValue } from "./components/Joystick";
 import BtnGroup from "./components/BtnGroup";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
@@ -28,17 +25,8 @@ import { amrId2ColorRainbow } from "@/utils/utils";
 import { useWarningId } from "@/sockets/useWarning";
 import { useTranslation } from "react-i18next";
 import Joystick from "./components/Joystick";
-import { io } from "@/sockets/socketConnect";
+import { useJoystickControl } from "../../../hooks/useJoystickControl";
 import React from "react";
-
-/** 後端 socket.io 監聽搖桿指令的事件名稱（依後端實際名稱調整）。 */
-const JOYSTICK_EMIT_EVENT = "set-joystick-vel";
-/** ROS Bridge 要發布的 topic 名稱。 */
-const JOYSTICK_TOPIC = "/joystick_vel";
-/** 最大線速度（前後），單位 m/s，依實車調整。 */
-const MAX_LINEAR = 0.4;
-/** 最大角速度（轉向），單位 rad/s，依實車調整。 */
-const MAX_ANGULAR = 0.8;
 
 const Card: React.FC<{ id: string }> = ({ id }) => {
   const [openHiddenRow, setOpenHiddenRow] = useState(false);
@@ -59,52 +47,8 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
 
   const isDark = useAtomValue(darkMode);
 
-  // Joystick 移動事件的來源 stream，整個元件生命週期共用同一個 Subject。
-  const joystickMove$ = useRef(new Subject<JoystickValue>()).current;
-
-  // 每次發布遞增的序號，用來組出 rosbridge 的 id（publish:<topic>:<seq>）。
-  const publishSeq = useRef(0);
-
-  // 實際把搖桿座標送出的地方（移動節流後、放開歸零都會呼叫）。
-  const sendJoystickValue = useCallback(
-    (value: JoystickValue) => {
-      // 搖桿座標（-100~100）換算成 ROS Twist 速度。
-      const payload = {
-        op: "publish",
-        id: `publish:${JOYSTICK_TOPIC}:${(publishSeq.current += 1)}`,
-        topic: JOYSTICK_TOPIC,
-        msg: {
-          joystick_token: "",
-          speed_command: {
-            // linear.x：前後速度。搖桿上推（y 正）為前進。
-            linear: { x: (value.y / 100) * MAX_LINEAR, y: 0, z: 0 },
-            // angular.z：轉向角速度。ROS 慣例正值＝左轉（逆時針），
-            // 搖桿右推（x 正）＝右轉，故取負號；若方向相反把負號拿掉即可。
-            angular: { x: 0, y: 0, z: -(value.x / 100) * MAX_ANGULAR },
-          },
-        },
-        latch: false,
-      };
-
-      // 帶上車輛 id，讓後端知道要路由到哪一台。
-      io.emit(JOYSTICK_EMIT_EVENT, { amrId: id, payload });
-    },
-    [id]
-  );
-
-  // 訂閱搖桿移動，透過 throttleTime 限制成每 100ms 最多處理一次。
-  useEffect(() => {
-    const subscription = joystickMove$
-      .pipe(throttleTime(100, undefined, { leading: true, trailing: true }))
-      .subscribe(sendJoystickValue);
-
-    return () => subscription.unsubscribe();
-  }, [joystickMove$, sendJoystickValue]);
-
-  // 放開搖桿：不經節流，立即送出歸零值，確保車輛馬上停止。
-  const handleJoystickEnd = () => {
-    sendJoystickValue({ x: 0, y: 0 });
-  };
+  // 搖桿控制：格式轉換、節流、socket.io 發送都封裝在 hook 裡。
+  const joystick = useJoystickControl(id);
 
   const handleCancel = () => {
     setOpenModal(false);
@@ -255,8 +199,8 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
             stickSize={80}
             baseColor="#ccc"
             stickColor="#888"
-            onMove={(value) => joystickMove$.next(value)}
-            onEnd={handleJoystickEnd}
+            onMove={joystick.onMove}
+            onEnd={joystick.onEnd}
           />
         </div>
       </Modal>
