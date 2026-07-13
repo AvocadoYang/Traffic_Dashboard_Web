@@ -578,7 +578,7 @@ const ToolComponents: FC<{
 
   const openWarningPanel = useAtomValue(isShowEditWarningId);
   const openBackupPanel = useAtomValue(isShowEditBackup);
-    const openSystemAlarmPanel = useAtomValue(isShowSystemAlarm);
+  const openSystemAlarmPanel = useAtomValue(isShowSystemAlarm);
 
   return dataList.map((form) => {
     const { key: formKey } = form;
@@ -724,7 +724,7 @@ const ToolComponents: FC<{
     if (formKey === "backup_file" && openBackupPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
-    if (formKey === "show_system_alarm" && isShowSystemAlarm) {
+    if (formKey === "show_system_alarm" && openSystemAlarmPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     return [];
