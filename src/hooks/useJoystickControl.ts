@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef } from "react";
 import { Subject } from "rxjs";
 import { throttleTime } from "rxjs/operators";
-import { io } from "@/sockets/socketConnect";
+import { amrIo } from "@/sockets/socketConnect";
 import type { JoystickValue } from "../pages/Main/Car_Card/components/Joystick";
 
 /** 後端 socket.io 監聽搖桿指令的事件名稱 */
-const SEND_JOYSTICK_CONTROL = "SEND_JOYSTICK_CONTROL" as const;
+const JOYSTICK_CONTROL = "joystick-control" as const;
 /** 拖曳中發送的節流間隔（毫秒）。 */
 const THROTTLE_MS = 100;
 
@@ -20,7 +20,7 @@ export const useJoystickControl = (amrId: string) => {
   // 帶上車輛 id 送出原始座標，讓後端知道要路由到哪一台。
   const send = useCallback(
     (value: JoystickValue) => {
-      io.emit(SEND_JOYSTICK_CONTROL, { amrId, value });
+      amrIo.emit(JOYSTICK_CONTROL, { amrId, ...value });
     },
     [amrId]
   );
