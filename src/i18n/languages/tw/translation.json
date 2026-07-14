@@ -293,10 +293,14 @@
       "warning_id": "告警ID設定",
       "upload_warning_file": "上傳錯誤表",
       "backup_file": "備份檔案",
-      "switch_map": "變更地圖",
       "start_point": "起始位置",
       "import_map": "引入其他腳本點位路徑",
       "system_alarm": "系統告警顯示"
+    },
+    "map_setting": {
+      "map_setting": "地圖設定",
+      "switch_map": "變更地圖",
+      "map_group": "地圖群組"
     },
     "restart": {
       "restart": "重起系統"
@@ -1803,6 +1807,7 @@
     "upload_file": "上傳檔案",
     "upload_map_btn": "上傳地圖",
     "existing_maps": "現有地圖",
+    "all_groups": "全部",
     "file_name": "檔案名稱",
     "status": "狀態",
     "origin_x": "原點 X",
@@ -1828,7 +1833,17 @@
     "enter_y_coord": "輸入 Y 座標",
     "drag_file_text": "點擊或拖曳檔案到此區域",
     "png_hint": "僅支援 PNG 格式。檔案名稱必須為英數字。",
-    "file_required": "必填"
+    "file_required": "必填",
+    "map_group": "地圖群組",
+    "floor": "樓層",
+    "select_map_group": "選擇地圖群組"
+  },
+  "map_group_table": {
+    "add_title": "新增地圖群組",
+    "edit_title": "編輯地圖群組",
+    "maps": "地圖",
+    "name": "群組名稱",
+    "operation": "操作"
   },
   "changePassword": {
     "title": "修改密碼",
