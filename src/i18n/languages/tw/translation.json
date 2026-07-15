@@ -293,7 +293,8 @@
       "backup_file": "備份檔案",
       "switch_map": "變更地圖",
       "start_point": "起始位置",
-      "import_map": "引入其他腳本點位路徑"
+      "import_map": "引入其他腳本點位路徑",
+      "system_alarm": "系統告警顯示"
     },
     "restart": {
       "restart": "重起系統"
