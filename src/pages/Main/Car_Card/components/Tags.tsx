@@ -15,6 +15,7 @@ import { memo } from "react";
 import { ErrorResponse } from "@/utils/globalType";
 import { useTranslation } from "react-i18next";
 import { useMockInfo } from "@/sockets/useMockInfo";
+import useMiRHasError from "@/sockets/useMiRHasError";
 
 export const ManualTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const { isManual } = useIsManual(amrId);
@@ -111,6 +112,17 @@ export const IsPause: React.FC<{ amrId }> = memo(({ amrId }) => {
   return (
     <Tag color={isPause ? "volcano" : "#e3e4e3"} style={{ margin: 0 }}>
       {t("mode.isPause")}
+    </Tag>
+  );
+});
+
+export const MiR_Error: React.FC<{ amrId }> = memo(({ amrId }) => {
+  const  hasError = useMiRHasError();
+  const { t } = useTranslation();
+
+  return (
+    <Tag color={hasError ? "volcano" : "#e3e4e3"} style={{ margin: 0 }}>
+      {t("mode.error")}
     </Tag>
   );
 });

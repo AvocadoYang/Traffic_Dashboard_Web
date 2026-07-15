@@ -40,6 +40,8 @@ import {
   QuickEditRoadSwitch,
   RoadListTableSwitch,
   showZonesTableSwitch,
+  isOpenSwitchMap,
+  isShowMapGroupTable,
 } from "@/utils/siderGloble";
 import { useAtomValue } from "jotai";
 import { ToolBarItemType, ToolBarType } from "./siderElement";
@@ -68,6 +70,8 @@ import { PeripheralGroupPanel, PeripheralNamePanel } from "./peripherals";
 import BlindLocationPanel from "../formComponent/forms/missionComponents/blindMission/BlindLocationPanel";
 import AllContainerTable from "../formComponent/forms/AllContainerTable";
 import SystemAlarmPanel from "../formComponent/forms/missionComponents/editMission/SystemAlarmPanel";
+import MapManager from "./ChangeMap/MapManager";
+import { MapGroupPanel } from "./mapGroup";
 
 const SortableWrap: FC<{
   sortableId: ToolBarItemType;
@@ -527,6 +531,33 @@ const SortableWrap: FC<{
                 />
               </Card>
             );
+          // 9-4 顯示變更地圖
+          case "switch_map":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn sortableId={sortableId} panelName="switch_map" />
+                <MapManager
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
+          // 9-8 顯示地圖群組表
+          case "map_group_table":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="map_group_table"
+                />
+                <MapGroupPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
           default:
             return null;
         }
@@ -578,7 +609,9 @@ const ToolComponents: FC<{
 
   const openWarningPanel = useAtomValue(isShowEditWarningId);
   const openBackupPanel = useAtomValue(isShowEditBackup);
-  const openSystemAlarmPanel = useAtomValue(isShowSystemAlarm);
+    const openSystemAlarmPanel = useAtomValue(isShowSystemAlarm);
+  const openSwitchMapPanel = useAtomValue(isOpenSwitchMap);
+  const openMapGroupPanel = useAtomValue(isShowMapGroupTable);
 
   return dataList.map((form) => {
     const { key: formKey } = form;
@@ -725,6 +758,12 @@ const ToolComponents: FC<{
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     if (formKey === "show_system_alarm" && openSystemAlarmPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "switch_map" && openSwitchMapPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "map_group_table" && openMapGroupPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     return [];

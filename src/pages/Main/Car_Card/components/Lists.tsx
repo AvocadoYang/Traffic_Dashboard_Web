@@ -28,6 +28,7 @@ import {
   IsPause,
   IsPosAccurate,
   ManualTag,
+  MiR_Error,
   MissionTag,
   PowerTag,
 } from "./Tags";
@@ -194,7 +195,7 @@ export const AmrTitle = styled.h2`
 
 export const RowOne: React.FC<{ isDark: boolean; amrId: string }> = memo(
   ({ isDark, amrId }) => {
-    const { isOnline, networkDelay, isOverdue } = useIsLogIn(amrId);
+    const {  networkDelay, isOverdue } = useIsLogIn(amrId);
     const { t } = useTranslation();
 
     const AmrID = useMemo(() => {
@@ -210,17 +211,17 @@ export const RowOne: React.FC<{ isDark: boolean; amrId: string }> = memo(
 
           <span
             className={`login-text ${
-              isOnline
-                ? "online-text"
-                : "offline-text"
+              isOverdue
+                ? "offline-text"
+                :"online-text"
             }`}
           >
-            {isOnline ?  t("utils.online") : (
-              t("utils.offline")
+            {isOverdue ? t("utils.offline")  : (
+              t("utils.online")
             )}
           </span>
 
-          {isOnline && (
+          {!isOverdue && (
             <NetworkDelay delay={networkDelay}>
               {networkDelay !== undefined ? `${networkDelay} ms` : "--"}
             </NetworkDelay>
@@ -264,10 +265,13 @@ const CardSpeed: React.FC<{ amrId: string; isDark: boolean }> = memo(
     const { speed } = useSpeed(amrId);
     return (
       <p className="value">
-        {Math.abs(Number(speed) * 100)
-          .toFixed(2)
-          .toString()}
-        <span className={`${isDark ? "symbol-dark" : "symbol"}`}>{"cm/s"}</span>
+        {
+          // Math.abs(Number(speed) * 100)
+          // .toFixed(2)
+          // .toString()
+          "--"
+        }
+        <span className={`${isDark ? "symbol-dark" : "symbol"}`}>{"m/s"}</span>
       </p>
     );
   }
@@ -282,7 +286,7 @@ const Power: React.FC<{ amrId: string; isDark: boolean }> = memo(
         />
         <p className="value">
           {/* {fleetInfo.data.IO?.battery} */}
-          {`${battery ? battery : "--"}`}
+          {`${battery ? battery.toFixed(1) : "--"}`}
           <span
             className={`${isDark ? "symbol-dark" : "symbol"}`}
           >{`${battery ? "%" : ""}`}</span>
@@ -526,7 +530,8 @@ export const CarTag: React.FC<{ openFullInfo: boolean; amrId: string }> = memo(
         <ChargingTag amrId={amrId} />
         <PowerTag amrId={amrId} />
         <IsPause amrId={amrId} />
-        {isOverdue ? <></> : <IsPosAccurate amrId={amrId}></IsPosAccurate>}
+        { amrId.includes('mi') ? <MiR_Error amrId={amrId}></MiR_Error>: <></>}
+        {isOverdue || amrId.includes('mi') ? <></> : <IsPosAccurate amrId={amrId}></IsPosAccurate>}
       </Flex>
     );
   }
