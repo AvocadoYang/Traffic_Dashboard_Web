@@ -13,6 +13,7 @@ import ToolTip from "@/pages/Setting/components/ToolTip";
 import {
   isShowLocation,
   isShowLocationTooltip,
+  isShowPointCloud,
   isShowRoad,
 } from "@/utils/siderGloble";
 import useMap from "@/api/useMap";
@@ -27,6 +28,7 @@ import ScalePad from "./ScalePad";
 import AllGateWaitPoint from "../../PadViwe/components/PadMapContent/AllGateWaitPoint/AllGateWaitPoint";
 import AllLiftGate from "../../PadViwe/components/PadMapContent/AllGate/AllLiftGate";
 import AllStack from "../../PadViwe/components/PadMapContent/AllStack/AllStack";
+import AllPointCloud from "../../PadViwe/components/PadMapContent/component/AllPointCloud/AllPointCloud";
 
 const WebMapView: React.FC<{
   mapRef: RefObject<HTMLDivElement>;
@@ -39,6 +41,7 @@ const WebMapView: React.FC<{
   const showLocationToolTip = useAtomValue(isShowLocationTooltip);
   const showLocation = useAtomValue(isShowLocation);
   const showRoad = useAtomValue(isShowRoad);
+  const showPointCloud = useAtomValue(isShowPointCloud);
   const showChargeConfig = useAtomValue(OpenChargeStationModal);
   const { isError } = useMap();
 
@@ -86,6 +89,7 @@ const WebMapView: React.FC<{
           <AllLiftGate></AllLiftGate>
           {showLocation ? <AllLocation mapRef={mapRef}></AllLocation> : null}
           {showRoad ? <AllRoads></AllRoads> : null}
+          {showPointCloud ? <AllPointCloud></AllPointCloud> : null}
           {showLocationToolTip ? <ToolTip /> : []}
           <AllZones scale={scale}></AllZones>
           <AllChargeStation></AllChargeStation>

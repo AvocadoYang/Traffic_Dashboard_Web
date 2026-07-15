@@ -201,7 +201,8 @@
     "road": "Road",
     "location": "Location",
     "road_tooltip": "Road Tooltip",
-    "location_tooltip": "Road Tooltip"
+    "location_tooltip": "Road Tooltip",
+    "point_cloud": "Point Cloud"
   },
 
   "page_view": "View",

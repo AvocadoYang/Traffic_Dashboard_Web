@@ -199,7 +199,8 @@
     "road": "路徑",
     "location": "地點",
     "road_tooltip": "路徑提示",
-    "location_tooltip": "地點提示"
+    "location_tooltip": "地點提示",
+    "point_cloud": "點雲"
   },
 
   "page_view": "地圖",

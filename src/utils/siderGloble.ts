@@ -120,3 +120,6 @@ export const isShowLocation = atom<boolean>(true);
 
 /** 顯示目前路徑 */
 export const isShowRoad = atom<boolean>(true);
+
+/** 顯示點雲 */
+export const isShowPointCloud = atom<boolean>(true);
