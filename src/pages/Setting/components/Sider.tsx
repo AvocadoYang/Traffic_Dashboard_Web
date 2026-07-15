@@ -725,24 +725,6 @@ const Sider: React.FC<{
         />,
       ),
     ]),
-    getItem(t("toolbar.map_setting.map_setting"), "10", <PictureOutlined />, [
-      getItem(
-        t("toolbar.map_setting.switch_map"),
-        "10-1",
-        <Switch
-          checked={openSwitchMap}
-          onChange={(checked) => handleShowPanel(checked, "switch_map")}
-        />,
-      ),
-      getItem(
-        t("toolbar.map_setting.map_group"),
-        "10-2",
-        <Switch
-          checked={openMapGroupTable}
-          onChange={(checked) => handleShowPanel(checked, "map_group_table")}
-        />,
-      ),
-    ]),
     getItem(t("toolbar.file_setting.file_setting"), "9", <FileOutlined />, [
       getItem(
         t("toolbar.file_setting.warning_id"),
@@ -764,7 +746,7 @@ const Sider: React.FC<{
       ),
       getItem(
         t("toolbar.file_setting.system_alarm"),
-        "9-7",
+        "9-3",
         <Switch
           checked={showSystemAlarm}
           onChange={(checked) => handleShowPanel(checked, "show_system_alarm")}
@@ -772,7 +754,7 @@ const Sider: React.FC<{
       ),
       getItem(
         t("toolbar.file_setting.start_point"),
-        "9-3",
+        "9-4",
         <BorderOuterOutlined />,
       ),
       getItem(
@@ -782,10 +764,28 @@ const Sider: React.FC<{
       ),
       getItem(t("toolbar.restart.restart"), "9-6", <RedoOutlined />),
     ]),
-    getItem("康寧專用", "10", <AndroidOutlined />, [
+    getItem(t("toolbar.map_setting.map_setting"), "10", <PictureOutlined />, [
+      getItem(
+        t("toolbar.map_setting.switch_map"),
+        "10-1",
+        <Switch
+          checked={openSwitchMap}
+          onChange={(checked) => handleShowPanel(checked, "switch_map")}
+        />,
+      ),
+      getItem(
+        t("toolbar.map_setting.map_group"),
+        "10-2",
+        <Switch
+          checked={openMapGroupTable}
+          onChange={(checked) => handleShowPanel(checked, "map_group_table")}
+        />,
+      ),
+    ]),
+    getItem("康寧專用", "11", <AndroidOutlined />, [
       getItem(
         "電梯任務",
-        "10-1",
+        "11-1",
         <Switch
           checked={openElevatorMission}
           onChange={(checked) => handleShowPanel(checked, "elevator_mission")}
@@ -794,7 +794,7 @@ const Sider: React.FC<{
 
       getItem(
         "夾具高度定",
-        "10-2",
+        "11-2",
         <Switch
           checked={openClampForkHeight}
           onChange={(checked) => handleShowPanel(checked, "clamp_height")}
@@ -803,7 +803,7 @@ const Sider: React.FC<{
 
       getItem(
         "卡任務",
-        "10-3",
+        "11-3",
         <Switch
           checked={openLockByMission}
           onChange={(checked) => handleShowPanel(checked, "lock_by_mission")}

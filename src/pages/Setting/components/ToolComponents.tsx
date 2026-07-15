@@ -77,6 +77,7 @@ import AllContainerTable from "../formComponent/forms/AllContainerTable";
 import SystemAlarmPanel from "../formComponent/forms/missionComponents/editMission/SystemAlarmPanel";
 import { MapGroupPanel } from "./mapGroup";
 import MapManager from "./ChangeMap/MapManager";
+import LockByMissionPanel from "../formComponent/forms/file/corning/LockByMissionPanel";
 
 const SortableWrap: FC<{
   sortableId: ToolBarItemType;
