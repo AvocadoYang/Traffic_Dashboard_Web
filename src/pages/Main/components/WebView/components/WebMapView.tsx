@@ -29,6 +29,7 @@ import AllGateWaitPoint from "../../PadViwe/components/PadMapContent/AllGateWait
 import AllLiftGate from "../../PadViwe/components/PadMapContent/AllGate/AllLiftGate";
 import AllStack from "../../PadViwe/components/PadMapContent/AllStack/AllStack";
 import AllPointCloud from "../../PadViwe/components/PadMapContent/component/AllPointCloud/AllPointCloud";
+import LocalizationCorrectionGhost from "../../PadViwe/components/PadMapContent/component/LocalizationCorrection/LocalizationCorrectionGhost";
 
 const WebMapView: React.FC<{
   mapRef: RefObject<HTMLDivElement>;
@@ -90,6 +91,7 @@ const WebMapView: React.FC<{
           {showLocation ? <AllLocation mapRef={mapRef}></AllLocation> : null}
           {showRoad ? <AllRoads></AllRoads> : null}
           {showPointCloud ? <AllPointCloud></AllPointCloud> : null}
+          <LocalizationCorrectionGhost></LocalizationCorrectionGhost>
           {showLocationToolTip ? <ToolTip /> : []}
           <AllZones scale={scale}></AllZones>
           <AllChargeStation></AllChargeStation>

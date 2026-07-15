@@ -6,8 +6,10 @@ import { FC, useState } from "react";
 import client from "@/api/axiosClient";
 import { useMutation } from "@tanstack/react-query";
 import styled from "styled-components";
+import { useSetAtom } from "jotai";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
+import { localizationCorrection } from "@/utils/gloable";
 import EditCargoCarrier from "./EditCargoCarrier";
 import {
   RedoOutlined,
@@ -18,6 +20,7 @@ import {
   EditOutlined,
   FireOutlined,
   CloudSyncOutlined,
+  AimOutlined,
 } from "@ant-design/icons";
 import MaintenancePanel from "./MaintenancePanel";
 
@@ -227,6 +230,21 @@ const IndustrialButton = styled(Button)`
     }
   }
 
+  &.localization-btn {
+    background: #f9f0ff;
+    border: 1px solid #722ed1;
+    border-left: 4px solid #722ed1;
+    color: #391085;
+
+    &:hover {
+      background: #efdbff;
+      border-color: #9254de;
+      border-left-color: #9254de;
+      color: #22075e;
+      box-shadow: 0 2px 8px rgba(114, 46, 209, 0.3);
+    }
+  }
+
   &.shutdown-btn {
     background: #f5f5f5;
     border: 1px solid #595959;
@@ -277,6 +295,7 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
   const { t } = useTranslation();
   const [messageApi, contextHolder] = message.useMessage();
   const [isCarrierModalOpen, setIsCarrierModalOpen] = useState(false);
+  const setLocalizationCorrection = useSetAtom(localizationCorrection);
 
   const manualChargeMutation = useMutation({
     mutationFn: () => {
@@ -463,6 +482,16 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
               {t("amr_detail.update_position")}
             </IndustrialButton>
           </Tooltip>
+
+          <IndustrialButton
+            className="localization-btn"
+            onClick={() =>
+              setLocalizationCorrection({ amrId, dx: 0, dy: 0, dYaw: 0 })
+            }
+            icon={<AimOutlined />}
+          >
+            {t("amr_card.localization_correction")}
+          </IndustrialButton>
 
           <IndustrialButton
             className="shutdown-btn"

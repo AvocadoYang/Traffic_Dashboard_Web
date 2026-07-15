@@ -5,6 +5,7 @@ import AllRoads from "@/pages/Setting/mapComponents/components/AllRoads/AllRoads
 import { AllZones } from "@/pages/Setting/mapComponents/components";
 import AllAMRs from "./AllAMRs/AllAMRs";
 import AllPointCloud from "./AllPointCloud/AllPointCloud";
+import LocalizationCorrectionGhost from "./LocalizationCorrection/LocalizationCorrectionGhost";
 const PadMapView: React.FC<{
   scale: number;
   mapRef: RefObject<HTMLDivElement>;
@@ -26,6 +27,7 @@ const PadMapView: React.FC<{
       <AllAMRs></AllAMRs>
       <AllRoads></AllRoads>
       <AllPointCloud></AllPointCloud>
+      <LocalizationCorrectionGhost></LocalizationCorrectionGhost>
     </div>
   );
 };
