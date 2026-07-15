@@ -7,10 +7,17 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 
 import useMap from "@/api/useMap";
+import { useLocalizationCorrection } from "@/api/useLocalizationCorrection";
 import { useAmrPose } from "@/sockets/useAMRInfo";
 import { useAmrPointCloud } from "@/sockets/usePointCloud";
 import { localizationCorrection, Scale } from "@/utils/gloable";
-import { amrId2ColorRainbow, deg2Rad, rosCoord2DisplayCoord, sanitizeDeg } from "@/utils/utils";
+import {
+  amrId2ColorRainbow,
+  deg2Rad,
+  rosCoord2DisplayCoord,
+  sanitizeDeg,
+  sanitizeSignedDeg,
+} from "@/utils/utils";
 
 // Position/rotation are set as inline styles via .attrs (rather than
 // interpolated into the CSS template) because they change on every drag
@@ -126,6 +133,11 @@ const LocalizationCorrectionGhost = () => {
   const scale = useAtomValue(Scale);
   const { pose } = useAmrPose(correction?.amrId ?? "");
   const points = useAmrPointCloud(correction?.amrId ?? "");
+  const {
+    mutateAsync: submitCorrection,
+    isLoading: isSubmitting,
+    contextHolder,
+  } = useLocalizationCorrection();
 
   const bodyRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -223,7 +235,9 @@ const LocalizationCorrectionGhost = () => {
   const { amrId, dx, dy, dYaw } = correction;
   const ghostX = pose.x + dx;
   const ghostY = pose.y + dy;
-  const ghostYaw = sanitizeDeg(pose.yaw + dYaw);
+  // ROS reports yaw in (-180, 180], matching atan2's range, rather than
+  // the [0, 360) range used internally for rotation math.
+  const ghostYaw = sanitizeSignedDeg(pose.yaw + dYaw);
 
   const [left, top] = rosCoord2DisplayCoord({
     x: ghostX,
@@ -261,7 +275,12 @@ const LocalizationCorrectionGhost = () => {
 
   const reset = () => setCorrection({ amrId, dx: 0, dy: 0, dYaw: 0 });
   const cancel = () => setCorrection(null);
-  const confirm = () => {
+  const confirm = async () => {
+    try {
+      await submitCorrection({ amrId, x: ghostX, y: ghostY, yaw: ghostYaw });
+    } catch {
+      return;
+    }
     Modal.info({
       title: t("amr_card.localization_correction_result_title"),
       content: (
@@ -318,19 +337,25 @@ const LocalizationCorrectionGhost = () => {
             <span>yaw: {ghostYaw.toFixed(1)}°</span>
           </PanelRow>
           <PanelActions>
-            <Button size="small" onClick={reset}>
+            <Button size="small" onClick={reset} disabled={isSubmitting}>
               {t("amr_card.localization_correction_reset")}
             </Button>
-            <Button size="small" onClick={cancel}>
+            <Button size="small" onClick={cancel} disabled={isSubmitting}>
               {t("amr_card.localization_correction_cancel")}
             </Button>
-            <Button size="small" type="primary" onClick={confirm}>
+            <Button
+              size="small"
+              type="primary"
+              onClick={confirm}
+              loading={isSubmitting}
+            >
               {t("amr_card.localization_correction_confirm")}
             </Button>
           </PanelActions>
         </Panel>,
         document.body,
       )}
+      {contextHolder}
     </>
   );
 };

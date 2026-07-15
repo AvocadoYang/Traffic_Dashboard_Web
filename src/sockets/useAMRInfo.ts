@@ -130,6 +130,7 @@ const schema = () =>
         x: number().optional(),
         y: number().optional(),
         yaw: number().optional(),
+        rawYaw: number().optional(),
         closeLoc: string(),
       }).optional(),
       IO: object({
@@ -648,7 +649,7 @@ export const useYaw = (amrId: string) => {
     );
     const yaw$ = profile$
       .pipe(
-        map((info) => info.pose?.yaw),
+        map((info) => info.pose?.rawYaw ?? info.pose?.yaw),
         filter((v) => v !== undefined),
         distinctUntilChanged(),
       )
