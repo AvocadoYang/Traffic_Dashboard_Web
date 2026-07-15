@@ -18,6 +18,7 @@ import { useTranslation } from "react-i18next";
 interface DataType {
   id: string;
   full_name: string;
+  ip?:string;
   serialNum: string;
   is_enable: boolean;
   Robot_type: {
@@ -32,6 +33,7 @@ type When_Finish = {
   robot_type: string;
   full_name: string;
   serialNum: string;
+  ip?:string
 };
 
 const IndustrialTableContainer = styled.div`
@@ -236,6 +238,7 @@ const RegisterTable: FC<{
       robot_type: record.Robot_type.value,
       full_name: record.full_name,
       serialNum: record.serialNum,
+      ip: record.full_name.includes('mi') ? record.ip : ""
     });
   };
 

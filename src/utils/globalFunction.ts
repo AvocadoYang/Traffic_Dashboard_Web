@@ -10,7 +10,8 @@ export const isFork = (robotId: string): boolean => {
     list.includes("cb15") ||
     list.includes("ps14") ||
     list.includes("sw15") ||
-    list.includes("pm")
+    list.includes("pm") ||
+    list.includes("mi15")
   );
 };
 

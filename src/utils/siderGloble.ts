@@ -93,6 +93,9 @@ export const isOpenUploadWarningIDModal = atom<boolean>(false);
 /** 9-4 開啟交換地圖 */
 export const isOpenSwitchMap = atom<boolean>(false);
 
+/** 9-8 顯示地圖群組表 */
+export const isShowMapGroupTable = atom<boolean>(false);
+
 /** 9-2 顯示編輯備份 */
 export const isShowEditBackup = atom<boolean>(false);
 

@@ -33,6 +33,8 @@ import {
   isShowPeripheralGroupTable,
   isShowEditElevatorMission,
   isShowEditClampHeight,
+  isOpenSwitchMap,
+  isShowMapGroupTable,
 } from "@/utils/siderGloble";
 import { ToolBarItemType } from "../components/siderElement";
 
@@ -81,6 +83,8 @@ const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({
   const setOpenWarningId = useSetAtom(isShowEditWarningId); // 7-1
   const setOpenUploadWarningIDModal = useSetAtom(isOpenUploadWarningIDModal); //7-2
   const setOpenBackup = useSetAtom(isShowEditBackup); // 7-3
+  const setOpenSwitchMap = useSetAtom(isOpenSwitchMap); // 9-4
+  const setOpenMapGroupTable = useSetAtom(isShowMapGroupTable); // 9-8
 
   const setOpenElevatorMission = useSetAtom(isShowEditElevatorMission); // 10-1
   const setOpenClampHeight = useSetAtom(isShowEditClampHeight); // 10-2
@@ -166,6 +170,12 @@ const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({
         break;
       case "backup_file":
         setOpenBackup(false);
+        break;
+      case "switch_map":
+        setOpenSwitchMap(false);
+        break;
+      case "map_group_table":
+        setOpenMapGroupTable(false);
         break;
       case "edit_register_amr":
         setOpenRegisterAmr(false);

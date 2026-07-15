@@ -416,7 +416,7 @@ export const useIsLogIn = (amrId: string) => {
   const [data, setData] = useState({
     isOnline: false,
     networkDelay: 0,
-    isOverdue: false,
+    isOverdue: true,
     isPosAccurate: false,
   });
 
