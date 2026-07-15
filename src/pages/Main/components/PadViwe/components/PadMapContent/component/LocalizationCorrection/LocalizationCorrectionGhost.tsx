@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useAtom, useAtomValue } from "jotai";
 import { Button, Modal, Typography } from "antd";
 import { CloseOutlined } from "@ant-design/icons";
@@ -71,9 +72,8 @@ const RotateHandle = styled.div`
 
 const Panel = styled.div`
   position: fixed;
-  left: 50%;
-  bottom: 40px;
-  transform: translateX(-50%);
+  top: 16px;
+  right: 16px;
   z-index: 200002;
   background: rgba(20, 20, 20, 0.88);
   color: #fff;
@@ -303,31 +303,34 @@ const LocalizationCorrectionGhost = () => {
           <RotateHandle onMouseDown={startRotateDrag} />
         </GhostBody>
       </GhostWrapper>
-      <Panel onClick={(e) => e.stopPropagation()}>
-        <PanelHeader>
-          <span>{`${t("amr_card.localization_correction")} - ${amrId}`}</span>
-          <CloseOutlined onClick={cancel} style={{ cursor: "pointer" }} />
-        </PanelHeader>
-        <div style={{ marginBottom: 8, opacity: 0.75 }}>
-          {t("amr_card.localization_correction_hint")}
-        </div>
-        <PanelRow>
-          <span>x: {ghostX.toFixed(3)}</span>
-          <span>y: {ghostY.toFixed(3)}</span>
-          <span>yaw: {ghostYaw.toFixed(1)}°</span>
-        </PanelRow>
-        <PanelActions>
-          <Button size="small" onClick={reset}>
-            {t("amr_card.localization_correction_reset")}
-          </Button>
-          <Button size="small" onClick={cancel}>
-            {t("amr_card.localization_correction_cancel")}
-          </Button>
-          <Button size="small" type="primary" onClick={confirm}>
-            {t("amr_card.localization_correction_confirm")}
-          </Button>
-        </PanelActions>
-      </Panel>
+      {createPortal(
+        <Panel onClick={(e) => e.stopPropagation()}>
+          <PanelHeader>
+            <span>{`${t("amr_card.localization_correction")} - ${amrId}`}</span>
+            <CloseOutlined onClick={cancel} style={{ cursor: "pointer" }} />
+          </PanelHeader>
+          <div style={{ marginBottom: 8, opacity: 0.75 }}>
+            {t("amr_card.localization_correction_hint")}
+          </div>
+          <PanelRow>
+            <span>x: {ghostX.toFixed(3)}</span>
+            <span>y: {ghostY.toFixed(3)}</span>
+            <span>yaw: {ghostYaw.toFixed(1)}°</span>
+          </PanelRow>
+          <PanelActions>
+            <Button size="small" onClick={reset}>
+              {t("amr_card.localization_correction_reset")}
+            </Button>
+            <Button size="small" onClick={cancel}>
+              {t("amr_card.localization_correction_cancel")}
+            </Button>
+            <Button size="small" type="primary" onClick={confirm}>
+              {t("amr_card.localization_correction_confirm")}
+            </Button>
+          </PanelActions>
+        </Panel>,
+        document.body,
+      )}
     </>
   );
 };
