@@ -3,7 +3,7 @@ import useMap from "@/api/useMap";
 import Icon from "./Icon";
 
 import "../style.css";
-import { useAmrPose } from "@/sockets/useAMRInfo";
+import { useAmrPose, useIsLogIn } from "@/sockets/useAMRInfo";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
 import styled from "styled-components";
 import { useAtomValue } from "jotai";
@@ -111,8 +111,9 @@ const AMR: FC<{
 
   const { pose } = useAmrPose(amrId);
   const bbox = useAmrBBox(amrId);
- 
-  if (!pose || !map || !bbox || !bbox.length) return null;
+  const { isOverdue } = useIsLogIn(amrId);
+
+  if (!pose || !map || !bbox || !bbox.length || isOverdue) return null;
 
   const { x: newX, y: newY } = agvFormate(pose.x, pose.y);
   const [left, top] = rosCoord2DisplayCoord({

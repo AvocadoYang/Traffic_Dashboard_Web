@@ -1,6 +1,7 @@
 import { FC, useEffect, useRef } from "react";
 import useMap from "@/api/useMap";
 import { useAmrPointCloud } from "@/sockets/usePointCloud";
+import { useIsLogIn } from "@/sockets/useAMRInfo";
 
 const PointCloudLayer: FC<{ amrId: string; color: string }> = ({
   amrId,
@@ -8,6 +9,7 @@ const PointCloudLayer: FC<{ amrId: string; color: string }> = ({
 }) => {
   const { data: map } = useMap();
   const points = useAmrPointCloud(amrId);
+  const { isOverdue } = useIsLogIn(amrId);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -26,7 +28,7 @@ const PointCloudLayer: FC<{ amrId: string; color: string }> = ({
     // [x, y] array for every one of the (up to) thousands of points.
     const frame = requestAnimationFrame(() => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (!points.length) return;
+      if (isOverdue || !points.length) return;
 
       const path = new Path2D();
       for (let i = 0; i < points.length; i += 2) {
@@ -39,7 +41,7 @@ const PointCloudLayer: FC<{ amrId: string; color: string }> = ({
     });
 
     return () => cancelAnimationFrame(frame);
-  }, [points, map, color]);
+  }, [points, map, color, isOverdue]);
 
   if (!map) return null;
 
