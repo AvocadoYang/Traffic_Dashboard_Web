@@ -12,7 +12,7 @@ import {
 } from "./components/Lists";
 import "./car_info.css";
 import { useMemo, useState } from "react";
-import { ConfigProvider, Popover, Modal } from "antd";
+import { ConfigProvider, Popover, Modal, Button } from "antd";
 import BtnGroup from "./components/BtnGroup";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
@@ -24,6 +24,8 @@ import {
 import { amrId2ColorRainbow } from "@/utils/utils";
 import { useWarningId } from "@/sockets/useWarning";
 import { useTranslation } from "react-i18next";
+import Joystick from "./components/Joystick";
+import { useJoystickControl } from "../../../hooks/useJoystickControl";
 import React from "react";
 
 const Card: React.FC<{ id: string }> = ({ id }) => {
@@ -31,6 +33,7 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
   const [isPopoverOpen, setPopoverOpen] = useState(false);
   const [openFullInfo, setOpenFullInfo] = useState(true);
   const [openModal, setOpenModal] = useState(false);
+  const [openJoystick, setOpenJoystick] = useState(false);
   const errorMessage = useWarningId()?.get(id);
 
   const { t } = useTranslation();
@@ -43,6 +46,9 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
   const hintAmrId = useAtomValue(AmrFilterCarCard);
 
   const isDark = useAtomValue(darkMode);
+
+  // 搖桿控制：格式轉換、節流、socket.io 發送都封裝在 hook 裡。
+  const joystick = useJoystickControl(id);
 
   const handleCancel = () => {
     setOpenModal(false);
@@ -112,6 +118,15 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
               setOpenFullInfo={setOpenFullInfo}
             ></DropDown>
             <RowOne isDark={isDark} amrId={id}></RowOne>
+            <Button
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenJoystick(true);
+              }}
+            >
+              Joystick
+            </Button>
             <RowSecond
               setOpenHiddenRow={setOpenHiddenRow}
               openHiddenRow={openHiddenRow}
@@ -164,6 +179,30 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
             </React.Fragment>
           );
         })}
+      </Modal>
+      <Modal
+        title={`${id} - Joystick`}
+        open={openJoystick}
+        onCancel={() => setOpenJoystick(false)}
+        footer={null}
+        centered
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            padding: "20px 0",
+          }}
+        >
+          <Joystick
+            size={200}
+            stickSize={80}
+            baseColor="#ccc"
+            stickColor="#888"
+            onMove={joystick.onMove}
+            onEnd={joystick.onEnd}
+          />
+        </div>
       </Modal>
     </React.Fragment>
   );

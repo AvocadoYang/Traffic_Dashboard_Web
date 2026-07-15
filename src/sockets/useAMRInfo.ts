@@ -2,7 +2,6 @@ import { hsl } from "color-convert";
 import { MD5 } from "crypto-js";
 import { useState, useEffect } from "react";
 import {
-  debounceTime,
   distinctUntilChanged,
   filter,
   from,
@@ -131,6 +130,7 @@ const schema = () =>
         x: number().optional(),
         y: number().optional(),
         yaw: number().optional(),
+        rawYaw: number().optional(),
         closeLoc: string(),
       }).optional(),
       IO: object({
@@ -649,16 +649,9 @@ export const useYaw = (amrId: string) => {
     );
     const yaw$ = profile$
       .pipe(
-        map((info) => {
-          return { amrId: info.amrId, yaw: info.pose?.yaw };
-        }),
-        map((data) => data.yaw),
+        map((info) => info.pose?.rawYaw ?? info.pose?.yaw),
         filter((v) => v !== undefined),
-        filter((v) => v !== 0),
-        distinctUntilChanged(
-          (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
-        ),
-        debounceTime(1000),
+        distinctUntilChanged(),
       )
       .subscribe((yaw) => {
         setYaw(yaw);
