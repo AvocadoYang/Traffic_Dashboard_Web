@@ -25,7 +25,7 @@ import { amrId2ColorRainbow } from "@/utils/utils";
 import { useWarningId } from "@/sockets/useWarning";
 import { useTranslation } from "react-i18next";
 import Joystick from "./components/Joystick";
-import { useJoystickControl } from "../../../hooks/useJoystickControl";
+import { useJoystickControl } from "../../../sockets/useJoystickControl";
 import React from "react";
 
 const Card: React.FC<{ id: string }> = ({ id }) => {
