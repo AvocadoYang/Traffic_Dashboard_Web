@@ -7,13 +7,12 @@ import { CloseOutlined } from "@ant-design/icons";
 import { JoystickAmrId } from "@/pages/Main/global/jotai";
 import { darkMode } from "@/utils/gloable";
 import { useJoystickControl } from "@/sockets/useJoystickControl";
+import {
+  useReadyToJoystick,
+  type ReadyToJoystick,
+} from "@/sockets/useReadyToJoystick";
 import Joystick from "@/pages/Main/Car_Card/components/Joystick";
 
-/**
- * 懸浮在右下角，不阻擋底下的地圖操作。
- * 刻意不用 antd Modal：Modal 即使 mask={false} 仍會鋪一層滿版的 .ant-modal-wrap
- * 接走點擊事件，地圖就按不到了。
- */
 const FloatingPanel = styled.div<{ $isDark: boolean }>`
   position: fixed;
   z-index: 900; /* 蓋過地圖，但低於 antd Modal 的 1000。 */
@@ -43,6 +42,42 @@ const PanelHeader = styled.div<{ $isDark: boolean; $dragging: boolean }>`
 
 const DOCK_MARGIN = 24;
 
+/** hint 為 null 代表可以正常操作，不需要提示使用者排除。 */
+const JOYSTICK_STATE = {
+  ready: { base: "#52c41a", stick: "#237804", hint: null },
+  stopped: { base: "#ff4d4f", stick: "#a8071a", hint: "Emergency Stop" },
+  resume: {
+    base: "#faad14",
+    stick: "#ad6800",
+    hint: "Waiting for the resume button",
+  },
+  /** 尚未收到訊息、或處於其他 status_text，維持原本的中性配色。 */
+  unknown: {
+    dark: { base: "#3a3a3a", stick: "#ff8800", hint: null },
+    light: { base: "#ccc", stick: "#888", hint: null },
+  },
+} as const;
+
+const getJoystickState = (
+  status: ReadyToJoystick | undefined,
+  isDark: boolean,
+) => {
+  if (status?.status_text === "EmergencyStop") return JOYSTICK_STATE.stopped;
+  if (status?.status_text === "ManualControl")
+    return status.joystick_available
+      ? JOYSTICK_STATE.ready
+      : JOYSTICK_STATE.resume;
+  return JOYSTICK_STATE.unknown[isDark ? "dark" : "light"];
+};
+
+const StatusHint = styled.div<{ $color: string }>`
+  max-width: 160px;
+  text-align: center;
+  font-size: 0.75em;
+  font-weight: bold;
+  color: ${({ $color }) => $color};
+`;
+
 interface Position {
   x: number;
   y: number;
@@ -69,7 +104,6 @@ const JoystickPanel: React.FC = () => {
       x: event.clientX - rect.left,
       y: event.clientY - rect.top,
     };
-    // 從 right/bottom 停靠切換成 left/top 定位，接手時先固定在目前位置避免跳動。
     setPosition({ x: rect.left, y: rect.top });
     setDragging(true);
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -136,16 +170,21 @@ const JoystickPanel: React.FC = () => {
 
 const JoystickBody = ({ amrId, isDark }: { amrId: string; isDark: boolean }) => {
   const joystick = useJoystickControl(amrId);
+  const status = useReadyToJoystick(amrId);
+  const state = getJoystickState(status, isDark);
 
   return (
-    <Joystick
-      size={160}
-      stickSize={64}
-      baseColor={isDark ? "#3a3a3a" : "#ccc"}
-      stickColor={isDark ? "#ff8800" : "#888"}
-      onMove={joystick.onMove}
-      onEnd={joystick.onEnd}
-    />
+    <>
+      <Joystick
+        size={160}
+        stickSize={64}
+        baseColor={state.base}
+        stickColor={state.stick}
+        onMove={joystick.onMove}
+        onEnd={joystick.onEnd}
+      />
+      {state.hint && <StatusHint $color={state.stick}>{state.hint}</StatusHint>}
+    </>
   );
 };
 
