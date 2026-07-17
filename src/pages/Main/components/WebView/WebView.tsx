@@ -16,6 +16,7 @@ import TestBarcode from "./components/TestBarcode";
 import ECS_online from "./components/ECS_online";
 import DirectMove from "../missionModal/DirectMove";
 import useMap from "@/api/useMap";
+import JoystickPanelWrap from "../../Car_Card/JoystickPanelWrap";
 
 const { Content } = Layout;
 const WebView = () => {
@@ -109,6 +110,7 @@ const WebView = () => {
             className={`${isDark ? "dark-mode-side" : ""}`}
           >
             <MissionWrap></MissionWrap>
+            <JoystickPanelWrap />
           </Splitter.Panel>
         </Splitter>
       </ConfigProvider>
