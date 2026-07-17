@@ -110,9 +110,9 @@ const WebView = () => {
             className={`${isDark ? "dark-mode-side" : ""}`}
           >
             <MissionWrap></MissionWrap>
-            <JoystickPanelWrap />
           </Splitter.Panel>
         </Splitter>
+        <JoystickPanelWrap />
       </ConfigProvider>
     </Content>
   );
