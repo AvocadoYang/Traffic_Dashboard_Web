@@ -31,7 +31,11 @@ export const useJoystickControl = (amrId: string) => {
       .pipe(throttleTime(THROTTLE_MS, undefined, { leading: true, trailing: true }))
       .subscribe(send);
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      // 卸載時強制歸零：搖桿一旦從畫面上消失，車輛就必須停。
+      send({ x: 0, y: 0 });
+    };
   }, [move$, send]);
 
   const onMove = useCallback(

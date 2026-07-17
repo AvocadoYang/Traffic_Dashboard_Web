@@ -41,7 +41,6 @@ const PanelHeader = styled.div<{ $isDark: boolean; $dragging: boolean }>`
   user-select: none;
 `;
 
-/** 預設停靠位置：距離視窗右下角的間距（px）。 */
 const DOCK_MARGIN = 24;
 
 interface Position {
@@ -56,10 +55,9 @@ const JoystickPanel: React.FC = () => {
   const [amrId, setAmrId] = useAtom(JoystickAmrId);
   const isDark = useAtomValue(darkMode);
   const panelRef = useRef<HTMLDivElement>(null);
-  // null 代表還沒被拖過，維持右下角停靠；拖曳後改用絕對座標定位。
   const [position, setPosition] = useState<Position | null>(null);
   const [dragging, setDragging] = useState(false);
-  // 指標與面板左上角的距離，拖曳過程中固定不變。
+
   const grabOffset = useRef<Position>({ x: 0, y: 0 });
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -126,12 +124,10 @@ const JoystickPanel: React.FC = () => {
           size="small"
           type="text"
           icon={<CloseOutlined />}
-          // 關閉鈕在拖曳 handle 內，擋掉冒泡才不會按一下就開始拖。
           onPointerDown={(e) => e.stopPropagation()}
           onClick={() => setAmrId(null)}
         />
       </PanelHeader>
-      {/* key 讓切換車輛時重建，確保上一台的 socket 訂閱先收乾淨。 */}
       <JoystickBody key={amrId} amrId={amrId} isDark={isDark} />
     </FloatingPanel>,
     document.body,
