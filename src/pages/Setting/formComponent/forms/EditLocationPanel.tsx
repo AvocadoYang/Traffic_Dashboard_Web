@@ -23,6 +23,8 @@ import FormHr from "../../utils/FormHr";
 import { MinusOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
 import useAllAreaTypes from "@/api/useAllAreaTypes";
 import { locationOption } from "../../utils/func";
+import { useAtomValue } from "jotai";
+import { currentMapIdAtom } from "@/utils/mapSelection";
 
 // Adjusted props to be cleaner
 const EditLocationPanel: React.FC<{
@@ -37,6 +39,7 @@ const EditLocationPanel: React.FC<{
   const [messageApi, contextHolders] = message.useMessage();
   const { data: locGenre } = useAllAreaTypes();
   const { t } = useTranslation();
+  const currentMapId = useAtomValue(currentMapIdAtom);
 
   const saveLocationMutation = useMutation({
     mutationFn: (payload: LocationType) => {
@@ -47,6 +50,8 @@ const EditLocationPanel: React.FC<{
       void messageApi.success(t("utils.success"));
       // Refetch relevant queries
       queryClient.refetchQueries({ queryKey: ["map"] });
+      queryClient.refetchQueries({ queryKey: ["active-group-resources"] });
+      queryClient.refetchQueries({ queryKey: ["all-groups-resources"] });
       queryClient.refetchQueries({
         queryKey: ["loc-only"],
       });
@@ -79,12 +84,18 @@ const EditLocationPanel: React.FC<{
       return;
     }
 
+    if (!currentMapId) {
+      void messageApi.error(t("map_manager.no_map_selected"));
+      return;
+    }
+
     const sanitizedPayload = {
       ...payload,
       locationId: payload.locationId,
       rotation: Number(payload.rotation),
       x: Number(payload.x),
       y: Number(payload.y),
+      map_id: currentMapId,
     };
 
     saveLocationMutation.mutate(sanitizedPayload);

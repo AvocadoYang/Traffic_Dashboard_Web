@@ -8,6 +8,7 @@ export type LocationType = {
   areaType: string;
   rotation: number;
   canRotate: boolean;
+  map_id?: string;
 };
 
 export type ZoneType = {

@@ -1846,7 +1846,10 @@
     "select_map_group": "選擇地圖群組",
     "active_group": "使用中",
     "activate_map": "啟用",
-    "activate_map_requires_active_group": "請先啟用此地圖所屬的群組"
+    "activate_map_requires_active_group": "請先啟用此地圖所屬的群組",
+    "no_map_selected": "請先在畫布右上角選擇要編輯的地圖",
+    "currently_displayed": "顯示中",
+    "not_active_group_tooltip": "此列屬於非使用中的群組, 請先啟用該群組才能編輯"
   },
   "map_group_table": {
     "add_title": "新增地圖群組",

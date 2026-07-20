@@ -21,6 +21,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Road } from "./road";
 import client from "@/api/axiosClient";
 import FormHr from "../../utils/FormHr";
+import { useAtomValue } from "jotai";
+import { currentMapIdAtom } from "@/utils/mapSelection";
 
 const EditRoadPanel: React.FC<{
   sortableId: string;
@@ -34,6 +36,7 @@ const EditRoadPanel: React.FC<{
   const [messageApi, contextHolders] = message.useMessage();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const currentMapId = useAtomValue(currentMapIdAtom);
 
   const saveRoadMutation = useMutation({
     mutationFn: (payload: Road) => {
@@ -42,11 +45,18 @@ const EditRoadPanel: React.FC<{
     onSuccess: () => {
       void messageApi.success("success");
       queryClient.refetchQueries({ queryKey: ["map"] });
+      queryClient.refetchQueries({ queryKey: ["active-group-resources"] });
+      queryClient.refetchQueries({ queryKey: ["all-groups-resources"] });
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const saveRoad = () => {
+    if (!currentMapId) {
+      void messageApi.error(t("map_manager.no_map_selected"));
+      return;
+    }
+
     const payload: Road = {
       spot1Id: (roadPanelForm.getFieldValue("x") as number).toString(),
       spot2Id: (roadPanelForm.getFieldValue("to") as number).toString(),
@@ -57,6 +67,7 @@ const EditRoadPanel: React.FC<{
         | number[]
         | string[],
       disabled: roadPanelForm.getFieldValue("disabled") as boolean,
+      map_id: currentMapId,
     };
 
     saveRoadMutation.mutate(payload);

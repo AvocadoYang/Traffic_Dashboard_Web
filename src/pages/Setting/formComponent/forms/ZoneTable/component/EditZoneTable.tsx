@@ -25,7 +25,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import useMap from "@/api/useMap";
+import useActiveGroupResources from "@/api/useActiveGroupResources";
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
 
 type FormType = {
@@ -105,7 +105,7 @@ const EditZoneTable: FC<{
   const [messageApi, contextHolders] = message.useMessage();
   const { data: loc } = useLoc(undefined);
   const { data: allAmr } = useAmrName();
-  const { data: mapData } = useMap();
+  const { data: resources } = useActiveGroupResources();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
@@ -140,6 +140,8 @@ const EditZoneTable: FC<{
     onSuccess: () => {
       void messageApi.success("success");
       queryClient.refetchQueries({ queryKey: ["map"] });
+      queryClient.refetchQueries({ queryKey: ["active-group-resources"] });
+      queryClient.refetchQueries({ queryKey: ["all-groups-resources"] });
       // setEditingKey(null);
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
@@ -164,7 +166,8 @@ const EditZoneTable: FC<{
       messageApi.warning(t("edit_zone_panel.waring.color_error"));
       return;
     }
-    const exists = mapData!.zones.some((zone) => {
+    const allZones = resources?.maps.flatMap((m) => m.zones) ?? [];
+    const exists = allZones.some((zone) => {
       return zone.name.trim() === name.trim() && oldData?.id !== zone.id;
     });
     if (exists) {

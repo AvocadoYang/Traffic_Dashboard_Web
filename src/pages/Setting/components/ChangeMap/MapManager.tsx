@@ -613,22 +613,6 @@ const MapManager: FC<{
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
-  // 切換使用中群組內「目前顯示/運作中的地圖」(取代過去用 map-update 的 isUsing 直接切換單一地圖)
-  const switchActiveMapMutation = useMutation({
-    mutationFn: (map_id: string) => {
-      return client.patch("api/setting/map-group/active-map", { map_id });
-    },
-    onSuccess: async () => {
-      messageApi.success(t("utils.success"));
-      await Promise.all([
-        refetch(),
-        queryClient.invalidateQueries({ queryKey: ["map"] }),
-        queryClient.invalidateQueries({ queryKey: ["map-group"] }),
-      ]);
-    },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
-  });
-
   // Delete Mutation
   const deleteMutation = useMutation({
     mutationFn: (id: string) => {
@@ -794,26 +778,6 @@ const MapManager: FC<{
           >
             {t("map_manager.edit")}
           </IndustrialButton>
-          {!record.isUsing && (
-            <IndustrialButton
-              size="small"
-              icon={<CheckCircleOutlined />}
-              style={{ borderColor: "#eb2f96", color: "#eb2f96" }}
-              disabled={!record.group?.isUsing}
-              title={
-                record.group?.isUsing
-                  ? undefined
-                  : t("map_manager.activate_map_requires_active_group")
-              }
-              loading={
-                switchActiveMapMutation.isPending &&
-                switchActiveMapMutation.variables === record.id
-              }
-              onClick={() => switchActiveMapMutation.mutate(record.id)}
-            >
-              {t("map_manager.activate_map")}
-            </IndustrialButton>
-          )}
           <Popconfirm
             title={t("map_manager.delete_title")}
             description={t("map_manager.delete_description")}

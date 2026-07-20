@@ -1836,7 +1836,10 @@
     "select_map_group": "Select map group",
     "active_group": "Active",
     "activate_map": "Activate",
-    "activate_map_requires_active_group": "Activate this map's group first"
+    "activate_map_requires_active_group": "Activate this map's group first",
+    "no_map_selected": "Please select a map first (top-right of the canvas)",
+    "currently_displayed": "Displayed",
+    "not_active_group_tooltip": "This row belongs to a group that isn't active; activate its group first to edit"
   },
   "map_group_table": {
     "add_title": "Add Map Group",

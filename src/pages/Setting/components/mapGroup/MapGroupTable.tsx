@@ -42,6 +42,9 @@ const MapGroupTable: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ["map-group"] });
       queryClient.invalidateQueries({ queryKey: ["all-map-Info"] });
       queryClient.invalidateQueries({ queryKey: ["map"] });
+      queryClient.invalidateQueries({ queryKey: ["map-list"] });
+      queryClient.invalidateQueries({ queryKey: ["active-group-resources"] });
+      queryClient.invalidateQueries({ queryKey: ["all-groups-resources"] });
     },
     onError: (e: ErrorResponse) => {
       errorHandler(e, messageApi);

@@ -28,10 +28,12 @@ import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import useMap from "@/api/useMap";
+import useActiveGroupResources from "@/api/useActiveGroupResources";
 import useAmrName from "@/api/useAmrName";
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import { DefaultOptionType } from "antd/es/select";
+import { useAtomValue } from "jotai";
+import { currentMapIdAtom } from "@/utils/mapSelection";
 
 type TagRender = SelectProps["tagRender"];
 
@@ -52,6 +54,7 @@ type Save_Zone = {
     endX: number;
     endY: number;
   };
+  map_id?: string;
 };
 
 const tagRender: TagRender = (props) => {
@@ -82,7 +85,7 @@ const EditZonePanel: React.FC<{
     | undefined;
 }> = ({ attributes, listeners, zonePanelForm }) => {
   const { t } = useTranslation();
-  const { data } = useMap();
+  const { data: resources } = useActiveGroupResources();
   const [layerOpt, setLayerOpt] = useState<string | undefined>();
   const { data: allAmr } = useAmrName();
   const [showTagSetting, setShowTagSetting] = useState(false);
@@ -91,6 +94,7 @@ const EditZonePanel: React.FC<{
   const [isHint, setIsHint] = useState(false);
   const queryClient = useQueryClient();
   const [zoneTags, setZoneTags] = useState<string[]>([]);
+  const currentMapId = useAtomValue(currentMapIdAtom);
 
   const [allVehicleForbidden, setAllVehicleForbidden] = useState(false);
   const [notVehicleForbidden, setNotVehicleForbidden] = useState(false);
@@ -157,6 +161,8 @@ const EditZonePanel: React.FC<{
       zonePanelForm.resetFields();
       tagSettingForm.resetFields();
       queryClient.refetchQueries({ queryKey: ["map"] });
+      queryClient.refetchQueries({ queryKey: ["active-group-resources"] });
+      queryClient.refetchQueries({ queryKey: ["all-groups-resources"] });
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
@@ -187,7 +193,8 @@ const EditZonePanel: React.FC<{
       );
       return;
     }
-    const exists = data!.zones.some((zone) => {
+    const allZones = resources?.maps.flatMap((m) => m.zones) ?? [];
+    const exists = allZones.some((zone) => {
       return zone.name.trim() === name.trim();
     });
     if (exists) {
@@ -215,6 +222,11 @@ const EditZonePanel: React.FC<{
         t("edit_zone_panel.waring.tag_not_yet_setting"),
         "bottomLeft",
       );
+      return;
+    }
+
+    if (!currentMapId) {
+      void messageApi.error(t("map_manager.no_map_selected"));
       return;
     }
 
@@ -279,6 +291,7 @@ const EditZonePanel: React.FC<{
         endX,
         endY,
       },
+      map_id: currentMapId,
     };
 
     saveZoneMutation.mutate(newZone);
