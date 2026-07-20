@@ -22,6 +22,8 @@ const schema = object({
       group: object({
         id: string().required(),
         group_name: string().required(),
+        isUsing: boolean().optional(),
+        active_map_id: string().optional().nullable(),
       })
         .optional()
         .nullable(),

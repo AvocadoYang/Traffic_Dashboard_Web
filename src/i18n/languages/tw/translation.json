@@ -1843,14 +1843,22 @@
     "file_required": "必填",
     "map_group": "地圖群組",
     "floor": "樓層",
-    "select_map_group": "選擇地圖群組"
+    "select_map_group": "選擇地圖群組",
+    "active_group": "使用中",
+    "activate_map": "啟用",
+    "activate_map_requires_active_group": "請先啟用此地圖所屬的群組"
   },
   "map_group_table": {
     "add_title": "新增地圖群組",
     "edit_title": "編輯地圖群組",
     "maps": "地圖",
     "name": "群組名稱",
-    "operation": "操作"
+    "operation": "操作",
+    "status": "狀態",
+    "active": "使用中",
+    "inactive": "未使用",
+    "activate": "啟用",
+    "activate_confirm": "確定要啟用這個地圖群組嗎？"
   },
   "changePassword": {
     "title": "修改密碼",

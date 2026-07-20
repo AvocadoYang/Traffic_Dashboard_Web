@@ -7,9 +7,9 @@ import {
   message,
   Modal,
   Popconfirm,
-  Radio,
   Select,
   Table,
+  Tag,
   Upload,
   UploadProps,
   Flex,
@@ -389,7 +389,7 @@ const FolderList = styled.div`
   flex-wrap: wrap;
 `;
 
-const FolderItem = styled.div<{ $isSelected: boolean }>`
+const FolderItem = styled.div<{ $isSelected: boolean; $isActiveGroup?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -407,6 +407,13 @@ const FolderItem = styled.div<{ $isSelected: boolean }>`
     $isSelected
       ? "inset 0 0 20px rgba(82, 196, 26, 0.08), 0 2px 8px rgba(82, 196, 26, 0.25)"
       : "none"};
+
+  ${({ $isActiveGroup }) =>
+    $isActiveGroup &&
+    `
+    border-left: 3px solid #eb2f96;
+    box-shadow: 0 0 0 1px rgba(235, 47, 150, 0.35), 0 2px 8px rgba(235, 47, 150, 0.2);
+  `}
 
   ${({ $isSelected }) =>
     $isSelected &&
@@ -432,8 +439,8 @@ const FolderItem = styled.div<{ $isSelected: boolean }>`
   &:hover {
     background: ${({ $isSelected }) => ($isSelected ? "#f6ffed" : "#f6ffed")};
     border-color: ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#73d13d")};
-    border-left-color: ${({ $isSelected }) =>
-      $isSelected ? "#52c41a" : "#73d13d"};
+    border-left-color: ${({ $isSelected, $isActiveGroup }) =>
+      $isActiveGroup ? "#eb2f96" : $isSelected ? "#52c41a" : "#73d13d"};
     transform: ${({ $isSelected }) =>
       $isSelected ? "none" : "translateX(4px)"};
     box-shadow: ${({ $isSelected }) =>
@@ -460,6 +467,21 @@ const FolderName = styled.div<{ $isSelected: boolean }>`
     color: ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#8c8c8c")};
     transition: all 0.2s;
   }
+`;
+
+const ActiveGroupBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  margin-left: 8px;
+  background: #fff0f6;
+  border: 1px solid #eb2f96;
+  color: #eb2f96;
+  font-size: 9px;
+  font-weight: 700;
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 `;
 
 const FolderCount = styled.span<{ $isSelected: boolean }>`
@@ -509,7 +531,12 @@ type MapInfo = {
   scrollY: number;
   scale: number;
   map_group_id?: string | null;
-  group?: { id: string; group_name: string } | null;
+  group?: {
+    id: string;
+    group_name: string;
+    isUsing?: boolean;
+    active_map_id?: string | null;
+  } | null;
   floor: number;
 };
 
@@ -586,6 +613,22 @@ const MapManager: FC<{
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
+  // 切換使用中群組內「目前顯示/運作中的地圖」(取代過去用 map-update 的 isUsing 直接切換單一地圖)
+  const switchActiveMapMutation = useMutation({
+    mutationFn: (map_id: string) => {
+      return client.patch("api/setting/map-group/active-map", { map_id });
+    },
+    onSuccess: async () => {
+      messageApi.success(t("utils.success"));
+      await Promise.all([
+        refetch(),
+        queryClient.invalidateQueries({ queryKey: ["map"] }),
+        queryClient.invalidateQueries({ queryKey: ["map-group"] }),
+      ]);
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
   // Delete Mutation
   const deleteMutation = useMutation({
     mutationFn: (id: string) => {
@@ -633,7 +676,6 @@ const MapManager: FC<{
     setEditingMap(record);
     editForm.setFieldsValue({
       fileName: record.fileName.split(".")[0],
-      isUsing: record.isUsing,
       mapOriginX: record.mapOriginX,
       mapOriginY: record.mapOriginY,
       scrollX: record.scrollX,
@@ -752,6 +794,26 @@ const MapManager: FC<{
           >
             {t("map_manager.edit")}
           </IndustrialButton>
+          {!record.isUsing && (
+            <IndustrialButton
+              size="small"
+              icon={<CheckCircleOutlined />}
+              style={{ borderColor: "#eb2f96", color: "#eb2f96" }}
+              disabled={!record.group?.isUsing}
+              title={
+                record.group?.isUsing
+                  ? undefined
+                  : t("map_manager.activate_map_requires_active_group")
+              }
+              loading={
+                switchActiveMapMutation.isPending &&
+                switchActiveMapMutation.variables === record.id
+              }
+              onClick={() => switchActiveMapMutation.mutate(record.id)}
+            >
+              {t("map_manager.activate_map")}
+            </IndustrialButton>
+          )}
           <Popconfirm
             title={t("map_manager.delete_title")}
             description={t("map_manager.delete_description")}
@@ -908,6 +970,7 @@ const MapManager: FC<{
                 <FolderItem
                   key={group.id}
                   $isSelected={isSelected}
+                  $isActiveGroup={group.isUsing}
                   onClick={() => setSelectedGroupId(group.id)}
                 >
                   <FolderName $isSelected={isSelected}>
@@ -917,6 +980,11 @@ const MapManager: FC<{
                       <FolderCount $isSelected={isSelected}>
                         {mapCount}
                       </FolderCount>
+                    )}
+                    {group.isUsing && (
+                      <ActiveGroupBadge>
+                        {t("map_manager.active_group")}
+                      </ActiveGroupBadge>
                     )}
                   </FolderName>
                 </FolderItem>
@@ -977,12 +1045,6 @@ const MapManager: FC<{
         <StyledForm form={editForm} layout="vertical">
           <Form.Item label={t("map_manager.file_name")} name="fileName">
             <IndustrialInput disabled />
-          </Form.Item>
-          <Form.Item label={t("map_manager.status")} name="isUsing">
-            <Radio.Group>
-              <Radio value={false}>{t("map_manager.inactive")}</Radio>
-              <Radio value={true}>{t("map_manager.active")}</Radio>
-            </Radio.Group>
           </Form.Item>
           <Form.Item
             label={t("map_manager.map_origin_x")}

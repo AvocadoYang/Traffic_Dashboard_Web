@@ -33,6 +33,21 @@ const MapGroupTable: React.FC = () => {
     },
   });
 
+  const activateGroupMutation = useMutation({
+    mutationFn: (id: string) => {
+      return client.patch("api/setting/map-group/activate", { id });
+    },
+    onSuccess: () => {
+      messageApi.success(t("utils.success"));
+      queryClient.invalidateQueries({ queryKey: ["map-group"] });
+      queryClient.invalidateQueries({ queryKey: ["all-map-Info"] });
+      queryClient.invalidateQueries({ queryKey: ["map"] });
+    },
+    onError: (e: ErrorResponse) => {
+      errorHandler(e, messageApi);
+    },
+  });
+
   const handleOpenAddModal = () => {
     setIsOpenModal(true);
   };
@@ -74,10 +89,38 @@ const MapGroupTable: React.FC = () => {
       },
     },
     {
+      title: t("map_group_table.status"),
+      dataIndex: "isUsing",
+      render: (isUsing: boolean) =>
+        isUsing ? (
+          <Tag color="magenta">{t("map_group_table.active")}</Tag>
+        ) : (
+          <Tag>{t("map_group_table.inactive")}</Tag>
+        ),
+    },
+    {
       dataIndex: "operation",
       render: (_: unknown, record: MapGroupName) => {
         return (
           <Flex gap="middle">
+            <Popconfirm
+              title={t("map_group_table.activate_confirm")}
+              onConfirm={() => activateGroupMutation.mutate(record.id)}
+            >
+              <Button
+                color="primary"
+                variant="filled"
+                disabled={record.isUsing}
+                style={
+                  record.isUsing
+                    ? undefined
+                    : { borderColor: "#eb2f96", color: "#eb2f96" }
+                }
+              >
+                {t("map_group_table.activate")}
+              </Button>
+            </Popconfirm>
+
             <Button
               color="primary"
               variant="filled"

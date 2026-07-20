@@ -1833,14 +1833,22 @@
     "file_required": "Required",
     "map_group": "Map Group",
     "floor": "Floor",
-    "select_map_group": "Select map group"
+    "select_map_group": "Select map group",
+    "active_group": "Active",
+    "activate_map": "Activate",
+    "activate_map_requires_active_group": "Activate this map's group first"
   },
   "map_group_table": {
     "add_title": "Add Map Group",
     "edit_title": "Edit Map Group",
     "maps": "Maps",
     "name": "Group Name",
-    "operation": "Operation"
+    "operation": "Operation",
+    "status": "Status",
+    "active": "In Use",
+    "inactive": "Not in use",
+    "activate": "Activate",
+    "activate_confirm": "Activate this map group?"
   },
   "changePassword": {
     "title": "Change Password",
