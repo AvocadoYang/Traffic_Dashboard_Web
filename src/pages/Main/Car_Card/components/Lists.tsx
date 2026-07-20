@@ -256,16 +256,12 @@ const LocValue: React.FC<{ amrId: string; isDark: boolean; isOffline?: boolean }
   }
 );
 const CardSpeed: React.FC<{ amrId: string; isDark: boolean; isOffline?: boolean }> = memo(
-  ({ isDark, amrId }) => {
+  ({ isDark, amrId, isOffline }) => {
     const { speed } = useSpeed(amrId);
+    const displaySpeed = isOffline ? undefined : speed;
     return (
       <p className="value">
-        {
-          // Math.abs(Number(speed) * 100)
-          // .toFixed(2)
-          // .toString()
-          "--"
-        }
+        {displaySpeed != null ? Math.abs(Number(displaySpeed)).toFixed(2) : "--"}
         <span className={`${isDark ? "symbol-dark" : "symbol"}`}>{"m/s"}</span>
       </p>
     );

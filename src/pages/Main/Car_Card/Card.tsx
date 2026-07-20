@@ -24,17 +24,16 @@ import {
 import { amrId2ColorRainbow } from "@/utils/utils";
 import { useWarningId } from "@/sockets/useWarning";
 import { useTranslation } from "react-i18next";
-import Joystick from "./components/Joystick";
-import { useJoystickControl } from "../../../hooks/useJoystickControl";
 import React from "react";
+import { JoystickAmrId } from "@/pages/Main/global/jotai";
 
 const Card: React.FC<{ id: string }> = ({ id }) => {
   const [openHiddenRow, setOpenHiddenRow] = useState(false);
   const [isPopoverOpen, setPopoverOpen] = useState(false);
   const [openFullInfo, setOpenFullInfo] = useState(true);
   const [openModal, setOpenModal] = useState(false);
-  const [openJoystick, setOpenJoystick] = useState(false);
   const errorMessage = useWarningId()?.get(id);
+  const setJoystickAmrId = useSetAtom(JoystickAmrId);
 
   const { t } = useTranslation();
 
@@ -46,9 +45,6 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
   const hintAmrId = useAtomValue(AmrFilterCarCard);
 
   const isDark = useAtomValue(darkMode);
-
-  // 搖桿控制：格式轉換、節流、socket.io 發送都封裝在 hook 裡。
-  const joystick = useJoystickControl(id);
 
   const handleCancel = () => {
     setOpenModal(false);
@@ -122,7 +118,7 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
               size="small"
               onClick={(e) => {
                 e.stopPropagation();
-                setOpenJoystick(true);
+                setJoystickAmrId(id);
               }}
             >
               Joystick
@@ -179,30 +175,6 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
             </React.Fragment>
           );
         })}
-      </Modal>
-      <Modal
-        title={`${id} - Joystick`}
-        open={openJoystick}
-        onCancel={() => setOpenJoystick(false)}
-        footer={null}
-        centered
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            padding: "20px 0",
-          }}
-        >
-          <Joystick
-            size={200}
-            stickSize={80}
-            baseColor="#ccc"
-            stickColor="#888"
-            onMove={joystick.onMove}
-            onEnd={joystick.onEnd}
-          />
-        </div>
       </Modal>
     </React.Fragment>
   );

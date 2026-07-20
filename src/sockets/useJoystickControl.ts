@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { Subject } from "rxjs";
 import { throttleTime } from "rxjs/operators";
-import { amrIo } from "@/sockets/socketConnect";
+import { io } from "@/sockets/socketConnect";
 import type { JoystickValue } from "../pages/Main/Car_Card/components/Joystick";
 
 /** 後端 socket.io 監聽搖桿指令的事件名稱 */
@@ -20,7 +20,7 @@ export const useJoystickControl = (amrId: string) => {
   // 帶上車輛 id 送出原始座標，讓後端知道要路由到哪一台。
   const send = useCallback(
     (value: JoystickValue) => {
-      amrIo.emit(JOYSTICK_CONTROL, { amrId, ...value });
+      io.emit(JOYSTICK_CONTROL, { amrId, ...value });
     },
     [amrId]
   );
@@ -31,7 +31,11 @@ export const useJoystickControl = (amrId: string) => {
       .pipe(throttleTime(THROTTLE_MS, undefined, { leading: true, trailing: true }))
       .subscribe(send);
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      // 卸載時強制歸零：搖桿一旦從畫面上消失，車輛就必須停。
+      send({ x: 0, y: 0 });
+    };
   }, [move$, send]);
 
   const onMove = useCallback(
