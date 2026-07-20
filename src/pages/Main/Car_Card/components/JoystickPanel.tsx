@@ -49,7 +49,7 @@ const JOYSTICK_STATE = {
   resume: {
     base: "#faad14",
     stick: "#ad6800",
-    hint: "Waiting for the resume button",
+    hint: "Waiting",
   },
   /** 尚未收到訊息、或處於其他 status_text，維持原本的中性配色。 */
   unknown: {
@@ -62,12 +62,19 @@ const getJoystickState = (
   status: ReadyToJoystick | undefined,
   isDark: boolean,
 ) => {
-  if (status?.status_text === "EmergencyStop") return JOYSTICK_STATE.stopped;
   if (status?.status_text === "ManualControl")
     return status.joystick_available
       ? JOYSTICK_STATE.ready
       : JOYSTICK_STATE.resume;
-  return JOYSTICK_STATE.unknown[isDark ? "dark" : "light"];
+
+  const state =
+    status?.status_text === "EmergencyStop"
+      ? JOYSTICK_STATE.stopped
+      : JOYSTICK_STATE.unknown[isDark ? "dark" : "light"];
+
+  if (status && !status.joystick_available && status.unavailable_reason)
+    return { ...state, hint: status.unavailable_reason };
+  return state;
 };
 
 const StatusHint = styled.div<{ $color: string }>`
