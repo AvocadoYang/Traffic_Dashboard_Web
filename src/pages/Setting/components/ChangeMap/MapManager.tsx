@@ -576,7 +576,10 @@ const MapManager: FC<{
     },
     onSuccess: async () => {
       messageApi.success(t("utils.success"));
-      await refetch();
+      await Promise.all([
+        refetch(),
+        queryClient.invalidateQueries({ queryKey: ["map"] }),
+      ]);
       setEditModalOpen(false);
       setEditingMap(null);
     },
