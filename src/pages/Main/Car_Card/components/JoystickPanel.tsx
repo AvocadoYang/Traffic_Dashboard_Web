@@ -21,7 +21,8 @@ const FloatingPanel = styled.div<{ $isDark: boolean }>`
   gap: 8px;
   padding: 12px;
   border-radius: 8px;
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#434343" : "rgba(0, 0, 0, 0.12)")};
+  border: 1px solid
+    ${({ $isDark }) => ($isDark ? "#434343" : "rgba(0, 0, 0, 0.12)")};
   background: ${({ $isDark }) => ($isDark ? "#1a1a1a" : "#ffffff")};
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.24);
   font-family: "Roboto Mono", monospace;
@@ -42,39 +43,46 @@ const PanelHeader = styled.div<{ $isDark: boolean; $dragging: boolean }>`
 
 const DOCK_MARGIN = 24;
 
-/** hint 為 null 代表可以正常操作，不需要提示使用者排除。 */
 const JOYSTICK_STATE = {
   ready: { base: "#52c41a", stick: "#237804", hint: null },
-  stopped: { base: "#ff4d4f", stick: "#a8071a", hint: "Emergency Stop" },
+  stopped: { base: "#ff4d4f", stick: "#a8071a", hint: null },
   resume: {
     base: "#faad14",
     stick: "#ad6800",
     hint: "Waiting",
   },
-  /** 尚未收到訊息、或處於其他 status_text，維持原本的中性配色。 */
   unknown: {
     dark: { base: "#3a3a3a", stick: "#ff8800", hint: null },
     light: { base: "#ccc", stick: "#888", hint: null },
   },
 } as const;
 
+const RESUME_REASON = "press the resume button";
+
+const isResumeReason = (reason: string | null | undefined) =>
+  !!reason && reason.toLowerCase().includes(RESUME_REASON);
+
 const getJoystickState = (
   status: ReadyToJoystick | undefined,
   isDark: boolean,
 ) => {
-  if (status?.status_text === "ManualControl")
-    return status.joystick_available
-      ? JOYSTICK_STATE.ready
-      : JOYSTICK_STATE.resume;
+  const state = (() => {
+    if (status?.joystick_available) return JOYSTICK_STATE.ready;
 
-  const state =
-    status?.status_text === "EmergencyStop"
-      ? JOYSTICK_STATE.stopped
-      : JOYSTICK_STATE.unknown[isDark ? "dark" : "light"];
+    if (status?.status_text === "EmergencyStop")
+      return isResumeReason(status.unavailable_reason)
+        ? JOYSTICK_STATE.resume
+        : JOYSTICK_STATE.stopped;
 
-  if (status && !status.joystick_available && status.unavailable_reason)
-    return { ...state, hint: status.unavailable_reason };
-  return state;
+    return JOYSTICK_STATE.unknown[isDark ? "dark" : "light"];
+  })();
+
+  if (!status?.status_text) return state;
+
+  const hint = status.unavailable_reason
+    ? `[${status.status_text}] ${status.unavailable_reason}`
+    : `[${status.status_text}]`;
+  return { ...state, hint };
 };
 
 const StatusHint = styled.div<{ $color: string }>`
@@ -175,7 +183,13 @@ const JoystickPanel: React.FC = () => {
   );
 };
 
-const JoystickBody = ({ amrId, isDark }: { amrId: string; isDark: boolean }) => {
+const JoystickBody = ({
+  amrId,
+  isDark,
+}: {
+  amrId: string;
+  isDark: boolean;
+}) => {
   const joystick = useJoystickControl(amrId);
   const status = useReadyToJoystick(amrId);
   const state = getJoystickState(status, isDark);

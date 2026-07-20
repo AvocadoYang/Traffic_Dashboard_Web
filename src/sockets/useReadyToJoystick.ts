@@ -5,6 +5,7 @@ import {
   share,
   concatMap,
   distinctUntilChanged,
+  tap,
 } from "rxjs";
 import { boolean, object, string, ValidationError } from "yup";
 import { useEffect, useState } from "react";
@@ -15,14 +16,14 @@ export type ReadyToJoystick = {
   amrId: string;
   joystick_available: boolean;
   status_text?: string;
-  unavailable_reason?: string;
+  unavailable_reason?: string | null;
 };
 
 const schema = object({
   amrId: string().required(),
   joystick_available: boolean().required(),
   status_text: string().optional(),
-  unavailable_reason: string().optional(),
+  unavailable_reason: string().nullable().optional(),
 });
 
 const isSameStatus = (a: ReadyToJoystick, b: ReadyToJoystick) =>
