@@ -337,7 +337,8 @@
 
     "save_pose_notify": {
       "is_a_navigate": "Location ID can't be a negative number or zero",
-      "duplicate_id": "ID is duplicated with existing ID"
+      "duplicate_id": "ID is duplicated with existing ID",
+      "leading_zero": "Location ID can't start with a leading zero (e.g. 01, 02)"
     }
   },
 

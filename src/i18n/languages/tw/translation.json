@@ -335,7 +335,8 @@
 
     "save_pose_notify": {
       "is_a_navigate": "存在負值點位,ID不可為負值或0",
-      "duplicate_id": "點位ID與現存ID重複"
+      "duplicate_id": "點位ID與現存ID重複",
+      "leading_zero": "點位 ID 開頭不可為 0 (例如 01、02)"
     }
   },
 

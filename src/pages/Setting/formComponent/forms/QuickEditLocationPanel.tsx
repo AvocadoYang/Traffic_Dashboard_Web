@@ -113,6 +113,8 @@ const QuickEditLocationPanel: React.FC<{
     if (!FL.length) return false;
     const payload = FL;
 
+    const hasLeadingZero = /^0\d/.test(String(payload.at(0)?.locationId));
+
     const isNegative = payload.findIndex((loc) => Number(loc.locationId) <= 0);
 
     if (isNegative != -1) {
@@ -120,6 +122,16 @@ const QuickEditLocationPanel: React.FC<{
         "warning",
         t("quick_edit_location_panel.save_pose_notify.is_a_navigate"),
         t("quick_edit_location_panel.save_pose_notify.is_a_navigate"),
+        "bottomLeft",
+      );
+      return false;
+    }
+
+    if (hasLeadingZero) {
+      openNotificationWithIcon(
+        "warning",
+        t("quick_edit_location_panel.save_pose_notify.leading_zero"),
+        t("quick_edit_location_panel.save_pose_notify.leading_zero"),
         "bottomLeft",
       );
       return false;
