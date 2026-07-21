@@ -249,7 +249,7 @@ const EditRoadPanel: React.FC<{
               shouldUpdate
               required
             >
-              <InputNumber />
+              <InputNumber min={1} />
             </Form.Item>
 
             <Form.Item
@@ -258,7 +258,7 @@ const EditRoadPanel: React.FC<{
               shouldUpdate
               required
             >
-              <InputNumber />
+              <InputNumber min={1} />
             </Form.Item>
           </Space>
 
