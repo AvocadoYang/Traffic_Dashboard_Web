@@ -378,6 +378,7 @@
       "fill_in_value": "Please fill in the X/Y value",
       "format_warn": "formate error",
       "is_a_navigate": "Location ID can't be a negative number",
+    "leading_zero": "Location ID can't start with a leading zero (e.g. 01, 02)",
       "duplicate_id": "duplicate ID",
       "change_duplicate_id": "please change ID, can not be same",
       "no_more_than_360": "No more than 360",

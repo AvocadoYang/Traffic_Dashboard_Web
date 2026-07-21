@@ -63,13 +63,14 @@ const EditLocationPanel: React.FC<{
     // ... (Your existing savePose logic remains the same for functionality)
     const payload = locationPanelForm.getFieldsValue() as LocationType;
     const isNegative = Number(payload.locationId) <= 0;
+    const hasLeadingZero = /^0\d/.test(String(payload.locationId));
 
     if (payload.x === undefined || payload.y === undefined) {
       openNotificationWithIcon(
         "warning",
         t("edit_location_panel.save_pose_notify.empty_value"),
         t("edit_location_panel.save_pose_notify.fill_in_value"),
-        "bottomLeft"
+        "bottomLeft",
       );
       return;
     }
@@ -79,7 +80,17 @@ const EditLocationPanel: React.FC<{
         "warning",
         t("edit_location_panel.save_pose_notify.format_warn"),
         t("edit_location_panel.save_pose_notify.is_a_navigate"),
-        "bottomLeft"
+        "bottomLeft",
+      );
+      return;
+    }
+
+    if (hasLeadingZero) {
+      openNotificationWithIcon(
+        "warning",
+        t("edit_location_panel.save_pose_notify.format_warn"),
+        t("edit_location_panel.save_pose_notify.leading_zero"),
+        "bottomLeft",
       );
       return;
     }
@@ -159,7 +170,7 @@ const EditLocationPanel: React.FC<{
             className="industrial-item"
             rules={[{ required: true, message: "必填" }]}
           >
-            <Input type="number" />
+            <Input type="number" min={1} />
           </Form.Item>
 
           {/* Coordinate Section (X, Y) - Bolder separation */}
@@ -197,13 +208,13 @@ const EditLocationPanel: React.FC<{
                   {
                     max: 360,
                     message: t(
-                      "edit_location_panel.save_pose_notify.no_more_than_360"
+                      "edit_location_panel.save_pose_notify.no_more_than_360",
                     ),
                   },
                   {
                     min: -360,
                     message: t(
-                      "edit_location_panel.save_pose_notify.cannot_be_less_than_-360"
+                      "edit_location_panel.save_pose_notify.cannot_be_less_than_-360",
                     ),
                   },
                 ]}

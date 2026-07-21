@@ -376,6 +376,7 @@
       "fill_in_value": "請填入 X/Y 值",
       "format_warn": "格式錯誤 (點位不可為負值)",
       "is_a_navigate": "點位 ID 不可為負值",
+    "leading_zero": "點位 ID 開頭不可為 0 (例如 01、02)",
       "duplicate_id": "ID 重複",
       "change_duplicate_id": "請檢查輸入 ID,不可重複！",
       "no_more_than_360": "不可超過360",
