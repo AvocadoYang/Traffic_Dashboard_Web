@@ -133,12 +133,11 @@ const EditZonePanel: React.FC<{
     { label: `${t("edit_zone_panel.layer_dis_near")}`, value: "1" },
     { label: `${t("edit_zone_panel.speical_layer_cargo")}`, value: "2" },
     { label: `${t("edit_zone_panel.special_layer_charge")}`, value: "3" },
-  ]
-
+  ];
 
   const updateLayer = (layer: string) => {
-    setLayerOpt(layer)
-  }
+    setLayerOpt(layer);
+  };
 
   const AmrsID: SelectProps["options"] = allAmr?.amrs.map((amr) => {
     return { value: amr.amrId };
@@ -173,8 +172,18 @@ const EditZonePanel: React.FC<{
       (!tagSettingForm.getFieldsValue() && !zoneTags?.length)
     )
       return;
-    const { name, color, category, startX, startY, endX, endY, layer, lidar_back, lidar_front } =
-      zonePanelForm.getFieldsValue() as ZoneType;
+    const {
+      name,
+      color,
+      category,
+      startX,
+      startY,
+      endX,
+      endY,
+      layer,
+      lidar_back,
+      lidar_front,
+    } = zonePanelForm.getFieldsValue() as ZoneType;
     if ((startX === endX && startY === endY) || !startX || !startY) {
       openNotificationWithIcon(
         "warning",
@@ -193,8 +202,9 @@ const EditZonePanel: React.FC<{
       );
       return;
     }
-    const allZones = resources?.maps.flatMap((m) => m.zones) ?? [];
-    const exists = allZones.some((zone) => {
+    const sameMapZones =
+      resources?.maps.find((m) => m.mapId === currentMapId)?.zones ?? [];
+    const exists = sameMapZones.some((zone) => {
       return zone.name.trim() === name.trim();
     });
     if (exists) {
@@ -284,9 +294,9 @@ const EditZonePanel: React.FC<{
         startX,
         startY,
       },
-      layer : layer ? layer: "none" ,
+      layer: layer ? layer : "none",
       lidar_back: layer ? lidar_back : false,
-      lidar_front: layer ? lidar_front: false,
+      lidar_front: layer ? lidar_front : false,
       endPoint: {
         endX,
         endY,
@@ -339,7 +349,6 @@ const EditZonePanel: React.FC<{
     tagSettingForm,
     t,
   ]);
-
 
   const tagChangeFn = useCallback(
     (tags) => {
@@ -467,40 +476,33 @@ const EditZonePanel: React.FC<{
               </Form.Item>
             </div>
           </Space>
-          <Form.Item
-            label={t("edit_zone_panel.layer_setting")}
-            name="layer"  
-          >
-          <Select
-            allowClear
-            placeholder={t("edit_zone_panel.layer")}
-            style={{ width: "100%" }}
-            onChange={(v: string) => updateLayer(v)}
-            options={layer}
-          />
-            </Form.Item>
+          <Form.Item label={t("edit_zone_panel.layer_setting")} name="layer">
+            <Select
+              allowClear
+              placeholder={t("edit_zone_panel.layer")}
+              style={{ width: "100%" }}
+              onChange={(v: string) => updateLayer(v)}
+              options={layer}
+            />
+          </Form.Item>
 
-      
-            <div style={{ display: `${layerOpt ? "block":"none"}`}}>
-               <Flex gap="middle">
-                <Form.Item
-                  label={t("edit_zone_panel.lidar_front")}
-                  name="lidar_front"  
-                >
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                </Form.Item> 
-                <Form.Item
-                  label={t("edit_zone_panel.lidar_back")}
-                  name="lidar_back"   
-                >
-                      <Switch checkedChildren="On" unCheckedChildren="Off" />
-                </Form.Item> 
-              </Flex>
-              </div>
-            
-         
+          <div style={{ display: `${layerOpt ? "block" : "none"}` }}>
+            <Flex gap="middle">
+              <Form.Item
+                label={t("edit_zone_panel.lidar_front")}
+                name="lidar_front"
+              >
+                <Switch checkedChildren="On" unCheckedChildren="Off" />
+              </Form.Item>
+              <Form.Item
+                label={t("edit_zone_panel.lidar_back")}
+                name="lidar_back"
+              >
+                <Switch checkedChildren="On" unCheckedChildren="Off" />
+              </Form.Item>
+            </Flex>
+          </div>
 
-        
           <Form.Item
             label={t("edit_zone_panel.category")}
             name="category"

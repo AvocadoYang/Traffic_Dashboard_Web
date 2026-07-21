@@ -36,8 +36,8 @@ type FormType = {
   endX: number;
   endY: number;
   layer: string;
-  lidar_front: boolean,
-  lidar_back: boolean,
+  lidar_front: boolean;
+  lidar_back: boolean;
   category: string[] | undefined;
 
   hight_limit: number | undefined;
@@ -166,8 +166,11 @@ const EditZoneTable: FC<{
       messageApi.warning(t("edit_zone_panel.waring.color_error"));
       return;
     }
-    const allZones = resources?.maps.flatMap((m) => m.zones) ?? [];
-    const exists = allZones.some((zone) => {
+    const sameMapZones =
+      resources?.maps.find((m) =>
+        m.zones.some((zone) => zone.id === oldData?.id),
+      )?.zones ?? [];
+    const exists = sameMapZones.some((zone) => {
       return zone.name.trim() === name.trim() && oldData?.id !== zone.id;
     });
     if (exists) {
@@ -197,9 +200,9 @@ const EditZoneTable: FC<{
 
     const payload: FormType = {
       ...data,
-      layer: data.layer ? data.layer: "none",
-      lidar_back: data.layer ? data.lidar_back: false,
-      lidar_front : data.layer ? data.lidar_front: false,
+      layer: data.layer ? data.layer : "none",
+      lidar_back: data.layer ? data.lidar_back : false,
+      lidar_front: data.layer ? data.lidar_front : false,
       speed_limit: data.speed_limit
         ? data.speed_limit
         : (oldData?.tagSetting.speed_limit as number),
@@ -220,17 +223,15 @@ const EditZoneTable: FC<{
   };
 
   const updateLayer = (layer: string) => {
-      setLayerOpt(layer)
-  }
+    setLayerOpt(layer);
+  };
 
   const layer: SelectProps["options"] = [
     { label: `${t("edit_zone_panel.layer_dis_far")}`, value: "0" },
     { label: `${t("edit_zone_panel.layer_dis_near")}`, value: "1" },
     { label: `${t("edit_zone_panel.speical_layer_cargo")}`, value: "2" },
     { label: `${t("edit_zone_panel.special_layer_charge")}`, value: "3" },
-  ]
-
-
+  ];
 
   // 將資料庫資料寫入各個 input. 另外將資料複製一份到即將修改的表單中
   useEffect(() => {
@@ -247,7 +248,6 @@ const EditZoneTable: FC<{
       speed_limit: undefined,
       view_available: undefined,
     };
-
 
     if (forbiddenCar.length) {
       tagSetting.allVehicleForbidden = false;
@@ -273,8 +273,13 @@ const EditZoneTable: FC<{
       }
       editZoneForm.setFieldValue("forbidden", []);
     }
-    editZoneForm.setFieldValue("layer", oldData.layer == "none" ? undefined : oldData.layer)
-    oldData.layer == "none" ? setLayerOpt(undefined): setLayerOpt(oldData.layer); 
+    editZoneForm.setFieldValue(
+      "layer",
+      oldData.layer == "none" ? undefined : oldData.layer,
+    );
+    oldData.layer == "none"
+      ? setLayerOpt(undefined)
+      : setLayerOpt(oldData.layer);
     editZoneForm.setFieldValue("lidar_front", oldData.lidar.front);
     editZoneForm.setFieldValue("lidar_back", oldData.lidar.back);
     editZoneForm.setFieldValue("name", oldData.name);
@@ -493,36 +498,32 @@ const EditZoneTable: FC<{
             </div>
           </Space>
 
-           <Form.Item
-            label={t("edit_zone_panel.layer_setting")}
-            name="layer"  
-          >
-          <Select
-            allowClear
-            placeholder={t("edit_zone_panel.layer")}
-            style={{ width: "100%" }}
-            onChange={(v: string) => updateLayer(v)}
-            options={layer}
-          />
-            </Form.Item>
+          <Form.Item label={t("edit_zone_panel.layer_setting")} name="layer">
+            <Select
+              allowClear
+              placeholder={t("edit_zone_panel.layer")}
+              style={{ width: "100%" }}
+              onChange={(v: string) => updateLayer(v)}
+              options={layer}
+            />
+          </Form.Item>
 
-      
-            <div style={{ display: `${layerOpt ? "block":"none"}`}}>
-               <Flex gap="middle">
-                <Form.Item
-                  label={t("edit_zone_panel.lidar_front")}
-                  name="lidar_front"  
-                >
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                </Form.Item> 
-                <Form.Item
-                  label={t("edit_zone_panel.lidar_back")}
-                  name="lidar_back"   
-                >
-                      <Switch checkedChildren="On" unCheckedChildren="Off" />
-                </Form.Item> 
-              </Flex>
-              </div>
+          <div style={{ display: `${layerOpt ? "block" : "none"}` }}>
+            <Flex gap="middle">
+              <Form.Item
+                label={t("edit_zone_panel.lidar_front")}
+                name="lidar_front"
+              >
+                <Switch checkedChildren="On" unCheckedChildren="Off" />
+              </Form.Item>
+              <Form.Item
+                label={t("edit_zone_panel.lidar_back")}
+                name="lidar_back"
+              >
+                <Switch checkedChildren="On" unCheckedChildren="Off" />
+              </Form.Item>
+            </Flex>
+          </div>
           <Form.Item
             label={t("edit_zone_panel.category")}
             name="category"
