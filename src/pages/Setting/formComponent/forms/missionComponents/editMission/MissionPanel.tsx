@@ -298,7 +298,7 @@ const EditMissionPanel: FC<{
         item.name === formData.robot_type_id &&
         (formData.robot_type_id = item.id),
     );
-    addMutation.mutate({ ...formData, key: nanoid() });
+    addMutation.mutate({ ...formData, key: nanoid(36) });
     createMissionForm.setFieldValue("name", "");
     setOpenWithCreateMission(false);
   };

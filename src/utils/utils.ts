@@ -66,6 +66,11 @@ export const rvizCoord2 = ({
 
 export const sanitizeDeg = (deg: number) => ((deg % 360) + 360) % 360;
 
+export const sanitizeSignedDeg = (deg: number) => {
+  const wrapped = sanitizeDeg(deg);
+  return wrapped > 180 ? wrapped - 360 : wrapped;
+};
+
 export const rad2Deg = (rad: number) => sanitizeDeg((rad / Math.PI) * 180);
 
 export const deg2Rad = (deg: number) => (sanitizeDeg(deg) / 180) * Math.PI;

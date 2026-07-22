@@ -15,6 +15,7 @@ const IndustrialContainer = styled.div`
   min-height: 100vh;
 `;
 
+
 const CarCardWrap: React.FC = () => {
   const isDark = useAtomValue(darkMode);
   return (

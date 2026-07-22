@@ -38,7 +38,7 @@ const PanelHeader = styled.h3`
 `;
 
 interface SystemAlarmConfig {
-  [code: number]: {
+  [code: string]: {
     enable: boolean;
     description: string;
   };
@@ -66,7 +66,7 @@ const SystemAlarmPanel: FC<{
     };
   }, []);
 
-  const handleChange = (code: number, enable: boolean) => {
+  const handleChange = (code: string, enable: boolean) => {
     io.emit("set-system-alarm", {
       code,
       enable,
@@ -83,7 +83,7 @@ const SystemAlarmPanel: FC<{
 
   const dataSource = Object.entries(config).map(([code, value]) => ({
     key: code,
-    code: Number(code),
+    code: code,
     enable: value.enable,
     description: value.description,
   }));
