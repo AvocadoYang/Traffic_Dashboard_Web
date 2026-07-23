@@ -63,13 +63,18 @@ const ChargeDockSetting: React.FC = () => {
   } = useQuery<ChargeStationConfig[]>({
     queryKey: ["chargeStationDockConfig"],
     queryFn: () =>
-      client.get("/charge-station-dock-config").then((res) => res.data),
+      client
+        .get("api/peripherals/charge-station-dock-config")
+        .then((res) => res.data),
   });
 
   // 2. 更新充電站對接設定
   const saveMutation = useMutation({
     mutationFn: (payload: ChargeStationConfig) => {
-      return client.post("/update-charge-station-docking", payload);
+      return client.post(
+        "api/peripherals//update-charge-station-docking",
+        payload,
+      );
     },
     onSuccess: () => {
       message.success("充電站對接參數更新成功！");
