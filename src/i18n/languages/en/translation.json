@@ -148,6 +148,12 @@
     "delete_current_mission": "Delete mission",
     "force_delete_mission": "FOrce delete mission",
     "charge_reset": "Charge reset",
+    "localization_correction": "Localization Correction",
+    "localization_correction_hint": "Drag the ghost to move it, drag the handle to rotate it, then align it with the real map",
+    "localization_correction_reset": "Reset",
+    "localization_correction_cancel": "Cancel",
+    "localization_correction_confirm": "Confirm",
+    "localization_correction_result_title": "Corrected Position",
     "emergency_stop": "Start emergency stop",
     "continue_move": "Release emergency stop",
     "update_cargo": "update carrier info",
@@ -171,6 +177,7 @@
   },
 
   "mode": {
+    "error": "error",
     "manual_mode": "manual",
     "is_mission": "Is working",
     "is_carry": "is carry",
@@ -200,7 +207,8 @@
     "road": "Road",
     "location": "Location",
     "road_tooltip": "Road Tooltip",
-    "location_tooltip": "Road Tooltip"
+    "location_tooltip": "Road Tooltip",
+    "point_cloud": "Point Cloud"
   },
 
   "page_view": "View",
@@ -294,10 +302,14 @@
       "warning_id": "Warning ID Setting",
       "upload_warning_file": "Upload warning id file",
       "backup_file": "Backup",
-      "switch_map": "Switch Map",
       "start_point": "Start Point",
       "import_map": "Import locations and roads from other script",
       "system_alarm": "system alarm"
+    },
+    "map_setting": {
+      "map_setting": "Map Setting",
+      "switch_map": "Switch Map",
+      "map_group": "Map Group"
     },
     "restart": {
       "restart": "restart system"
@@ -1792,12 +1804,14 @@
     "upload_file": "Upload File",
     "upload_map_btn": "Upload Map",
     "existing_maps": "Existing Maps",
+    "all_groups": "All",
     "file_name": "File Name",
     "status": "Status",
     "origin_x": "Origin X",
     "origin_y": "Origin Y",
     "actions": "Actions",
     "view": "View",
+    "sync_map": "Map sync",
     "edit": "Edit",
     "delete": "Delete",
     "active": "Active",
@@ -1816,7 +1830,17 @@
     "enter_y_coord": "Enter Y coordinate",
     "drag_file_text": "Click or drag file to this area",
     "png_hint": "Support PNG format only. File name must be alphanumeric.",
-    "file_required": "Required"
+    "file_required": "Required",
+    "map_group": "Map Group",
+    "floor": "Floor",
+    "select_map_group": "Select map group"
+  },
+  "map_group_table": {
+    "add_title": "Add Map Group",
+    "edit_title": "Edit Map Group",
+    "maps": "Maps",
+    "name": "Group Name",
+    "operation": "Operation"
   },
   "changePassword": {
     "title": "Change Password",

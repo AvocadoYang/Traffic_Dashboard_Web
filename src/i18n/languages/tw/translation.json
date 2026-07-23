@@ -147,6 +147,12 @@
     "delete_current_mission": "刪除任務",
     "force_delete_mission": "強制刪除任務",
     "charge_reset": "校正充電",
+    "localization_correction": "定位校正",
+    "localization_correction_hint": "拖曳幽靈車身移動位置，拖曳把手旋轉方向，對齊實際地圖後按確認",
+    "localization_correction_reset": "重設",
+    "localization_correction_cancel": "取消",
+    "localization_correction_confirm": "確認",
+    "localization_correction_result_title": "校正後位置",
     "emergency_stop": "工作暫停",
     "continue_move": "解除暫停",
     "update_cargo": "編輯攜帶貨物資訊",
@@ -176,6 +182,7 @@
     "is_charge": "充電中",
     "low_power": "低電量",
     "positioning_normal": "定位正常",
+    "error": "錯誤",
     "positioning_inaccurate": "定位異常",
     "isPause": "工作暫停",
     "unknown": "未知"
@@ -198,7 +205,8 @@
     "road": "路徑",
     "location": "地點",
     "road_tooltip": "路徑提示",
-    "location_tooltip": "地點提示"
+    "location_tooltip": "地點提示",
+    "point_cloud": "點雲"
   },
 
   "page_view": "地圖",
@@ -292,10 +300,14 @@
       "warning_id": "告警ID設定",
       "upload_warning_file": "上傳錯誤表",
       "backup_file": "備份檔案",
-      "switch_map": "變更地圖",
       "start_point": "起始位置",
       "import_map": "引入其他腳本點位路徑",
       "system_alarm": "系統告警顯示"
+    },
+    "map_setting": {
+      "map_setting": "地圖設定",
+      "switch_map": "變更地圖",
+      "map_group": "地圖群組"
     },
     "restart": {
       "restart": "重起系統"
@@ -1802,12 +1814,14 @@
     "upload_file": "上傳檔案",
     "upload_map_btn": "上傳地圖",
     "existing_maps": "現有地圖",
+    "all_groups": "全部",
     "file_name": "檔案名稱",
     "status": "狀態",
     "origin_x": "原點 X",
     "origin_y": "原點 Y",
     "actions": "操作",
     "view": "查看",
+    "sync_map": "同步地圖",
     "edit": "編輯",
     "delete": "刪除",
     "active": "啟用",
@@ -1826,7 +1840,17 @@
     "enter_y_coord": "輸入 Y 座標",
     "drag_file_text": "點擊或拖曳檔案到此區域",
     "png_hint": "僅支援 PNG 格式。檔案名稱必須為英數字。",
-    "file_required": "必填"
+    "file_required": "必填",
+    "map_group": "地圖群組",
+    "floor": "樓層",
+    "select_map_group": "選擇地圖群組"
+  },
+  "map_group_table": {
+    "add_title": "新增地圖群組",
+    "edit_title": "編輯地圖群組",
+    "maps": "地圖",
+    "name": "群組名稱",
+    "operation": "操作"
   },
   "changePassword": {
     "title": "修改密碼",

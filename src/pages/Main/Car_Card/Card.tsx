@@ -12,7 +12,7 @@ import {
 } from "./components/Lists";
 import "./car_info.css";
 import { useMemo, useState } from "react";
-import { ConfigProvider, Popover, Modal } from "antd";
+import { ConfigProvider, Popover, Modal, Button } from "antd";
 import BtnGroup from "./components/BtnGroup";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
@@ -25,6 +25,7 @@ import { amrId2ColorRainbow } from "@/utils/utils";
 import { useWarningId } from "@/sockets/useWarning";
 import { useTranslation } from "react-i18next";
 import React from "react";
+import { JoystickAmrId } from "@/pages/Main/global/jotai";
 
 const Card: React.FC<{ id: string }> = ({ id }) => {
   const [openHiddenRow, setOpenHiddenRow] = useState(false);
@@ -32,6 +33,7 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
   const [openFullInfo, setOpenFullInfo] = useState(true);
   const [openModal, setOpenModal] = useState(false);
   const errorMessage = useWarningId()?.get(id);
+  const setJoystickAmrId = useSetAtom(JoystickAmrId);
 
   const { t } = useTranslation();
 
@@ -112,6 +114,15 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
               setOpenFullInfo={setOpenFullInfo}
             ></DropDown>
             <RowOne isDark={isDark} amrId={id}></RowOne>
+            <Button
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                setJoystickAmrId(id);
+              }}
+            >
+              Joystick
+            </Button>
             <RowSecond
               setOpenHiddenRow={setOpenHiddenRow}
               openHiddenRow={openHiddenRow}

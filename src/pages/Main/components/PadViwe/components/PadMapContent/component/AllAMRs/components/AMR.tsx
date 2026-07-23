@@ -3,7 +3,7 @@ import useMap from "@/api/useMap";
 import Icon from "./Icon";
 
 import "../style.css";
-import { useAmrPose } from "@/sockets/useAMRInfo";
+import { useAmrPose, useIsLogIn } from "@/sockets/useAMRInfo";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
 import styled from "styled-components";
 import { useAtomValue } from "jotai";
@@ -111,8 +111,9 @@ const AMR: FC<{
 
   const { pose } = useAmrPose(amrId);
   const bbox = useAmrBBox(amrId);
- 
-  if (!pose || !map || !bbox || !bbox.length) return null;
+  const { isOverdue } = useIsLogIn(amrId);
+
+  if (!pose || !map || !bbox || !bbox.length || isOverdue) return null;
 
   const { x: newX, y: newY } = agvFormate(pose.x, pose.y);
   const [left, top] = rosCoord2DisplayCoord({
@@ -136,9 +137,9 @@ const AMR: FC<{
         []
       )}
 
-
+      
       <ForkLiftIcon amrId={amrId} color={color} left={left} yaw={pose.yaw} top={top}></ForkLiftIcon>
-      <BBox amrId={amrId} bbox={bbox} color={color}></BBox>
+      {amrId.includes('mi') ? null :  <BBox amrId={amrId} bbox={bbox} color={color}></BBox>}
       {/* <Icon amrId={amrId} color={color} left={left} top={top}></Icon> */}
       {errorMessage?.length ? (
         <ErrorTip left={left} top={top + Math.sqrt(top) - 5}>

@@ -8,12 +8,12 @@ import {
   Modal,
   Popconfirm,
   Radio,
+  Select,
   Table,
   Upload,
   UploadProps,
   Flex,
   Image,
-  Drawer,
 } from "antd";
 import {
   InboxOutlined,
@@ -21,41 +21,24 @@ import {
   EditOutlined,
   DeleteOutlined,
   UploadOutlined,
-  CloseOutlined,
   PictureOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
+  FolderOutlined,
+  FolderOpenOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import styled from "styled-components";
 import useAllMapInfo from "@/api/useAllMapInfo";
+import useMapGroup from "@/api/useMapGroup";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import { useAtom } from "jotai";
-import { isOpenSwitchMap } from "@/utils/siderGloble";
 
 const { Dragger } = Upload;
 
 // Industrial Styled Components
-const MapManagerContainer = styled.div<{ $isOpen: boolean }>`
-  position: fixed;
-  top: 0;
-  right: ${({ $isOpen }) => ($isOpen ? "0" : "-100%")};
-  width: 90%;
-  max-width: 1200px;
-  height: 100vh;
-  background: #ffffff;
-  border-left: 3px solid #1890ff;
-  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.15);
-  transition: right 0.3s ease;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  font-family: "Roboto Mono", monospace;
-`;
-
 const Header = styled.div`
   background: #fafafa;
   border-bottom: 2px solid #d9d9d9;
@@ -64,6 +47,7 @@ const Header = styled.div`
   align-items: center;
   justify-content: space-between;
   position: relative;
+  cursor: grab;
 
   &::before {
     content: "";
@@ -89,26 +73,7 @@ const Title = styled.h2`
   gap: 12px;
 `;
 
-const CloseButton = styled(Button)`
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #d9d9d9;
-  background: #ffffff;
-
-  &:hover {
-    background: #fff1f0;
-    border-color: #ff4d4f;
-    color: #ff4d4f;
-  }
-`;
-
 const Content = styled.div`
-  flex: 1;
-  overflow-y: auto;
   padding: 24px;
   background: #ffffff;
 `;
@@ -416,6 +381,105 @@ const StatusBadge = styled.div<{ $active: boolean }>`
   letter-spacing: 1px;
 `;
 
+const FolderList = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  padding-bottom: 1em;
+  flex-wrap: wrap;
+`;
+
+const FolderItem = styled.div<{ $isSelected: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  cursor: pointer;
+  background: ${({ $isSelected }) => ($isSelected ? "#f6ffed" : "#ffffff")};
+  border: 1px solid
+    ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#d9d9d9")};
+  border-left: 2px solid
+    ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#d9d9d9")};
+  transition: all 0.2s;
+  max-height: 2em;
+  position: relative;
+  box-shadow: ${({ $isSelected }) =>
+    $isSelected
+      ? "inset 0 0 20px rgba(82, 196, 26, 0.08), 0 2px 8px rgba(82, 196, 26, 0.25)"
+      : "none"};
+
+  ${({ $isSelected }) =>
+    $isSelected &&
+    `
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(82, 196, 26, 0.03) 2px,
+        rgba(82, 196, 26, 0.03) 4px
+      );
+      pointer-events: none;
+    }
+  `}
+
+  &:hover {
+    background: ${({ $isSelected }) => ($isSelected ? "#f6ffed" : "#f6ffed")};
+    border-color: ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#73d13d")};
+    border-left-color: ${({ $isSelected }) =>
+      $isSelected ? "#52c41a" : "#73d13d"};
+    transform: ${({ $isSelected }) =>
+      $isSelected ? "none" : "translateX(4px)"};
+    box-shadow: ${({ $isSelected }) =>
+      $isSelected
+        ? "inset 0 0 20px rgba(82, 196, 26, 0.08), 0 2px 8px rgba(82, 196, 26, 0.25)"
+        : "0 2px 8px rgba(82, 196, 26, 0.15)"};
+  }
+`;
+
+const FolderName = styled.div<{ $isSelected: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Roboto Mono", monospace;
+  font-size: 12px;
+  color: ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#262626")};
+  font-weight: ${({ $isSelected }) => ($isSelected ? 700 : 600)};
+  text-transform: uppercase;
+  letter-spacing: ${({ $isSelected }) => ($isSelected ? "1.2px" : "0.5px")};
+  transition: all 0.2s;
+
+  .anticon {
+    font-size: 14px;
+    color: ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#8c8c8c")};
+    transition: all 0.2s;
+  }
+`;
+
+const FolderCount = styled.span<{ $isSelected: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 20px;
+  padding: 0 6px;
+  background: ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#e6f7ff")};
+  border: 1px solid
+    ${({ $isSelected }) => ($isSelected ? "#389e0d" : "#1890ff")};
+  color: ${({ $isSelected }) => ($isSelected ? "#ffffff" : "#1890ff")};
+  font-size: 10px;
+  font-weight: 700;
+  font-family: "Roboto Mono", monospace;
+  margin-left: 8px;
+  transition: all 0.2s;
+`;
+
 const EmptyState = styled.div`
   text-align: center;
   padding: 60px 20px;
@@ -437,19 +501,26 @@ const EmptyState = styled.div`
 type MapInfo = {
   id: string;
   fileName: string;
+  imagePath: string;
   isUsing: boolean;
   mapOriginX: number;
   mapOriginY: number;
   scrollX: number;
   scrollY: number;
   scale: number;
-  map_group: string;
+  map_group_id?: string | null;
+  group?: { id: string; group_name: string } | null;
   floor: number;
 };
 
-const MapManager: FC = () => {
+const MapManager: FC<{
+  sortableId: string;
+  attributes: import("@dnd-kit/core").DraggableAttributes;
+  listeners:
+    | import("@dnd-kit/core/dist/hooks/utilities").SyntheticListenerMap
+    | undefined;
+}> = ({ attributes, listeners }) => {
   const { t } = useTranslation();
-  const [openSwitchMap, setOpenSwitchMap] = useAtom(isOpenSwitchMap);
   const [uploadForm] = Form.useForm();
   const [editForm] = Form.useForm();
   const [file, setFile] = useState<File | null>(null);
@@ -457,10 +528,16 @@ const MapManager: FC = () => {
   const [previewImage, setPreviewImage] = useState("");
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingMap, setEditingMap] = useState<MapInfo | null>(null);
+  const [selectedGroupId, setSelectedGroupId] = useState("");
   const [messageApi, contextHolder] = message.useMessage();
   const queryClient = useQueryClient();
   const { data: maps, refetch } = useAllMapInfo();
-  console.log(maps, "sssss");
+  const { data: mapGroups } = useMapGroup();
+
+  const displayedMaps =
+    maps?.allMap?.filter((map: MapInfo) =>
+      selectedGroupId === "" ? true : map.map_group_id === selectedGroupId,
+    ) || [];
   // Upload Mutation
   const uploadMutation = useMutation({
     mutationFn: (formData: FormData) => {
@@ -477,6 +554,21 @@ const MapManager: FC = () => {
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
+   // Sync Mutation
+   const syncMutation = useMutation({
+    mutationFn: async () => {
+      const res = await client.post("api/setting/map-sync");
+      return res;
+    },
+    onSuccess: async (data) => {
+      messageApi.success(t("utils.success"));
+      await Promise.all([
+        refetch(),
+        queryClient.invalidateQueries({ queryKey: ["map-group"] }),
+      ]);
+    }
+  })
+
   // Edit Mutation
   const editMutation = useMutation({
     mutationFn: (payload: any) => {
@@ -484,7 +576,10 @@ const MapManager: FC = () => {
     },
     onSuccess: async () => {
       messageApi.success(t("utils.success"));
-      await refetch();
+      await Promise.all([
+        refetch(),
+        queryClient.invalidateQueries({ queryKey: ["map"] }),
+      ]);
       setEditModalOpen(false);
       setEditingMap(null);
     },
@@ -515,6 +610,9 @@ const MapManager: FC = () => {
       formData.append("filePath", file);
       formData.append("mapOriginX", values.mapOriginX);
       formData.append("mapOriginY", values.mapOriginY);
+      if (values.map_group_id) {
+        formData.append("map_group_id", values.map_group_id);
+      }
 
       uploadMutation.mutate(formData);
     } catch (err) {
@@ -541,7 +639,7 @@ const MapManager: FC = () => {
       scrollX: record.scrollX,
       scrollY: record.scrollY,
       scale: record.scale,
-      map_group: record.map_group,
+      map_group_id: record.map_group_id,
       floor: record.floor,
     });
     setEditModalOpen(true);
@@ -552,8 +650,8 @@ const MapManager: FC = () => {
     .replace(/:5173/, ":4000")
     .replace(/\/+$/, "");
 
-  const viewImage = (systemPath: string, fileName: string) => {
-    const imageUrl = `${baseUrl}${systemPath}${fileName}`;
+  const viewImage = (systemPath: string, imagePath: string) => {
+    const imageUrl = `${baseUrl}${systemPath}${imagePath}`;
     setPreviewImage(imageUrl);
     setImagePreviewOpen(true);
   };
@@ -641,7 +739,7 @@ const MapManager: FC = () => {
             size="small"
             icon={<EyeOutlined />}
             onClick={() =>
-              viewImage(maps?.systemFilePath as string, record.fileName)
+              viewImage(maps?.systemFilePath as string, record.imagePath)
             }
           >
             {t("map_manager.view")}
@@ -673,12 +771,13 @@ const MapManager: FC = () => {
       ),
     },
     {
-      title: "map_group",
-      dataIndex: "map_group",
-      key: "map_group",
+      title: t("map_manager.map_group"),
+      dataIndex: "group",
+      key: "group",
+      render: (group: MapInfo["group"]) => group?.group_name || "-",
     },
     {
-      title: "floor",
+      title: t("map_manager.floor"),
       dataIndex: "floor",
       key: "floor",
     },
@@ -687,20 +786,12 @@ const MapManager: FC = () => {
   return (
     <>
       {contextHolder}
-      <Drawer
-        size={1200}
-        open={openSwitchMap}
-        onClose={() => setOpenSwitchMap(false)}
-      >
-        <Header>
+      <div>
+        <Header {...listeners} {...attributes}>
           <Title>
             <PictureOutlined />
             {t("map_manager.title")}
           </Title>
-          <CloseButton
-            icon={<CloseOutlined />}
-            onClick={() => setOpenSwitchMap(false)}
-          />
         </Header>
 
         <Content>
@@ -739,6 +830,19 @@ const MapManager: FC = () => {
                   />
                 </Form.Item>
               </Flex>
+              <Form.Item
+                name="map_group_id"
+                label={t("map_manager.map_group")}
+              >
+                <Select
+                  allowClear
+                  placeholder={t("map_manager.select_map_group")}
+                  options={mapGroups?.map((g) => ({
+                    label: g?.group_name,
+                    value: g?.id,
+                  }))}
+                />
+              </Form.Item>
               <Form.Item label={t("map_manager.upload_file")}>
                 <StyledDragger {...uploadProps}>
                   <p className="ant-upload-drag-icon">
@@ -770,32 +874,82 @@ const MapManager: FC = () => {
           {/* Maps Table */}
           <SectionHeader>
             <PictureOutlined />
-            {t("map_manager.existing_maps")} ({maps?.allMap?.length || 0})
+            {t("map_manager.existing_maps")} ({displayedMaps.length})
+            <IndustrialButton
+              className="view-btn"
+              size="small"
+              onClick={() => syncMutation.mutate()}
+              loading={syncMutation.isPending}
+              disabled={syncMutation.isPending}
+          >
+            {t("map_manager.sync_map")}
+          </IndustrialButton>
           </SectionHeader>
-          {maps?.allMap && maps.allMap.length > 0 ? (
-            <IndustrialTable
-              columns={columns as any}
-              dataSource={maps.allMap}
-              rowKey="id"
-              pagination={{
-                pageSize: 10,
-                showTotal: (total, range) => (
-                  <span style={{ fontFamily: "Roboto Mono, monospace" }}>
-                    {range[0]}-{range[1]} of {total}
-                  </span>
-                ),
-              }}
-            />
-          ) : (
-            <EmptyState>
-              <div className="icon">
-                <PictureOutlined />
-              </div>
-              {t("map_manager.no_maps")}
-            </EmptyState>
-          )}
+
+          <FolderList>
+            <FolderItem
+              $isSelected={selectedGroupId === ""}
+              onClick={() => setSelectedGroupId("")}
+            >
+              <FolderName $isSelected={selectedGroupId === ""}>
+                {selectedGroupId === "" ? (
+                  <FolderOpenOutlined />
+                ) : (
+                  <FolderOutlined />
+                )}
+                {t("map_manager.all_groups")}
+              </FolderName>
+            </FolderItem>
+            {mapGroups?.map((group) => {
+              const isSelected = selectedGroupId === group.id;
+              const mapCount = group.maps?.length || 0;
+
+              return (
+                <FolderItem
+                  key={group.id}
+                  $isSelected={isSelected}
+                  onClick={() => setSelectedGroupId(group.id)}
+                >
+                  <FolderName $isSelected={isSelected}>
+                    {isSelected ? <FolderOpenOutlined /> : <FolderOutlined />}
+                    {group.group_name}
+                    {mapCount > 0 && (
+                      <FolderCount $isSelected={isSelected}>
+                        {mapCount}
+                      </FolderCount>
+                    )}
+                  </FolderName>
+                </FolderItem>
+              );
+            })}
+          </FolderList>
+
+          <div style={{ minHeight: 560 }}>
+            {displayedMaps.length > 0 ? (
+              <IndustrialTable
+                columns={columns as any}
+                dataSource={displayedMaps}
+                rowKey="id"
+                pagination={{
+                  pageSize: 10,
+                  showTotal: (total, range) => (
+                    <span style={{ fontFamily: "Roboto Mono, monospace" }}>
+                      {range[0]}-{range[1]} of {total}
+                    </span>
+                  ),
+                }}
+              />
+            ) : (
+              <EmptyState>
+                <div className="icon">
+                  <PictureOutlined />
+                </div>
+                {t("map_manager.no_maps")}
+              </EmptyState>
+            )}
+          </div>
         </Content>
-      </Drawer>
+      </div>
 
       {/* Image Preview Modal */}
       <Image
@@ -870,15 +1024,22 @@ const MapManager: FC = () => {
           </Form.Item>
 
           <Form.Item
-            label={"map_group"}
-            name="map_group"
+            label={t("map_manager.floor")}
+            name="floor"
             rules={[{ required: true }]}
           >
-            <IndustrialInput min={0.1} style={{ width: "100%" }} />
+            <IndustrialInputNumber min={0.1} style={{ width: "100%" }} />
           </Form.Item>
 
-          <Form.Item label={"floor"} name="floor" rules={[{ required: true }]}>
-            <IndustrialInputNumber min={0.1} style={{ width: "100%" }} />
+          <Form.Item label={t("map_manager.map_group")} name="map_group_id">
+            <Select
+              allowClear
+              placeholder={t("map_manager.select_map_group")}
+              options={mapGroups?.map((g) => ({
+                label: g?.group_name,
+                value: g?.id,
+              }))}
+            />
           </Form.Item>
         </StyledForm>
       </IndustrialModal>

@@ -1,0 +1,140 @@
+import React, { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Button, Flex, Popconfirm, Skeleton, Table, Tag, message } from "antd";
+import { useTranslation } from "react-i18next";
+import useMapGroup, { MapGroupName } from "@/api/useMapGroup";
+import client from "@/api/axiosClient";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
+import AddModal from "./AddModal";
+import { DeleteOutlined, EditTwoTone, PlusOutlined } from "@ant-design/icons";
+
+const MapGroupTable: React.FC = () => {
+  const { t } = useTranslation();
+
+  const { data: groups, refetch } = useMapGroup();
+  const queryClient = useQueryClient();
+  const [messageApi, contextHolder] = message.useMessage();
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [editValue, setEditValue] = useState<MapGroupName | null>(null);
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => {
+      return client.delete("/api/setting/map-group", { data: { id } });
+    },
+    onSuccess: () => {
+      messageApi.success(t("utils.success"));
+      queryClient.invalidateQueries({ queryKey: ["map-group"] });
+      queryClient.invalidateQueries({ queryKey: ["all-map-Info"] });
+    },
+    onError: (e: ErrorResponse) => {
+      errorHandler(e, messageApi);
+    },
+  });
+
+  const handleOpenAddModal = () => {
+    setIsOpenModal(true);
+  };
+
+  const edit = (record: MapGroupName) => {
+    if (!record.id) {
+      messageApi.error("id is not found");
+      return;
+    }
+    setIsOpenModal(true);
+    setIsEdit(true);
+    setEditValue(record);
+  };
+
+  const resetEdit = () => {
+    setIsEdit(false);
+    setEditValue(null);
+    setIsOpenModal(false);
+  };
+
+  const deleteData = (id: string) => {
+    deleteMutation.mutate(id);
+  };
+
+  const columns = [
+    {
+      title: t("map_group_table.name"),
+      dataIndex: "group_name",
+      width: "25%",
+      sorter: (a: MapGroupName, b: MapGroupName) =>
+        (a.group_name || "").localeCompare(b.group_name || ""),
+    },
+    {
+      title: t("map_group_table.maps"),
+      dataIndex: "maps",
+      width: "50%",
+      render: (_: unknown, record: MapGroupName) => {
+        return record.maps.map((e) => <Tag key={e.id}>{e.fileName}</Tag>);
+      },
+    },
+    {
+      dataIndex: "operation",
+      render: (_: unknown, record: MapGroupName) => {
+        return (
+          <Flex gap="middle">
+            <Button
+              color="primary"
+              variant="filled"
+              onClick={() => edit(record)}
+              icon={<EditTwoTone twoToneColor="#33bcb7" />}
+            >
+              {t("utils.edit")}
+            </Button>
+
+            <Popconfirm
+              title="are you sure?"
+              onConfirm={() => deleteData(record.id)}
+            >
+              <Button
+                icon={<DeleteOutlined color="#ff0707" />}
+                color="danger"
+                variant="filled"
+                type="link"
+              >
+                {t("utils.delete")}
+              </Button>
+            </Popconfirm>
+          </Flex>
+        );
+      },
+    },
+  ];
+
+  if (!groups) return <Skeleton active />;
+
+  return (
+    <>
+      {contextHolder}
+      <Flex gap="middle">
+        <Button icon={<PlusOutlined />} onClick={handleOpenAddModal}>
+          {t("utils.add")}
+        </Button>
+
+        <Button onClick={() => refetch()}>{t("utils.reload")}</Button>
+      </Flex>
+
+      <Table<MapGroupName>
+        bordered
+        rowKey={(record) => record.id}
+        dataSource={groups as MapGroupName[]}
+        columns={columns}
+        rowClassName="editable-row"
+      />
+
+      <AddModal
+        isEdit={isEdit}
+        editValue={editValue}
+        isOpenModal={isOpenModal}
+        resetEdit={resetEdit}
+      />
+    </>
+  );
+};
+
+export default MapGroupTable;

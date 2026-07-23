@@ -67,3 +67,12 @@ export const AmrCarSelectFilter = atom<SelectProps["options"]>([]);
 export const QuickMissionSelectParam = atom<string>("");
 
 export const mouseDetectLoc = atom<Set<string>>(new Set([]));
+
+// 定位校正工具：非 null 時代表正在對指定 amrId 校正定位。
+// dx/dy 為相對於車輛目前 pose 的位移（ROS 座標系, 公尺），dYaw 為相對旋轉角度（度）。
+export const localizationCorrection = atom<{
+  amrId: string;
+  dx: number;
+  dy: number;
+  dYaw: number;
+} | null>(null);
