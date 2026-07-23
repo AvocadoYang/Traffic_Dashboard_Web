@@ -2,7 +2,7 @@ import { FC, useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { useAtomValue } from "jotai";
 import { Tooltip } from "antd";
-import { rad2Deg } from "@/utils/utils";
+import { rad2Deg, amrId2ColorRainbow } from "@/utils/utils";
 import { isShowRoadTooltip } from "@/utils/siderGloble";
 import { useMockInfo } from "@/sockets/useMockInfo";
 
@@ -130,6 +130,10 @@ const Road: FC<{
     }
   }, [script]);
 
+  const claimColor = isClaimedBy
+    ? amrId2ColorRainbow(isClaimedBy)
+    : simulateColor;
+
   return (
     <Container left={x1} top={y1}>
       <Tooltip title={showRoadTooltip ? roadId : ""}>
@@ -138,7 +142,7 @@ const Road: FC<{
           angle={angle}
           ref={ref}
           priority={priority}
-          color={simulateColor}
+          color={claimColor}
           $isOneWayRoad={roadType === "oneWayRoad"}
           $isClaimed={isClaimedBy !== undefined}
           $limit={!!limit}
