@@ -45,6 +45,7 @@ import {
   showZonesTableSwitch,
   isOpenSwitchMap,
   isShowMapGroupTable,
+  isShowChargeStationDockConfig,
 } from "@/utils/siderGloble";
 import { useAtomValue } from "jotai";
 import { ToolBarItemType, ToolBarType } from "./siderElement";
@@ -78,6 +79,7 @@ import SystemAlarmPanel from "../formComponent/forms/missionComponents/editMissi
 import { MapGroupPanel } from "./mapGroup";
 import MapManager from "./ChangeMap/MapManager";
 import LockByMissionPanel from "../formComponent/forms/file/corning/LockByMissionPanel";
+import PeripheralChargeDockPanel from "./peripherals/PeripheralChargeDockPanel";
 
 const SortableWrap: FC<{
   sortableId: ToolBarItemType;
@@ -442,6 +444,21 @@ const SortableWrap: FC<{
               </Card>
             );
 
+          case "peripheral_charge_dock_config":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="peripheral_charge_dock_config"
+                />
+                <PeripheralChargeDockPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
+
           // 7-1 顯示編輯標籤
           case "edit_tag":
             return (
@@ -653,6 +670,9 @@ const ToolComponents: FC<{
 
   const openPeripheralNamePanel = useAtomValue(isShowPeripheralNameTable);
   const openPeripheralGroupPanel = useAtomValue(isShowPeripheralGroupTable);
+   const openPeripheraChargeDockPanel = useAtomValue(
+     isShowChargeStationDockConfig,
+   );
 
   const openTagPanel = useAtomValue(isShowEditMissionTag);
   const openChargeStylePanel = useAtomValue(isShowEditChargeStationPosition);
@@ -794,6 +814,15 @@ const ToolComponents: FC<{
     if (formKey === "peripheral_group_table" && openPeripheralGroupPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
+
+        if (
+          formKey === "peripheral_charge_dock_config" &&
+          openPeripheraChargeDockPanel
+        ) {
+          return (
+            <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>
+          );
+        }
 
     if (formKey === "edit_tag" && openTagPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;

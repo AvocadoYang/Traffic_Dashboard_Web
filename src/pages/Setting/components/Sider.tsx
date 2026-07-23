@@ -42,6 +42,7 @@ import {
   isLockByMission,
   isShowSystemAlarm,
   isShowMapGroupTable,
+  isShowChargeStationDockConfig,
 } from "@/utils/siderGloble";
 import {
   AimOutlined,
@@ -148,6 +149,10 @@ const Sider: React.FC<{
     useAtom(isShowEditMissionTag);
   const [openEditChargeStationIconPanel, setOpenEditChargeStationIconPanel] =
     useAtom(isShowEditChargeStationPosition);
+
+      const [openEditChargeDockConfigPanel, setOpenEditChargeDockConfigPanel] =
+        useAtom(isShowChargeStationDockConfig);
+
   const [openCustomCargoFormat, setOpenCustomCargoFormat] = useAtom(
     isShowEditCustomCargoFormat,
   );
@@ -228,6 +233,7 @@ const Sider: React.FC<{
       showSystemAlarm,
       openSwitchMap,
       openMapGroupTable,
+      openEditChargeDockConfigPanel,
     ].some((item) => item);
 
     setHasOpenTool(isOpen);
@@ -267,6 +273,7 @@ const Sider: React.FC<{
     showSystemAlarm,
     openSwitchMap,
     openMapGroupTable,
+    openEditChargeDockConfigPanel,
   ]);
 
   const handleShowPanel = async (check: boolean, itemType: ToolBarItemType) => {
@@ -369,6 +376,10 @@ const Sider: React.FC<{
 
       case "peripheral_group_table":
         setOpenPeripheralGroupMap(check);
+        break;
+
+      case "peripheral_charge_dock_config":
+        setOpenEditChargeDockConfigPanel(check);
         break;
 
       case "blind_mission":
@@ -693,6 +704,17 @@ const Sider: React.FC<{
         <Switch
           checked={openEditChargeStationIconPanel}
           onChange={(checked) => handleShowPanel(checked, "edit_icon_style")}
+        />,
+      ),
+
+      getItem(
+        t("toolbar.others.charge_dock_config"),
+        "7-3",
+        <Switch
+          checked={openEditChargeDockConfigPanel}
+          onChange={(checked) =>
+            handleShowPanel(checked, "peripheral_charge_dock_config")
+          }
         />,
       ),
     ]),
