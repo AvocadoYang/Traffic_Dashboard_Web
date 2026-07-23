@@ -41,6 +41,7 @@ export const formList = [
   // === peripheral ===
   { key: "peripheral_name_table" },
   { key: "peripheral_group_table" },
+  { key: "peripheral_charge_dock_config" },
 
   // === other ===
   { key: "edit_tag" },
