@@ -13,12 +13,15 @@ import { isFork, isHumanRobot } from "@/utils/globalFunction";
 import HumanRobotTaskTable from "./HumanRobotTaskTable";
 import TaskFormHumanRobot from "./humanRobotEditMissionSlice/TaskFormHumanRobot";
 import TaskFormFork from "./forkEditMissionSlice/TaskFormFork";
+import { useAtomValue } from "jotai";
+import { currentMapIdAtom } from "@/utils/mapSelection";
 
-const copy = (originKey: string) => {
+const copy = (originKey: string, currentMapId: string) => {
   const randomId = nanoid();
   return {
     originKey,
     newKey: randomId,
+    currentMapId,
   };
 };
 
@@ -153,11 +156,13 @@ const MissionList: FC<{
   const queryClient = useQueryClient();
   const { t } = useTranslation();
   const [messageApi, contextHolder] = message.useMessage();
-
+  const currentMapId = useAtomValue(currentMapIdAtom);
+  
   const addTaskMutation = useMutation({
     mutationFn: () => {
       return client.post("api/setting/add-task", {
         key: selectedMissionKey,
+        currentMapId,
       });
     },
     onSuccess: async () => {
@@ -174,7 +179,10 @@ const MissionList: FC<{
 
   const copyMissionMutation = useMutation({
     mutationFn: () => {
-      return client.post("api/setting/copy-task", copy(selectedMissionKey));
+      return client.post(
+        "api/setting/copy-task",
+        copy(selectedMissionKey, currentMapId || ""),
+      );
     },
     onSuccess: async () => {
       await queryClient.refetchQueries({

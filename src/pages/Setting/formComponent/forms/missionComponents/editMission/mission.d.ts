@@ -5,6 +5,7 @@ export interface MissionListType {
   name: string;
   robot_type_id: string;
   category: string[];
+  currentMapId: string;
 }
 
 // todo 待修相關使用 這是舊的
