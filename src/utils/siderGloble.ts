@@ -72,6 +72,9 @@ export const isShowPeripheralNameTable = atom<boolean>(false);
 /** 7-2 顯示設備群組表 */
 export const isShowPeripheralGroupTable = atom<boolean>(false);
 
+export const isShowChargeStationDockConfig = atom<boolean>(false);
+
+
 /** 8-1 顯示編輯標籤 */
 export const isShowEditMissionTag = atom<boolean>(false);
 
