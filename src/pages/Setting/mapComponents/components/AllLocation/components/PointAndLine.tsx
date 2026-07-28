@@ -97,7 +97,9 @@ const PointDiv = styled.div.attrs<{
   canrotate: string;
   hoverLoc?: boolean;
 }>(({ left, top, canrotate, hoverLoc }) => ({
-  style: { left, top, canrotate, hoverLoc },
+  // 位置四捨五入到整數像素，避免小圓點在縮放後落在次像素造成
+  // 各點抗鋸齒程度不同、視覺上大小看起來不一致。
+  style: { left: Math.round(left), top: Math.round(top), canrotate, hoverLoc },
 }))<{
   left: number;
   top: number;
@@ -131,7 +133,7 @@ const PointMainDiv = styled.div.attrs<{
   canrotate: string;
   hoverLoc?: boolean;
 }>(({ left, top, canrotate, hoverLoc }) => ({
-  style: { left, top, canrotate, hoverLoc },
+  style: { left: Math.round(left), top: Math.round(top), canrotate, hoverLoc },
 }))<{
   left: number;
   top: number;
