@@ -7,7 +7,7 @@ import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import AddModal from "./AddModal";
-import { DeleteOutlined, EditTwoTone, PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditTwoTone, PlayCircleOutlined, PlusOutlined } from "@ant-design/icons";
 
 const MapGroupTable: React.FC = () => {
   const { t } = useTranslation();
@@ -106,24 +106,6 @@ const MapGroupTable: React.FC = () => {
       render: (_: unknown, record: MapGroupName) => {
         return (
           <Flex gap="middle">
-            <Popconfirm
-              title={t("map_group_table.activate_confirm")}
-              onConfirm={() => activateGroupMutation.mutate(record.id)}
-            >
-              <Button
-                color="primary"
-                variant="filled"
-                disabled={record.isUsing}
-                style={
-                  record.isUsing
-                    ? undefined
-                    : { borderColor: "#eb2f96", color: "#eb2f96" }
-                }
-              >
-                {t("map_group_table.activate")}
-              </Button>
-            </Popconfirm>
-
             <Button
               color="primary"
               variant="filled"
@@ -144,6 +126,25 @@ const MapGroupTable: React.FC = () => {
                 type="link"
               >
                 {t("utils.delete")}
+              </Button>
+            </Popconfirm>
+
+            <Popconfirm
+              title={t("map_group_table.activate_confirm")}
+              onConfirm={() => activateGroupMutation.mutate(record.id)}
+            >
+              <Button
+                color="primary"
+                variant="filled"
+                disabled={record.isUsing}
+                icon = { <PlayCircleOutlined color="#52c41a"></PlayCircleOutlined>}
+                style={
+                  record.isUsing
+                    ? undefined
+                    : { color: "#52c41a" }
+                }
+              >
+                {t("map_group_table.activate")}
               </Button>
             </Popconfirm>
           </Flex>

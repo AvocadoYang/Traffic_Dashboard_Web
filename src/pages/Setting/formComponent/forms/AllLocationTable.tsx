@@ -18,7 +18,7 @@ import {
 } from "antd";
 import { useAtomValue, useSetAtom } from "jotai";
 import { LocationType } from "@/utils/jotai";
-import { useMemo, useRef, useState, memo } from "react";
+import { useEffect, useMemo, useRef, useState, memo } from "react";
 import { FilterDropdownProps } from "antd/es/table/interface";
 import { useTranslation } from "react-i18next";
 import { tooltipProp } from "@/utils/gloable";
@@ -348,6 +348,13 @@ const AllLocationTable: React.FC<{
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(
     activeGroupId,
   );
+  const didInitGroupRef = useRef(false);
+  useEffect(() => {
+    if (!didInitGroupRef.current && activeGroupId) {
+      setSelectedGroupId(activeGroupId);
+      didInitGroupRef.current = true;
+    }
+  }, [activeGroupId]);
   const [selectedMapId, setSelectedMapId] = useState<string | null>(null);
   const setTooltip = useSetAtom(tooltipProp);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);

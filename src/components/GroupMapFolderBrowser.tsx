@@ -14,7 +14,14 @@ const FolderRow = styled.div`
   flex-wrap: wrap;
 `;
 
-const SectionTitle = styled.div<{ $accent?: keyof typeof ACCENT }>`
+// 標題只是區分「地圖群組」與「地圖」兩個區塊，與下方項目的選取／使用中狀態無關，
+// 因此維持各自的標題色（群組藍、地圖紫）。
+const HEADER_ACCENT = {
+  group: "#1890ff",
+  map: "#722ed1",
+} as const;
+
+const SectionTitle = styled.div<{ $accent?: keyof typeof HEADER_ACCENT }>`
   display: flex;
   align-items: center;
   gap: 6px;
@@ -24,22 +31,27 @@ const SectionTitle = styled.div<{ $accent?: keyof typeof ACCENT }>`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: ${({ $accent = "group" }) => ACCENT[$accent].main};
+  color: ${({ $accent = "group" }) => HEADER_ACCENT[$accent]};
 
   &::before {
     content: "";
     width: 3px;
     height: 11px;
     border-radius: 2px;
-    background: ${({ $accent = "group" }) => ACCENT[$accent].main};
+    background: ${({ $accent = "group" }) => HEADER_ACCENT[$accent]};
   }
 `;
 
-// 群組列使用藍色系表示「選取中」, 地圖列則改用紫色系, 讓兩層瀏覽在視覺上能一眼分辨。
+// 群組列與地圖列的形狀不同（方形 / 圓角）以利兩層瀏覽視覺分辨，
+// 但選取狀態統一採用綠色（與編輯任務的資料夾選取樣式一致），
+// 使用中／顯示中則統一採用藍色，避免顏色語意衝突。
 const ACCENT = {
-  group: { main: "#1890ff", bg: "#e6f7ff" },
-  map: { main: "#722ed1", bg: "#f9f0ff" },
+  group: { radius: "2px" },
+  map: { radius: "10px" },
 } as const;
+
+const SELECTED = { main: "#52c41a", bg: "#f6ffed" };
+const IN_USE = { main: "#1890ff", bg: "#e6f7ff" };
 
 const FolderItem = styled.div<{
   $isSelected: boolean;
@@ -51,41 +63,37 @@ const FolderItem = styled.div<{
   gap: 8px;
   padding: 6px 10px;
   cursor: pointer;
-  border-radius: ${({ $accent = "group" }) => ($accent === "map" ? "10px" : "2px")};
-  background: ${({ $isSelected, $accent = "group" }) =>
-    $isSelected ? ACCENT[$accent].bg : "#ffffff"};
+  border-radius: ${({ $accent = "group" }) => ACCENT[$accent].radius};
+  background: ${({ $isSelected }) => ($isSelected ? SELECTED.bg : "#ffffff")};
   border: 1px solid
-    ${({ $isSelected, $accent = "group" }) =>
-      $isSelected ? ACCENT[$accent].main : "#d9d9d9"};
+    ${({ $isSelected }) => ($isSelected ? SELECTED.main : "#d9d9d9")};
   border-left: 2px solid
-    ${({ $isSelected, $isMarked, $accent = "group" }) =>
-      $isMarked ? "#eb2f96" : $isSelected ? ACCENT[$accent].main : "#d9d9d9"};
+    ${({ $isSelected, $isMarked }) =>
+      $isMarked ? IN_USE.main : $isSelected ? SELECTED.main : "#d9d9d9"};
   font-family: "Roboto Mono", monospace;
   font-size: 11px;
   font-weight: ${({ $isSelected }) => ($isSelected ? 700 : 600)};
-  color: ${({ $isSelected, $accent = "group" }) =>
-    $isSelected ? ACCENT[$accent].main : "#262626"};
+  color: ${({ $isSelected }) => ($isSelected ? SELECTED.main : "#262626")};
   transition: all 0.15s;
-  box-shadow: ${({ $isSelected, $accent = "group" }) =>
+  box-shadow: ${({ $isSelected }) =>
     $isSelected
-      ? `0 2px 8px ${ACCENT[$accent].main}40`
+      ? `0 2px 8px ${SELECTED.main}40`
       : "0 1px 3px rgba(0, 0, 0, 0.1)"};
 
 ${({ $isMarked }) =>
     $isMarked &&
     `
-    border-left: 3px solid #eb2f96;
-    box-shadow: 0 0 0 1px rgba(235, 47, 150, 0.35), 0 2px 8px rgba(235, 47, 150, 0.25);
+    border-left: 3px solid ${IN_USE.main};
+    box-shadow: 0 0 0 1px rgba(24, 144, 255, 0.35), 0 2px 8px rgba(24, 144, 255, 0.25);
   `}
 
 
   .anticon {
-    color: ${({ $isSelected, $accent = "group" }) =>
-      $isSelected ? ACCENT[$accent].main : "#8c8c8c"};
+    color: ${({ $isSelected }) => ($isSelected ? SELECTED.main : "#8c8c8c")};
   }
 
   &:hover {
-    border-color: ${({ $accent = "group" }) => ACCENT[$accent].main};
+    border-color: ${SELECTED.main};
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   }
 `;
@@ -99,12 +107,11 @@ const FolderCount = styled.span<{
   justify-content: center;
   min-width: 18px;
   padding: 0 4px;
-  background: ${({ $isSelected, $accent = "group" }) =>
-    $isSelected ? ACCENT[$accent].main : "#f0f0f0"};
+  background: ${({ $isSelected }) => ($isSelected ? SELECTED.main : "#f0f0f0")};
   color: ${({ $isSelected }) => ($isSelected ? "#ffffff" : "#595959")};
   font-size: 10px;
   font-weight: 700;
-  border-radius: ${({ $accent = "group" }) => ($accent === "map" ? "8px" : "2px")};
+  border-radius: ${({ $accent = "group" }) => ACCENT[$accent].radius};
 `;
 
 const MarkBadge = styled.span<{ $color: string }>`
@@ -193,7 +200,7 @@ const GroupMapFolderBrowser: FC<{
                   {count}
                 </FolderCount>
                 {group.isUsing && (
-                  <MarkBadge $color="#eb2f96">
+                  <MarkBadge $color={IN_USE.main}>
                     {t("map_group_table.active")}
                   </MarkBadge>
                 )}
@@ -207,13 +214,6 @@ const GroupMapFolderBrowser: FC<{
         <FolderSection>
           <SectionTitle $accent="map">{t("map_group_table.maps")}</SectionTitle>
           <FolderRow>
-            <FolderItem $isSelected={selectedMapId === null} $accent="map">
-              {selectedMapId === null ? <FolderOpenOutlined /> : <FolderOutlined />}
-              {t("map_manager.all_groups")}
-              <FolderCount $isSelected={selectedMapId === null} $accent="map">
-                {selectedGroup.maps.reduce((s, m) => s + m.count, 0)}
-              </FolderCount>
-            </FolderItem>
             {selectedGroup.maps.map((map) => {
               const isSelected = selectedMapId === map.mapId;
               const isCurrent = currentMapId === map.mapId;
@@ -223,7 +223,7 @@ const GroupMapFolderBrowser: FC<{
                   $isSelected={isSelected}
                   $isMarked={isCurrent}
                   $accent="map"
-                  onClick={() => onSelectMap(map.mapId)}
+                  onClick={() => onSelectMap(isSelected ? null : map.mapId)}
                 >
                   {isSelected ? <FolderOpenOutlined /> : <FolderOutlined />}
                   {map.floor ? `${map.fileName} (F${map.floor})` : map.fileName}
@@ -231,7 +231,7 @@ const GroupMapFolderBrowser: FC<{
                     {map.count}
                   </FolderCount>
                   {isCurrent && (
-                    <MarkBadge $color="#eb2f96">
+                    <MarkBadge $color={IN_USE.main}>
                       {t("map_manager.currently_displayed")}
                     </MarkBadge>
                   )}

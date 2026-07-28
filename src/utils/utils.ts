@@ -64,6 +64,25 @@ export const rvizCoord2 = ({
   (mapHeight - displayY * scaleSize) * mapResolution + mapOriginY,
 ];
 
+// 求點(px,py)到線段((x1,y1)-(x2,y2))上最近的點，回傳該點座標與距離。
+// 座標系不拘(ROS 座標或畫面像素皆可)，呼叫端需自行保證單位一致。
+export const closestPointOnSegment = (
+  px: number,
+  py: number,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+) => {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const lenSq = dx * dx + dy * dy;
+  const t = lenSq === 0 ? 0 : Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / lenSq));
+  const x = x1 + t * dx;
+  const y = y1 + t * dy;
+  return { x, y, distance: Math.hypot(px - x, py - y) };
+};
+
 export const sanitizeDeg = (deg: number) => ((deg % 360) + 360) % 360;
 
 export const sanitizeSignedDeg = (deg: number) => {

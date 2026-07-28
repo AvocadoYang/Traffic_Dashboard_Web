@@ -68,6 +68,22 @@ export const QuickMissionSelectParam = atom<string>("");
 
 export const mouseDetectLoc = atom<Set<string>>(new Set([]));
 
+// 「地點提示」游標移動時，附近點位的懸浮標籤資訊。
+// x/y 為地圖未縮放的本地座標(與 Point 的 left/top 同一座標系)，
+// locationIds 為目前落在偵測半徑內、依 locationId 排序後的點位清單。
+export const locationHoverInfo = atom<{
+  x: number;
+  y: number;
+  locationIds: string[];
+} | null>(null);
+
+// 「路徑提示」游標移動時，附近路徑的懸浮標籤資訊，座標系與 locationHoverInfo 相同。
+export const roadHoverInfo = atom<{
+  x: number;
+  y: number;
+  roadIds: string[];
+} | null>(null);
+
 // 定位校正工具：非 null 時代表正在對指定 amrId 校正定位。
 // dx/dy 為相對於車輛目前 pose 的位移（ROS 座標系, 公尺），dYaw 為相對旋轉角度（度）。
 export const localizationCorrection = atom<{

@@ -431,16 +431,16 @@ const Sider: React.FC<{
             checked={openEditLocationPanel}
           />,
         ),
-        getItem(
-          t("toolbar.location.quick_edit_locations"),
-          "1-2",
-          <Switch
-            onChange={(checked) =>
-              handleShowPanel(checked, "quick_location_panel")
-            }
-            checked={quickEditLocationPanel}
-          />,
-        ),
+        // getItem(
+        //   t("toolbar.location.quick_edit_locations"),
+        //   "1-2",
+        //   <Switch
+        //     onChange={(checked) =>
+        //       handleShowPanel(checked, "quick_location_panel")
+        //     }
+        //     checked={quickEditLocationPanel}
+        //   />,
+        // ),
         getItem(
           t("toolbar.location.show_locations_table"),
           "1-4",
