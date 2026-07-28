@@ -44,7 +44,6 @@ type FormType = {
   speed_limit: number | undefined;
   limitNum: number | undefined;
   all_forbidden: boolean | undefined;
-  not_forbidden: boolean | undefined;
   view_available: string | undefined;
   forbidden: string[] | undefined;
   color: string;
@@ -52,7 +51,6 @@ type FormType = {
 
 type TagSetting = {
   allVehicleForbidden: boolean;
-  notVehicleForbidden: boolean;
   forbidden: string[];
   speed_limit: number | undefined;
   hight_limit: number | undefined;
@@ -62,7 +60,6 @@ type TagSetting = {
 
 const tagInit = {
   allVehicleForbidden: false,
-  notVehicleForbidden: false,
   forbidden: [],
   speed_limit: undefined,
   hight_limit: undefined,
@@ -178,25 +175,18 @@ const EditZoneTable: FC<{
       return;
     }
 
-    let forbiddenCars: string[] = [];
-
     if (
       data.category?.includes("禁止區") &&
       !data.all_forbidden &&
-      !data.not_forbidden &&
       !data.forbidden?.length
     ) {
       messageApi.warning(t("edit_zone_panel.waring.tag_not_yet_setting"));
       return;
     }
 
-    if (data.all_forbidden) {
-      forbiddenCars = ["*"];
-    } else if (data.not_forbidden) {
-      forbiddenCars = [];
-    } else {
-      forbiddenCars = data.forbidden as string[];
-    }
+    const forbiddenCars: string[] = data.all_forbidden
+      ? ["*"]
+      : (data.forbidden as string[]);
 
     const payload: FormType = {
       ...data,
@@ -238,41 +228,21 @@ const EditZoneTable: FC<{
     if (!oldData) return;
     setZoneTags(oldData.category);
     const forbiddenCar = oldData.tagSetting.forbidden_car;
+    // forbidden_car 存 ["*"] 代表存檔當下勾的是「禁止所有車輛通行」, 不是一台叫
+    // "*" 的車, 要還原成 all_forbidden=true 而不是塞進 forbidden 車輛清單。
+    const isAllForbidden = forbiddenCar.includes("*");
 
     const tagSetting: TagSetting = {
-      allVehicleForbidden: false,
-      notVehicleForbidden: false,
-      forbidden: [],
+      allVehicleForbidden: isAllForbidden,
+      forbidden: isAllForbidden ? [] : forbiddenCar,
       limitNum: undefined,
       hight_limit: undefined,
       speed_limit: undefined,
       view_available: undefined,
     };
 
-    if (forbiddenCar.length) {
-      tagSetting.allVehicleForbidden = false;
-      tagSetting.notVehicleForbidden = false;
-      editZoneForm.setFieldValue("forbidden", oldData.tagSetting.forbidden_car);
-      tagSetting.forbidden = forbiddenCar;
-    } else {
-      if (!oldData.category.includes("限制區")) {
-        tagSetting.allVehicleForbidden = false;
-        tagSetting.notVehicleForbidden = false;
-        editZoneForm.setFieldValue("not_forbidden", false);
-        editZoneForm.setFieldValue("all_forbidden", false);
-      } else if (oldData.tagSetting.forbidden_car.includes("*")) {
-        tagSetting.allVehicleForbidden = true;
-        tagSetting.notVehicleForbidden = false;
-        editZoneForm.setFieldValue("not_forbidden", false);
-        editZoneForm.setFieldValue("all_forbidden", true);
-      } else {
-        tagSetting.allVehicleForbidden = false;
-        tagSetting.notVehicleForbidden = true;
-        editZoneForm.setFieldValue("not_forbidden", true);
-        editZoneForm.setFieldValue("all_forbidden", false);
-      }
-      editZoneForm.setFieldValue("forbidden", []);
-    }
+    editZoneForm.setFieldValue("all_forbidden", isAllForbidden);
+    editZoneForm.setFieldValue("forbidden", isAllForbidden ? [] : forbiddenCar);
     editZoneForm.setFieldValue(
       "layer",
       oldData.layer == "none" ? undefined : oldData.layer,
@@ -318,7 +288,6 @@ const EditZoneTable: FC<{
       hight_limit,
       speed_limit,
       allVehicleForbidden,
-      notVehicleForbidden,
       view_available,
     } = tagsSetting;
 
@@ -328,7 +297,6 @@ const EditZoneTable: FC<{
       zoneTags.includes("禁止區") &&
       !(
         allVehicleForbidden ||
-        notVehicleForbidden ||
         (editZoneForm.getFieldValue("forbidden") &&
           editZoneForm.getFieldValue("forbidden").length)
       )
@@ -378,11 +346,9 @@ const EditZoneTable: FC<{
                 setTagSetting((pre) => ({
                   ...pre,
                   allVehicleForbidden: false,
-                  notVehicleForbidden: false,
                 }));
                 editZoneForm.setFieldValue("forbidden", []);
                 editZoneForm.setFieldValue("all_forbidden", false);
-                editZoneForm.setFieldValue("not_forbidden", false);
                 break;
               case "限制區":
                 setTagSetting((pre) => ({ ...pre, limitNum: undefined }));
@@ -732,31 +698,11 @@ const EditZoneTable: FC<{
               <Space>
                 <Form.Item
                   valuePropName="checked"
-                  name="not_forbidden"
-                  style={{ margin: "0" }}
-                >
-                  <Checkbox
-                    checked={tagsSetting.notVehicleForbidden}
-                    disabled={tagsSetting.allVehicleForbidden}
-                    onChange={(e) => {
-                      setTagSetting((pre) => {
-                        return {
-                          ...pre,
-                          notVehicleForbidden: e.target.checked,
-                        };
-                      });
-                      editZoneForm.setFieldValue("forbidden", []);
-                    }}
-                  >{`${t("edit_zone_panel.not_vehicle_forbidden")}`}</Checkbox>
-                </Form.Item>
-                <Form.Item
-                  valuePropName="checked"
                   name="all_forbidden"
                   style={{ margin: "0" }}
                 >
                   <Checkbox
                     checked={tagsSetting.allVehicleForbidden}
-                    disabled={tagsSetting.notVehicleForbidden}
                     onChange={(e) => {
                       setTagSetting((pre) => {
                         return {
@@ -775,10 +721,7 @@ const EditZoneTable: FC<{
               >
                 <Select
                   placeholder={"請選擇限制進入車輛"}
-                  disabled={
-                    tagsSetting.allVehicleForbidden ||
-                    tagsSetting.notVehicleForbidden
-                  }
+                  disabled={tagsSetting.allVehicleForbidden}
                   mode={"multiple"}
                   tagRender={tagRender}
                   style={{ width: "100%" }}
