@@ -234,7 +234,7 @@ const EditZonePanel: React.FC<{
       );
       return;
     }
-
+    console.log(currentMapId, '@@@@@@@@@@')
     if (!currentMapId) {
       void messageApi.error(t("map_manager.no_map_selected"));
       return;
