@@ -407,6 +407,13 @@ const RoadList: React.FC<{
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(
     activeGroupId,
   );
+  const didInitGroupRef = useRef(false);
+  useEffect(() => {
+    if (!didInitGroupRef.current && activeGroupId) {
+      setSelectedGroupId(activeGroupId);
+      didInitGroupRef.current = true;
+    }
+  }, [activeGroupId]);
   const [selectedMapId, setSelectedMapId] = useState<string | null>(null);
   const searchInput = useRef<InputRef>(null);
   const [messageApi, contextHolders] = message.useMessage();

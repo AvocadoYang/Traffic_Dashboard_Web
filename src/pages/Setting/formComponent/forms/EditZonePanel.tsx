@@ -97,8 +97,7 @@ const EditZonePanel: React.FC<{
   const currentMapId = useAtomValue(currentMapIdAtom);
 
   const [allVehicleForbidden, setAllVehicleForbidden] = useState(false);
-  const [notVehicleForbidden, setNotVehicleForbidden] = useState(false);
-  const [, setForbiddenVehicles] = useState<string[]>([]);
+  const [forbiddenVehicles, setForbiddenVehicles] = useState<string[]>([]);
   const [maxSpeed, setMaxSpeed] = useState<number | undefined>(undefined);
   const [maxHight, setMaxHight] = useState<number | undefined>(undefined);
   const [limitCount, setLimitCount] = useState<number | undefined>(undefined);
@@ -152,7 +151,6 @@ const EditZonePanel: React.FC<{
       setZoneTags([]);
       setForbiddenVehicles([]);
       setAllVehicleForbidden(false);
-      setNotVehicleForbidden(false);
       setMaxHight(undefined);
       setMaxSpeed(undefined);
       setLimitCount(undefined);
@@ -234,7 +232,15 @@ const EditZonePanel: React.FC<{
       );
       return;
     }
-
+    if (layer && !lidar_front && !lidar_back) {
+      openNotificationWithIcon(
+        "warning",
+        t("edit_zone_panel.waring.tag_not_yet_setting"),
+        t("edit_zone_panel.waring.tag_not_yet_setting"),
+        "bottomLeft",
+      );
+      return;
+    }
     if (!currentMapId) {
       void messageApi.error(t("map_manager.no_map_selected"));
       return;
@@ -246,7 +252,6 @@ const EditZonePanel: React.FC<{
       forbidden,
       limitNum,
       all_forbidden,
-      not_forbidden,
       view_available,
     } = tagSettingForm.getFieldsValue() as TagSettingType;
 
@@ -254,10 +259,7 @@ const EditZonePanel: React.FC<{
       (zoneTags.includes("減速區") && speed_limit === undefined) ||
       (zoneTags.includes("限高區") && hight_limit === undefined) ||
       (zoneTags.includes("限制區") && limitNum === undefined) ||
-      (zoneTags.includes("禁止區") &&
-        !all_forbidden &&
-        !not_forbidden &&
-        !forbidden?.length) ||
+      (zoneTags.includes("禁止區") && !all_forbidden && !forbidden?.length) ||
       (zoneTags.includes("查看區") && view_available === undefined)
     ) {
       openNotificationWithIcon(
@@ -307,16 +309,15 @@ const EditZonePanel: React.FC<{
     saveZoneMutation.mutate(newZone);
   };
 
+  const lidarFront = Form.useWatch("lidar_front", zonePanelForm);
+  const lidarBack = Form.useWatch("lidar_back", zonePanelForm);
+  const layerIsHint = Boolean(layerOpt) && !lidarFront && !lidarBack;
+
   useEffect(() => {
     if (zoneTags?.length) {
       if (
         zoneTags.includes("禁止區") &&
-        !(
-          tagSettingForm.getFieldValue("all_forbidden") ||
-          tagSettingForm.getFieldValue("not_forbidden") ||
-          (tagSettingForm.getFieldValue("forbidden") &&
-            tagSettingForm.getFieldValue("forbidden").length)
-        )
+        !(allVehicleForbidden || forbiddenVehicles.length)
       ) {
         setIsHint(true);
         return;
@@ -346,7 +347,8 @@ const EditZonePanel: React.FC<{
     maxHight,
     limitCount,
     viewAvailable,
-    tagSettingForm,
+    allVehicleForbidden,
+    forbiddenVehicles,
     t,
   ]);
 
@@ -366,11 +368,9 @@ const EditZonePanel: React.FC<{
                 break;
               case "禁止區":
                 setAllVehicleForbidden(false);
-                setNotVehicleForbidden(false);
                 setForbiddenVehicles([]);
                 tagSettingForm.setFieldValue("forbidden", []);
                 tagSettingForm.setFieldValue("all_forbidden", false);
-                tagSettingForm.setFieldValue("not_forbidden", false);
                 break;
               case "限制區":
                 setLimitCount(undefined);
@@ -501,6 +501,11 @@ const EditZonePanel: React.FC<{
                 <Switch checkedChildren="On" unCheckedChildren="Off" />
               </Form.Item>
             </Flex>
+            {layerIsHint ? (
+              <p style={{ color: "red", marginTop: "-8px" }}>
+                {t("edit_zone_panel.hint")}
+              </p>
+            ) : null}
           </div>
 
           <Form.Item
@@ -709,20 +714,7 @@ const EditZonePanel: React.FC<{
                 style={{ margin: "0" }}
               >
                 <Checkbox
-                  checked={notVehicleForbidden}
-                  disabled={allVehicleForbidden}
-                  onChange={(e) => setNotVehicleForbidden(e.target.checked)}
-                >{`${t("edit_zone_panel.not_vehicle_forbidden")}`}</Checkbox>
-              </Form.Item>
-              <Form.Item
-                name="not_forbidden"
-                valuePropName="checked"
-                // label={`${t('edit_zone_panel.all_vehicle_forbidden')}: `}
-                style={{ margin: "0" }}
-              >
-                <Checkbox
                   checked={allVehicleForbidden}
-                  disabled={notVehicleForbidden}
                   onChange={(e) => setAllVehicleForbidden(e.target.checked)}
                 >{`${t("edit_zone_panel.all_vehicle_forbidden")}`}</Checkbox>
               </Form.Item>
@@ -737,7 +729,7 @@ const EditZonePanel: React.FC<{
             >
               <Select
                 placeholder={t("edit_zone_panel.placeholder.forbidden")}
-                disabled={allVehicleForbidden || notVehicleForbidden}
+                disabled={allVehicleForbidden}
                 mode={"multiple"}
                 tagRender={tagRender}
                 style={{ width: "100%" }}

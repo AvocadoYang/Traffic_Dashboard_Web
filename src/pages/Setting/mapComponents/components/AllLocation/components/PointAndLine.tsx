@@ -175,21 +175,45 @@ const DraggableLineDiv = styled.div.attrs<{
 }))`
   display: ${(props) => (props.openeditroadpanel ? "block" : "none")};
   position: absolute;
-  background-color: black;
-  height: 3px;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(24, 144, 255, 0.15),
+    #1890ff 40%,
+    #1890ff 100%
+  );
+  box-shadow: 0 0 6px rgba(24, 144, 255, 0.55);
   transform-origin: 0 50%;
   pointer-events: none;
 
+  /* 拖曳起點的圓點 */
+  &::before {
+    content: "";
+    position: absolute;
+    left: -4px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    background: #1890ff;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    box-shadow: 0 0 6px rgba(24, 144, 255, 0.8);
+  }
+
+  /* 箭頭終點的三角形 */
   &::after {
     content: "";
     position: absolute;
-    border: solid black;
-    border-width: 0 3px 3px 0;
-    display: inline-block;
-    padding: 3px;
-    right: 3px;
-    bottom: -2.65px;
-    transform: rotate(-45deg);
+    right: -2px;
+    top: 50%;
+    width: 0;
+    height: 0;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 11px solid #1890ff;
+    transform: translateY(-50%);
+    filter: drop-shadow(0 0 3px rgba(24, 144, 255, 0.7));
     pointer-events: none;
   }
 `;

@@ -21,8 +21,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Road } from "./road";
 import client from "@/api/axiosClient";
 import FormHr from "../../utils/FormHr";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { currentMapIdAtom } from "@/utils/mapSelection";
+import { DragLineInfo, showBlockId as ShowBlockId } from "@/utils/gloable";
 
 const EditRoadPanel: React.FC<{
   sortableId: string;
@@ -37,6 +38,8 @@ const EditRoadPanel: React.FC<{
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const currentMapId = useAtomValue(currentMapIdAtom);
+  const setShowBlockId = useSetAtom(ShowBlockId);
+  const setDragLineInfo = useSetAtom(DragLineInfo);
 
   const saveRoadMutation = useMutation({
     mutationFn: (payload: Road) => {
@@ -47,6 +50,9 @@ const EditRoadPanel: React.FC<{
       queryClient.refetchQueries({ queryKey: ["map"] });
       queryClient.refetchQueries({ queryKey: ["active-group-resources"] });
       queryClient.refetchQueries({ queryKey: ["all-groups-resources"] });
+      // 新增路線成功後，重置拖曳箭頭，避免殘留上一次的路線指向
+      setShowBlockId("");
+      setDragLineInfo({});
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });

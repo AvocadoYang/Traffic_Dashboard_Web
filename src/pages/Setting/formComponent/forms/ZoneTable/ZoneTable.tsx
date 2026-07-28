@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import FormHr from "../../../utils/FormHr";
 import {
@@ -42,6 +42,13 @@ const ZoneTable: React.FC<{
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(
     activeGroupId,
   );
+  const didInitGroupRef = useRef(false);
+  useEffect(() => {
+    if (!didInitGroupRef.current && activeGroupId) {
+      setSelectedGroupId(activeGroupId);
+      didInitGroupRef.current = true;
+    }
+  }, [activeGroupId]);
   const [selectedMapId, setSelectedMapId] = useState<string | null>(null);
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [oldData, setOldData] = useState<ZoneTableData | null>(null);
