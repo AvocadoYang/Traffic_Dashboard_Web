@@ -3,7 +3,7 @@ export const formList = [
   // === location ===
   { key: "location_panel" },
   { key: "location_list" },
-  { key: "quick_location_panel" },
+  // { key: "quick_location_panel" }, // deprecated
   // ===================
   // === road ===
   { key: "road_panel" },

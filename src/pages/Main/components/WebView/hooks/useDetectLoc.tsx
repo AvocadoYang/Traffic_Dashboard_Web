@@ -40,10 +40,8 @@ const useDetectLoc = (
 
 
         const sub$ = mouseMoveEvent$.subscribe(({ clientX, clientY}) => {
-                    if (!mapRef.current || !mapWrapRef.current) return;
-                    const rect = mapImageRef.current!.getBoundingClientRect();
-                    const Left = mapWrapRef.current.scrollLeft;
-                    const Top = mapWrapRef.current.scrollTop;
+                    if (!mapRef.current || !mapWrapRef.current || !mapImageRef.current) return;
+                    const rect = mapImageRef.current.getBoundingClientRect();
                     if (
                       clientX < rect.left ||
                       clientX > rect.right ||
@@ -53,11 +51,8 @@ const useDetectLoc = (
                       return;
                     }
 
-                    if (!mapRef.current || !mapWrapRef.current) return;
-                    // console.log(clientX, clientY, mapRef.current.offsetLeft,Top, scale)
-
-                    const adjustX = clientX - mapRef.current.offsetLeft + (Left as number);
-                    const adjustY = clientY - mapRef.current.offsetTop + (Top as number);
+                    const adjustX = clientX - rect.left;
+                    const adjustY = clientY - rect.top;
                     const [rx, ry] = rvizCoord({
                       displayX: adjustX,
                       displayY: adjustY,
@@ -85,7 +80,8 @@ const useDetectLoc = (
         mapWrapRef,
         scale,
         showLocationToolTip,
-        eventSwitch
+        eventSwitch,
+        data
      ])
 };
 

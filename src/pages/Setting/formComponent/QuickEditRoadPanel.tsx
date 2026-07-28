@@ -15,13 +15,14 @@ import {
 import { useTranslation } from "react-i18next";
 import FormHr from "../utils/FormHr";
 import { useEffect, useState, useCallback } from "react";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { IsEditingQuickRoads, QuickRoadsArray } from "../utils/settingJotai";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { errorHandler } from "@/utils/utils";
 import { ErrorResponse } from "@/utils/globalType";
 import { QuestionCircleOutlined } from "@ant-design/icons";
+import { currentMapIdAtom } from "@/utils/mapSelection";
 
 type RoadFormData = {
   validYawList?: string | number[];
@@ -30,6 +31,7 @@ type RoadFormData = {
   roadType: string;
   roadArr: string[];
   priority: number;
+  map_id?: string;
 };
 
 const QuickEditRoadPanel: React.FC<{
@@ -46,6 +48,7 @@ const QuickEditRoadPanel: React.FC<{
   const [quickRoad, setQuickRoad] = useAtom(IsEditingQuickRoads);
   const [quickRoadArr, setQuickRoadArr] = useAtom(QuickRoadsArray);
   const queryClient = useQueryClient();
+  const currentMapId = useAtomValue(currentMapIdAtom);
 
   const saveRoadMutation = useMutation({
     mutationFn: (payload: RoadFormData) => {
@@ -54,6 +57,8 @@ const QuickEditRoadPanel: React.FC<{
     onSuccess: () => {
       void messageApi.success(t("utils.success"));
       queryClient.refetchQueries({ queryKey: ["map"] });
+      queryClient.refetchQueries({ queryKey: ["active-group-resources"] });
+      queryClient.refetchQueries({ queryKey: ["all-groups-resources"] });
       setQuickRoadArr([]);
       setQuickRoad(false);
     },
@@ -80,15 +85,21 @@ const QuickEditRoadPanel: React.FC<{
       return;
     }
 
+    if (!currentMapId) {
+      void messageApi.error(t("map_manager.no_map_selected"));
+      return;
+    }
+
     const payload: RoadFormData = {
       ...formData,
       disabled: formData.disabled ?? false,
       limit: formData.limit ?? false,
       roadArr: currentQuickRoadArr,
+      map_id: currentMapId,
     };
 
     saveRoadMutation.mutate(payload);
-  }, [quickRoadArr, form, messageApi, t, saveRoadMutation]);
+  }, [quickRoadArr, form, messageApi, t, saveRoadMutation, currentMapId]);
 
   useEffect(() => {
     form.setFieldValue("priority", 3);

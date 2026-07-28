@@ -9,16 +9,21 @@ import ForkTaskTable from "./ForkTaskTable";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { CopyOutlined, LeftOutlined, PlusOutlined } from "@ant-design/icons";
-import { isFork, isHumanRobot } from "@/utils/globalFunction";
+import { isFork, isHumanRobot, isMir } from "@/utils/globalFunction";
 import HumanRobotTaskTable from "./HumanRobotTaskTable";
 import TaskFormHumanRobot from "./humanRobotEditMissionSlice/TaskFormHumanRobot";
 import TaskFormFork from "./forkEditMissionSlice/TaskFormFork";
+import { useAtomValue } from "jotai";
+import { currentMapIdAtom } from "@/utils/mapSelection";
+import TaskFormMir from "./mirEditMissionSlice/TaskFormMir";
+import MirTaskTable from "./mirEditMissionSlice/MirTaskTable";
 
-const copy = (originKey: string) => {
+const copy = (originKey: string, currentMapId: string) => {
   const randomId = nanoid();
   return {
     originKey,
     newKey: randomId,
+    currentMapId,
   };
 };
 
@@ -153,11 +158,13 @@ const MissionList: FC<{
   const queryClient = useQueryClient();
   const { t } = useTranslation();
   const [messageApi, contextHolder] = message.useMessage();
-
+  const currentMapId = useAtomValue(currentMapIdAtom);
+  
   const addTaskMutation = useMutation({
     mutationFn: () => {
       return client.post("api/setting/add-task", {
         key: selectedMissionKey,
+        currentMapId,
       });
     },
     onSuccess: async () => {
@@ -174,7 +181,10 @@ const MissionList: FC<{
 
   const copyMissionMutation = useMutation({
     mutationFn: () => {
-      return client.post("api/setting/copy-task", copy(selectedMissionKey));
+      return client.post(
+        "api/setting/copy-task",
+        copy(selectedMissionKey, currentMapId || ""),
+      );
     },
     onSuccess: async () => {
       await queryClient.refetchQueries({
@@ -255,6 +265,14 @@ const MissionList: FC<{
           />
         )}
 
+        {isMir(selectedMissionCar) && (
+          <MirTaskTable
+            showModal={showModal}
+            selectedMissionKey={selectedMissionKey}
+            selectedMissionCar={selectedMissionCar}
+          />
+        )}
+
         <IndustrialModal
           width={3000}
           title={t("utils.edit")}
@@ -277,6 +295,16 @@ const MissionList: FC<{
             <TaskFormHumanRobot
               editTaskKey={editTaskKey}
               selectedMissionKey={selectedMissionKey}
+            />
+          )}
+
+          {isMir(selectedMissionCar) && (
+            <TaskFormMir
+              key={editTaskKey}
+              editTaskKey={editTaskKey}
+              selectedMissionCar={selectedMissionCar}
+              selectedMissionKey={selectedMissionKey}
+              form={ForkForm}
             />
           )}
         </IndustrialModal>

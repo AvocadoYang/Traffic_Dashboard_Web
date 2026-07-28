@@ -16,7 +16,7 @@ import {
   TableColumnType,
   Typography,
 } from "antd";
-import { FC, memo, useEffect, useRef, useState } from "react";
+import { FC, memo, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import {
@@ -28,9 +28,11 @@ import {
 } from "@ant-design/icons";
 import { nanoid } from "nanoid";
 import { FilterDropdownProps } from "antd/es/table/interface";
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import useMap from "@/api/useMap";
+import useAllGroupsResources from "@/api/useAllGroupsResources";
+import { currentMapIdAtom } from "@/utils/mapSelection";
+import GroupMapFolderBrowser from "@/components/GroupMapFolderBrowser";
 import { hoverRoad } from "@/utils/gloable";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
@@ -51,6 +53,9 @@ type RoadListType = {
   disabled: boolean;
   limit: boolean;
   roadType: string;
+  mapFileName?: string;
+  groupName?: string;
+  isActiveGroup?: boolean;
 };
 
 type DataIndex = keyof RoadListType;
@@ -393,7 +398,23 @@ const RoadList: React.FC<{
     | import("@dnd-kit/core/dist/hooks/utilities").SyntheticListenerMap
     | undefined;
 }> = ({ attributes, listeners }) => {
-  const { data: currentMap } = useMap();
+  const currentMapId = useAtomValue(currentMapIdAtom);
+  const { data: resources } = useAllGroupsResources();
+  const activeGroupId = useMemo(
+    () => resources?.groups.find((g) => g.isUsing)?.groupId ?? null,
+    [resources],
+  );
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(
+    activeGroupId,
+  );
+  const didInitGroupRef = useRef(false);
+  useEffect(() => {
+    if (!didInitGroupRef.current && activeGroupId) {
+      setSelectedGroupId(activeGroupId);
+      didInitGroupRef.current = true;
+    }
+  }, [activeGroupId]);
+  const [selectedMapId, setSelectedMapId] = useState<string | null>(null);
   const searchInput = useRef<InputRef>(null);
   const [messageApi, contextHolders] = message.useMessage();
   const queryClient = useQueryClient();
@@ -404,12 +425,18 @@ const RoadList: React.FC<{
   const [formRoad] = Form.useForm();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
+  const invalidateResourceQueries = () => {
+    queryClient.refetchQueries({ queryKey: ["map"] });
+    queryClient.refetchQueries({ queryKey: ["active-group-resources"] });
+      queryClient.refetchQueries({ queryKey: ["all-groups-resources"] });
+  };
+
   const deleteRoadMutation = useMutation({
     mutationFn: (roadId: string) =>
       client.post("api/setting/delete-edit-road", { roadId }),
     onSuccess: () => {
       void messageApi.success("success");
-      queryClient.refetchQueries({ queryKey: ["map"] });
+      invalidateResourceQueries();
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
@@ -419,7 +446,7 @@ const RoadList: React.FC<{
       client.post("api/setting/edit-edit-road", payload),
     onSuccess: () => {
       void messageApi.success("success");
-      queryClient.refetchQueries({ queryKey: ["map"] });
+      invalidateResourceQueries();
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
@@ -429,11 +456,47 @@ const RoadList: React.FC<{
       client.post("api/setting/delete-multi-edit-road", { roadId }),
     onSuccess: () => {
       void messageApi.success("success");
-      queryClient.refetchQueries({ queryKey: ["map"] });
+      invalidateResourceQueries();
       setSelectedRowKeys([]);
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
+
+  const folders = useMemo(
+    () =>
+      resources?.groups.map((g) => ({
+        groupId: g.groupId,
+        groupName: g.groupName,
+        isUsing: g.isUsing,
+        maps: g.maps.map((m) => ({
+          mapId: m.mapId,
+          fileName: m.fileName,
+          floor: m.floor,
+          count: m.roads.length,
+        })),
+      })) ?? [],
+    [resources],
+  );
+
+  const tableData = useMemo(() => {
+    if (!resources) return [];
+    const groups = selectedGroupId
+      ? resources.groups.filter((g) => g.groupId === selectedGroupId)
+      : resources.groups;
+    return groups.flatMap((g) => {
+      const maps = selectedMapId
+        ? g.maps.filter((m) => m.mapId === selectedMapId)
+        : g.maps;
+      return maps.flatMap((m) =>
+        m.roads.map((road) => ({
+          ...road,
+          mapFileName: m.fileName,
+          groupName: g.groupName,
+          isActiveGroup: g.isUsing,
+        })),
+      );
+    });
+  }, [resources, selectedGroupId, selectedMapId]);
 
   const handleSearch = (confirm: FilterDropdownProps["confirm"]) => confirm();
   const handleReset = (clearFilters: () => void) => clearFilters();
@@ -637,6 +700,18 @@ const RoadList: React.FC<{
       ),
     },
     {
+      title: t("map_group_table.name"),
+      dataIndex: "groupName",
+      key: "groupName",
+      minWidth: 100,
+    },
+    {
+      title: t("map_manager.map_group"),
+      dataIndex: "mapFileName",
+      key: "mapFileName",
+      minWidth: 120,
+    },
+    {
       title: "",
       dataIndex: "operation",
       key: nanoid(),
@@ -660,6 +735,12 @@ const RoadList: React.FC<{
           <Flex gap="small">
             <IndustrialButton
               className="primary"
+              disabled={!record.isActiveGroup}
+              title={
+                record.isActiveGroup
+                  ? undefined
+                  : t("map_manager.not_active_group_tooltip")
+              }
               onClick={() => edit(record)}
               icon={<EditOutlined />}
             >
@@ -711,6 +792,14 @@ const RoadList: React.FC<{
         vertical
         onMouseLeave={handleMouseLeave}
       >
+        <GroupMapFolderBrowser
+          groups={folders}
+          selectedGroupId={selectedGroupId}
+          selectedMapId={selectedMapId}
+          currentMapId={currentMapId}
+          onSelectGroup={setSelectedGroupId}
+          onSelectMap={setSelectedMapId}
+        />
         <IndustrialButton
           className="danger"
           onClick={deleteMultiItem}
@@ -721,7 +810,7 @@ const RoadList: React.FC<{
         </IndustrialButton>
         <Form form={formRoad} component={false}>
           <StyledTable
-            dataSource={currentMap?.roads}
+            dataSource={tableData}
             rowKey={(v) => v.roadId}
             rowSelection={{
               type: "checkbox",

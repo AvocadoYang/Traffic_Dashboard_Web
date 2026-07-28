@@ -7,9 +7,9 @@ import {
   message,
   Modal,
   Popconfirm,
-  Radio,
   Select,
   Table,
+  Tag,
   Upload,
   UploadProps,
   Flex,
@@ -389,7 +389,7 @@ const FolderList = styled.div`
   flex-wrap: wrap;
 `;
 
-const FolderItem = styled.div<{ $isSelected: boolean }>`
+const FolderItem = styled.div<{ $isSelected: boolean; $isActiveGroup?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -407,6 +407,13 @@ const FolderItem = styled.div<{ $isSelected: boolean }>`
     $isSelected
       ? "inset 0 0 20px rgba(82, 196, 26, 0.08), 0 2px 8px rgba(82, 196, 26, 0.25)"
       : "none"};
+
+  ${({ $isActiveGroup }) =>
+    $isActiveGroup &&
+    `
+    border-left: 3px solid #eb2f96;
+    box-shadow: 0 0 0 1px rgba(235, 47, 150, 0.35), 0 2px 8px rgba(235, 47, 150, 0.2);
+  `}
 
   ${({ $isSelected }) =>
     $isSelected &&
@@ -432,8 +439,8 @@ const FolderItem = styled.div<{ $isSelected: boolean }>`
   &:hover {
     background: ${({ $isSelected }) => ($isSelected ? "#f6ffed" : "#f6ffed")};
     border-color: ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#73d13d")};
-    border-left-color: ${({ $isSelected }) =>
-      $isSelected ? "#52c41a" : "#73d13d"};
+    border-left-color: ${({ $isSelected, $isActiveGroup }) =>
+      $isActiveGroup ? "#eb2f96" : $isSelected ? "#52c41a" : "#73d13d"};
     transform: ${({ $isSelected }) =>
       $isSelected ? "none" : "translateX(4px)"};
     box-shadow: ${({ $isSelected }) =>
@@ -460,6 +467,21 @@ const FolderName = styled.div<{ $isSelected: boolean }>`
     color: ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#8c8c8c")};
     transition: all 0.2s;
   }
+`;
+
+const ActiveGroupBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  margin-left: 8px;
+  background: #fff0f6;
+  border: 1px solid #eb2f96;
+  color: #eb2f96;
+  font-size: 9px;
+  font-weight: 700;
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 `;
 
 const FolderCount = styled.span<{ $isSelected: boolean }>`
@@ -509,7 +531,12 @@ type MapInfo = {
   scrollY: number;
   scale: number;
   map_group_id?: string | null;
-  group?: { id: string; group_name: string } | null;
+  group?: {
+    id: string;
+    group_name: string;
+    isUsing?: boolean;
+    active_map_id?: string | null;
+  } | null;
   floor: number;
 };
 
@@ -633,7 +660,6 @@ const MapManager: FC<{
     setEditingMap(record);
     editForm.setFieldsValue({
       fileName: record.fileName.split(".")[0],
-      isUsing: record.isUsing,
       mapOriginX: record.mapOriginX,
       mapOriginY: record.mapOriginY,
       scrollX: record.scrollX,
@@ -908,6 +934,7 @@ const MapManager: FC<{
                 <FolderItem
                   key={group.id}
                   $isSelected={isSelected}
+                  $isActiveGroup={group.isUsing}
                   onClick={() => setSelectedGroupId(group.id)}
                 >
                   <FolderName $isSelected={isSelected}>
@@ -917,6 +944,11 @@ const MapManager: FC<{
                       <FolderCount $isSelected={isSelected}>
                         {mapCount}
                       </FolderCount>
+                    )}
+                    {group.isUsing && (
+                      <ActiveGroupBadge>
+                        {t("map_manager.active_group")}
+                      </ActiveGroupBadge>
                     )}
                   </FolderName>
                 </FolderItem>
@@ -977,12 +1009,6 @@ const MapManager: FC<{
         <StyledForm form={editForm} layout="vertical">
           <Form.Item label={t("map_manager.file_name")} name="fileName">
             <IndustrialInput disabled />
-          </Form.Item>
-          <Form.Item label={t("map_manager.status")} name="isUsing">
-            <Radio.Group>
-              <Radio value={false}>{t("map_manager.inactive")}</Radio>
-              <Radio value={true}>{t("map_manager.active")}</Radio>
-            </Radio.Group>
           </Form.Item>
           <Form.Item
             label={t("map_manager.map_origin_x")}

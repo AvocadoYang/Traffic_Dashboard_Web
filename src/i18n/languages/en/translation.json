@@ -338,7 +338,8 @@
 
     "save_pose_notify": {
       "is_a_navigate": "Location ID can't be a negative number or zero",
-      "duplicate_id": "ID is duplicated with existing ID"
+      "duplicate_id": "ID is duplicated with existing ID",
+      "leading_zero": "Location ID can't start with a leading zero (e.g. 01, 02)"
     }
   },
 
@@ -379,6 +380,7 @@
       "fill_in_value": "Please fill in the X/Y value",
       "format_warn": "formate error",
       "is_a_navigate": "Location ID can't be a negative number",
+    "leading_zero": "Location ID can't start with a leading zero (e.g. 01, 02)",
       "duplicate_id": "duplicate ID",
       "change_duplicate_id": "please change ID, can not be same",
       "no_more_than_360": "No more than 360",
@@ -440,7 +442,6 @@
     "car_type": "AMR type",
     "all_vehicle_forbidden": "All vehicle forbidden",
     "free_zone": "Free zone",
-    "not_vehicle_forbidden": "Not set",
     "hint": "Tag setting isn't yet completed !",
     "edit_zone": "Edit Zones",
     "layer_setting": "Layer setting",
@@ -1835,14 +1836,25 @@
     "file_required": "Required",
     "map_group": "Map Group",
     "floor": "Floor",
-    "select_map_group": "Select map group"
+    "select_map_group": "Select map group",
+    "active_group": "Active",
+    "activate_map": "Activate",
+    "activate_map_requires_active_group": "Activate this map's group first",
+    "no_map_selected": "Please select a map first (top-right of the canvas)",
+    "currently_displayed": "Displayed",
+    "not_active_group_tooltip": "This row belongs to a group that isn't active; activate its group first to edit"
   },
   "map_group_table": {
     "add_title": "Add Map Group",
     "edit_title": "Edit Map Group",
     "maps": "Maps",
     "name": "Group Name",
-    "operation": "Operation"
+    "operation": "Operation",
+    "status": "Status",
+    "active": "In Use",
+    "inactive": "Not in use",
+    "activate": "Activate",
+    "activate_confirm": "Activate this map group?"
   },
   "changePassword": {
     "title": "Change Password",

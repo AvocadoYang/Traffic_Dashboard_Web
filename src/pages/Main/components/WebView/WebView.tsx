@@ -17,6 +17,7 @@ import ECS_online from "./components/ECS_online";
 import DirectMove from "../missionModal/DirectMove";
 import useMap from "@/api/useMap";
 import JoystickPanelWrap from "../../Car_Card/JoystickPanelWrap";
+import MapSelector from "@/components/MapSelector";
 
 const { Content } = Layout;
 const WebView = () => {
@@ -72,9 +73,16 @@ const WebView = () => {
           </Splitter.Panel>
           <Splitter.Panel
             defaultSize="67%"
-            style={{ overflow: "hidden", backgroundColor: "#e6e6e7" }}
+            style={{
+              overflow: "hidden",
+              backgroundColor: "#e6e6e7",
+              position: "relative",
+            }}
             className={`${isDark ? "dark-mode-map" : ""}`}
           >
+            <div style={{ position: "absolute", top: 8, right: 8, zIndex: 20 }}>
+              <MapSelector />
+            </div>
             <div
               style={{
                 height: "100%",

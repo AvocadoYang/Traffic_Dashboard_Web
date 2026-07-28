@@ -18,6 +18,7 @@ import MapView from "./mapComponents/MapView";
 import useMap from "@/api/useMap";
 import { centerMap } from "@/utils/gloable";
 import { useAtomValue } from "jotai";
+import MapSelector from "@/components/MapSelector";
 const { Content } = Layout;
 
 const Setting: React.FC = () => {
@@ -125,7 +126,7 @@ const Setting: React.FC = () => {
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [ cm]);
+  }, [cm, currentMapInfo.data]);
 
   return (
     <>
@@ -150,8 +151,22 @@ const Setting: React.FC = () => {
                 </Splitter.Panel>
                 <Splitter.Panel
                   size={splitterSize[1]}
-                  style={{ overflow: "hidden", backgroundColor: "#f5f5f5" }}
+                  style={{
+                    overflow: "hidden",
+                    backgroundColor: "#f5f5f5",
+                    position: "relative",
+                  }}
                 >
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 8,
+                      right: 8,
+                      zIndex: 20,
+                    }}
+                  >
+                    <MapSelector />
+                  </div>
                   <div
                     style={{
                       height: "100%",

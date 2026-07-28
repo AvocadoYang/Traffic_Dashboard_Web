@@ -31,13 +31,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import client from "@/api/axiosClient";
-import useTaskFork from "../../../../../../api/useTaskFork";
-import ImportMissionForm from "./ImportMissionForm";
-import CarControlTranslate from "./CarControlTranslate";
-import { Fork_mission_Slice } from "./mission";
-import { Err } from "@/utils/responseErr";
 import { useAtomValue } from "jotai";
 import { currentMapIdAtom } from "@/utils/mapSelection";
+import useTaskMir from "@/api/useTaskMir";
+import { Err } from "@/utils/responseErr";
+import { Mir_Action_Slice } from "./type";
 
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   "data-row-key": string;
@@ -209,12 +207,12 @@ const DataRow = ({ children, ...props }: RowProps) => {
   );
 };
 
-const ForkTaskTable: FC<{
+const MirTaskTable: FC<{
   showModal: (key: string) => void;
   selectedMissionKey: string;
   selectedMissionCar: string;
 }> = ({ showModal, selectedMissionKey, selectedMissionCar }) => {
-  const { data: taskDataSource } = useTaskFork(selectedMissionKey);
+  const { data: taskDataSource } = useTaskMir(selectedMissionKey);
   const [messageApi, contextHolder] = message.useMessage();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
@@ -233,7 +231,7 @@ const ForkTaskTable: FC<{
     }) => client.post("api/setting/update-task-order", data),
     onSuccess: () =>
       queryClient.refetchQueries({
-        queryKey: ["all-relate-task-fork", selectedMissionKey],
+        queryKey: ["all-relate-task-mir", selectedMissionKey],
       }),
     onError: (error: Err) => messageApi.error(error.response.data.message),
   });
@@ -250,7 +248,7 @@ const ForkTaskTable: FC<{
         currentMapId: currentMapId,
       }),
     onSuccess: () =>
-      queryClient.refetchQueries({ queryKey: ["all-relate-task-fork"] }),
+      queryClient.refetchQueries({ queryKey: ["all-relate-task-mir"] }),
     onError: (error: Err) => messageApi.error(error.response.data.message),
   });
 
@@ -263,7 +261,7 @@ const ForkTaskTable: FC<{
     }) => client.post("api/setting/disable-task", payload),
     onSuccess: async () => {
       messageApi.success(t("utils.success"));
-      await queryClient.refetchQueries({ queryKey: ["all-relate-task-fork"] });
+      await queryClient.refetchQueries({ queryKey: ["all-relate-task-mir"] });
     },
     onError: (error: Err) => messageApi.error(error.response.data.message),
   });
@@ -293,7 +291,7 @@ const ForkTaskTable: FC<{
       currentMapId: currentMapId || "",
     });
     queryClient.setQueryData(
-      ["all-relate-task-fork", selectedMissionKey],
+      ["all-relate-task-mir", selectedMissionKey],
       newData
     );
   };
@@ -311,7 +309,7 @@ const ForkTaskTable: FC<{
     setImportConfig({ key: selectedMissionKey, order: order + 1 });
   };
 
-  const columns: ColumnsType<Fork_mission_Slice> = [
+  const columns: ColumnsType<Mir_Action_Slice> = [
     {
       title: "",
       key: "sort",
@@ -345,7 +343,7 @@ const ForkTaskTable: FC<{
       render: (operation) =>
         operation.type ? (
           <ActionTypeBadge>
-            <CarControlTranslate word={operation.type} />
+            {operation.type}
           </ActionTypeBadge>
         ) : (
           "-"
@@ -368,7 +366,7 @@ const ForkTaskTable: FC<{
       width: 280,
       render: (_, record) => {
         const prefix1 = { operation: { ...record.operation } };
-        const prefix2 = { ...record.io };
+       
         
         return (
           <ActionGrid>
@@ -422,21 +420,7 @@ const ForkTaskTable: FC<{
               </IndustrialButton>
             </Popover>
 
-            <Popover
-              title={
-                <ReactJsonView
-                  displayDataTypes={false}
-                  value={prefix2}
-                  collapsed={false}
-                  enableClipboard={false}
-                  style={{ fontSize: 12 }}
-                />
-              }
-            >
-              <IndustrialButton type="link" icon={<CodeOutlined />} size="small">
-                MOVEMENT
-              </IndustrialButton>
-            </Popover>
+   
 
             <Tooltip
               title={
@@ -482,14 +466,9 @@ const ForkTaskTable: FC<{
           />
         </SortableContext>
       </DndContext>
-      <ImportMissionForm
-        showImportMission={showImportMission}
-        setShowImportMission={setShowImportMission}
-        importConfig={importConfig}
-        selectedMissionCar={selectedMissionCar}
-      />
+
     </IndustrialTableContainer>
   );
 };
 
-export default ForkTaskTable;
+export default MirTaskTable;
