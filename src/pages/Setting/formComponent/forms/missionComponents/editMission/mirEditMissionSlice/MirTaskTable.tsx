@@ -37,6 +37,7 @@ import useTaskMir from "@/api/useTaskMir";
 import { Err } from "@/utils/responseErr";
 import { Mir_Action_Slice } from "./type";
 
+
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   "data-row-key": string;
   children: React.ReactNode;
@@ -342,9 +343,7 @@ const MirTaskTable: FC<{
       width: 150,
       render: (operation) =>
         operation.type ? (
-          <ActionTypeBadge>
-            {operation.type}
-          </ActionTypeBadge>
+          <ActionTypeBadge>{operation.type}</ActionTypeBadge>
         ) : (
           "-"
         ),
@@ -354,8 +353,8 @@ const MirTaskTable: FC<{
       dataIndex: ["operation", "id"],
       width: 120,
       render: (_, record) =>
-        record.operation.locationId ? (
-          <LocationBadge>{record.operation.locationId}</LocationBadge>
+        record.operation.location_id ? (
+          <LocationBadge>{record.operation.location_id}</LocationBadge>
         ) : (
           <span style={{ color: "#8c8c8c" }}>-</span>
         ),
@@ -366,8 +365,7 @@ const MirTaskTable: FC<{
       width: 280,
       render: (_, record) => {
         const prefix1 = { operation: { ...record.operation } };
-       
-        
+
         return (
           <ActionGrid>
             {/* Row 1 */}
@@ -415,12 +413,14 @@ const MirTaskTable: FC<{
                 />
               }
             >
-              <IndustrialButton type="link" icon={<CodeOutlined />} size="small">
+              <IndustrialButton
+                type="link"
+                icon={<CodeOutlined />}
+                size="small"
+              >
                 OPERATION
               </IndustrialButton>
             </Popover>
-
-   
 
             <Tooltip
               title={
