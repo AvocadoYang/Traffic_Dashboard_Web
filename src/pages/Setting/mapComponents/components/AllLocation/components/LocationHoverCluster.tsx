@@ -18,6 +18,7 @@ const Svg = styled.svg`
   top: 0;
   width: 100%;
   height: 100%;
+  overflow: visible;
   pointer-events: none;
   z-index: ${TOOLTIP_Z_INDEX - 1};
 `;
