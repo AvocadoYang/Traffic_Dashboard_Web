@@ -96,6 +96,7 @@ const PointDiv = styled.div.attrs<{
   top: number;
   canrotate: string;
   hoverLoc?: boolean;
+  isNear?: boolean;
 }>(({ left, top, canrotate, hoverLoc }) => ({
   // 位置四捨五入到整數像素，避免小圓點在縮放後落在次像素造成
   // 各點抗鋸齒程度不同、視覺上大小看起來不一致。
@@ -105,23 +106,26 @@ const PointDiv = styled.div.attrs<{
   top: number;
   canrotate: string;
   hoverLoc?: boolean;
+  isNear?: boolean;
 }>`
-width: 4px;
-height: 4px;
+width: ${(p) => (p.isNear ? "6px" : "4px")};
+height: ${(p) => (p.isNear ? "6px" : "4px")};
 border-radius: 50%;
 background: ${(props) => props.canrotate === "true" ? "#ff15fb" : "#0d0d12"};
 position: absolute;
 cursor: pointer;
 left: ${(p) => p.left}px;
 top: ${(p) => p.top}px;
-z-index: 150;
+/* 蓋過車輛圖示(z-index:200000)，避免點位被 AMR 擋住點不到 */
+z-index: 200001;
 /* box-shadow:  ${(props) => props.canrotate === "true" ? " 0 0 4px rgba(253, 43, 180, 0.6)" : " 0 0 4px rgba(0, 0, 0, 0.6)"}; */
 transform: translate(-50%, -50%);
 border: ${(props) => (props.hoverLoc ? "5px solid #ff0000" : "none")};
+transition: width 0.12s ease-out, height 0.12s ease-out;
   &:hover {
     background: red;
-    width: 6px;
-height: 6px;
+    width: 9px;
+    height: 9px;
   }
 `;
 
@@ -132,6 +136,7 @@ const PointMainDiv = styled.div.attrs<{
   top: number;
   canrotate: string;
   hoverLoc?: boolean;
+  isNear?: boolean;
 }>(({ left, top, canrotate, hoverLoc }) => ({
   style: { left: Math.round(left), top: Math.round(top), canrotate, hoverLoc },
 }))<{
@@ -139,23 +144,26 @@ const PointMainDiv = styled.div.attrs<{
   top: number;
   canrotate: string;
   hoverLoc?: boolean;
+  isNear?: boolean;
 }>`
-width: 3px;
-height: 3px;
+width: ${(p) => (p.isNear ? "5px" : "3px")};
+height: ${(p) => (p.isNear ? "5px" : "3px")};
 border-radius: 50%;
 background: ${(props) => props.canrotate === "true" ? "#ff15fb" : "#0d0d12"};
 position: absolute;
 cursor: pointer;
 left: ${(p) => p.left}px;
 top: ${(p) => p.top}px;
-z-index: 150;
+/* 蓋過車輛圖示(z-index:200000)，避免點位被 AMR 擋住點不到 */
+z-index: 200001;
 /* box-shadow:  ${(props) => props.canrotate === "true" ? " 0 0 4px rgba(253, 43, 180, 0.6)" : " 0 0 4px rgba(0, 0, 0, 0.6)"}; */
 transform: translate(-50%, -50%);
 border: ${(props) => (props.hoverLoc ? "5px solid #ff0000" : "none")};
+transition: width 0.12s ease-out, height 0.12s ease-out;
   &:hover {
     background: red;
-    width: 6px;
-height: 6px;
+    width: 8px;
+    height: 8px;
   }
 `;
 
