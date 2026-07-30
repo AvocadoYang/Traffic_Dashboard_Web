@@ -4,6 +4,7 @@ import React from "react";
 import styled from "styled-components";
 import useMirTaskOptions from "./useMirTaskOptions";
 import dayjs from "dayjs";
+import { useFootprint } from "@/api/useFootprint";
 
 const SectionHeader = styled.div`
   background: #ffffff;
@@ -188,13 +189,16 @@ export const MirCollisionDetectionInput = () => {
   /* 圖層 */
 }
 export const MirFootprintInput = () => {
+   const { footprintOption } = useMirTaskOptions();
+
+
   return (
     <IndustrialCard>
       <Form.Item
         label={<FieldLabel>Set footprint</FieldLabel>}
         name="footprint"
       >
-        <Select />
+        <Select options={footprintOption} style={{ width: "100%" }} />
       </Form.Item>
     </IndustrialCard>
   );

@@ -35,6 +35,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
+import { MessageInstance } from "antd/es/message/interface";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -55,8 +56,9 @@ interface FootprintEditorProps {
   /** Optional — falls back to DEFAULT_FOOTPRINT below when omitted. */
   data?: FootprintRecord;
   title?: string;
-  onSave?: (next: FootprintRecord) => void;
+  onSave?: (next: FootprintRecord) => void | Promise<void>;
   onBack?: () => void;
+  messageApi: MessageInstance;
 }
 
 /** Default record used when no `data` prop is supplied. */
@@ -372,13 +374,13 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
   title,
   onSave,
   onBack,
+  messageApi,
 }) => {
   const initialPoints = useMemo(
     () => parsePoints(data.footprint_points),
     [data.footprint_points],
   );
   const queryClient = useQueryClient();
-  const [messageApi, contextHolder] = message.useMessage();
   const [points, setPoints] = useState<Point[]>(initialPoints);
   const [name, setName] = useState(data.name ?? "");
   const [selected, setSelected] = useState<number | null>(null);
@@ -494,15 +496,25 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
   }, [initialPoints]);
 
   /* ---- save ---- */
-  const handleSave = useCallback(() => {
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = useCallback(async () => {
+    if (!data.id) {
+      messageApi.error("這筆 footprint 還沒有 ID，請先確認建立成功後再編輯");
+      return;
+    }
     const next: FootprintRecord = {
       ...data,
       name: name.trim() || data.name,
       footprint_points: stringifyPoints(points),
     };
-    onSave?.(next);
-    message.success("已儲存 footprint");
-  }, [data, points, name, onSave]);
+    try {
+      setSaving(true);
+      await onSave?.(next);
+    } finally {
+      setSaving(false);
+    }
+  }, [data, points, name, onSave, messageApi]);
 
   /* ---- grid lines (always covers the full visible box) ---- */
   const gridLines = useMemo(() => {
@@ -632,7 +644,6 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
 
   return (
     <Shell>
-      {contextHolder}
       <HeaderRow>
         <TitleGroup>
           {title ? (
@@ -651,8 +662,10 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
           </Tooltip>
         </TitleGroup>
         <HeaderActions>
-          <Button onClick={onBack}>Go back</Button>
-          <Button type="primary" onClick={handleSave}>
+          <Button onClick={onBack} disabled={saving}>
+            Go back
+          </Button>
+          <Button type="primary" loading={saving} onClick={handleSave}>
             Save
           </Button>
           <Dropdown menu={{ items: menuItems }} trigger={["click"]}>

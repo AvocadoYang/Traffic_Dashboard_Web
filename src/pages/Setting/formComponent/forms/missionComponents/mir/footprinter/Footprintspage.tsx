@@ -24,6 +24,8 @@ import { FootprintEditor, type FootprintRecord } from "./FootprintEditor";
 import { useFootprint } from "@/api/useFootprint";
 import { useMutation } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
 
 /* ------------------------------------------------------------------ */
 /*  Types & mock data                                                  */
@@ -39,7 +41,7 @@ const PRODUCT_LABEL: Record<ProductKey, string> = {
 const PRODUCT_TEMPLATE: Record<ProductKey, { points: string; height: number }> =
   {
     MIR250: {
-      points: "[[0.3,-0.25],[0.3,0.25],[-0.3,0.25],[-0.3,-0.25]]",
+      points: "[[0.54,-0.38],[0.54,0.38],[-0.54,0.38],[-0.54,-0.38]]",
       height: 1.4,
     },
   };
@@ -203,33 +205,28 @@ export const FootprintsPage: React.FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const { data = [], refetch } = useFootprint();
 
-  const createMutation = useMutation(
-    (payload: FootprintRow) =>
-      client.post("api/setting/create-footprint", payload),
-    {
-      onSuccess: async () => {
-        messageApi.success("success");
-        refetch();
-      },
-      onError: () => {
-        messageApi.error("err");
-      },
+  const createMutation = useMutation({
+    mutationFn: (payload: FootprintRow) =>
+      client.post<{ ok: string; id: string }>(
+        "api/setting/create-footprint",
+        payload,
+      ),
+    onSuccess: async (_res, variables) => {
+      messageApi.success(`已建立「${variables.name}」`);
+      refetch();
     },
-  );
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
 
-  const editMutation = useMutation(
-    (payload: FootprintRow) =>
+  const editMutation = useMutation({
+    mutationFn: (payload: FootprintRow) =>
       client.post("api/setting/edit-footprint", payload),
-    {
-      onSuccess: async () => {
-        messageApi.success("success");
-        refetch();
-      },
-      onError: () => {
-        messageApi.error("err");
-      },
+    onSuccess: async (_res, variables) => {
+      messageApi.success(`已儲存「${variables.name}」`);
+      refetch();
     },
-  );
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
 
   useEffect(() => {
     setCurrent(1);
@@ -243,32 +240,52 @@ export const FootprintsPage: React.FC = () => {
   };
 
   const handleCreateSubmit = async () => {
+    let values: { name: string; config_id: ProductKey };
     try {
-      const values = await form.validateFields();
-      const config_id: ProductKey = values.config_id;
-      const template = PRODUCT_TEMPLATE[config_id];
-      const newRow: FootprintRow = {
-        name: values.name.trim(),
-        config_id: config_id,
-        height: template.height,
-        footprint_points: template.points,
-      };
-      createMutation.mutate(newRow);
-      setDrawerOpen(false);
-      form.resetFields();
-      openEditorFor(newRow);
+      values = await form.validateFields();
     } catch {
       /* validation errors are shown inline by antd */
+      return;
+    }
+
+    const config_id = values.config_id;
+    const template = PRODUCT_TEMPLATE[config_id];
+    const newRow: FootprintRow = {
+      name: values.name.trim(),
+      config_id,
+      height: template.height,
+      footprint_points: template.points,
+    };
+
+    try {
+      // wait for the server to actually confirm creation (and hand back
+      // the generated id) before ever leaving the drawer / list screen
+      const res = await createMutation.mutateAsync(newRow);
+      setDrawerOpen(false);
+      form.resetFields();
+      openEditorFor({ ...newRow, id: res.data?.id });
+    } catch {
+      // createMutation's onError already showed the reason (e.g. duplicate
+      // name) — keep the drawer open so the user can fix it and retry
     }
   };
 
-  const handleEditorSave = (next: FootprintRecord) => {
-    if (!activeRow) return;
-    editMutation.mutate(next as FootprintRow);
-    message.success(`已儲存「${next.name ?? activeRow.name}」`);
-
-    setView("list");
-    setActiveRow(null);
+  const handleEditorSave = async (next: FootprintRecord) => {
+    if (!activeRow?.id) {
+      messageApi.error("找不到這筆 footprint 的 ID，無法儲存");
+      return;
+    }
+    try {
+      await editMutation.mutateAsync({
+        ...next,
+        id: activeRow.id,
+      } as FootprintRow);
+      setView("list");
+      setActiveRow(null);
+    } catch {
+      // editMutation's onError already showed the reason — stay on the
+      // editor screen so the user doesn't lose their in-progress edits
+    }
   };
 
   const columns: ColumnsType<FootprintRow> = [
@@ -326,6 +343,7 @@ export const FootprintsPage: React.FC = () => {
               setActiveRow(null);
             }}
             onSave={handleEditorSave}
+            messageApi={messageApi}
           />
         </div>
       </PageWrap>
@@ -334,6 +352,7 @@ export const FootprintsPage: React.FC = () => {
 
   return (
     <PageWrap>
+      {contextHolder}
       <HeaderRow>
         <TitleGroup>
           <Title>Footprints</Title>
@@ -345,7 +364,7 @@ export const FootprintsPage: React.FC = () => {
           Create
         </CreateButton>
       </HeaderRow>
-      {contextHolder}
+
       <Card>
         <ToolRow>
           <SearchInput
@@ -406,13 +425,20 @@ export const FootprintsPage: React.FC = () => {
         placement="right"
         width={480}
         open={drawerOpen}
+        closable={!createMutation.isPending}
+        maskClosable={!createMutation.isPending}
         onClose={() => {
+          if (createMutation.isPending) return;
           setDrawerOpen(false);
           form.resetFields();
         }}
         footer={
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <CreateButton type="primary" onClick={handleCreateSubmit}>
+            <CreateButton
+              type="primary"
+              loading={createMutation.isPending}
+              onClick={handleCreateSubmit}
+            >
               Create
             </CreateButton>
           </div>
@@ -426,7 +452,7 @@ export const FootprintsPage: React.FC = () => {
         <Form
           form={form}
           layout="vertical"
-          initialValues={{ hook: "no", config_id: "MIR100_200" }}
+          initialValues={{ hook: "no", config_id: "MIR100-200" }}
         >
           <Form.Item
             name="name"

@@ -17,6 +17,7 @@ import {
   MirBlockedPathTimeoutInputInput,
   MirCollisionDetectionInput,
   MirDistanceThresholdInput,
+  MirFootprintInput,
   MirFrontInput,
   MirLocationInput,
   MirMaximumAngularSpeedInputInput,
@@ -383,7 +384,7 @@ const TaskFormMir: FC<{
       sides: rawPayload.sides ?? "unmuted",
     };
 
-    alert(JSON.stringify(newPayload, null, 2));
+    // alert(JSON.stringify(newPayload, null, 2));
     console.log("最終發送 Payload:", newPayload);
     saveMutation.mutate(newPayload);
   };
@@ -473,9 +474,7 @@ const TaskFormMir: FC<{
 
         {taskAction === "set_footprint" && (
           <>
-            <MirLocationInput />
-            <MirBlockedPathTimeoutInputInput />
-            <MirDistanceThresholdInput />
+            <MirFootprintInput />
           </>
         )}
 
