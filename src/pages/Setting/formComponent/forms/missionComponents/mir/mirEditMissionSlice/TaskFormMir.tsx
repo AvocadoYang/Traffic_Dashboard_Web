@@ -1,5 +1,5 @@
 import { Button, Flex, Form, FormInstance, message, Select } from "antd";
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { ToolOutlined, SettingOutlined } from "@ant-design/icons";
@@ -39,6 +39,8 @@ import { errorHandler } from "@/utils/utils";
 import client from "@/api/axiosClient";
 import { useAtomValue } from "jotai";
 import { currentMapIdAtom } from "@/utils/mapSelection";
+import useTaskMir from "@/api/useTaskMir";
+import useTaskMirOne from "@/api/useTaskMirOne";
 
 const IndustrialContainer = styled.div`
   background: #f5f5f5;
@@ -303,6 +305,61 @@ const TaskFormMir: FC<{
   const [taskType, setTaskType] = useState<Mir_Task>("move");
   const [taskAction, setTaskAction] = useState<Mir_All_Action>();
   const currentMapId = useAtomValue(currentMapIdAtom);
+  const { data: taskDataSource } = useTaskMirOne(editTaskKey);
+
+  useEffect(() => {
+    if (!taskDataSource) return;
+
+    const op = taskDataSource || (taskDataSource as any);
+    const actionType = (op.type || taskDataSource.type) as Mir_All_Action;
+    console.log(op);
+    console.log(actionType);
+
+    if (mirMoveActonList.includes(actionType as any)) {
+      setTaskType("move");
+    } else if (mirSoundLight.includes(actionType as any)) {
+      setTaskType("sound/light");
+    } else if (mirErrorHandlingList.includes(actionType as any)) {
+      setTaskType("Error Handling");
+    } else if (mirSaftySystemList.includes(actionType as any)) {
+      setTaskType("Safty system");
+    }
+
+    setTaskAction(actionType);
+
+    const formattedWait = op.wait
+      ? dayjs(op.wait, "HH:mm:ss").isValid()
+        ? dayjs(op.wait, "HH:mm:ss")
+        : undefined
+      : undefined;
+
+    setTimeout(() => {
+      form.setFieldsValue({
+        action_type: actionType,
+
+        location_id: op.location_id,
+        entry_position: op.entry_position,
+        footprint: op.footprint,
+        blocked_path_timeout: op.blocked_path_timeout ?? 60,
+        blocked_docking_timeout: op.blocked_docking_timeout ?? 60,
+        maximum_linear_speed: op.maximum_linear_speed ?? 0.25,
+        maximum_angular_speed: op.maximum_angular_speed ?? 0.25,
+        distance_threshold: op.distance_threshold ?? 0.25,
+        x: op.x ?? 0,
+        y: op.y ?? 0,
+        orientation: op.orientation ?? 0,
+        collision_detection: op.collision_detection ?? true,
+        wait: formattedWait,
+        sound: op.sound,
+        volume: op.volume ?? 0,
+        front: op.front ?? "unmuted",
+        rear: op.rear ?? "unmuted",
+        sides: op.sides ?? "unmuted",
+      });
+    }, 0);
+  }, [taskDataSource, form]);
+
+
 
   // 2. 切換大類別的 Handle 函式
   const handleCategoryChange = (newType: Mir_Task) => {
