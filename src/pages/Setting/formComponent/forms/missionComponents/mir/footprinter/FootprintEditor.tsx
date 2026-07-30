@@ -31,6 +31,10 @@ import {
   PlusOutlined,
   MinusOutlined,
 } from "@ant-design/icons";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import client from "@/api/axiosClient";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -39,14 +43,12 @@ import {
 export type Point = [number, number];
 
 export interface FootprintRecord {
-  guid?: string;
+  id?: string;
   name?: string;
   config_id: string;
   /** JSON-encoded array of [x, y] points, e.g. "[[0.5,-0.3],...]" */
   footprint_points: string;
   height: number;
-  custom: boolean;
-  hook: boolean;
 }
 
 interface FootprintEditorProps {
@@ -60,26 +62,38 @@ interface FootprintEditorProps {
 /** Default record used when no `data` prop is supplied. */
 export const DEFAULT_FOOTPRINT: FootprintRecord = {
   name: "jimmy",
-  config_id: "MIR100-200",
-  footprint_points:
-    "[[0.54,-0.38],[0.54,0.38],[-0.54,0.38],[-0.54,-0.38]]",
+  config_id: "MIR250",
+  footprint_points: "[[0.54,-0.38],[0.54,0.38],[-0.54,0.38],[-0.54,-0.38]]",
   height: 1.4,
-  custom: false,
-  hook: true,
+};
+
+/**
+ * The *physical* outline of each vehicle model, keyed by config_id.
+ * This is what gets drawn as the faded reference shape behind whatever
+ * footprint polygon the user is currently editing — it does NOT change
+ * as the user drags points, so it always shows "this is the real robot".
+ *
+ * Add one entry per model as new sizes come online, e.g.:
+ *   MIR100_200: [[0.506,-0.32],[0.506,0.32],[-0.454,0.32],[-0.774,0.15],[-0.774,-0.15],[-0.454,-0.32]],
+ *   MIR500_1000: [[0.65,-0.45],[0.65,0.45],[-0.65,0.45],[-0.65,-0.45]],
+ */
+export const VEHICLE_BODY_POINTS: Record<string, Point[]> = {
+  MIR250: [
+    [0.54, -0.38],
+    [0.54, 0.38],
+    [-0.54, 0.38],
+    [-0.54, -0.38],
+  ],
 };
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
 /* ------------------------------------------------------------------ */
 
-const VIEW_W = 1200; 
-const VIEW_H = 600;
-const CENTER = { x: VIEW_W / 2, y: VIEW_H / 2 };
-const SCALE = 220; // px per meter
-const GRID_STEP_M = 0.1;
-
-// 🎯 修改點：將網格範圍加大（例如從 2.4m 加大到 5.0m），讓寬畫布不會邊緣一片空白
-const GRID_RANGE_M = 5.0; 
+const INITIAL_VIEW_W = 680;
+const INITIAL_VIEW_H = 520;
+const SCALE = 220; // px per meter (world scale stays constant so shapes never distort)
+const GRID_STEP_M = 0.1; // minor grid spacing in meters
 const DECIMALS = 3;
 
 /* ------------------------------------------------------------------ */
@@ -104,20 +118,7 @@ const parsePoints = (raw: string): Point[] => {
 const stringifyPoints = (points: Point[]) =>
   JSON.stringify(points.map(([x, y]) => [round(x), round(y)]));
 
-/** meters -> svg pixel coords (y flipped: +y is up, like the source data) */
-const toSvg = (p: Point) => ({
-  x: CENTER.x + p[0] * SCALE,
-  y: CENTER.y - p[1] * SCALE,
-});
-
-/** svg pixel coords -> meters */
-const toMeters = (x: number, y: number): Point => [
-  round((x - CENTER.x) / SCALE),
-  round((CENTER.y - y) / SCALE),
-];
-
-const distance = (a: Point, b: Point) =>
-  Math.hypot(a[0] - b[0], a[1] - b[1]);
+const distance = (a: Point, b: Point) => Math.hypot(a[0] - b[0], a[1] - b[1]);
 
 /* ------------------------------------------------------------------ */
 /*  Styled components                                                  */
@@ -153,6 +154,33 @@ const Title = styled.h1`
   font-size: 20px;
   font-weight: 700;
   color: #1e2a4a;
+`;
+
+const TitleInput = styled.input`
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e2a4a;
+  font-family: inherit;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 6px;
+  padding: 2px 6px;
+  min-width: 80px;
+  width: auto;
+
+  &:hover {
+    background: #f2f4f7;
+  }
+  &:focus {
+    outline: none;
+    background: #fff;
+    border-color: #99a9d8;
+  }
+  &::placeholder {
+    color: #98a2b3;
+    font-weight: 400;
+  }
 `;
 
 const HelpIcon = styled(QuestionCircleOutlined)`
@@ -314,6 +342,25 @@ const EmptyHint = styled.div`
   line-height: 1.5;
 `;
 
+const LegendBadge = styled.div`
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border-radius: 999px;
+  padding: 6px 12px;
+  box-shadow: 0 4px 12px rgba(16, 24, 40, 0.1);
+  font-size: 12px;
+  color: #475467;
+
+  svg {
+    flex: none;
+  }
+`;
+
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
@@ -326,18 +373,71 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
   onSave,
   onBack,
 }) => {
-  const initialPoints = useMemo(() => parsePoints(data.footprint_points), [
-    data.footprint_points,
-  ]);
-
+  const initialPoints = useMemo(
+    () => parsePoints(data.footprint_points),
+    [data.footprint_points],
+  );
+  const queryClient = useQueryClient();
+  const [messageApi, contextHolder] = message.useMessage();
   const [points, setPoints] = useState<Point[]>(initialPoints);
+  const [name, setName] = useState(data.name ?? "");
   const [selected, setSelected] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const canvasCardRef = useRef<HTMLDivElement | null>(null);
   const draggingRef = useRef<number | null>(null);
+  const [canvasSize, setCanvasSize] = useState({
+    width: INITIAL_VIEW_W,
+    height: INITIAL_VIEW_H,
+  });
+
+  /* Keep the SVG viewBox in lockstep with the actual pixel size of its
+     container, so the drawing always fills 100% of the available width
+     AND height (no letterboxing), while world-scale stays undistorted. */
+  useEffect(() => {
+    const el = canvasCardRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        if (width > 0 && height > 0) {
+          setCanvasSize({ width, height });
+        }
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const center = useMemo(
+    () => ({ x: canvasSize.width / 2, y: canvasSize.height / 2 }),
+    [canvasSize],
+  );
+
+  /** meters -> svg pixel coords (y flipped: +y is up, like the source data) */
+  const toSvgPoint = useCallback(
+    (p: Point) => ({
+      x: center.x + p[0] * SCALE,
+      y: center.y - p[1] * SCALE,
+    }),
+    [center],
+  );
+
+  /** svg pixel coords -> meters */
+  const toMetersPoint = useCallback(
+    (x: number, y: number): Point => [
+      round((x - center.x) / SCALE),
+      round((center.y - y) / SCALE),
+    ],
+    [center],
+  );
 
   useEffect(() => {
     setPoints(initialPoints);
   }, [initialPoints]);
+
+  useEffect(() => {
+    setName(data.name ?? "");
+  }, [data.name]);
 
   /* ---- coordinate conversion using the SVG's own CTM (robust to any
      responsive scaling between the viewBox and rendered size) ---- */
@@ -369,7 +469,7 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
       draggingRef.current = index;
       setSelected(index);
     },
-    []
+    [],
   );
 
   const handlePointerMove = useCallback(
@@ -377,9 +477,9 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
       const idx = draggingRef.current;
       if (idx === null) return;
       const { x, y } = clientToSvg(e.clientX, e.clientY);
-      updatePoint(idx, toMeters(x, y));
+      updatePoint(idx, toMetersPoint(x, y));
     },
-    [clientToSvg, updatePoint]
+    [clientToSvg, updatePoint, toMetersPoint],
   );
 
   const handlePointerUp = useCallback((e: React.PointerEvent) => {
@@ -397,52 +497,72 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
   const handleSave = useCallback(() => {
     const next: FootprintRecord = {
       ...data,
+      name: name.trim() || data.name,
       footprint_points: stringifyPoints(points),
     };
     onSave?.(next);
     message.success("已儲存 footprint");
-  }, [data, points, onSave]);
+  }, [data, points, name, onSave]);
 
-  /* ---- grid lines ---- */
+  /* ---- grid lines (always covers the full visible box) ---- */
   const gridLines = useMemo(() => {
-    const lines: { key: string; x1: number; y1: number; x2: number; y2: number; axis: boolean }[] = [];
-    const steps = Math.round(GRID_RANGE_M / GRID_STEP_M);
+    const lines: {
+      key: string;
+      x1: number;
+      y1: number;
+      x2: number;
+      y2: number;
+      axis: boolean;
+    }[] = [];
+    const halfWM = center.x / SCALE + GRID_STEP_M;
+    const halfHM = center.y / SCALE + GRID_STEP_M;
+    const steps = Math.ceil(Math.max(halfWM, halfHM) / GRID_STEP_M);
     for (let i = -steps; i <= steps; i++) {
       const m = round(i * GRID_STEP_M, 2);
       const isAxis = m === 0;
       // vertical line at x = m
-      const vx = CENTER.x + m * SCALE;
+      const vx = center.x + m * SCALE;
       lines.push({
         key: `v${i}`,
         x1: vx,
         y1: 0,
         x2: vx,
-        y2: VIEW_H,
+        y2: canvasSize.height,
         axis: isAxis,
       });
       // horizontal line at y = m
-      const hy = CENTER.y - m * SCALE;
+      const hy = center.y - m * SCALE;
       lines.push({
         key: `h${i}`,
         x1: 0,
         y1: hy,
-        x2: VIEW_W,
+        x2: canvasSize.width,
         y2: hy,
         axis: isAxis,
       });
     }
     return lines;
-  }, []);
+  }, [center, canvasSize]);
 
   /* ---- polygon geometry ---- */
-  const svgPoints = points.map(toSvg);
+  const svgPoints = points.map(toSvgPoint);
   const polygonAttr = svgPoints.map((p) => `${p.x},${p.y}`).join(" ");
+
+  /* ---- reference vehicle body (fixed physical size for this config_id,
+     drawn behind the editable footprint; independent of dragged points) ---- */
+  const vehicleBodyPoints = VEHICLE_BODY_POINTS[data.config_id];
+  const vehicleBodyAttr = vehicleBodyPoints
+    ? vehicleBodyPoints
+        .map(toSvgPoint)
+        .map((p) => `${p.x},${p.y}`)
+        .join(" ")
+    : null;
 
   const edgeLabels = points.map((p, i) => {
     const next = points[(i + 1) % points.length];
     const dist = distance(p, next);
-    const a = toSvg(p);
-    const b = toSvg(next);
+    const a = toSvgPoint(p);
+    const b = toSvgPoint(next);
     const mx = (a.x + b.x) / 2;
     const my = (a.y + b.y) / 2;
     let angle = (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI;
@@ -459,17 +579,73 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
 
   const selectedPoint = selected !== null ? points[selected] : null;
 
+  const deleteMutation = useMutation({
+    mutationFn: () => {
+      return client.post("api/setting/delete-footprint", { id: data.id });
+    },
+    onSuccess: async () => {
+      await queryClient.refetchQueries({ queryKey: ["footprint"] });
+      onBack?.();
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
+  const duplicateMutation = useMutation({
+    mutationFn: () => {
+      return client.post("api/setting/copy-footprint", { id: data.id });
+    },
+    onSuccess: async () => {
+      await queryClient.refetchQueries({ queryKey: ["footprint"] });
+      messageApi.success("success");
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
+  const handleDelete = () => {
+    deleteMutation.mutate();
+  };
+
+  const handleDuplicate = () => {
+    duplicateMutation.mutate();
+  };
+
   const menuItems: MenuProps["items"] = [
-    { key: "duplicate", label: "複製" },
-    { key: "export", label: "匯出 JSON" },
-    { key: "delete", label: "刪除", danger: true },
+    {
+      key: "duplicate",
+      label: "複製",
+      onClick: handleDuplicate,
+    },
+    {
+      key: "export",
+      label: "匯出 JSON",
+      onClick: () => {
+        console.log("Export JSON");
+      },
+    },
+    {
+      key: "delete",
+      label: "刪除",
+      danger: true,
+      onClick: handleDelete,
+    },
   ];
 
   return (
     <Shell>
+      {contextHolder}
       <HeaderRow>
         <TitleGroup>
-          <Title>{title ?? data.name ?? data.config_id}</Title>
+          {title ? (
+            <Title>{title}</Title>
+          ) : (
+            <TitleInput
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={data.config_id}
+              aria-label="Footprint name"
+              size={Math.max(name.length, data.config_id.length, 6)}
+            />
+          )}
           <Tooltip title="拖曳頂點可調整外框形狀">
             <HelpIcon />
           </Tooltip>
@@ -508,10 +684,10 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
         </Tooltip>
       </Toolbar>
 
-      <CanvasCard>
+      <CanvasCard ref={canvasCardRef}>
         <StyledSvg
           ref={svgRef}
-          viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+          viewBox={`0 0 ${canvasSize.width} ${canvasSize.height}`}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerUp}
@@ -530,50 +706,21 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
             />
           ))}
 
-{/* 🎯 2. AGV 預設底圖參考層 (寬 0.89m, 長 1.08m，依比例渲染) */}
-<g transform={`translate(${CENTER.x}, ${CENTER.y})`} opacity={0.4} pointerEvents="none">
-  {/* AGV 主車身底盤 (米長 1.08m = 1.08 * SCALE px, 寬 0.89m = 0.89 * SCALE px) */}
-  <rect
-    x={(-1.08 * SCALE) / 2}
-    y={(-0.89 * SCALE) / 2}
-    width={1.08 * SCALE}
-    height={0.89 * SCALE}
-    rx={12}
-    fill="#e2e8f0"
-    stroke="#94a3b8"
-    strokeWidth={2}
-  />
-
-  {/* 驅動輪 (左 & 右) */}
-  <rect x={-20} y={(-0.89 * SCALE) / 2 - 6} width={40} height={8} rx={2} fill="#64748b" />
-  <rect x={-20} y={(0.89 * SCALE) / 2 - 2} width={40} height={8} rx={2} fill="#64748b" />
-
-  {/* 萬向輪 (四角) */}
-  <circle cx={(-1.08 * SCALE) / 2 + 20} cy={(-0.89 * SCALE) / 2 + 20} r={8} fill="#cbd5e1" stroke="#64748b" />
-  <circle cx={(1.08 * SCALE) / 2 - 20} cy={(-0.89 * SCALE) / 2 + 20} r={8} fill="#cbd5e1" stroke="#64748b" />
-  <circle cx={(-1.08 * SCALE) / 2 + 20} cy={(0.89 * SCALE) / 2 - 20} r={8} fill="#cbd5e1" stroke="#64748b" />
-  <circle cx={(1.08 * SCALE) / 2 - 20} cy={(0.89 * SCALE) / 2 - 20} r={8} fill="#cbd5e1" stroke="#64748b" />
-
-  {/* 前進方向箭頭指示 */}
-  <path
-    d="M 10 -15 L 30 0 L 10 15"
-    fill="none"
-    stroke="#3b82f6"
-    strokeWidth={4}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  />
-</g>
-
-{/* 3. Footprint 多邊形填色 */}
-<polygon
-  points={polygonAttr}
-  fill="rgba(69, 118, 191, 0.28)"
-  stroke="#2f5fa8"
-  strokeWidth={3}
-  strokeLinejoin="round"
-/>
-
+          {/* reference: the vehicle's real physical outline for this
+              config_id, faded and dashed, drawn behind the editable
+              footprint so the user can see how far the custom shape
+              deviates from the actual robot body */}
+          {vehicleBodyAttr && (
+            <polygon
+              points={vehicleBodyAttr}
+              fill="#94a3b8"
+              fillOpacity={0.15}
+              stroke="#94a3b8"
+              strokeWidth={2}
+              strokeDasharray="6 4"
+              pointerEvents="none"
+            />
+          )}
 
           {/* footprint fill */}
           <polygon
@@ -586,7 +733,10 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
 
           {/* edge distance labels */}
           {edgeLabels.map((l) => (
-            <g key={l.key} transform={`translate(${l.x}, ${l.y}) rotate(${l.angle})`}>
+            <g
+              key={l.key}
+              transform={`translate(${l.x}, ${l.y}) rotate(${l.angle})`}
+            >
               <EdgeLabel textAnchor="middle" dy={-4}>
                 {l.text}
               </EdgeLabel>
@@ -687,23 +837,29 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
         ) : (
           <EmptyHint>點選或拖曳任一頂點以編輯座標</EmptyHint>
         )}
+
+        {vehicleBodyAttr && (
+          <LegendBadge>
+            <svg width="20" height="14" viewBox="0 0 20 14">
+              <rect
+                x="1"
+                y="1"
+                width="18"
+                height="12"
+                rx="2"
+                fill="#94a3b8"
+                fillOpacity={0.15}
+                stroke="#94a3b8"
+                strokeWidth={1.5}
+                strokeDasharray="4 3"
+              />
+            </svg>
+            {data.config_id} 車身尺寸（參考，不可編輯）
+          </LegendBadge>
+        )}
       </CanvasCard>
     </Shell>
   );
 };
 
 export default FootprintEditor;
-
-/* ------------------------------------------------------------------ */
-/*  Example usage                                                       */
-/* ------------------------------------------------------------------ */
-//
-// // no props needed — uses DEFAULT_FOOTPRINT internally
-// <FootprintEditor />
-//
-// // or pass your own record + handlers
-// <FootprintEditor
-//   data={record}
-//   onBack={() => history.back()}
-//   onSave={(next) => api.saveFootprint(next)}
-// />

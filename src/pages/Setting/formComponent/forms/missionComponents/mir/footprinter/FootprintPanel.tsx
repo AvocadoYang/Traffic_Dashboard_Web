@@ -1,7 +1,7 @@
 import FormHr from "@/pages/Setting/utils/FormHr";
 import React, { FC } from "react";
 import styled from "styled-components";
-import { FootprintEditor } from "./FootprintEditor";
+import { FootprintsPage } from "./Footprintspage";
 
 const IndustrialContainer = styled.div`
   font-family: "Roboto Mono", monospace;
@@ -47,15 +47,22 @@ const FootprintPanel: FC<{
 }> = ({ attributes, listeners }) => {
 
   return (
-<IndustrialContainer>
+    <IndustrialContainer>
       {/* 🎯 修改點：使用 display: flex + flex-direction: column 讓內容撐開 */}
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, height: "100%" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          flex: 1,
+          height: "100%",
+        }}
+      >
         <PanelHeader {...listeners} {...attributes}>
           Footprint
         </PanelHeader>
         <FormHr />
         <div style={{ flex: 1, minHeight: 0, width: "100%" }}>
-          <FootprintEditor />
+          <FootprintsPage />
         </div>
       </div>
     </IndustrialContainer>
