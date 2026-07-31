@@ -1,15 +1,11 @@
 import { FC, memo, useState } from "react";
 import {
-  Button,
   Form,
   Input,
   InputNumber,
   message,
-  Modal,
   Popconfirm,
   Select,
-  Table,
-  Tag,
   Upload,
   UploadProps,
   Flex,
@@ -26,6 +22,7 @@ import {
   CloseCircleOutlined,
   FolderOutlined,
   FolderOpenOutlined,
+  HistoryOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -35,6 +32,12 @@ import useMapGroup from "@/api/useMapGroup";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
+import SyncJobsModal from "./SyncJobsModal";
+import {
+  IndustrialButton,
+  IndustrialModal,
+  IndustrialTable,
+} from "./industrialStyle";
 
 const { Dragger } = Upload;
 
@@ -129,76 +132,6 @@ const SectionDivider = styled.div`
   }
 `;
 
-const IndustrialButton = styled(Button)`
-  font-family: "Roboto Mono", monospace;
-  text-transform: uppercase;
-  font-size: 11px;
-  letter-spacing: 1px;
-  height: 36px;
-  font-weight: 600;
-  border-radius: 0;
-  transition: all 0.2s ease;
-
-  &.ant-btn-primary {
-    background: #1890ff;
-    border-color: #1890ff;
-
-    &:hover {
-      background: #40a9ff;
-      border-color: #40a9ff;
-      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
-    }
-  }
-
-  &.upload-btn {
-    background: #52c41a;
-    border-color: #52c41a;
-    color: #ffffff;
-
-    &:hover {
-      background: #73d13d;
-      border-color: #73d13d;
-      box-shadow: 0 2px 8px rgba(82, 196, 26, 0.4);
-    }
-  }
-
-  &.view-btn {
-    background: #ffffff;
-    border: 1px solid #1890ff;
-    color: #1890ff;
-
-    &:hover {
-      background: #f0f5ff;
-      border-color: #40a9ff;
-      color: #40a9ff;
-    }
-  }
-
-  &.edit-btn {
-    background: #ffffff;
-    border: 1px solid #faad14;
-    color: #faad14;
-
-    &:hover {
-      background: #fffbe6;
-      border-color: #faad14;
-      color: #fa8c16;
-    }
-  }
-
-  &.delete-btn {
-    background: #ffffff;
-    border: 1px solid #ff4d4f;
-    color: #ff4d4f;
-
-    &:hover {
-      background: #fff1f0;
-      border-color: #ff7875;
-      color: #ff7875;
-    }
-  }
-`;
-
 const IndustrialInput = styled(Input)`
   font-family: "Roboto Mono", monospace;
   font-size: 12px;
@@ -233,52 +166,6 @@ const IndustrialInputNumber = styled(InputNumber)`
   &.ant-input-number-focused {
     border-color: #1890ff;
     box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
-  }
-`;
-
-const IndustrialTable = styled(Table)`
-  .ant-table {
-    border: 1px solid #d9d9d9;
-    border-radius: 0;
-    font-family: "Roboto Mono", monospace;
-  }
-
-  .ant-table-thead > tr > th {
-    background: #fafafa;
-    border-bottom: 2px solid #d9d9d9;
-    color: #595959;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 700;
-    padding: 12px 16px;
-
-    &::before {
-      display: none;
-    }
-  }
-
-  .ant-table-tbody > tr {
-    transition: all 0.2s;
-    position: relative;
-
-    &:hover {
-      background: #f0f5ff;
-
-      &::before {
-        width: 4px;
-      }
-
-      td {
-        background: transparent;
-      }
-    }
-  }
-
-  .ant-table-tbody > tr > td {
-    border-bottom: 1px solid #f0f0f0;
-    padding: 12px 16px;
-    font-size: 12px;
   }
 `;
 
@@ -321,51 +208,6 @@ const StyledForm = styled(Form)`
   }
 `;
 
-const IndustrialModal = styled(Modal)`
-  .ant-modal-content {
-    background: #ffffff;
-    border: 2px solid #d9d9d9;
-    border-radius: 0;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  }
-
-  .ant-modal-header {
-    background: #fafafa;
-    border-bottom: 2px solid #d9d9d9;
-    border-left: 4px solid #1890ff;
-    padding: 16px 24px;
-    border-radius: 0;
-  }
-
-  .ant-modal-title {
-    color: #1890ff;
-    font-size: 14px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-family: "Roboto Mono", monospace;
-  }
-
-  .ant-modal-body {
-    padding: 24px;
-  }
-
-  .ant-modal-footer {
-    border-top: 1px solid #d9d9d9;
-    padding: 16px 24px;
-
-    .ant-btn {
-      font-family: "Roboto Mono", monospace;
-      text-transform: uppercase;
-      font-size: 11px;
-      letter-spacing: 1px;
-      height: 36px;
-      font-weight: 600;
-      border-radius: 0;
-    }
-  }
-`;
-
 const StatusBadge = styled.div<{ $active: boolean }>`
   display: inline-flex;
   align-items: center;
@@ -389,7 +231,10 @@ const FolderList = styled.div`
   flex-wrap: wrap;
 `;
 
-const FolderItem = styled.div<{ $isSelected: boolean; $isActiveGroup?: boolean }>`
+const FolderItem = styled.div<{
+  $isSelected: boolean;
+  $isActiveGroup?: boolean;
+}>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -540,6 +385,25 @@ type MapInfo = {
   floor: number;
 };
 
+type MirSyncPushResponse = {
+  status: string;
+  response: {
+    laggards: number;
+    verified: number;
+    partial: number;
+    failed: number;
+    skippedOffline: number;
+    details: {
+      vehicleId: string;
+      groupId: string;
+      jobId: string | null;
+      done: number;
+      total: number;
+      status: string;
+    }[];
+  };
+};
+
 const MapManager: FC<{
   sortableId: string;
   attributes: import("@dnd-kit/core").DraggableAttributes;
@@ -556,6 +420,7 @@ const MapManager: FC<{
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingMap, setEditingMap] = useState<MapInfo | null>(null);
   const [selectedGroupId, setSelectedGroupId] = useState("");
+  const [syncJobsModalOpen, setSyncJobsModalOpen] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   const queryClient = useQueryClient();
   const { data: maps, refetch } = useAllMapInfo();
@@ -581,20 +446,34 @@ const MapManager: FC<{
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
-   // Sync Mutation
-   const syncMutation = useMutation({
+  // Sync Mutation
+  const syncMutation = useMutation({
     mutationFn: async () => {
-      const res = await client.post("api/setting/map-sync");
-      return res;
+      await client.post("api/setting/map-sync");
+      const pushRes = await client.post<MirSyncPushResponse>(
+        "api/setting/mir/sync-push",
+      );
+      return pushRes.data?.response ?? null;
     },
-    onSuccess: async (data) => {
+    onSuccess: async (pushResult) => {
       messageApi.success(t("utils.success"));
+      if (pushResult) {
+        messageApi.info(
+          t("map_manager.sync_push_result", {
+            verified: pushResult.verified,
+            partial: pushResult.partial,
+            failed: pushResult.failed,
+            skippedOffline: pushResult.skippedOffline,
+          }),
+        );
+      }
       await Promise.all([
         refetch(),
         queryClient.invalidateQueries({ queryKey: ["map-group"] }),
       ]);
-    }
-  })
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
 
   // Edit Mutation
   const editMutation = useMutation({
@@ -856,10 +735,7 @@ const MapManager: FC<{
                   />
                 </Form.Item>
               </Flex>
-              <Form.Item
-                name="map_group_id"
-                label={t("map_manager.map_group")}
-              >
+              <Form.Item name="map_group_id" label={t("map_manager.map_group")}>
                 <Select
                   allowClear
                   placeholder={t("map_manager.select_map_group")}
@@ -907,9 +783,17 @@ const MapManager: FC<{
               onClick={() => syncMutation.mutate()}
               loading={syncMutation.isPending}
               disabled={syncMutation.isPending}
-          >
-            {t("map_manager.sync_map")}
-          </IndustrialButton>
+            >
+              {t("map_manager.sync_map")}
+            </IndustrialButton>
+            <IndustrialButton
+              className="view-btn"
+              size="small"
+              icon={<HistoryOutlined />}
+              onClick={() => setSyncJobsModalOpen(true)}
+            >
+              {t("map_manager.sync_jobs")}
+            </IndustrialButton>
           </SectionHeader>
 
           <FolderList>
@@ -1069,6 +953,11 @@ const MapManager: FC<{
           </Form.Item>
         </StyledForm>
       </IndustrialModal>
+
+      <SyncJobsModal
+        open={syncJobsModalOpen}
+        onClose={() => setSyncJobsModalOpen(false)}
+      />
     </>
   );
 };
