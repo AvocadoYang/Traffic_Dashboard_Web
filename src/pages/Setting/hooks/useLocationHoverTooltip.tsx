@@ -1,10 +1,9 @@
 import { useEffect, useMemo, RefObject } from "react";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom } from "jotai";
 import { fromEvent, throttleTime, map, tap } from "rxjs";
 import { rvizCoord } from "@/utils/utils";
 import useMap from "@/api/useMap";
 import { locationHoverInfo } from "@/utils/gloable";
-import { isShowLocationTooltip } from "@/utils/siderGloble";
 
 // 偵測半徑(公尺)：游標所在的 ROS 座標範圍內的點位都會浮出提示
 const DETECT_RADIUS = 2;
@@ -12,13 +11,14 @@ const DETECT_RADIUS = 2;
 const isTooltipTarget = ({ areaType }: { areaType: string }) =>
   areaType === "EXTRA" || areaType === "Dispatch";
 
-// 控制「地點提示」開啟時，游標移動附近點位浮出 tooltip
+// 偵測游標附近的點位。這份資訊除了驅動「地點提示」的懸浮標籤外，
+// 也持續提供給地圖上的點位圖示做「靠近游標時放大」的效果，因此不受
+// 「顯示點位提示」開關影響，一律即時計算。
 const useLocationHoverTooltip = (
   mapRef: RefObject<HTMLDivElement>,
   mapImageRef: RefObject<HTMLImageElement>,
   scale: number,
 ) => {
-  const showLocationToolTip = useAtomValue(isShowLocationTooltip);
   const [, setHoverInfo] = useAtom(locationHoverInfo);
   const { data } = useMap();
 
@@ -33,7 +33,6 @@ const useLocationHoverTooltip = (
     if (
       !mapRef.current ||
       !mapImageRef.current ||
-      !showLocationToolTip ||
       !data ||
       tooltipTargets.length === 0
     ) {
@@ -99,7 +98,7 @@ const useLocationHoverTooltip = (
       mapEl.removeEventListener("mouseleave", handleMouseLeave);
       setHoverInfo(null);
     };
-  }, [mapRef, mapImageRef, scale, showLocationToolTip, data, tooltipTargets]);
+  }, [mapRef, mapImageRef, scale, data, tooltipTargets]);
 };
 
 export default useLocationHoverTooltip;
