@@ -46,6 +46,7 @@ import {
   isOpenSwitchMap,
   isShowMapGroupTable,
   isShowChargeStationDockConfig,
+  isHowFootprint,
 } from "@/utils/siderGloble";
 import { useAtomValue } from "jotai";
 import { ToolBarItemType, ToolBarType } from "./siderElement";
@@ -80,6 +81,7 @@ import { MapGroupPanel } from "./mapGroup";
 import MapManager from "./ChangeMap/MapManager";
 import LockByMissionPanel from "../formComponent/forms/file/corning/LockByMissionPanel";
 import PeripheralChargeDockPanel from "./peripherals/PeripheralChargeDockPanel";
+import FootprintPanel from "../formComponent/forms/missionComponents/mir/footprinter/FootprintPanel";
 
 const SortableWrap: FC<{
   sortableId: ToolBarItemType;
@@ -627,6 +629,17 @@ const SortableWrap: FC<{
                 />
               </Card>
             );
+          case "footprint":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn sortableId={sortableId} panelName="footprint" />
+                <FootprintPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
           default:
             return null;
         }
@@ -670,9 +683,9 @@ const ToolComponents: FC<{
 
   const openPeripheralNamePanel = useAtomValue(isShowPeripheralNameTable);
   const openPeripheralGroupPanel = useAtomValue(isShowPeripheralGroupTable);
-   const openPeripheraChargeDockPanel = useAtomValue(
-     isShowChargeStationDockConfig,
-   );
+  const openPeripheraChargeDockPanel = useAtomValue(
+    isShowChargeStationDockConfig,
+  );
 
   const openTagPanel = useAtomValue(isShowEditMissionTag);
   const openChargeStylePanel = useAtomValue(isShowEditChargeStationPosition);
@@ -681,13 +694,14 @@ const ToolComponents: FC<{
 
   const openWarningPanel = useAtomValue(isShowEditWarningId);
   const openBackupPanel = useAtomValue(isShowEditBackup);
-    const openSystemAlarmPanel = useAtomValue(isShowSystemAlarm);
+  const openSystemAlarmPanel = useAtomValue(isShowSystemAlarm);
   const openSwitchMapPanel = useAtomValue(isOpenSwitchMap);
   const openMapGroupPanel = useAtomValue(isShowMapGroupTable);
 
   const openElevatorMission = useAtomValue(isShowEditElevatorMission);
   const openClampHieght = useAtomValue(isShowEditClampHeight);
   const openLockByMission = useAtomValue(isLockByMission);
+  const openFootprintPanel = useAtomValue(isHowFootprint);
 
   return dataList.map((form) => {
     const { key: formKey } = form;
@@ -815,14 +829,12 @@ const ToolComponents: FC<{
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
 
-        if (
-          formKey === "peripheral_charge_dock_config" &&
-          openPeripheraChargeDockPanel
-        ) {
-          return (
-            <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>
-          );
-        }
+    if (
+      formKey === "peripheral_charge_dock_config" &&
+      openPeripheraChargeDockPanel
+    ) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
 
     if (formKey === "edit_tag" && openTagPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
@@ -848,8 +860,7 @@ const ToolComponents: FC<{
     if (formKey === "switch_map" && openSwitchMapPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
-    if (formKey === "map_group_table" && openMapGroupPanel) 
-      {
+    if (formKey === "map_group_table" && openMapGroupPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     if (formKey === "show_system_alarm" && openSystemAlarmPanel) {
@@ -865,6 +876,9 @@ const ToolComponents: FC<{
     }
 
     if (formKey === "lock_by_mission" && openLockByMission) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "footprint" && openFootprintPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     return [];

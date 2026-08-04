@@ -40,6 +40,7 @@ import {
   isShowChargeStationDockConfig,
   isShowContainerTable,
   isShowSystemAlarm,
+  isHowFootprint,
 } from "@/utils/siderGloble";
 import { ToolBarItemType } from "../components/siderElement";
 
@@ -100,6 +101,8 @@ const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({
   );
   const setOpenContainerTablePanel = useSetAtom(isShowContainerTable);
   const setOpenSystemAlarmPanel = useSetAtom(isShowSystemAlarm);
+
+  const setOpenFootprintPanel = useSetAtom(isHowFootprint);
 
   const handleClose = () => {
     switch (panelName) {
@@ -218,6 +221,9 @@ const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({
         break;
       case "show_system_alarm":
         setOpenSystemAlarmPanel(false);
+        break;
+      case "footprint":
+        setOpenFootprintPanel(false);
         break;
       case "shelf_mission":
       case "todo_dependent_on_return_id_task":

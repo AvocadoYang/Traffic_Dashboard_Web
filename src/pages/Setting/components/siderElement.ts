@@ -61,6 +61,8 @@ export const formList = [
   { key: "show_system_alarm" },
   { key: "switch_map" },
   { key: "map_group_table" },
+
+  { key: "footprint" },
 ] as const;
 
 export const toolbarState = formList.map((item) => ({ ...item }));

@@ -1,62 +1,52 @@
-import {
-  Alert,
-  Button,
-  Flex,
-  Form,
-  FormInstance,
-  Input,
-  InputNumber,
-  message,
-  Modal,
-  Select,
-  Tooltip,
-} from "antd";
-import React, { FC, useState } from "react";
+import { Button, Flex, Form, FormInstance, message, Select } from "antd";
+import React, { FC, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
+import { ToolOutlined, SettingOutlined } from "@ant-design/icons";
 import {
-  RedoOutlined,
-  DeleteOutlined,
-  ArrowUpOutlined,
-  ArrowDownOutlined,
-  WarningOutlined,
-  CheckCircleOutlined,
-  ToolOutlined,
-  SettingOutlined,
-} from "@ant-design/icons";
-import { useMutation } from "@tanstack/react-query";
-import client from "@/api/axiosClient";
-import { Err } from "@/utils/responseErr";
-import {
-  Mir_Action_Type,
+  Mir_Action,
   Mir_All_Action,
-  Mir_Move_Action_Type,
-  Mir_Sound_light_type,
   Mir_Task,
+  mirErrorHandlingList,
   mirMoveActonList,
+  mirSaftySystemList,
   mirSoundLight,
 } from "./type";
-import useMirTaskOptions from "./useMirTaskOptions";
+import {
+  MirBlockedDockingTimeoutInputInput,
+  MirBlockedPathTimeoutInputInput,
+  MirCollisionDetectionInput,
+  MirDistanceThresholdInput,
+  MirFootprintInput,
+  MirFrontInput,
+  MirLocationInput,
+  MirMaximumAngularSpeedInputInput,
+  MirMaximumLinearSpeedInputInput,
+  MirOrientationInput,
+  MirRearInput,
+  MirSideInput,
+  MirSoundInput,
+  MirSwitchMapInput,
+  MirVolumeInput,
+  MirWaitInput,
+  MirXInput,
+  MirYInput,
+} from "./FormInputs";
+import dayjs from "dayjs";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
+import client from "@/api/axiosClient";
+import { useAtomValue } from "jotai";
+import { currentMapIdAtom } from "@/utils/mapSelection";
+import useTaskMir from "@/api/useTaskMir";
+import useTaskMirOne from "@/api/useTaskMirOne";
 
 const IndustrialContainer = styled.div`
   background: #f5f5f5;
   min-height: 100vh;
   padding: 20px;
   font-family: "Roboto Mono", "Courier New", monospace;
-`;
-
-const StatusBar = styled.div`
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  border-left: 4px solid #1890ff;
-  padding: 12px 16px;
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-family: "Roboto Mono", monospace;
-  color: #1890ff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 `;
 
 const SectionHeader = styled.div`
@@ -87,110 +77,6 @@ const IndustrialCard = styled.div`
   &:hover {
     border-color: #bfbfbf;
   }
-`;
-
-const ControlDisplay = styled.div<{ hasValue: boolean }>`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 350px;
-  padding: ${({ hasValue }) => (hasValue ? "16px" : "20px")};
-  background: ${({ hasValue }) => (hasValue ? "#f0f5ff" : "#fafafa")};
-  border: 2px solid ${({ hasValue }) => (hasValue ? "#1890ff" : "#d9d9d9")};
-  position: relative;
-  font-family: "Roboto Mono", monospace;
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: ${({ hasValue }) =>
-      hasValue
-        ? "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(24, 144, 255, 0.03) 2px, rgba(24, 144, 255, 0.03) 4px)"
-        : "none"};
-    pointer-events: none;
-  }
-
-  ${({ hasValue }) =>
-    hasValue &&
-    `box-shadow: inset 0 0 20px rgba(24, 144, 255, 0.08), 0 2px 8px rgba(24, 144, 255, 0.12);`}
-`;
-
-const EmptyStateText = styled.div`
-  color: #8c8c8c;
-  font-size: 13px;
-  text-align: center;
-  padding: 20px;
-  font-family: "Roboto Mono", monospace;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  border: 1px dashed #d9d9d9;
-  background: #fafafa;
-`;
-
-const ControlItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  border-left: 3px solid #1890ff;
-  transition: all 0.2s ease;
-  position: relative;
-  font-family: "Roboto Mono", monospace;
-
-  &::after {
-    content: "";
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background: linear-gradient(to bottom, transparent, #1890ff, transparent);
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-
-  &:hover {
-    background: #fafafa;
-    border-left-color: #fa8c16;
-    transform: translateX(4px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-
-    &::after {
-      opacity: 1;
-    }
-  }
-`;
-
-const ControlLabel = styled.span`
-  flex: 1;
-  font-weight: 500;
-  font-size: 13px;
-  color: #262626;
-  font-family: "Roboto Mono", monospace;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-`;
-
-const ControlIndex = styled.span`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 32px;
-  height: 24px;
-  padding: 0 8px;
-  background: #e6f7ff;
-  border: 1px solid #1890ff;
-  color: #1890ff;
-  font-size: 11px;
-  font-weight: 700;
-  font-family: "Roboto Mono", monospace;
-  box-shadow: 0 1px 4px rgba(24, 144, 255, 0.15);
 `;
 
 const IndustrialButton = styled(Button)`
@@ -270,52 +156,6 @@ const ValidationPanel = styled.div<{ status: "success" | "warning" | "error" }>`
         : status === "warning"
           ? "rgba(250, 173, 20, 0.08)"
           : "rgba(255, 77, 79, 0.08)"};
-`;
-
-const MetricDisplay = styled.div`
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 12px;
-  background: #fafafa;
-  border: 1px solid #d9d9d9;
-  font-family: "Roboto Mono", monospace;
-  font-size: 12px;
-  color: #1890ff;
-
-  .label {
-    color: #8c8c8c;
-    text-transform: uppercase;
-    font-size: 10px;
-  }
-
-  .value {
-    color: #1890ff;
-    font-weight: 600;
-  }
-`;
-
-const ActionButtonGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-
-  button {
-    background: transparent;
-    border: none;
-    color: #8c8c8c;
-    padding: 2px;
-    height: 20px;
-    width: 24px;
-
-    &:hover:not(:disabled) {
-      color: #1890ff;
-    }
-
-    &:disabled {
-      color: #d9d9d9;
-    }
-  }
 `;
 
 const FieldLabel = styled.span`
@@ -403,6 +243,8 @@ interface IndustrialSegmentedProps {
 const taskCategoryOptions = [
   { label: "Move", value: "move" },
   { label: "Sound/Light", value: "sound/light" },
+  { label: "Error Handling", value: "Error Handling" },
+  { label: "Safty system", value: "Safty system" },
 ];
 
 // 2. 移動相關 Action 選項
@@ -413,6 +255,16 @@ const moveActionOptions = mirMoveActonList.map((e) => ({
 
 // 3. 聲光相關 Action 選項
 const SLActionOptions = mirSoundLight.map((e) => ({
+  value: e,
+  label: e,
+}));
+
+const errorhandlingActionOptions = mirErrorHandlingList.map((e) => ({
+  value: e,
+  label: e,
+}));
+
+const saftySystemActionOptions = mirSaftySystemList.map((e) => ({
   value: e,
   label: e,
 }));
@@ -448,19 +300,71 @@ const TaskFormMir: FC<{
 }> = ({ editTaskKey, selectedMissionKey, form }) => {
   const { t } = useTranslation();
   const [messageApi, contextHolder] = message.useMessage();
-
+  const queryClient = useQueryClient();
   // 1. 當前選中的任務大類別 ('move' | 'sound/light')
   const [taskType, setTaskType] = useState<Mir_Task>("move");
   const [taskAction, setTaskAction] = useState<Mir_All_Action>();
+  const currentMapId = useAtomValue(currentMapIdAtom);
+  const { data: taskDataSource } = useTaskMirOne(editTaskKey);
 
-  const {locationsOption} =useMirTaskOptions()
+  useEffect(() => {
+    if (!taskDataSource) return;
+
+    const op = taskDataSource || (taskDataSource as any);
+    const actionType = (op.type || taskDataSource.type) as Mir_All_Action;
+    console.log(op);
+    console.log(actionType);
+
+    if (mirMoveActonList.includes(actionType as any)) {
+      setTaskType("move");
+    } else if (mirSoundLight.includes(actionType as any)) {
+      setTaskType("sound/light");
+    } else if (mirErrorHandlingList.includes(actionType as any)) {
+      setTaskType("Error Handling");
+    } else if (mirSaftySystemList.includes(actionType as any)) {
+      setTaskType("Safty system");
+    }
+
+    setTaskAction(actionType);
+
+    const formattedWait = op.wait
+      ? dayjs(op.wait, "HH:mm:ss").isValid()
+        ? dayjs(op.wait, "HH:mm:ss")
+        : undefined
+      : undefined;
+
+    setTimeout(() => {
+      form.setFieldsValue({
+        action_type: actionType,
+
+        location_id: op.location_id,
+        entry_position: op.entry_position,
+        footprint: op.footprint,
+        blocked_path_timeout: op.blocked_path_timeout ?? 60,
+        blocked_docking_timeout: op.blocked_docking_timeout ?? 60,
+        maximum_linear_speed: op.maximum_linear_speed ?? 0.25,
+        maximum_angular_speed: op.maximum_angular_speed ?? 0.25,
+        distance_threshold: op.distance_threshold ?? 0.25,
+        x: op.x ?? 0,
+        y: op.y ?? 0,
+        orientation: op.orientation ?? 0,
+        collision_detection: op.collision_detection ?? true,
+        wait: formattedWait,
+        sound: op.sound,
+        volume: op.volume ?? 0,
+        front: op.front ?? "unmuted",
+        rear: op.rear ?? "unmuted",
+        sides: op.sides ?? "unmuted",
+      });
+    }, 0);
+  }, [taskDataSource, form]);
+
 
 
   // 2. 切換大類別的 Handle 函式
   const handleCategoryChange = (newType: Mir_Task) => {
     setTaskType(newType);
     setTaskAction(undefined);
-    // 重設或更新 Form 內部 action 的值 (避免切換類別後殘留舊類別的選項)
     form.setFieldsValue({ action_type: undefined });
   };
 
@@ -468,30 +372,90 @@ const TaskFormMir: FC<{
     setTaskAction(v);
   };
 
-  // 3. 根據 taskType 動態回傳子選項列表 (給 Select 下拉選單用)
+  const saveMutation = useMutation({
+    mutationFn: (payload: Mir_Action) => {
+      return client.post("api/setting/save-edit-mir-task", payload);
+    },
+    onSuccess: async () => {
+      setTimeout(async () => {
+        void messageApi.success("success");
+        await queryClient.refetchQueries({ queryKey: ["map"] });
+      }, 500);
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
   const getSubActionOptions = () => {
     switch (taskType) {
       case "move":
         return moveActionOptions;
       case "sound/light":
         return SLActionOptions;
+      case "Error Handling":
+        return errorhandlingActionOptions;
+      case "Safty system":
+        return saftySystemActionOptions;
       default:
         return [];
     }
+  };
+
+  const onFinish = () => {
+    const rawPayload = form.getFieldsValue();
+    const newPayload = {
+      missionTitleId: selectedMissionKey,
+      currentMapId: currentMapId,
+      id: editTaskKey,
+      // 1. 基本動作類型
+      type: rawPayload.action_type ?? "",
+
+      // 2. 位置與導航相關
+      location_id: rawPayload.location_id ?? "",
+      entry_position: rawPayload.entry_position ?? "",
+      footprint: rawPayload.footprint ?? "",
+
+      // 3. 逾時與限制參數 (預設數值)
+      blocked_path_timeout: rawPayload.blocked_path_timeout ?? 60,
+      blocked_docking_timeout: rawPayload.blocked_docking_timeout ?? 60,
+      maximum_linear_speed: rawPayload.maximum_linear_speed ?? 0.25,
+      maximum_angular_speed: rawPayload.maximum_angular_speed ?? 0.25,
+      distance_threshold: rawPayload.distance_threshold ?? 0.25,
+
+      // 4. 相對位移參數
+      x: rawPayload.x ?? 0,
+      y: rawPayload.y ?? 0,
+      orientation: rawPayload.orientation ?? 0,
+      collision_detection: rawPayload.collision_detection ?? true,
+
+      // 5. 時間與聲音相關
+      wait:
+        rawPayload.wait && dayjs(rawPayload.wait).isValid()
+          ? dayjs(rawPayload.wait).format("HH:mm:ss")
+          : "00:00:00",
+      sound: rawPayload.sound ?? "",
+      volume: rawPayload.volume ?? 0,
+
+      // 6. 安全防護區域 (Mute/Unmute)
+      front: rawPayload.front ?? "unmuted",
+      rear: rawPayload.rear ?? "unmuted",
+      sides: rawPayload.sides ?? "unmuted",
+    };
+
+    // alert(JSON.stringify(newPayload, null, 2));
+    console.log("最終發送 Payload:", newPayload);
+    saveMutation.mutate(newPayload);
   };
 
   return (
     <IndustrialContainer>
       {contextHolder}
 
-      {/* ... StatusBar 保持不變 ... */}
-
       <Form
         form={form}
         autoComplete="off"
         size="large"
         variant="outlined"
-        // onFinish={onFinish}
+        onFinish={onFinish}
         layout="vertical"
       >
         {/* Action Type Selection */}
@@ -530,25 +494,84 @@ const TaskFormMir: FC<{
             </Form.Item>
           </Flex>
         </IndustrialCard>
-        {taskAction}
 
-        {taskAction === "Docking" && (
-          <IndustrialCard>
-            <SectionHeader>
-              <ToolOutlined />
-              [02] Docking
-            </SectionHeader>
-            <Form.Item
-              label={<FieldLabel>選擇類別</FieldLabel>}
-              name="docking.locationId"
-            >
-              <Select
-                options={locationsOption}
-                style={{ width: "100%" }}
-              />
-            </Form.Item>
-          </IndustrialCard>
+        <SectionHeader>
+          <ToolOutlined />
+          {taskAction}
+        </SectionHeader>
+
+        {taskAction === "docking" && (
+          <>
+            <MirLocationInput />
+            <MirBlockedPathTimeoutInputInput />
+            <MirBlockedDockingTimeoutInputInput />
+            <MirMaximumLinearSpeedInputInput />
+          </>
         )}
+
+        {taskAction === "move" && (
+          <>
+            <MirLocationInput />
+            <MirBlockedPathTimeoutInputInput />
+            <MirDistanceThresholdInput />
+          </>
+        )}
+
+        {taskAction === "relative_move" && (
+          <>
+            <MirXInput />
+            <MirYInput />
+            <MirOrientationInput />
+            <MirMaximumLinearSpeedInputInput />
+            <MirMaximumAngularSpeedInputInput />
+            <MirCollisionDetectionInput />
+            <MirBlockedPathTimeoutInputInput />
+          </>
+        )}
+
+        {taskAction === "set_footprint" && (
+          <>
+            <MirFootprintInput />
+          </>
+        )}
+
+        {taskAction === "switch_map" && (
+          <>
+            <MirSwitchMapInput />
+          </>
+        )}
+
+        {taskAction === "wait" && (
+          <>
+            <MirWaitInput />
+          </>
+        )}
+
+        {taskAction === "reduce_protective_fields" && (
+          <>
+            <MirSoundInput />
+            <MirVolumeInput />
+            <MirFrontInput />
+            <MirRearInput />
+            <MirSideInput />
+          </>
+        )}
+
+        <Flex
+          align="center"
+          justify="center"
+          gap="middle"
+          style={{ padding: "40px 0 20px" }}
+        >
+          <IndustrialButton
+            className="primary"
+            size="large"
+            htmlType="submit"
+            style={{ minWidth: 160 }}
+          >
+            {t("mission.task_form_fork.deploy")}
+          </IndustrialButton>
+        </Flex>
       </Form>
     </IndustrialContainer>
   );

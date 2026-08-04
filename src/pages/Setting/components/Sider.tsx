@@ -43,6 +43,7 @@ import {
   isShowSystemAlarm,
   isShowMapGroupTable,
   isShowChargeStationDockConfig,
+  isHowFootprint,
 } from "@/utils/siderGloble";
 import {
   AimOutlined,
@@ -150,8 +151,8 @@ const Sider: React.FC<{
   const [openEditChargeStationIconPanel, setOpenEditChargeStationIconPanel] =
     useAtom(isShowEditChargeStationPosition);
 
-      const [openEditChargeDockConfigPanel, setOpenEditChargeDockConfigPanel] =
-        useAtom(isShowChargeStationDockConfig);
+  const [openEditChargeDockConfigPanel, setOpenEditChargeDockConfigPanel] =
+    useAtom(isShowChargeStationDockConfig);
 
   const [openCustomCargoFormat, setOpenCustomCargoFormat] = useAtom(
     isShowEditCustomCargoFormat,
@@ -168,9 +169,8 @@ const Sider: React.FC<{
   const [openStartPoint, setOpenStartPoint] = useState(false);
 
   const [openSwitchMap, setOpenSwitchMap] = useAtom(isOpenSwitchMap);
-  const [openMapGroupTable, setOpenMapGroupTable] = useAtom(
-    isShowMapGroupTable,
-  );
+  const [openMapGroupTable, setOpenMapGroupTable] =
+    useAtom(isShowMapGroupTable);
 
   const setShowLocationToolTip = useSetAtom(isShowLocationTooltip);
 
@@ -193,6 +193,8 @@ const Sider: React.FC<{
 
   const [openLockByMission, setOpenLockByMission] = useAtom(isLockByMission);
   const [showSystemAlarm, setShowSystemAlarm] = useAtom(isShowSystemAlarm);
+
+  const [showFootprint, setShowFootprint] = useAtom(isHowFootprint);
 
   const [collapsed, setCollapsed] = useState(false);
   const { t } = useTranslation();
@@ -234,6 +236,7 @@ const Sider: React.FC<{
       openSwitchMap,
       openMapGroupTable,
       openEditChargeDockConfigPanel,
+      showFootprint,
     ].some((item) => item);
 
     setHasOpenTool(isOpen);
@@ -274,6 +277,7 @@ const Sider: React.FC<{
     openSwitchMap,
     openMapGroupTable,
     openEditChargeDockConfigPanel,
+    showFootprint,
   ]);
 
   const handleShowPanel = async (check: boolean, itemType: ToolBarItemType) => {
@@ -441,6 +445,9 @@ const Sider: React.FC<{
         break;
       case "map_group_table":
         setOpenMapGroupTable(check);
+        break;
+      case "footprint":
+        setShowFootprint(check);
         break;
       //=======
     }
@@ -709,7 +716,7 @@ const Sider: React.FC<{
 
       getItem(
         t("toolbar.others.charge_dock_config"),
-        "7-3",
+        "7-4",
         <Switch
           checked={openEditChargeDockConfigPanel}
           onChange={(checked) =>
@@ -829,6 +836,16 @@ const Sider: React.FC<{
         <Switch
           checked={openLockByMission}
           onChange={(checked) => handleShowPanel(checked, "lock_by_mission")}
+        />,
+      ),
+    ]),
+    getItem("MIR", "12", <FileOutlined />, [
+      getItem(
+        "footprint",
+        "12-1",
+        <Switch
+          checked={showFootprint}
+          onChange={(checked) => handleShowPanel(checked, "footprint")}
         />,
       ),
     ]),

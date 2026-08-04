@@ -15,8 +15,8 @@ import TaskFormHumanRobot from "./humanRobotEditMissionSlice/TaskFormHumanRobot"
 import TaskFormFork from "./forkEditMissionSlice/TaskFormFork";
 import { useAtomValue } from "jotai";
 import { currentMapIdAtom } from "@/utils/mapSelection";
-import TaskFormMir from "./mirEditMissionSlice/TaskFormMir";
-import MirTaskTable from "./mirEditMissionSlice/MirTaskTable";
+import MirTaskTable from "../mir/mirEditMissionSlice/MirTaskTable";
+import TaskFormMir from "../mir/mirEditMissionSlice/TaskFormMir";
 
 const copy = (originKey: string, currentMapId: string) => {
   const randomId = nanoid();
