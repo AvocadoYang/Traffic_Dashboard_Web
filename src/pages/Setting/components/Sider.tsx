@@ -109,6 +109,8 @@ const ToolSheet = styled(Drawer)`
   && {
     border-radius: var(--space-lg) var(--space-lg) 0 0;
     overflow: hidden;
+    /* 沒拖曳時高度是 auto（縮到內容），這條負責在展開分類後不要無限長高 */
+    max-height: var(--tool-sheet-max-height);
   }
 
   && .ant-drawer-header {
@@ -116,7 +118,10 @@ const ToolSheet = styled(Drawer)`
     border-bottom: 1px solid #f0f0f0;
   }
 
+  /* 分類列固定、只有下面的面板捲動 */
   && .ant-drawer-body {
+    display: flex;
+    flex-direction: column;
     padding: 0;
     overflow: hidden;
   }
@@ -140,37 +145,57 @@ const SheetHandle = styled.div`
   }
 `;
 
-const SheetMenu = styled(Menu)`
-  /* .ant-menu root 的 antd 規則為 10，&& 就夠 */
+/* 分類列用原生 button，不走 antd Menu，省掉一整排 horizontal menu 的覆蓋樣式 */
+const SheetTabs = styled.div`
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-bottom: 1px solid #f0f0f0;
+`;
+
+const SheetTab = styled.button<{ $active: boolean }>`
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  min-width: 72px;
+  padding: var(--space-sm) var(--space-md);
+  border: none;
+  border-bottom: 2px solid
+    ${({ $active }) => ($active ? "#1890ff" : "transparent")};
+  background: ${({ $active }) =>
+    $active ? "rgba(24, 144, 255, 0.08)" : "transparent"};
+  color: ${({ $active }) => ($active ? "#1890ff" : "#595959")};
+  font-family: inherit;
+  font-size: var(--font-xs);
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+
+  .anticon {
+    font-size: var(--tool-sheet-icon-size);
+  }
+`;
+
+const SheetPanel = styled.div`
+  flex: 1 1 auto;
+  /* flex 子項預設 min-height:auto 會撐破容器，捲動要靠這個 */
+  min-height: 0;
+  overflow-y: auto;
+`;
+
+const SheetPanelMenu = styled(Menu)`
   && {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
+    border-inline-end: none;
     background: transparent;
-    border: none;
-    line-height: normal;
-  }
-
-  /* horizontal 模式下 antd 對 item/submenu 的規則最高到 40，必須 &&&& = 50 */
-  &&&& .ant-menu-item,
-  &&&& .ant-menu-submenu {
-    top: 0;
-    flex: 0 0 auto;
-    display: inline-flex;
-    align-items: center;
-    height: var(--control-height);
-    padding: 0 var(--space-md);
-    margin-inline: 0;
-    font-size: var(--font-md);
-    white-space: nowrap;
-  }
-
-  &&&& .ant-menu-submenu-title {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-xs);
-    padding: 0;
   }
 `;
 
@@ -272,6 +297,11 @@ const Sider: React.FC<{
   const [showSystemAlarm, setShowSystemAlarm] = useAtom(isShowSystemAlarm);
 
   const [collapsed, setCollapsed] = useState(false);
+  /* null = 只顯示分類列，sheet 縮到內容高度不擋地圖 */
+  const [activeCategoryKey, setActiveCategoryKey] = useState<string | null>(
+    null,
+  );
+  const sheetTabsRef = useRef<HTMLDivElement>(null);
   const sheetDragRef = useRef<{
     startY: number;
     startHeight: number;
@@ -938,6 +968,30 @@ const Sider: React.FC<{
     }
   };
 
+  /* toolItem 的每一項都是 getItem(label, key, icon, children) 產出的 submenu，
+     這裡只是換個角度讀同一份資料，不另外維護一份分類表 */
+  const toolCategories = toolItem as Array<{
+    key: string;
+    icon: React.ReactNode;
+    label: React.ReactNode;
+    children: MenuItem[];
+  }>;
+  const activeCategory = toolCategories.find(
+    (category) => category.key === activeCategoryKey,
+  );
+
+  const handleSelectCategory = (key: string) => {
+    const next = activeCategoryKey === key ? null : key;
+    setActiveCategoryKey(next);
+
+    // 收合時把拖曳過的高度清掉，讓 sheet 縮回 auto（內容高度）
+    if (!next) {
+      sheetTabsRef.current
+        ?.closest<HTMLElement>(".ant-drawer-content-wrapper")
+        ?.style.removeProperty("--tool-sheet-height");
+    }
+  };
+
   return (
     <>
       {contextHolders}
@@ -973,14 +1027,32 @@ const Sider: React.FC<{
           />
         }
       >
-        <SheetMenu
-          onClick={(e) => handleRestart(e.keyPath)}
-          mode="horizontal"
-          /* 不要讓 antd 把裝不下的項目收進 "..."，改成整列橫向捲動 */
-          disabledOverflow
-          items={toolItem}
-          className="setting-sider-menu"
-        />
+        <SheetTabs ref={sheetTabsRef}>
+          {toolCategories.map((category) => (
+            <SheetTab
+              key={category.key}
+              type="button"
+              $active={category.key === activeCategoryKey}
+              onClick={() => handleSelectCategory(category.key)}
+            >
+              {category.icon}
+              <span>{category.label}</span>
+            </SheetTab>
+          ))}
+        </SheetTabs>
+
+        {activeCategory && (
+          <SheetPanel>
+            <SheetPanelMenu
+              onClick={(e) => handleRestart(e.keyPath)}
+              mode="inline"
+              /* 開關狀態已經由每列的 Switch 表達，不需要再有選取高亮 */
+              selectable={false}
+              items={activeCategory.children}
+              className="setting-sider-menu"
+            />
+          </SheetPanel>
+        )}
       </ToolSheet>
 
       {/**  -------- 錯誤表 --------  */}
