@@ -18,6 +18,8 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { Mission_Title } from "./mission";
 import useMissionFolder from "@/api/useMissionFolder";
+import { useAtomValue } from "jotai";
+import { currentMapIdAtom } from "@/utils/mapSelection";
 
 // Industrial Styled Components
 const IndustrialTableContainer = styled.div`
@@ -185,16 +187,18 @@ const MissionTable: FC<{
   const { t } = useTranslation();
   const [messageApi, contextHolders] = message.useMessage();
   const { data: folders, refetch: refetchFolders } = useMissionFolder();
+  const currentMapId = useAtomValue(currentMapIdAtom);
   const deleteMutation = useMutation({
     mutationFn: (deleteId: string) => {
       return client.post(
         "api/setting/delete-mission-title",
         {
           id: deleteId,
+          currentMapId,
         },
         {
           headers: { authorization: `Bearer ${localStorage.getItem("_KMT")}` },
-        }
+        },
       );
     },
     onSuccess: async () => {

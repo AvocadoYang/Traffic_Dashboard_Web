@@ -96,30 +96,36 @@ const PointDiv = styled.div.attrs<{
   top: number;
   canrotate: string;
   hoverLoc?: boolean;
+  isNear?: boolean;
 }>(({ left, top, canrotate, hoverLoc }) => ({
-  style: { left, top, canrotate, hoverLoc },
+  // 位置四捨五入到整數像素，避免小圓點在縮放後落在次像素造成
+  // 各點抗鋸齒程度不同、視覺上大小看起來不一致。
+  style: { left: Math.round(left), top: Math.round(top), canrotate, hoverLoc },
 }))<{
   left: number;
   top: number;
   canrotate: string;
   hoverLoc?: boolean;
+  isNear?: boolean;
 }>`
-width: 4px;
-height: 4px;
+width: ${(p) => (p.isNear ? "6px" : "4px")};
+height: ${(p) => (p.isNear ? "6px" : "4px")};
 border-radius: 50%;
 background: ${(props) => props.canrotate === "true" ? "#ff15fb" : "#0d0d12"};
 position: absolute;
 cursor: pointer;
 left: ${(p) => p.left}px;
 top: ${(p) => p.top}px;
-z-index: 150;
+/* 蓋過車輛圖示(z-index:200000)，避免點位被 AMR 擋住點不到 */
+z-index: 200001;
 /* box-shadow:  ${(props) => props.canrotate === "true" ? " 0 0 4px rgba(253, 43, 180, 0.6)" : " 0 0 4px rgba(0, 0, 0, 0.6)"}; */
 transform: translate(-50%, -50%);
 border: ${(props) => (props.hoverLoc ? "5px solid #ff0000" : "none")};
+transition: width 0.12s ease-out, height 0.12s ease-out;
   &:hover {
     background: red;
-    width: 6px;
-height: 6px;
+    width: 9px;
+    height: 9px;
   }
 `;
 
@@ -130,30 +136,34 @@ const PointMainDiv = styled.div.attrs<{
   top: number;
   canrotate: string;
   hoverLoc?: boolean;
+  isNear?: boolean;
 }>(({ left, top, canrotate, hoverLoc }) => ({
-  style: { left, top, canrotate, hoverLoc },
+  style: { left: Math.round(left), top: Math.round(top), canrotate, hoverLoc },
 }))<{
   left: number;
   top: number;
   canrotate: string;
   hoverLoc?: boolean;
+  isNear?: boolean;
 }>`
-width: 3px;
-height: 3px;
+width: ${(p) => (p.isNear ? "5px" : "3px")};
+height: ${(p) => (p.isNear ? "5px" : "3px")};
 border-radius: 50%;
 background: ${(props) => props.canrotate === "true" ? "#ff15fb" : "#0d0d12"};
 position: absolute;
 cursor: pointer;
 left: ${(p) => p.left}px;
 top: ${(p) => p.top}px;
-z-index: 150;
+/* 蓋過車輛圖示(z-index:200000)，避免點位被 AMR 擋住點不到 */
+z-index: 200001;
 /* box-shadow:  ${(props) => props.canrotate === "true" ? " 0 0 4px rgba(253, 43, 180, 0.6)" : " 0 0 4px rgba(0, 0, 0, 0.6)"}; */
 transform: translate(-50%, -50%);
 border: ${(props) => (props.hoverLoc ? "5px solid #ff0000" : "none")};
+transition: width 0.12s ease-out, height 0.12s ease-out;
   &:hover {
     background: red;
-    width: 6px;
-height: 6px;
+    width: 8px;
+    height: 8px;
   }
 `;
 
@@ -175,21 +185,45 @@ const DraggableLineDiv = styled.div.attrs<{
 }))`
   display: ${(props) => (props.openeditroadpanel ? "block" : "none")};
   position: absolute;
-  background-color: black;
-  height: 3px;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(24, 144, 255, 0.15),
+    #1890ff 40%,
+    #1890ff 100%
+  );
+  box-shadow: 0 0 6px rgba(24, 144, 255, 0.55);
   transform-origin: 0 50%;
   pointer-events: none;
 
+  /* 拖曳起點的圓點 */
+  &::before {
+    content: "";
+    position: absolute;
+    left: -4px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    background: #1890ff;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    box-shadow: 0 0 6px rgba(24, 144, 255, 0.8);
+  }
+
+  /* 箭頭終點的三角形 */
   &::after {
     content: "";
     position: absolute;
-    border: solid black;
-    border-width: 0 3px 3px 0;
-    display: inline-block;
-    padding: 3px;
-    right: 3px;
-    bottom: -2.65px;
-    transform: rotate(-45deg);
+    right: -2px;
+    top: 50%;
+    width: 0;
+    height: 0;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 11px solid #1890ff;
+    transform: translateY(-50%);
+    filter: drop-shadow(0 0 3px rgba(24, 144, 255, 0.7));
     pointer-events: none;
   }
 `;

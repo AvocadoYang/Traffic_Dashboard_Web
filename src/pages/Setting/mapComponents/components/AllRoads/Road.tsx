@@ -1,10 +1,11 @@
 import { FC, useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
-import { useAtomValue } from "jotai";
-import { Tooltip } from "antd";
+import { useAtomValue, useSetAtom } from "jotai";
 import { rad2Deg, amrId2ColorRainbow } from "@/utils/utils";
 import { isShowRoadTooltip } from "@/utils/siderGloble";
+import { hoverRoad } from "@/utils/gloable";
 import { useMockInfo } from "@/sockets/useMockInfo";
+import { HoverLabel, TOOLTIP_Z_INDEX } from "../HoverLabel";
 
 const Container = styled.div.attrs<{
   left: number;
@@ -14,6 +15,19 @@ const Container = styled.div.attrs<{
   top: number;
 }>`
   position: absolute;
+`;
+
+const HoverLabelWrapper = styled.div.attrs<{
+  left: number;
+  top: number;
+}>(({ left, top }) => ({ style: { left, top } }))<{
+  left: number;
+  top: number;
+}>`
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: ${TOOLTIP_Z_INDEX};
+  pointer-events: none;
 `;
 
 //#9cb4c8 #02ddff
@@ -120,6 +134,7 @@ const Road: FC<{
   const angle = rad2Deg(Math.atan2(y2 - y1, x2 - x1));
   const script = useMockInfo();
   const showRoadTooltip = useAtomValue(isShowRoadTooltip);
+  const setHoverRoad = useSetAtom(hoverRoad);
 
   useEffect(() => {
     if (!script) return;
@@ -136,50 +151,55 @@ const Road: FC<{
 
   return (
     <Container left={x1} top={y1}>
-      <Tooltip title={showRoadTooltip ? roadId : ""}>
-        <Line
-          length={length}
-          angle={angle}
-          ref={ref}
-          priority={priority}
-          color={claimColor}
-          $isOneWayRoad={roadType === "oneWayRoad"}
-          $isClaimed={isClaimedBy !== undefined}
-          $limit={!!limit}
-          $isOnHover={isRoadOnHover}
-        >
-          {disabled && (
-            <p
-              style={{
-                fontSize: "10px",
-                position: "absolute",
-                top: "-px",
-                // bottom: '10p%',
-                left: "23%",
-                zIndex: "100",
-                transform: `rotate(-${angle}deg) translateY(-25%) translateX(20%)`,
-              }}
-            >
-              ⛔
-            </p>
-          )}
-          {limit && (
-            <p
-              style={{
-                fontSize: "10px",
-                position: "absolute",
-                top: "-px",
-                // bottom: '10p%',
-                left: "23%",
-                zIndex: "100",
-                transform: `rotate(-${angle}deg) translateY(-25%) translateX(20%)`,
-              }}
-            >
-              ❶
-            </p>
-          )}
-        </Line>
-      </Tooltip>
+      <Line
+        length={length}
+        angle={angle}
+        ref={ref}
+        priority={priority}
+        color={claimColor}
+        $isOneWayRoad={roadType === "oneWayRoad"}
+        $isClaimed={isClaimedBy !== undefined}
+        $limit={!!limit}
+        $isOnHover={isRoadOnHover}
+        onMouseEnter={() => setHoverRoad(roadId)}
+        onMouseLeave={() => setHoverRoad("")}
+      >
+        {disabled && (
+          <p
+            style={{
+              fontSize: "10px",
+              position: "absolute",
+              top: "-px",
+              // bottom: '10p%',
+              left: "23%",
+              zIndex: "100",
+              transform: `rotate(-${angle}deg) translateY(-25%) translateX(20%)`,
+            }}
+          >
+            ⛔
+          </p>
+        )}
+        {limit && (
+          <p
+            style={{
+              fontSize: "10px",
+              position: "absolute",
+              top: "-px",
+              // bottom: '10p%',
+              left: "23%",
+              zIndex: "100",
+              transform: `rotate(-${angle}deg) translateY(-25%) translateX(20%)`,
+            }}
+          >
+            ❶
+          </p>
+        )}
+      </Line>
+      {isRoadOnHover && showRoadTooltip && (
+        <HoverLabelWrapper left={(x2 - x1) / 2} top={(y2 - y1) / 2}>
+          <HoverLabel $accent="red">{roadId}</HoverLabel>
+        </HoverLabelWrapper>
+      )}
     </Container>
   );
 };

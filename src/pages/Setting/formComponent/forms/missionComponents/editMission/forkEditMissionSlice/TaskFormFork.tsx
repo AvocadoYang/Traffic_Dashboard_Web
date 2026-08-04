@@ -33,6 +33,8 @@ import { Action_Type, Select_Location_Type } from "./types";
 import { controlList } from "./params";
 import DynamicControlFields from "./DynamicControlFields";
 import HorrorModal from "@/pages/Setting/components/HorrorModal";
+import { useAtomValue } from "jotai";
+import { currentMapIdAtom } from "@/utils/mapSelection";
 
 enum YawGenre {
   CUSTOM,
@@ -459,6 +461,7 @@ const TaskFormFork: FC<{
     SelectLevelOptions,
     SelectYawOptions,
   } = useTaskOptions(actionState as Action_Type);
+  const currentMapId = useAtomValue(currentMapIdAtom);
 
   const deleteControlElementFromIndex = (index: number) => {
     setControlClickOrder((prev) => {
@@ -524,6 +527,7 @@ const TaskFormFork: FC<{
     }
     const newPayload = {
       ...payload,
+      currentMapId,
       is_define_id: selectLocationType,
       action_type: actionState,
       control: controlClickOrder,

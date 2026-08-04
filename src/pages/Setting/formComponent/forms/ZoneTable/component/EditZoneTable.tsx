@@ -25,7 +25,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import useMap from "@/api/useMap";
+import useActiveGroupResources from "@/api/useActiveGroupResources";
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
 
 type FormType = {
@@ -36,15 +36,14 @@ type FormType = {
   endX: number;
   endY: number;
   layer: string;
-  lidar_front: boolean,
-  lidar_back: boolean,
+  lidar_front: boolean;
+  lidar_back: boolean;
   category: string[] | undefined;
 
   hight_limit: number | undefined;
   speed_limit: number | undefined;
   limitNum: number | undefined;
   all_forbidden: boolean | undefined;
-  not_forbidden: boolean | undefined;
   view_available: string | undefined;
   forbidden: string[] | undefined;
   color: string;
@@ -52,7 +51,6 @@ type FormType = {
 
 type TagSetting = {
   allVehicleForbidden: boolean;
-  notVehicleForbidden: boolean;
   forbidden: string[];
   speed_limit: number | undefined;
   hight_limit: number | undefined;
@@ -62,7 +60,6 @@ type TagSetting = {
 
 const tagInit = {
   allVehicleForbidden: false,
-  notVehicleForbidden: false,
   forbidden: [],
   speed_limit: undefined,
   hight_limit: undefined,
@@ -105,7 +102,7 @@ const EditZoneTable: FC<{
   const [messageApi, contextHolders] = message.useMessage();
   const { data: loc } = useLoc(undefined);
   const { data: allAmr } = useAmrName();
-  const { data: mapData } = useMap();
+  const { data: resources } = useActiveGroupResources();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
@@ -140,6 +137,8 @@ const EditZoneTable: FC<{
     onSuccess: () => {
       void messageApi.success("success");
       queryClient.refetchQueries({ queryKey: ["map"] });
+      queryClient.refetchQueries({ queryKey: ["active-group-resources"] });
+      queryClient.refetchQueries({ queryKey: ["all-groups-resources"] });
       // setEditingKey(null);
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
@@ -164,7 +163,11 @@ const EditZoneTable: FC<{
       messageApi.warning(t("edit_zone_panel.waring.color_error"));
       return;
     }
-    const exists = mapData!.zones.some((zone) => {
+    const sameMapZones =
+      resources?.maps.find((m) =>
+        m.zones.some((zone) => zone.id === oldData?.id),
+      )?.zones ?? [];
+    const exists = sameMapZones.some((zone) => {
       return zone.name.trim() === name.trim() && oldData?.id !== zone.id;
     });
     if (exists) {
@@ -172,31 +175,24 @@ const EditZoneTable: FC<{
       return;
     }
 
-    let forbiddenCars: string[] = [];
-
     if (
       data.category?.includes("禁止區") &&
       !data.all_forbidden &&
-      !data.not_forbidden &&
       !data.forbidden?.length
     ) {
       messageApi.warning(t("edit_zone_panel.waring.tag_not_yet_setting"));
       return;
     }
 
-    if (data.all_forbidden) {
-      forbiddenCars = ["*"];
-    } else if (data.not_forbidden) {
-      forbiddenCars = [];
-    } else {
-      forbiddenCars = data.forbidden as string[];
-    }
+    const forbiddenCars: string[] = data.all_forbidden
+      ? ["*"]
+      : (data.forbidden as string[]);
 
     const payload: FormType = {
       ...data,
-      layer: data.layer ? data.layer: "none",
-      lidar_back: data.layer ? data.lidar_back: false,
-      lidar_front : data.layer ? data.lidar_front: false,
+      layer: data.layer ? data.layer : "none",
+      lidar_back: data.layer ? data.lidar_back : false,
+      lidar_front: data.layer ? data.lidar_front : false,
       speed_limit: data.speed_limit
         ? data.speed_limit
         : (oldData?.tagSetting.speed_limit as number),
@@ -217,61 +213,43 @@ const EditZoneTable: FC<{
   };
 
   const updateLayer = (layer: string) => {
-      setLayerOpt(layer)
-  }
+    setLayerOpt(layer);
+  };
 
   const layer: SelectProps["options"] = [
     { label: `${t("edit_zone_panel.layer_dis_far")}`, value: "0" },
     { label: `${t("edit_zone_panel.layer_dis_near")}`, value: "1" },
     { label: `${t("edit_zone_panel.speical_layer_cargo")}`, value: "2" },
     { label: `${t("edit_zone_panel.special_layer_charge")}`, value: "3" },
-  ]
-
-
+  ];
 
   // 將資料庫資料寫入各個 input. 另外將資料複製一份到即將修改的表單中
   useEffect(() => {
     if (!oldData) return;
     setZoneTags(oldData.category);
     const forbiddenCar = oldData.tagSetting.forbidden_car;
+    // forbidden_car 存 ["*"] 代表存檔當下勾的是「禁止所有車輛通行」, 不是一台叫
+    // "*" 的車, 要還原成 all_forbidden=true 而不是塞進 forbidden 車輛清單。
+    const isAllForbidden = forbiddenCar.includes("*");
 
     const tagSetting: TagSetting = {
-      allVehicleForbidden: false,
-      notVehicleForbidden: false,
-      forbidden: [],
+      allVehicleForbidden: isAllForbidden,
+      forbidden: isAllForbidden ? [] : forbiddenCar,
       limitNum: undefined,
       hight_limit: undefined,
       speed_limit: undefined,
       view_available: undefined,
     };
 
-
-    if (forbiddenCar.length) {
-      tagSetting.allVehicleForbidden = false;
-      tagSetting.notVehicleForbidden = false;
-      editZoneForm.setFieldValue("forbidden", oldData.tagSetting.forbidden_car);
-      tagSetting.forbidden = forbiddenCar;
-    } else {
-      if (!oldData.category.includes("限制區")) {
-        tagSetting.allVehicleForbidden = false;
-        tagSetting.notVehicleForbidden = false;
-        editZoneForm.setFieldValue("not_forbidden", false);
-        editZoneForm.setFieldValue("all_forbidden", false);
-      } else if (oldData.tagSetting.forbidden_car.includes("*")) {
-        tagSetting.allVehicleForbidden = true;
-        tagSetting.notVehicleForbidden = false;
-        editZoneForm.setFieldValue("not_forbidden", false);
-        editZoneForm.setFieldValue("all_forbidden", true);
-      } else {
-        tagSetting.allVehicleForbidden = false;
-        tagSetting.notVehicleForbidden = true;
-        editZoneForm.setFieldValue("not_forbidden", true);
-        editZoneForm.setFieldValue("all_forbidden", false);
-      }
-      editZoneForm.setFieldValue("forbidden", []);
-    }
-    editZoneForm.setFieldValue("layer", oldData.layer == "none" ? undefined : oldData.layer)
-    oldData.layer == "none" ? setLayerOpt(undefined): setLayerOpt(oldData.layer); 
+    editZoneForm.setFieldValue("all_forbidden", isAllForbidden);
+    editZoneForm.setFieldValue("forbidden", isAllForbidden ? [] : forbiddenCar);
+    editZoneForm.setFieldValue(
+      "layer",
+      oldData.layer == "none" ? undefined : oldData.layer,
+    );
+    oldData.layer == "none"
+      ? setLayerOpt(undefined)
+      : setLayerOpt(oldData.layer);
     editZoneForm.setFieldValue("lidar_front", oldData.lidar.front);
     editZoneForm.setFieldValue("lidar_back", oldData.lidar.back);
     editZoneForm.setFieldValue("name", oldData.name);
@@ -310,7 +288,6 @@ const EditZoneTable: FC<{
       hight_limit,
       speed_limit,
       allVehicleForbidden,
-      notVehicleForbidden,
       view_available,
     } = tagsSetting;
 
@@ -320,7 +297,6 @@ const EditZoneTable: FC<{
       zoneTags.includes("禁止區") &&
       !(
         allVehicleForbidden ||
-        notVehicleForbidden ||
         (editZoneForm.getFieldValue("forbidden") &&
           editZoneForm.getFieldValue("forbidden").length)
       )
@@ -370,11 +346,9 @@ const EditZoneTable: FC<{
                 setTagSetting((pre) => ({
                   ...pre,
                   allVehicleForbidden: false,
-                  notVehicleForbidden: false,
                 }));
                 editZoneForm.setFieldValue("forbidden", []);
                 editZoneForm.setFieldValue("all_forbidden", false);
-                editZoneForm.setFieldValue("not_forbidden", false);
                 break;
               case "限制區":
                 setTagSetting((pre) => ({ ...pre, limitNum: undefined }));
@@ -490,36 +464,32 @@ const EditZoneTable: FC<{
             </div>
           </Space>
 
-           <Form.Item
-            label={t("edit_zone_panel.layer_setting")}
-            name="layer"  
-          >
-          <Select
-            allowClear
-            placeholder={t("edit_zone_panel.layer")}
-            style={{ width: "100%" }}
-            onChange={(v: string) => updateLayer(v)}
-            options={layer}
-          />
-            </Form.Item>
+          <Form.Item label={t("edit_zone_panel.layer_setting")} name="layer">
+            <Select
+              allowClear
+              placeholder={t("edit_zone_panel.layer")}
+              style={{ width: "100%" }}
+              onChange={(v: string) => updateLayer(v)}
+              options={layer}
+            />
+          </Form.Item>
 
-      
-            <div style={{ display: `${layerOpt ? "block":"none"}`}}>
-               <Flex gap="middle">
-                <Form.Item
-                  label={t("edit_zone_panel.lidar_front")}
-                  name="lidar_front"  
-                >
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                </Form.Item> 
-                <Form.Item
-                  label={t("edit_zone_panel.lidar_back")}
-                  name="lidar_back"   
-                >
-                      <Switch checkedChildren="On" unCheckedChildren="Off" />
-                </Form.Item> 
-              </Flex>
-              </div>
+          <div style={{ display: `${layerOpt ? "block" : "none"}` }}>
+            <Flex gap="middle">
+              <Form.Item
+                label={t("edit_zone_panel.lidar_front")}
+                name="lidar_front"
+              >
+                <Switch checkedChildren="On" unCheckedChildren="Off" />
+              </Form.Item>
+              <Form.Item
+                label={t("edit_zone_panel.lidar_back")}
+                name="lidar_back"
+              >
+                <Switch checkedChildren="On" unCheckedChildren="Off" />
+              </Form.Item>
+            </Flex>
+          </div>
           <Form.Item
             label={t("edit_zone_panel.category")}
             name="category"
@@ -728,31 +698,11 @@ const EditZoneTable: FC<{
               <Space>
                 <Form.Item
                   valuePropName="checked"
-                  name="not_forbidden"
-                  style={{ margin: "0" }}
-                >
-                  <Checkbox
-                    checked={tagsSetting.notVehicleForbidden}
-                    disabled={tagsSetting.allVehicleForbidden}
-                    onChange={(e) => {
-                      setTagSetting((pre) => {
-                        return {
-                          ...pre,
-                          notVehicleForbidden: e.target.checked,
-                        };
-                      });
-                      editZoneForm.setFieldValue("forbidden", []);
-                    }}
-                  >{`${t("edit_zone_panel.not_vehicle_forbidden")}`}</Checkbox>
-                </Form.Item>
-                <Form.Item
-                  valuePropName="checked"
                   name="all_forbidden"
                   style={{ margin: "0" }}
                 >
                   <Checkbox
                     checked={tagsSetting.allVehicleForbidden}
-                    disabled={tagsSetting.notVehicleForbidden}
                     onChange={(e) => {
                       setTagSetting((pre) => {
                         return {
@@ -771,10 +721,7 @@ const EditZoneTable: FC<{
               >
                 <Select
                   placeholder={"請選擇限制進入車輛"}
-                  disabled={
-                    tagsSetting.allVehicleForbidden ||
-                    tagsSetting.notVehicleForbidden
-                  }
+                  disabled={tagsSetting.allVehicleForbidden}
                   mode={"multiple"}
                   tagRender={tagRender}
                   style={{ width: "100%" }}

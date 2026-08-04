@@ -13,6 +13,7 @@ import {
   EditZoneSwitch,
   isShowLocationTooltip,
   isShowRoad,
+  isShowRoadTooltip,
   QuickEditLocationPanelSwitch,
 } from "@/utils/siderGloble";
 import useMap from "@/api/useMap";
@@ -23,7 +24,13 @@ import {
   MouseLocationForFrame,
   RectInfo,
 } from "../hooks/hook";
-import { useMousePoint, useDraggableLine, useZoneFrame } from "../hooks";
+import {
+  useMousePoint,
+  useDraggableLine,
+  useZoneFrame,
+  useLocationHoverTooltip,
+  useRoadHoverTooltip,
+} from "../hooks";
 import { getLocationInfoById } from "@/pages/Setting/utils/utils";
 import useVerityVersion from "@/api/useVerityVersion";
 import {
@@ -33,9 +40,11 @@ import {
   ZoneIconHint,
   DragFrame,
   AllZones,
+  LocationHoverCluster,
 } from "./components";
 import { LocationType } from "@/utils/jotai";
 import AllRoads from "./components/AllRoads/AllRoads";
+import RoadHoverCluster from "./components/AllRoads/RoadHoverCluster";
 import AllCargo from "./components/AllCargo/AllCargo";
 import ToolTip from "../components/ToolTip";
 import SudoCargo from "./components/AllCargo/SudoCargo";
@@ -119,6 +128,7 @@ const MapView: React.FC<{
   const shelfSelectedStyleId = useAtomValue(shelfSelectedStyleLocationId);
   const showLocationToolTip = useAtomValue(isShowLocationTooltip);
   const showRoad = useAtomValue(isShowRoad);
+  const showRoadToolTip = useAtomValue(isShowRoadTooltip);
   const openCargoInfo = useAtomValue(GlobalCargoInfoModal);
   const openPeripheralModal = useAtomValue(IsOpenPeripheralModal);
   const openPeripheralCargoEditorModal = useAtomValue(IsOpenCargoEditorModal);
@@ -177,6 +187,12 @@ const MapView: React.FC<{
     setIsResizing,
     scale,
   );
+
+  //控制「地點提示」開啟時，游標移動附近點位浮出 tooltip
+  useLocationHoverTooltip(mapRef, mapImageRef, scale);
+
+  //控制「路徑提示」開啟時，游標移動附近路徑浮出 tooltip
+  useRoadHoverTooltip(mapRef, mapImageRef, scale);
 
   const handleMouseDown = useCallback(
     (startId: string) => {
@@ -277,6 +293,10 @@ const MapView: React.FC<{
       {showRoad ? <AllRoads /> : []}
 
       {showLocationToolTip ? <ToolTip /> : []}
+
+      {showLocationToolTip ? <LocationHoverCluster /> : []}
+
+      {showRoad && showRoadToolTip ? <RoadHoverCluster /> : []}
 
       {shelfSelectedStyleId === "" ? [] : <SudoCargo />}
 

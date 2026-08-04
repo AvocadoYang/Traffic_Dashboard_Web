@@ -10,9 +10,13 @@ export const isFork = (robotId: string): boolean => {
     list.includes("cb15") ||
     list.includes("ps14") ||
     list.includes("sw15") ||
-    list.includes("pm") ||
-    list.includes("mi15")
+    list.includes("pm")
   );
+};
+
+export const isMir = (robotId: string): boolean => {
+  const list = robotId.split("-").map((v) => v.toLowerCase());
+  return list.includes("mi15");
 };
 
 export const prefixLevelName = (word: string | null | undefined): string => {

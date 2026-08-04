@@ -7,7 +7,7 @@ import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import AddModal from "./AddModal";
-import { DeleteOutlined, EditTwoTone, PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditTwoTone, PlayCircleOutlined, PlusOutlined } from "@ant-design/icons";
 
 const MapGroupTable: React.FC = () => {
   const { t } = useTranslation();
@@ -27,6 +27,24 @@ const MapGroupTable: React.FC = () => {
       messageApi.success(t("utils.success"));
       queryClient.invalidateQueries({ queryKey: ["map-group"] });
       queryClient.invalidateQueries({ queryKey: ["all-map-Info"] });
+    },
+    onError: (e: ErrorResponse) => {
+      errorHandler(e, messageApi);
+    },
+  });
+
+  const activateGroupMutation = useMutation({
+    mutationFn: (id: string) => {
+      return client.patch("api/setting/map-group/activate", { id });
+    },
+    onSuccess: () => {
+      messageApi.success(t("utils.success"));
+      queryClient.invalidateQueries({ queryKey: ["map-group"] });
+      queryClient.invalidateQueries({ queryKey: ["all-map-Info"] });
+      queryClient.invalidateQueries({ queryKey: ["map"] });
+      queryClient.invalidateQueries({ queryKey: ["map-list"] });
+      queryClient.invalidateQueries({ queryKey: ["active-group-resources"] });
+      queryClient.invalidateQueries({ queryKey: ["all-groups-resources"] });
     },
     onError: (e: ErrorResponse) => {
       errorHandler(e, messageApi);
@@ -74,6 +92,16 @@ const MapGroupTable: React.FC = () => {
       },
     },
     {
+      title: t("map_group_table.status"),
+      dataIndex: "isUsing",
+      render: (isUsing: boolean) =>
+        isUsing ? (
+          <Tag color="magenta">{t("map_group_table.active")}</Tag>
+        ) : (
+          <Tag>{t("map_group_table.inactive")}</Tag>
+        ),
+    },
+    {
       dataIndex: "operation",
       render: (_: unknown, record: MapGroupName) => {
         return (
@@ -98,6 +126,25 @@ const MapGroupTable: React.FC = () => {
                 type="link"
               >
                 {t("utils.delete")}
+              </Button>
+            </Popconfirm>
+
+            <Popconfirm
+              title={t("map_group_table.activate_confirm")}
+              onConfirm={() => activateGroupMutation.mutate(record.id)}
+            >
+              <Button
+                color="primary"
+                variant="filled"
+                disabled={record.isUsing}
+                icon = { <PlayCircleOutlined color="#52c41a"></PlayCircleOutlined>}
+                style={
+                  record.isUsing
+                    ? undefined
+                    : { color: "#52c41a" }
+                }
+              >
+                {t("map_group_table.activate")}
               </Button>
             </Popconfirm>
           </Flex>

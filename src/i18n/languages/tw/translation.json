@@ -336,7 +336,8 @@
 
     "save_pose_notify": {
       "is_a_navigate": "存在負值點位,ID不可為負值或0",
-      "duplicate_id": "點位ID與現存ID重複"
+      "duplicate_id": "點位ID與現存ID重複",
+      "leading_zero": "點位 ID 開頭不可為 0 (例如 01、02)"
     }
   },
 
@@ -377,6 +378,7 @@
       "fill_in_value": "請填入 X/Y 值",
       "format_warn": "格式錯誤 (點位不可為負值)",
       "is_a_navigate": "點位 ID 不可為負值",
+    "leading_zero": "點位 ID 開頭不可為 0 (例如 01、02)",
       "duplicate_id": "ID 重複",
       "change_duplicate_id": "請檢查輸入 ID,不可重複！",
       "no_more_than_360": "不可超過360",
@@ -431,7 +433,6 @@
     "car_type": "車型",
     "all_vehicle_forbidden": "禁止所有車輛通行",
     "free_zone": "所有車輛皆可通行",
-    "not_vehicle_forbidden": "不設定限制車輛",
     "edit_zone": "編輯區域",
     "layer_setting": "圖層設定",
     "layer": "選擇圖層",
@@ -443,7 +444,7 @@
     "special_layer_charge": "特殊圖層 (充電站)",
     "deceleration_zone": "減速區",
     "height_limit_zone": "限高區",
-    "restricted_zone": "禁制區",
+    "restricted_zone": "禁止區",
     "controlled_zone": "限制區",
     "view_available_zone": "查看區",
     "view_available": "查看區",
@@ -1823,6 +1824,23 @@
     "actions": "操作",
     "view": "查看",
     "sync_map": "同步地圖",
+    "sync_push_result": "推送車端完成：成功 {{verified}}、部分 {{partial}}、失敗 {{failed}}、離線略過 {{skippedOffline}}",
+    "sync_jobs": "同步進度",
+    "sync_jobs_modal_title": "車端地圖同步進度（最近 10 筆）",
+    "sync_jobs_refresh": "重新整理",
+    "sync_jobs_empty": "尚無同步紀錄",
+    "sync_job_vehicle": "車輛",
+    "sync_job_state": "狀態",
+    "sync_job_progress": "進度",
+    "sync_job_maps": "完成地圖數",
+    "sync_job_attempts": "重試次數",
+    "sync_job_updated_at": "更新時間",
+    "sync_job_error": "錯誤",
+    "sync_job_state_pending": "等待中",
+    "sync_job_state_pushing": "推送中",
+    "sync_job_state_verifying": "驗證中",
+    "sync_job_state_done": "已完成",
+    "sync_job_state_failed": "失敗",
     "edit": "編輯",
     "delete": "刪除",
     "active": "啟用",
@@ -1844,14 +1862,25 @@
     "file_required": "必填",
     "map_group": "地圖群組",
     "floor": "樓層",
-    "select_map_group": "選擇地圖群組"
+    "select_map_group": "選擇地圖群組",
+    "active_group": "使用中",
+    "activate_map": "啟用",
+    "activate_map_requires_active_group": "請先啟用此地圖所屬的群組",
+    "no_map_selected": "請先在畫布右上角選擇要編輯的地圖",
+    "currently_displayed": "顯示中",
+    "not_active_group_tooltip": "此列屬於非使用中的群組, 請先啟用該群組才能編輯"
   },
   "map_group_table": {
     "add_title": "新增地圖群組",
     "edit_title": "編輯地圖群組",
     "maps": "地圖",
     "name": "群組名稱",
-    "operation": "操作"
+    "operation": "操作",
+    "status": "狀態",
+    "active": "使用中",
+    "inactive": "未使用",
+    "activate": "啟用",
+    "activate_confirm": "確定要啟用這個地圖群組嗎？"
   },
   "changePassword": {
     "title": "修改密碼",

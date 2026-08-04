@@ -8,6 +8,7 @@ export type LocationType = {
   areaType: string;
   rotation: number;
   canRotate: boolean;
+  map_id?: string;
 };
 
 export type ZoneType = {
@@ -27,7 +28,6 @@ export type TagSettingType = {
   speed_limit: number;
   forbidden: string[];
   all_forbidden: boolean;
-  not_forbidden: boolean;
   hight_limit: number;
   limitNum: number;
   view_available: string;

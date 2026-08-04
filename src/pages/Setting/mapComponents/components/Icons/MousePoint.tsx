@@ -17,7 +17,7 @@ const Circle = styled.div`
   width: 8px;
   height: 8px;
   border: 3px solid;
-  border-radius: 5px;
+  border-radius: 50%;
   border-color: red;
   background-color: red;
   transform: translate(-50%, -50%);

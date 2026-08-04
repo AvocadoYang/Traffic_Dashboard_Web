@@ -33,6 +33,12 @@ import {
   isShowPeripheralGroupTable,
   isOpenSwitchMap,
   isShowMapGroupTable,
+  isShowAMRConfig,
+  isShowEditBlindLocationMission,
+  isShowChargeStationDockConfig,
+  isShowContainerTable,
+  isShowSystemAlarm,
+  isHowFootprint,
 } from "@/utils/siderGloble";
 import { ToolBarItemType } from "../components/siderElement";
 
@@ -83,6 +89,16 @@ const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({
   const setOpenBackup = useSetAtom(isShowEditBackup); // 7-3
   const setOpenSwitchMap = useSetAtom(isOpenSwitchMap); // 9-4
   const setOpenMapGroupTable = useSetAtom(isShowMapGroupTable); // 9-8
+
+  const setOpenAMRConfigPanel = useSetAtom(isShowAMRConfig); // 5-3
+  const setOpenBlindMissionPanel = useSetAtom(isShowEditBlindLocationMission);
+  const setOpenPeripheralChargeDockPanel = useSetAtom(
+    isShowChargeStationDockConfig
+  );
+  const setOpenContainerTablePanel = useSetAtom(isShowContainerTable);
+  const setOpenSystemAlarmPanel = useSetAtom(isShowSystemAlarm);
+
+  const setOpenFootprintPanel = useSetAtom(isHowFootprint);
 
   const handleClose = () => {
     switch (panelName) {
@@ -145,11 +161,17 @@ const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({
       case "abort_cargo_mission":
         setOpenAbortMissionPanel(false);
         break;
+      case "blind_mission":
+        setOpenBlindMissionPanel(false);
+        break;
       case "peripheral_name_table":
         setOpenPeripheralNamePanel(false);
         break;
       case "peripheral_group_table":
         setOpenPeripheralGroupPanel(false);
+        break;
+      case "peripheral_charge_dock_config":
+        setOpenPeripheralChargeDockPanel(false);
         break;
       case "edit_tag":
         setOpenTagMissionPanel(false);
@@ -179,6 +201,17 @@ const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({
         setOpenCustomCargoInfoPanel(false);
         break;
       case "edit_amr_config":
+        setOpenAMRConfigPanel(false);
+        break;
+      case "container_table":
+        setOpenContainerTablePanel(false);
+        break;
+      case "show_system_alarm":
+        setOpenSystemAlarmPanel(false);
+        break;
+      case "footprint":
+        setOpenFootprintPanel(false);
+        break;
       case "shelf_mission":
       case "todo_dependent_on_return_id_task":
       case "edit_region_name":
@@ -196,7 +229,7 @@ const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({
       <CloseOutlined
         onClick={() => handleClose()}
         className="form-close-btn"
-        style={{ position: "absolute", right: "1em", top: "1em" }}
+        style={{ position: "absolute", left: "1em", top: "1em" }}
       />
     </>
   );

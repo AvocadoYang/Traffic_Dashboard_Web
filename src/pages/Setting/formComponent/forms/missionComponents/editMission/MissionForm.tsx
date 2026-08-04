@@ -17,6 +17,8 @@ import { useTranslation } from "react-i18next";
 import { MissionListType } from "./mission";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
+import { useAtomValue } from "jotai";
+import { currentMapIdAtom } from "@/utils/mapSelection";
 
 const MissionForm: FC<{
   openMissionModel: boolean;
@@ -39,7 +41,7 @@ const MissionForm: FC<{
   const newCarList = amrs?.map((v) => ({ label: v.name, value: v.id })) || [];
 
   const catOption = cat?.map((v) => ({ value: v.id, label: v.tagName })) || [];
-
+  const currentMapId = useAtomValue(currentMapIdAtom);
   const { t } = useTranslation();
 
   const editMutation = useMutation(
@@ -102,7 +104,11 @@ const MissionForm: FC<{
       return;
     }
 
-    editMutation.mutate({ ...editData, key: editMissionKey });
+    editMutation.mutate({
+      ...editData,
+      key: editMissionKey,
+      currentMapId: currentMapId || "",
+    });
   };
 
   return (

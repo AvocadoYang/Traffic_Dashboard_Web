@@ -6,12 +6,13 @@ import {
   RefObject,
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import { nanoid } from "nanoid";
 import { Label, LabelTooltip, LabelWrapper, Line, Point, PointMain } from "@/pages/Setting/mapComponents/components/AllLocation/components/PointAndLine";
 import { useAtomValue, useSetAtom } from "jotai";
-import { mouseDetectLoc, tooltipProp } from "@/utils/gloable";
+import { locationHoverInfo, mouseDetectLoc, tooltipProp } from "@/utils/gloable";
 import { OpenDirect } from "@/pages/Main/global/jotai";
 import useMouseMove from "@/pages/Main/components/WebView/hooks/useMoseMove";
 import { mousePosition } from "@/utils/siderGloble";
@@ -26,6 +27,13 @@ const AllLocation: React.FC<{
     useState<{ spot1Id: string; spot2Id: string; roadId: string }[]>();
   const mouseDetectLocArr = useAtomValue(mouseDetectLoc);
   const { clientX, clientY } = useAtomValue(mousePosition);
+  const hoverInfo = useAtomValue(locationHoverInfo);
+
+  // 游標附近(偵測半徑內)的點位 id 集合，用來讓這些點稍微放大，方便使用者辨識與點擊。
+  const nearbyLocationIds = useMemo(
+    () => new Set(hoverInfo?.locationIds ?? []),
+    [hoverInfo],
+  );
 
   const handleEnter = useCallback(
     (locationId: string, x: number, y: number) => {
@@ -106,6 +114,7 @@ const AllLocation: React.FC<{
             <PointMain
               id={loc.locationId.toString()}
               canrotate={`${loc.canRotate}`}
+              isNear={nearbyLocationIds.has(loc.locationId.toString())}
               onClick={(e) => {
                 e.preventDefault()
                 handleDireMove(loc.locationId.toString())
