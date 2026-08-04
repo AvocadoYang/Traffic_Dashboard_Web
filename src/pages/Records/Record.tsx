@@ -39,7 +39,7 @@ const TableGrid = styled.div`
 const Record: FC = () => {
   return (
     <StyledLayout>
-      <Header isMobile={false} />
+      <Header />
       <StyledContent>
         <TableGrid>
           <SystemAlarmTable />

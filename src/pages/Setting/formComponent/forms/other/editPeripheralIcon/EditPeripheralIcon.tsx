@@ -337,7 +337,7 @@ const EditPeripheralIcon: FC<{
   const [openDrawer, setOpenDrawer] = useState(false);
 
   const uniqueAreaTypes = Array.from(
-    new Set((data ?? []).map((item) => item?.areaType))
+    new Set((data ?? []).map((item) => item?.areaType)),
   );
 
   const onChangeAreaType = (type: string) => {
@@ -562,7 +562,6 @@ const EditPeripheralIcon: FC<{
           placement="right"
           onClose={onclose}
           open={openDrawer}
-          width={600}
         >
           <SettingMultiStyleForm locations={selectedRowKeys as string[]} />
         </IndustrialDrawer>

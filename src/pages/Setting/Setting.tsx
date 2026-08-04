@@ -131,7 +131,7 @@ const Setting: React.FC = () => {
   return (
     <>
       <Layout style={{ height: `${isMobile ? "100dvh" : "100%"}` }}>
-        <Header isMobile={isMobile}></Header>
+        <Header />
         <Content>
           <Layout style={{ height: "100%", width: "100%" }}>
             <Sider setHasOpenTool={setHasOpenTool} />

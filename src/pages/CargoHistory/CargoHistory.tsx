@@ -7,7 +7,7 @@ const CargoHistory = () => {
   const { isMobile } = useIsMobile();
   return (
     <Layout style={{ height: `${isMobile ? "100dvh" : "100%"}` }}>
-      <Header isMobile={isMobile}></Header>
+      <Header />
       <Content>
         <HistoryTable />
       </Content>

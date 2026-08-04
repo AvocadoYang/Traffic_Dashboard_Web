@@ -18,11 +18,46 @@ import DirectMove from "../missionModal/DirectMove";
 import useMap from "@/api/useMap";
 import JoystickPanelWrap from "../../Car_Card/JoystickPanelWrap";
 import MapSelector from "@/components/MapSelector";
+import styled from "styled-components";
 
 const { Content } = Layout;
+
+const WebViewContent = styled(Content)`
+  width: 100%;
+  overflow: hidden;
+`;
+
+const SidePanel = styled(Splitter.Panel)`
+  overflow: hidden;
+`;
+
+const MapPanel = styled(Splitter.Panel)`
+  overflow: hidden;
+  background-color: #e6e6e7;
+  position: relative;
+`;
+
+const MapSelectorSlot = styled.div`
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  z-index: 20;
+`;
+
+const MapScrollArea = styled.div`
+  height: 100%;
+  width: 100%;
+  overflow: scroll;
+`;
+
+const MapOverlay = styled.div`
+  height: 100%;
+  width: 100%;
+`;
+
 const WebView = () => {
-  const mapRef = useRef(null);
-  const mapWrapRef = useRef(null);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapWrapRef = useRef<HTMLDivElement>(null);
   const isDark = useAtomValue(darkMode);
   const currentMapInfo = useMap();
   const setScale = useSetAtom(Scale);
@@ -50,7 +85,7 @@ const WebView = () => {
   }, [currentMapInfo, cm]); // 注意：如果 currentMapInfo 是非同步取得，依賴項應包含它
 
   return (
-    <Content style={{ width: "100%", overflow: "hidden" }}>
+    <WebViewContent>
       <ConfigProvider
         theme={{
           components: {
@@ -63,45 +98,23 @@ const WebView = () => {
         }}
       >
         <Splitter>
-          <Splitter.Panel
+          <SidePanel
             defaultSize="13%"
             collapsible={true}
             className={`${isDark ? "dark-mode-side" : ""}`}
-            style={{ overflow: "hidden" }}
           >
             <CarCardWrap></CarCardWrap>
-          </Splitter.Panel>
-          <Splitter.Panel
+          </SidePanel>
+          <MapPanel
             defaultSize="67%"
-            style={{
-              overflow: "hidden",
-              backgroundColor: "#e6e6e7",
-              position: "relative",
-            }}
             className={`${isDark ? "dark-mode-map" : ""}`}
           >
-            <div style={{ position: "absolute", top: 8, right: 8, zIndex: 20 }}>
+            <MapSelectorSlot>
               <MapSelector />
-            </div>
-            <div
-              style={{
-                height: "100%",
-                width: "100%",
-                overflow: "scroll",
-                // borderRadius: "6px",
-                // borderLeft: "2px solid #9b9b9b",
-                // borderRight: "2px solid #9b9b9b",
-              }}
-              draggable={false}
-              ref={mapWrapRef}
-            >
+            </MapSelectorSlot>
+            <MapScrollArea draggable={false} ref={mapWrapRef}>
               <WebMapView mapRef={mapRef} mapWrapRef={mapWrapRef}></WebMapView>
-              <div
-                style={{
-                  height: "100%",
-                  width: "100%",
-                }}
-              >
+              <MapOverlay>
                 <ZoomPad></ZoomPad>
                 {/* <MissionBtn></MissionBtn> */}
                 <DirectMove></DirectMove>
@@ -109,20 +122,20 @@ const WebView = () => {
             <ElevatorIO />
             <CorningTest></CorningTest>
             <TestBarcode /> */}
-              </div>
-            </div>
-          </Splitter.Panel>
-          <Splitter.Panel
+              </MapOverlay>
+            </MapScrollArea>
+          </MapPanel>
+          <SidePanel
             defaultSize="20%"
             collapsible={true}
             className={`${isDark ? "dark-mode-side" : ""}`}
           >
             <MissionWrap></MissionWrap>
-          </Splitter.Panel>
+          </SidePanel>
         </Splitter>
         <JoystickPanelWrap />
       </ConfigProvider>
-    </Content>
+    </WebViewContent>
   );
 };
 
