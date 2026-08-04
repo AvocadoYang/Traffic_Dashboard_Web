@@ -27,14 +27,16 @@ const WebViewContent = styled(Content)`
   overflow: hidden;
 `;
 
-const SidePanel = styled(Splitter.Panel)`
+const SidePanelInner = styled.div`
+  height: 100%;
   overflow: hidden;
 `;
 
-const MapPanel = styled(Splitter.Panel)`
+const MapPanelInner = styled.div`
+  position: relative;
+  height: 100%;
   overflow: hidden;
   background-color: #e6e6e7;
-  position: relative;
 `;
 
 const MapSelectorSlot = styled.div`
@@ -98,40 +100,49 @@ const WebView = () => {
         }}
       >
         <Splitter>
-          <SidePanel
+          <Splitter.Panel
             defaultSize="13%"
             collapsible={true}
             className={`${isDark ? "dark-mode-side" : ""}`}
           >
-            <CarCardWrap></CarCardWrap>
-          </SidePanel>
-          <MapPanel
+            <SidePanelInner>
+              <CarCardWrap></CarCardWrap>
+            </SidePanelInner>
+          </Splitter.Panel>
+          <Splitter.Panel
             defaultSize="67%"
             className={`${isDark ? "dark-mode-map" : ""}`}
           >
-            <MapSelectorSlot>
-              <MapSelector />
-            </MapSelectorSlot>
-            <MapScrollArea draggable={false} ref={mapWrapRef}>
-              <WebMapView mapRef={mapRef} mapWrapRef={mapWrapRef}></WebMapView>
-              <MapOverlay>
-                <ZoomPad></ZoomPad>
-                {/* <MissionBtn></MissionBtn> */}
-                <DirectMove></DirectMove>
-                {/* <ECS_online />
+            <MapPanelInner>
+              <MapScrollArea draggable={false} ref={mapWrapRef}>
+                <WebMapView
+                  mapRef={mapRef}
+                  mapWrapRef={mapWrapRef}
+                ></WebMapView>
+                <MapOverlay>
+                  <ZoomPad></ZoomPad>
+                  {/* <MissionBtn></MissionBtn> */}
+                  <DirectMove></DirectMove>
+                  {/* <ECS_online />
             <ElevatorIO />
             <CorningTest></CorningTest>
             <TestBarcode /> */}
-              </MapOverlay>
-            </MapScrollArea>
-          </MapPanel>
-          <SidePanel
+                </MapOverlay>
+              </MapScrollArea>
+              <MapSelectorSlot>
+                <MapSelector />
+              </MapSelectorSlot>
+            </MapPanelInner>
+          </Splitter.Panel>
+          <Splitter.Panel
             defaultSize="20%"
             collapsible={true}
             className={`${isDark ? "dark-mode-side" : ""}`}
           >
-            <MissionWrap></MissionWrap>
-          </SidePanel>
+            <SidePanelInner>
+              <MissionWrap></MissionWrap>
+            </SidePanelInner>
+          </Splitter.Panel>
         </Splitter>
         <JoystickPanelWrap />
       </ConfigProvider>
