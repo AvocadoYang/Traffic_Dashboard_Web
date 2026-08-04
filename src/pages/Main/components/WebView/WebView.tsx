@@ -19,6 +19,7 @@ import useMap from "@/api/useMap";
 import JoystickPanelWrap from "../../Car_Card/JoystickPanelWrap";
 import MapSelector from "@/components/MapSelector";
 import styled from "styled-components";
+import { mq } from "@/styles/responsive";
 
 const { Content } = Layout;
 
@@ -27,9 +28,48 @@ const WebViewContent = styled(Content)`
   overflow: hidden;
 `;
 
+const MapSplitter = styled(Splitter)`
+  > .ant-splitter-panel:first-child,
+  > .ant-splitter-panel:last-child,
+  > .ant-splitter-bar {
+    display: none;
+  }
+
+  > .ant-splitter-panel:not(:first-child):not(:last-child) {
+    min-width: 100%;
+  }
+
+  > .ant-splitter-panel {
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  ${mq.web} {
+    > .ant-splitter-panel:first-child,
+    > .ant-splitter-panel:last-child {
+      display: block;
+    }
+
+    > .ant-splitter-bar {
+      display: flex;
+    }
+
+    > .ant-splitter-panel:not(:first-child):not(:last-child) {
+      min-width: auto;
+    }
+  }
+`;
+
 const SidePanelInner = styled.div`
   height: 100%;
-  overflow: hidden;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const MapPanelInner = styled.div`
@@ -37,6 +77,66 @@ const MapPanelInner = styled.div`
   height: 100%;
   overflow: hidden;
   background-color: #e6e6e7;
+  display: flex;
+  flex-direction: column;
+`;
+
+const MapScrollArea = styled.div`
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  overflow: scroll;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const CarCardSection = styled.div`
+  flex: 0 0 30%;
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.28) transparent;
+
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 999px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.28);
+    border-radius: 999px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.45);
+  }
+
+  && > * {
+    min-height: 0;
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  && .ant-flex {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+  }
+
+  ${mq.web} {
+    display: none;
+  }
+`;
+
+const MapOverlay = styled.div`
+  height: 100%;
+  width: 100%;
 `;
 
 const MapSelectorSlot = styled.div`
@@ -44,17 +144,6 @@ const MapSelectorSlot = styled.div`
   top: var(--space-sm);
   right: var(--space-sm);
   z-index: 20;
-`;
-
-const MapScrollArea = styled.div`
-  height: 100%;
-  width: 100%;
-  overflow: scroll;
-`;
-
-const MapOverlay = styled.div`
-  height: 100%;
-  width: 100%;
 `;
 
 const WebView = () => {
@@ -99,7 +188,7 @@ const WebView = () => {
           },
         }}
       >
-        <Splitter>
+        <MapSplitter>
           <Splitter.Panel
             defaultSize="13%"
             collapsible={true}
@@ -129,6 +218,11 @@ const WebView = () => {
             <TestBarcode /> */}
                 </MapOverlay>
               </MapScrollArea>
+
+              <CarCardSection>
+                <CarCardWrap></CarCardWrap>
+              </CarCardSection>
+
               <MapSelectorSlot>
                 <MapSelector />
               </MapSelectorSlot>
@@ -143,7 +237,7 @@ const WebView = () => {
               <MissionWrap></MissionWrap>
             </SidePanelInner>
           </Splitter.Panel>
-        </Splitter>
+        </MapSplitter>
         <JoystickPanelWrap />
       </ConfigProvider>
     </WebViewContent>
