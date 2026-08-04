@@ -1,5 +1,7 @@
-import React, { useState, memo, useEffect } from "react";
-import { Layout, Menu, message, Switch } from "antd";
+import React, { useState, memo, useEffect, useRef } from "react";
+import { Layout, Menu, message, Switch, Drawer } from "antd";
+import styled from "styled-components";
+import { mq } from "@/styles/responsive";
 import useMap from "@/api/useMap";
 import UploadWarningModal from "./UploadWarningModal";
 import { useAtom, useSetAtom } from "jotai";
@@ -85,6 +87,93 @@ function getItem(
 
 const { Sider: AntdSider } = Layout;
 
+const SHEET_MIN_HEIGHT = 120;
+const SHEET_MAX_RATIO = 0.7;
+
+/* 側邊欄只在 web 斷點出現，以下改用 ToolSheet */
+const DesktopSider = styled(AntdSider)`
+  && {
+    display: none;
+    background-color: #ffffff;
+    overflow-y: auto;
+  }
+
+  ${mq.web} {
+    && {
+      display: block;
+    }
+  }
+`;
+
+const ToolSheet = styled(Drawer)`
+  && {
+    border-radius: var(--space-lg) var(--space-lg) 0 0;
+    overflow: hidden;
+  }
+
+  && .ant-drawer-header {
+    padding: 0 var(--space-sm);
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  && .ant-drawer-body {
+    padding: 0;
+    overflow: hidden;
+  }
+`;
+
+const SheetHandle = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-sm) 0;
+  cursor: ns-resize;
+  /* 觸控拖曳不要被瀏覽器當成捲動 */
+  touch-action: none;
+
+  &::before {
+    content: "";
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: #d9d9d9;
+  }
+`;
+
+const SheetMenu = styled(Menu)`
+  /* .ant-menu root 的 antd 規則為 10，&& 就夠 */
+  && {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    background: transparent;
+    border: none;
+    line-height: normal;
+  }
+
+  /* horizontal 模式下 antd 對 item/submenu 的規則最高到 40，必須 &&&& = 50 */
+  &&&& .ant-menu-item,
+  &&&& .ant-menu-submenu {
+    top: 0;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    height: var(--control-height);
+    padding: 0 var(--space-md);
+    margin-inline: 0;
+    font-size: var(--font-md);
+    white-space: nowrap;
+  }
+
+  &&&& .ant-menu-submenu-title {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: 0;
+  }
+`;
+
 const Sider: React.FC<{
   setHasOpenTool: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({ setHasOpenTool }) => {
@@ -146,8 +235,8 @@ const Sider: React.FC<{
   const [openEditChargeStationIconPanel, setOpenEditChargeStationIconPanel] =
     useAtom(isShowEditChargeStationPosition);
 
-      const [openEditChargeDockConfigPanel, setOpenEditChargeDockConfigPanel] =
-        useAtom(isShowChargeStationDockConfig);
+  const [openEditChargeDockConfigPanel, setOpenEditChargeDockConfigPanel] =
+    useAtom(isShowChargeStationDockConfig);
 
   const [openCustomCargoFormat, setOpenCustomCargoFormat] = useAtom(
     isShowEditCustomCargoFormat,
@@ -164,9 +253,8 @@ const Sider: React.FC<{
   const [openStartPoint, setOpenStartPoint] = useState(false);
 
   const [openSwitchMap, setOpenSwitchMap] = useAtom(isOpenSwitchMap);
-  const [openMapGroupTable, setOpenMapGroupTable] = useAtom(
-    isShowMapGroupTable,
-  );
+  const [openMapGroupTable, setOpenMapGroupTable] =
+    useAtom(isShowMapGroupTable);
 
   const setShowLocationToolTip = useSetAtom(isShowLocationTooltip);
 
@@ -184,6 +272,11 @@ const Sider: React.FC<{
   const [showSystemAlarm, setShowSystemAlarm] = useAtom(isShowSystemAlarm);
 
   const [collapsed, setCollapsed] = useState(false);
+  const sheetDragRef = useRef<{
+    startY: number;
+    startHeight: number;
+    wrapper: HTMLElement;
+  } | null>(null);
   const { t } = useTranslation();
   useEffect(() => {
     const isOpen = [
@@ -808,15 +901,51 @@ const Sider: React.FC<{
         break;
     }
   };
+
+  // 拖曳把手直接改 CSS 變數，不走 state，避免每一幀都 re-render 整棵 Sider
+  const handleSheetDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
+    const wrapper = e.currentTarget.closest<HTMLElement>(
+      ".ant-drawer-content-wrapper",
+    );
+    if (!wrapper) return;
+
+    sheetDragRef.current = {
+      startY: e.clientY,
+      startHeight: wrapper.getBoundingClientRect().height,
+      wrapper,
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const handleSheetDragMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const drag = sheetDragRef.current;
+    if (!drag) return;
+
+    // 往上拉（clientY 變小）代表變高
+    const next = drag.startHeight - (e.clientY - drag.startY);
+    const max = window.innerHeight * SHEET_MAX_RATIO;
+    drag.wrapper.style.setProperty(
+      "--tool-sheet-height",
+      `${Math.min(Math.max(next, SHEET_MIN_HEIGHT), max)}px`,
+    );
+  };
+
+  const handleSheetDragEnd = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!sheetDragRef.current) return;
+    sheetDragRef.current = null;
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+  };
+
   return (
     <>
       {contextHolders}
-      <AntdSider
+      <DesktopSider
         collapsible
         width={230}
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
-        style={{ backgroundColor: "#ffffff", overflowY: "scroll" }}
         // className="setting-sider"
       >
         <Menu
@@ -826,7 +955,33 @@ const Sider: React.FC<{
           items={toolItem}
           className="setting-sider-menu"
         />
-      </AntdSider>
+      </DesktopSider>
+
+      <ToolSheet
+        placement="bottom"
+        open
+        closable={false}
+        rootClassName="setting-tool-sheet"
+        defaultSize="var(--tool-sheet-height)"
+        mask={false}
+        title={
+          <SheetHandle
+            onPointerDown={handleSheetDragStart}
+            onPointerMove={handleSheetDragMove}
+            onPointerUp={handleSheetDragEnd}
+            onPointerCancel={handleSheetDragEnd}
+          />
+        }
+      >
+        <SheetMenu
+          onClick={(e) => handleRestart(e.keyPath)}
+          mode="horizontal"
+          /* 不要讓 antd 把裝不下的項目收進 "..."，改成整列橫向捲動 */
+          disabledOverflow
+          items={toolItem}
+          className="setting-sider-menu"
+        />
+      </ToolSheet>
 
       {/**  -------- 錯誤表 --------  */}
 

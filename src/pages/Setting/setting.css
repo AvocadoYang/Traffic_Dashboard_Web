@@ -12,6 +12,12 @@
   fill: rgb(10, 9, 9);
 }
 
+@media (min-width: 1024px) {
+  .setting-tool-sheet {
+    display: none;
+  }
+}
+
 .setting-sider dev {
   background-color: #f5f5f5 !important;
 }

@@ -24,6 +24,8 @@ body,
   --panel-padding: 12px;
   --drawer-width: 260px;
 
+  --tool-sheet-height: auto;
+
   /* 字級 */
   --font-xs: 10px;
   --font-sm: 11px;

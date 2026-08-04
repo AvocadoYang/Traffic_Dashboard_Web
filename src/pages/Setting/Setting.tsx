@@ -13,7 +13,6 @@ import {
 import { restrictToParentElement } from "@dnd-kit/modifiers";
 import { getMoveIndex } from "./utils/utils";
 import { toolbarState } from "./components/siderElement";
-import { useIsMobile } from "@/hooks/useIsMoblie";
 import MapView from "./mapComponents/MapView";
 import useMap from "@/api/useMap";
 import { centerMap } from "@/utils/gloable";
@@ -26,7 +25,6 @@ const Setting: React.FC = () => {
   const [hasOpenTool, setHasOpenTool] = useState(false);
   const mapWrapRef = useRef(null);
   const [locationPanelForm] = Form.useForm();
-  const { isMobile } = useIsMobile();
   const [roadPanelForm] = Form.useForm();
   const [zonePanelForm] = Form.useForm();
   const [dataList, setDataList] = useState(toolbarState);
@@ -130,7 +128,7 @@ const Setting: React.FC = () => {
 
   return (
     <>
-      <Layout style={{ height: `${isMobile ? "100dvh" : "100%"}` }}>
+      <Layout style={{ height: "var(--app-height)" }}>
         <Header />
         <Content>
           <Layout style={{ height: "100%", width: "100%" }}>
