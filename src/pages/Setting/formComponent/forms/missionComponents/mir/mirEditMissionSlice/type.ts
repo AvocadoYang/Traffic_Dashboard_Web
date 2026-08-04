@@ -6,11 +6,14 @@ export type Mir_Action_Slice = {
   disable: boolean;
   process_order: number;
   operation: Mir_Action;
+  scope_reference?: string | null;
 };
 
 export type Mir_Action = {
   id: string;
   type: string;
+  currentMapId: string;
+  scope_reference: string;
 
   // 位置與導航相關
   location_id?: string;
@@ -39,6 +42,7 @@ export type Mir_Action = {
   front?: "muted" | "unmuted" | string;
   rear?: "muted" | "unmuted" | string;
   sides?: "muted" | "unmuted" | string;
+  content?: string;
 };
 
 export type Mir_Task =
