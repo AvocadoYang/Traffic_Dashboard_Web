@@ -22,7 +22,8 @@ import {
 } from "@ant-design/icons";
 import useAllMissionHistory from "@/api/useMissionHistory";
 import { useTranslation } from "react-i18next";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
+import { mq } from "@/styles/responsive";
 import { translate } from "@/i18n";
 import { darkMode } from "@/utils/gloable";
 import { useAtomValue } from "jotai";
@@ -243,10 +244,63 @@ const ErrorMessage = styled.div<{ $isDark: boolean }>`
 `;
 
 const DrawerTitleWrapper = styled(Flex)`
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
+  && {
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-sm) var(--space-md);
+  }
 `;
+
+const DrawerTitleActions = styled(Flex)`
+  && {
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: var(--space-sm) var(--space-md);
+  }
+`;
+
+const RANGE_POPUP_CLS = "mission-history-range-popup";
+
+/* antd 自己的選擇器是 `.ant-picker-dropdown .ant-picker-panel-container .ant-picker-panels`
+   (specificity 30)，所以這裡把 class 重複一次墊到 40 才蓋得過去。 */
+const RangePopupGlobalStyle = createGlobalStyle`
+  .${RANGE_POPUP_CLS}.${RANGE_POPUP_CLS} {
+    max-width: 100vw;
+
+    .ant-picker-panel-container {
+      max-width: calc(100vw - var(--space-lg));
+      overflow: auto;
+    }
+
+    /* 預設(窄螢幕)：兩個月曆面板並排約 600px 會超出畫面，改成上下堆疊 */
+    .ant-picker-panel-container .ant-picker-panels {
+      flex-direction: column;
+    }
+
+    .ant-picker-panel-container .ant-picker-panel-layout {
+      flex-wrap: wrap;
+    }
+
+    ${mq.pad} {
+      .ant-picker-panel-container {
+        max-width: none;
+      }
+
+      .ant-picker-panel-container .ant-picker-panels {
+        flex-direction: row;
+      }
+
+      .ant-picker-panel-container .ant-picker-panel-layout {
+        flex-wrap: nowrap;
+      }
+    }
+  }
+  // cast: styled-components v5 的型別對不上 React 18 的 JSX 定義，全專案共通問題
+` as unknown as FC;
 
 const IndustrialTypography = styled(Typography.Title)<{ $isDark: boolean }>`
   color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#262626")};
@@ -343,7 +397,6 @@ const MissionHistory: FC<{
       alert("匯出失敗");
     },
   });
-
 
   const filteredMissions = missions?.data?.filter((m) => {
     const missionIdMatch = m.id
@@ -647,18 +700,20 @@ const MissionHistory: FC<{
         },
       }}
     >
+      <RangePopupGlobalStyle />
       <IndustrialDrawer
         $isDark={isDark}
+        styles={{ wrapper: { maxWidth: "100%" } }}
         title={
           <DrawerTitleWrapper>
             <IndustrialTypography level={4} $isDark={isDark}>
               {t("mission_history.title")}
             </IndustrialTypography>
-            <Flex gap={"large"} align="center">
+            <DrawerTitleActions>
               <Input.Search
                 placeholder="搜尋任務名稱或是任務ID"
                 allowClear
-                style={{ width: 260 }}
+                style={{ flex: "1 1 200px", minWidth: 180, maxWidth: 260 }}
                 onChange={(e) => setSearchText(e.target.value)}
               />
 
@@ -666,6 +721,9 @@ const MissionHistory: FC<{
                 value={dateRange}
                 onChange={(val) => setDateRange(val as [Dayjs, Dayjs] | null)}
                 allowClear
+                style={{ flex: "0 1 auto", minWidth: 220 }}
+                classNames={{ popup: { root: RANGE_POPUP_CLS } }}
+                styles={{ popup: { container: { marginInlineStart: 0 } } }}
               />
 
               <Button
@@ -686,7 +744,7 @@ const MissionHistory: FC<{
               >
                 {t("mission_history.refresh")}
               </IndustrialButton>
-            </Flex>
+            </DrawerTitleActions>
           </DrawerTitleWrapper>
         }
         closable

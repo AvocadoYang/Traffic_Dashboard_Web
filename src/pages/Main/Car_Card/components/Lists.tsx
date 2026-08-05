@@ -195,7 +195,7 @@ export const AmrTitle = styled.h2`
 
 export const RowOne: React.FC<{ isDark: boolean; amrId: string }> = memo(
   ({ isDark, amrId }) => {
-    const {  networkDelay, isOverdue } = useIsLogIn(amrId);
+    const { networkDelay, isOverdue } = useIsLogIn(amrId);
     const { t } = useTranslation();
 
     const AmrID = useMemo(() => {
@@ -211,14 +211,10 @@ export const RowOne: React.FC<{ isDark: boolean; amrId: string }> = memo(
 
           <span
             className={`login-text ${
-              isOverdue
-                ? "offline-text"
-                :"online-text"
+              isOverdue ? "offline-text" : "online-text"
             }`}
           >
-            {isOverdue ? t("utils.offline")  : (
-              t("utils.online")
-            )}
+            {isOverdue ? t("utils.offline") : t("utils.online")}
           </span>
 
           {!isOverdue && (
@@ -240,35 +236,39 @@ export const RowOne: React.FC<{ isDark: boolean; amrId: string }> = memo(
         </AmrTitle>
       </CarRow1>
     );
-  }
+  },
 );
 
 // ======Second row in info card ============
 
-const LocValue: React.FC<{ amrId: string; isDark: boolean; isOffline?: boolean }> = memo(
-  ({ amrId, isDark, isOffline }) => {
-    const { closeLoc } = useCloseLoc(amrId);
-    return (
-      <p className={`value location-drawer ${isDark ? "dark-icon" : ""}`}>
-        {`${!isOffline && closeLoc ? closeLoc : "--"}`}
-      </p>
-    );
-  }
-);
-const CardSpeed: React.FC<{ amrId: string; isDark: boolean; isOffline?: boolean }> = memo(
-  ({ isDark, amrId, isOffline }) => {
-    const { speed } = useSpeed(amrId);
-    const displaySpeed = isOffline ? undefined : speed;
-    return (
-      <p className="value">
-        {displaySpeed != null ? Math.abs(Number(displaySpeed)).toFixed(2) : "--"}
-        <span className={`${isDark ? "symbol-dark" : "symbol"}`}>{"m/s"}</span>
-      </p>
-    );
-  }
-);
-const Power: React.FC<{ amrId: string; isDark: boolean; isOffline?: boolean }> = memo(
-  ({ amrId, isDark, isOffline }) => {
+const LocValue: React.FC<{
+  amrId: string;
+  isDark: boolean;
+  isOffline?: boolean;
+}> = memo(({ amrId, isDark, isOffline }) => {
+  const { closeLoc } = useCloseLoc(amrId);
+  return (
+    <p className={`value location-drawer ${isDark ? "dark-icon" : ""}`}>
+      {`${!isOffline && closeLoc ? closeLoc : "--"}`}
+    </p>
+  );
+});
+const CardSpeed: React.FC<{
+  amrId: string;
+  isDark: boolean;
+  isOffline?: boolean;
+}> = memo(({ isDark, amrId, isOffline }) => {
+  const { speed } = useSpeed(amrId);
+  const displaySpeed = isOffline ? undefined : speed;
+  return (
+    <p className="value">
+      {displaySpeed != null ? Math.abs(Number(displaySpeed)).toFixed(2) : "--"}
+      <span className={`${isDark ? "symbol-dark" : "symbol"}`}>{"m/s"}</span>
+    </p>
+  );
+});
+const Power: React.FC<{ amrId: string; isDark: boolean; isOffline?: boolean }> =
+  memo(({ amrId, isDark, isOffline }) => {
     const { battery } = useBattery(amrId);
     const displayBattery = isOffline ? undefined : battery;
     return (
@@ -284,17 +284,18 @@ const Power: React.FC<{ amrId: string; isDark: boolean; isOffline?: boolean }> =
         </p>
       </>
     );
-  }
+  });
+const Yaw: React.FC<{ amrId: string; isOffline?: boolean }> = memo(
+  ({ amrId, isOffline }) => {
+    const { yaw } = useYaw(amrId);
+    const displayYaw = isOffline ? undefined : yaw;
+    return (
+      <p className="value">
+        {`${displayYaw !== undefined ? displayYaw.toFixed(2) : "--"}`}
+      </p>
+    );
+  },
 );
-const Yaw: React.FC<{ amrId: string; isOffline?: boolean }> = memo(({ amrId, isOffline }) => {
-  const { yaw } = useYaw(amrId);
-  const displayYaw = isOffline ? undefined : yaw;
-  return (
-    <p className="value">
-      {`${displayYaw !== undefined ? displayYaw.toFixed(2) : "--"}`}
-    </p>
-  );
-});
 
 export const RowSecond: React.FC<{
   setOpenHiddenRow: React.Dispatch<boolean>;
@@ -323,7 +324,11 @@ export const RowSecond: React.FC<{
         <EnvironmentOutlined
           className={`icon location-drawer location-icon ${isDark ? "dark-icon location-icon-dark" : ""}`}
         />
-        <LocValue amrId={amrId} isDark={isDark} isOffline={isOverdue}></LocValue>
+        <LocValue
+          amrId={amrId}
+          isDark={isDark}
+          isOffline={isOverdue}
+        ></LocValue>
       </Space>
       <Space
         orientation="vertical"
@@ -333,7 +338,11 @@ export const RowSecond: React.FC<{
         <CarOutlined
           className={`icon speed-icon ${isDark ? "dark-icon" : ""}`}
         />
-        <CardSpeed amrId={amrId} isDark={isDark} isOffline={isOverdue}></CardSpeed>
+        <CardSpeed
+          amrId={amrId}
+          isDark={isDark}
+          isOffline={isOverdue}
+        ></CardSpeed>
       </Space>
       <Space
         orientation="vertical"
@@ -357,18 +366,20 @@ export const RowSecond: React.FC<{
 });
 
 //=======Hidden row ===================
-const LocXY: React.FC<{ amrId: string; isOffline?: boolean }> = memo(({ amrId, isOffline }) => {
-  const { loc } = useXY(amrId);
-  if (isOffline || !loc)
+const LocXY: React.FC<{ amrId: string; isOffline?: boolean }> = memo(
+  ({ amrId, isOffline }) => {
+    const { loc } = useXY(amrId);
+    if (isOffline || !loc)
+      return (
+        <p style={{ marginTop: "5px" }}>{`X:
+      -- / Y: --`}</p>
+      );
     return (
       <p style={{ marginTop: "5px" }}>{`X:
-      -- / Y: --`}</p>
-    );
-  return (
-    <p style={{ marginTop: "5px" }}>{`X:
     ${loc.x !== undefined ? loc.x.toFixed(2) : "--"} / Y: ${loc.y !== undefined ? loc.y.toFixed(2) : "--"}`}</p>
-  );
-});
+    );
+  },
+);
 const HiddenInfo = styled.div.attrs<{
   open_hidden_row: string;
   is_dark: string;
@@ -423,11 +434,17 @@ const CarStatus = styled.span`
   color: red;
   margin-right: 3px;
 `;
-const Statue: React.FC<{ amrId: string; isOffline?: boolean }> = memo(({ amrId, isOffline }) => {
-  const { status } = useAmrStatus(amrId);
+const Statue: React.FC<{ amrId: string; isOffline?: boolean }> = memo(
+  ({ amrId, isOffline }) => {
+    const { status } = useAmrStatus(amrId);
 
-  return <CarStatus>{isOffline ? "--" : status ? status : "---------------"}</CarStatus>;
-});
+    return (
+      <CarStatus>
+        {isOffline ? "--" : status ? status : "---------------"}
+      </CarStatus>
+    );
+  },
+);
 
 export const RowThread: React.FC<{ isDark: boolean; amrId: string }> = memo(
   ({ isDark, amrId }) => {
@@ -441,7 +458,7 @@ export const RowThread: React.FC<{ isDark: boolean; amrId: string }> = memo(
         <Statue amrId={amrId} isOffline={isOverdue}></Statue>
       </CarRow3>
     );
-  }
+  },
 );
 
 // ======= Fourth row in info ===============
@@ -458,7 +475,10 @@ const RoadStyle = styled.span`
   margin-right: 3px;
 `;
 
-const RoadStatue: React.FC<{ amrId: string; isOffline?: boolean }> = ({ amrId, isOffline }) => {
+const RoadStatue: React.FC<{ amrId: string; isOffline?: boolean }> = ({
+  amrId,
+  isOffline,
+}) => {
   const status = useRoadConditions(amrId);
   if (isOffline) {
     return <RoadStyle style={{ color: "#585757" }}>--</RoadStyle>;
@@ -472,9 +492,16 @@ const RoadStatue: React.FC<{ amrId: string; isOffline?: boolean }> = ({ amrId, i
   );
 };
 
-const MaintenanceStatue: React.FC<{ amrId: string; isOffline?: boolean }> = ({ amrId, isOffline }) => {
+const MaintenanceStatue: React.FC<{ amrId: string; isOffline?: boolean }> = ({
+  amrId,
+  isOffline,
+}) => {
   const status = useMaintenanceStatus(amrId);
-  return <RoadStyle style={{ color: "#585757" }}>{isOffline ? "--" : status.status}</RoadStyle>;
+  return (
+    <RoadStyle style={{ color: "#585757" }}>
+      {isOffline ? "--" : status.status}
+    </RoadStyle>
+  );
 };
 
 export const RowFourth: React.FC<{ isDark: boolean; amrId: string }> = memo(
@@ -489,7 +516,7 @@ export const RowFourth: React.FC<{ isDark: boolean; amrId: string }> = memo(
         <RoadStatue amrId={amrId} isOffline={isOverdue}></RoadStatue>
       </CarRow3>
     );
-  }
+  },
 );
 
 export const RowFifth: React.FC<{ isDark: boolean; amrId: string }> = memo(
@@ -501,29 +528,42 @@ export const RowFifth: React.FC<{ isDark: boolean; amrId: string }> = memo(
         <span
           className={`third-row-span ${isDark ? "third-row-span-dark" : ""}`}
         >{`${t("utils.maintenance_level")}:`}</span>
-        <MaintenanceStatue amrId={amrId} isOffline={isOverdue}></MaintenanceStatue>
+        <MaintenanceStatue
+          amrId={amrId}
+          isOffline={isOverdue}
+        ></MaintenanceStatue>
       </CarRow3>
     );
-  }
+  },
 );
 
 // ======= Tag Wrap ==============
+
+const TagWrap = styled(Flex)<{ $offline: boolean }>`
+  &&& {
+    flex-wrap: wrap;
+  }
+
+  ${({ $offline }) =>
+    $offline &&
+    css`
+      opacity: 0.45;
+      filter: grayscale(1);
+      pointer-events: none;
+    `}
+`;
 
 export const CarTag: React.FC<{ openFullInfo: boolean; amrId: string }> = memo(
   ({ openFullInfo, amrId }) => {
     const { isOverdue } = useIsLogIn(amrId);
     return (
-      <Flex
+      <TagWrap
         justify="center"
         align="center"
         className={` ${openFullInfo ? "full-tag-wrap" : "hide-tag-wrap"}`}
         wrap
         gap={"small"}
-        style={
-          isOverdue
-            ? { opacity: 0.45, filter: "grayscale(1)", pointerEvents: "none" }
-            : undefined
-        }
+        $offline={isOverdue}
       >
         {isOverdue ? <></> : <ManualTag amrId={amrId} />}
         <MissionTag amrId={amrId} />
@@ -531,9 +571,13 @@ export const CarTag: React.FC<{ openFullInfo: boolean; amrId: string }> = memo(
         <ChargingTag amrId={amrId} />
         <PowerTag amrId={amrId} />
         <IsPause amrId={amrId} />
-        { amrId.includes('mi') ? <MiR_Error amrId={amrId}></MiR_Error>: <></>}
-        {isOverdue || amrId.includes('mi') ? <></> : <IsPosAccurate amrId={amrId}></IsPosAccurate>}
-      </Flex>
+        {amrId.includes("mi") ? <MiR_Error amrId={amrId}></MiR_Error> : <></>}
+        {isOverdue || amrId.includes("mi") ? (
+          <></>
+        ) : (
+          <IsPosAccurate amrId={amrId}></IsPosAccurate>
+        )}
+      </TagWrap>
     );
-  }
+  },
 );

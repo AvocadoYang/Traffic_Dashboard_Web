@@ -13,12 +13,14 @@ import {
 import { restrictToParentElement } from "@dnd-kit/modifiers";
 import { getMoveIndex } from "./utils/utils";
 import { toolbarState } from "./components/siderElement";
-import { useIsMobile } from "@/hooks/useIsMoblie";
 import MapView from "./mapComponents/MapView";
 import useMap from "@/api/useMap";
 import { centerMap } from "@/utils/gloable";
 import { useAtomValue } from "jotai";
 import MapSelector from "@/components/MapSelector";
+import { createPortal } from "react-dom";
+import { toolSheetPanelHost } from "@/utils/siderGloble";
+import useIsWebMediaQuery from "@/hooks/useIsWebMediaQuery";
 const { Content } = Layout;
 
 const Setting: React.FC = () => {
@@ -26,13 +28,14 @@ const Setting: React.FC = () => {
   const [hasOpenTool, setHasOpenTool] = useState(false);
   const mapWrapRef = useRef(null);
   const [locationPanelForm] = Form.useForm();
-  const { isMobile } = useIsMobile();
   const [roadPanelForm] = Form.useForm();
   const [zonePanelForm] = Form.useForm();
   const [dataList, setDataList] = useState(toolbarState);
   const [scale, setScale] = useState(1);
   const currentMapInfo = useMap();
   const cm = useAtomValue(centerMap);
+  const isWeb = useIsWebMediaQuery();
+  const sheetPanelHost = useAtomValue(toolSheetPanelHost);
   const [splitterSize, setSplitterSize] = useState<number[] | string[]>([
     "0%",
     "100%",
@@ -79,12 +82,12 @@ const Setting: React.FC = () => {
   }, [dataList, locationPanelForm]);
 
   useEffect(() => {
-    if (hasOpenTool) {
+    if (hasOpenTool && isWeb) {
       setSplitterSize(["30%", "100%"]);
     } else {
       setSplitterSize(["0%", "100%"]);
     }
-  }, [hasOpenTool]);
+  }, [hasOpenTool, isWeb]);
 
   const updateSize = (size) => {
     setSplitterSize(size);
@@ -130,8 +133,8 @@ const Setting: React.FC = () => {
 
   return (
     <>
-      <Layout style={{ height: `${isMobile ? "100dvh" : "100%"}` }}>
-        <Header isMobile={isMobile}></Header>
+      <Layout style={{ height: "var(--app-height)" }}>
+        <Header />
         <Content>
           <Layout style={{ height: "100%", width: "100%" }}>
             <Sider setHasOpenTool={setHasOpenTool} />
@@ -143,11 +146,13 @@ const Setting: React.FC = () => {
               <Splitter onResize={updateSize}>
                 <Splitter.Panel
                   size={splitterSize[0]}
-                  collapsible={hasOpenTool ? true : false}
-                  resizable={hasOpenTool ? true : false}
+                  collapsible={hasOpenTool && isWeb}
+                  resizable={hasOpenTool && isWeb}
                   style={{ overflowX: "hidden" }}
                 >
-                  {dndContextMemo}
+                  {!isWeb && sheetPanelHost
+                    ? createPortal(dndContextMemo, sheetPanelHost)
+                    : dndContextMemo}
                 </Splitter.Panel>
                 <Splitter.Panel
                   size={splitterSize[1]}
