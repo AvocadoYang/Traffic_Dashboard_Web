@@ -74,7 +74,6 @@ export const isShowPeripheralGroupTable = atom<boolean>(false);
 
 export const isShowChargeStationDockConfig = atom<boolean>(false);
 
-
 /** 8-1 顯示編輯標籤 */
 export const isShowEditMissionTag = atom<boolean>(false);
 
@@ -126,3 +125,6 @@ export const isShowRoad = atom<boolean>(true);
 
 /** 顯示點雲 */
 export const isShowPointCloud = atom<boolean>(true);
+
+/** bottom toolSheet 裡放「已開啟面板」的容器節點 */
+export const toolSheetPanelHost = atom<HTMLElement | null>(null);

@@ -25,10 +25,10 @@ body,
   --drawer-width: 260px;
 
   --tool-sheet-height: auto;
-  /* 展開分類後的高度上限；需與 Sider.tsx 的 SHEET_MAX_RATIO 一致 */
-  --tool-sheet-max-height: 70dvh;
-  /* bottom sheet 的分類列是圖示在上、文字在下，icon 要比一般 --icon-size 大 */
+  --tool-sheet-max-height: 80dvh;
   --tool-sheet-icon-size: 22px;
+  --tool-sheet-menu-min-height: 96px;
+  --tool-sheet-menu-max-height: 40dvh;
 
   /* 字級 */
   --font-xs: 10px;

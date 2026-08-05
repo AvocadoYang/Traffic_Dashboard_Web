@@ -1,4 +1,4 @@
-import React, { useState, memo, useEffect, useRef } from "react";
+import React, { useState, memo, useEffect, useRef, useCallback } from "react";
 import { Layout, Menu, message, Switch, Drawer } from "antd";
 import styled from "styled-components";
 import { mq } from "@/styles/responsive";
@@ -6,6 +6,7 @@ import useMap from "@/api/useMap";
 import UploadWarningModal from "./UploadWarningModal";
 import { useAtom, useSetAtom } from "jotai";
 import {
+  toolSheetPanelHost,
   EditLocationPanelSwitch,
   EditLocationListTableSwitch,
   isShowLocationTooltip,
@@ -109,7 +110,6 @@ const ToolSheet = styled(Drawer)`
   && {
     border-radius: var(--space-lg) var(--space-lg) 0 0;
     overflow: hidden;
-    /* 沒拖曳時高度是 auto（縮到內容），這條負責在展開分類後不要無限長高 */
     max-height: var(--tool-sheet-max-height);
   }
 
@@ -118,7 +118,6 @@ const ToolSheet = styled(Drawer)`
     border-bottom: 1px solid #f0f0f0;
   }
 
-  /* 分類列固定、只有下面的面板捲動 */
   && .ant-drawer-body {
     display: flex;
     flex-direction: column;
@@ -133,7 +132,6 @@ const SheetHandle = styled.div`
   justify-content: center;
   padding: var(--space-sm) 0;
   cursor: ns-resize;
-  /* 觸控拖曳不要被瀏覽器當成捲動 */
   touch-action: none;
 
   &::before {
@@ -145,7 +143,6 @@ const SheetHandle = styled.div`
   }
 `;
 
-/* 分類列用原生 button，不走 antd Menu，省掉一整排 horizontal menu 的覆蓋樣式 */
 const SheetTabs = styled.div`
   flex: 0 0 auto;
   display: flex;
@@ -185,9 +182,16 @@ const SheetTab = styled.button<{ $active: boolean }>`
   }
 `;
 
-const SheetPanel = styled.div`
+const SheetCategoryPanel = styled.div`
+  flex: 0 1 auto;
+  min-height: var(--tool-sheet-menu-min-height);
+  max-height: var(--tool-sheet-menu-max-height);
+  overflow-y: auto;
+  border-bottom: 1px solid #f0f0f0;
+`;
+
+const SheetPanelHost = styled.div`
   flex: 1 1 auto;
-  /* flex 子項預設 min-height:auto 會撐破容器，捲動要靠這個 */
   min-height: 0;
   overflow-y: auto;
 `;
@@ -297,11 +301,15 @@ const Sider: React.FC<{
   const [showSystemAlarm, setShowSystemAlarm] = useAtom(isShowSystemAlarm);
 
   const [collapsed, setCollapsed] = useState(false);
-  /* null = 只顯示分類列，sheet 縮到內容高度不擋地圖 */
   const [activeCategoryKey, setActiveCategoryKey] = useState<string | null>(
     null,
   );
   const sheetTabsRef = useRef<HTMLDivElement>(null);
+  const setToolSheetPanelHost = useSetAtom(toolSheetPanelHost);
+  const panelHostRef = useCallback(
+    (node: HTMLDivElement | null) => setToolSheetPanelHost(node),
+    [setToolSheetPanelHost],
+  );
   const sheetDragRef = useRef<{
     startY: number;
     startHeight: number;
@@ -984,7 +992,6 @@ const Sider: React.FC<{
     const next = activeCategoryKey === key ? null : key;
     setActiveCategoryKey(next);
 
-    // 收合時把拖曳過的高度清掉，讓 sheet 縮回 auto（內容高度）
     if (!next) {
       sheetTabsRef.current
         ?.closest<HTMLElement>(".ant-drawer-content-wrapper")
@@ -1042,17 +1049,18 @@ const Sider: React.FC<{
         </SheetTabs>
 
         {activeCategory && (
-          <SheetPanel>
+          <SheetCategoryPanel>
             <SheetPanelMenu
               onClick={(e) => handleRestart(e.keyPath)}
               mode="inline"
-              /* 開關狀態已經由每列的 Switch 表達，不需要再有選取高亮 */
               selectable={false}
               items={activeCategory.children}
               className="setting-sider-menu"
             />
-          </SheetPanel>
+          </SheetCategoryPanel>
         )}
+
+        <SheetPanelHost ref={panelHostRef} />
       </ToolSheet>
 
       {/**  -------- 錯誤表 --------  */}
