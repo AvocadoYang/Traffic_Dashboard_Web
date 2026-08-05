@@ -22,6 +22,7 @@ import ElevatorIO from "./components/ElevatorIO";
 import TestBarcode from "./components/TestBarcode";
 import ECS_online from "./components/ECS_online";
 import DirectMove from "../missionModal/DirectMove";
+import MissionDispatchPanel from "./components/MissionDispatchPanel";
 import useMap from "@/api/useMap";
 import JoystickPanelWrap from "../../Car_Card/JoystickPanelWrap";
 import MapSelector from "@/components/MapSelector";
@@ -101,7 +102,7 @@ const MapScrollArea = styled.div`
   }
 `;
 
-type BottomView = "car" | "mission";
+type BottomView = "car" | "mission" | "dispatch";
 
 const BottomPanelSection = styled.div<{ $view: BottomView }>`
   min-height: 0;
@@ -133,7 +134,7 @@ const BottomPanelTabs = styled.div<{ $isDark: boolean }>`
 const BottomPanelBody = styled.div<{ $view: BottomView }>`
   flex: 1 1 auto;
   min-height: 0;
-  overflow-x: ${({ $view }) => ($view === "mission" ? "hidden" : "auto")};
+  overflow-x: ${({ $view }) => ($view === "car" ? "auto" : "hidden")};
   overflow-y: ${({ $view }) => ($view === "car" ? "hidden" : "auto")};
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.28) transparent;
@@ -279,14 +280,18 @@ const WebView = () => {
                         value: "car",
                       },
                       { label: t("utils.missions"), value: "mission" },
+                      {
+                        label: t("main.card_name.mission"),
+                        value: "dispatch",
+                      },
                     ]}
                   />
                 </BottomPanelTabs>
                 <BottomPanelBody $view={bottomView}>
-                  {bottomView === "car" ? (
-                    <CarCardWrap></CarCardWrap>
-                  ) : (
-                    <MissionWrap></MissionWrap>
+                  {bottomView === "car" && <CarCardWrap></CarCardWrap>}
+                  {bottomView === "mission" && <MissionWrap></MissionWrap>}
+                  {bottomView === "dispatch" && (
+                    <MissionDispatchPanel></MissionDispatchPanel>
                   )}
                 </BottomPanelBody>
               </BottomPanelSection>
