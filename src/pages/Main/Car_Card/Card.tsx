@@ -26,6 +26,49 @@ import { useWarningId } from "@/sockets/useWarning";
 import { useTranslation } from "react-i18next";
 import React from "react";
 import { JoystickAmrId } from "@/pages/Main/global/jotai";
+import styled from "styled-components";
+import { mq } from "@/styles/responsive";
+
+const StatusRows = styled.div`
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+
+  && > * {
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 5.5rem;
+  }
+
+  ${mq.web} {
+    display: block;
+
+    && > * {
+      width: 100%;
+      min-width: 0;
+    }
+  }
+`;
+
+const WarnBlock = styled.div`
+  margin-top: 5px;
+`;
+
+const WarnInfoText = styled.p`
+  color: red;
+  font-size: 0.8em;
+  font-weight: bold;
+`;
+
+const WarnSolutionText = styled.p`
+  font-size: 0.8em;
+  font-weight: bold;
+`;
+
+const WarnDivider = styled.hr`
+  margin-bottom: 5px;
+`;
 
 const Card: React.FC<{ id: string }> = ({ id }) => {
   const [openHiddenRow, setOpenHiddenRow] = useState(false);
@@ -114,19 +157,18 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
               setOpenFullInfo={setOpenFullInfo}
             ></DropDown>
             <RowOne isDark={isDark} amrId={id}></RowOne>
-            {
-              id.includes("mi") ? 
+            {id.includes("mi") ? (
               <Button
-                  size="small"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setJoystickAmrId(id);
-                  }}
-                >
-              Joystick
-            </Button>: null
-            }
-      
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setJoystickAmrId(id);
+                }}
+              >
+                Joystick
+              </Button>
+            ) : null}
+
             <RowSecond
               setOpenHiddenRow={setOpenHiddenRow}
               openHiddenRow={openHiddenRow}
@@ -138,9 +180,11 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
               isDark={isDark}
               amrId={id}
             ></HiddenRow>
-            <RowThread amrId={id} isDark={isDark}></RowThread>
-            <RowFourth amrId={id} isDark={isDark}></RowFourth>
-            <RowFifth amrId={id} isDark={isDark}></RowFifth>
+            <StatusRows>
+              <RowThread amrId={id} isDark={isDark}></RowThread>
+              <RowFourth amrId={id} isDark={isDark}></RowFourth>
+              <RowFifth amrId={id} isDark={isDark}></RowFifth>
+            </StatusRows>
             <CarTag openFullInfo={openFullInfo} amrId={id}></CarTag>
           </InfoWrap>
         </Popover>
@@ -157,25 +201,17 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
           return (
             <React.Fragment key={warn.warningId}>
               <h4>{`${t("file.warning_list.error_code")}: ${warn.warningId}`}</h4>
-              <div style={{ marginTop: "5px" }}>
+              <WarnBlock>
                 <h5>{`${t("file.warning_list.info")}- `}</h5>
-                <p
-                  style={{
-                    color: "red",
-                    fontSize: "0.8em",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {warn.info}
-                </p>
-              </div>
-              <div style={{ marginTop: "5px" }}>
+                <WarnInfoText>{warn.info}</WarnInfoText>
+              </WarnBlock>
+              <WarnBlock>
                 <h5>{`${t("file.warning_list.solution")}- `}</h5>
-                <p style={{ fontSize: "0.8em", fontWeight: "bold" }}>
+                <WarnSolutionText>
                   {warn.debug ? warn.debug : "---"}
-                </p>
-              </div>
-              <hr style={{ marginBottom: "5px" }} />
+                </WarnSolutionText>
+              </WarnBlock>
+              <WarnDivider />
             </React.Fragment>
           );
         })}

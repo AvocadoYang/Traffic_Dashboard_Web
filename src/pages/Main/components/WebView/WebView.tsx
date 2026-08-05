@@ -103,11 +103,20 @@ const MapScrollArea = styled.div`
 
 type BottomView = "car" | "mission";
 
-const BottomPanelSection = styled.div`
-  flex: 0 0 40%;
+const BottomPanelSection = styled.div<{ $view: BottomView }>`
   min-height: 0;
   display: flex;
   flex-direction: column;
+
+  ${({ $view }) =>
+    $view === "car"
+      ? css`
+          flex: 0 0 auto;
+        `
+      : css`
+          flex: 0 1 auto;
+          max-height: 60%;
+        `}
 
   ${mq.web} {
     display: none;
@@ -156,7 +165,7 @@ const BottomPanelBody = styled.div<{ $view: BottomView }>`
   ${({ $view }) =>
     $view === "car" &&
     css`
-      && .ant-flex {
+      && > * > .ant-flex {
         flex-wrap: nowrap;
         justify-content: flex-start;
       }
@@ -258,7 +267,7 @@ const WebView = () => {
                 </MapOverlay>
               </MapScrollArea>
 
-              <BottomPanelSection>
+              <BottomPanelSection $view={bottomView}>
                 <BottomPanelTabs $isDark={isDark}>
                   <Segmented<BottomView>
                     block
