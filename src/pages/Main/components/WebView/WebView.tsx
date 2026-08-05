@@ -1,4 +1,11 @@
-import { Button, ConfigProvider, Popover, Splitter, Tooltip } from "antd";
+import {
+  Button,
+  ConfigProvider,
+  Popover,
+  Segmented,
+  Splitter,
+  Tooltip,
+} from "antd";
 import { memo, useEffect, useRef, useState } from "react";
 import { Layout } from "antd";
 import "./webview.css";
@@ -18,8 +25,9 @@ import DirectMove from "../missionModal/DirectMove";
 import useMap from "@/api/useMap";
 import JoystickPanelWrap from "../../Car_Card/JoystickPanelWrap";
 import MapSelector from "@/components/MapSelector";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { mq } from "@/styles/responsive";
+import { useTranslation } from "react-i18next";
 
 const { Content } = Layout;
 
@@ -93,15 +101,36 @@ const MapScrollArea = styled.div`
   }
 `;
 
-const CarCardSection = styled.div`
+type BottomView = "car" | "mission";
+
+const BottomPanelSection = styled.div`
   flex: 0 0 40%;
   min-height: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+
+  ${mq.web} {
+    display: none;
+  }
+`;
+
+const BottomPanelTabs = styled.div<{ $isDark: boolean }>`
+  flex: 0 0 auto;
+  padding: var(--space-xs) var(--space-md);
+  background: ${({ $isDark }) => ($isDark ? "#1a1a1a" : "#f5f5f5")};
+  border-top: 1px solid ${({ $isDark }) => ($isDark ? "#333" : "#d9d9d9")};
+`;
+
+const BottomPanelBody = styled.div<{ $view: BottomView }>`
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: ${({ $view }) => ($view === "mission" ? "hidden" : "auto")};
+  overflow-y: ${({ $view }) => ($view === "car" ? "hidden" : "auto")};
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.28) transparent;
 
   &::-webkit-scrollbar {
+    width: 8px;
     height: 8px;
   }
 
@@ -124,14 +153,14 @@ const CarCardSection = styled.div`
     padding: var(--space-sm) var(--space-md);
   }
 
-  && .ant-flex {
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-  }
-
-  ${mq.web} {
-    display: none;
-  }
+  ${({ $view }) =>
+    $view === "car" &&
+    css`
+      && .ant-flex {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+      }
+    `}
 `;
 
 const MapOverlay = styled.div`
@@ -153,6 +182,8 @@ const WebView = () => {
   const currentMapInfo = useMap();
   const setScale = useSetAtom(Scale);
   const cm = useAtomValue(centerMap);
+  const { t } = useTranslation();
+  const [bottomView, setBottomView] = useState<BottomView>("car");
 
   useEffect(() => {
     // 1. 提早 return 確保邏輯乾淨
@@ -184,6 +215,14 @@ const WebView = () => {
               colorFill: `${isDark ? "#ff8800" : "rgba(0,0,0,0.15)"}`,
               controlItemBgActiveHover: `${isDark ? "#ffa00a" : "#bae0ff"}`,
               controlItemBgHover: `${isDark ? "#262626" : "rgba(0,0,0,0.04)"}`,
+            },
+            Segmented: {
+              trackBg: `${isDark ? "#0a0a0a" : "#ffffff"}`,
+              itemColor: `${isDark ? "#8c8c8c" : "#595959"}`,
+              itemHoverColor: `${isDark ? "#00ff41" : "#262626"}`,
+              itemHoverBg: `${isDark ? "#262626" : "rgba(0,0,0,0.04)"}`,
+              itemSelectedBg: `${isDark ? "#262626" : "#e6f4ff"}`,
+              itemSelectedColor: `${isDark ? "#00ff41" : "#1890ff"}`,
             },
           },
         }}
@@ -219,9 +258,29 @@ const WebView = () => {
                 </MapOverlay>
               </MapScrollArea>
 
-              <CarCardSection>
-                <CarCardWrap></CarCardWrap>
-              </CarCardSection>
+              <BottomPanelSection>
+                <BottomPanelTabs $isDark={isDark}>
+                  <Segmented<BottomView>
+                    block
+                    value={bottomView}
+                    onChange={setBottomView}
+                    options={[
+                      {
+                        label: t("toolbar.amr_setting.robot"),
+                        value: "car",
+                      },
+                      { label: t("utils.missions"), value: "mission" },
+                    ]}
+                  />
+                </BottomPanelTabs>
+                <BottomPanelBody $view={bottomView}>
+                  {bottomView === "car" ? (
+                    <CarCardWrap></CarCardWrap>
+                  ) : (
+                    <MissionWrap></MissionWrap>
+                  )}
+                </BottomPanelBody>
+              </BottomPanelSection>
 
               <MapSelectorSlot>
                 <MapSelector />
