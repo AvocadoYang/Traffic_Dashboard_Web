@@ -67,6 +67,7 @@ import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import ImportMapConfigModal from "./importMap/ImportMapConfigModal";
 import StartPoint from "./StartPoint/StartPoint";
+import useIsWebMediaQuery from "@/hooks/useIsWebMediaQuery";
 
 export type MenuItem = Required<MenuProps>["items"][number];
 
@@ -88,10 +89,7 @@ function getItem(
 
 const { Sider: AntdSider } = Layout;
 
-const SHEET_MIN_HEIGHT = 120;
-const SHEET_MAX_RATIO = 0.7;
-
-/* 側邊欄只在 web 斷點出現，以下改用 ToolSheet */
+/* 側邊欄只在 web 的 breakpoint 出現，以下改用 ToolSheet */
 const DesktopSider = styled(AntdSider)`
   && {
     display: none;
@@ -136,9 +134,9 @@ const SheetHandle = styled.div`
 
   &::before {
     content: "";
-    width: 40px;
-    height: 4px;
-    border-radius: 2px;
+    width: 60px;
+    height: 8px;
+    border-radius: 4px;
     background: #d9d9d9;
   }
 `;
@@ -314,8 +312,11 @@ const Sider: React.FC<{
     startY: number;
     startHeight: number;
     wrapper: HTMLElement;
+    minHeight: number;
+    maxHeight: number;
   } | null>(null);
   const { t } = useTranslation();
+  const isWeb = useIsWebMediaQuery();
   useEffect(() => {
     const isOpen = [
       openEditLocationPanel,
@@ -940,17 +941,24 @@ const Sider: React.FC<{
     }
   };
 
-  // 拖曳把手直接改 CSS 變數，不走 state，避免每一幀都 re-render 整棵 Sider
   const handleSheetDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
     const wrapper = e.currentTarget.closest<HTMLElement>(
       ".ant-drawer-content-wrapper",
     );
     if (!wrapper) return;
 
+    const header = wrapper.querySelector<HTMLElement>(".ant-drawer-header");
+    const section = wrapper.querySelector<HTMLElement>(".ant-drawer-section");
+    const maxHeight = section
+      ? parseFloat(window.getComputedStyle(section).maxHeight)
+      : NaN;
+
     sheetDragRef.current = {
       startY: e.clientY,
       startHeight: wrapper.getBoundingClientRect().height,
       wrapper,
+      minHeight: header?.offsetHeight ?? 0,
+      maxHeight: Number.isFinite(maxHeight) ? maxHeight : window.innerHeight,
     };
     e.currentTarget.setPointerCapture(e.pointerId);
   };
@@ -961,10 +969,9 @@ const Sider: React.FC<{
 
     // 往上拉（clientY 變小）代表變高
     const next = drag.startHeight - (e.clientY - drag.startY);
-    const max = window.innerHeight * SHEET_MAX_RATIO;
     drag.wrapper.style.setProperty(
       "--tool-sheet-height",
-      `${Math.min(Math.max(next, SHEET_MIN_HEIGHT), max)}px`,
+      `${Math.min(Math.max(next, drag.minHeight), drag.maxHeight)}px`,
     );
   };
 
@@ -976,8 +983,6 @@ const Sider: React.FC<{
     }
   };
 
-  /* toolItem 的每一項都是 getItem(label, key, icon, children) 產出的 submenu，
-     這裡只是換個角度讀同一份資料，不另外維護一份分類表 */
   const toolCategories = toolItem as Array<{
     key: string;
     icon: React.ReactNode;
@@ -1018,50 +1023,51 @@ const Sider: React.FC<{
         />
       </DesktopSider>
 
-      <ToolSheet
-        placement="bottom"
-        open
-        closable={false}
-        rootClassName="setting-tool-sheet"
-        defaultSize="var(--tool-sheet-height)"
-        mask={false}
-        title={
-          <SheetHandle
-            onPointerDown={handleSheetDragStart}
-            onPointerMove={handleSheetDragMove}
-            onPointerUp={handleSheetDragEnd}
-            onPointerCancel={handleSheetDragEnd}
-          />
-        }
-      >
-        <SheetTabs ref={sheetTabsRef}>
-          {toolCategories.map((category) => (
-            <SheetTab
-              key={category.key}
-              type="button"
-              $active={category.key === activeCategoryKey}
-              onClick={() => handleSelectCategory(category.key)}
-            >
-              {category.icon}
-              <span>{category.label}</span>
-            </SheetTab>
-          ))}
-        </SheetTabs>
-
-        {activeCategory && (
-          <SheetCategoryPanel>
-            <SheetPanelMenu
-              onClick={(e) => handleRestart(e.keyPath)}
-              mode="inline"
-              selectable={false}
-              items={activeCategory.children}
-              className="setting-sider-menu"
+      {!isWeb && (
+        <ToolSheet
+          placement="bottom"
+          open
+          closable={false}
+          defaultSize="var(--tool-sheet-height)"
+          mask={false}
+          title={
+            <SheetHandle
+              onPointerDown={handleSheetDragStart}
+              onPointerMove={handleSheetDragMove}
+              onPointerUp={handleSheetDragEnd}
+              onPointerCancel={handleSheetDragEnd}
             />
-          </SheetCategoryPanel>
-        )}
+          }
+        >
+          <SheetTabs ref={sheetTabsRef}>
+            {toolCategories.map((category) => (
+              <SheetTab
+                key={category.key}
+                type="button"
+                $active={category.key === activeCategoryKey}
+                onClick={() => handleSelectCategory(category.key)}
+              >
+                {category.icon}
+                <span>{category.label}</span>
+              </SheetTab>
+            ))}
+          </SheetTabs>
 
-        <SheetPanelHost ref={panelHostRef} />
-      </ToolSheet>
+          {activeCategory && (
+            <SheetCategoryPanel>
+              <SheetPanelMenu
+                onClick={(e) => handleRestart(e.keyPath)}
+                mode="inline"
+                selectable={false}
+                items={activeCategory.children}
+                className="setting-sider-menu"
+              />
+            </SheetCategoryPanel>
+          )}
+
+          <SheetPanelHost ref={panelHostRef} />
+        </ToolSheet>
+      )}
 
       {/**  -------- 錯誤表 --------  */}
 

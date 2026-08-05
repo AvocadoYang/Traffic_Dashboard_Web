@@ -78,8 +78,8 @@ body,
   }
 }
 
-/* --- web：>= 1024px --- */
-@media (min-width: 1024px) {
+/* --- web：>= 1440px --- */
+@media (min-width: 1440px) {
   :root {
     --app-height: 100%;
     --header-height: 64px;

@@ -1,6 +1,6 @@
 export const breakpoints = {
   pad: 768,
-  web: 1024,
+  web: 1440,
 } as const;
 
 export const mq = {

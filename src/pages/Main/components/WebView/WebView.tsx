@@ -94,7 +94,7 @@ const MapScrollArea = styled.div`
 `;
 
 const CarCardSection = styled.div`
-  flex: 0 0 30%;
+  flex: 0 0 40%;
   min-height: 0;
   overflow-x: auto;
   overflow-y: hidden;
