@@ -105,7 +105,7 @@ const MapScrollArea = styled.div`
 type BottomView = "car" | "mission" | "dispatch";
 
 const BottomPanelSection = styled.div<{ $view: BottomView }>`
-  min-height: 0;
+  min-height: 9rem;
   display: flex;
   flex-direction: column;
 

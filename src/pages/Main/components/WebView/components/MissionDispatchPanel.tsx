@@ -1,15 +1,23 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 import { Button } from "antd";
+import {
+  CalendarOutlined,
+  SyncOutlined,
+  ThunderboltOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import { useAtomValue, useSetAtom } from "jotai";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
-import {
-  OpenAssignMission,
-  OpenAutoMission,
-  OpenQuickMission,
-} from "@/pages/Main/global/jotai";
+import { OpenAssignMission } from "@/pages/Main/global/jotai";
 import { darkMode } from "@/utils/gloable";
-import { AutoMission, DialogMission, QuickMission } from "../../missionModal";
+import { DialogMission } from "../../missionModal";
+import QuickMissionWebView from "../../missionModal/QuickMissionWebView";
+import CycleMissionV2 from "../../missionModal/CycleMissionV2";
+import CycleMissionViewer from "../../missionModal/CycleMissionViewer";
+import UploadMission from "../../missionModal/UploadMission";
+import { Cycle } from "@/sockets/useCycleMission";
+import { missionAccentStyles } from "./missionButtonStyles";
 
 const DispatchContainer = styled.div<{ $isDark: boolean }>`
   font-family: "Roboto Mono", monospace;
@@ -31,44 +39,86 @@ const DispatchButton = styled(Button)`
     font-family: "Roboto Mono", monospace;
     font-weight: 600;
     letter-spacing: 0.5px;
+
+    ${missionAccentStyles}
+
+    .anticon {
+      font-size: 1.25rem;
+    }
   }
 `;
 
 const MissionDispatchPanel = () => {
   const { t } = useTranslation();
   const isDark = useAtomValue(darkMode);
-  const setOpenQuickMission = useSetAtom(OpenQuickMission);
-  const setOpenAutoMission = useSetAtom(OpenAutoMission);
   const setOpenAssignMission = useSetAtom(OpenAssignMission);
+  const [showQuickMission, setShowQuickMission] = useState(false);
+  const [showUploadMission, setShowUploadMission] = useState(false);
+  const [showCycleMission, setShowCycleMission] = useState(false);
+  const [showEditCycleMission, setShowEditCycleMission] = useState(false);
+  const [editCyc, setEditCyc] = useState<null | Cycle>(null);
 
   return (
     <DispatchContainer $isDark={isDark}>
       <DispatchGrid>
         <DispatchButton
+          className="quick-mission"
           type="default"
           variant="filled"
-          onClick={() => setOpenQuickMission(true)}
+          icon={<ThunderboltOutlined />}
+          onClick={() => setShowQuickMission(true)}
         >
           {t("main.card_name.quick_mission")}
         </DispatchButton>
         <DispatchButton
+          className="cycle-mission"
           type="default"
           variant="filled"
-          onClick={() => setOpenAutoMission(true)}
+          icon={<SyncOutlined />}
+          onClick={() => setShowCycleMission(true)}
         >
           {t("main.card_name.auto_mission")}
         </DispatchButton>
         <DispatchButton
+          className="new-mission"
           type="default"
           variant="filled"
+          icon={<CalendarOutlined />}
           onClick={() => setOpenAssignMission(true)}
         >
           {t("main.card_name.new_mission")}
         </DispatchButton>
+        <DispatchButton
+          className="upload-mission"
+          type="default"
+          variant="filled"
+          icon={<UploadOutlined />}
+          onClick={() => setShowUploadMission(true)}
+        >
+          {t("main.card_name.upload_mission")}
+        </DispatchButton>
       </DispatchGrid>
 
-      <QuickMission></QuickMission>
-      <AutoMission></AutoMission>
+      <QuickMissionWebView
+        showQuickMission={showQuickMission}
+        setShowQuickMission={setShowQuickMission}
+      />
+      <UploadMission
+        open={showUploadMission}
+        setShowUploadMission={setShowUploadMission}
+      />
+      <CycleMissionViewer
+        open={showCycleMission}
+        setShowCycleMission={setShowCycleMission}
+        setShowEditCycleMission={setShowEditCycleMission}
+        setEditCyc={setEditCyc}
+      />
+      <CycleMissionV2
+        open={showEditCycleMission}
+        setShowCycleMission={setShowEditCycleMission}
+        editCyc={editCyc}
+        setEditCyc={setEditCyc}
+      />
       <DialogMission></DialogMission>
     </DispatchContainer>
   );
