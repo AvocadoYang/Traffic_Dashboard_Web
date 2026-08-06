@@ -711,7 +711,7 @@ const MissionHistory: FC<{
             </IndustrialTypography>
             <DrawerTitleActions>
               <Input.Search
-                placeholder="搜尋任務名稱或是任務ID"
+                placeholder={t("mission_history.search_mission_or_id")}
                 allowClear
                 style={{ flex: "1 1 200px", minWidth: 180, maxWidth: 260 }}
                 onChange={(e) => setSearchText(e.target.value)}

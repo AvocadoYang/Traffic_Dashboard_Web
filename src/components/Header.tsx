@@ -492,7 +492,7 @@ const Header: React.FC = () => {
 
         <CompactBar gap="middle" align="center">
           <IndustrialSelect
-            defaultValue="ch.tw"
+            value={i18n.language === "en" ? "en" : "ch.tw"}
             onChange={(e) => handleChineseItemClick(e as any)}
             options={[
               { value: "en", label: "EN" },
@@ -559,7 +559,7 @@ const Header: React.FC = () => {
             )}
 
             <IndustrialSelect
-              defaultValue="ch.tw"
+              value={i18n.language === "en" ? "en" : "ch.tw"}
               onChange={(e) => handleChineseItemClick(e as any)}
               options={[
                 { value: "en", label: "EN" },
