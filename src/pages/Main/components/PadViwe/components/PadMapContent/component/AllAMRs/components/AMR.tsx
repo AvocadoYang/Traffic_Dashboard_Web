@@ -13,15 +13,16 @@ import { useWarningId } from "@/sockets/useWarning";
 import ForkLiftIcon from "./amrs/ForkliftIcon";
 import { useAmrBBox } from "@/sockets/useBBox";
 import BBox from "./amrs/BBox";
+import useAmrMissionTip from "@/hooks/useAmrMissionTip";
 
 const Tip = styled.div.attrs<{
   left: number;
   top: number;
 }>(({ left, top }) => ({
   style: {
-    transform: `translate(-42%, -160%) `,
+    transform: `translate(-50%, calc(-100% - 12px))`,
     left,
-    top: top -10,
+    top: top - 10,
     transition: "x 1s, y 1s",
   },
 }))<{
@@ -30,11 +31,14 @@ const Tip = styled.div.attrs<{
 }>`
   position: absolute;
   display: flex;
-  padding: 2px;
+  flex-direction: column;
+  padding: 2px 6px;
+  gap: 1px;
   align-items: center;
   justify-content: center;
-  height: 20px;
-  width: 130px;
+  min-height: 20px;
+  min-width: 130px;
+  white-space: nowrap;
   font-size: 0.7em;
   background-color: rgba(0, 0, 0, 0.75);
   border-radius: 5px;
@@ -81,6 +85,11 @@ const ErrorTip = styled.div.attrs<{
   font-weight: bold;
 `;
 
+const TipDetail = styled.span`
+  font-weight: normal;
+  opacity: 0.85;
+`;
+
 const agvFormate = (x1: number, y1: number) => {
   const theta = (3 * Math.PI) / 2;
   const x = x1 * Math.cos(theta) - y1 * Math.sin(theta);
@@ -103,11 +112,17 @@ const AMR: FC<{
     return zoneForbidden.has(amrId);
   }, [zoneForbidden]);
 
+  const { tipText, destinationText } = useAmrMissionTip(amrId);
+
   const showTooltip = useMemo(() => {
     return (
-      hintAmrId2.has(amrId) || hintAmrId === amrId || zoneForbidden.has(amrId)
+      hintAmrId2.has(amrId) ||
+      hintAmrId === amrId ||
+      zoneForbidden.has(amrId) ||
+      !!tipText ||
+      !!destinationText
     );
-  }, [hintAmrId2, hintAmrId, zoneForbidden]);
+  }, [hintAmrId2, hintAmrId, zoneForbidden, tipText, destinationText]);
 
   const { pose } = useAmrPose(amrId);
   const bbox = useAmrBBox(amrId);
@@ -131,15 +146,26 @@ const AMR: FC<{
       {showTooltip ? (
         <Tip left={left} top={top}>
           <p>{`${isForbidden ? "🚫 " : ""}${amrId}`}</p>
+          {tipText ? <TipDetail>{tipText}</TipDetail> : null}
+          {destinationText ? (
+            <TipDetail>{`→ ${destinationText}`}</TipDetail>
+          ) : null}
           {/* <ArrowDownOutlined className="hint-icon" /> */}
         </Tip>
       ) : (
         []
       )}
 
-      
-      <ForkLiftIcon amrId={amrId} color={color} left={left} yaw={pose.yaw} top={top}></ForkLiftIcon>
-      {amrId.includes('mi') ? null :  <BBox amrId={amrId} bbox={bbox} color={color}></BBox>}
+      <ForkLiftIcon
+        amrId={amrId}
+        color={color}
+        left={left}
+        yaw={pose.yaw}
+        top={top}
+      ></ForkLiftIcon>
+      {amrId.includes("mi") ? null : (
+        <BBox amrId={amrId} bbox={bbox} color={color}></BBox>
+      )}
       {/* <Icon amrId={amrId} color={color} left={left} top={top}></Icon> */}
       {errorMessage?.length ? (
         <ErrorTip left={left} top={top + Math.sqrt(top) - 5}>

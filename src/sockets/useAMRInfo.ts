@@ -56,6 +56,12 @@ export enum MaintenanceLevel {
   BROKEN,
 }
 
+export type MissionDestination = {
+  locationId: string;
+  finalLocationId: string;
+  name: string;
+};
+
 export type FleetInfo = {
   IO: {
     connect_status: boolean;
@@ -114,6 +120,7 @@ export type FleetInfo = {
     recovery: boolean;
   };
   doingTask: boolean;
+  destination: MissionDestination | null;
   rosStatus: string;
   rosError: string;
   smStatus: string;
@@ -227,6 +234,14 @@ const schema = () =>
       networkDelay: number().optional(),
       isOverdue: boolean().optional(),
       maintenanceLevel: number().optional(),
+      // 該車當前任務的目的地, 沒任務時為 null
+      destination: object({
+        locationId: string().optional(),
+        finalLocationId: string().optional(),
+        name: string().optional(),
+      })
+        .optional()
+        .nullable(),
     }).required(),
   ).required();
 
@@ -410,6 +425,36 @@ export const useAmrPose = (amrId: string) => {
   return {
     pose,
   };
+};
+
+export const useAmrDestination = (amrId: string) => {
+  const [destination, setDestination] = useState<MissionDestination | null>(
+    null,
+  );
+
+  useEffect(() => {
+    const profile$ = profiles$.pipe(
+      map((p) => p.find((x) => x.amrId === amrId)),
+      filter(isDefined),
+      share(),
+    );
+    const destination$ = profile$
+      .pipe(
+        map((info) => info.destination ?? null),
+        distinctUntilChanged(
+          (pre, cur) => JSON.stringify(pre) === JSON.stringify(cur),
+        ),
+      )
+      .subscribe((d) => {
+        setDestination((d as MissionDestination | null) ?? null);
+      });
+
+    return () => {
+      destination$.unsubscribe();
+    };
+  }, [amrId]);
+
+  return { destination };
 };
 
 export const useIsLogIn = (amrId: string) => {
