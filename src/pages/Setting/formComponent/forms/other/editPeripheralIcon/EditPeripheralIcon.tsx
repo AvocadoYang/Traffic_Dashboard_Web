@@ -226,8 +226,8 @@ const IndustrialTable = styled(Table)`
     }
   }
 
-  .ant-table-tbody > tr {
-    transition: all 0.2s;
+  .ant-table-tbody > tr:not(.ant-table-measure-row) {
+    transition: background-color 0.2s;
     position: relative;
 
     &:hover {
