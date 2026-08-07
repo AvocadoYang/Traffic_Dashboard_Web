@@ -95,10 +95,16 @@ const MapScrollArea = styled.div`
   min-height: 0;
   width: 100%;
   overflow: scroll;
-  scrollbar-width: none;
+  scrollbar-width: 1rem;
 
   &::-webkit-scrollbar {
     display: none;
+  }
+
+  ${mq.web} {
+    &::-webkit-scrollbar {
+      display: block;
+    }
   }
 `;
 
