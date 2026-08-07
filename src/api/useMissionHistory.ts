@@ -34,29 +34,35 @@ const missionSchema = object({
       cancel_reason: number().optional().nullable(),
       info: string().nullable(),
       message: string().nullable(),
-    }).required()
+    }).required(),
   ),
 });
 
-const getAllMission = async (
-  params: {
-    page?: number;
-    pageSize?: number;
-  } = {}
-) => {
+type MissionHistoryParams = {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+};
+
+const normalizeSearch = (search?: string) => search?.trim() || undefined;
+
+const getAllMission = async (params: MissionHistoryParams = {}) => {
   const { data } = await client.get<unknown>("api/missions/mission-history", {
-    params: { page: params.page, pageSize: params.pageSize },
+    params: {
+      page: params.page,
+      pageSize: params.pageSize,
+      search: normalizeSearch(params.search),
+    },
   });
   const parsed = await missionSchema.validate(data, { stripUnknown: true });
   return parsed;
 };
 
-const useAllMissionHistory = (
-  params: { page?: number; pageSize?: number } = {}
-) => {
+const useAllMissionHistory = (params: MissionHistoryParams = {}) => {
+  const search = normalizeSearch(params.search);
   return useQuery({
-    queryKey: ["mission-history", params.page, params.pageSize],
-    queryFn: () => getAllMission(params),
+    queryKey: ["mission-history", params.page, params.pageSize, search],
+    queryFn: () => getAllMission({ ...params, search }),
     retry: 2,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
