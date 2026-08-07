@@ -353,18 +353,26 @@ const MissionHistory: FC<{
   });
   const [searchText, setSearchText] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
+
+  const dateFrom = dateRange?.[0]?.startOf("day").toISOString();
+  const dateTo = dateRange?.[1]?.endOf("day").toISOString();
 
   const {
     data: missions,
     isLoading,
     error,
     refetch,
-  } = useAllMissionHistory({ ...pagination, search: debouncedSearch });
+  } = useAllMissionHistory({
+    ...pagination,
+    search: debouncedSearch,
+    dateFrom,
+    dateTo,
+  });
   const closeHistory = () => {
     setIsOpenMissionHistory(false);
   };
   const [size, setSize] = useState(980);
-  const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
 
   const exportMutation = useMutation({
     mutationFn: async () => {
@@ -408,7 +416,7 @@ const MissionHistory: FC<{
 
   useEffect(() => {
     setPagination((pre) => ({ ...pre, page: 1 }));
-  }, [debouncedSearch]);
+  }, [debouncedSearch, dateFrom, dateTo]);
 
   useEffect(() => {
     if (!isOpenMissionHistory) return;

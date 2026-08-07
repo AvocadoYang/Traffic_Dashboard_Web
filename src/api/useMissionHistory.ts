@@ -42,6 +42,8 @@ type MissionHistoryParams = {
   page?: number;
   pageSize?: number;
   search?: string;
+  dateFrom?: string;
+  dateTo?: string;
 };
 
 const normalizeSearch = (search?: string) => search?.trim() || undefined;
@@ -52,6 +54,8 @@ const getAllMission = async (params: MissionHistoryParams = {}) => {
       page: params.page,
       pageSize: params.pageSize,
       search: normalizeSearch(params.search),
+      dateFrom: params.dateFrom,
+      dateTo: params.dateTo,
     },
   });
   const parsed = await missionSchema.validate(data, { stripUnknown: true });
@@ -61,10 +65,18 @@ const getAllMission = async (params: MissionHistoryParams = {}) => {
 const useAllMissionHistory = (params: MissionHistoryParams = {}) => {
   const search = normalizeSearch(params.search);
   return useQuery({
-    queryKey: ["mission-history", params.page, params.pageSize, search],
+    queryKey: [
+      "mission-history",
+      params.page,
+      params.pageSize,
+      search,
+      params.dateFrom,
+      params.dateTo,
+    ],
     queryFn: () => getAllMission({ ...params, search }),
     retry: 2,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    keepPreviousData: true,
   });
 };
 
