@@ -90,6 +90,7 @@ body,
 
 .car-and-mission-wrap {
   position: relative;
+  min-height: 100%;
 }
 
 .rollback-icon {

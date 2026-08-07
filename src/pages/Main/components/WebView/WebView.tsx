@@ -91,7 +91,7 @@ const MapPanelInner = styled.div`
 `;
 
 const MapScrollArea = styled.div`
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-height: 0;
   width: 100%;
   overflow: scroll;
@@ -165,7 +165,6 @@ const BottomPanelBody = styled.div<{ $view: BottomView }>`
   }
 
   && > * {
-    min-height: 0;
     padding: var(--space-sm) var(--space-md);
   }
 

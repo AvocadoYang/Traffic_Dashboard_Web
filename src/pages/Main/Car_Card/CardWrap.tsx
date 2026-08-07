@@ -12,7 +12,7 @@ const IndustrialContainer = styled.div<{ $isDark: boolean }>`
   background: ${({ $isDark }) => ($isDark ? "#1a1a1a" : "#f5f5f5")};
   padding: 20px;
   border-radius: 4px;
-  min-height: 100vh;
+  min-height: 100%;
 `;
 
 const CarCardWrap: React.FC = () => {
