@@ -11,7 +11,7 @@ import {
   DoubleLeftOutlined,
   DoubleRightOutlined,
 } from "@ant-design/icons";
-import { useSound, type SoundRow } from "./useSound";
+import { useSound, type SoundRow } from "../../../../../../../api/useSound";
 
 /* ------------------------------------------------------------------ */
 /*  Styled components                                                  */

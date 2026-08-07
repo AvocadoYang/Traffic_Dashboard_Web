@@ -4,7 +4,6 @@ import React from "react";
 import styled from "styled-components";
 import useMirTaskOptions from "./useMirTaskOptions";
 import dayjs from "dayjs";
-import { useFootprint } from "@/api/useFootprint";
 
 const SectionHeader = styled.div`
   background: #ffffff;
@@ -234,14 +233,18 @@ export const MirWaitInput = () => {
 };
 
 export const MirSoundInput = () => {
+   const { soundOption } = useMirTaskOptions();
+
   return (
     <IndustrialCard>
       <Form.Item label={<FieldLabel>Sound</FieldLabel>} name="sound">
-        <Select />
+        <Select options={soundOption} />
       </Form.Item>
-     <span>
-         Select a sound from the list. If you want to hear the sounds before selecting one, go to Setup  Sounds. You can hear the sounds on your computer by selecting Listen.
-     </span>
+      <span>
+        Select a sound from the list. If you want to hear the sounds before
+        selecting one, go to Setup Sounds. You can hear the sounds on your
+        computer by selecting Listen.
+      </span>
     </IndustrialCard>
   );
 };

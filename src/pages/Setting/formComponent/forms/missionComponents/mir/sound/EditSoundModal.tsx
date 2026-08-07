@@ -4,7 +4,10 @@ import { CaretRightOutlined, PauseOutlined } from "@ant-design/icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import styled from "styled-components";
 import client from "@/api/axiosClient";
-import { resolveSoundUrl, type SoundRow } from "./useSound";
+import {
+  resolveSoundUrl,
+  type SoundRow,
+} from "../../../../../../../api/useSound";
 
 const IntroText = styled.p`
   color: #475467;

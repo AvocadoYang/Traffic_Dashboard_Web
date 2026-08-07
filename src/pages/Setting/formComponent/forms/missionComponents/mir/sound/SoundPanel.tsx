@@ -6,7 +6,7 @@ import { QuestionCircleOutlined } from "@ant-design/icons";
 import { SoundsTable } from "./SoundsTable";
 import { CreateSoundModal } from "./CreateSoundModal";
 
-import type { SoundRow } from "./useSound";
+import type { SoundRow } from "../../../../../../../api/useSound";
 import { EditSoundModal } from "./EditSoundModal";
 
 const IndustrialContainer = styled.div`
