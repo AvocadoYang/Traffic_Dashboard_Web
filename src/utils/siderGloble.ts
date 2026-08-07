@@ -127,3 +127,5 @@ export const isShowRoad = atom<boolean>(true);
 export const isShowPointCloud = atom<boolean>(true);
 
 export const isHowFootprint = atom<boolean>(false);
+
+export const isShowSound = atom<boolean>(false);
