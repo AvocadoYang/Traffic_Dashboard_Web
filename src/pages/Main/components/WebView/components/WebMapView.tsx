@@ -1,5 +1,8 @@
 import { memo, RefObject, useRef } from "react";
-import { MapImage, LocationHoverCluster } from "@/pages/Setting/mapComponents/components";
+import {
+  MapImage,
+  LocationHoverCluster,
+} from "@/pages/Setting/mapComponents/components";
 import "../webview.css";
 import { AllZones } from "@/pages/Setting/mapComponents/components";
 import AllLocation from "../../PadViwe/components/PadMapContent/component/AllLocation";
@@ -36,6 +39,7 @@ import AllLiftGate from "../../PadViwe/components/PadMapContent/AllGate/AllLiftG
 import AllStack from "../../PadViwe/components/PadMapContent/AllStack/AllStack";
 import AllPointCloud from "../../PadViwe/components/PadMapContent/component/AllPointCloud/AllPointCloud";
 import LocalizationCorrectionGhost from "../../PadViwe/components/PadMapContent/component/LocalizationCorrection/LocalizationCorrectionGhost";
+import useDragPan from "@/pages/Main/components/WebView/hooks/useDragPan";
 
 const WebMapView: React.FC<{
   mapRef: RefObject<HTMLDivElement>;
@@ -55,6 +59,7 @@ const WebMapView: React.FC<{
 
   useDetectLoc(mapRef, mapWrapRef, mapImageRef, scale);
   useMouseClick(mapWrapRef);
+  useDragPan(mapWrapRef, mapRef, mapImageRef);
 
   //控制「地點提示」/「路徑提示」開啟時，游標移動附近點位/路徑浮出 tooltip
   useLocationHoverTooltip(mapRef, mapImageRef, scale);
