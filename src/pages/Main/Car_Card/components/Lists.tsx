@@ -40,6 +40,7 @@ import useMapList from "@/api/useMapList";
 import { useMiRStatus } from "@/sockets/useMirStatus";
 import { useSetAtom } from "jotai";
 import { JoystickAmrId } from "../../global/jotai";
+import MapSwitchModal from "./MapSwitchModal";
 
 const GamepadSvg = () => (
   <svg
@@ -472,7 +473,7 @@ const CarRow3 = styled.div.attrs<{ is_dark: string }>((props) => {
 
 const CarRow4 = styled.div.attrs<{ is_dark: string }>((props) => {
   return { is_dark: props.is_dark };
-})<{ is_dark: string }>`
+})<{ is_dark: string; $disabled?: boolean }>`
   width: 100%;
   display: flex;
   color: ${(props) => (props.is_dark === "true" ? "white" : "black")};
@@ -482,29 +483,31 @@ const CarRow4 = styled.div.attrs<{ is_dark: string }>((props) => {
   align-items: center;
   padding: 5px 5px 5px 8px;
   overflow: hidden;
-  cursor: pointer;
+  cursor: ${(props) => (props.$disabled ? "default" : "pointer")};
   position: relative;
   border-radius: 4px;
   transition: background-color 0.15s ease;
 
-  &:hover {
-    background-color: ${(props) =>
-      props.is_dark === "true"
-        ? "rgba(255, 255, 255, 0.08)"
-        : "rgba(0, 0, 0, 0.05)"};
-  }
+  ${(props) =>
+    !props.$disabled &&
+    css`
+      &:hover {
+        background-color: ${props.is_dark === "true"
+          ? "rgba(255, 255, 255, 0.08)"
+          : "rgba(0, 0, 0, 0.05)"};
+      }
 
-  &:active {
-    background-color: ${(props) =>
-      props.is_dark === "true"
-        ? "rgba(255, 255, 255, 0.14)"
-        : "rgba(0, 0, 0, 0.09)"};
-  }
+      &:active {
+        background-color: ${props.is_dark === "true"
+          ? "rgba(255, 255, 255, 0.14)"
+          : "rgba(0, 0, 0, 0.09)"};
+      }
 
-  &:hover .map-switch-icon {
-    opacity: 1;
-    transform: translateX(0);
-  }
+      &:hover .map-switch-icon {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    `}
 `;
 
 const MapSwitchIcon = styled(SwapOutlined)`
@@ -617,7 +620,10 @@ export const RowFourth: React.FC<{ isDark: boolean; amrId: string }> = memo(
 );
 
 
-const MiR_StatusColor = (status: string) => {
+// 換圖是實際下指令給車體的動作, 車輛必須是 Ready(閒置)狀態才能換, 避免在執行任務中途換圖。
+export const MIR_MAP_SWITCHABLE_STATUS = "Ready";
+
+export const MiR_StatusColor = (status: string) => {
   switch (status) {
     case "Ready":
       return "#2f80ed";
@@ -660,6 +666,7 @@ export const MiR_Running_Status: React.FC<{ isDark: boolean; amrId: string }> = 
 export const MiR_Map_Status: React.FC<{ isDark: boolean;  amrId: string}> = memo(
   ({ isDark, amrId}) => {
     const [activateMap, setActivateMap] = useState<{ mapName: string; groupName: string } | null>(null)
+    const [switchModalOpen, setSwitchModalOpen] = useState(false);
     const { t } = useTranslation();
     const { isOverdue } = useIsLogIn(amrId);
     const MiR_Status_IO = useMiRStatus(amrId);
@@ -676,10 +683,21 @@ export const MiR_Map_Status: React.FC<{ isDark: boolean;  amrId: string}> = memo
       }
     }, [MiR_Status_IO]);
     if(!maps) return <></>
+    // 離線車輛沒有可用資料, 點了也沒意義才擋; 非 Ready 狀態仍讓使用者點進 modal,
+    // 由 modal 裡明顯的提示說明「為什麼不能換」, 而不是在這裡默默擋掉、使用者不知所以然。
+    const canOpenModal = !isOverdue;
+    const isReady = MiR_Status_IO.status === MIR_MAP_SWITCHABLE_STATUS;
     return (
+      <>
       <CarRow4 onClick={(e) => {
          e.stopPropagation();
-      }} is_dark={isDark.toString()} title={t("utils.activate_map") as string}>
+         if (!canOpenModal) return;
+         setSwitchModalOpen(true);
+      }} is_dark={isDark.toString()} $disabled={!canOpenModal} title={
+        isReady
+          ? (t("utils.activate_map") as string)
+          : (t("utils.switch_map_requires_ready") as string)
+      }>
         <span
           className={`third-row-span ${isDark ? "third-row-span-dark" : ""}`}
         >{`${t("utils.activate_map")}:`}</span>
@@ -695,6 +713,14 @@ export const MiR_Map_Status: React.FC<{ isDark: boolean;  amrId: string}> = memo
             )}
         </MapValue>
     </CarRow4>
+      {switchModalOpen && (
+        <MapSwitchModal
+          amrId={amrId}
+          open={switchModalOpen}
+          onClose={() => setSwitchModalOpen(false)}
+        />
+      )}
+      </>
     );
   }
 )
@@ -761,3 +787,4 @@ export const CarTag: React.FC<{ openFullInfo: boolean; amrId: string }> = memo(
     );
   },
 );
+
