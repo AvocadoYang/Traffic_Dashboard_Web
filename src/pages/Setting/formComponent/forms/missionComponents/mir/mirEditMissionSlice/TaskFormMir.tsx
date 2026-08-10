@@ -8,6 +8,7 @@ import {
   Mir_All_Action,
   Mir_Task,
   mirErrorHandlingList,
+  mirIoModule,
   mirMoveActonList,
   mirSaftySystemList,
   mirSoundLight,
@@ -23,11 +24,16 @@ import {
   MirMarkerTypeInput,
   MirMaximumAngularSpeedInputInput,
   MirMaximumLinearSpeedInputInput,
+  MirModuleInput,
+  MirOperationInput,
   MirOrientationInput,
+  MirPortInput,
   MirRearInput,
   MirSideInput,
   MirSoundInput,
   MirSwitchMapInput,
+  MirTimeoutInput,
+  MirValueInput,
   MirVolumeInput,
   MirWaitInput,
   MirXInput,
@@ -245,6 +251,7 @@ const taskCategoryOptions = [
   { label: "Move", value: "move" },
   { label: "Sound/Light", value: "sound/light" },
   { label: "Error Handling", value: "Error Handling" },
+  { label: "IO module", value: "IO module" },
   { label: "Safty system", value: "Safty system" },
 ];
 
@@ -261,6 +268,11 @@ const SLActionOptions = mirSoundLight.map((e) => ({
 }));
 
 const errorhandlingActionOptions = mirErrorHandlingList.map((e) => ({
+  value: e,
+  label: e,
+}));
+
+const ioModuleActionOptions = mirIoModule.map((e) => ({
   value: e,
   label: e,
 }));
@@ -307,16 +319,13 @@ const TaskFormMir: FC<{
   const [taskAction, setTaskAction] = useState<Mir_All_Action>();
   const currentMapId = useAtomValue(currentMapIdAtom);
   const { data: taskDataSource } = useTaskMirOne(editTaskKey);
-const isCurrentPosition = Form.useWatch("is_current_position", form);
-
+  const isCurrentPosition = Form.useWatch("is_current_position", form);
 
   useEffect(() => {
     if (!taskDataSource) return;
 
     const op = taskDataSource || (taskDataSource as any);
     const actionType = (op.type || taskDataSource.type) as Mir_All_Action;
-    console.log(op);
-    console.log(actionType);
 
     if (mirMoveActonList.includes(actionType as any)) {
       setTaskType("move");
@@ -324,6 +333,8 @@ const isCurrentPosition = Form.useWatch("is_current_position", form);
       setTaskType("sound/light");
     } else if (mirErrorHandlingList.includes(actionType as any)) {
       setTaskType("Error Handling");
+    } else if (mirSaftySystemList.includes(actionType as any)) {
+      setTaskType("IO module");
     } else if (mirSaftySystemList.includes(actionType as any)) {
       setTaskType("Safty system");
     }
@@ -333,6 +344,12 @@ const isCurrentPosition = Form.useWatch("is_current_position", form);
     const formattedWait = op.wait
       ? dayjs(op.wait, "HH:mm:ss").isValid()
         ? dayjs(op.wait, "HH:mm:ss")
+        : undefined
+      : undefined;
+
+    const formattedTimeout = op.timeout
+      ? dayjs(op.timeout, "HH:mm:ss").isValid()
+        ? dayjs(op.timeout, "HH:mm:ss")
         : undefined
       : undefined;
 
@@ -360,11 +377,15 @@ const isCurrentPosition = Form.useWatch("is_current_position", form);
         front: op.front ?? "unmuted",
         rear: op.rear ?? "unmuted",
         sides: op.sides ?? "unmuted",
+
+        module: op.module ?? null,
+        port: op.port ?? 0,
+        value: op.port ?? "on",
+        operation: op.operation ?? "on",
+        timeout: formattedTimeout,
       });
     }, 0);
   }, [taskDataSource, form]);
-
-
 
   // 2. 切換大類別的 Handle 函式
   const handleCategoryChange = (newType: Mir_Task) => {
@@ -398,6 +419,8 @@ const isCurrentPosition = Form.useWatch("is_current_position", form);
         return SLActionOptions;
       case "Error Handling":
         return errorhandlingActionOptions;
+      case "IO module":
+        return ioModuleActionOptions;
       case "Safty system":
         return saftySystemActionOptions;
       default:
@@ -445,6 +468,15 @@ const isCurrentPosition = Form.useWatch("is_current_position", form);
       front: rawPayload.front ?? "unmuted",
       rear: rawPayload.rear ?? "unmuted",
       sides: rawPayload.sides ?? "unmuted",
+
+      module: rawPayload.module ?? null,
+      port: rawPayload.port ?? 0,
+      value: rawPayload.port ?? "on",
+      operation: rawPayload.operation ?? "on",
+      timeout:
+        rawPayload.timeout && dayjs(rawPayload.timeout).isValid()
+          ? dayjs(rawPayload.timeout).format("HH:mm:ss")
+          : "00:00:00",
     };
 
     // alert(JSON.stringify(newPayload, null, 2));
@@ -568,6 +600,24 @@ const isCurrentPosition = Form.useWatch("is_current_position", form);
             <MirFrontInput />
             <MirRearInput />
             <MirSideInput />
+          </>
+        )}
+
+        {taskAction === "set_io" && (
+          <>
+            <MirModuleInput />
+            <MirPortInput />
+            <MirOperationInput />
+            <MirTimeoutInput />
+          </>
+        )}
+
+        {taskAction === "wait_for_io" && (
+          <>
+            <MirModuleInput />
+            <MirPortInput />
+            <MirValueInput />
+            <MirTimeoutInput />
           </>
         )}
 

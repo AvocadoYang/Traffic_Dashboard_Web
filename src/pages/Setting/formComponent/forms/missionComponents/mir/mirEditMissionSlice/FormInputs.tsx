@@ -1,5 +1,5 @@
 import { ToolOutlined } from "@ant-design/icons";
-import { Form, Input, Select, Switch, TimePicker } from "antd";
+import { Form, Input, InputNumber, Select, Switch, TimePicker } from "antd";
 import React from "react";
 import styled from "styled-components";
 import useMirTaskOptions from "./useMirTaskOptions";
@@ -393,6 +393,87 @@ export const MirSideInput = () => {
     <IndustrialCard>
       <Form.Item label={<FieldLabel>Side</FieldLabel>} name="sides">
         <Select options={muteOption} />
+      </Form.Item>
+    </IndustrialCard>
+  );
+};
+
+export const MirModuleInput = () => {
+  return (
+    <IndustrialCard>
+      <Form.Item label={<FieldLabel>Module</FieldLabel>} name="module">
+        <Select
+          options={[
+            {
+              value: "mirconst-guid-0000-0001-internalIO00",
+              label: "MiR Internal IOs",
+            },
+          ]}
+        />
+      </Form.Item>
+    </IndustrialCard>
+  );
+};
+
+export const MirPortInput = () => {
+  return (
+    <IndustrialCard>
+      <Form.Item label={<FieldLabel>Port</FieldLabel>} name="port">
+        <InputNumber defaultValue={0} />
+      </Form.Item>
+      Enter which output port relay should be activated (1-4).
+    </IndustrialCard>
+  );
+};
+
+export const MirOperationInput = () => {
+  return (
+    <IndustrialCard>
+      <Form.Item label={<FieldLabel>Operation</FieldLabel>} name="operation">
+        <Select
+          options={[
+            {
+              value: "on",
+              label: "ON",
+            },
+            {
+              value: "off",
+              label: "OFF",
+            },
+          ]}
+        />
+      </Form.Item>
+    </IndustrialCard>
+  );
+};
+
+export const MirTimeoutInput = () => {
+  return (
+    <IndustrialCard>
+      <Form.Item label={<FieldLabel>Timeout</FieldLabel>} name="timeout">
+        <TimePicker defaultOpenValue={dayjs("00:00:00", "HH:mm:ss")} />
+      </Form.Item>
+      Set an amount of time the relay should stay on.
+    </IndustrialCard>
+  );
+};
+
+export const MirValueInput = () => {
+  return (
+    <IndustrialCard>
+      <Form.Item label={<FieldLabel>Value</FieldLabel>} name="value">
+        <Select
+          options={[
+            {
+              value: "on",
+              label: "ON",
+            },
+            {
+              value: "off",
+              label: "OFF",
+            },
+          ]}
+        />
       </Form.Item>
     </IndustrialCard>
   );
