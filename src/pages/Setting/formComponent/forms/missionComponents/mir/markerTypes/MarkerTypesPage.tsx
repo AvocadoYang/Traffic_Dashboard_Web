@@ -29,17 +29,12 @@ import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import F from "lodash/fp/F";
+import { useMarkerType } from "@/api/useMarkerType";
 
-/* ------------------------------------------------------------------ */
-/*  Types                                                              */
-/* ------------------------------------------------------------------ */
 
-// ⚠️ "docking_type" 目前只確認 Bar Shelf Marker = 22（來自你貼的
-// payload 範例）。Leg Shelf Marker 對應的數字我不知道，先放一個佔位值
-// SHELF_TYPE_LEG_PLACEHOLDER——建立/編輯 Leg Shelf Marker 之前一定要把
-// 這個數字換成正確值，不然送出去的 docking_type 會是錯的。
+
 const SHELF_TYPE_BAR = 22;
-const SHELF_TYPE_LEG_PLACEHOLDER = 21; // TODO: 跟 MiR 確認正確數值
+const SHELF_TYPE_LEG_PLACEHOLDER = 24;
 
 type ShelfTypeKey = "BAR" | "LEG";
 
@@ -66,6 +61,7 @@ interface MarkerTypeRow {
   x_offset: number;
   y_offset: number;
   created_by?: string;
+  shelf_leg_asymmetry_x: number;
 }
 
 interface MarkerTypeFormValues {
@@ -76,6 +72,7 @@ interface MarkerTypeFormValues {
   orientation_offset: number;
   x_offset: number;
   y_offset: number;
+  shelf_leg_asymmetry_x: number;
 }
 
 /* ------------------------------------------------------------------ */
@@ -234,7 +231,7 @@ const PAGE_SIZE = 8;
 // ⚠️ 「列出所有 marker type」的 GET endpoint 我沒有拿到確切名稱，這裡
 // 先照你們既有的命名慣例（footprint 是 all-footprint）猜成
 // all-marker-type。如果實際路徑不同，跟我說一聲，我改這一行就好。
-const LIST_URL = "api/setting/all-marker-type";
+
 const CREATE_URL = "api/setting/add-marker-type";
 // ⚠️ 編輯用的 endpoint 完全是我猜的，還沒有依據——目前只有「建立」是
 // 你確認過的 REST API。點編輯（Distributor 那幾筆的鉛筆圖示）目前只
@@ -258,14 +255,7 @@ export const MarkerTypesPage: React.FC = () => {
   const [viewOnly, setViewOnly] = useState(false);
   const [form] = Form.useForm<MarkerTypeFormValues>();
   const [messageApi, contextHolder] = message.useMessage();
-
-  const { data = [], refetch } = useQuery({
-    queryKey: ["marker-types"],
-    queryFn: async () => {
-      const res = await client.get<MarkerTypeRow[]>(LIST_URL);
-      return res.data;
-    },
-  });
+  const { data = [], refetch } = useMarkerType();
 
   const createMutation = useMutation({
     mutationFn: (payload: CreateMarkerTypePayload) =>
@@ -279,26 +269,26 @@ export const MarkerTypesPage: React.FC = () => {
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
-    const editMutation = useMutation({
-      mutationFn: (payload: EditMarkerTypePayload) =>
-        client.post(EDIT_URL, payload),
-      onSuccess: () => {
-        messageApi.success(`已編輯 marker type`);
-        refetch();
-        setDrawerOpen(false);
-        form.resetFields();
-      },
-      onError: (e: ErrorResponse) => errorHandler(e, messageApi),
-    });
+  const editMutation = useMutation({
+    mutationFn: (payload: EditMarkerTypePayload) =>
+      client.post(EDIT_URL, payload),
+    onSuccess: () => {
+      messageApi.success(`已編輯 marker type`);
+      refetch();
+      setDrawerOpen(false);
+      form.resetFields();
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
 
-    const deleteMutation = useMutation({
-      mutationFn: (payload: { id: string }) => client.post(DELETE_URL, payload),
-      onSuccess: () => {
-        messageApi.success(`已刪除 marker type`);
-        refetch();
-      },
-      onError: (e: ErrorResponse) => errorHandler(e, messageApi),
-    });
+  const deleteMutation = useMutation({
+    mutationFn: (payload: { id: string }) => client.post(DELETE_URL, payload),
+    onSuccess: () => {
+      messageApi.success(`已刪除 marker type`);
+      refetch();
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
 
   useEffect(() => {
     setCurrent(1);
@@ -327,6 +317,7 @@ export const MarkerTypesPage: React.FC = () => {
       orientation_offset: row.orientation_offset,
       x_offset: row.x_offset,
       y_offset: row.y_offset,
+      shelf_leg_asymmetry_x: row.shelf_leg_asymmetry_x,
     });
     setDrawerOpen(true);
   };
@@ -347,11 +338,12 @@ export const MarkerTypesPage: React.FC = () => {
       orientation_offset: values.orientation_offset,
       x_offset: values.x_offset,
       y_offset: values.y_offset,
+      shelf_leg_asymmetry_x: values.shelf_leg_asymmetry_x || 0,
     };
 
     if (editingRow) {
       editMutation.mutate({ ...payload, id: editingRow.id || "" });
-  
+
       return;
     }
 
@@ -382,6 +374,10 @@ export const MarkerTypesPage: React.FC = () => {
       title: "Bar distance",
       dataIndex: "bar_distance",
       sorter: (a, b) => a.bar_distance - b.bar_distance,
+    },
+    {
+      title: "shelf leg asymmetry x",
+      dataIndex: "shelf_leg_asymmetry_x",
     },
     {
       title: "Created by",
@@ -530,11 +526,12 @@ export const MarkerTypesPage: React.FC = () => {
           disabled={viewOnly}
           initialValues={{
             shelfType: "BAR",
-            bar_length: 0,
-            bar_distance: 0,
+            bar_length: 0.4,
+            bar_distance: 1,
             orientation_offset: 0,
             x_offset: 0,
             y_offset: 0,
+            shelf_leg_asymmetry_x: 0,
           }}
         >
           <Form.Item
@@ -654,6 +651,20 @@ export const MarkerTypesPage: React.FC = () => {
                 <FieldHint>
                   Modifies how far to either side the robot drives to dock to
                   the shelf.
+                </FieldHint>
+              </div>
+            }
+          >
+            <InputNumber addonAfter="m" style={{ width: "100%" }} step={0.01} />
+          </Form.Item>
+
+          <Form.Item
+            name="shelf_leg_asymmetry_x"
+            label={
+              <div>
+                Leg asymmetry
+                <FieldHint>
+                  Enter the the offset between the two front shelf legs.
                 </FieldHint>
               </div>
             }

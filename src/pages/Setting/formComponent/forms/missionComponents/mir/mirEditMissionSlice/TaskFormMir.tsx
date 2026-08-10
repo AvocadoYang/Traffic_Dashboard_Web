@@ -20,6 +20,7 @@ import {
   MirFootprintInput,
   MirFrontInput,
   MirLocationInput,
+  MirMarkerTypeInput,
   MirMaximumAngularSpeedInputInput,
   MirMaximumLinearSpeedInputInput,
   MirOrientationInput,
@@ -306,6 +307,8 @@ const TaskFormMir: FC<{
   const [taskAction, setTaskAction] = useState<Mir_All_Action>();
   const currentMapId = useAtomValue(currentMapIdAtom);
   const { data: taskDataSource } = useTaskMirOne(editTaskKey);
+const isCurrentPosition = Form.useWatch("is_current_position", form);
+
 
   useEffect(() => {
     if (!taskDataSource) return;
@@ -340,6 +343,8 @@ const TaskFormMir: FC<{
         location_id: op.location_id,
         entry_position: op.entry_position,
         footprint: op.footprint,
+        marker_type: op?.marker_type || null,
+
         blocked_path_timeout: op.blocked_path_timeout ?? 60,
         blocked_docking_timeout: op.blocked_docking_timeout ?? 60,
         maximum_linear_speed: op.maximum_linear_speed ?? 0.25,
@@ -413,6 +418,7 @@ const TaskFormMir: FC<{
       location_id: rawPayload.location_id ?? "",
       entry_position: rawPayload.entry_position ?? "",
       footprint: rawPayload.footprint ?? "",
+      marker_type: rawPayload.marker_type ?? null,
 
       // 3. 逾時與限制參數 (預設數值)
       blocked_path_timeout: rawPayload.blocked_path_timeout ?? 60,
@@ -502,8 +508,16 @@ const TaskFormMir: FC<{
 
         {taskAction === "docking" && (
           <>
-            <MirLocationInput />
-            <MirBlockedPathTimeoutInputInput />
+            {/* 🎯 將 isCurrentPosition 作為 disabled 傳給 MirLocationInput */}
+            <MirLocationInput disabled={isCurrentPosition} />
+
+            {/* 依開關狀態切換顯示的輸入框 */}
+            {isCurrentPosition ? (
+              <MirMarkerTypeInput />
+            ) : (
+              <MirBlockedPathTimeoutInputInput />
+            )}
+
             <MirBlockedDockingTimeoutInputInput />
             <MirMaximumLinearSpeedInputInput />
           </>
