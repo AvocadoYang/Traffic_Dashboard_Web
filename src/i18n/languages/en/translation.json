@@ -26,6 +26,7 @@
     "direction": "direction",
     "status": "Status",
     "road_conditions": "Road conditions",
+    "activate_map": "Activated Map",
     "maintenance_level": "Maintenance level",
     "mission_is_required": "Mission is required",
     "point_type": "Point Type",

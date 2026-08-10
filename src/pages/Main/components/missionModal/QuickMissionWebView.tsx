@@ -771,7 +771,7 @@ const QuickMissionWebView: React.FC<{
                     size="large"
                     block
                     onClick={handleSubmit}
-                    disabled={!loadValue || !offloadValue}
+                    // disabled={!loadValue || !offloadValue}
                     loading={submitMutation.isPending}
                   >
                     {submitMutation.isPending
