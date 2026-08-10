@@ -9,6 +9,7 @@ import {
   RowFourth,
   RowFifth,
   EmergencyIcon,
+  MiR_Map_Status,
 } from "./components/Lists";
 import "./car_info.css";
 import { useMemo, useState } from "react";
@@ -182,7 +183,7 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
             ></HiddenRow>
             <StatusRows>
               <RowThread amrId={id} isDark={isDark}></RowThread>
-              <RowFourth amrId={id} isDark={isDark}></RowFourth>
+              { id.includes('mi') ?<MiR_Map_Status amrId={id} isDark={isDark} ></MiR_Map_Status> :<RowFourth amrId={id} isDark={isDark}></RowFourth>}
               <RowFifth amrId={id} isDark={isDark}></RowFifth>
             </StatusRows>
             <CarTag openFullInfo={openFullInfo} amrId={id}></CarTag>

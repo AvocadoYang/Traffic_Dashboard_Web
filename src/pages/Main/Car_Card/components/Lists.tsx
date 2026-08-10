@@ -1,4 +1,4 @@
-import { memo, useMemo } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import styled, { keyframes, css } from "styled-components";
 import "../car_info.css";
 
@@ -33,6 +33,9 @@ import {
   PowerTag,
 } from "./Tags";
 import useRoadConditions from "@/sockets/useAmrRoadConditions";
+import useMapGroup from "@/api/useMapGroup";
+import useMapList from "@/api/useMapList";
+import { useMiRStatus } from "@/sockets/useMirStatus";
 
 const shak = keyframes`
   0%,
@@ -518,6 +521,38 @@ export const RowFourth: React.FC<{ isDark: boolean; amrId: string }> = memo(
     );
   },
 );
+
+export const MiR_Map_Status: React.FC<{ isDark: boolean;  amrId: string}> = memo(
+  ({ isDark, amrId}) => {
+    const [activate_state, setActivateState] = useState<string>('')
+    const { t } = useTranslation();
+    const { isOverdue } = useIsLogIn(amrId); 
+    const MiR_Status_IO = useMiRStatus(amrId);
+    const { data: maps } = useMapList();
+    const { data: groups, isSuccess: groupsLoaded } = useMapGroup();
+    useEffect(() => {
+      if(maps && maps.length){
+        const active_map = maps.filter((map) => map.id == MiR_Status_IO.active_map_id).map((map) => {
+          return { mapName: map.fileName, groupName: map.map_group_name}
+        })
+        if(active_map.length){
+          setActivateState(`${active_map[0].mapName} (${active_map[0].groupName})`)
+        }
+      }
+    }, [MiR_Status_IO]);
+    if(!maps) return <></>
+    return (
+      <CarRow3 is_dark={isDark.toString()}>
+        <span
+          className={`third-row-span ${isDark ? "third-row-span-dark" : ""}`}
+        >{`${t("utils.activate_map")}:`}</span>
+        <RoadStyle style={{ color: "#585757" }}>
+            {isOverdue || !maps?.length ? "--" : activate_state}
+        </RoadStyle>
+    </CarRow3>
+    );
+  }
+)
 
 export const RowFifth: React.FC<{ isDark: boolean; amrId: string }> = memo(
   ({ isDark, amrId }) => {

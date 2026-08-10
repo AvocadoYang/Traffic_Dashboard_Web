@@ -20,7 +20,7 @@ import { useMiRStatus } from "@/sockets/useMirStatus";
 
 export const ManualTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const { isManual } = useIsManual(amrId);
-  const { MiR_Status} = useMiRStatus(amrId);
+  const MiR_Status_IO = useMiRStatus(amrId);
 
   const { t } = useTranslation();
   const mockRobot = useMockInfo();
@@ -39,7 +39,7 @@ export const ManualTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
     <>
       {contextHolders}
       <Tag
-        color={`${amrId.includes("mi") ? (MiR_Status == "EmergencyStop" ? "blue":"#e3e4e3"): (!isManual ? "#e3e4e3" : "blue")}`}
+        color={`${amrId.includes("mi") ? (MiR_Status_IO.status == "EmergencyStop" ? "blue":"#e3e4e3"): (!isManual ? "#e3e4e3" : "blue")}`}
         style={{ margin: 0, cursor: "pointer" }}
         onClick={(e) => {
           e.stopPropagation();
@@ -113,22 +113,22 @@ export const IsPosAccurate: React.FC<{ amrId: string }> = memo(({ amrId }) => {
 
 export const IsPause: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const { isPause } = useIsPause(amrId);
-  const { MiR_Status} = useMiRStatus(amrId);
+  const MiR_Status_IO= useMiRStatus(amrId);
 
   const { t } = useTranslation();
   return (
-    <Tag color={`${amrId.includes("mi") ? (MiR_Status == "Pause" ? "volcano":"#e3e4e3"): (!isPause ? "#e3e4e3" : "volcano")}`} style={{ margin: 0 }}>
+    <Tag color={`${amrId.includes("mi") ? (MiR_Status_IO.status == "Pause" ? "volcano":"#e3e4e3"): (!isPause ? "#e3e4e3" : "volcano")}`} style={{ margin: 0 }}>
       {t("mode.isPause")}
     </Tag>
   );
 });
 
 export const MiR_Error: React.FC<{ amrId: string }> = memo(({ amrId }) => {
-  const  { MiR_Status } = useMiRStatus(amrId);
+  const MiR_Status_IO = useMiRStatus(amrId);
   const { t } = useTranslation();
 
   return (
-    <Tag color={MiR_Status == "Error" ? "volcano" : "#e3e4e3"} style={{ margin: 0 }}>
+    <Tag color={MiR_Status_IO.status == "Error" ? "volcano" : "#e3e4e3"} style={{ margin: 0 }}>
       {t("mode.error")}
     </Tag>
   );

@@ -21,6 +21,7 @@
     "amr_id": "車輛",
     "status": "狀態",
     "road_conditions": "路況",
+    "activate_map": "使用中地圖",
     "maintenance_level": "車況",
     "location": "地點",
     "direction": "方向",
