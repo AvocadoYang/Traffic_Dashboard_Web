@@ -45,6 +45,7 @@ import {
   isShowChargeStationDockConfig,
   isHowFootprint,
   isShowSound,
+  isShowMarketType,
 } from "@/utils/siderGloble";
 import {
   AimOutlined,
@@ -307,6 +308,9 @@ const Sider: React.FC<{
   const [activeCategoryKey, setActiveCategoryKey] = useState<string | null>(
     null,
   );
+
+  const [markerType, setShowMarkerType] = useAtom(isShowMarketType);
+
   const sheetTabsRef = useRef<HTMLDivElement>(null);
   const setToolSheetPanelHost = useSetAtom(toolSheetPanelHost);
   const panelHostRef = useCallback(
@@ -359,6 +363,7 @@ const Sider: React.FC<{
       openEditChargeDockConfigPanel,
       showFootprint,
       showSound,
+      markerType,
     ].some((item) => item);
 
     setHasOpenTool(isOpen);
@@ -398,6 +403,7 @@ const Sider: React.FC<{
     openEditChargeDockConfigPanel,
     showFootprint,
     showSound,
+    markerType,
   ]);
 
   const handleShowPanel = async (check: boolean, itemType: ToolBarItemType) => {
@@ -560,6 +566,11 @@ const Sider: React.FC<{
       case "sound":
         setShowSound(check);
         break;
+
+      case "marker_type":
+        setShowMarkerType(check);
+        break;
+
       //=======
     }
   };
@@ -938,6 +949,24 @@ const Sider: React.FC<{
         <Switch
           checked={showSound}
           onChange={(checked) => handleShowPanel(checked, "sound")}
+        />,
+      ),
+
+      getItem(
+        "sound",
+        "12-2",
+        <Switch
+          checked={showSound}
+          onChange={(checked) => handleShowPanel(checked, "sound")}
+        />,
+      ),
+
+      getItem(
+        "marker_type",
+        "12-3",
+        <Switch
+          checked={markerType}
+          onChange={(checked) => handleShowPanel(checked, "marker_type")}
         />,
       ),
     ]),
