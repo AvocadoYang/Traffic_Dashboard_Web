@@ -3,6 +3,7 @@ import styled from "styled-components";
 import {
   Button,
   Drawer,
+  Flex,
   Form,
   Input,
   InputNumber,
@@ -21,11 +22,13 @@ import {
   RightOutlined,
   DoubleLeftOutlined,
   DoubleRightOutlined,
+  DeleteFilled,
 } from "@ant-design/icons";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
+import F from "lodash/fp/F";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -196,6 +199,18 @@ const ActionButton = styled(Button)`
   }
 `;
 
+const DeleteButton = styled(Button)`
+  background: #f1adad;
+  border-color: #fa0303;
+  color: #7a000a;
+
+  &:hover {
+    background: #e4e7ec !important;
+    border-color: #e4e7ec !important;
+    color: #1e2a4a !important;
+  }
+`;
+
 const DrawerIntro = styled.p`
   color: #475467;
   font-size: 14px;
@@ -226,6 +241,15 @@ const CREATE_URL = "api/setting/add-marker-type";
 // 會打開表單、不會真的送出，等你把正確的 endpoint 給我再接上。
 const EDIT_URL = "api/setting/edit-marker-type";
 
+const DELETE_URL = "api/setting/delete-marker";
+
+type MarkerTypePayload = Omit<MarkerTypeRow, "id" | "created_by">;
+
+type CreateMarkerTypePayload = MarkerTypePayload;
+
+type EditMarkerTypePayload = MarkerTypePayload & {
+  id: string;
+};
 export const MarkerTypesPage: React.FC = () => {
   const [search, setSearch] = useState("");
   const [current, setCurrent] = useState(1);
@@ -244,7 +268,7 @@ export const MarkerTypesPage: React.FC = () => {
   });
 
   const createMutation = useMutation({
-    mutationFn: (payload: Omit<MarkerTypeRow, "id" | "created_by">) =>
+    mutationFn: (payload: CreateMarkerTypePayload) =>
       client.post(CREATE_URL, payload),
     onSuccess: () => {
       messageApi.success(`已建立 marker type`);
@@ -254,6 +278,27 @@ export const MarkerTypesPage: React.FC = () => {
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
+
+    const editMutation = useMutation({
+      mutationFn: (payload: EditMarkerTypePayload) =>
+        client.post(EDIT_URL, payload),
+      onSuccess: () => {
+        messageApi.success(`已編輯 marker type`);
+        refetch();
+        setDrawerOpen(false);
+        form.resetFields();
+      },
+      onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+    });
+
+    const deleteMutation = useMutation({
+      mutationFn: (payload: { id: string }) => client.post(DELETE_URL, payload),
+      onSuccess: () => {
+        messageApi.success(`已刪除 marker type`);
+        refetch();
+      },
+      onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+    });
 
   useEffect(() => {
     setCurrent(1);
@@ -305,10 +350,8 @@ export const MarkerTypesPage: React.FC = () => {
     };
 
     if (editingRow) {
-      // TODO: EDIT_URL 還沒確認，先不送出，避免打到錯的 endpoint。
-      messageApi.warning(
-        "編輯功能還沒接上正確的 API，麻煩先跟開發者確認 endpoint",
-      );
+      editMutation.mutate({ ...payload, id: editingRow.id || "" });
+  
       return;
     }
 
@@ -351,12 +394,21 @@ export const MarkerTypesPage: React.FC = () => {
       render: (_: unknown, row) => {
         const readOnly = row.created_by === "MiR";
         return (
-          <Tooltip title={readOnly ? "檢視" : "編輯"}>
-            <ActionButton
-              icon={readOnly ? <EyeOutlined /> : <EditOutlined />}
-              onClick={() => openRow(row, readOnly)}
-            />
-          </Tooltip>
+          <Flex gap="middle">
+            <Tooltip title={readOnly ? "檢視" : "編輯"}>
+              <ActionButton
+                icon={readOnly ? <EyeOutlined /> : <EditOutlined />}
+                onClick={() => openRow(row, readOnly)}
+              />
+            </Tooltip>
+
+            <Tooltip title="摧毀">
+              <ActionButton
+                onClick={() => deleteMutation.mutate({ id: row.id || "" })}
+                icon={<DeleteFilled />}
+              ></ActionButton>
+            </Tooltip>
+          </Flex>
         );
       },
     },
