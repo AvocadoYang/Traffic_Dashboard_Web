@@ -10,6 +10,7 @@ import {
   CaretUpOutlined,
   CaretDownOutlined,
 } from "@ant-design/icons";
+import Icon from "@ant-design/icons";
 import { Space, Flex, Tag } from "antd";
 import {
   useAmrStatus,
@@ -36,6 +37,35 @@ import useRoadConditions from "@/sockets/useAmrRoadConditions";
 import useMapGroup from "@/api/useMapGroup";
 import useMapList from "@/api/useMapList";
 import { useMiRStatus } from "@/sockets/useMirStatus";
+import { useSetAtom } from "jotai";
+import { JoystickAmrId } from "../../global/jotai";
+
+const GamepadSvg = () => (
+  <svg
+    viewBox="0 0 24 24"
+    width="1em"
+    height="1em"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M6 12h4" />
+    <path d="M8 10v4" />
+    <circle cx="16.3" cy="9.6" r="0.65" />
+    <circle cx="18.7" cy="12" r="0.65" />
+    <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z" />
+  </svg>
+);
+
+const GamepadOutlined = (props: { amrId:string, className?: string }) => {
+    const setJoystickAmrId = useSetAtom(JoystickAmrId);
+  return <Icon onClick={(e) => {
+                  e.stopPropagation();
+                  setJoystickAmrId(props.amrId);
+            }} component={GamepadSvg} {...props} />
+  };
 
 const shak = keyframes`
   0%,
@@ -180,6 +210,7 @@ const NetworkDelay = styled.p<{ delay: number | undefined }>`
     if (delay <= 300) return "orange";
     return "red";
   }};
+  white-space: nowrap;
 `;
 
 const WramOverdue = styled.span`
@@ -324,14 +355,24 @@ export const RowSecond: React.FC<{
         }}
         className="location-drawer"
       >
-        <EnvironmentOutlined
-          className={`icon location-drawer location-icon ${isDark ? "dark-icon location-icon-dark" : ""}`}
-        />
-        <LocValue
-          amrId={amrId}
-          isDark={isDark}
-          isOffline={isOverdue}
-        ></LocValue>
+        {amrId.includes("mi") ? (
+          <GamepadOutlined
+            amrId={amrId}
+            className={`icon joystick-icon location-drawer location-icon ${isDark ? "dark-icon location-icon-dark" : ""}`}
+          />
+        ) : (
+          <EnvironmentOutlined
+            className={`icon location-drawer location-icon ${isDark ? "dark-icon location-icon-dark" : ""}`}
+          />
+        )}
+        {
+          amrId.includes("mi") ? <></> :
+            <LocValue
+                    amrId={amrId}
+                    isDark={isDark}
+                    isOffline={isOverdue}
+            ></LocValue>        
+        }
       </Space>
       <Space
         orientation="vertical"

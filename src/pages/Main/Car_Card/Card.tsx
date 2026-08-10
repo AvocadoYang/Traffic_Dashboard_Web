@@ -159,17 +159,6 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
               setOpenFullInfo={setOpenFullInfo}
             ></DropDown>
             <RowOne isDark={isDark} amrId={id}></RowOne>
-            {id.includes("mi") ? (
-              <Button
-                size="small"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setJoystickAmrId(id);
-                }}
-              >
-                Joystick
-              </Button>
-            ) : null}
 
             <RowSecond
               setOpenHiddenRow={setOpenHiddenRow}
