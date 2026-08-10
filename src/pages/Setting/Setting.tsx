@@ -110,26 +110,11 @@ const Setting: React.FC = () => {
   //   return () => container.removeEventListener("scroll", handleScroll);
   // }, [mapWrapRef]);
 
+  const mapScale = currentMapInfo?.data?.scale;
   useEffect(() => {
-    // 1. 提早 return 確保邏輯乾淨
-    if (!mapWrapRef.current || !currentMapInfo?.data) return;
-
-    const { scrollX, scrollY, scale } = currentMapInfo.data;
-
-    // 2. 先將 Ref 存入局部變數，解決 setTimeout 內的 null 檢查問題
-    const container = mapWrapRef.current;
-
-    const timer = setTimeout(() => {
-      // 3. 使用條件判斷或非空斷言確保數值存在
-      if (scrollX !== undefined) container.scrollLeft = scrollX;
-      if (scrollY !== undefined) container.scrollTop = scrollY;
-      if (scale !== undefined) {
-        setScale(scale);
-      }
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, [cm, currentMapInfo.data]);
+    if (mapScale === undefined) return;
+    setScale(mapScale);
+  }, [mapScale, cm]);
 
   return (
     <>
