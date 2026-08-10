@@ -8,10 +8,12 @@ import useMap from "@/api/useMap";
  *  - 後端有設定 scrollX/scrollY(MapManager 可編輯) 時, 沿用該預設視角
  *  - 兩者皆為 0 (未設定) 時, 把底圖中心捲到可視範圍正中央
  *
- * 地圖比可視範圍小的時候是靠 MapScrollArea 的 `> .map-view { margin: auto }`
- * 置中, 這裡算出來的目標值會自然落在 0; 比可視範圍大的時候捲動才真正生效。
  * 量測對象取 <img> 而非 .map-view, 因為只有底圖保證是地圖本體;
  * getBoundingClientRect 已經含 transform, 不必另外乘上 scale。
+ *
+ * 注意這裡只動捲動位置, 所以地圖必須大於可視範圍才有效果。Main 的 WebView
+ * 另外讓 .map-view 收縮成地圖大小 + `margin: auto`, 小圖才也能置中;
+ * Setting 的 .map-view 仍撐滿容器(拉框/拉線的事件綁在它上面), 小圖會停在左上角。
  *
  * 觸發時機: 底圖載入完成(進站 / 換地圖), 以及工具列的「地圖置中」按鈕。
  */

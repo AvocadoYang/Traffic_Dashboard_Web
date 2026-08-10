@@ -40,7 +40,7 @@ import AllStack from "../../PadViwe/components/PadMapContent/AllStack/AllStack";
 import AllPointCloud from "../../PadViwe/components/PadMapContent/component/AllPointCloud/AllPointCloud";
 import LocalizationCorrectionGhost from "../../PadViwe/components/PadMapContent/component/LocalizationCorrection/LocalizationCorrectionGhost";
 import useDragPan from "@/pages/Main/components/WebView/hooks/useDragPan";
-import useCenterMap from "@/pages/Main/components/WebView/hooks/useCenterMap";
+import useCenterMap from "@/hooks/useCenterMap";
 
 const WebMapView: React.FC<{
   mapRef: RefObject<HTMLDivElement>;
