@@ -96,6 +96,16 @@ const MapScrollArea = styled.div`
   width: 100%;
   overflow: scroll;
   scrollbar-width: 1rem;
+  display: flex;
+
+  > .map-view {
+    flex: none;
+    margin: auto;
+  }
+
+  > .map-view > img {
+    display: block;
+  }
 
   &::-webkit-scrollbar {
     display: none;
@@ -178,9 +188,9 @@ const BottomPanelBody = styled.div<{ $view: BottomView }>`
     `}
 `;
 
+// 不產生任何 box model, 只用來定位
 const MapOverlay = styled.div`
-  height: 100%;
-  width: 100%;
+  display: contents;
 `;
 
 const MapSelectorSlot = styled.div`
@@ -200,26 +210,11 @@ const WebView = () => {
   const { t } = useTranslation();
   const [bottomView, setBottomView] = useState<BottomView>("car");
 
+  const mapScale = currentMapInfo?.data?.scale;
   useEffect(() => {
-    // 1. 提早 return 確保邏輯乾淨
-    if (!mapWrapRef.current || !currentMapInfo?.data) return;
-
-    const { scrollX, scrollY, scale } = currentMapInfo.data;
-
-    // 2. 先將 Ref 存入局部變數，解決 setTimeout 內的 null 檢查問題
-    const container = mapWrapRef.current;
-
-    const timer = setTimeout(() => {
-      // 3. 使用條件判斷或非空斷言確保數值存在
-      if (scrollX !== undefined) container.scrollLeft = scrollX;
-      if (scrollY !== undefined) container.scrollTop = scrollY;
-      if (scale !== undefined) {
-        setScale(scale);
-      }
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, [currentMapInfo, cm]); // 注意：如果 currentMapInfo 是非同步取得，依賴項應包含它
+    if (mapScale === undefined) return;
+    setScale(mapScale);
+  }, [mapScale, cm, setScale]);
 
   return (
     <WebViewContent>
@@ -262,16 +257,16 @@ const WebView = () => {
                   mapRef={mapRef}
                   mapWrapRef={mapWrapRef}
                 ></WebMapView>
-                <MapOverlay>
-                  <ZoomPad></ZoomPad>
-                  {/* <MissionBtn></MissionBtn> */}
-                  <DirectMove></DirectMove>
-                  {/* <ECS_online />
+              </MapScrollArea>
+              <MapOverlay>
+                <ZoomPad></ZoomPad>
+                {/* <MissionBtn></MissionBtn> */}
+                <DirectMove></DirectMove>
+                {/* <ECS_online />
             <ElevatorIO />
             <CorningTest></CorningTest>
             <TestBarcode /> */}
-                </MapOverlay>
-              </MapScrollArea>
+              </MapOverlay>
 
               <BottomPanelSection $view={bottomView}>
                 <BottomPanelTabs $isDark={isDark}>
