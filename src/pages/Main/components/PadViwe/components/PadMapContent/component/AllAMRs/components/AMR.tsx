@@ -143,18 +143,20 @@ const AMR: FC<{
   // 會一直被渲染是正常的 不要包memo
   return (
     <>
-      {showTooltip ? (
-        <Tip left={left} top={top}>
-          <p>{`${isForbidden ? "🚫 " : ""}${amrId}`}</p>
-          {tipText ? <TipDetail>{tipText}</TipDetail> : null}
-          {destinationText ? (
-            <TipDetail>{`→ ${destinationText}`}</TipDetail>
-          ) : null}
-          {/* <ArrowDownOutlined className="hint-icon" /> */}
-        </Tip>
-      ) : (
-        []
-      )}
+      {
+      // showTooltip ? (
+      //   <Tip left={left} top={top}>
+      //     <p>{`${isForbidden ? "🚫 " : ""}${amrId}`}</p>
+      //     {tipText ? <TipDetail>{tipText}</TipDetail> : null}
+      //     {destinationText ? (
+      //       <TipDetail>{`→ ${destinationText}`}</TipDetail>
+      //     ) : null}
+      //     {/* <ArrowDownOutlined className="hint-icon" /> */}
+      //   </Tip>
+      // ) : (
+      //   []
+      // )
+      }
 
       <ForkLiftIcon
         amrId={amrId}

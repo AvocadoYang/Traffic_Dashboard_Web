@@ -16,9 +16,12 @@ import { ErrorResponse } from "@/utils/globalType";
 import { useTranslation } from "react-i18next";
 import { useMockInfo } from "@/sockets/useMockInfo";
 import useMiRHasError from "@/sockets/useMiRHasError";
+import { useMiRStatus } from "@/sockets/useMirStatus";
 
 export const ManualTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const { isManual } = useIsManual(amrId);
+  const { MiR_Status} = useMiRStatus(amrId);
+
   const { t } = useTranslation();
   const mockRobot = useMockInfo();
   const [messageApi, contextHolders] = message.useMessage();
@@ -31,11 +34,12 @@ export const ManualTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
+
   return (
     <>
       {contextHolders}
       <Tag
-        color={`${!isManual ? "#e3e4e3" : "blue"}`}
+        color={`${amrId.includes("mi") ? (MiR_Status == "EmergencyStop" ? "blue":"#e3e4e3"): (!isManual ? "#e3e4e3" : "blue")}`}
         style={{ margin: 0, cursor: "pointer" }}
         onClick={(e) => {
           e.stopPropagation();
@@ -69,7 +73,7 @@ export const CarryTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   );
 });
 
-export const ChargingTag: React.FC<{ amrId }> = memo(({ amrId }) => {
+export const ChargingTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const { isCharge } = useIsCharging(amrId);
   const { t } = useTranslation();
   return (
@@ -79,7 +83,7 @@ export const ChargingTag: React.FC<{ amrId }> = memo(({ amrId }) => {
   );
 });
 
-export const PowerTag: React.FC<{ amrId }> = memo(({ amrId }) => {
+export const PowerTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const { battery } = useBattery(amrId);
   const { t } = useTranslation();
   return (
@@ -92,7 +96,7 @@ export const PowerTag: React.FC<{ amrId }> = memo(({ amrId }) => {
   );
 });
 
-export const IsPosAccurate: React.FC<{ amrId }> = memo(({ amrId }) => {
+export const IsPosAccurate: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const { isPosAccurate } = usePosIsAccurate(amrId);
   const { t } = useTranslation();
 
@@ -105,23 +109,26 @@ export const IsPosAccurate: React.FC<{ amrId }> = memo(({ amrId }) => {
   );
 });
 
-export const IsPause: React.FC<{ amrId }> = memo(({ amrId }) => {
-  const { isPause } = useIsPause(amrId);
-  const { t } = useTranslation();
 
+
+export const IsPause: React.FC<{ amrId: string }> = memo(({ amrId }) => {
+  const { isPause } = useIsPause(amrId);
+  const { MiR_Status} = useMiRStatus(amrId);
+
+  const { t } = useTranslation();
   return (
-    <Tag color={isPause ? "volcano" : "#e3e4e3"} style={{ margin: 0 }}>
+    <Tag color={`${amrId.includes("mi") ? (MiR_Status == "Pause" ? "volcano":"#e3e4e3"): (!isPause ? "#e3e4e3" : "volcano")}`} style={{ margin: 0 }}>
       {t("mode.isPause")}
     </Tag>
   );
 });
 
-export const MiR_Error: React.FC<{ amrId }> = memo(({ amrId }) => {
-  const  hasError = useMiRHasError();
+export const MiR_Error: React.FC<{ amrId: string }> = memo(({ amrId }) => {
+  const  { MiR_Status } = useMiRStatus(amrId);
   const { t } = useTranslation();
 
   return (
-    <Tag color={hasError ? "volcano" : "#e3e4e3"} style={{ margin: 0 }}>
+    <Tag color={MiR_Status == "Error" ? "volcano" : "#e3e4e3"} style={{ margin: 0 }}>
       {t("mode.error")}
     </Tag>
   );

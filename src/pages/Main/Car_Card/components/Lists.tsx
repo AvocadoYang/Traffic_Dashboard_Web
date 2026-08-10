@@ -565,14 +565,14 @@ export const CarTag: React.FC<{ openFullInfo: boolean; amrId: string }> = memo(
         gap={"small"}
         $offline={isOverdue}
       >
-        {isOverdue ? <></> : <ManualTag amrId={amrId} />}
-        <MissionTag amrId={amrId} />
-        <CarryTag amrId={amrId} />
-        <ChargingTag amrId={amrId} />
-        <PowerTag amrId={amrId} />
-        <IsPause amrId={amrId} />
-        {amrId.includes("mi") ? <MiR_Error amrId={amrId}></MiR_Error> : <></>}
-        {isOverdue || amrId.includes("mi") ? (
+      <MissionTag amrId={amrId} />
+      <CarryTag amrId={amrId} />
+      <ChargingTag amrId={amrId} />
+      <PowerTag amrId={amrId} />
+      {isOverdue ? <></> : <ManualTag amrId={amrId} />}
+      {isOverdue ? <></>: <IsPause amrId={amrId} />}
+      {amrId.includes("mi") ? isOverdue ? <></>:<MiR_Error amrId={amrId}></MiR_Error> : <></>}
+      {isOverdue || amrId.includes("mi") ? (
           <></>
         ) : (
           <IsPosAccurate amrId={amrId}></IsPosAccurate>
