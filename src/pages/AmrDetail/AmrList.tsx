@@ -178,7 +178,7 @@ const AmrList = () => {
 
   return (
     <Layout style={{ minHeight: "100vh", background: "#f5f5f5" }}>
-      <Header isMobile={isMobile} />
+      <Header />
       <IndustrialContainer>
         <PageHeader>
           <RobotOutlined style={{ fontSize: 24 }} />

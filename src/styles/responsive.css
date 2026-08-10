@@ -1,0 +1,106 @@
+/**
+ * 響應式尺寸 token。
+ *
+ * 所有會隨螢幕變動的 font-size / height / spacing 都集中在這裡，
+ * styled-components 只要引用 var(--xxx) 就會自動跟著 breakpoint 走，
+ * 元件本身不需要知道現在是手機還是桌機。
+ *
+ * breakpoint 數值必須與 src/styles/responsive.ts 保持一致。
+ */
+
+/* 手機版 Safari 的 100vh 會被網址列吃掉，用 fill-available 補 */
+html,
+body,
+#root {
+  height: -webkit-fill-available;
+}
+
+/* --- base：< 768px --- */
+:root {
+  /* 版面 */
+  --app-height: 100dvh;
+  --header-height: 48px;
+  --header-padding-x: 12px;
+  --panel-padding: 12px;
+  --drawer-width: 260px;
+
+  --tool-sheet-height: auto;
+  --tool-sheet-max-height: 80dvh;
+  --tool-sheet-icon-size: 22px;
+  --tool-sheet-menu-min-height: 96px;
+  --tool-sheet-menu-max-height: 40dvh;
+
+  /* 字級 */
+  --font-xs: 10px;
+  --font-sm: 11px;
+  --font-md: 13px;
+  --font-lg: 15px;
+
+  /* 控制項 */
+  --control-height: 32px;
+  --control-padding-x: 10px;
+  --icon-size: 14px;
+  --avatar-size: 28px;
+  --select-width: 80px;
+
+  /* 間距 */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+}
+
+/* --- pad：>= 768px --- */
+@media (min-width: 768px) {
+  :root {
+    --app-height: 100dvh;
+    --header-height: 56px;
+    --header-padding-x: 16px;
+    --panel-padding: 16px;
+    --drawer-width: 300px;
+    --tool-sheet-icon-size: 26px;
+
+    --font-xs: 10px;
+    --font-sm: 12px;
+    --font-md: 14px;
+    --font-lg: 16px;
+
+    --control-height: 34px;
+    --control-padding-x: 12px;
+    --icon-size: 15px;
+    --avatar-size: 30px;
+    --select-width: 90px;
+
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 14px;
+    --space-lg: 20px;
+  }
+}
+
+/* --- web：>= 1440px --- */
+@media (min-width: 1440px) {
+  :root {
+    --app-height: 100%;
+    --header-height: 64px;
+    --header-padding-x: 24px;
+    --panel-padding: 20px;
+    --drawer-width: 320px;
+
+    --font-xs: 11px;
+    --font-sm: 12px;
+    --font-md: 14px;
+    --font-lg: 18px;
+
+    --control-height: 36px;
+    --control-padding-x: 16px;
+    --icon-size: 16px;
+    --avatar-size: 32px;
+    --select-width: 100px;
+
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+  }
+}

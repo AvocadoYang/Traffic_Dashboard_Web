@@ -220,6 +220,7 @@ const SearchDropdown = styled.div`
   background: #ffffff;
   border: 1px solid #d9d9d9;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  max-width: calc(100vw - var(--space-lg));
 
   .ant-input {
     font-family: "Roboto Mono", monospace;
@@ -231,6 +232,26 @@ const SearchDropdown = styled.div`
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+  }
+`;
+
+const ActionCell = styled(Flex)`
+  && {
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+`;
+
+const WrapText = styled.span`
+  display: inline-block;
+  overflow-wrap: anywhere;
+  min-width: 5rem;
+`;
+
+const WrapRadioGroup = styled(Radio.Group)`
+  && {
+    display: inline-flex;
+    flex-wrap: wrap;
   }
 `;
 
@@ -343,14 +364,14 @@ const EditableCell: FC<EditableCellProps> = ({
       break;
     case "roadType":
       inputNode = (
-        <Radio.Group buttonStyle="solid">
+        <WrapRadioGroup buttonStyle="solid">
           <Radio.Button value="oneWayRoad">
             {t("edit_road_panel.single_road")}
           </Radio.Button>
           <Radio.Button value="twoWayRoad">
             {t("edit_road_panel.two_way_road")}
           </Radio.Button>
-        </Radio.Group>
+        </WrapRadioGroup>
       );
       break;
     case "priority":
@@ -428,7 +449,7 @@ const RoadList: React.FC<{
   const invalidateResourceQueries = () => {
     queryClient.refetchQueries({ queryKey: ["map"] });
     queryClient.refetchQueries({ queryKey: ["active-group-resources"] });
-      queryClient.refetchQueries({ queryKey: ["all-groups-resources"] });
+    queryClient.refetchQueries({ queryKey: ["all-groups-resources"] });
   };
 
   const deleteRoadMutation = useMutation({
@@ -504,7 +525,7 @@ const RoadList: React.FC<{
   const handleMouseLeave = () => setHoverRoad("");
 
   const getColumnSearchProps = (
-    dataIndex: DataIndex
+    dataIndex: DataIndex,
   ): TableColumnType<RoadListType> => ({
     filterDropdown: ({
       setSelectedKeys,
@@ -524,7 +545,7 @@ const RoadList: React.FC<{
           onPressEnter={() => handleSearch(confirm)}
           style={{ marginBottom: 8, display: "block" }}
         />
-        <Space>
+        <Space wrap>
           <Button
             color="primary"
             variant="filled"
@@ -704,12 +725,14 @@ const RoadList: React.FC<{
       dataIndex: "groupName",
       key: "groupName",
       minWidth: 100,
+      render: (groupName: string) => <WrapText>{groupName}</WrapText>,
     },
     {
       title: t("map_manager.map_group"),
       dataIndex: "mapFileName",
       key: "mapFileName",
       minWidth: 120,
+      render: (mapFileName: string) => <WrapText>{mapFileName}</WrapText>,
     },
     {
       title: "",
@@ -719,7 +742,7 @@ const RoadList: React.FC<{
       render(_v: unknown, record: RoadListType) {
         const editable = isEditing(record);
         return editable ? (
-          <Flex gap="small">
+          <ActionCell>
             <IndustrialButton
               className="primary"
               onClick={() => save(record.id)}
@@ -730,9 +753,9 @@ const RoadList: React.FC<{
             <IndustrialButton onClick={() => cancel()} icon={<CloseOutlined />}>
               {t("utils.cancel")}
             </IndustrialButton>
-          </Flex>
+          </ActionCell>
         ) : (
-          <Flex gap="small">
+          <ActionCell>
             <IndustrialButton
               className="primary"
               disabled={!record.isActiveGroup}
@@ -758,7 +781,7 @@ const RoadList: React.FC<{
                 {t("utils.delete")}
               </IndustrialButton>
             </Popconfirm>
-          </Flex>
+          </ActionCell>
         );
       },
     },

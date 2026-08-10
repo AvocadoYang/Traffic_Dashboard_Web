@@ -7,7 +7,46 @@ import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import AddModal from "./AddModal";
-import { DeleteOutlined, EditTwoTone, PlayCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditTwoTone,
+  PlayCircleOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
+import styled from "styled-components";
+
+const ToolbarRow = styled(Flex)`
+  && {
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+`;
+
+const ActionCell = styled(Flex)`
+  && {
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+`;
+
+const MapTagList = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+
+  > .ant-tag {
+    margin-inline-end: 0;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+`;
+
+const GroupNameText = styled.span`
+  display: inline-block;
+  overflow-wrap: anywhere;
+  min-width: 5rem;
+`;
 
 const MapGroupTable: React.FC = () => {
   const { t } = useTranslation();
@@ -82,13 +121,20 @@ const MapGroupTable: React.FC = () => {
       width: "25%",
       sorter: (a: MapGroupName, b: MapGroupName) =>
         (a.group_name || "").localeCompare(b.group_name || ""),
+      render: (groupName: string) => <GroupNameText>{groupName}</GroupNameText>,
     },
     {
       title: t("map_group_table.maps"),
       dataIndex: "maps",
       width: "50%",
       render: (_: unknown, record: MapGroupName) => {
-        return record.maps.map((e) => <Tag key={e.id}>{e.fileName}</Tag>);
+        return (
+          <MapTagList>
+            {record.maps.map((e) => (
+              <Tag key={e.id}>{e.fileName}</Tag>
+            ))}
+          </MapTagList>
+        );
       },
     },
     {
@@ -105,7 +151,7 @@ const MapGroupTable: React.FC = () => {
       dataIndex: "operation",
       render: (_: unknown, record: MapGroupName) => {
         return (
-          <Flex gap="middle">
+          <ActionCell>
             <Button
               color="primary"
               variant="filled"
@@ -137,17 +183,13 @@ const MapGroupTable: React.FC = () => {
                 color="primary"
                 variant="filled"
                 disabled={record.isUsing}
-                icon = { <PlayCircleOutlined color="#52c41a"></PlayCircleOutlined>}
-                style={
-                  record.isUsing
-                    ? undefined
-                    : { color: "#52c41a" }
-                }
+                icon={<PlayCircleOutlined color="#52c41a"></PlayCircleOutlined>}
+                style={record.isUsing ? undefined : { color: "#52c41a" }}
               >
                 {t("map_group_table.activate")}
               </Button>
             </Popconfirm>
-          </Flex>
+          </ActionCell>
         );
       },
     },
@@ -158,13 +200,13 @@ const MapGroupTable: React.FC = () => {
   return (
     <>
       {contextHolder}
-      <Flex gap="middle">
+      <ToolbarRow>
         <Button icon={<PlusOutlined />} onClick={handleOpenAddModal}>
           {t("utils.add")}
         </Button>
 
         <Button onClick={() => refetch()}>{t("utils.reload")}</Button>
-      </Flex>
+      </ToolbarRow>
 
       <Table<MapGroupName>
         bordered
