@@ -566,10 +566,10 @@ export const MarkerTypesPage: React.FC = () => {
             rules={[
               {
                 required: true,
-                type: "number", // 👈 必須加上這行宣告型別為 number
+                type: "number",
                 min: 0.4,
                 max: 0.75,
-                message: "請輸入 0.4 到 0.75 之間的數值", // 👈 自訂訊息可避免出現預設英文錯誤
+                message: "請輸入 0.4 到 0.75 之間的數值",
               },
             ]}
             label={
@@ -594,7 +594,7 @@ export const MarkerTypesPage: React.FC = () => {
             rules={[
               {
                 required: true,
-                type: "number", // 👈 必須加上這行
+                type: "number",
                 min: 0.75,
                 max: 1.5,
                 message: "請輸入 0.75 到 1.5 之間的數值",
