@@ -495,6 +495,12 @@ const RoadStatue: React.FC<{ amrId: string; isOffline?: boolean }> = ({
   );
 };
 
+const MapValue = styled(RoadStyle)`
+  width: 75%;
+  margin-left: 5%;
+  text-align: left;
+`;
+
 const MaintenanceStatue: React.FC<{ amrId: string; isOffline?: boolean }> = ({
   amrId,
   isOffline,
@@ -522,11 +528,52 @@ export const RowFourth: React.FC<{ isDark: boolean; amrId: string }> = memo(
   },
 );
 
+
+const MiR_StatusColor = (status: string) => {
+  switch (status) {
+    case "Ready":
+      return "#2f80ed";
+    case "Executing":
+      return "#27ae60";
+    default:
+      return "#eb5757";
+  }
+};
+
+const MiRRunningStatue: React.FC<{ amrId: string; isOffline?: boolean }> = memo(
+  ({ amrId, isOffline }) => {
+    const { status } = useMiRStatus(amrId);
+    return (
+      <CarStatus
+        style={{ color: isOffline ? "#585757" : MiR_StatusColor(status) }}
+      >
+        {isOffline ? "--" : status ? status : "---------------"}
+      </CarStatus>
+    );
+  },
+);
+
+export const MiR_Running_Status: React.FC<{ isDark: boolean; amrId: string }> = memo(
+  ({ isDark, amrId }) => {
+    const { t } = useTranslation();
+    const { isOverdue } = useIsLogIn(amrId);
+    return (
+      <CarRow3 is_dark={isDark.toString()}>
+        <span
+          className={`third-row-span ${isDark ? "third-row-span-dark" : ""}`}
+        >{`${t("utils.status")}:`}</span>
+        <MiRRunningStatue amrId={amrId} isOffline={isOverdue}></MiRRunningStatue>
+      </CarRow3>
+    );
+  },
+);
+
+
 export const MiR_Map_Status: React.FC<{ isDark: boolean;  amrId: string}> = memo(
   ({ isDark, amrId}) => {
-    const [activate_state, setActivateState] = useState<string>('')
+    const [activateMap, setActivateMap] = useState<{ mapName: string; groupName: string } | null>(null)
     const { t } = useTranslation();
-    const { isOverdue } = useIsLogIn(amrId); 
+    const { isOverdue } = useIsLogIn(amrId);
     const MiR_Status_IO = useMiRStatus(amrId);
     const { data: maps } = useMapList();
     const { data: groups, isSuccess: groupsLoaded } = useMapGroup();
@@ -535,8 +582,8 @@ export const MiR_Map_Status: React.FC<{ isDark: boolean;  amrId: string}> = memo
         const active_map = maps.filter((map) => map.id == MiR_Status_IO.active_map_id).map((map) => {
           return { mapName: map.fileName, groupName: map.map_group_name}
         })
-        if(active_map.length){
-          setActivateState(`${active_map[0].mapName} (${active_map[0].groupName})`)
+        if(active_map && active_map.length){
+          setActivateMap(active_map[0])
         }
       }
     }, [MiR_Status_IO]);
@@ -546,9 +593,16 @@ export const MiR_Map_Status: React.FC<{ isDark: boolean;  amrId: string}> = memo
         <span
           className={`third-row-span ${isDark ? "third-row-span-dark" : ""}`}
         >{`${t("utils.activate_map")}:`}</span>
-        <RoadStyle style={{ color: "#585757" }}>
-            {isOverdue || !maps?.length ? "--" : activate_state}
-        </RoadStyle>
+        <MapValue>
+            {isOverdue || !maps?.length || !activateMap ? (
+              <span style={{ color: "#585757" }}>--</span>
+            ) : (
+              <>
+                <span style={{ color: "#000000" }}>{activateMap.mapName}</span>{" "}
+                <span style={{ color: "#706f6f" }}>({activateMap.groupName})</span>
+              </>
+            )}
+        </MapValue>
     </CarRow3>
     );
   }
