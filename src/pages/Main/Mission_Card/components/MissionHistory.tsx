@@ -351,18 +351,28 @@ const MissionHistory: FC<{
     page: 1,
     pageSize: 10,
   });
+  const [searchText, setSearchText] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
+
+  const dateFrom = dateRange?.[0]?.startOf("day").toISOString();
+  const dateTo = dateRange?.[1]?.endOf("day").toISOString();
+
   const {
     data: missions,
     isLoading,
     error,
     refetch,
-  } = useAllMissionHistory(pagination);
+  } = useAllMissionHistory({
+    ...pagination,
+    search: debouncedSearch,
+    dateFrom,
+    dateTo,
+  });
   const closeHistory = () => {
     setIsOpenMissionHistory(false);
   };
   const [size, setSize] = useState(980);
-  const [searchText, setSearchText] = useState("");
-  const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
 
   const exportMutation = useMutation({
     mutationFn: async () => {
@@ -398,17 +408,15 @@ const MissionHistory: FC<{
     },
   });
 
-  const filteredMissions = missions?.data?.filter((m) => {
-    const missionIdMatch = m.id
-      .toLowerCase()
-      .includes(searchText.toLowerCase());
+  // 打字時不要每個按鍵都打一次 API
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchText), 500);
+    return () => clearTimeout(timer);
+  }, [searchText]);
 
-    const fullNameMatch = Array.isArray(m.full_name)
-      ? m.sub_name?.toLowerCase().includes(searchText.toLowerCase())
-      : false;
-
-    return missionIdMatch || fullNameMatch;
-  });
+  useEffect(() => {
+    setPagination((pre) => ({ ...pre, page: 1 }));
+  }, [debouncedSearch, dateFrom, dateTo]);
 
   useEffect(() => {
     if (!isOpenMissionHistory) return;
@@ -710,10 +718,11 @@ const MissionHistory: FC<{
               {t("mission_history.title")}
             </IndustrialTypography>
             <DrawerTitleActions>
-              <Input.Search
+              <Input
                 placeholder={t("mission_history.search_mission_or_id")}
                 allowClear
                 style={{ flex: "1 1 200px", minWidth: 180, maxWidth: 260 }}
+                value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
               />
 
@@ -766,7 +775,7 @@ const MissionHistory: FC<{
           <IndustrialTableContainer $isDark={isDark}>
             <Table
               columns={columns as []}
-              dataSource={filteredMissions}
+              dataSource={missions?.data}
               loading={isLoading}
               rowKey="id"
               pagination={{

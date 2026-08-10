@@ -25,6 +25,24 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
+import styled from "styled-components";
+
+const StyledTable = styled(Table)`
+  th.zone-col-sm,
+  td.zone-col-sm {
+    min-width: 70px;
+  }
+
+  th.zone-col,
+  td.zone-col {
+    min-width: 90px;
+  }
+
+  th.zone-col-md,
+  td.zone-col-md {
+    min-width: 110px;
+  }
+`;
 
 const ZoneTable: React.FC<{
   sortableId: string;
@@ -94,12 +112,12 @@ const ZoneTable: React.FC<{
     });
   }, [resources, selectedGroupId, selectedMapId]);
 
-   const layerDict: { [value: string]: string} = {
+  const layerDict: { [value: string]: string } = {
     "0": `${t("edit_zone_panel.layer_dis_far")}`,
-    "1":  `${t("edit_zone_panel.layer_dis_near")}`,
+    "1": `${t("edit_zone_panel.layer_dis_near")}`,
     "2": `${t("edit_zone_panel.speical_layer_cargo")}`,
-    "3": `${t("edit_zone_panel.special_layer_charge")}`
-  } 
+    "3": `${t("edit_zone_panel.special_layer_charge")}`,
+  };
 
   const deleteMutation = useMutation({
     mutationFn: (zoneId: string[]) => {
@@ -150,7 +168,7 @@ const ZoneTable: React.FC<{
       dataIndex: "name",
       key: "name",
       editable: true,
-      width: "16%",
+      className: "zone-col",
     },
     {
       title: t("zone_table_form.start_point"),
@@ -165,7 +183,7 @@ const ZoneTable: React.FC<{
         );
       },
       editable: true,
-      width: "18%",
+      className: "zone-col",
     },
     {
       title: t("zone_table_form.end_point"),
@@ -180,7 +198,7 @@ const ZoneTable: React.FC<{
           </Flex>
         );
       },
-      width: "18%",
+      className: "zone-col",
     },
     {
       title: t("zone_table_form.layer"),
@@ -188,30 +206,35 @@ const ZoneTable: React.FC<{
       key: "layer",
       editable: true,
       render: (data) => {
-        return <>
-          {`${data}: `}
+        return (
+          <>
+            {`${data}: `}
 
-          {
-            data ?  <p style={{ fontWeight: "bold"}}>{layerDict[data]}</p> : <></>
-          }
-
-        </>
+            {data ? (
+              <p style={{ fontWeight: "bold" }}>{layerDict[data]}</p>
+            ) : (
+              <></>
+            )}
+          </>
+        );
       },
-      width: "18%",
+      className: "zone-col",
     },
     {
       title: t("zone_table_form.lidar"),
       dataIndex: "lidar",
       key: "lidar",
       editable: true,
-      render: (data: { front: boolean, back: boolean}) => {
-        return <>
-            <p>{`${t(`edit_zone_panel.lidar_front`)}: ${data.front ? t(`utils.open`): t(`utils.close`)}`}</p>
-      
-            <p>{`${t(`edit_zone_panel.lidar_back`)}: ${data.back ? t(`utils.open`): t(`utils.close`)}`}</p>
-        </>
+      render: (data: { front: boolean; back: boolean }) => {
+        return (
+          <>
+            <p>{`${t(`edit_zone_panel.lidar_front`)}: ${data.front ? t(`utils.open`) : t(`utils.close`)}`}</p>
+
+            <p>{`${t(`edit_zone_panel.lidar_back`)}: ${data.back ? t(`utils.open`) : t(`utils.close`)}`}</p>
+          </>
+        );
       },
-      width: "18%",
+      className: "zone-col-md",
     },
     {
       title: t("zone_table_form.zone_attr"),
@@ -231,7 +254,7 @@ const ZoneTable: React.FC<{
           </Space>
         );
       },
-      width: "23%",
+      className: "zone-col-md",
     },
     {
       title: t("zone_table_form.zone_color"),
@@ -242,19 +265,19 @@ const ZoneTable: React.FC<{
         return <ColorPicker disabled defaultValue={data}></ColorPicker>;
       },
       editable: true,
-      width: "6%",
+      className: "zone-col-sm",
     },
     {
       title: t("map_group_table.name"),
       dataIndex: "groupName",
       key: "groupName",
-      width: "8%",
+      className: "zone-col",
     },
     {
       title: t("map_manager.map_group"),
       dataIndex: "mapFileName",
       key: "mapFileName",
-      width: "10%",
+      className: "zone-col",
     },
     {
       dataIndex: "operation",
@@ -301,7 +324,7 @@ const ZoneTable: React.FC<{
           </Flex>
         );
       },
-      width: "12%",
+      className: "zone-col",
     },
   ];
 
@@ -341,7 +364,8 @@ const ZoneTable: React.FC<{
               {t("utils.delete")}
             </Button>
           </Popconfirm>
-          <Table
+          <StyledTable
+            style={{ width: "100%" }}
             rowSelection={{
               type: "checkbox",
               onChange: (selectedRowKeys: React.Key[]) => {
@@ -351,7 +375,7 @@ const ZoneTable: React.FC<{
             rowKey={(record) => record.id}
             columns={columns}
             dataSource={tableData as unknown as ZoneTableData[]}
-          ></Table>
+          ></StyledTable>
         </Flex>
       ) : (
         <EditZoneTable

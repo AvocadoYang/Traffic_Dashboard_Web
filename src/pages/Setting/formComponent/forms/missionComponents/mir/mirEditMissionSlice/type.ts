@@ -53,11 +53,11 @@ export type Mir_Task =
 
 export const mirMoveActonList = [
   "adjust_localization",
-  "check_position_status",
+  // "check_position_status",
   "docking",
   "move",
   "move_to_coordinate",
-  "planner_settings",
+  // "planner_settings",
   "relative_move",
   "set_footprint",
   "switch_map",

@@ -263,6 +263,25 @@ const EdgeLabel = styled.text`
   pointer-events: none;
 `;
 
+/* dashed line from the origin to the currently-selected vertex,
+   plus its X / Y readout drawn along the line — mirrors MiR's own
+   footprint editor, which always shows the selected point's offset
+   from the robot's origin this way. */
+const GuideLine = styled.line`
+  stroke: #e8720c;
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+  pointer-events: none;
+`;
+
+const GuideLabel = styled.text`
+  font-size: 11px;
+  fill: #e8720c;
+  font-family: inherit;
+  user-select: none;
+  pointer-events: none;
+`;
+
 /* Floating X / Y panel */
 const XYPanel = styled.div`
   position: absolute;
@@ -591,6 +610,29 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
 
   const selectedPoint = selected !== null ? points[selected] : null;
 
+  /* origin -> selected vertex guide line (matches MiR's editor, which
+     always shows the selected point's X/Y offset along a line back to
+     the robot's origin, not just as numbers in the side panel) */
+  const guideLine = useMemo(() => {
+    if (selected === null || !selectedPoint) return null;
+    const origin = toSvgPoint([0, 0]);
+    const target = svgPoints[selected];
+    let angle =
+      (Math.atan2(target.y - origin.y, target.x - origin.x) * 180) / Math.PI;
+    if (angle > 90) angle -= 180;
+    if (angle < -90) angle += 180;
+    return {
+      x1: origin.x,
+      y1: origin.y,
+      x2: target.x,
+      y2: target.y,
+      labelX: (origin.x + target.x) / 2,
+      labelY: (origin.y + target.y) / 2,
+      angle,
+      text: `${selectedPoint[0]} ${selectedPoint[1]}`,
+    };
+  }, [selected, selectedPoint, svgPoints, toSvgPoint]);
+
   const deleteMutation = useMutation({
     mutationFn: () => {
       return client.post("api/setting/delete-footprint", { id: data.id });
@@ -726,11 +768,10 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
           {vehicleBodyAttr && (
             <polygon
               points={vehicleBodyAttr}
-              fill="#94a3b8"
-              fillOpacity={0.15}
-              stroke="#94a3b8"
-              strokeWidth={2}
-              strokeDasharray="6 4"
+              fill="#6c86ab"
+              fillOpacity={0.55}
+              stroke="#4a679a"
+              strokeWidth={1.5}
               pointerEvents="none"
             />
           )}
@@ -744,6 +785,71 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
             strokeLinejoin="round"
           />
 
+          {/* small robot chassis icon, drawn at a fixed size and always
+              centered on the origin — independent of both the editable
+              footprint and the reference body outline, same as MiR's
+              editor which always shows the physical robot silhouette
+              with its wheels/sensors and forward-direction arrow */}
+          {vehicleBodyAttr && (
+            <g pointerEvents="none">
+              <rect
+                x={center.x - 39}
+                y={center.y - 27}
+                width={78}
+                height={54}
+                rx={6}
+                fill="#3958d8"
+              />
+              <rect
+                x={center.x - 47}
+                y={center.y - 25}
+                width={10}
+                height={16}
+                rx={2}
+                fill="#3958d8"
+              />
+              <rect
+                x={center.x - 47}
+                y={center.y + 9}
+                width={10}
+                height={16}
+                rx={2}
+                fill="#3958d8"
+              />
+              <rect
+                x={center.x + 25}
+                y={center.y - 37}
+                width={16}
+                height={10}
+                rx={2}
+                fill="#e4e7ec"
+                stroke="#3958d8"
+              />
+              <rect
+                x={center.x + 25}
+                y={center.y + 27}
+                width={16}
+                height={10}
+                rx={2}
+                fill="#e4e7ec"
+                stroke="#3958d8"
+              />
+              {[0, 1, 2].map((i) => (
+                <path
+                  key={i}
+                  d={`M ${center.x - 6 + i * 8} ${center.y - 8} L ${
+                    center.x + 2 + i * 8
+                  } ${center.y} L ${center.x - 6 + i * 8} ${center.y + 8}`}
+                  fill="none"
+                  stroke="#ffffff"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              ))}
+            </g>
+          )}
+
           {/* edge distance labels */}
           {edgeLabels.map((l) => (
             <g
@@ -755,6 +861,25 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
               </EdgeLabel>
             </g>
           ))}
+
+          {/* origin -> selected vertex guide line + coordinate readout */}
+          {guideLine && (
+            <>
+              <GuideLine
+                x1={guideLine.x1}
+                y1={guideLine.y1}
+                x2={guideLine.x2}
+                y2={guideLine.y2}
+              />
+              <g
+                transform={`translate(${guideLine.labelX}, ${guideLine.labelY}) rotate(${guideLine.angle})`}
+              >
+                <GuideLabel textAnchor="middle" dy={-4}>
+                  {guideLine.text}
+                </GuideLabel>
+              </g>
+            </>
+          )}
 
           {/* vertex handles */}
           {svgPoints.map((p, i) => (

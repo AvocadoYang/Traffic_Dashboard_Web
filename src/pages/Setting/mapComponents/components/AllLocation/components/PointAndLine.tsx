@@ -1,16 +1,18 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { FC, memo, useCallback, useState } from "react";
 import { useAtomValue } from "jotai";
 import { DragLineInfo, showBlockId as ShowBlockId } from "@/utils/gloable";
 import { EditRoadPanelSwitch } from "@/utils/siderGloble";
 
-const LabelWrapperDiv = styled.div.attrs<{ x: number; y: number }>(({ x, y }) => ({
-  style: {
-    left: x + "px",
-    top: y + "px",
-    transform: `translate(-50%, -50%)`,
-  },
-}))`
+const LabelWrapperDiv = styled.div.attrs<{ x: number; y: number }>(
+  ({ x, y }) => ({
+    style: {
+      left: x + "px",
+      top: y + "px",
+      transform: `translate(-50%, -50%)`,
+    },
+  }),
+)`
   position: absolute;
   z-index: 100;
   cursor: pointer;
@@ -33,7 +35,10 @@ const LabelDiv = styled.div`
   z-index: 102;
   white-space: nowrap;
   pointer-events: auto;
-  transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    background 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover {
     background: rgba(0, 123, 255, 0.85);
@@ -58,38 +63,39 @@ const TooltipDiv = styled.div`
   /* white-space: nowrap; */
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
   margin-left: 6px; /* 與 Label 保持距離 */
 `;
 
 export const LabelTooltip = memo(TooltipDiv);
 
-
-
-
-const LineDiv = styled.div.attrs<{ x: number; y: number; angle: number; progress: number }>(
-  ({ x, y, angle, progress }) => ({
-    style: {
-      left: x + "px",
-      top: y + "px",
-      // width: length + "px",
-      transform: `rotate(${angle}deg) scaleX(${progress})`,
-    },
-  })
-)`
-position: absolute;
+const LineDiv = styled.div.attrs<{
+  x: number;
+  y: number;
+  angle: number;
+  progress: number;
+}>(({ x, y, angle, progress }) => ({
+  style: {
+    left: x + "px",
+    top: y + "px",
+    // width: length + "px",
+    transform: `rotate(${angle}deg) scaleX(${progress})`,
+  },
+}))`
+  position: absolute;
   transform-origin: 0 0;
   transform: translate(-50%, -50%);
-  width: 60px;   /* 真寬 */
+  width: 60px; /* 真寬 */
   height: 2px;
   opacity: 0.5;
   z-index: 95;
-  transition: transform 0.45s cubic-bezier(.2,.8,.3,1);
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.3, 1);
   background: rgba(0, 0, 0, 0.45);
 `;
 
 export const Line = memo(LineDiv);
-
 
 const PointDiv = styled.div.attrs<{
   left: number;
@@ -108,20 +114,26 @@ const PointDiv = styled.div.attrs<{
   hoverLoc?: boolean;
   isNear?: boolean;
 }>`
-width: ${(p) => (p.isNear ? "6px" : "4px")};
-height: ${(p) => (p.isNear ? "6px" : "4px")};
-border-radius: 50%;
-background: ${(props) => props.canrotate === "true" ? "#ff15fb" : "#0d0d12"};
-position: absolute;
-cursor: pointer;
-left: ${(p) => p.left}px;
-top: ${(p) => p.top}px;
-/* 蓋過車輛圖示(z-index:200000)，避免點位被 AMR 擋住點不到 */
-z-index: 200001;
-/* box-shadow:  ${(props) => props.canrotate === "true" ? " 0 0 4px rgba(253, 43, 180, 0.6)" : " 0 0 4px rgba(0, 0, 0, 0.6)"}; */
-transform: translate(-50%, -50%);
-border: ${(props) => (props.hoverLoc ? "5px solid #ff0000" : "none")};
-transition: width 0.12s ease-out, height 0.12s ease-out;
+  width: ${(p) => (p.isNear ? "6px" : "4px")};
+  height: ${(p) => (p.isNear ? "6px" : "4px")};
+  border-radius: 50%;
+  background: ${(props) =>
+    props.canrotate === "true" ? "#ff15fb" : "#0d0d12"};
+  position: absolute;
+  cursor: pointer;
+  left: ${(p) => p.left}px;
+  top: ${(p) => p.top}px;
+  /* 蓋過車輛圖示(z-index:200000)，避免點位被 AMR 擋住點不到 */
+  z-index: 200001;
+  /* box-shadow:  ${(props) =>
+    props.canrotate === "true"
+      ? " 0 0 4px rgba(253, 43, 180, 0.6)"
+      : " 0 0 4px rgba(0, 0, 0, 0.6)"}; */
+  transform: translate(-50%, -50%);
+  border: ${(props) => (props.hoverLoc ? "5px solid #ff0000" : "none")};
+  transition:
+    width 0.12s ease-out,
+    height 0.12s ease-out;
   &:hover {
     background: red;
     width: 9px;
@@ -145,26 +157,58 @@ const PointMainDiv = styled.div.attrs<{
   canrotate: string;
   hoverLoc?: boolean;
   isNear?: boolean;
+  $destinationLabel?: string;
+  $amrColor?: string;
 }>`
-width: ${(p) => (p.isNear ? "5px" : "3px")};
-height: ${(p) => (p.isNear ? "5px" : "3px")};
-border-radius: 50%;
-background: ${(props) => props.canrotate === "true" ? "#ff15fb" : "#0d0d12"};
-position: absolute;
-cursor: pointer;
-left: ${(p) => p.left}px;
-top: ${(p) => p.top}px;
-/* 蓋過車輛圖示(z-index:200000)，避免點位被 AMR 擋住點不到 */
-z-index: 200001;
-/* box-shadow:  ${(props) => props.canrotate === "true" ? " 0 0 4px rgba(253, 43, 180, 0.6)" : " 0 0 4px rgba(0, 0, 0, 0.6)"}; */
-transform: translate(-50%, -50%);
-border: ${(props) => (props.hoverLoc ? "5px solid #ff0000" : "none")};
-transition: width 0.12s ease-out, height 0.12s ease-out;
+  width: ${(p) => (p.isNear ? "5px" : "3px")};
+  height: ${(p) => (p.isNear ? "5px" : "3px")};
+  border-radius: 50%;
+  background: ${(props) =>
+    props.canrotate === "true" ? "#ff15fb" : "#0d0d12"};
+  position: absolute;
+  cursor: pointer;
+  left: ${(p) => p.left}px;
+  top: ${(p) => p.top}px;
+  /* 蓋過車輛圖示(z-index:200000)，避免點位被 AMR 擋住點不到 */
+  z-index: 200001;
+  /* box-shadow:  ${(props) =>
+    props.canrotate === "true"
+      ? " 0 0 4px rgba(253, 43, 180, 0.6)"
+      : " 0 0 4px rgba(0, 0, 0, 0.6)"}; */
+  transform: translate(-50%, -50%);
+  border: ${(props) => (props.hoverLoc ? "5px solid #ff0000" : "none")};
+  transition:
+    width 0.12s ease-out,
+    height 0.12s ease-out;
   &:hover {
     background: red;
     width: 8px;
     height: 8px;
   }
+
+  /* 有車正要前往這個點位時，在點位正上方常駐一個標籤顯示 locationId (顏色同該車) */
+  ${(p) =>
+    p.$destinationLabel
+      ? css`
+          &::after {
+            content: "${p.$destinationLabel}";
+            position: absolute;
+            left: 50%;
+            bottom: 100%;
+            transform: translate(-50%, -6px);
+            padding: 2px 6px;
+            background: ${p.$amrColor || "#fafafa"};
+            font-family: "Roboto Mono", monospace;
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+            /* 純提示，不能擋住點位本身的 hover 與點擊 */
+            pointer-events: none;
+          }
+        `
+      : ""}
 `;
 
 export const PointMain = memo(PointMainDiv);
@@ -253,6 +297,3 @@ const DragLineWrap: FC<{ locId: string; left: number; top: number }> = ({
 };
 
 export const DraggableLine = memo(DragLineWrap);
-
-
-

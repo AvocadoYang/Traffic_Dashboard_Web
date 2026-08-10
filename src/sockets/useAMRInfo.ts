@@ -235,10 +235,12 @@ const schema = () =>
       isOverdue: boolean().optional(),
       maintenanceLevel: number().optional(),
       // 該車當前任務的目的地, 沒任務時為 null
+      // 欄位都要 nullable: 後端只填得出部分欄位時會給 null,
+      // 少一個 nullable 就會讓整包 amr-profile 驗證失敗被丟掉(連帶所有車的資料)
       destination: object({
-        locationId: string().optional(),
-        finalLocationId: string().optional(),
-        name: string().optional(),
+        locationId: string().optional().nullable(),
+        finalLocationId: string().optional().nullable(),
+        name: string().optional().nullable(),
       })
         .optional()
         .nullable(),
@@ -455,6 +457,45 @@ export const useAmrDestination = (amrId: string) => {
   }, [amrId]);
 
   return { destination };
+};
+
+export const useAllAmrDestinations = () => {
+  const [destinations, setDestinations] = useState<
+    Record<string, MissionDestination>
+  >({});
+
+  useEffect(() => {
+    const destinations$ = profiles$
+      .pipe(
+        map((infos) =>
+          infos.reduce<Record<string, MissionDestination>>((acc, info) => {
+            const locationId = info.destination?.locationId;
+            const finalLocationId = info.destination?.finalLocationId;
+            const name = info.destination?.name;
+
+            if (!locationId && !finalLocationId && !name) return acc;
+
+            acc[info.amrId] = {
+              locationId: locationId ?? "",
+              finalLocationId: finalLocationId ?? "",
+              name: name ?? "",
+            };
+
+            return acc;
+          }, {}),
+        ),
+        distinctUntilChanged(
+          (pre, cur) => JSON.stringify(pre) === JSON.stringify(cur),
+        ),
+      )
+      .subscribe(setDestinations);
+
+    return () => {
+      destinations$.unsubscribe();
+    };
+  }, []);
+
+  return destinations;
 };
 
 export const useIsLogIn = (amrId: string) => {

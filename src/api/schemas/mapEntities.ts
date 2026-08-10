@@ -8,6 +8,7 @@ export const locationSchema = object({
   offset_x: number().required(),
   offset_y: number().required(),
   canRotate: boolean().required(),
+  rotate: number().required(),
   areaType: string().required(),
 }).required();
 

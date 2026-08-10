@@ -44,6 +44,7 @@ import {
   isShowMapGroupTable,
   isShowChargeStationDockConfig,
   isHowFootprint,
+  isShowSound,
 } from "@/utils/siderGloble";
 import {
   AimOutlined,
@@ -300,6 +301,7 @@ const Sider: React.FC<{
   const [showSystemAlarm, setShowSystemAlarm] = useAtom(isShowSystemAlarm);
 
   const [showFootprint, setShowFootprint] = useAtom(isHowFootprint);
+  const [showSound, setShowSound] = useAtom(isShowSound);
 
   const [collapsed, setCollapsed] = useState(false);
   const [activeCategoryKey, setActiveCategoryKey] = useState<string | null>(
@@ -356,6 +358,7 @@ const Sider: React.FC<{
       openMapGroupTable,
       openEditChargeDockConfigPanel,
       showFootprint,
+      showSound,
     ].some((item) => item);
 
     setHasOpenTool(isOpen);
@@ -394,6 +397,7 @@ const Sider: React.FC<{
     openMapGroupTable,
     openEditChargeDockConfigPanel,
     showFootprint,
+    showSound,
   ]);
 
   const handleShowPanel = async (check: boolean, itemType: ToolBarItemType) => {
@@ -552,6 +556,9 @@ const Sider: React.FC<{
         break;
       case "footprint":
         setShowFootprint(check);
+        break;
+      case "sound":
+        setShowSound(check);
         break;
       //=======
     }
@@ -923,6 +930,14 @@ const Sider: React.FC<{
         <Switch
           checked={showFootprint}
           onChange={(checked) => handleShowPanel(checked, "footprint")}
+        />,
+      ),
+      getItem(
+        "sound",
+        "12-2",
+        <Switch
+          checked={showSound}
+          onChange={(checked) => handleShowPanel(checked, "sound")}
         />,
       ),
     ]),
