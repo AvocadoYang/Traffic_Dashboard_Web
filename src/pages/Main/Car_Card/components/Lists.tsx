@@ -1,4 +1,4 @@
-import { memo, useMemo } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import styled, { keyframes, css } from "styled-components";
 import "../car_info.css";
 
@@ -33,6 +33,9 @@ import {
   PowerTag,
 } from "./Tags";
 import useRoadConditions from "@/sockets/useAmrRoadConditions";
+import useMapGroup from "@/api/useMapGroup";
+import useMapList from "@/api/useMapList";
+import { useMiRStatus } from "@/sockets/useMirStatus";
 
 const shak = keyframes`
   0%,
@@ -492,6 +495,12 @@ const RoadStatue: React.FC<{ amrId: string; isOffline?: boolean }> = ({
   );
 };
 
+const MapValue = styled(RoadStyle)`
+  width: 75%;
+  margin-left: 5%;
+  text-align: left;
+`;
+
 const MaintenanceStatue: React.FC<{ amrId: string; isOffline?: boolean }> = ({
   amrId,
   isOffline,
@@ -518,6 +527,86 @@ export const RowFourth: React.FC<{ isDark: boolean; amrId: string }> = memo(
     );
   },
 );
+
+
+const MiR_StatusColor = (status: string) => {
+  switch (status) {
+    case "Ready":
+      return "#2f80ed";
+    case "Executing":
+      return "#27ae60";
+    default:
+      return "#eb5757";
+  }
+};
+
+const MiRRunningStatue: React.FC<{ amrId: string; isOffline?: boolean }> = memo(
+  ({ amrId, isOffline }) => {
+    const { status } = useMiRStatus(amrId);
+    return (
+      <CarStatus
+        style={{ color: isOffline ? "#585757" : MiR_StatusColor(status) }}
+      >
+        {isOffline ? "--" : status ? status : "---------------"}
+      </CarStatus>
+    );
+  },
+);
+
+export const MiR_Running_Status: React.FC<{ isDark: boolean; amrId: string }> = memo(
+  ({ isDark, amrId }) => {
+    const { t } = useTranslation();
+    const { isOverdue } = useIsLogIn(amrId);
+    return (
+      <CarRow3 is_dark={isDark.toString()}>
+        <span
+          className={`third-row-span ${isDark ? "third-row-span-dark" : ""}`}
+        >{`${t("utils.status")}:`}</span>
+        <MiRRunningStatue amrId={amrId} isOffline={isOverdue}></MiRRunningStatue>
+      </CarRow3>
+    );
+  },
+);
+
+
+export const MiR_Map_Status: React.FC<{ isDark: boolean;  amrId: string}> = memo(
+  ({ isDark, amrId}) => {
+    const [activateMap, setActivateMap] = useState<{ mapName: string; groupName: string } | null>(null)
+    const { t } = useTranslation();
+    const { isOverdue } = useIsLogIn(amrId);
+    const MiR_Status_IO = useMiRStatus(amrId);
+    const { data: maps } = useMapList();
+    const { data: groups, isSuccess: groupsLoaded } = useMapGroup();
+    useEffect(() => {
+      if(maps && maps.length){
+        const active_map = maps.filter((map) => map.id == MiR_Status_IO.active_map_id).map((map) => {
+          return { mapName: map.fileName, groupName: map.map_group_name}
+        })
+        if(active_map && active_map.length){
+          setActivateMap(active_map[0])
+        }
+      }
+    }, [MiR_Status_IO]);
+    if(!maps) return <></>
+    return (
+      <CarRow3 is_dark={isDark.toString()}>
+        <span
+          className={`third-row-span ${isDark ? "third-row-span-dark" : ""}`}
+        >{`${t("utils.activate_map")}:`}</span>
+        <MapValue>
+            {isOverdue || !maps?.length || !activateMap ? (
+              <span style={{ color: "#585757" }}>--</span>
+            ) : (
+              <>
+                <span style={{ color: "#000000" }}>{activateMap.mapName}</span>{" "}
+                <span style={{ color: "#706f6f" }}>({activateMap.groupName})</span>
+              </>
+            )}
+        </MapValue>
+    </CarRow3>
+    );
+  }
+)
 
 export const RowFifth: React.FC<{ isDark: boolean; amrId: string }> = memo(
   ({ isDark, amrId }) => {
@@ -565,14 +654,14 @@ export const CarTag: React.FC<{ openFullInfo: boolean; amrId: string }> = memo(
         gap={"small"}
         $offline={isOverdue}
       >
-        {isOverdue ? <></> : <ManualTag amrId={amrId} />}
-        <MissionTag amrId={amrId} />
-        <CarryTag amrId={amrId} />
-        <ChargingTag amrId={amrId} />
-        <PowerTag amrId={amrId} />
-        <IsPause amrId={amrId} />
-        {amrId.includes("mi") ? <MiR_Error amrId={amrId}></MiR_Error> : <></>}
-        {isOverdue || amrId.includes("mi") ? (
+      <MissionTag amrId={amrId} />
+      <CarryTag amrId={amrId} />
+      <ChargingTag amrId={amrId} />
+      <PowerTag amrId={amrId} />
+      {isOverdue ? <></> : <ManualTag amrId={amrId} />}
+      {isOverdue ? <></>: <IsPause amrId={amrId} />}
+      {amrId.includes("mi") ? isOverdue ? <></>:<MiR_Error amrId={amrId}></MiR_Error> : <></>}
+      {isOverdue || amrId.includes("mi") ? (
           <></>
         ) : (
           <IsPosAccurate amrId={amrId}></IsPosAccurate>

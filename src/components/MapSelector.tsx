@@ -54,7 +54,7 @@ const MapSelector: FC<{ style?: React.CSSProperties }> = ({ style }) => {
       saveActiveMap.mutate({ groupId: activeGroup.id, mapId: value });
     }
   };
-
+  console.log(maps ,'@@@@')
   return (
     <Select
       size="small"
