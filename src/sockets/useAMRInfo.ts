@@ -469,6 +469,12 @@ export const useAllAmrDestinations = () => {
       .pipe(
         map((infos) =>
           infos.reduce<Record<string, MissionDestination>>((acc, info) => {
+            // 離線車不會從 amr-profile 陣列消失, 只是 isOverdue 變 true,
+            // 而它的 destination 還停在下線前的殘值。不濾掉的話目的地標籤會永遠留在圖上。
+            // 判準與地圖上車輛圖示一致(見 AllAMRs/components/AMR.tsx), 車不見標籤就跟著不見。
+            // 註: 不能用 arriveInit, 它 schema 上 default(false), 正常在跑的車也可能是 false。
+            if (info.isOverdue) return acc;
+
             const locationId = info.destination?.locationId;
             const finalLocationId = info.destination?.finalLocationId;
             const name = info.destination?.name;
