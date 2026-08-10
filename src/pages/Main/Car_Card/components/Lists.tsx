@@ -9,6 +9,7 @@ import {
   CarOutlined,
   CaretUpOutlined,
   CaretDownOutlined,
+  SwapOutlined,
 } from "@ant-design/icons";
 import Icon from "@ant-design/icons";
 import { Space, Flex, Tag } from "antd";
@@ -469,6 +470,52 @@ const CarRow3 = styled.div.attrs<{ is_dark: string }>((props) => {
   overflow: hidden;
 `;
 
+const CarRow4 = styled.div.attrs<{ is_dark: string }>((props) => {
+  return { is_dark: props.is_dark };
+})<{ is_dark: string }>`
+  width: 100%;
+  display: flex;
+  color: ${(props) => (props.is_dark === "true" ? "white" : "black")};
+  border-top: ${(props) =>
+    props.is_dark === "true" ? "1px dashed white" : "1px dashed gray"};
+  justify-content: center;
+  align-items: center;
+  padding: 5px 5px 5px 8px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: ${(props) =>
+      props.is_dark === "true"
+        ? "rgba(255, 255, 255, 0.08)"
+        : "rgba(0, 0, 0, 0.05)"};
+  }
+
+  &:active {
+    background-color: ${(props) =>
+      props.is_dark === "true"
+        ? "rgba(255, 255, 255, 0.14)"
+        : "rgba(0, 0, 0, 0.09)"};
+  }
+
+  &:hover .map-switch-icon {
+    opacity: 1;
+    transform: translateX(0);
+  }
+`;
+
+const MapSwitchIcon = styled(SwapOutlined)`
+  font-size: 0.75em;
+  margin-left: 4px;
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translateX(-2px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+`;
+
 const CarStatus = styled.span`
   font-weight: bold;
   font-size: 75%;
@@ -630,7 +677,9 @@ export const MiR_Map_Status: React.FC<{ isDark: boolean;  amrId: string}> = memo
     }, [MiR_Status_IO]);
     if(!maps) return <></>
     return (
-      <CarRow3 is_dark={isDark.toString()}>
+      <CarRow4 onClick={(e) => {
+         e.stopPropagation();
+      }} is_dark={isDark.toString()} title={t("utils.activate_map") as string}>
         <span
           className={`third-row-span ${isDark ? "third-row-span-dark" : ""}`}
         >{`${t("utils.activate_map")}:`}</span>
@@ -639,12 +688,13 @@ export const MiR_Map_Status: React.FC<{ isDark: boolean;  amrId: string}> = memo
               <span style={{ color: "#585757" }}>--</span>
             ) : (
               <>
-                <span style={{ color: "#000000" }}>{activateMap.mapName}</span>{" "}
+                <span style={{ color: isDark ? "#ffffff" : "#000000" }}>{activateMap.mapName}</span>{" "}
                 <span style={{ color: "#706f6f" }}>({activateMap.groupName})</span>
+                <MapSwitchIcon className="map-switch-icon" />
               </>
             )}
         </MapValue>
-    </CarRow3>
+    </CarRow4>
     );
   }
 )

@@ -173,7 +173,7 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
             ></HiddenRow>
             <StatusRows>
               { id.includes('mi') ? <MiR_Running_Status amrId={id} isDark={isDark}></MiR_Running_Status> : <></>}
-              { id.includes('mi') ?<MiR_Map_Status amrId={id} isDark={isDark} ></MiR_Map_Status> :<RowFourth amrId={id} isDark={isDark}></RowFourth>}
+              { id.includes('mi') ?<MiR_Map_Status  amrId={id} isDark={isDark} ></MiR_Map_Status> :<RowFourth amrId={id} isDark={isDark}></RowFourth>}
               { id.includes('mi') ? <></> : <RowFifth amrId={id} isDark={isDark}></RowFifth>}
             </StatusRows>
             <CarTag openFullInfo={openFullInfo} amrId={id}></CarTag>
