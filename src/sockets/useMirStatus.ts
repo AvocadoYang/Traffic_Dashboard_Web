@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { distinctUntilChanged, filter, from, fromEventPattern, map, share, switchMap, tap } from "rxjs";
 import { io } from "./socketConnect";
 import { isDefined } from "ts-extras";
-import { object, string, ValidationError } from "yup";
+import { boolean, object, string, ValidationError } from "yup";
 
 
 
@@ -13,6 +13,7 @@ const schema = () => {
         status: string().required(),
         active_groups_id: string().required(),
         active_map_id: string().required(),
+        protectiveStop: boolean().required()
     })
 }
 
@@ -48,7 +49,8 @@ const MiR_Status_IO = {
   status: "", 
   active_groups_id:"",
   active_map_id:"",
-  amrId: ""
+  amrId: "",
+  protectiveStop: false
 }
 
 export const useMiRStatus = (amrId: string) => {

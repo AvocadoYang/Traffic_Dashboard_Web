@@ -636,12 +636,16 @@ export const MiR_StatusColor = (status: string) => {
 
 const MiRRunningStatue: React.FC<{ amrId: string; isOffline?: boolean }> = memo(
   ({ amrId, isOffline }) => {
-    const { status } = useMiRStatus(amrId);
+    const [showText, setShowText] = useState<string>("")
+    const { status, protectiveStop  } = useMiRStatus(amrId);
+    useEffect(() => {
+      setShowText(protectiveStop ? "ProtectiveStop": status)
+    }, [protectiveStop, status])
     return (
       <CarStatus
         style={{ color: isOffline ? "#585757" : MiR_StatusColor(status) }}
       >
-        {isOffline ? "--" : status ? status : "---------------"}
+        {isOffline ? "--" : showText ? showText : "---------------"}
       </CarStatus>
     );
   },
