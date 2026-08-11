@@ -17,6 +17,8 @@ export type ReadyToJoystick = {
   joystick_available: boolean;
   status_text?: string;
   unavailable_reason?: string | null;
+  /** 目前握有這台車搖桿控制權的 web session；沒人佔用時為空。 */
+  joystick_owner_session_id?: string | null;
 };
 
 const schema = object({
@@ -24,12 +26,14 @@ const schema = object({
   joystick_available: boolean().required(),
   status_text: string().optional(),
   unavailable_reason: string().nullable().optional(),
+  joystick_owner_session_id: string().nullable().optional(),
 });
 
 const isSameStatus = (a: ReadyToJoystick, b: ReadyToJoystick) =>
   a.joystick_available === b.joystick_available &&
   a.status_text === b.status_text &&
-  a.unavailable_reason === b.unavailable_reason;
+  a.unavailable_reason === b.unavailable_reason &&
+  a.joystick_owner_session_id === b.joystick_owner_session_id;
 
 const readyToJoystick$ = fromEventPattern(
   (next) => {
