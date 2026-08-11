@@ -119,10 +119,20 @@
 
 .location-icon svg {
   fill: rgb(13, 102, 218);
+  color: rgb(13, 102, 218);
+}
+
+.joystick-icon {
+  font-size: 1.8em;
 }
 
 .location-icon-dark svg {
   fill: rgb(1, 255, 255);
+  color: rgb(1, 255, 255);
+}
+
+.joystick-icon svg {
+  fill: none;
 }
 
 .symbol {
