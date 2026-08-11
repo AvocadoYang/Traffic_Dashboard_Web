@@ -44,12 +44,20 @@ export type Mir_Action = {
   rear?: "muted" | "unmuted" | string;
   sides?: "muted" | "unmuted" | string;
   content?: string;
+
+  // io module
+  module: string;
+  port: number;
+  value: string;
+  operation: string;
+  timeout: string;
 };
 
 export type Mir_Task =
   | "move"
   | "sound/light"
   | "Error Handling"
+  | "IO module"
   | "Safty system";
 
 export const mirMoveActonList = [
@@ -72,15 +80,18 @@ export const mirSoundLight = [
 
 export const mirErrorHandlingList = ["wait"] as const;
 
+export const mirIoModule = ["set_io", "wait_for_io"] as const;
+
 export const mirSaftySystemList = ["reduce_protective_fields"] as const;
 
 export type Mir_Move_Action_Type = (typeof mirMoveActonList)[number];
 export type Mir_Sound_Light_Type = (typeof mirSoundLight)[number];
 export type Mir_Error_Handling_Type = (typeof mirErrorHandlingList)[number];
 export type Mir_Safty_System_Type = (typeof mirSaftySystemList)[number];
-
+export type MIr_IO_Module = (typeof mirIoModule)[number];
 export type Mir_All_Action =
   | Mir_Move_Action_Type
   | Mir_Sound_Light_Type
   | Mir_Error_Handling_Type
-  | Mir_Safty_System_Type;
+  | Mir_Safty_System_Type
+  | MIr_IO_Module;

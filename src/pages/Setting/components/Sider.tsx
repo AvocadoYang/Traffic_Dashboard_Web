@@ -953,15 +953,6 @@ const Sider: React.FC<{
       ),
 
       getItem(
-        "sound",
-        "12-2",
-        <Switch
-          checked={showSound}
-          onChange={(checked) => handleShowPanel(checked, "sound")}
-        />,
-      ),
-
-      getItem(
         "marker_type",
         "12-3",
         <Switch

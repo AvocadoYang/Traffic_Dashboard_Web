@@ -121,6 +121,8 @@ const WebMapView: React.FC<{
         <>
           {/* <AllLocation mapRef={mapRef}></AllLocation> */}
           <AllAMRs></AllAMRs>
+          <LocalizationCorrectionGhost></LocalizationCorrectionGhost>
+          {showPointCloud ? <AllPointCloud></AllPointCloud> : null}
           <AllCargo></AllCargo>
           <AllStack></AllStack>
           <AllElevator></AllElevator>
@@ -129,8 +131,6 @@ const WebMapView: React.FC<{
           <AllLiftGate></AllLiftGate>
           {showLocation ? <AllLocation mapRef={mapRef}></AllLocation> : null}
           {showRoad ? <AllRoads></AllRoads> : null}
-          {showPointCloud ? <AllPointCloud></AllPointCloud> : null}
-          <LocalizationCorrectionGhost></LocalizationCorrectionGhost>
           {showLocationToolTip ? <ToolTip /> : []}
           {showLocationToolTip ? <LocationHoverCluster /> : []}
           {showRoad && showRoadToolTip ? <RoadHoverCluster /> : []}

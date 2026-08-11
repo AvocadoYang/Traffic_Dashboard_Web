@@ -9,7 +9,9 @@ import {
   CarOutlined,
   CaretUpOutlined,
   CaretDownOutlined,
+  SwapOutlined,
 } from "@ant-design/icons";
+import Icon from "@ant-design/icons";
 import { Space, Flex, Tag } from "antd";
 import {
   useAmrStatus,
@@ -36,6 +38,36 @@ import useRoadConditions from "@/sockets/useAmrRoadConditions";
 import useMapGroup from "@/api/useMapGroup";
 import useMapList from "@/api/useMapList";
 import { useMiRStatus } from "@/sockets/useMirStatus";
+import { useSetAtom } from "jotai";
+import { JoystickAmrId } from "../../global/jotai";
+import MapSwitchModal from "./MapSwitchModal";
+
+const GamepadSvg = () => (
+  <svg
+    viewBox="0 0 24 24"
+    width="1em"
+    height="1em"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M6 12h4" />
+    <path d="M8 10v4" />
+    <circle cx="16.3" cy="9.6" r="0.65" />
+    <circle cx="18.7" cy="12" r="0.65" />
+    <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z" />
+  </svg>
+);
+
+const GamepadOutlined = (props: { amrId:string, className?: string }) => {
+    const setJoystickAmrId = useSetAtom(JoystickAmrId);
+  return <Icon onClick={(e) => {
+                  e.stopPropagation();
+                  setJoystickAmrId(props.amrId);
+            }} component={GamepadSvg} {...props} />
+  };
 
 const shak = keyframes`
   0%,
@@ -180,6 +212,7 @@ const NetworkDelay = styled.p<{ delay: number | undefined }>`
     if (delay <= 300) return "orange";
     return "red";
   }};
+  white-space: nowrap;
 `;
 
 const WramOverdue = styled.span`
@@ -324,14 +357,24 @@ export const RowSecond: React.FC<{
         }}
         className="location-drawer"
       >
-        <EnvironmentOutlined
-          className={`icon location-drawer location-icon ${isDark ? "dark-icon location-icon-dark" : ""}`}
-        />
-        <LocValue
-          amrId={amrId}
-          isDark={isDark}
-          isOffline={isOverdue}
-        ></LocValue>
+        {amrId.includes("mi") ? (
+          <GamepadOutlined
+            amrId={amrId}
+            className={`icon joystick-icon location-drawer location-icon ${isDark ? "dark-icon location-icon-dark" : ""}`}
+          />
+        ) : (
+          <EnvironmentOutlined
+            className={`icon location-drawer location-icon ${isDark ? "dark-icon location-icon-dark" : ""}`}
+          />
+        )}
+        {
+          amrId.includes("mi") ? <></> :
+            <LocValue
+                    amrId={amrId}
+                    isDark={isDark}
+                    isOffline={isOverdue}
+            ></LocValue>        
+        }
       </Space>
       <Space
         orientation="vertical"
@@ -426,6 +469,54 @@ const CarRow3 = styled.div.attrs<{ is_dark: string }>((props) => {
   align-items: center;
   padding: 5px 5px 5px 8px;
   overflow: hidden;
+`;
+
+const CarRow4 = styled.div.attrs<{ is_dark: string }>((props) => {
+  return { is_dark: props.is_dark };
+})<{ is_dark: string; $disabled?: boolean }>`
+  width: 100%;
+  display: flex;
+  color: ${(props) => (props.is_dark === "true" ? "white" : "black")};
+  border-top: ${(props) =>
+    props.is_dark === "true" ? "1px dashed white" : "1px dashed gray"};
+  justify-content: center;
+  align-items: center;
+  padding: 5px 5px 5px 8px;
+  overflow: hidden;
+  cursor: ${(props) => (props.$disabled ? "default" : "pointer")};
+  position: relative;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+
+  ${(props) =>
+    !props.$disabled &&
+    css`
+      &:hover {
+        background-color: ${props.is_dark === "true"
+          ? "rgba(255, 255, 255, 0.08)"
+          : "rgba(0, 0, 0, 0.05)"};
+      }
+
+      &:active {
+        background-color: ${props.is_dark === "true"
+          ? "rgba(255, 255, 255, 0.14)"
+          : "rgba(0, 0, 0, 0.09)"};
+      }
+
+      &:hover .map-switch-icon {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    `}
+`;
+
+const MapSwitchIcon = styled(SwapOutlined)`
+  font-size: 0.75em;
+  margin-left: 4px;
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translateX(-2px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
 `;
 
 const CarStatus = styled.span`
@@ -529,7 +620,10 @@ export const RowFourth: React.FC<{ isDark: boolean; amrId: string }> = memo(
 );
 
 
-const MiR_StatusColor = (status: string) => {
+// 換圖是實際下指令給車體的動作, 車輛必須是 Ready(閒置)狀態才能換, 避免在執行任務中途換圖。
+export const MIR_MAP_SWITCHABLE_STATUS = "Ready";
+
+export const MiR_StatusColor = (status: string) => {
   switch (status) {
     case "Ready":
       return "#2f80ed";
@@ -542,12 +636,16 @@ const MiR_StatusColor = (status: string) => {
 
 const MiRRunningStatue: React.FC<{ amrId: string; isOffline?: boolean }> = memo(
   ({ amrId, isOffline }) => {
-    const { status } = useMiRStatus(amrId);
+    const [showText, setShowText] = useState<string>("")
+    const { status, protectiveStop  } = useMiRStatus(amrId);
+    useEffect(() => {
+      setShowText(protectiveStop ? "ProtectiveStop": status)
+    }, [protectiveStop, status])
     return (
       <CarStatus
         style={{ color: isOffline ? "#585757" : MiR_StatusColor(status) }}
       >
-        {isOffline ? "--" : status ? status : "---------------"}
+        {isOffline ? "--" : showText ? showText : "---------------"}
       </CarStatus>
     );
   },
@@ -572,6 +670,7 @@ export const MiR_Running_Status: React.FC<{ isDark: boolean; amrId: string }> = 
 export const MiR_Map_Status: React.FC<{ isDark: boolean;  amrId: string}> = memo(
   ({ isDark, amrId}) => {
     const [activateMap, setActivateMap] = useState<{ mapName: string; groupName: string } | null>(null)
+    const [switchModalOpen, setSwitchModalOpen] = useState(false);
     const { t } = useTranslation();
     const { isOverdue } = useIsLogIn(amrId);
     const MiR_Status_IO = useMiRStatus(amrId);
@@ -588,8 +687,21 @@ export const MiR_Map_Status: React.FC<{ isDark: boolean;  amrId: string}> = memo
       }
     }, [MiR_Status_IO]);
     if(!maps) return <></>
+    // 離線車輛沒有可用資料, 點了也沒意義才擋; 非 Ready 狀態仍讓使用者點進 modal,
+    // 由 modal 裡明顯的提示說明「為什麼不能換」, 而不是在這裡默默擋掉、使用者不知所以然。
+    const canOpenModal = !isOverdue;
+    const isReady = MiR_Status_IO.status === MIR_MAP_SWITCHABLE_STATUS;
     return (
-      <CarRow3 is_dark={isDark.toString()}>
+      <>
+      <CarRow4 onClick={(e) => {
+         e.stopPropagation();
+         if (!canOpenModal) return;
+         setSwitchModalOpen(true);
+      }} is_dark={isDark.toString()} $disabled={!canOpenModal} title={
+        isReady
+          ? (t("utils.activate_map") as string)
+          : (t("utils.switch_map_requires_ready") as string)
+      }>
         <span
           className={`third-row-span ${isDark ? "third-row-span-dark" : ""}`}
         >{`${t("utils.activate_map")}:`}</span>
@@ -598,12 +710,21 @@ export const MiR_Map_Status: React.FC<{ isDark: boolean;  amrId: string}> = memo
               <span style={{ color: "#585757" }}>--</span>
             ) : (
               <>
-                <span style={{ color: "#000000" }}>{activateMap.mapName}</span>{" "}
+                <span style={{ color: isDark ? "#ffffff" : "#000000" }}>{activateMap.mapName}</span>{" "}
                 <span style={{ color: "#706f6f" }}>({activateMap.groupName})</span>
+                <MapSwitchIcon className="map-switch-icon" />
               </>
             )}
         </MapValue>
-    </CarRow3>
+    </CarRow4>
+      {switchModalOpen && (
+        <MapSwitchModal
+          amrId={amrId}
+          open={switchModalOpen}
+          onClose={() => setSwitchModalOpen(false)}
+        />
+      )}
+      </>
     );
   }
 )
@@ -670,3 +791,4 @@ export const CarTag: React.FC<{ openFullInfo: boolean; amrId: string }> = memo(
     );
   },
 );
+

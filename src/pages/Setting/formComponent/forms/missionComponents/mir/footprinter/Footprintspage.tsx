@@ -3,6 +3,7 @@ import styled from "styled-components";
 import {
   Button,
   Drawer,
+  Flex,
   Form,
   Input,
   Select,
@@ -19,10 +20,11 @@ import {
   RightOutlined,
   DoubleLeftOutlined,
   DoubleRightOutlined,
+  DeleteFilled,
 } from "@ant-design/icons";
 import { FootprintEditor, type FootprintRecord } from "./FootprintEditor";
 import { useFootprint } from "@/api/useFootprint";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
@@ -204,6 +206,7 @@ export const FootprintsPage: React.FC = () => {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
   const { data = [], refetch } = useFootprint();
+  const queryClient = useQueryClient();
 
   const createMutation = useMutation({
     mutationFn: (payload: FootprintRow) =>
@@ -224,6 +227,16 @@ export const FootprintsPage: React.FC = () => {
     onSuccess: async (_res, variables) => {
       messageApi.success(`已儲存「${variables.name}」`);
       refetch();
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => {
+      return client.post("api/setting/delete-footprint", { id: id });
+    },
+    onSuccess: async () => {
+      await queryClient.refetchQueries({ queryKey: ["footprint"] });
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
@@ -312,12 +325,25 @@ export const FootprintsPage: React.FC = () => {
       dataIndex: "actions",
       align: "right",
       render: (_: unknown, row) => (
-        <Tooltip title="檢視 / 編輯">
-          <ActionButton
-            icon={<EyeOutlined />}
-            onClick={() => openEditorFor(row)}
-          />
-        </Tooltip>
+        <Flex>
+          <Tooltip title="檢視 / 編輯">
+            <ActionButton
+              icon={<EyeOutlined />}
+              onClick={() => openEditorFor(row)}
+            />
+          </Tooltip>
+
+          <Tooltip title="摧毀">
+            <ActionButton
+              onClick={() => {
+                if (row.id) {
+                  deleteMutation.mutate(row.id);
+                }
+              }}
+              icon={<DeleteFilled />}
+            ></ActionButton>
+          </Tooltip>
+        </Flex>
       ),
     },
   ];

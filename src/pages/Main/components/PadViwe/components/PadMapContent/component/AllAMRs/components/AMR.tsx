@@ -6,7 +6,7 @@ import "../style.css";
 import { useAmrPose, useIsLogIn } from "@/sockets/useAMRInfo";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
 import styled from "styled-components";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { amrId2ColorRainbow } from "@/utils/utils";
 import { AmrFilterCarCard, hintAmr, showZoneForbidden } from "@/utils/gloable";
 import { useWarningId } from "@/sockets/useWarning";
@@ -14,6 +14,8 @@ import ForkLiftIcon from "./amrs/ForkliftIcon";
 import { useAmrBBox } from "@/sockets/useBBox";
 import BBox from "./amrs/BBox";
 import useAmrMissionTip from "@/hooks/useAmrMissionTip";
+import { useMiRStatus } from "@/sockets/useMirStatus";
+import { currentMapIdAtom } from "@/utils/mapSelection";
 
 const Tip = styled.div.attrs<{
   left: number;
@@ -107,6 +109,8 @@ const AMR: FC<{
   const hintAmrId2 = useAtomValue(AmrFilterCarCard);
   const zoneForbidden = useAtomValue(showZoneForbidden);
   const errorMessage = useWarningId()?.get(amrId);
+  const MiR_Status_IO = useMiRStatus(amrId);
+   const [mapId, setMapId] = useAtom(currentMapIdAtom);
 
   const isForbidden = useMemo(() => {
     return zoneForbidden.has(amrId);
@@ -129,7 +133,7 @@ const AMR: FC<{
   const { isOverdue } = useIsLogIn(amrId);
 
   if (!pose || !map || !bbox || !bbox.length || isOverdue) return null;
-
+  if(MiR_Status_IO && amrId.includes("mi") && MiR_Status_IO.active_map_id !== mapId) return null
   const { x: newX, y: newY } = agvFormate(pose.x, pose.y);
   const [left, top] = rosCoord2DisplayCoord({
     x: amrId.includes("SW15") ? newX + 3.5 : pose.x,
