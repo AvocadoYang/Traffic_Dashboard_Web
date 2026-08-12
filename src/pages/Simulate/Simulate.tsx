@@ -27,7 +27,7 @@ const Simulate: FC = () => {
 
   return (
     <Layout style={{ height: `${isMobile ? "100dvh" : "100%"}` }}>
-      <Header isMobile={isMobile} />
+      <Header />
       <Content>
         <Layout style={{ height: "100%", width: "100%" }}>
           <div

@@ -72,6 +72,8 @@ export const isShowPeripheralNameTable = atom<boolean>(false);
 /** 7-2 顯示設備群組表 */
 export const isShowPeripheralGroupTable = atom<boolean>(false);
 
+export const isShowChargeStationDockConfig = atom<boolean>(false);
+
 /** 8-1 顯示編輯標籤 */
 export const isShowEditMissionTag = atom<boolean>(false);
 
@@ -93,11 +95,14 @@ export const isOpenUploadWarningIDModal = atom<boolean>(false);
 /** 9-4 開啟交換地圖 */
 export const isOpenSwitchMap = atom<boolean>(false);
 
+/** 9-8 顯示地圖群組表 */
+export const isShowMapGroupTable = atom<boolean>(false);
+
 /** 9-2 顯示編輯備份 */
 export const isShowEditBackup = atom<boolean>(false);
 
-// /** 9-3 顯示起始位置設定 */
-// export const isShowStartPoint = atom<boolean>(false);
+// /** 9-5 告警設定顯示 */
+export const isShowSystemAlarm = atom<boolean>(false);
 
 /** 地點tooltip */
 export const isShowLocationTooltip = atom<boolean>(false);
@@ -117,3 +122,14 @@ export const isShowLocation = atom<boolean>(true);
 
 /** 顯示目前路徑 */
 export const isShowRoad = atom<boolean>(true);
+
+/** 顯示點雲 */
+export const isShowPointCloud = atom<boolean>(true);
+
+export const isHowFootprint = atom<boolean>(false);
+
+export const isShowSound = atom<boolean>(false);
+/** bottom toolSheet 裡放「已開啟面板」的容器節點 */
+export const toolSheetPanelHost = atom<HTMLElement | null>(null);
+
+export const isShowMarketType = atom<boolean>(false);

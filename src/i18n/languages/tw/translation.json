@@ -21,6 +21,13 @@
     "amr_id": "車輛",
     "status": "狀態",
     "road_conditions": "路況",
+    "activate_map": "使用中地圖",
+    "switch_map": "切換地圖",
+    "switch_map_requires_ready": "車輛須為 Ready 狀態才能切換地圖",
+    "select_map": "選擇地圖",
+    "map_preview": "地圖預覽",
+    "no_map_available": "此地圖群組尚無地圖",
+    "vehicle_id": "車輛編號",
     "maintenance_level": "車況",
     "location": "地點",
     "direction": "方向",
@@ -67,7 +74,6 @@
       "wait_side": "待命區"
     }
   },
-
   "peripheral": {
     "Charging": "充電站",
     "Dispatch": "預派點",
@@ -80,7 +86,6 @@
     "LiftGate": "升降門",
     "Palletizer": "堆疊機"
   },
-
   "mission_history": {
     "open": "開啟詳細紀錄",
     "mission_id": "任務 ID",
@@ -128,9 +133,10 @@
     "wcs": "第三方",
     "column_select": "指定顯示任務內容",
     "cancel_reason": "刪除原因",
-    "filter": "選擇任務顯示內容"
+    "filter": "選擇任務顯示內容",
+    "export": "匯出",
+    "search_mission_or_id": "搜尋任務名稱或ID"
   },
-
   "maintenance": {
     "update": "更新車輛狀態",
     "unknown": "初始值",
@@ -141,10 +147,16 @@
     "forbidden_user_mission": "不可接使用者任務",
     "broken": "車輛毀損"
   },
-
   "amr_card": {
     "delete_current_mission": "刪除任務",
     "force_delete_mission": "強制刪除任務",
+    "charge_reset": "校正充電",
+    "localization_correction": "定位校正",
+    "localization_correction_hint": "拖曳幽靈車身移動位置，拖曳把手旋轉方向，對齊實際地圖後按確認",
+    "localization_correction_reset": "重設",
+    "localization_correction_cancel": "取消",
+    "localization_correction_confirm": "確認",
+    "localization_correction_result_title": "校正後位置",
     "emergency_stop": "工作暫停",
     "continue_move": "解除暫停",
     "update_cargo": "編輯攜帶貨物資訊",
@@ -154,11 +166,9 @@
     "add_desc": "新增代表此車輛同時攜帶1個以上的貨物, 放貨後會將所有貨物資訊轉移到放貨點",
     "cargo_item": "貨物資訊"
   },
-
   "scale_pad": {
     "title": "模擬速度調整"
   },
-
   "change_map": {
     "view_maps": "查看現有地圖",
     "upload_map": "上傳地圖",
@@ -166,7 +176,6 @@
     "import_map": "引入其他腳本點位路徑",
     "no_img_found": "尚未存地圖"
   },
-
   "mode": {
     "manual_mode": "維修模式",
     "is_mission": "任務中",
@@ -174,6 +183,7 @@
     "is_charge": "充電中",
     "low_power": "低電量",
     "positioning_normal": "定位正常",
+    "error": "錯誤",
     "positioning_inaccurate": "定位異常",
     "isPause": "工作暫停",
     "unknown": "未知"
@@ -188,7 +198,6 @@
   "test_translation": "測試翻譯",
   "open": "開啟表單列",
   "close": "關閉表單列",
-
   "map_tool": {
     "center_map": "回原位",
     "zoom_out": "縮小",
@@ -196,9 +205,9 @@
     "road": "路徑",
     "location": "地點",
     "road_tooltip": "路徑提示",
-    "location_tooltip": "地點提示"
+    "location_tooltip": "地點提示",
+    "point_cloud": "點雲"
   },
-
   "page_view": "地圖",
   "page_setting": "設定",
   "page_dashboard": "控制中心",
@@ -209,11 +218,9 @@
   "page_analysis": "任務統計",
   "page_cargo_history": "貨物紀錄",
   "page_amr": "車輛資訊",
-
   "main_task_list": {
     "wait_suitable": "等待適合"
   },
-
   "toolbar": {
     "location": {
       "locations": "點位",
@@ -283,22 +290,27 @@
       "edit_tag": "標籤設定",
       "edit_peripheral_style": "編輯設備樣式",
       "custom_cargo_info": "自定義貨物資訊",
-      "container_table": "貨物表格"
+      "container_table": "貨物表格",
+      "charge_dock_config": "充電站停車容忍值"
     },
     "file_setting": {
       "file_setting": "檔案設定",
       "warning_id": "告警ID設定",
       "upload_warning_file": "上傳錯誤表",
       "backup_file": "備份檔案",
-      "switch_map": "變更地圖",
       "start_point": "起始位置",
-      "import_map": "引入其他腳本點位路徑"
+      "import_map": "引入其他腳本點位路徑",
+      "system_alarm": "系統告警顯示"
+    },
+    "map_setting": {
+      "map_setting": "地圖設定",
+      "switch_map": "變更地圖",
+      "map_group": "地圖群組"
     },
     "restart": {
       "restart": "重起系統"
     }
   },
-
   "sider_output_form_name": {
     "locationPanel": "編輯點位",
     "roadPanel": "編輯路徑",
@@ -306,7 +318,6 @@
     "zoneTable": "區域表",
     "locationList": "點位表"
   },
-
   "quick_edit_location_panel": {
     "quick_edit_location_panel": "快速編輯點位",
     "areaType": "地點功能",
@@ -317,13 +328,12 @@
     "dir_y": "方向 y",
     "is_connect_road": "自動產生路線",
     "save": "新增點位",
-
     "save_pose_notify": {
       "is_a_navigate": "存在負值點位,ID不可為負值或0",
-      "duplicate_id": "點位ID與現存ID重複"
+      "duplicate_id": "點位ID與現存ID重複",
+      "leading_zero": "點位 ID 開頭不可為 0 (例如 01、02)"
     }
   },
-
   "quick_edit_road_panel": {
     "title": "快速編輯路徑",
     "disabled_tooltip": "選取後車輛不能行走此路徑",
@@ -335,7 +345,6 @@
     "clear_points": "重新選取",
     "error_min_spots": "至少選取兩點"
   },
-
   "edit_location_panel": {
     "none": "路徑點",
     "charge_station": "充電站",
@@ -361,17 +370,16 @@
       "fill_in_value": "請填入 X/Y 值",
       "format_warn": "格式錯誤 (點位不可為負值)",
       "is_a_navigate": "點位 ID 不可為負值",
+      "leading_zero": "點位 ID 開頭不可為 0 (例如 01、02)",
       "duplicate_id": "ID 重複",
       "change_duplicate_id": "請檢查輸入 ID,不可重複！",
       "no_more_than_360": "不可超過360",
       "cannot_be_less_than_-360": "不可小於-360"
     },
-
     "table_notify": {
       "are_you_sure": "確定要刪除點位？"
     }
   },
-
   "edit_road_panel": {
     "road_table": "路徑表",
     "road": "路徑",
@@ -397,7 +405,6 @@
       "road_exists": "此路線已存在"
     }
   },
-
   "edit_zone_panel": {
     "start_x": "起點 X",
     "start_y": "起點 Y",
@@ -415,7 +422,6 @@
     "car_type": "車型",
     "all_vehicle_forbidden": "禁止所有車輛通行",
     "free_zone": "所有車輛皆可通行",
-    "not_vehicle_forbidden": "不設定限制車輛",
     "edit_zone": "編輯區域",
     "layer_setting": "圖層設定",
     "layer": "選擇圖層",
@@ -427,7 +433,7 @@
     "special_layer_charge": "特殊圖層 (充電站)",
     "deceleration_zone": "減速區",
     "height_limit_zone": "限高區",
-    "restricted_zone": "禁制區",
+    "restricted_zone": "禁止區",
     "controlled_zone": "限制區",
     "view_available_zone": "查看區",
     "view_available": "查看區",
@@ -449,7 +455,6 @@
       "invalid_frame": "無效的點位框選"
     }
   },
-
   "zone_table_form": {
     "zone_name": "區域名稱",
     "start_point": "起點",
@@ -459,13 +464,11 @@
     "layer": "圖層",
     "lidar": "光達"
   },
-
   "all_location_list_form": {
     "all_loc": "所有點位",
     "stored_loc": "已儲存點位",
     "tmp_loc": "尚未儲存點位"
   },
-
   "multiStyle": {
     "editX": "編輯 X？",
     "editY": "編輯 Y？",
@@ -479,7 +482,6 @@
     "flexDirection": "Flex 方向",
     "selectDirection": "選擇方向"
   },
-
   "shelf": {
     "shelf": "貨架",
     "load_priority": "取貨優先度",
@@ -542,7 +544,6 @@
       "info_error": "貨架讀取錯誤"
     }
   },
-
   "edit_shelf_panel": {
     "edit_shelf": "編輯貨架",
     "category": "貨架種類",
@@ -610,7 +611,6 @@
     "confirm_title": "確認引入",
     "confirm_content": "您確定要引入此腳本嗎？此操作可能會覆蓋現有資料。"
   },
-
   "charge": {
     "id": "充電站編號",
     "coreFail": "完全無法詢問到內容",
@@ -628,16 +628,13 @@
     "mins": "分鐘",
     "charge": "充電",
     "disable": "停用",
-
     "updateTime": "更新時間",
-
     "auto_mode": "自動模式",
     "current": "狀態",
     "complete": "完成",
     "fault": "失敗",
     "process": "進行",
     "standby": "待命",
-
     "error": "錯誤",
     "moduleCommunicationFailure": "模塊通訊故障",
     "reverseBetterConnection": "電池反接",
@@ -646,7 +643,6 @@
     "overVoltage": "過壓",
     "overCurrent": "過流",
     "totalFault": "總故障",
-
     "other": "其他",
     "infraredInPlace": "紅外到位",
     "compress": "緊壓",
@@ -667,7 +663,6 @@
     "full_rate_min": "滿載充電閾值至少為70%",
     "available_min": "可用任務閾值至少為11%",
     "submit": "提交",
-
     "section_basic": "[01] 基本設定",
     "section_threshold": "[02] 閾值設定",
     "threshold_note_title": "說明：",
@@ -676,7 +671,17 @@
     "tooltip_passive": "被動充電模式的電量百分比",
     "tooltip_full": "視為已充滿的電量百分比",
     "tooltip_available_get_task": "接受新任務的最低電量百分比",
-
+    "section_trigger_delay": "[03] 觸發延遲設定",
+    "aggressiveTriggerDelayMin": "激進觸發延遲",
+    "aggressiveTriggerDelayMin_min": "激進觸發延遲至少為 0 分鐘",
+    "tooltip_aggressiveTriggerDelayMin": "觸發激進充電前的延遲時間",
+    "passiveTriggerDelayMin": "被動觸發延遲",
+    "passiveTriggerDelayMin_min": "被動觸發延遲至少為 0 分鐘",
+    "tooltip_passiveTriggerDelayMin": "觸發被動充電前的延遲時間",
+    "availableGetTaskTriggerDelayMin": "可接任務觸發延遲",
+    "availableGetTaskTriggerDelayMin_min": "可接任務觸發延遲至少為 0 分鐘",
+    "tooltip_availableGetTaskTriggerDelayMin": "觸發接受任務前的延遲時間",
+    "unit_min": "分鐘",
     "model": {
       "ip": "IP",
       "station_id": "站點 ID",
@@ -689,7 +694,6 @@
       "edit_charge_station_config": "編輯充電站配置"
     }
   },
-
   "main": {
     "pad_view": {
       "sider": {
@@ -742,9 +746,7 @@
       "click_shelves_or_cancel": "點擊地圖中的貨架或按 ESC 鍵取消"
     }
   },
-
   "car_card": {},
-
   "mission": {
     "task_form_fork": {
       "system_title": "任務配置系統 v2.1",
@@ -796,9 +798,14 @@
       "custom_extra": "此數值直接為枒杈高度",
       "stack_add_label": "基礎偏移量 (Offset)",
       "stack_add_extra": "此數值將累加至系統選擇的基礎高度上",
-      "level_select_warn": "如果 FORK_HEIGHT 類型是 STACK 或是 STACK_ADD 可以不用針對次項目設定"
+      "level_select_warn": "如果 FORK_HEIGHT 類型是 STACK 或是 STACK_ADD 可以不用針對次項目設定",
+      "lidar": "光達",
+      "mode": "模式",
+      "lidar_auto": "自動",
+      "lidar_select": "自定",
+      "front_lidar": "前光達",
+      "rear_lidar": "後光達"
     },
-
     "add_mission": {
       "title": "編輯任務",
       "empty_warn": "任務名稱不可為空",
@@ -806,12 +813,9 @@
       "duplicate_warn": "已有相同任務名稱存在",
       "edit_info": "編輯名稱",
       "edit_detail": "編輯參數",
-
       "name_warn": "任務名稱不可為空",
       "car_warn": "車輛類型必填",
-
       "edit_car_first": "先去'車輛 &&機器人' 設定新增車種,才能來設定任務",
-
       "folder": "資料夾",
       "name": "任務名稱",
       "create_mission": "新增任務",
@@ -850,7 +854,6 @@
       "wait": "等待秒數",
       "task_operation": "任務內容",
       "task_fork_movement": "枒杈動作",
-
       "custom": "自定",
       "select": "自動",
       "default": "預設",
@@ -865,14 +868,12 @@
       "height": "枒杈高度",
       "height_info": "枒杈進入棧板的高度",
       "level": "儲位層數",
-
       "tolerance": "tolerance",
       "lookahead": "lookahead",
       "camera_config": "相機參數",
       "camera_config_info": "此設定為辨識相機觀看棧板的高度。如果相機安裝在枒杈上方，請設為與枒杈相同的高度；若安裝在下方，則需設定為高於枒杈的高度。",
       "modify_dis": "modify dis",
       "modify_dis_info": "請FAE工程師設定",
-
       "by_target_shelf_setting": "帶入貨架設定值",
       "calculate_by_agv_and_shelf_angle": "由交管計算車輛與目標地點夾角",
       "has_cargo_to_process": "貨架狀態",
@@ -906,7 +907,6 @@
       "location_required": "請選擇一個位置。",
       "wait_other_amr_required": "請選擇要等待的機器人。",
       "wait_genre_required": "請選擇等待模式。",
-
       "is_custom_location": "位置選擇模式",
       "location_tooltip": "選擇如何設定位置：『自訂』可讓您輸入特定位置 ID，『自動』使用快速任務中的位置，『自動（空閒充電站）』尋找可用的充電站。『自動（自動（預派點））』自動尋找路徑中的預派點。",
       "location_custom": "自訂（輸入位置 ID）",
@@ -917,14 +917,11 @@
       "location_charge_station_desc": "自動尋找可用的充電站。",
       "back_to_load_place": "自動 (回取貨的預備點)",
       "back_to_load_place_desc": "回去取貨的預備點",
-
       "level_title": "位置選擇模式",
       "custom_level": "自訂（輸入儲位樓層）",
       "level_select": "自動（快速任務位置）",
-
       "prepare_point": "自動（預派點）",
       "prepare_point_desc": "目標儲位設定的預派點",
-
       "is_custom_yaw": "轉角選擇",
       "yaw_tooltip": "選擇如何設定偏航：『自訂』可讓您輸入特定的角度，『自動』使用快速任務中的架子方向，『自動（在架子處計算）』計算 AMR 到達架子時的偏航。",
       "yaw_custom": "自訂（輸入偏航度數）",
@@ -946,13 +943,11 @@
       "detail": "姿勢詳情",
       "limit": "限制參數",
       "limit_error": "limit_error",
-
       "move": "移動",
       "load": "取貨",
       "offload": "放貨",
       "upper_control": "上肢控制"
     },
-
     "charge_mission": {
       "charge_mission": "充電任務",
       "executing": "運行中",
@@ -966,7 +961,6 @@
       "available_less_than_aggressive": "可接任務不可小於強制充電",
       "haventSetChargeMission": "尚未設定充電任務"
     },
-
     "cycle_mission": {
       "cycle_mission": "循環任務",
       "random": "隨機",
@@ -986,7 +980,6 @@
       "executing": "運行中",
       "stale": "停止"
     },
-
     "schedule_mission": {
       "schedule_mission": "定時任務",
       "car": "車輛",
@@ -1095,7 +1088,6 @@
       "title": "綁定地點任務"
     }
   },
-
   "other": {
     "edit_mission_tag": {
       "title": "編輯任務標籤",
@@ -1130,7 +1122,6 @@
       "error_message": "無法更新。請聯絡 FAE 工程師"
     }
   },
-
   "file": {
     "warning_list": {
       "warning_table": "錯誤處理表",
@@ -1149,7 +1140,6 @@
       "genre_name_ch": "種類(中)",
       "genre_name_en": "種類(英)",
       "add_new_genre": "新增種類",
-
       "id_duplicate_warn": "錯誤編號ID重複, 請換號碼"
     },
     "backup_file": {
@@ -1161,7 +1151,6 @@
       "restore_warn": "確定還原此紀錄, 請將所有車輛熄火, 刪除所有任務後在執行, 系統將重起."
     }
   },
-
   "car_control_translate": {
     "cargo_limit": "貨架高度鎖定",
     "move": "移動",
@@ -1182,7 +1171,6 @@
     "verity_cargo": "相機辨識貨物",
     "peripheral_action": "設備 ||　使用者確認"
   },
-
   "customCargo": {
     "warn": "警告 !!",
     "create": "新增格式",
@@ -1199,13 +1187,11 @@
     "load_height": "取貨時高度",
     "tray_size": "棧本尺寸"
   },
-
   "sim": {
     "add_car": "新增車輛",
     "start_sim": "開始模擬",
     "stop_sim": "停止模擬",
     "reset_sim": "重新模擬",
-
     "timeline": {
       "name": "名稱",
       "location": "位置",
@@ -1236,10 +1222,8 @@
       "edit_title": "編輯任務事件",
       "amr": "車輛",
       "priority": "任務優先順序",
-
       "type": "任務類型",
       "type_dynamic": "動態任務",
-
       "type_normal": "一般任務",
       "type_notify": "通知任務",
       "normal_mission": "選擇一般任務",
@@ -1268,7 +1252,6 @@
       "gap_time": "間隔時間(分鐘)",
       "range_end_time": "結束時間"
     },
-
     "table_schedule": {
       "title": "排程表",
       "detail": "詳情",
@@ -1278,16 +1261,13 @@
       "shift_cargo": "🔄 轉移貨物",
       "add_range_event": "新增區間事件",
       "range_time_event": "區間時間事件",
-
       "fixed_event": "固定事件"
     },
-
     "range_table": {
       "range": "區間",
       "gap_time": "間隔時間(分鐘)",
       "activeTimes": "事件次數"
     },
-
     "spawn_cargo_modal": {
       "title": "生成貨物",
       "time": "時間",
@@ -1313,7 +1293,6 @@
       "updated": "更新成功",
       "required": "此欄位為必填項"
     },
-
     "spawn_cargo_group": {
       "add": "新增群組隨機生成貨物",
       "insert_random_spawn_cargo_group": "插入隨機生成貨物群組",
@@ -1328,7 +1307,6 @@
       "range": "區間",
       "spawn_group": "生成貨物群組"
     },
-
     "shift_cargo_group": {
       "add": "新增群組隨機轉移貨物",
       "insert_random_shift_cargo_group": "插入隨機搬移貨物群組",
@@ -1343,12 +1321,10 @@
       "range": "區間",
       "shift_group": "轉移貨物群組"
     },
-
     "dynamic_mission_group": {
       "mission_group": "任務群組",
       "range": "區間"
     },
-
     "shift_cargo_modal": {
       "title": "轉移貨物",
       "time": "時間",
@@ -1360,7 +1336,6 @@
       "update": "更新",
       "required": "此欄位為必填"
     },
-
     "sim_result": {
       "title": "模擬結果",
       "simulation_id": "模擬 ID",
@@ -1390,7 +1365,6 @@
       "idle": "閒置中",
       "cargos": "貨物數"
     },
-
     "cargo": {
       "already_exist": "已選定在列表",
       "input": {
@@ -1450,7 +1424,6 @@
       "no_scripts": "沒有可用的腳本",
       "error_loading": "無法載入腳本"
     },
-
     "start_sim_modal": {
       "inactive_sim": "中止模擬",
       "active_sim": "啟動模擬",
@@ -1469,7 +1442,6 @@
       "current_time": "目前模擬時間",
       "start_mock_info": "無法啟動模擬？ 先在模擬頁面設定車輛資料於地圖."
     },
-
     "results": {
       "title": "模擬結果",
       "duration": "模擬時長",
@@ -1484,7 +1456,6 @@
       "total_missions": "總任務數",
       "download": "下載結果",
       "no_result": "尚未有任務紀錄",
-
       "table": {
         "amr_id": "AMR ID",
         "missions": "任務數量",
@@ -1579,7 +1550,6 @@
     "pause": "暫停排程",
     "resume": "繼續排程"
   },
-
   "conveyor": {
     "title": "編輯輸送帶參數",
     "active_notify_mission": "啟動關係級別任務",
@@ -1638,11 +1608,9 @@
     "io": "IO 資訊",
     "no_io": "無 IO 資訊"
   },
-
   "peripheral_style": {
     "areaType": "地點功能"
   },
-
   "peripheral_name_table": {
     "locationId": "位置編號",
     "type": "類型",
@@ -1665,7 +1633,6 @@
     "available_peripherals": "可用的設備",
     "selected_peripherals": "已選擇的設備",
     "search_peripherals": "search",
-
     "peripherals": "設備",
     "description": "說明",
     "locationId": "位置編號",
@@ -1681,7 +1648,6 @@
     "updateFail": "儲存失敗",
     "inputPlaceholder": "輸入名稱"
   },
-
   "elevator": {
     "fork_height": "枒杈高度",
     "name": "名稱",
@@ -1691,46 +1657,38 @@
     "fork_height_desc": "取放貨時枒杈高度",
     "other_config": "其他"
   },
-
   "dialog": {
     "direct": "直接移動到點"
   },
   "mission_reject_reason": {
     "title": "任務派送被拒原因",
-
     "cat1": "優先級與任務隊列問題",
     "cat1_1": "任務隊列中有更高優先級的任務",
     "cat1_2": "另一個未完成任務具有更早的排程順序",
     "cat1_3": "系統會依優先級處理任務",
-
     "cat2": "AGV 可用性問題",
     "cat2_1": "沒有適合該任務的 AGV",
     "cat2_2": "找不到可以執行此任務的 AGV",
     "cat2_3": "所有 AGV 都忙碌或不可用",
     "cat2_4": "指定的 AGV 不可用（離線、忙碌或未註冊）",
-
     "cat3": "AGV 維修與保養問題",
     "cat3_1": "AGV 的維修等級不允許執行此任務類型",
     "cat3_2": "指定的 AGV 都無法通過維修檢查",
-
     "cat4": "路徑與導航問題",
     "cat4_1": "路徑驗證失敗",
     "cat4_2": "路徑中包含無效或不存在的位置",
     "cat4_3": "無法計算預估行駛時間",
     "cat4_4": "起點與終點之間無可行路徑",
     "cat4_5": "路徑被貨物/佔用區域阻擋",
-
     "cat5": "AGV 狀態問題",
     "cat5_1": "無法取得 AGV 狀態或負載資訊",
     "cat5_2": "AGV 正處於維修模式",
     "cat5_3": "AGV 尚未註冊",
     "cat5_4": "AGV 已在執行其他任務",
-
     "cat6": "任務狀態問題",
     "cat6_1": "任務已完成",
     "cat6_2": "任務已被指派",
     "cat6_3": "AGV 位於充電站，需先完成離站流程",
-
     "cat7": "任務相容性問題",
     "cat7_1": "AGV 搬運貨物中，無法執行前往充電站的任務",
     "cat7_2": "任務需要不同的 AGV"
@@ -1781,12 +1739,31 @@
     "upload_file": "上傳檔案",
     "upload_map_btn": "上傳地圖",
     "existing_maps": "現有地圖",
+    "all_groups": "全部",
     "file_name": "檔案名稱",
     "status": "狀態",
     "origin_x": "原點 X",
     "origin_y": "原點 Y",
     "actions": "操作",
     "view": "查看",
+    "sync_map": "同步地圖",
+    "sync_push_result": "推送車端完成：成功 {{verified}}、部分 {{partial}}、失敗 {{failed}}、離線略過 {{skippedOffline}}",
+    "sync_jobs": "同步進度",
+    "sync_jobs_modal_title": "車端地圖同步進度（最近 10 筆）",
+    "sync_jobs_refresh": "重新整理",
+    "sync_jobs_empty": "尚無同步紀錄",
+    "sync_job_vehicle": "車輛",
+    "sync_job_state": "狀態",
+    "sync_job_progress": "進度",
+    "sync_job_maps": "完成地圖數",
+    "sync_job_attempts": "重試次數",
+    "sync_job_updated_at": "更新時間",
+    "sync_job_error": "錯誤",
+    "sync_job_state_pending": "等待中",
+    "sync_job_state_pushing": "推送中",
+    "sync_job_state_verifying": "驗證中",
+    "sync_job_state_done": "已完成",
+    "sync_job_state_failed": "失敗",
     "edit": "編輯",
     "delete": "刪除",
     "active": "啟用",
@@ -1805,7 +1782,28 @@
     "enter_y_coord": "輸入 Y 座標",
     "drag_file_text": "點擊或拖曳檔案到此區域",
     "png_hint": "僅支援 PNG 格式。檔案名稱必須為英數字。",
-    "file_required": "必填"
+    "file_required": "必填",
+    "map_group": "地圖群組",
+    "floor": "樓層",
+    "select_map_group": "選擇地圖群組",
+    "active_group": "使用中",
+    "activate_map": "啟用",
+    "activate_map_requires_active_group": "請先啟用此地圖所屬的群組",
+    "no_map_selected": "請先在畫布右上角選擇要編輯的地圖",
+    "currently_displayed": "顯示中",
+    "not_active_group_tooltip": "此列屬於非使用中的群組, 請先啟用該群組才能編輯"
+  },
+  "map_group_table": {
+    "add_title": "新增地圖群組",
+    "edit_title": "編輯地圖群組",
+    "maps": "地圖",
+    "name": "群組名稱",
+    "operation": "操作",
+    "status": "狀態",
+    "active": "使用中",
+    "inactive": "未使用",
+    "activate": "啟用",
+    "activate_confirm": "確定要啟用這個地圖群組嗎？"
   },
   "changePassword": {
     "title": "修改密碼",
@@ -1843,58 +1841,37 @@
     "critical_warning": "關鍵：如果此地點從系統中刪除，您必須手動更新並配置新的起點以維持最佳的路由功能。"
   },
   "cancel_reason": {
-    "NULL": "未指定原因（成功/完成代碼對應）",
-    "CANCEL": "手動取消任務",
-    "CHARGE_STATION_OFFLINE": "充電站離線",
-    "IPC_CHARGE_PANEL_OFF": "IPC 充電面板關閉",
-    "REJECT_BY_CHARGE_STATION": "充電站拒絕",
-    "NOT_COMPRESS": "未壓縮（未滿足需求）",
-    "HAS_NEXT_MISSION": "已有下一個任務",
-    "USER_ABORT": "使用者手動中止",
-    "WCS_ABORT": "第三方系統（WCS）刪除任務",
-    "MOCK_DISCONNECTED": "模擬設備已斷開連接",
-    "AMR_DISCONNECTED": "AMR 設備已斷開連接",
-    "ROSBRIDGE_DISCONNECTED": "ROSBridge 設備已斷開連接",
-    "AMR_CHARGE_HAS_PROBLEM": "偵測到 AMR 充電問題",
-    "AMR_IS_NOT_REGISTERED_YET": "AMR 尚未註冊",
-    "AMR_IS_RUNNING": "AMR 正在運行任務",
-    "AMR_IS_NOT_IN_AUTO_MODE": "AMR 未處於自動模式",
-    "PLEASE_CLOSE_ENFORCE_CHARGE": "請禁用強制充電選項",
-    "PLEASE_ELIMINATE_AMR_ERRORS_FIRST": "請先清除 AMR 錯誤",
-    "TYPE_CODE_NOT_DEFINE": "類型代碼未定義",
-    "AMR_TIMEOUT": "AMR 無響應/超時",
-    "NO_VALID_POSE": "AMR 無法找到有效姿態（定位失敗）",
-    "CRUSH_IN_MOVE": "移動過程中發生碰撞",
-    "CRUSH_IN_NAVIGATION": "導航過程中發生碰撞",
-    "CRUSH_IN_SPIN": "旋轉過程中發生碰撞",
-    "ROUTE_NOT_ACCESSIBLE": "路線無法通行",
-    "CRUSH_IN_GAUGE_RECOGNITION": "儀表識別過程中發生碰撞",
-    "CAN_NOT_GET_AI_RESULT": "無法獲取 AI 結果",
-    "CAN_NOT_GET_GAUGE_ID": "無法獲取儀表 ID",
-    "GAUGE_VALUE_ABNORMAL": "儀表數值異常",
-    "CAN_NOT_OPEN_CHARGE_BOARD": "無法打開充電面板",
-    "LOCATION_ERROR": "充電站定位錯誤",
-    "NOT_RECEIVE_CHARGE_BAR_WHEN_START_CHARGE": "開始充電時未收到充電條",
-    "CHARGE_FAILED": "充電初始化失敗",
-    "BATTERY_LOW_ABORT": "因電量過低而自動中止",
-    "CONTROL_CODE_NOT_DEFINE": "控制代碼未定義",
-    "CAN_NOT_GET_SHORTEST_PATH": "無法獲取最短路徑",
-    "INCORRECT_SHORTEST_PATH": "最短路徑不正確/無效",
-    "CAN_NOT_GET_CORRECT_ANGLE": "無法獲取正確的角度",
-    "MISSION_TIMEOUT": "任務執行超時",
-    "INTERNAL_LOGIC_FAILURE": "內部任務邏輯失敗/異常"
+    "null": "未指定原因",
+    "offline": "設備離線",
+    "cancel": "手動取消任務",
+    "force_cancel_by_user": "使用者強制刪除任務",
+    "charge_station_offline": "充電站離線",
+    "ipc_charge_panel_off": "IPC 充電面板已關閉",
+    "reject_by_charge_station": "遭充電站拒絕",
+    "not_compress": "未滿足條件 (未壓縮)",
+    "has_next_mission": "已有下一個任務",
+    "not_at_charge_station": "車子不在充電站",
+    "charge_station_tcp_error": "充電樁 TCP 連線離線",
+    "charge_station_mqtt_error": "充電樁至 QAMS MQTT 連線異常",
+    "charge_station_heartbeat_error": "充電站心跳異常延遲",
+    "charge_station_agv_not_dock_precise": "AGV 充電站未精準停靠",
+    "user_abort": "使用者手動中止",
+    "wcs_abort": "第三方系統 (WCS) 刪除任務",
+    "mock_disconnected": "模擬裝置斷線",
+    "amr_disconnected": "AMR 裝置斷線",
+    "rosbridge_disconnected": "ROSBridge 裝置斷線",
+    "amr_charge_has_problem": "AMR 充電過程異常",
+    "unknown": "未知取消原因"
   },
   "stack": {
     "edit_config_title": "編輯堆疊參數"
   },
-
   "blind_location": {
     "title": "地點幫定任務",
     "locationId": "位置編號",
     "location_name": "位置名稱",
     "mission": "任務"
   },
-
   "container_table": {
     "title": "現存於點位上的貨物資訊",
     "container_info": "貨物資訊"

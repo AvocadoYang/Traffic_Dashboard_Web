@@ -75,6 +75,11 @@ export type Fork_Action = {
       type: string;
       message: string;
     };
+    lidar: {
+      mode: string; //auto or select
+      front: number;
+      rear: number;
+    };
   };
   cargo_limit: {
     load: number;

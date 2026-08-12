@@ -6,4 +6,5 @@ export type Road = {
   disabled: boolean;
   limit: boolean;
   roadType: string;
+  map_id?: string;
 };

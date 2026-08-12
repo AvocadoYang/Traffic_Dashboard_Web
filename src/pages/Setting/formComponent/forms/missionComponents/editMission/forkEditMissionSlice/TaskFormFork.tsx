@@ -32,6 +32,9 @@ import useTaskOptions from "./hook/useTaskOptions";
 import { Action_Type, Select_Location_Type } from "./types";
 import { controlList } from "./params";
 import DynamicControlFields from "./DynamicControlFields";
+import HorrorModal from "@/pages/Setting/components/HorrorModal";
+import { useAtomValue } from "jotai";
+import { currentMapIdAtom } from "@/utils/mapSelection";
 
 enum YawGenre {
   CUSTOM,
@@ -458,6 +461,7 @@ const TaskFormFork: FC<{
     SelectLevelOptions,
     SelectYawOptions,
   } = useTaskOptions(actionState as Action_Type);
+  const currentMapId = useAtomValue(currentMapIdAtom);
 
   const deleteControlElementFromIndex = (index: number) => {
     setControlClickOrder((prev) => {
@@ -523,6 +527,7 @@ const TaskFormFork: FC<{
     }
     const newPayload = {
       ...payload,
+      currentMapId,
       is_define_id: selectLocationType,
       action_type: actionState,
       control: controlClickOrder,
@@ -621,6 +626,9 @@ const TaskFormFork: FC<{
             originFormData.io?.peripheral_action?.type || "NULL",
           peripheral_action_message:
             originFormData.io?.peripheral_action?.message || "",
+          lidar_mode: originFormData?.io?.lidar?.mode || "auto",
+          lidar_front: originFormData?.io?.lidar?.front || 0,
+          lidar_rear: originFormData?.io?.lidar?.rear || 0,
         });
       }, 0);
     }
@@ -1081,6 +1089,53 @@ const TaskFormFork: FC<{
             </Form.Item>
           </IndustrialCard>
         )}
+
+        <IndustrialCard>
+          <SectionHeader>
+            <SettingOutlined />
+            [12] {t("mission.task_form_fork.lidar")}
+          </SectionHeader>
+          <Flex gap="middle" justify="space-between" align="center" wrap="wrap">
+            <Form.Item
+              label={
+                <FieldLabel>{t("mission.task_form_fork.lidar")}</FieldLabel>
+              }
+              name="lidar_mode"
+              style={{ flex: 1, minWidth: 300, marginBottom: 0 }}
+            >
+              <IndustrialSegmented
+                options={[
+                  {
+                    label: t("mission.task_form_fork.lidar_auto"),
+                    value: "auto",
+                  },
+                  {
+                    label: t("mission.task_form_fork.lidar_select"),
+                    value: "select",
+                  },
+                ]}
+              />
+            </Form.Item>
+          </Flex>
+
+          <Form.Item
+            label={
+              <FieldLabel>{t("mission.task_form_fork.front_lidar")}</FieldLabel>
+            }
+            name="lidar_front"
+          >
+            <InputNumber min={1} placeholder="1" style={{ width: "100%" }} />
+          </Form.Item>
+
+          <Form.Item
+            label={
+              <FieldLabel>{t("mission.task_form_fork.rear_lidar")}</FieldLabel>
+            }
+            name="lidar_rear"
+          >
+            <InputNumber min={1} placeholder="1" style={{ width: "100%" }} />
+          </Form.Item>
+        </IndustrialCard>
 
         {/* Submit Section */}
         <Flex

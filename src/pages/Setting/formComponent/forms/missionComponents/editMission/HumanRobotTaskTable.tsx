@@ -35,6 +35,8 @@ import ImportMissionForm from "./ImportMissionForm";
 import { Robot_Mission_Slice_Table } from "./mission";
 import { Err } from "@/utils/responseErr";
 import useTaskHumanRobot from "@/api/useTaskHumanRobot";
+import { useAtomValue } from "jotai";
+import { currentMapIdAtom } from "@/utils/mapSelection";
 
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   "data-row-key": string;
@@ -117,10 +119,13 @@ const HumanRobotTaskTable: FC<{
     key: string;
   } | null>(null);
   const [showImportMission, setShowImportMission] = useState(false);
+  const currentMapId = useAtomValue(currentMapIdAtom);
+
   const sortTaskMutation = useMutation({
     mutationFn: (data: {
       keyAndSort: { key: string; order: number }[];
       missionTitleId: string;
+      currentMapId: string;
     }) => {
       return client.post("api/setting/update-task-order", data);
     },
@@ -142,6 +147,7 @@ const HumanRobotTaskTable: FC<{
         missionTitleId: selectedMissionKey,
         targetKey: payload.key,
         newOrder: payload.keyAndOrder,
+        currentMapId,
       });
     },
     onSuccess: async () => {
@@ -159,6 +165,7 @@ const HumanRobotTaskTable: FC<{
       id: string;
       disable: boolean;
       missionTitleId: string;
+      currentMapId: string;
     }) => {
       return client.post("api/setting/disable-task", payload);
     },
@@ -211,6 +218,7 @@ const HumanRobotTaskTable: FC<{
       sortTaskMutation.mutate({
         keyAndSort,
         missionTitleId: selectedMissionKey,
+        currentMapId: currentMapId || "",
       });
 
       queryClient.setQueryData(
@@ -221,7 +229,12 @@ const HumanRobotTaskTable: FC<{
   };
 
   const disableTask = (id: string, disable: boolean) => {
-    disableMutation.mutate({ id, disable, missionTitleId: selectedMissionKey });
+    disableMutation.mutate({
+      id,
+      disable,
+      missionTitleId: selectedMissionKey,
+      currentMapId: currentMapId || "",
+    });
   };
 
   const showImportMissionModal = (order: number) => {

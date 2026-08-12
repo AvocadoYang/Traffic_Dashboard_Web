@@ -1,9 +1,11 @@
 import client from "@/api/axiosClient";
 import useAllMissionTitlesDetail from "@/api/useMissionTitleDetail";
 import { isFork, isHumanRobot } from "@/utils/globalFunction";
+import { currentMapIdAtom } from "@/utils/mapSelection";
 import { Err } from "@/utils/responseErr";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Form, message, Modal, Select } from "antd";
+import { useAtomValue } from "jotai";
 import { FC } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -11,6 +13,7 @@ type ImportTask = {
   order: number;
   currentTaskId: string;
   importTaskId: string;
+  currentMapId: string;
 };
 
 const ImportMissionForm: FC<{
@@ -32,6 +35,10 @@ const ImportMissionForm: FC<{
   const queryClient = useQueryClient();
   const { data } = useAllMissionTitlesDetail();
   const { t } = useTranslation();
+  const currentMapId = useAtomValue(currentMapIdAtom);
+
+
+    
   const importMutation = useMutation({
     mutationFn: (payload: ImportTask) => {
       return client.post("api/setting/import-task", payload);
@@ -70,6 +77,7 @@ const ImportMissionForm: FC<{
       ...payload,
       currentTaskId: importConfig?.key,
       order: importConfig?.order,
+      currentMapId: currentMapId || "",
     };
 
     importMutation.mutate(newPayload);

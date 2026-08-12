@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import FormHr from "../../../utils/FormHr";
 import {
@@ -13,7 +13,10 @@ import {
   Typography,
 } from "antd";
 import { DeleteTwoTone, EditOutlined } from "@ant-design/icons";
-import useMap from "@/api/useMap";
+import useAllGroupsResources from "@/api/useAllGroupsResources";
+import { useAtomValue } from "jotai";
+import { currentMapIdAtom } from "@/utils/mapSelection";
+import GroupMapFolderBrowser from "@/components/GroupMapFolderBrowser";
 import { nanoid } from "nanoid";
 import { tagColor } from "../../../utils/utils";
 import { ZoneTableData } from "../antd";
@@ -22,6 +25,24 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
+import styled from "styled-components";
+
+const StyledTable = styled(Table)`
+  th.zone-col-sm,
+  td.zone-col-sm {
+    min-width: 70px;
+  }
+
+  th.zone-col,
+  td.zone-col {
+    min-width: 90px;
+  }
+
+  th.zone-col-md,
+  td.zone-col-md {
+    min-width: 110px;
+  }
+`;
 
 const ZoneTable: React.FC<{
   sortableId: string;
@@ -30,7 +51,23 @@ const ZoneTable: React.FC<{
     | import("@dnd-kit/core/dist/hooks/utilities").SyntheticListenerMap
     | undefined;
 }> = ({ listeners, attributes, sortableId }) => {
-  const { data } = useMap();
+  const { data: resources } = useAllGroupsResources();
+  const currentMapId = useAtomValue(currentMapIdAtom);
+  const activeGroupId = useMemo(
+    () => resources?.groups.find((g) => g.isUsing)?.groupId ?? null,
+    [resources],
+  );
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(
+    activeGroupId,
+  );
+  const didInitGroupRef = useRef(false);
+  useEffect(() => {
+    if (!didInitGroupRef.current && activeGroupId) {
+      setSelectedGroupId(activeGroupId);
+      didInitGroupRef.current = true;
+    }
+  }, [activeGroupId]);
+  const [selectedMapId, setSelectedMapId] = useState<string | null>(null);
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [oldData, setOldData] = useState<ZoneTableData | null>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -38,12 +75,49 @@ const ZoneTable: React.FC<{
   const [messageApi, contextHolders] = message.useMessage();
   const queryClient = useQueryClient();
 
-   const layerDict: { [value: string]: string} = {
+  const folders = useMemo(
+    () =>
+      resources?.groups.map((g) => ({
+        groupId: g.groupId,
+        groupName: g.groupName,
+        isUsing: g.isUsing,
+        maps: g.maps.map((m) => ({
+          mapId: m.mapId,
+          fileName: m.fileName,
+          floor: m.floor,
+          count: m.zones.length,
+        })),
+      })) ?? [],
+    [resources],
+  );
+
+  const tableData = useMemo(() => {
+    if (!resources) return [];
+    const groups = selectedGroupId
+      ? resources.groups.filter((g) => g.groupId === selectedGroupId)
+      : resources.groups;
+    return groups.flatMap((g) => {
+      const maps = selectedMapId
+        ? g.maps.filter((m) => m.mapId === selectedMapId)
+        : g.maps;
+      return maps.flatMap((m) =>
+        m.zones.map((zone) => ({
+          ...zone,
+          lidar: { front: zone.lidar_front, back: zone.lidar_back },
+          mapFileName: m.fileName,
+          groupName: g.groupName,
+          isActiveGroup: g.isUsing,
+        })),
+      );
+    });
+  }, [resources, selectedGroupId, selectedMapId]);
+
+  const layerDict: { [value: string]: string } = {
     "0": `${t("edit_zone_panel.layer_dis_far")}`,
-    "1":  `${t("edit_zone_panel.layer_dis_near")}`,
+    "1": `${t("edit_zone_panel.layer_dis_near")}`,
     "2": `${t("edit_zone_panel.speical_layer_cargo")}`,
-    "3": `${t("edit_zone_panel.special_layer_charge")}`
-  } 
+    "3": `${t("edit_zone_panel.special_layer_charge")}`,
+  };
 
   const deleteMutation = useMutation({
     mutationFn: (zoneId: string[]) => {
@@ -59,6 +133,8 @@ const ZoneTable: React.FC<{
       });
       console.log(selectedRowKeys);
       queryClient.refetchQueries({ queryKey: ["map"] });
+      queryClient.refetchQueries({ queryKey: ["active-group-resources"] });
+      queryClient.refetchQueries({ queryKey: ["all-groups-resources"] });
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
@@ -92,7 +168,7 @@ const ZoneTable: React.FC<{
       dataIndex: "name",
       key: "name",
       editable: true,
-      width: "16%",
+      className: "zone-col",
     },
     {
       title: t("zone_table_form.start_point"),
@@ -107,7 +183,7 @@ const ZoneTable: React.FC<{
         );
       },
       editable: true,
-      width: "18%",
+      className: "zone-col",
     },
     {
       title: t("zone_table_form.end_point"),
@@ -122,7 +198,7 @@ const ZoneTable: React.FC<{
           </Flex>
         );
       },
-      width: "18%",
+      className: "zone-col",
     },
     {
       title: t("zone_table_form.layer"),
@@ -130,30 +206,35 @@ const ZoneTable: React.FC<{
       key: "layer",
       editable: true,
       render: (data) => {
-        return <>
-          {`${data}: `}
+        return (
+          <>
+            {`${data}: `}
 
-          {
-            data ?  <p style={{ fontWeight: "bold"}}>{layerDict[data]}</p> : <></>
-          }
-
-        </>
+            {data ? (
+              <p style={{ fontWeight: "bold" }}>{layerDict[data]}</p>
+            ) : (
+              <></>
+            )}
+          </>
+        );
       },
-      width: "18%",
+      className: "zone-col",
     },
     {
       title: t("zone_table_form.lidar"),
       dataIndex: "lidar",
       key: "lidar",
       editable: true,
-      render: (data: { front: boolean, back: boolean}) => {
-        return <>
-            <p>{`${t(`edit_zone_panel.lidar_front`)}: ${data.front ? t(`utils.open`): t(`utils.close`)}`}</p>
-      
-            <p>{`${t(`edit_zone_panel.lidar_back`)}: ${data.back ? t(`utils.open`): t(`utils.close`)}`}</p>
-        </>
+      render: (data: { front: boolean; back: boolean }) => {
+        return (
+          <>
+            <p>{`${t(`edit_zone_panel.lidar_front`)}: ${data.front ? t(`utils.open`) : t(`utils.close`)}`}</p>
+
+            <p>{`${t(`edit_zone_panel.lidar_back`)}: ${data.back ? t(`utils.open`) : t(`utils.close`)}`}</p>
+          </>
+        );
       },
-      width: "18%",
+      className: "zone-col-md",
     },
     {
       title: t("zone_table_form.zone_attr"),
@@ -173,7 +254,7 @@ const ZoneTable: React.FC<{
           </Space>
         );
       },
-      width: "23%",
+      className: "zone-col-md",
     },
     {
       title: t("zone_table_form.zone_color"),
@@ -184,17 +265,29 @@ const ZoneTable: React.FC<{
         return <ColorPicker disabled defaultValue={data}></ColorPicker>;
       },
       editable: true,
-      width: "6%",
+      className: "zone-col-sm",
+    },
+    {
+      title: t("map_group_table.name"),
+      dataIndex: "groupName",
+      key: "groupName",
+      className: "zone-col",
+    },
+    {
+      title: t("map_manager.map_group"),
+      dataIndex: "mapFileName",
+      key: "mapFileName",
+      className: "zone-col",
     },
     {
       dataIndex: "operation",
       key: "operation",
-      render: (_, record: ZoneTableData) => {
+      render: (_, record: ZoneTableData & { isActiveGroup?: boolean }) => {
         return (
           <Flex vertical align="center" justify="space-between" gap={"middle"}>
             <Typography.Link
               onClick={() => {
-                edit(record);
+                if (record.isActiveGroup) edit(record);
               }}
             >
               <Button
@@ -202,6 +295,12 @@ const ZoneTable: React.FC<{
                 color="primary"
                 variant="filled"
                 type="link"
+                disabled={!record.isActiveGroup}
+                title={
+                  record.isActiveGroup
+                    ? undefined
+                    : t("map_manager.not_active_group_tooltip")
+                }
               >
                 {t("utils.edit")}
               </Button>
@@ -225,11 +324,11 @@ const ZoneTable: React.FC<{
           </Flex>
         );
       },
-      width: "12%",
+      className: "zone-col",
     },
   ];
 
-  if (!data) return;
+  if (!resources) return;
   return (
     <>
       {contextHolders}
@@ -241,6 +340,14 @@ const ZoneTable: React.FC<{
       <FormHr></FormHr>
       {!editingKey ? (
         <Flex gap="middle" justify="flex-start" align="start" vertical>
+          <GroupMapFolderBrowser
+            groups={folders}
+            selectedGroupId={selectedGroupId}
+            selectedMapId={selectedMapId}
+            currentMapId={currentMapId}
+            onSelectGroup={setSelectedGroupId}
+            onSelectMap={setSelectedMapId}
+          />
           <Popconfirm
             title={t("utils.delete")}
             description={t("edit_location_panel.table_notify.are_you_sure")}
@@ -257,7 +364,8 @@ const ZoneTable: React.FC<{
               {t("utils.delete")}
             </Button>
           </Popconfirm>
-          <Table
+          <StyledTable
+            style={{ width: "100%" }}
             rowSelection={{
               type: "checkbox",
               onChange: (selectedRowKeys: React.Key[]) => {
@@ -266,13 +374,8 @@ const ZoneTable: React.FC<{
             }}
             rowKey={(record) => record.id}
             columns={columns}
-            dataSource={[...data.zones].map((zone) => {
-              return {
-                ...zone,
-                lidar: { front: zone.lidar_front, back: zone.lidar_back}
-              }
-            }) as unknown as ZoneTableData[]}
-          ></Table>
+            dataSource={tableData as unknown as ZoneTableData[]}
+          ></StyledTable>
         </Flex>
       ) : (
         <EditZoneTable

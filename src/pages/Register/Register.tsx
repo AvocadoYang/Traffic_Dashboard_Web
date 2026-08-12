@@ -8,7 +8,7 @@ const Register: React.FC = () => {
   // const sceneRef = useRef<HTMLDivElement>(null);
   return (
     <Layout style={{ height: `${isMobile ? "100dvh" : "100%"}` }}>
-      <Header isMobile={isMobile}></Header>
+      <Header />
     </Layout>
   );
 };

@@ -48,12 +48,11 @@ const useZoneFrame = (
         });
         if ((mapImageRef.current as HTMLElement).nodeName !== "IMG")
           return EMPTY;
+        const startRect = mapImageRef.current.getBoundingClientRect();
         const startX = startEvent.clientX;
         const startY = startEvent.clientY;
-        const startXForDisplay =
-          startX - mapPanel.offsetLeft + mapWrap.scrollLeft;
-        const startYForDisplay =
-          startY - mapPanel.offsetTop + mapWrap.scrollTop;
+        const startXForDisplay = startX - startRect.left;
+        const startYForDisplay = startY - startRect.top;
 
         const [rx, ry] = rvizCoord({
           displayX: startXForDisplay,
@@ -73,10 +72,9 @@ const useZoneFrame = (
         return fromEvent<MouseEvent>(mapRef.current, "mousemove").pipe(
           tap((moveEvent) => {
             //這裡可以傳遞矩形範圍給 state 或其他處理函數
-            const endX =
-              moveEvent.clientX - mapPanel.offsetLeft + mapWrap.scrollLeft;
-            const endY =
-              moveEvent.clientY - mapPanel.offsetTop + mapWrap.scrollTop;
+            const moveRect = mapImageRef.current!.getBoundingClientRect();
+            const endX = moveEvent.clientX - moveRect.left;
+            const endY = moveEvent.clientY - moveRect.top;
             setRectInfo({
               axisX: Math.min(endX / scale, startXForDisplay / scale),
               axisY: Math.min(endY / scale, startYForDisplay / scale),
@@ -88,10 +86,9 @@ const useZoneFrame = (
             merge(
               fromEvent<MouseEvent>(mapPanel, "mouseup").pipe(
                 tap((e) => {
-                  const endXForDisplay =
-                    e.clientX - mapPanel.offsetLeft + mapWrap.scrollLeft;
-                  const endYForDisplay =
-                    e.clientY - mapPanel.offsetTop + mapWrap.scrollTop;
+                  const upRect = mapImageRef.current!.getBoundingClientRect();
+                  const endXForDisplay = e.clientX - upRect.left;
+                  const endYForDisplay = e.clientY - upRect.top;
                   // console.log('mouseup 事件，停止拖曳')
                   const [rx, ry] = rvizCoord({
                     displayX: endXForDisplay,
@@ -136,7 +133,7 @@ const useZoneFrame = (
     return () => {
       subscription.unsubscribe();
     };
-  }, [mapRef, mapWrapRef, scale, openEditZone]);
+  }, [mapRef, mapWrapRef, scale, openEditZone, data]);
 
   return null;
 };

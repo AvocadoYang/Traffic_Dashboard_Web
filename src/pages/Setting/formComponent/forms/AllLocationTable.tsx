@@ -16,9 +16,9 @@ import {
   Tag,
   Form,
 } from "antd";
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { LocationType } from "@/utils/jotai";
-import { useRef, useState, memo } from "react";
+import { useEffect, useMemo, useRef, useState, memo } from "react";
 import { FilterDropdownProps } from "antd/es/table/interface";
 import { useTranslation } from "react-i18next";
 import { tooltipProp } from "@/utils/gloable";
@@ -36,7 +36,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import useMap from "@/api/useMap";
+import useAllGroupsResources from "@/api/useAllGroupsResources";
+import { currentMapIdAtom } from "@/utils/mapSelection";
+import GroupMapFolderBrowser from "@/components/GroupMapFolderBrowser";
 import FormHr from "../../utils/FormHr";
 import SubmitButton from "@/utils/SubmitButton";
 
@@ -337,12 +339,34 @@ const AllLocationTable: React.FC<{
   const [locationPanelForm] = Form.useForm();
   const searchInput = useRef<InputRef>(null);
   const [editingKey, setEditingKey] = useState<string | null>(null);
-  const { data: mapData, refetch } = useMap();
+  const currentMapId = useAtomValue(currentMapIdAtom);
+  const { data: resources, refetch } = useAllGroupsResources();
+  const activeGroupId = useMemo(
+    () => resources?.groups.find((g) => g.isUsing)?.groupId ?? null,
+    [resources],
+  );
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(
+    activeGroupId,
+  );
+  const didInitGroupRef = useRef(false);
+  useEffect(() => {
+    if (!didInitGroupRef.current && activeGroupId) {
+      setSelectedGroupId(activeGroupId);
+      didInitGroupRef.current = true;
+    }
+  }, [activeGroupId]);
+  const [selectedMapId, setSelectedMapId] = useState<string | null>(null);
   const setTooltip = useSetAtom(tooltipProp);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [messageApi, contextHolders] = message.useMessage();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+
+  const invalidateResourceQueries = () => {
+    queryClient.refetchQueries({ queryKey: ["map"] });
+    queryClient.refetchQueries({ queryKey: ["active-group-resources"] });
+      queryClient.refetchQueries({ queryKey: ["all-groups-resources"] });
+  };
 
   const saveLocationMutation = useMutation({
     mutationFn: (payload: LocationType) => {
@@ -350,7 +374,7 @@ const AllLocationTable: React.FC<{
     },
     onSuccess: () => {
       void messageApi.success(t("utils.success"));
-      queryClient.refetchQueries({ queryKey: ["map"] });
+      invalidateResourceQueries();
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
@@ -361,7 +385,7 @@ const AllLocationTable: React.FC<{
     },
     onSuccess: () => {
       void messageApi.success(t("utils.success"));
-      queryClient.refetchQueries({ queryKey: ["map"] });
+      invalidateResourceQueries();
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
@@ -372,11 +396,49 @@ const AllLocationTable: React.FC<{
     },
     onSuccess: () => {
       void messageApi.success(t("utils.success"));
-      queryClient.refetchQueries({ queryKey: ["map"] });
+      invalidateResourceQueries();
       setSelectedRowKeys([]);
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
+
+  const folders = useMemo(
+    () =>
+      resources?.groups.map((g) => ({
+        groupId: g.groupId,
+        groupName: g.groupName,
+        isUsing: g.isUsing,
+        maps: g.maps.map((m) => ({
+          mapId: m.mapId,
+          fileName: m.fileName,
+          floor: m.floor,
+          count: m.locations.length,
+        })),
+      })) ?? [],
+    [resources],
+  );
+
+  const tableData = useMemo(() => {
+    if (!resources) return [];
+    const groups = selectedGroupId
+      ? resources.groups.filter((g) => g.groupId === selectedGroupId)
+      : resources.groups;
+    return groups.flatMap((g) => {
+      const maps = selectedMapId
+        ? g.maps.filter((m) => m.mapId === selectedMapId)
+        : g.maps;
+      return maps.flatMap((m) =>
+        m.locations.map((loc) => ({
+          ...loc,
+          x: loc.x.toFixed(3),
+          y: loc.y.toFixed(3),
+          mapFileName: m.fileName,
+          groupName: g.groupName,
+          isActiveGroup: g.isUsing,
+        })),
+      );
+    });
+  }, [resources, selectedGroupId, selectedMapId]);
 
   const deleteMultiItem = () => {
     if (selectedRowKeys.length === 0) return;
@@ -391,6 +453,7 @@ const AllLocationTable: React.FC<{
     locationPanelForm.setFieldValue("offset_x", Number(record.offset_x));
     locationPanelForm.setFieldValue("offset_y", Number(record.offset_y));
     locationPanelForm.setFieldValue("canRotate", record.canRotate);
+    locationPanelForm.setFieldValue("rotate", record.rotate);
     locationPanelForm.setFieldValue("areaType", record.areaType);
     locationPanelForm.setFieldValue("locationId", record.locationId);
     setEditingKey(record.locationId);
@@ -491,6 +554,7 @@ const AllLocationTable: React.FC<{
       id,
       newLocationId: oldLocationId,
       oldLocationId,
+      currentMapId: currentMapId,
     };
 
     saveLocationMutation.mutate(sanitizedPayload);
@@ -566,6 +630,14 @@ const AllLocationTable: React.FC<{
       render: (text: string) => <CoordinateText>{text}</CoordinateText>,
     },
     {
+      title: "ROTATE",
+      dataIndex: "rotate",
+      key: "rotate",
+      width: "12%",
+      editable: true,
+      render: (text: string) => <CoordinateText>{text}</CoordinateText>,
+    },
+    {
       title: "ROTATABLE",
       dataIndex: "canRotate",
       key: "canRotate",
@@ -596,11 +668,28 @@ const AllLocationTable: React.FC<{
       },
     },
     {
+      title: t("map_group_table.name"),
+      dataIndex: "groupName",
+      key: "groupName",
+      editable: false,
+      width: "14%",
+    },
+    {
+      title: t("map_manager.map_group"),
+      dataIndex: "mapFileName",
+      key: "mapFileName",
+      editable: false,
+      width: "18%",
+    },
+    {
       title: "ACTIONS",
       dataIndex: "operation",
       key: "operation",
       width: "30%",
-      render: (_: unknown, record: LocationType) => {
+      render: (
+        _: unknown,
+        record: LocationType & { isActiveGroup?: boolean },
+      ) => {
         const editable = isEditing(record);
         return editable ? (
           <Flex gap="small">
@@ -631,7 +720,12 @@ const AllLocationTable: React.FC<{
           <Flex gap="small">
             <IndustrialButton
               className="edit-btn"
-              disabled={editingKey !== null}
+              disabled={editingKey !== null || !record.isActiveGroup}
+              title={
+                record.isActiveGroup
+                  ? undefined
+                  : t("map_manager.not_active_group_tooltip")
+              }
               onClick={() => edit(record)}
               icon={<EditOutlined />}
               size="small"
@@ -687,6 +781,14 @@ const AllLocationTable: React.FC<{
       </PanelHeader>
       <FormHr />
       <Flex gap="middle" justify="flex-start" align="start" vertical>
+        <GroupMapFolderBrowser
+          groups={folders}
+          selectedGroupId={selectedGroupId}
+          selectedMapId={selectedMapId}
+          currentMapId={currentMapId}
+          onSelectGroup={setSelectedGroupId}
+          onSelectMap={setSelectedMapId}
+        />
         <Flex gap="middle">
           <IndustrialButton
             className="delete-btn"
@@ -722,9 +824,7 @@ const AllLocationTable: React.FC<{
                   cell: EditableCell,
                 },
               }}
-              dataSource={mapData?.locations.map((loc) => {
-                return { ...loc, x: loc.x.toFixed(3), y: loc.y.toFixed(3) };
-              })}
+              dataSource={tableData}
               columns={mergedColumns as []}
               pagination={{
                 onChange: cancel,

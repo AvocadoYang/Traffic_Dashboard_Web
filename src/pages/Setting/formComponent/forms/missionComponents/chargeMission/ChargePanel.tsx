@@ -35,6 +35,9 @@ type ChargeData = {
   autoTimeZone: string;
   titleId: string;
   title: string;
+  aggressiveTriggerDelayMin: number;
+  availableGetTaskTriggerDelayMin: number;
+  passiveTriggerDelayMin: number;
 };
 
 type FormData = {
@@ -49,6 +52,9 @@ type FormData = {
   availableGetTaskThreshold: number;
   activeAuto: boolean;
   autoTimeZone: number;
+  aggressiveTriggerDelayMin: number;
+  availableGetTaskTriggerDelayMin: number;
+  passiveTriggerDelayMin: number;
 };
 
 // Industrial Styled Components
@@ -182,6 +188,9 @@ const IndustrialButton = styled(Button)`
 `;
 
 const IndustrialTable = styled(Table)`
+  max-width: 100%;
+  min-width: 0;
+
   .ant-table {
     border: 1px solid #d9d9d9;
     border-radius: 0;
@@ -197,14 +206,15 @@ const IndustrialTable = styled(Table)`
     letter-spacing: 1px;
     font-weight: 700;
     padding: 12px 16px;
+    min-width: 5rem;
 
     &::before {
       display: none;
     }
   }
 
-  .ant-table-tbody > tr {
-    transition: all 0.2s;
+  .ant-table-tbody > tr:not(.ant-table-measure-row) {
+    transition: background-color 0.2s;
     position: relative;
 
     &:hover {
@@ -312,6 +322,29 @@ const ThresholdValue = styled.span`
   font-family: "Roboto Mono", monospace;
   font-size: 11px;
   font-weight: 700;
+  white-space: nowrap;
+`;
+
+const ValueGroup = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+`;
+
+const DelayValue = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  padding: 2px 8px;
+  background: #fff7e6;
+  border: 1px solid #faad14;
+  color: #d48806;
+  font-family: "Roboto Mono", monospace;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
 `;
 
 const AmrList = styled.div`
@@ -409,7 +442,7 @@ const ChargePanel: FC<{
       newPayload.availableGetTaskThreshold <= newPayload.aggressiveThreshold
     ) {
       messageApi.warning(
-        t("mission.charge_mission.available_less_than_aggressive")
+        t("mission.charge_mission.available_less_than_aggressive"),
       );
       return;
     }
@@ -518,7 +551,15 @@ const ChargePanel: FC<{
       dataIndex: "aggressive",
       key: "aggressive",
       render(_, record) {
-        return <ThresholdValue>{record.aggressiveThreshold}%</ThresholdValue>;
+        return (
+          <ValueGroup>
+            <ThresholdValue>{record.aggressiveThreshold}%</ThresholdValue>
+            <DelayValue>
+              {record.aggressiveTriggerDelayMin ?? "-"}
+              {t("charge.unit_min")}
+            </DelayValue>
+          </ValueGroup>
+        );
       },
     },
     {
@@ -526,7 +567,31 @@ const ChargePanel: FC<{
       dataIndex: "passiveThreshold",
       key: "passiveThreshold",
       render(_, record) {
-        return <ThresholdValue>{record.passiveThreshold}%</ThresholdValue>;
+        return (
+          <ValueGroup>
+            <ThresholdValue>{record.passiveThreshold}%</ThresholdValue>
+            <DelayValue>
+              {record.passiveTriggerDelayMin ?? "-"}
+              {t("charge.unit_min")}
+            </DelayValue>
+          </ValueGroup>
+        );
+      },
+    },
+    {
+      title: t("charge.available_get_task"),
+      dataIndex: "availableGetTaskThreshold",
+      key: "availableGetTaskThreshold",
+      render(_, record) {
+        return (
+          <ValueGroup>
+            <ThresholdValue>{record.availableGetTaskThreshold}%</ThresholdValue>
+            <DelayValue>
+              {record.availableGetTaskTriggerDelayMin ?? "-"}
+              {t("charge.unit_min")}
+            </DelayValue>
+          </ValueGroup>
+        );
       },
     },
     {
@@ -535,16 +600,6 @@ const ChargePanel: FC<{
       key: "fullThreshold",
       render(_, record) {
         return <ThresholdValue>{record.fullThreshold}%</ThresholdValue>;
-      },
-    },
-    {
-      title: t("charge.available_get_task"),
-      dataIndex: "aggressiveThreshold",
-      key: "aggressiveThreshold",
-      render(_, record) {
-        return (
-          <ThresholdValue>{record.availableGetTaskThreshold}%</ThresholdValue>
-        );
       },
     },
     {
@@ -570,7 +625,7 @@ const ChargePanel: FC<{
                   handleActive(
                     false,
                     record.id,
-                    record.amr.map((v) => v.fullName)
+                    record.amr.map((v) => v.fullName),
                   )
                 }
                 icon={<CloseCircleOutlined />}
@@ -585,7 +640,7 @@ const ChargePanel: FC<{
                   handleActive(
                     true,
                     record.id,
-                    record.amr.map((v) => v.fullName)
+                    record.amr.map((v) => v.fullName),
                   )
                 }
                 icon={<PlayCircleOutlined />}
@@ -600,7 +655,7 @@ const ChargePanel: FC<{
               onConfirm={() =>
                 handleDelete(
                   record.id,
-                  record.amr.map((v) => v.fullName)
+                  record.amr.map((v) => v.fullName),
                 )
               }
               okText="Yes"
@@ -630,7 +685,7 @@ const ChargePanel: FC<{
         </PanelHeader>
         <FormHr />
 
-        <Flex gap="middle" justify="flex-start" align="start" vertical>
+        <Flex gap="middle" justify="flex-start" vertical>
           <Flex gap="middle">
             <IndustrialButton
               className="add-btn"
