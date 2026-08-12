@@ -380,7 +380,7 @@ const TaskFormMir: FC<{
 
         module: op.module ?? null,
         port: op.port ?? 0,
-        value: op.port ?? "on",
+        value: op.value ?? "on",
         operation: op.operation ?? "on",
         timeout: formattedTimeout,
       });
@@ -471,7 +471,7 @@ const TaskFormMir: FC<{
 
       module: rawPayload.module ?? null,
       port: rawPayload.port ?? 0,
-      value: rawPayload.port ?? "on",
+      value: rawPayload.value ?? "on",
       operation: rawPayload.operation ?? "on",
       timeout:
         rawPayload.timeout && dayjs(rawPayload.timeout).isValid()
