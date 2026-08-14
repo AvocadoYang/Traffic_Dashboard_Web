@@ -18,6 +18,8 @@ import {
   sanitizeDeg,
   sanitizeSignedDeg,
 } from "@/utils/utils";
+import { useMiRStatus } from "@/sockets/useMirStatus";
+import { currentMapIdAtom } from "@/utils/mapSelection";
 
 // Position/rotation are set as inline styles via .attrs (rather than
 // interpolated into the CSS template) because they change on every drag
@@ -133,6 +135,8 @@ const LocalizationCorrectionGhost = () => {
   const scale = useAtomValue(Scale);
   const { pose } = useAmrPose(correction?.amrId ?? "");
   const points = useAmrPointCloud(correction?.amrId ?? "");
+  const MiR_Status_IO = useMiRStatus(correction?.amrId ?? "");
+  const mapId = useAtomValue(currentMapIdAtom);
   const {
     mutateAsync: submitCorrection,
     isLoading: isSubmitting,
@@ -231,6 +235,7 @@ const LocalizationCorrectionGhost = () => {
   }, [points, map, pose, correction]);
 
   if (!correction || !map || !pose) return null;
+  if (MiR_Status_IO.active_map_id !== mapId) return null;
 
   const { amrId, dx, dy, dYaw } = correction;
   const ghostX = pose.x + dx;

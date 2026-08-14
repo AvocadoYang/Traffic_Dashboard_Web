@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { mq } from "@/styles/responsive";
 
 export const InfoWrap = styled.div.attrs<{
   randomcolor: string;
@@ -17,11 +18,16 @@ export const InfoWrap = styled.div.attrs<{
   position: relative;
   border: ${(props) => `0.2em solid ${props.randomcolor}`};
   box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.3);
-  min-width: 200px;
-  max-width: 220px;
+  min-width: 320px;
+  max-width: 360px;
   border-top: ${(props) => `0.4em solid ${props.randomcolor}`};
   background-color: ${(props) =>
     `${props.is_dark === "true" ? "#3a3939" : "#ffffff"}`};
   box-shadow: ${(props) =>
     `${props.is_warn == "true" ? "0 0 7px rgba(255, 0, 0, 0.8)" : ""}`};
+
+  ${mq.web} {
+    min-width: 200px;
+    max-width: 220px;
+  }
 `;

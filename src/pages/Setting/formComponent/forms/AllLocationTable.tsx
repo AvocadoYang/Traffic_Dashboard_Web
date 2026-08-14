@@ -453,6 +453,7 @@ const AllLocationTable: React.FC<{
     locationPanelForm.setFieldValue("offset_x", Number(record.offset_x));
     locationPanelForm.setFieldValue("offset_y", Number(record.offset_y));
     locationPanelForm.setFieldValue("canRotate", record.canRotate);
+    locationPanelForm.setFieldValue("rotate", record.rotate);
     locationPanelForm.setFieldValue("areaType", record.areaType);
     locationPanelForm.setFieldValue("locationId", record.locationId);
     setEditingKey(record.locationId);
@@ -553,6 +554,7 @@ const AllLocationTable: React.FC<{
       id,
       newLocationId: oldLocationId,
       oldLocationId,
+      currentMapId: currentMapId,
     };
 
     saveLocationMutation.mutate(sanitizedPayload);
@@ -625,6 +627,14 @@ const AllLocationTable: React.FC<{
       width: "30%",
       editable: true,
       key: "offset_y",
+      render: (text: string) => <CoordinateText>{text}</CoordinateText>,
+    },
+    {
+      title: "ROTATE",
+      dataIndex: "rotate",
+      key: "rotate",
+      width: "12%",
+      editable: true,
       render: (text: string) => <CoordinateText>{text}</CoordinateText>,
     },
     {

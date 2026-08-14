@@ -73,6 +73,7 @@ import YfyPackage from "./components/YFYPackage/YfyPackage";
 import EditStackModal from "./components/AllStack/EditStackModal";
 import CargoEditorStack from "./components/AllStack/CargoEditorStack";
 import BlindLocationMissionModal from "../components/BlindLocationMissionModal";
+import useCenterMap from "@/hooks/useCenterMap";
 
 const MapView: React.FC<{
   scale: number;
@@ -193,6 +194,8 @@ const MapView: React.FC<{
 
   //控制「路徑提示」開啟時，游標移動附近路徑浮出 tooltip
   useRoadHoverTooltip(mapRef, mapImageRef, scale);
+
+  useCenterMap(mapWrapRef, mapImageRef);
 
   const handleMouseDown = useCallback(
     (startId: string) => {

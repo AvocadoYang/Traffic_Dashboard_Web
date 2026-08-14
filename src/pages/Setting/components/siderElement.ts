@@ -59,6 +59,8 @@ export const formList = [
   { key: "map_group_table" },
 
   { key: "footprint" },
+  { key: "sound" },
+  { key: "marker_type" },
 ] as const;
 
 export const toolbarState = formList.map((item) => ({ ...item }));

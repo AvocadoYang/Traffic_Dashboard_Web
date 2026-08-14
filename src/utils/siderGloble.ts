@@ -127,3 +127,9 @@ export const isShowRoad = atom<boolean>(true);
 export const isShowPointCloud = atom<boolean>(true);
 
 export const isHowFootprint = atom<boolean>(false);
+
+export const isShowSound = atom<boolean>(false);
+/** bottom toolSheet 裡放「已開啟面板」的容器節點 */
+export const toolSheetPanelHost = atom<HTMLElement | null>(null);
+
+export const isShowMarketType = atom<boolean>(false);

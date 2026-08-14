@@ -8,6 +8,7 @@ import {
   Mir_All_Action,
   Mir_Task,
   mirErrorHandlingList,
+  mirIoModule,
   mirMoveActonList,
   mirSaftySystemList,
   mirSoundLight,
@@ -20,13 +21,19 @@ import {
   MirFootprintInput,
   MirFrontInput,
   MirLocationInput,
+  MirMarkerTypeInput,
   MirMaximumAngularSpeedInputInput,
   MirMaximumLinearSpeedInputInput,
+  MirModuleInput,
+  MirOperationInput,
   MirOrientationInput,
+  MirPortInput,
   MirRearInput,
   MirSideInput,
   MirSoundInput,
   MirSwitchMapInput,
+  MirTimeoutInput,
+  MirValueInput,
   MirVolumeInput,
   MirWaitInput,
   MirXInput,
@@ -244,6 +251,7 @@ const taskCategoryOptions = [
   { label: "Move", value: "move" },
   { label: "Sound/Light", value: "sound/light" },
   { label: "Error Handling", value: "Error Handling" },
+  { label: "IO module", value: "IO module" },
   { label: "Safty system", value: "Safty system" },
 ];
 
@@ -260,6 +268,11 @@ const SLActionOptions = mirSoundLight.map((e) => ({
 }));
 
 const errorhandlingActionOptions = mirErrorHandlingList.map((e) => ({
+  value: e,
+  label: e,
+}));
+
+const ioModuleActionOptions = mirIoModule.map((e) => ({
   value: e,
   label: e,
 }));
@@ -306,14 +319,13 @@ const TaskFormMir: FC<{
   const [taskAction, setTaskAction] = useState<Mir_All_Action>();
   const currentMapId = useAtomValue(currentMapIdAtom);
   const { data: taskDataSource } = useTaskMirOne(editTaskKey);
+  const isCurrentPosition = Form.useWatch("is_current_position", form);
 
   useEffect(() => {
     if (!taskDataSource) return;
 
     const op = taskDataSource || (taskDataSource as any);
     const actionType = (op.type || taskDataSource.type) as Mir_All_Action;
-    console.log(op);
-    console.log(actionType);
 
     if (mirMoveActonList.includes(actionType as any)) {
       setTaskType("move");
@@ -321,6 +333,8 @@ const TaskFormMir: FC<{
       setTaskType("sound/light");
     } else if (mirErrorHandlingList.includes(actionType as any)) {
       setTaskType("Error Handling");
+    } else if (mirSaftySystemList.includes(actionType as any)) {
+      setTaskType("IO module");
     } else if (mirSaftySystemList.includes(actionType as any)) {
       setTaskType("Safty system");
     }
@@ -333,6 +347,12 @@ const TaskFormMir: FC<{
         : undefined
       : undefined;
 
+    const formattedTimeout = op.timeout
+      ? dayjs(op.timeout, "HH:mm:ss").isValid()
+        ? dayjs(op.timeout, "HH:mm:ss")
+        : undefined
+      : undefined;
+
     setTimeout(() => {
       form.setFieldsValue({
         action_type: actionType,
@@ -340,6 +360,8 @@ const TaskFormMir: FC<{
         location_id: op.location_id,
         entry_position: op.entry_position,
         footprint: op.footprint,
+        marker_type: op?.marker_type || null,
+
         blocked_path_timeout: op.blocked_path_timeout ?? 60,
         blocked_docking_timeout: op.blocked_docking_timeout ?? 60,
         maximum_linear_speed: op.maximum_linear_speed ?? 0.25,
@@ -355,11 +377,15 @@ const TaskFormMir: FC<{
         front: op.front ?? "unmuted",
         rear: op.rear ?? "unmuted",
         sides: op.sides ?? "unmuted",
+
+        module: op.module ?? null,
+        port: op.port ?? 0,
+        value: op.value ?? "on",
+        operation: op.operation ?? "on",
+        timeout: formattedTimeout,
       });
     }, 0);
   }, [taskDataSource, form]);
-
-
 
   // 2. 切換大類別的 Handle 函式
   const handleCategoryChange = (newType: Mir_Task) => {
@@ -393,6 +419,8 @@ const TaskFormMir: FC<{
         return SLActionOptions;
       case "Error Handling":
         return errorhandlingActionOptions;
+      case "IO module":
+        return ioModuleActionOptions;
       case "Safty system":
         return saftySystemActionOptions;
       default:
@@ -413,6 +441,7 @@ const TaskFormMir: FC<{
       location_id: rawPayload.location_id ?? "",
       entry_position: rawPayload.entry_position ?? "",
       footprint: rawPayload.footprint ?? "",
+      marker_type: rawPayload.marker_type ?? null,
 
       // 3. 逾時與限制參數 (預設數值)
       blocked_path_timeout: rawPayload.blocked_path_timeout ?? 60,
@@ -439,6 +468,15 @@ const TaskFormMir: FC<{
       front: rawPayload.front ?? "unmuted",
       rear: rawPayload.rear ?? "unmuted",
       sides: rawPayload.sides ?? "unmuted",
+
+      module: rawPayload.module ?? null,
+      port: rawPayload.port ?? 0,
+      value: rawPayload.value ?? "on",
+      operation: rawPayload.operation ?? "on",
+      timeout:
+        rawPayload.timeout && dayjs(rawPayload.timeout).isValid()
+          ? dayjs(rawPayload.timeout).format("HH:mm:ss")
+          : "00:00:00",
     };
 
     // alert(JSON.stringify(newPayload, null, 2));
@@ -502,8 +540,16 @@ const TaskFormMir: FC<{
 
         {taskAction === "docking" && (
           <>
-            <MirLocationInput />
-            <MirBlockedPathTimeoutInputInput />
+            {/* 🎯 將 isCurrentPosition 作為 disabled 傳給 MirLocationInput */}
+            <MirLocationInput disabled={isCurrentPosition} />
+
+            {/* 依開關狀態切換顯示的輸入框 */}
+            {isCurrentPosition ? (
+              <MirMarkerTypeInput />
+            ) : (
+              <MirBlockedPathTimeoutInputInput />
+            )}
+
             <MirBlockedDockingTimeoutInputInput />
             <MirMaximumLinearSpeedInputInput />
           </>
@@ -554,6 +600,24 @@ const TaskFormMir: FC<{
             <MirFrontInput />
             <MirRearInput />
             <MirSideInput />
+          </>
+        )}
+
+        {taskAction === "set_io" && (
+          <>
+            <MirModuleInput />
+            <MirPortInput />
+            <MirOperationInput />
+            <MirTimeoutInput />
+          </>
+        )}
+
+        {taskAction === "wait_for_io" && (
+          <>
+            <MirModuleInput />
+            <MirPortInput />
+            <MirValueInput />
+            <MirTimeoutInput />
           </>
         )}
 

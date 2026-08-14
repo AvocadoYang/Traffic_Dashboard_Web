@@ -1,11 +1,15 @@
 import { useFootprint } from "@/api/useFootprint";
 import useMap from "@/api/useMap";
+import { useMarkerType } from "@/api/useMarkerType";
+import { useSound } from "@/api/useSound";
 
 import { useMemo } from "react";
 
 const useMirTaskOptions = () => {
   const { data: mapData } = useMap();
   const { data: footprintData } = useFootprint();
+  const { data: markerType } = useMarkerType();
+  const sounds = useSound();
 
   const locationsOption = useMemo(() => {
     return (
@@ -23,11 +27,31 @@ const useMirTaskOptions = () => {
         value: v.id,
       })) || []
     );
-  }, [mapData]);
+  }, []);
+
+  const soundOption = useMemo(() => {
+    return (
+      sounds.data?.map((v) => ({
+        label: v.name,
+        value: v.id,
+      })) || []
+    );
+  }, []);
+
+  const markerTypeOption = useMemo(() => {
+    return (
+      markerType?.map((v) => ({
+        label: v.name,
+        value: v.id,
+      })) || []
+    );
+  }, []);
 
   return {
     locationsOption,
     footprintOption,
+    soundOption,
+    markerTypeOption,
   };
 };
 

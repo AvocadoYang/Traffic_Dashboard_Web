@@ -44,6 +44,8 @@ import {
   isShowMapGroupTable,
   isShowChargeStationDockConfig,
   isHowFootprint,
+  isShowSound,
+  isShowMarketType,
 } from "@/utils/siderGloble";
 import { useAtomValue } from "jotai";
 import { ToolBarItemType, ToolBarType } from "./siderElement";
@@ -76,6 +78,8 @@ import MapManager from "./ChangeMap/MapManager";
 import { MapGroupPanel } from "./mapGroup";
 import PeripheralChargeDockPanel from "./peripherals/PeripheralChargeDockPanel";
 import FootprintPanel from "../formComponent/forms/missionComponents/mir/footprinter/FootprintPanel";
+import SoundPanel from "../formComponent/forms/missionComponents/mir/sound/SoundPanel";
+import MarkerTypePanel from "../formComponent/forms/missionComponents/mir/markerTypes/MarkerTypePanel";
 
 const SortableWrap: FC<{
   sortableId: ToolBarItemType;
@@ -589,6 +593,30 @@ const SortableWrap: FC<{
                 />
               </Card>
             );
+          case "sound":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn sortableId={sortableId} panelName="sound" />
+                <SoundPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
+
+          case "marker_type":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn sortableId={sortableId} panelName="marker_type" />
+                <MarkerTypePanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
+
           default:
             return null;
         }
@@ -648,6 +676,8 @@ const ToolComponents: FC<{
   const openMapGroupPanel = useAtomValue(isShowMapGroupTable);
 
   const openFootprintPanel = useAtomValue(isHowFootprint);
+  const openSoundPanel = useAtomValue(isShowSound);
+  const openMarkerTypePanel = useAtomValue(isShowMarketType);
 
   return dataList.map((form) => {
     const { key: formKey } = form;
@@ -810,6 +840,12 @@ const ToolComponents: FC<{
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     if (formKey === "footprint" && openFootprintPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "sound" && openSoundPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "marker_type" && openMarkerTypePanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     return [];

@@ -2,6 +2,9 @@ import { FC, useEffect, useRef } from "react";
 import useMap from "@/api/useMap";
 import { useAmrPointCloud } from "@/sockets/usePointCloud";
 import { useIsLogIn } from "@/sockets/useAMRInfo";
+import { useMiRStatus } from "@/sockets/useMirStatus";
+import { useAtom } from "jotai";
+import { currentMapIdAtom } from "@/utils/mapSelection";
 
 const PointCloudLayer: FC<{ amrId: string; color: string }> = ({
   amrId,
@@ -11,6 +14,8 @@ const PointCloudLayer: FC<{ amrId: string; color: string }> = ({
   const points = useAmrPointCloud(amrId);
   const { isOverdue } = useIsLogIn(amrId);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const MiR_Status_IO = useMiRStatus(amrId);
+  const [mapId, setMapId] = useAtom(currentMapIdAtom);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -42,7 +47,7 @@ const PointCloudLayer: FC<{ amrId: string; color: string }> = ({
 
     return () => cancelAnimationFrame(frame);
   }, [points, map, color, isOverdue]);
-
+  if(MiR_Status_IO && MiR_Status_IO.active_map_id !== mapId) return null
   if (!map) return null;
 
   return (
