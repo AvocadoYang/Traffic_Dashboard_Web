@@ -1040,7 +1040,7 @@ const Sider: React.FC<{
           window.location.reload();
         }, 6000);
         return;
-      case "9-3":
+      case "9-4":
         setOpenStartPoint(true);
         break;
       case "9-5":

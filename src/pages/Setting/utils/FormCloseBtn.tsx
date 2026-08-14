@@ -41,6 +41,9 @@ import {
   isShowContainerTable,
   isShowSystemAlarm,
   isHowFootprint,
+  isLockByMission,
+  isShowSound,
+  isShowMarketType,
 } from "@/utils/siderGloble";
 import { ToolBarItemType } from "../components/siderElement";
 
@@ -103,6 +106,9 @@ const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({
   const setOpenSystemAlarmPanel = useSetAtom(isShowSystemAlarm);
 
   const setOpenFootprintPanel = useSetAtom(isHowFootprint);
+  const setOpenLockByMissionPanel = useSetAtom(isLockByMission);
+  const setOpenSoundPanel = useSetAtom(isShowSound);
+  const setOpenMarkerTypePanel = useSetAtom(isShowMarketType);
 
   const handleClose = () => {
     switch (panelName) {
@@ -224,6 +230,15 @@ const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({
         break;
       case "footprint":
         setOpenFootprintPanel(false);
+        break;
+      case "lock_by_mission":
+        setOpenLockByMissionPanel(false);
+        break;
+      case "sound":
+        setOpenSoundPanel(false);
+        break;
+      case "marker_type":
+        setOpenMarkerTypePanel(false);
         break;
       case "shelf_mission":
       case "todo_dependent_on_return_id_task":
