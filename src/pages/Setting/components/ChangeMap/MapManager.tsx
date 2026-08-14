@@ -155,6 +155,11 @@ const IndustrialInputNumber = styled(InputNumber)`
   height: 36px;
   border-radius: 0;
 
+  && {
+    width: 100%;
+    min-width: 0;
+  }
+
   .ant-input-number-input {
     height: 34px;
   }
@@ -205,6 +210,43 @@ const StyledForm = styled(Form)`
     letter-spacing: 1px;
     font-family: "Roboto Mono", monospace;
     font-weight: 600;
+  }
+`;
+
+const FormFieldRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-md);
+
+  > .ant-form-item {
+    flex: 1 1 12rem;
+    min-width: 0;
+  }
+
+  /* 檔名、地圖群組這種長欄位獨佔一整行 */
+  > .ant-form-item.full-row {
+    flex-basis: 100%;
+  }
+`;
+
+const FileNameCell = styled(Flex)`
+  && {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+`;
+
+const FileNameText = styled.span`
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  min-width: 5rem;
+`;
+
+const ActionCell = styled(Flex)`
+  && {
+    flex-wrap: wrap;
+    gap: var(--space-xs);
   }
 `;
 
@@ -598,10 +640,10 @@ const MapManager: FC<{
       dataIndex: "fileName",
       key: "fileName",
       render: (text: string) => (
-        <Flex align="center" gap="small">
+        <FileNameCell>
           <PictureOutlined style={{ color: "#1890ff" }} />
-          <span style={{ fontWeight: 600 }}>{text}</span>
-        </Flex>
+          <FileNameText>{text}</FileNameText>
+        </FileNameCell>
       ),
     },
     {
@@ -638,7 +680,7 @@ const MapManager: FC<{
       title: t("map_manager.actions"),
       key: "actions",
       render: (_: any, record: MapInfo) => (
-        <Flex gap="small">
+        <ActionCell>
           <IndustrialButton
             className="view-btn"
             size="small"
@@ -672,7 +714,7 @@ const MapManager: FC<{
               {t("map_manager.delete")}
             </IndustrialButton>
           </Popconfirm>
-        </Flex>
+        </ActionCell>
       ),
     },
     {
@@ -707,17 +749,15 @@ const MapManager: FC<{
           </SectionHeader>
           <UploadSection>
             <StyledForm form={uploadForm} layout="vertical">
-              <Flex gap="middle">
+              <FormFieldRow>
                 <Form.Item
                   name="mapOriginX"
                   label={t("map_manager.map_origin_x")}
                   rules={[
                     { required: true, message: t("map_manager.file_required") },
                   ]}
-                  style={{ flex: 1 }}
                 >
                   <IndustrialInputNumber
-                    style={{ width: "100%" }}
                     placeholder={t("map_manager.enter_x_coord")}
                   />
                 </Form.Item>
@@ -727,14 +767,12 @@ const MapManager: FC<{
                   rules={[
                     { required: true, message: t("map_manager.file_required") },
                   ]}
-                  style={{ flex: 1 }}
                 >
                   <IndustrialInputNumber
-                    style={{ width: "100%" }}
                     placeholder={t("map_manager.enter_y_coord")}
                   />
                 </Form.Item>
-              </Flex>
+              </FormFieldRow>
               <Form.Item name="map_group_id" label={t("map_manager.map_group")}>
                 <Select
                   allowClear
@@ -891,66 +929,76 @@ const MapManager: FC<{
         confirmLoading={editMutation.isPending}
       >
         <StyledForm form={editForm} layout="vertical">
-          <Form.Item label={t("map_manager.file_name")} name="fileName">
-            <IndustrialInput disabled />
-          </Form.Item>
-          <Form.Item
-            label={t("map_manager.map_origin_x")}
-            name="mapOriginX"
-            rules={[{ required: true }]}
-          >
-            <IndustrialInputNumber style={{ width: "100%" }} />
-          </Form.Item>
-          <Form.Item
-            label={t("map_manager.map_origin_y")}
-            name="mapOriginY"
-            rules={[{ required: true }]}
-          >
-            <IndustrialInputNumber style={{ width: "100%" }} />
-          </Form.Item>
+          <FormFieldRow>
+            <Form.Item
+              className="full-row"
+              label={t("map_manager.file_name")}
+              name="fileName"
+            >
+              <IndustrialInput disabled />
+            </Form.Item>
+            <Form.Item
+              label={t("map_manager.map_origin_x")}
+              name="mapOriginX"
+              rules={[{ required: true }]}
+            >
+              <IndustrialInputNumber />
+            </Form.Item>
+            <Form.Item
+              label={t("map_manager.map_origin_y")}
+              name="mapOriginY"
+              rules={[{ required: true }]}
+            >
+              <IndustrialInputNumber />
+            </Form.Item>
 
-          <Form.Item
-            label={t("upload.scroll_x")}
-            name="scrollX"
-            rules={[{ required: true }]}
-          >
-            <IndustrialInputNumber style={{ width: "100%" }} />
-          </Form.Item>
+            <Form.Item
+              label={t("upload.scroll_x")}
+              name="scrollX"
+              rules={[{ required: true }]}
+            >
+              <IndustrialInputNumber />
+            </Form.Item>
 
-          <Form.Item
-            label={t("upload.scroll_y")}
-            name="scrollY"
-            rules={[{ required: true }]}
-          >
-            <IndustrialInputNumber style={{ width: "100%" }} />
-          </Form.Item>
+            <Form.Item
+              label={t("upload.scroll_y")}
+              name="scrollY"
+              rules={[{ required: true }]}
+            >
+              <IndustrialInputNumber />
+            </Form.Item>
 
-          <Form.Item
-            label={t("upload.scale")}
-            name="scale"
-            rules={[{ required: true }]}
-          >
-            <IndustrialInputNumber min={0.1} style={{ width: "100%" }} />
-          </Form.Item>
+            <Form.Item
+              label={t("upload.scale")}
+              name="scale"
+              rules={[{ required: true }]}
+            >
+              <IndustrialInputNumber min={0.1} />
+            </Form.Item>
 
-          <Form.Item
-            label={t("map_manager.floor")}
-            name="floor"
-            rules={[{ required: true }]}
-          >
-            <IndustrialInputNumber min={0.1} style={{ width: "100%" }} />
-          </Form.Item>
+            <Form.Item
+              label={t("map_manager.floor")}
+              name="floor"
+              rules={[{ required: true }]}
+            >
+              <IndustrialInputNumber min={0.1} />
+            </Form.Item>
 
-          <Form.Item label={t("map_manager.map_group")} name="map_group_id">
-            <Select
-              allowClear
-              placeholder={t("map_manager.select_map_group")}
-              options={mapGroups?.map((g) => ({
-                label: g?.group_name,
-                value: g?.id,
-              }))}
-            />
-          </Form.Item>
+            <Form.Item
+              className="full-row"
+              label={t("map_manager.map_group")}
+              name="map_group_id"
+            >
+              <Select
+                allowClear
+                placeholder={t("map_manager.select_map_group")}
+                options={mapGroups?.map((g) => ({
+                  label: g?.group_name,
+                  value: g?.id,
+                }))}
+              />
+            </Form.Item>
+          </FormFieldRow>
         </StyledForm>
       </IndustrialModal>
 

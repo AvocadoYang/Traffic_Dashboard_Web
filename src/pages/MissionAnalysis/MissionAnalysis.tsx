@@ -15,7 +15,7 @@ const MissionAnalysis = () => {
   const { isMobile } = useIsMobile();
   return (
     <Layout style={{ height: `${isMobile ? "100dvh" : "100%"}` }}>
-      <Header isMobile={isMobile}></Header>
+      <Header />
       <DashboardContainer>
         <MissionSummary />
         {/* <AMRPerformance /> */}

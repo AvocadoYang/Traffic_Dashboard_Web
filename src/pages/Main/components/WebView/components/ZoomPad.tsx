@@ -28,7 +28,7 @@ const ZoomPadWrap = styled.div`
   align-items: center;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   gap: 12px;
-  opacity: 0.9;
+  opacity: 0.4;
   transition: opacity 0.3s ease-in-out;
 
   &:hover {
@@ -100,7 +100,7 @@ const ZoomPad = () => {
   const [_s, setMouseDetectLoc] = useAtom(mouseDetectLoc);
   const [_a, setMouseMoveSwitch] = useAtom(mouseMoveSwitch);
   const [showLocationToolTip, setShowLocationTooltip] = useAtom(
-    isShowLocationTooltip
+    isShowLocationTooltip,
   );
   const [showRoadToolTip, setShowRoadTooltip] = useAtom(isShowRoadTooltip);
   const [showLocation, setShowLocation] = useAtom(isShowLocation);

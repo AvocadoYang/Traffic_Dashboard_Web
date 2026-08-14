@@ -1,5 +1,8 @@
-import { memo, RefObject, useRef } from "react";
-import { MapImage, LocationHoverCluster } from "@/pages/Setting/mapComponents/components";
+import { memo, RefObject, useEffect, useRef, useState } from "react";
+import {
+  MapImage,
+  LocationHoverCluster,
+} from "@/pages/Setting/mapComponents/components";
 import "../webview.css";
 import { AllZones } from "@/pages/Setting/mapComponents/components";
 import AllLocation from "../../PadViwe/components/PadMapContent/component/AllLocation";
@@ -36,6 +39,8 @@ import AllLiftGate from "../../PadViwe/components/PadMapContent/AllGate/AllLiftG
 import AllStack from "../../PadViwe/components/PadMapContent/AllStack/AllStack";
 import AllPointCloud from "../../PadViwe/components/PadMapContent/component/AllPointCloud/AllPointCloud";
 import LocalizationCorrectionGhost from "../../PadViwe/components/PadMapContent/component/LocalizationCorrection/LocalizationCorrectionGhost";
+import useDragPan from "@/pages/Main/components/WebView/hooks/useDragPan";
+import useCenterMap from "@/hooks/useCenterMap";
 
 const WebMapView: React.FC<{
   mapRef: RefObject<HTMLDivElement>;
@@ -51,10 +56,31 @@ const WebMapView: React.FC<{
   const showRoadToolTip = useAtomValue(isShowRoadTooltip);
   const showPointCloud = useAtomValue(isShowPointCloud);
   const showChargeConfig = useAtomValue(OpenChargeStationModal);
-  const { isError } = useMap();
+  const { data, isError } = useMap();
+  const [natural, setNatural] = useState<{ w: number; h: number } | null>(null);
+
+  // .map-view 預設吃到全域的 `.map-view { width:100%; height:100% }`(setting.css),
+  // 尺寸永遠等於捲動容器, 沒辦法置中。這裡改成貼合縮放後的底圖大小,
+  // transform-origin 維持 0% 0%, 所以 layout box 跟畫出來的內容完全重合,
+  // 覆蓋圖層仍以 .map-view 原點(= 底圖左上角)為基準, 座標不受影響。
+  useEffect(() => {
+    const img = mapImageRef.current;
+    if (!img) return;
+
+    const read = () => setNatural({ w: img.naturalWidth, h: img.naturalHeight });
+    if (img.complete && img.naturalWidth) {
+      read();
+      return;
+    }
+
+    img.addEventListener("load", read);
+    return () => img.removeEventListener("load", read);
+  }, [data?.imageUrl]);
 
   useDetectLoc(mapRef, mapWrapRef, mapImageRef, scale);
   useMouseClick(mapWrapRef);
+  useDragPan(mapWrapRef, mapRef, mapImageRef);
+  useCenterMap(mapWrapRef, mapImageRef);
 
   //控制「地點提示」/「路徑提示」開啟時，游標移動附近點位/路徑浮出 tooltip
   useLocationHoverTooltip(mapRef, mapImageRef, scale);
@@ -64,6 +90,8 @@ const WebMapView: React.FC<{
     <div
       className="map-view"
       style={{
+        width: natural ? natural.w * scale : undefined,
+        height: natural ? natural.h * scale : undefined,
         transform: `scale(${scale})`,
         transformOrigin: "0% 0%",
         position: "relative",
@@ -93,6 +121,8 @@ const WebMapView: React.FC<{
         <>
           {/* <AllLocation mapRef={mapRef}></AllLocation> */}
           <AllAMRs></AllAMRs>
+          <LocalizationCorrectionGhost></LocalizationCorrectionGhost>
+          {showPointCloud ? <AllPointCloud></AllPointCloud> : null}
           <AllCargo></AllCargo>
           <AllStack></AllStack>
           <AllElevator></AllElevator>
@@ -101,8 +131,6 @@ const WebMapView: React.FC<{
           <AllLiftGate></AllLiftGate>
           {showLocation ? <AllLocation mapRef={mapRef}></AllLocation> : null}
           {showRoad ? <AllRoads></AllRoads> : null}
-          {showPointCloud ? <AllPointCloud></AllPointCloud> : null}
-          <LocalizationCorrectionGhost></LocalizationCorrectionGhost>
           {showLocationToolTip ? <ToolTip /> : []}
           {showLocationToolTip ? <LocationHoverCluster /> : []}
           {showRoad && showRoadToolTip ? <RoadHoverCluster /> : []}

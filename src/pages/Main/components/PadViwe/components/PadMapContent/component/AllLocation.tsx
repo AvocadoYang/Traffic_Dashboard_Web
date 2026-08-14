@@ -1,5 +1,5 @@
 import useMap from "@/api/useMap";
-import { rosCoord2DisplayCoord } from "@/utils/utils";
+import { amrId2ColorRainbow, rosCoord2DisplayCoord } from "@/utils/utils";
 import {
   Fragment,
   memo,
@@ -10,12 +10,24 @@ import {
   useState,
 } from "react";
 import { nanoid } from "nanoid";
-import { Label, LabelTooltip, LabelWrapper, Line, Point, PointMain } from "@/pages/Setting/mapComponents/components/AllLocation/components/PointAndLine";
+import {
+  Label,
+  LabelTooltip,
+  LabelWrapper,
+  Line,
+  Point,
+  PointMain,
+} from "@/pages/Setting/mapComponents/components/AllLocation/components/PointAndLine";
 import { useAtomValue, useSetAtom } from "jotai";
-import { locationHoverInfo, mouseDetectLoc, tooltipProp } from "@/utils/gloable";
+import {
+  locationHoverInfo,
+  mouseDetectLoc,
+  tooltipProp,
+} from "@/utils/gloable";
 import { OpenDirect } from "@/pages/Main/global/jotai";
 import useMouseMove from "@/pages/Main/components/WebView/hooks/useMoseMove";
 import { mousePosition } from "@/utils/siderGloble";
+import { useAllAmrDestinations } from "@/sockets/useAMRInfo";
 
 const AllLocation: React.FC<{
   mapRef: RefObject<HTMLDivElement>;
@@ -27,13 +39,30 @@ const AllLocation: React.FC<{
     useState<{ spot1Id: string; spot2Id: string; roadId: string }[]>();
   const mouseDetectLocArr = useAtomValue(mouseDetectLoc);
   const { clientX, clientY } = useAtomValue(mousePosition);
-  const hoverInfo = useAtomValue(locationHoverInfo);
+  const hoverLocationInfo = useAtomValue(locationHoverInfo);
+
+  const destinations = useAllAmrDestinations();
 
   // 游標附近(偵測半徑內)的點位 id 集合，用來讓這些點稍微放大，方便使用者辨識與點擊。
   const nearbyLocationIds = useMemo(
-    () => new Set(hoverInfo?.locationIds ?? []),
-    [hoverInfo],
+    () => new Set(hoverLocationInfo?.locationIds ?? []),
+    [hoverLocationInfo],
   );
+
+  const amrByDestination = useMemo(() => {
+    const index = new Map<string, string>();
+
+    Object.entries(destinations).forEach(
+      ([amrId, { finalLocationId, locationId }]) => {
+        const destinationId = (finalLocationId || locationId)?.trim();
+        if (!destinationId || destinationId === "0") return;
+
+        index.set(destinationId, amrId);
+      },
+    );
+
+    return index;
+  }, [destinations]);
 
   const handleEnter = useCallback(
     (locationId: string, x: number, y: number) => {
@@ -43,7 +72,7 @@ const AllLocation: React.FC<{
         locationId,
       });
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -74,7 +103,7 @@ const AllLocation: React.FC<{
     <>
       {data.locations
         .filter(
-          ({ areaType }) => areaType === "EXTRA" || areaType === "DISPATCH"
+          ({ areaType }) => areaType === "EXTRA" || areaType === "DISPATCH",
         )
         .map((loc) => {
           const [displayX, displayY] = rosCoord2DisplayCoord({
@@ -91,7 +120,7 @@ const AllLocation: React.FC<{
           let labelY = displayY;
 
           const index = [...mouseDetectLocArr].indexOf(
-            loc.locationId.toString()
+            loc.locationId.toString(),
           );
           const total = mouseDetectLocArr.size;
 
@@ -109,25 +138,36 @@ const AllLocation: React.FC<{
           labelY = displayY + Math.sin(rad) * 70;
           angleDeg = (rad * 180) / Math.PI;
 
+          const destinationAmr = amrByDestination.get(
+            loc.locationId.toString(),
+          );
+
           return (
             <Fragment key={loc.locationId}>
-            <PointMain
-              id={loc.locationId.toString()}
-              canrotate={`${loc.canRotate}`}
-              isNear={nearbyLocationIds.has(loc.locationId.toString())}
-              onClick={(e) => {
-                e.preventDefault()
-                handleDireMove(loc.locationId.toString())
-              }}
-              onMouseEnter={() =>{
-                handleEnter(loc.locationId, loc.x, loc.y)
-              }}
-              onMouseLeave={() => handleLeave()}
-              left={displayX}
-              top={displayY}
-
-            ></PointMain>
-            {/* {
+              <PointMain
+                id={loc.locationId.toString()}
+                canrotate={`${loc.canRotate}`}
+                isNear={nearbyLocationIds.has(loc.locationId.toString())}
+                $destinationLabel={
+                  destinationAmr ? loc.locationId.toString() : undefined
+                }
+                $amrColor={
+                  destinationAmr
+                    ? amrId2ColorRainbow(destinationAmr)
+                    : undefined
+                }
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleDireMove(loc.locationId.toString());
+                }}
+                onMouseEnter={() => {
+                  handleEnter(loc.locationId, loc.x, loc.y);
+                }}
+                onMouseLeave={() => handleLeave()}
+                left={displayX}
+                top={displayY}
+              ></PointMain>
+              {/* {
               mouseDetectLocArr.has(loc.locationId.toString()) ? 
               <>
               <Line

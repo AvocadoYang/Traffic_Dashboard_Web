@@ -20,6 +20,7 @@ const AllPointCloud = () => {
   return (
     <>
       {amrs.map(({ amrId }) => (
+        
         <MemoizedPointCloudLayer
           amrId={amrId}
           color={amrId2ColorRainbow(amrId)}
