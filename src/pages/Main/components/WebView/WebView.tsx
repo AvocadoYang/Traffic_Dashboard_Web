@@ -190,7 +190,10 @@ const BottomPanelBody = styled.div<{ $view: BottomView }>`
 
 // 不產生任何 box model, 只用來定位
 const MapOverlay = styled.div`
-  display: contents;
+  display: none;
+  ${mq.web} {
+    display: contents;
+  }
 `;
 
 const MapSelectorSlot = styled.div`
