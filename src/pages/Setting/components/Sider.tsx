@@ -49,6 +49,7 @@ import {
   isHowFootprint,
   isShowSound,
   isShowMarketType,
+  isShowSyncMirData,
 } from "@/utils/siderGloble";
 import {
   AimOutlined,
@@ -321,6 +322,7 @@ const Sider: React.FC<{
   );
 
   const [markerType, setShowMarkerType] = useAtom(isShowMarketType);
+  const [syncMirData, setSyncMirData] = useAtom(isShowSyncMirData);
 
   const sheetTabsRef = useRef<HTMLDivElement>(null);
   const setToolSheetPanelHost = useSetAtom(toolSheetPanelHost);
@@ -378,6 +380,7 @@ const Sider: React.FC<{
       showFootprint,
       showSound,
       markerType,
+      syncMirData,
     ].some((item) => item);
 
     setHasOpenTool(isOpen);
@@ -421,6 +424,7 @@ const Sider: React.FC<{
     showFootprint,
     showSound,
     markerType,
+    syncMirData,
   ]);
 
   const handleShowPanel = async (check: boolean, itemType: ToolBarItemType) => {
@@ -598,6 +602,10 @@ const Sider: React.FC<{
 
       case "marker_type":
         setShowMarkerType(check);
+        break;
+
+      case "sync_mir":
+        setSyncMirData(check);
         break;
 
       //=======
@@ -1014,6 +1022,15 @@ const Sider: React.FC<{
         <Switch
           checked={markerType}
           onChange={(checked) => handleShowPanel(checked, "marker_type")}
+        />,
+      ),
+
+      getItem(
+        "sync_mir",
+        "12-4",
+        <Switch
+          checked={syncMirData}
+          onChange={(checked) => handleShowPanel(checked, "sync_mir")}
         />,
       ),
     ]),
