@@ -88,7 +88,7 @@ export const PowerTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const { t } = useTranslation();
   return (
     <Tag
-      color={`${(battery as number) < 25 ? "magenta" : "#e3e4e3"}`}
+      color={`${(battery as number) < 45 ? "magenta" : "#e3e4e3"}`}
       style={{ margin: 0 }}
     >
       {`${t("mode.low_power")}`}

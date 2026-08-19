@@ -259,12 +259,7 @@ const AddModal: React.FC<AddModalProps> = ({
           <Form.Item
             name="peripherals"
             label={t("peripheral_group_table.peripherals")}
-            rules={[
-              {
-                required: true,
-                message: t("utils.required"),
-              },
-            ]}
+
           >
             <Transfer
               dataSource={transferDataSource}
