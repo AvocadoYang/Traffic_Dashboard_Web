@@ -218,6 +218,7 @@
   "page_analysis": "任務統計",
   "page_cargo_history": "貨物紀錄",
   "page_amr": "車輛資訊",
+  "page_dev_main":"開發者主頁",
   "main_task_list": {
     "wait_suitable": "等待適合"
   },

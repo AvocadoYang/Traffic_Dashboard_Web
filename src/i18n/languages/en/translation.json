@@ -219,6 +219,7 @@
   "page_analysis": "Mission analysis",
   "page_cargo_history": "Cargo History",
   "page_amr": "Amf info",
+    "page_dev_main":"dev main",
   "main_task_list": {
     "wait_suitable": "wait suitable"
   },
