@@ -334,6 +334,7 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
     `${t("page_simulate")}`,
     `${t("page_simulate_result")}`,
     `${t("page_record")}`,
+    `${t("page_dev_main")}`,
   ].map((name, index) => ({
     key: index + 1,
     label: name,
@@ -361,6 +362,9 @@ const Header: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
         break;
       case "7":
         navigate("/records");
+        break;
+      case "8":
+        navigate("/dev-main");
         break;
       default:
         break;

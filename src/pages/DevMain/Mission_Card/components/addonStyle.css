@@ -1,0 +1,29 @@
+.mission-history-drawer .ant-drawer-body {
+  padding: 16px;
+  background-color: #f9fafb;
+}
+
+.mission-history-drawer .ant-table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.mission-history-drawer .ant-table-thead > tr > th {
+  background-color: #1e3a8a;
+  color: white;
+  font-weight: 600;
+}
+
+.mission-history-drawer .ant-table-tbody > tr:hover > td {
+  background-color: #e6f3ff !important;
+}
+
+.mission-history-drawer .ant-btn-primary {
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
+
+.mission-history-drawer .ant-btn-primary:hover {
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+}

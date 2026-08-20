@@ -13,6 +13,7 @@ import { useEffect } from "react";
 import { useEcsTransactionResp } from "./sockets/useEcsTransactionResp";
 import { useBarcodeSignal } from "./sockets/useBarcodeSignal";
 import { Navigate, Outlet } from "react-router-dom";
+import DevMain from "./pages/DevMain/DevMain";
 const client = new QueryClient({
   defaultOptions: {
     queries: {
@@ -112,6 +113,7 @@ function App() {
               element={<AllSimulateResult />}
             ></Route>
             <Route path="/" element={<Main />}></Route>
+            <Route path="/dev-main" element={<DevMain />}></Route>
             <Route
               path="/test"
               element={<MonitorCenter></MonitorCenter>}
