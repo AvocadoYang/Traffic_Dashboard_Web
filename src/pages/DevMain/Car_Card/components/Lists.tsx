@@ -97,18 +97,14 @@ export const EmergencyIcon = styled.div`
 `;
 
 // ======= DropArrow =================
-const Arrow = styled.div<{ random_color: string }>`
+const Arrow = styled.div`
   width: 1rem;
   height: 1rem;
-  border: 2px solid gray;
-  border: 2px solid ${({ random_color }) => random_color}; /* Use template literal for dynamic border color */
+  border: 2px solid #1a1a1a;
   border-radius: 50%;
   position: absolute;
-  background-color: ${({ random_color }) =>
-    random_color}; /* Use template literal for dynamic background color */
+  background-color: #1a1a1a;
 
-  /* top: 7%;
-  right: -5%; */
   top: -0.3rem;
   right: -0.12rem;
   display: flex;
@@ -118,13 +114,11 @@ const Arrow = styled.div<{ random_color: string }>`
 `;
 
 export const DropDown: React.FC<{
-  color: string;
   openFullInfo: boolean;
   setOpenFullInfo: React.Dispatch<boolean>;
-}> = memo(({ color, openFullInfo, setOpenFullInfo }) => {
+}> = memo(({ openFullInfo, setOpenFullInfo }) => {
   return (
     <Arrow
-      random_color={color}
       onClick={(e) => {
         e.stopPropagation();
         setOpenFullInfo(!openFullInfo);
@@ -169,7 +163,7 @@ export const CarRow1 = styled.div.attrs<{ is_dark: string }>((props) => {
 
 const NetworkDelay = styled.p<{ delay: number | undefined }>`
   font-weight: bold;
-  font-size: 0.8em;
+  font-size: 1em;
   color: ${({ delay }) => {
     if (delay === undefined) return "gray";
     if (delay <= 100) return "green";
@@ -183,10 +177,10 @@ const WramOverdue = styled.span`
 `;
 
 export const AmrTitle = styled.h2`
-  font-size: 90%;
-  line-height: 100%;
+  font-size: 120%;
+  line-height: 120%;
   text-align: center;
-  /* font-weight: bold; */
+  font-weight: 700;
   width: 80%;
 
   white-space: nowrap;
@@ -211,17 +205,21 @@ export const RowOne: React.FC<{ isDark: boolean; amrId: string }> = memo(
 
           <span
             className={`login-text ${
-              isOnline
-                ? "online-text"
-                : "offline-text"
+            isOverdue
+                  ? "overdue-text"
+                  :  "offline-text"
             }`}
           >
-            {isOnline ?  t("utils.online") : (
-              t("utils.offline")
-            )}
+            { (
+              isOverdue ? (
+                <WramOverdue>{t("utils.offline")}</WramOverdue>
+              ) : (
+                t("utils.online")
+              )
+            ) }
           </span>
 
-          {isOnline && (
+          {!isOverdue && (
             <NetworkDelay delay={networkDelay}>
               {networkDelay !== undefined ? `${networkDelay} ms` : "--"}
             </NetworkDelay>
@@ -268,7 +266,7 @@ const CardSpeed: React.FC<{ amrId: string; isDark: boolean }> = memo(
         {Math.abs(Number(speed) * 100)
           .toFixed(2)
           .toString()}
-        <span className={`${isDark ? "symbol-dark" : "symbol"}`}>{"cm/s"}</span>
+        <span className={`${isDark ? "symbol-dark" : "symbol"}`}>{""}</span>
       </p>
     );
   }
@@ -279,7 +277,7 @@ const Power: React.FC<{ amrId: string; isDark: boolean }> = memo(
     return (
       <>
         <ThunderboltOutlined
-          className={`icon power-icon ${isDark ? "dark-icon power-icon-dark" : ""} ${battery ? (battery < 20 ? "low-battery" : "") : ""}`}
+          className={`icon power-icon ${isDark ? "dark-icon power-icon-dark" : ""} ${battery ? (battery < 35 ? "low-battery" : "") : ""}`}
         />
         <p className="value">
           {/* {fleetInfo.data.IO?.battery} */}
@@ -387,7 +385,8 @@ const HiddenInfo = styled.div.attrs<{
   color: ${(props) => (props.is_dark === "true" ? "white" : "black")};
   overflow: hidden;
   text-align: center;
-  font-size: 90%;
+  font-size: 100%;
+  font-weight: 600;
   transition: 0.5s;
 `;
 export const HiddenRow: React.FC<{
@@ -423,11 +422,10 @@ const CarRow3 = styled.div.attrs<{ is_dark: string }>((props) => {
 
 const CarStatus = styled.span`
   font-weight: bold;
-  font-size: 75%;
+  font-size: 100%;
   text-align: center;
   word-wrap: break-word;
   width: 80%;
-  color: red;
   margin-right: 3px;
 `;
 const Statue: React.FC<{ amrId: string }> = memo(({ amrId }) => {
@@ -454,7 +452,7 @@ export const RowThread: React.FC<{ isDark: boolean; amrId: string }> = memo(
 
 const RoadStyle = styled.span`
   font-weight: bold;
-  font-size: 75%;
+  font-size: 100%;
   text-align: center;
   word-wrap: break-word;
   white-space: normal;

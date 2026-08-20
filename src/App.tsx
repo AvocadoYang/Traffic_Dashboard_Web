@@ -10,6 +10,7 @@ import AllSimulateResult from "./pages/SimulateResult/AllSimulateResult";
 import { Navigate, Outlet } from "react-router-dom";
 import { SystemAlarmOverlay } from "./pages/Main/components/SystemAlarm";
 
+import DevMain from "./pages/DevMain/DevMain";
 const client = new QueryClient({
   defaultOptions: {
     queries: {
@@ -57,6 +58,7 @@ function App() {
               element={<AllSimulateResult />}
             ></Route>
             <Route path="/" element={<Main />}></Route>
+            <Route path="/dev-main" element={<DevMain />}></Route>
             <Route
               path="/test"
               element={<MonitorCenter></MonitorCenter>}
