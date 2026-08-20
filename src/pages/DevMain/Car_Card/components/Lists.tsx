@@ -97,13 +97,13 @@ export const EmergencyIcon = styled.div`
 `;
 
 // ======= DropArrow =================
-const Arrow = styled.div`
+const Arrow = styled.div<{ random_color: string }>`
   width: 1rem;
   height: 1rem;
-  border: 2px solid #1a1a1a;
+  border: 2px solid ${({ random_color }) => random_color};
   border-radius: 50%;
   position: absolute;
-  background-color: #1a1a1a;
+  background-color: ${({ random_color }) => random_color};
 
   top: -0.3rem;
   right: -0.12rem;
@@ -114,11 +114,13 @@ const Arrow = styled.div`
 `;
 
 export const DropDown: React.FC<{
+  color: string;
   openFullInfo: boolean;
   setOpenFullInfo: React.Dispatch<boolean>;
-}> = memo(({ openFullInfo, setOpenFullInfo }) => {
+}> = memo(({ color, openFullInfo, setOpenFullInfo }) => {
   return (
     <Arrow
+      random_color={color}
       onClick={(e) => {
         e.stopPropagation();
         setOpenFullInfo(!openFullInfo);

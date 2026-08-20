@@ -17,9 +17,9 @@ const MainLayout = styled(Layout)`
 const DevMain: React.FC = () => {
   return (
     <MainLayout>
-      <Header isMobile={false}/>
+      <Header />
       <WebView />
-     <PadContent />
+  
     </MainLayout>
   );
 };

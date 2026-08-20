@@ -59,44 +59,7 @@ const CardWrap: React.FC<{
 
   return (
     <>
-      <Card
-        className="pad-card-wrap"
-        size="default"
-        type="inner"
-        title={t(`main.card_name.${id}` as any)}
-        style={{ borderTop: `6px solid ${borderColor}` }}
-        extra={
-          <>
-            <Space>
-             <Button
-                key={id}
-                id={id}
-                color="primary"
-                variant="filled"
-                onClick={() => {
-                  btnClick(id);
-                }}
-              >
-                {t("utils.open")}
-              </Button>
-            </Space>
-          </>
-        }
-      >
-  
-      </Card>
 
-      {((id) => {
-        if (view !== 1) return [];
-        switch (id) {
-          case "new_mission":
-            return <DialogMission></DialogMission>;
-          case "quick_mission":
-            return <QuickMission></QuickMission>;
-          default:
-            return [];
-        }
-      })(id)}
     </>
   );
 };

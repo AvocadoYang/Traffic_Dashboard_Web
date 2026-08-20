@@ -24,6 +24,7 @@ import {
 import { useWarningId } from "@/sockets/useWarning";
 import { useTranslation } from "react-i18next";
 import React from "react";
+import { amrId2ColorRainbow } from "@/utils/utils";
 
 const Card: React.FC<{ id: string }> = ({ id }) => {
   const [openHiddenRow, setOpenHiddenRow] = useState(false);
@@ -85,6 +86,7 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
         >
           <InfoWrap
             className={`${hide ? "hide-car-info-wrap" : ""}`}
+            randomcolor={amrId2ColorRainbow(id)}
             is_dark={isDark.toString()}
             is_warn={errorMessage?.length ? "true" : "false"}
             onMouseEnter={() => {
@@ -105,6 +107,7 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
               </EmergencyIcon>
             ) : null}
             <DropDown
+              color={amrId2ColorRainbow(id)}
               openFullInfo={openFullInfo}
               setOpenFullInfo={setOpenFullInfo}
             ></DropDown>

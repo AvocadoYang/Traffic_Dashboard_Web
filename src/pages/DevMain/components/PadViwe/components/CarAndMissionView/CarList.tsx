@@ -13,7 +13,6 @@ const CarList = () => {
         className="rollback-icon"
         onClick={() => setOpenCarCardInfo(false)}
       />
-      <CarCardWrap></CarCardWrap>
     </div>
   );
 };
