@@ -3,25 +3,28 @@ import useMap from "@/api/useMap";
 import Icon from "./Icon";
 
 import "../style.css";
-import { useAmrPose } from "@/sockets/useAMRInfo";
+import { useAmrPose, useIsLogIn } from "@/sockets/useAMRInfo";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
 import styled from "styled-components";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { amrId2ColorRainbow } from "@/utils/utils";
 import { AmrFilterCarCard, hintAmr, showZoneForbidden } from "@/utils/gloable";
 import { useWarningId } from "@/sockets/useWarning";
 import ForkLiftIcon from "./amrs/ForkliftIcon";
 import { useAmrBBox } from "@/sockets/useBBox";
 import BBox from "./amrs/BBox";
+import useAmrMissionTip from "@/hooks/useAmrMissionTip";
+import { useMiRStatus } from "@/sockets/useMirStatus";
+import { currentMapIdAtom } from "@/utils/mapSelection";
 
 const Tip = styled.div.attrs<{
   left: number;
   top: number;
 }>(({ left, top }) => ({
   style: {
-    transform: `translate(-42%, -160%) `,
+    transform: `translate(-50%, calc(-100% - 12px))`,
     left,
-    top: top -10,
+    top: top - 10,
     transition: "x 1s, y 1s",
   },
 }))<{
@@ -30,11 +33,14 @@ const Tip = styled.div.attrs<{
 }>`
   position: absolute;
   display: flex;
-  padding: 2px;
+  flex-direction: column;
+  padding: 2px 6px;
+  gap: 1px;
   align-items: center;
   justify-content: center;
-  height: 20px;
-  width: 130px;
+  min-height: 20px;
+  min-width: 130px;
+  white-space: nowrap;
   font-size: 0.7em;
   background-color: rgba(0, 0, 0, 0.75);
   border-radius: 5px;
@@ -81,6 +87,11 @@ const ErrorTip = styled.div.attrs<{
   font-weight: bold;
 `;
 
+const TipDetail = styled.span`
+  font-weight: normal;
+  opacity: 0.85;
+`;
+
 const agvFormate = (x1: number, y1: number) => {
   const theta = (3 * Math.PI) / 2;
   const x = x1 * Math.cos(theta) - y1 * Math.sin(theta);
@@ -98,22 +109,31 @@ const AMR: FC<{
   const hintAmrId2 = useAtomValue(AmrFilterCarCard);
   const zoneForbidden = useAtomValue(showZoneForbidden);
   const errorMessage = useWarningId()?.get(amrId);
+  const MiR_Status_IO = useMiRStatus(amrId);
+   const [mapId, setMapId] = useAtom(currentMapIdAtom);
 
   const isForbidden = useMemo(() => {
     return zoneForbidden.has(amrId);
   }, [zoneForbidden]);
 
+  const { tipText, destinationText } = useAmrMissionTip(amrId);
+
   const showTooltip = useMemo(() => {
     return (
-      hintAmrId2.has(amrId) || hintAmrId === amrId || zoneForbidden.has(amrId)
+      hintAmrId2.has(amrId) ||
+      hintAmrId === amrId ||
+      zoneForbidden.has(amrId) ||
+      !!tipText ||
+      !!destinationText
     );
-  }, [hintAmrId2, hintAmrId, zoneForbidden]);
+  }, [hintAmrId2, hintAmrId, zoneForbidden, tipText, destinationText]);
 
   const { pose } = useAmrPose(amrId);
   const bbox = useAmrBBox(amrId);
- 
-  if (!pose || !map || !bbox || !bbox.length) return null;
+  const { isOverdue } = useIsLogIn(amrId);
 
+  if (!pose || !map || !bbox || !bbox.length || isOverdue) return null;
+  if(MiR_Status_IO && amrId.includes("mi") && MiR_Status_IO.active_map_id !== mapId) return null
   const { x: newX, y: newY } = agvFormate(pose.x, pose.y);
   const [left, top] = rosCoord2DisplayCoord({
     x: amrId.includes("SW15") ? newX + 3.5 : pose.x,
@@ -127,18 +147,31 @@ const AMR: FC<{
   // 會一直被渲染是正常的 不要包memo
   return (
     <>
-      {showTooltip ? (
-        <Tip left={left} top={top}>
-          <p>{`${isForbidden ? "🚫 " : ""}${amrId}`}</p>
-          {/* <ArrowDownOutlined className="hint-icon" /> */}
-        </Tip>
-      ) : (
-        []
+      {
+      // showTooltip ? (
+      //   <Tip left={left} top={top}>
+      //     <p>{`${isForbidden ? "🚫 " : ""}${amrId}`}</p>
+      //     {tipText ? <TipDetail>{tipText}</TipDetail> : null}
+      //     {destinationText ? (
+      //       <TipDetail>{`→ ${destinationText}`}</TipDetail>
+      //     ) : null}
+      //     {/* <ArrowDownOutlined className="hint-icon" /> */}
+      //   </Tip>
+      // ) : (
+      //   []
+      // )
+      }
+
+      <ForkLiftIcon
+        amrId={amrId}
+        color={color}
+        left={left}
+        yaw={pose.yaw}
+        top={top}
+      ></ForkLiftIcon>
+      {amrId.includes("mi") ? null : (
+        <BBox amrId={amrId} bbox={bbox} color={color}></BBox>
       )}
-
-
-      <ForkLiftIcon amrId={amrId} color={color} left={left} yaw={pose.yaw} top={top}></ForkLiftIcon>
-      <BBox amrId={amrId} bbox={bbox} color={color}></BBox>
       {/* <Icon amrId={amrId} color={color} left={left} top={top}></Icon> */}
       {errorMessage?.length ? (
         <ErrorTip left={left} top={top + Math.sqrt(top) - 5}>

@@ -19,7 +19,6 @@ const DevMain: React.FC = () => {
     <MainLayout>
       <Header isMobile={false}/>
       <WebView />
-     <PadContent />
     </MainLayout>
   );
 };

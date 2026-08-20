@@ -36,6 +36,8 @@ import ImportMissionForm from "./ImportMissionForm";
 import CarControlTranslate from "./CarControlTranslate";
 import { Fork_mission_Slice } from "./mission";
 import { Err } from "@/utils/responseErr";
+import { useAtomValue } from "jotai";
+import { currentMapIdAtom } from "@/utils/mapSelection";
 
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   "data-row-key": string;
@@ -221,11 +223,13 @@ const ForkTaskTable: FC<{
     key: string;
   } | null>(null);
   const [showImportMission, setShowImportMission] = useState(false);
-
+  const currentMapId = useAtomValue(currentMapIdAtom);
+  
   const sortTaskMutation = useMutation({
     mutationFn: (data: {
       keyAndSort: { key: string; order: number }[];
       missionTitleId: string;
+      currentMapId: string;
     }) => client.post("api/setting/update-task-order", data),
     onSuccess: () =>
       queryClient.refetchQueries({
@@ -243,6 +247,7 @@ const ForkTaskTable: FC<{
         missionTitleId: selectedMissionKey,
         targetKey: payload.key,
         newOrder: payload.keyAndOrder,
+        currentMapId: currentMapId,
       }),
     onSuccess: () =>
       queryClient.refetchQueries({ queryKey: ["all-relate-task-fork"] }),
@@ -254,6 +259,7 @@ const ForkTaskTable: FC<{
       id: string;
       disable: boolean;
       missionTitleId: string;
+      currentMapId: string;
     }) => client.post("api/setting/disable-task", payload),
     onSuccess: async () => {
       messageApi.success(t("utils.success"));
@@ -284,6 +290,7 @@ const ForkTaskTable: FC<{
     sortTaskMutation.mutate({
       keyAndSort,
       missionTitleId: selectedMissionKey,
+      currentMapId: currentMapId || "",
     });
     queryClient.setQueryData(
       ["all-relate-task-fork", selectedMissionKey],
@@ -292,7 +299,12 @@ const ForkTaskTable: FC<{
   };
 
   const disableTask = (id: string, disable: boolean) =>
-    disableMutation.mutate({ id, disable, missionTitleId: selectedMissionKey });
+    disableMutation.mutate({
+      id,
+      disable,
+      missionTitleId: selectedMissionKey,
+      currentMapId: currentMapId || "",
+    });
 
   const showImportMissionModal = (order: number) => {
     setShowImportMission(true);

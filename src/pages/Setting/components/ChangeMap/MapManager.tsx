@@ -1,19 +1,15 @@
 import { FC, memo, useState } from "react";
 import {
-  Button,
   Form,
   Input,
   InputNumber,
   message,
-  Modal,
   Popconfirm,
-  Radio,
-  Table,
+  Select,
   Upload,
   UploadProps,
   Flex,
   Image,
-  Drawer,
 } from "antd";
 import {
   InboxOutlined,
@@ -21,41 +17,31 @@ import {
   EditOutlined,
   DeleteOutlined,
   UploadOutlined,
-  CloseOutlined,
   PictureOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
+  FolderOutlined,
+  FolderOpenOutlined,
+  HistoryOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import styled from "styled-components";
 import useAllMapInfo from "@/api/useAllMapInfo";
+import useMapGroup from "@/api/useMapGroup";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import { useAtom } from "jotai";
-import { isOpenSwitchMap } from "@/utils/siderGloble";
+import SyncJobsModal from "./SyncJobsModal";
+import {
+  IndustrialButton,
+  IndustrialModal,
+  IndustrialTable,
+} from "./industrialStyle";
 
 const { Dragger } = Upload;
 
 // Industrial Styled Components
-const MapManagerContainer = styled.div<{ $isOpen: boolean }>`
-  position: fixed;
-  top: 0;
-  right: ${({ $isOpen }) => ($isOpen ? "0" : "-100%")};
-  width: 90%;
-  max-width: 1200px;
-  height: 100vh;
-  background: #ffffff;
-  border-left: 3px solid #1890ff;
-  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.15);
-  transition: right 0.3s ease;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  font-family: "Roboto Mono", monospace;
-`;
-
 const Header = styled.div`
   background: #fafafa;
   border-bottom: 2px solid #d9d9d9;
@@ -64,6 +50,7 @@ const Header = styled.div`
   align-items: center;
   justify-content: space-between;
   position: relative;
+  cursor: grab;
 
   &::before {
     content: "";
@@ -89,26 +76,7 @@ const Title = styled.h2`
   gap: 12px;
 `;
 
-const CloseButton = styled(Button)`
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #d9d9d9;
-  background: #ffffff;
-
-  &:hover {
-    background: #fff1f0;
-    border-color: #ff4d4f;
-    color: #ff4d4f;
-  }
-`;
-
 const Content = styled.div`
-  flex: 1;
-  overflow-y: auto;
   padding: 24px;
   background: #ffffff;
 `;
@@ -164,76 +132,6 @@ const SectionDivider = styled.div`
   }
 `;
 
-const IndustrialButton = styled(Button)`
-  font-family: "Roboto Mono", monospace;
-  text-transform: uppercase;
-  font-size: 11px;
-  letter-spacing: 1px;
-  height: 36px;
-  font-weight: 600;
-  border-radius: 0;
-  transition: all 0.2s ease;
-
-  &.ant-btn-primary {
-    background: #1890ff;
-    border-color: #1890ff;
-
-    &:hover {
-      background: #40a9ff;
-      border-color: #40a9ff;
-      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
-    }
-  }
-
-  &.upload-btn {
-    background: #52c41a;
-    border-color: #52c41a;
-    color: #ffffff;
-
-    &:hover {
-      background: #73d13d;
-      border-color: #73d13d;
-      box-shadow: 0 2px 8px rgba(82, 196, 26, 0.4);
-    }
-  }
-
-  &.view-btn {
-    background: #ffffff;
-    border: 1px solid #1890ff;
-    color: #1890ff;
-
-    &:hover {
-      background: #f0f5ff;
-      border-color: #40a9ff;
-      color: #40a9ff;
-    }
-  }
-
-  &.edit-btn {
-    background: #ffffff;
-    border: 1px solid #faad14;
-    color: #faad14;
-
-    &:hover {
-      background: #fffbe6;
-      border-color: #faad14;
-      color: #fa8c16;
-    }
-  }
-
-  &.delete-btn {
-    background: #ffffff;
-    border: 1px solid #ff4d4f;
-    color: #ff4d4f;
-
-    &:hover {
-      background: #fff1f0;
-      border-color: #ff7875;
-      color: #ff7875;
-    }
-  }
-`;
-
 const IndustrialInput = styled(Input)`
   font-family: "Roboto Mono", monospace;
   font-size: 12px;
@@ -257,6 +155,11 @@ const IndustrialInputNumber = styled(InputNumber)`
   height: 36px;
   border-radius: 0;
 
+  && {
+    width: 100%;
+    min-width: 0;
+  }
+
   .ant-input-number-input {
     height: 34px;
   }
@@ -268,52 +171,6 @@ const IndustrialInputNumber = styled(InputNumber)`
   &.ant-input-number-focused {
     border-color: #1890ff;
     box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
-  }
-`;
-
-const IndustrialTable = styled(Table)`
-  .ant-table {
-    border: 1px solid #d9d9d9;
-    border-radius: 0;
-    font-family: "Roboto Mono", monospace;
-  }
-
-  .ant-table-thead > tr > th {
-    background: #fafafa;
-    border-bottom: 2px solid #d9d9d9;
-    color: #595959;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 700;
-    padding: 12px 16px;
-
-    &::before {
-      display: none;
-    }
-  }
-
-  .ant-table-tbody > tr {
-    transition: all 0.2s;
-    position: relative;
-
-    &:hover {
-      background: #f0f5ff;
-
-      &::before {
-        width: 4px;
-      }
-
-      td {
-        background: transparent;
-      }
-    }
-  }
-
-  .ant-table-tbody > tr > td {
-    border-bottom: 1px solid #f0f0f0;
-    padding: 12px 16px;
-    font-size: 12px;
   }
 `;
 
@@ -356,48 +213,40 @@ const StyledForm = styled(Form)`
   }
 `;
 
-const IndustrialModal = styled(Modal)`
-  .ant-modal-content {
-    background: #ffffff;
-    border: 2px solid #d9d9d9;
-    border-radius: 0;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+const FormFieldRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-md);
+
+  > .ant-form-item {
+    flex: 1 1 12rem;
+    min-width: 0;
   }
 
-  .ant-modal-header {
-    background: #fafafa;
-    border-bottom: 2px solid #d9d9d9;
-    border-left: 4px solid #1890ff;
-    padding: 16px 24px;
-    border-radius: 0;
+  /* 檔名、地圖群組這種長欄位獨佔一整行 */
+  > .ant-form-item.full-row {
+    flex-basis: 100%;
   }
+`;
 
-  .ant-modal-title {
-    color: #1890ff;
-    font-size: 14px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-family: "Roboto Mono", monospace;
+const FileNameCell = styled(Flex)`
+  && {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-xs);
   }
+`;
 
-  .ant-modal-body {
-    padding: 24px;
-  }
+const FileNameText = styled.span`
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  min-width: 5rem;
+`;
 
-  .ant-modal-footer {
-    border-top: 1px solid #d9d9d9;
-    padding: 16px 24px;
-
-    .ant-btn {
-      font-family: "Roboto Mono", monospace;
-      text-transform: uppercase;
-      font-size: 11px;
-      letter-spacing: 1px;
-      height: 36px;
-      font-weight: 600;
-      border-radius: 0;
-    }
+const ActionCell = styled(Flex)`
+  && {
+    flex-wrap: wrap;
+    gap: var(--space-xs);
   }
 `;
 
@@ -414,6 +263,130 @@ const StatusBadge = styled.div<{ $active: boolean }>`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
+`;
+
+const FolderList = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  padding-bottom: 1em;
+  flex-wrap: wrap;
+`;
+
+const FolderItem = styled.div<{
+  $isSelected: boolean;
+  $isActiveGroup?: boolean;
+}>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  cursor: pointer;
+  background: ${({ $isSelected }) => ($isSelected ? "#f6ffed" : "#ffffff")};
+  border: 1px solid
+    ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#d9d9d9")};
+  border-left: 2px solid
+    ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#d9d9d9")};
+  transition: all 0.2s;
+  max-height: 2em;
+  position: relative;
+  box-shadow: ${({ $isSelected }) =>
+    $isSelected
+      ? "inset 0 0 20px rgba(82, 196, 26, 0.08), 0 2px 8px rgba(82, 196, 26, 0.25)"
+      : "none"};
+
+  ${({ $isActiveGroup }) =>
+    $isActiveGroup &&
+    `
+    border-left: 3px solid #eb2f96;
+    box-shadow: 0 0 0 1px rgba(235, 47, 150, 0.35), 0 2px 8px rgba(235, 47, 150, 0.2);
+  `}
+
+  ${({ $isSelected }) =>
+    $isSelected &&
+    `
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(82, 196, 26, 0.03) 2px,
+        rgba(82, 196, 26, 0.03) 4px
+      );
+      pointer-events: none;
+    }
+  `}
+
+  &:hover {
+    background: ${({ $isSelected }) => ($isSelected ? "#f6ffed" : "#f6ffed")};
+    border-color: ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#73d13d")};
+    border-left-color: ${({ $isSelected, $isActiveGroup }) =>
+      $isActiveGroup ? "#eb2f96" : $isSelected ? "#52c41a" : "#73d13d"};
+    transform: ${({ $isSelected }) =>
+      $isSelected ? "none" : "translateX(4px)"};
+    box-shadow: ${({ $isSelected }) =>
+      $isSelected
+        ? "inset 0 0 20px rgba(82, 196, 26, 0.08), 0 2px 8px rgba(82, 196, 26, 0.25)"
+        : "0 2px 8px rgba(82, 196, 26, 0.15)"};
+  }
+`;
+
+const FolderName = styled.div<{ $isSelected: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Roboto Mono", monospace;
+  font-size: 12px;
+  color: ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#262626")};
+  font-weight: ${({ $isSelected }) => ($isSelected ? 700 : 600)};
+  text-transform: uppercase;
+  letter-spacing: ${({ $isSelected }) => ($isSelected ? "1.2px" : "0.5px")};
+  transition: all 0.2s;
+
+  .anticon {
+    font-size: 14px;
+    color: ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#8c8c8c")};
+    transition: all 0.2s;
+  }
+`;
+
+const ActiveGroupBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  margin-left: 8px;
+  background: #fff0f6;
+  border: 1px solid #eb2f96;
+  color: #eb2f96;
+  font-size: 9px;
+  font-weight: 700;
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+`;
+
+const FolderCount = styled.span<{ $isSelected: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 20px;
+  padding: 0 6px;
+  background: ${({ $isSelected }) => ($isSelected ? "#52c41a" : "#e6f7ff")};
+  border: 1px solid
+    ${({ $isSelected }) => ($isSelected ? "#389e0d" : "#1890ff")};
+  color: ${({ $isSelected }) => ($isSelected ? "#ffffff" : "#1890ff")};
+  font-size: 10px;
+  font-weight: 700;
+  font-family: "Roboto Mono", monospace;
+  margin-left: 8px;
+  transition: all 0.2s;
 `;
 
 const EmptyState = styled.div`
@@ -437,17 +410,50 @@ const EmptyState = styled.div`
 type MapInfo = {
   id: string;
   fileName: string;
+  imagePath: string;
   isUsing: boolean;
   mapOriginX: number;
   mapOriginY: number;
   scrollX: number;
   scrollY: number;
   scale: number;
+  map_group_id?: string | null;
+  group?: {
+    id: string;
+    group_name: string;
+    isUsing?: boolean;
+    active_map_id?: string | null;
+  } | null;
+  floor: number;
 };
 
-const MapManager: FC = () => {
+type MirSyncPushResponse = {
+  status: string;
+  response: {
+    laggards: number;
+    verified: number;
+    partial: number;
+    failed: number;
+    skippedOffline: number;
+    details: {
+      vehicleId: string;
+      groupId: string;
+      jobId: string | null;
+      done: number;
+      total: number;
+      status: string;
+    }[];
+  };
+};
+
+const MapManager: FC<{
+  sortableId: string;
+  attributes: import("@dnd-kit/core").DraggableAttributes;
+  listeners:
+    | import("@dnd-kit/core/dist/hooks/utilities").SyntheticListenerMap
+    | undefined;
+}> = ({ attributes, listeners }) => {
   const { t } = useTranslation();
-  const [openSwitchMap, setOpenSwitchMap] = useAtom(isOpenSwitchMap);
   const [uploadForm] = Form.useForm();
   const [editForm] = Form.useForm();
   const [file, setFile] = useState<File | null>(null);
@@ -455,10 +461,17 @@ const MapManager: FC = () => {
   const [previewImage, setPreviewImage] = useState("");
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingMap, setEditingMap] = useState<MapInfo | null>(null);
+  const [selectedGroupId, setSelectedGroupId] = useState("");
+  const [syncJobsModalOpen, setSyncJobsModalOpen] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   const queryClient = useQueryClient();
   const { data: maps, refetch } = useAllMapInfo();
+  const { data: mapGroups } = useMapGroup();
 
+  const displayedMaps =
+    maps?.allMap?.filter((map: MapInfo) =>
+      selectedGroupId === "" ? true : map.map_group_id === selectedGroupId,
+    ) || [];
   // Upload Mutation
   const uploadMutation = useMutation({
     mutationFn: (formData: FormData) => {
@@ -475,6 +488,35 @@ const MapManager: FC = () => {
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
+  // Sync Mutation
+  const syncMutation = useMutation({
+    mutationFn: async () => {
+      await client.post("api/setting/map-sync");
+      const pushRes = await client.post<MirSyncPushResponse>(
+        "api/setting/mir/sync-push",
+      );
+      return pushRes.data?.response ?? null;
+    },
+    onSuccess: async (pushResult) => {
+      messageApi.success(t("utils.success"));
+      if (pushResult) {
+        messageApi.info(
+          t("map_manager.sync_push_result", {
+            verified: pushResult.verified,
+            partial: pushResult.partial,
+            failed: pushResult.failed,
+            skippedOffline: pushResult.skippedOffline,
+          }),
+        );
+      }
+      await Promise.all([
+        refetch(),
+        queryClient.invalidateQueries({ queryKey: ["map-group"] }),
+      ]);
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
   // Edit Mutation
   const editMutation = useMutation({
     mutationFn: (payload: any) => {
@@ -482,7 +524,10 @@ const MapManager: FC = () => {
     },
     onSuccess: async () => {
       messageApi.success(t("utils.success"));
-      await refetch();
+      await Promise.all([
+        refetch(),
+        queryClient.invalidateQueries({ queryKey: ["map"] }),
+      ]);
       setEditModalOpen(false);
       setEditingMap(null);
     },
@@ -513,6 +558,9 @@ const MapManager: FC = () => {
       formData.append("filePath", file);
       formData.append("mapOriginX", values.mapOriginX);
       formData.append("mapOriginY", values.mapOriginY);
+      if (values.map_group_id) {
+        formData.append("map_group_id", values.map_group_id);
+      }
 
       uploadMutation.mutate(formData);
     } catch (err) {
@@ -533,12 +581,13 @@ const MapManager: FC = () => {
     setEditingMap(record);
     editForm.setFieldsValue({
       fileName: record.fileName.split(".")[0],
-      isUsing: record.isUsing,
       mapOriginX: record.mapOriginX,
       mapOriginY: record.mapOriginY,
       scrollX: record.scrollX,
       scrollY: record.scrollY,
       scale: record.scale,
+      map_group_id: record.map_group_id,
+      floor: record.floor,
     });
     setEditModalOpen(true);
   };
@@ -548,8 +597,8 @@ const MapManager: FC = () => {
     .replace(/:5173/, ":4000")
     .replace(/\/+$/, "");
 
-  const viewImage = (systemPath: string, fileName: string) => {
-    const imageUrl = `${baseUrl}${systemPath}${fileName}`;
+  const viewImage = (systemPath: string, imagePath: string) => {
+    const imageUrl = `${baseUrl}${systemPath}${imagePath}`;
     setPreviewImage(imageUrl);
     setImagePreviewOpen(true);
   };
@@ -591,10 +640,10 @@ const MapManager: FC = () => {
       dataIndex: "fileName",
       key: "fileName",
       render: (text: string) => (
-        <Flex align="center" gap="small">
+        <FileNameCell>
           <PictureOutlined style={{ color: "#1890ff" }} />
-          <span style={{ fontWeight: 600 }}>{text}</span>
-        </Flex>
+          <FileNameText>{text}</FileNameText>
+        </FileNameCell>
       ),
     },
     {
@@ -631,13 +680,13 @@ const MapManager: FC = () => {
       title: t("map_manager.actions"),
       key: "actions",
       render: (_: any, record: MapInfo) => (
-        <Flex gap="small">
+        <ActionCell>
           <IndustrialButton
             className="view-btn"
             size="small"
             icon={<EyeOutlined />}
             onClick={() =>
-              viewImage(maps?.systemFilePath as string, record.fileName)
+              viewImage(maps?.systemFilePath as string, record.imagePath)
             }
           >
             {t("map_manager.view")}
@@ -665,28 +714,31 @@ const MapManager: FC = () => {
               {t("map_manager.delete")}
             </IndustrialButton>
           </Popconfirm>
-        </Flex>
+        </ActionCell>
       ),
+    },
+    {
+      title: t("map_manager.map_group"),
+      dataIndex: "group",
+      key: "group",
+      render: (group: MapInfo["group"]) => group?.group_name || "-",
+    },
+    {
+      title: t("map_manager.floor"),
+      dataIndex: "floor",
+      key: "floor",
     },
   ];
 
   return (
     <>
       {contextHolder}
-      <Drawer
-        size={1200}
-        open={openSwitchMap}
-        onClose={() => setOpenSwitchMap(false)}
-      >
-        <Header>
+      <div>
+        <Header {...listeners} {...attributes}>
           <Title>
             <PictureOutlined />
             {t("map_manager.title")}
           </Title>
-          <CloseButton
-            icon={<CloseOutlined />}
-            onClick={() => setOpenSwitchMap(false)}
-          />
         </Header>
 
         <Content>
@@ -697,17 +749,15 @@ const MapManager: FC = () => {
           </SectionHeader>
           <UploadSection>
             <StyledForm form={uploadForm} layout="vertical">
-              <Flex gap="middle">
+              <FormFieldRow>
                 <Form.Item
                   name="mapOriginX"
                   label={t("map_manager.map_origin_x")}
                   rules={[
                     { required: true, message: t("map_manager.file_required") },
                   ]}
-                  style={{ flex: 1 }}
                 >
                   <IndustrialInputNumber
-                    style={{ width: "100%" }}
                     placeholder={t("map_manager.enter_x_coord")}
                   />
                 </Form.Item>
@@ -717,14 +767,22 @@ const MapManager: FC = () => {
                   rules={[
                     { required: true, message: t("map_manager.file_required") },
                   ]}
-                  style={{ flex: 1 }}
                 >
                   <IndustrialInputNumber
-                    style={{ width: "100%" }}
                     placeholder={t("map_manager.enter_y_coord")}
                   />
                 </Form.Item>
-              </Flex>
+              </FormFieldRow>
+              <Form.Item name="map_group_id" label={t("map_manager.map_group")}>
+                <Select
+                  allowClear
+                  placeholder={t("map_manager.select_map_group")}
+                  options={mapGroups?.map((g) => ({
+                    label: g?.group_name,
+                    value: g?.id,
+                  }))}
+                />
+              </Form.Item>
               <Form.Item label={t("map_manager.upload_file")}>
                 <StyledDragger {...uploadProps}>
                   <p className="ant-upload-drag-icon">
@@ -756,32 +814,96 @@ const MapManager: FC = () => {
           {/* Maps Table */}
           <SectionHeader>
             <PictureOutlined />
-            {t("map_manager.existing_maps")} ({maps?.allMap?.length || 0})
+            {t("map_manager.existing_maps")} ({displayedMaps.length})
+            <IndustrialButton
+              className="view-btn"
+              size="small"
+              onClick={() => syncMutation.mutate()}
+              loading={syncMutation.isPending}
+              disabled={syncMutation.isPending}
+            >
+              {t("map_manager.sync_map")}
+            </IndustrialButton>
+            <IndustrialButton
+              className="view-btn"
+              size="small"
+              icon={<HistoryOutlined />}
+              onClick={() => setSyncJobsModalOpen(true)}
+            >
+              {t("map_manager.sync_jobs")}
+            </IndustrialButton>
           </SectionHeader>
-          {maps?.allMap && maps.allMap.length > 0 ? (
-            <IndustrialTable
-              columns={columns as any}
-              dataSource={maps.allMap}
-              rowKey="id"
-              pagination={{
-                pageSize: 10,
-                showTotal: (total, range) => (
-                  <span style={{ fontFamily: "Roboto Mono, monospace" }}>
-                    {range[0]}-{range[1]} of {total}
-                  </span>
-                ),
-              }}
-            />
-          ) : (
-            <EmptyState>
-              <div className="icon">
-                <PictureOutlined />
-              </div>
-              {t("map_manager.no_maps")}
-            </EmptyState>
-          )}
+
+          <FolderList>
+            <FolderItem
+              $isSelected={selectedGroupId === ""}
+              onClick={() => setSelectedGroupId("")}
+            >
+              <FolderName $isSelected={selectedGroupId === ""}>
+                {selectedGroupId === "" ? (
+                  <FolderOpenOutlined />
+                ) : (
+                  <FolderOutlined />
+                )}
+                {t("map_manager.all_groups")}
+              </FolderName>
+            </FolderItem>
+            {mapGroups?.map((group) => {
+              const isSelected = selectedGroupId === group.id;
+              const mapCount = group.maps?.length || 0;
+
+              return (
+                <FolderItem
+                  key={group.id}
+                  $isSelected={isSelected}
+                  $isActiveGroup={group.isUsing}
+                  onClick={() => setSelectedGroupId(group.id)}
+                >
+                  <FolderName $isSelected={isSelected}>
+                    {isSelected ? <FolderOpenOutlined /> : <FolderOutlined />}
+                    {group.group_name}
+                    {mapCount > 0 && (
+                      <FolderCount $isSelected={isSelected}>
+                        {mapCount}
+                      </FolderCount>
+                    )}
+                    {group.isUsing && (
+                      <ActiveGroupBadge>
+                        {t("map_manager.active_group")}
+                      </ActiveGroupBadge>
+                    )}
+                  </FolderName>
+                </FolderItem>
+              );
+            })}
+          </FolderList>
+
+          <div style={{ minHeight: 560 }}>
+            {displayedMaps.length > 0 ? (
+              <IndustrialTable
+                columns={columns as any}
+                dataSource={displayedMaps}
+                rowKey="id"
+                pagination={{
+                  pageSize: 10,
+                  showTotal: (total, range) => (
+                    <span style={{ fontFamily: "Roboto Mono, monospace" }}>
+                      {range[0]}-{range[1]} of {total}
+                    </span>
+                  ),
+                }}
+              />
+            ) : (
+              <EmptyState>
+                <div className="icon">
+                  <PictureOutlined />
+                </div>
+                {t("map_manager.no_maps")}
+              </EmptyState>
+            )}
+          </div>
         </Content>
-      </Drawer>
+      </div>
 
       {/* Image Preview Modal */}
       <Image
@@ -807,55 +929,83 @@ const MapManager: FC = () => {
         confirmLoading={editMutation.isPending}
       >
         <StyledForm form={editForm} layout="vertical">
-          <Form.Item label={t("map_manager.file_name")} name="fileName">
-            <IndustrialInput disabled />
-          </Form.Item>
-          <Form.Item label={t("map_manager.status")} name="isUsing">
-            <Radio.Group>
-              <Radio value={false}>{t("map_manager.inactive")}</Radio>
-              <Radio value={true}>{t("map_manager.active")}</Radio>
-            </Radio.Group>
-          </Form.Item>
-          <Form.Item
-            label={t("map_manager.map_origin_x")}
-            name="mapOriginX"
-            rules={[{ required: true }]}
-          >
-            <IndustrialInputNumber style={{ width: "100%" }} />
-          </Form.Item>
-          <Form.Item
-            label={t("map_manager.map_origin_y")}
-            name="mapOriginY"
-            rules={[{ required: true }]}
-          >
-            <IndustrialInputNumber style={{ width: "100%" }} />
-          </Form.Item>
+          <FormFieldRow>
+            <Form.Item
+              className="full-row"
+              label={t("map_manager.file_name")}
+              name="fileName"
+            >
+              <IndustrialInput disabled />
+            </Form.Item>
+            <Form.Item
+              label={t("map_manager.map_origin_x")}
+              name="mapOriginX"
+              rules={[{ required: true }]}
+            >
+              <IndustrialInputNumber />
+            </Form.Item>
+            <Form.Item
+              label={t("map_manager.map_origin_y")}
+              name="mapOriginY"
+              rules={[{ required: true }]}
+            >
+              <IndustrialInputNumber />
+            </Form.Item>
 
-          <Form.Item
-            label={t("upload.scroll_x")}
-            name="scrollX"
-            rules={[{ required: true }]}
-          >
-            <IndustrialInputNumber style={{ width: "100%" }} />
-          </Form.Item>
+            <Form.Item
+              label={t("upload.scroll_x")}
+              name="scrollX"
+              rules={[{ required: true }]}
+            >
+              <IndustrialInputNumber />
+            </Form.Item>
 
-          <Form.Item
-            label={t("upload.scroll_y")}
-            name="scrollY"
-            rules={[{ required: true }]}
-          >
-            <IndustrialInputNumber style={{ width: "100%" }} />
-          </Form.Item>
+            <Form.Item
+              label={t("upload.scroll_y")}
+              name="scrollY"
+              rules={[{ required: true }]}
+            >
+              <IndustrialInputNumber />
+            </Form.Item>
 
-          <Form.Item
-            label={t("upload.scale")}
-            name="scale"
-            rules={[{ required: true }]}
-          >
-            <IndustrialInputNumber min={0.1} style={{ width: "100%" }} />
-          </Form.Item>
+            <Form.Item
+              label={t("upload.scale")}
+              name="scale"
+              rules={[{ required: true }]}
+            >
+              <IndustrialInputNumber min={0.1} />
+            </Form.Item>
+
+            <Form.Item
+              label={t("map_manager.floor")}
+              name="floor"
+              rules={[{ required: true }]}
+            >
+              <IndustrialInputNumber min={0.1} />
+            </Form.Item>
+
+            <Form.Item
+              className="full-row"
+              label={t("map_manager.map_group")}
+              name="map_group_id"
+            >
+              <Select
+                allowClear
+                placeholder={t("map_manager.select_map_group")}
+                options={mapGroups?.map((g) => ({
+                  label: g?.group_name,
+                  value: g?.id,
+                }))}
+              />
+            </Form.Item>
+          </FormFieldRow>
         </StyledForm>
       </IndustrialModal>
+
+      <SyncJobsModal
+        open={syncJobsModalOpen}
+        onClose={() => setSyncJobsModalOpen(false)}
+      />
     </>
   );
 };

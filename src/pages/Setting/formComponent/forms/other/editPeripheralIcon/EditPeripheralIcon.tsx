@@ -59,6 +59,7 @@ const Container = styled.div`
 
 const Panel = styled.div<{ width: string; hidden?: boolean }>`
   width: ${(p) => p.width};
+  min-width: 0;
   transition: all 0.3s ease;
   overflow: hidden;
   ${(p) => p.hidden && `visibility: hidden; height: 0;`}
@@ -81,6 +82,12 @@ const IndustrialInput = styled(Input)`
   border-radius: 0;
   border: 1px solid #d9d9d9;
 
+  && {
+    flex: 1 1 14rem;
+    min-width: 0;
+    max-width: 280px;
+  }
+
   &:hover {
     border-color: #f759ab;
   }
@@ -100,6 +107,12 @@ const IndustrialInput = styled(Input)`
 
 const IndustrialSelect = styled(Select)`
   font-family: "Roboto Mono", monospace;
+
+  && {
+    flex: 1 1 10rem;
+    min-width: 0;
+    max-width: 200px;
+  }
 
   .ant-select-selector {
     height: 36px !important;
@@ -185,10 +198,17 @@ const IndustrialButton = styled(Button)`
 `;
 
 const IndustrialTable = styled(Table)`
+  max-width: 100%;
+
   .ant-table {
     border: 1px solid #d9d9d9;
     border-radius: 0;
     font-family: "Roboto Mono", monospace;
+  }
+
+  .ant-pagination {
+    flex-wrap: wrap;
+    row-gap: var(--space-xs);
   }
 
   .ant-table-thead > tr > th {
@@ -206,8 +226,8 @@ const IndustrialTable = styled(Table)`
     }
   }
 
-  .ant-table-tbody > tr {
-    transition: all 0.2s;
+  .ant-table-tbody > tr:not(.ant-table-measure-row) {
+    transition: background-color 0.2s;
     position: relative;
 
     &:hover {
@@ -293,6 +313,17 @@ const ValueBadge = styled.span`
   font-weight: 700;
 `;
 
+const BadgeGroup = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+
+  > ${ValueBadge} {
+    min-width: 2.5rem;
+    flex: 0 1 auto;
+  }
+`;
+
 const LocationBadge = styled.span`
   display: inline-flex;
   align-items: center;
@@ -337,7 +368,7 @@ const EditPeripheralIcon: FC<{
   const [openDrawer, setOpenDrawer] = useState(false);
 
   const uniqueAreaTypes = Array.from(
-    new Set((data ?? []).map((item) => item?.areaType))
+    new Set((data ?? []).map((item) => item?.areaType)),
   );
 
   const onChangeAreaType = (type: string) => {
@@ -410,46 +441,41 @@ const EditPeripheralIcon: FC<{
       render: (value: string) => <AreaTypeBadge>{value}</AreaTypeBadge>,
     },
     {
-      title: "X",
-      dataIndex: "x",
-      key: "x",
+      title: "Position",
+      key: "position",
 
-      render: (value: number) => <ValueBadge>{value}</ValueBadge>,
+      render: (_v: unknown, record: SingleChargeStation) => (
+        // <BadgeGroup>
+        <>
+          <ValueBadge>X {record.x}</ValueBadge>
+          <ValueBadge>Y {record.y}</ValueBadge>
+        </>
+        // </BadgeGroup>
+      ),
     },
     {
-      title: "Y",
-      dataIndex: "y",
-      key: "y",
+      title: "Translate",
+      key: "translate",
 
-      render: (value: number) => <ValueBadge>{value}</ValueBadge>,
+      render: (_v: unknown, record: SingleChargeStation) => (
+        <BadgeGroup>
+          <>
+            <ValueBadge>X {record.translateX}</ValueBadge>
+            <ValueBadge>Y {record.translateY}</ValueBadge>
+          </>
+        </BadgeGroup>
+      ),
     },
     {
-      title: "translateX",
-      dataIndex: "translateX",
-      key: "translateX",
+      title: "Transform",
+      key: "transform",
 
-      render: (value: number) => <ValueBadge>{value}</ValueBadge>,
-    },
-    {
-      title: "translateY",
-      dataIndex: "translateY",
-      key: "translateY",
-
-      render: (value: number) => <ValueBadge>{value}</ValueBadge>,
-    },
-    {
-      title: "Rotate",
-      dataIndex: "rotate",
-      key: "rotate",
-
-      render: (value: number) => <ValueBadge>{value}°</ValueBadge>,
-    },
-    {
-      title: "Scale",
-      dataIndex: "scale",
-      key: "scale",
-
-      render: (value: number) => <ValueBadge>{value}x</ValueBadge>,
+      render: (_v: unknown, record: SingleChargeStation) => (
+        <BadgeGroup>
+          <ValueBadge>{record.rotate}°</ValueBadge>
+          <ValueBadge>{record.scale}x</ValueBadge>
+        </BadgeGroup>
+      ),
     },
   ];
 
@@ -502,7 +528,6 @@ const EditPeripheralIcon: FC<{
               prefix={<SearchOutlined />}
               placeholder="Search location ID or name"
               allowClear
-              style={{ width: 280 }}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
             />
@@ -518,7 +543,6 @@ const EditPeripheralIcon: FC<{
 
             <IndustrialSelect
               allowClear
-              style={{ width: 200 }}
               placeholder="Filter by type"
               onChange={(value) => onChangeAreaType(value)}
               options={uniqueAreaTypes.map((type) => ({
@@ -551,7 +575,7 @@ const EditPeripheralIcon: FC<{
               showSizeChanger: true,
               pageSizeOptions: ["10", "20", "50", "100"],
             }}
-            scroll={{ x: 1400 }}
+            scroll={{ x: 900 }}
           />
         </Panel>
       </Container>
@@ -562,7 +586,6 @@ const EditPeripheralIcon: FC<{
           placement="right"
           onClose={onclose}
           open={openDrawer}
-          width={600}
         >
           <SettingMultiStyleForm locations={selectedRowKeys as string[]} />
         </IndustrialDrawer>

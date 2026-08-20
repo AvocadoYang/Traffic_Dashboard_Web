@@ -26,6 +26,8 @@ import SwitchTable from "./SwitchTable";
 import useAllMissionTitlesDetail from "@/api/useMissionTitleDetail";
 import Folder from "./folder/Folder";
 import FolderEditor from "./folder/FolderEditor";
+import { useAtomValue } from "jotai";
+import { currentMapIdAtom } from "@/utils/mapSelection";
 
 // Industrial Styled Components
 const IndustrialContainer = styled.div`
@@ -235,7 +237,8 @@ const EditMissionPanel: FC<{
   const [messageApi, contextHolder] = message.useMessage();
   const catOption = cat?.map((v) => ({ value: v.id, label: v.tagName })) || [];
   const [openFolderEditorModal, setOpenFolderEditorModal] = useState(false);
-
+  const currentMapId = useAtomValue(currentMapIdAtom);
+  
   const handleFilterFolder = (id: string) => {
     setSelectFolder(id);
   };
@@ -298,7 +301,11 @@ const EditMissionPanel: FC<{
         item.name === formData.robot_type_id &&
         (formData.robot_type_id = item.id),
     );
-    addMutation.mutate({ ...formData, key: nanoid() });
+    addMutation.mutate({
+      ...formData,
+      key: nanoid(36),
+      currentMapId: currentMapId || "",
+    });
     createMissionForm.setFieldValue("name", "");
     setOpenWithCreateMission(false);
   };

@@ -67,6 +67,15 @@ export type Fork_Action = {
       config: number;
       modify_dis: number;
     };
+    peripheral_action: {
+      type: string;
+      message: string;
+    };
+    lidar: {
+      mode: string; //auto or select
+      front: number;
+      rear: number;
+    };
   };
   cargo_limit: {
     load: number;

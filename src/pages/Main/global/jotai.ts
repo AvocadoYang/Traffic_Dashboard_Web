@@ -43,3 +43,5 @@ export const OpenDirect = atom<{ open: boolean; locationId: string | null }>({
   open: false,
   locationId: null,
 });
+
+export const JoystickAmrId = atom<string | null>(null);

@@ -8,6 +8,7 @@ const schema = object({
       id: string().required(),
       isUsing: boolean().required(),
       fileName: string().required(),
+      imagePath: string().required(),
       mapOriginX: number().required(),
       mapOriginY: number().required(),
       mapWidth: number().required(),
@@ -15,7 +16,18 @@ const schema = object({
       scale: number().required(),
       scrollX: number().required(),
       scrollY: number().required(),
-    })
+      floor: number().required(),
+      resolution: number().optional(),
+      map_group_id: string().optional().nullable(),
+      group: object({
+        id: string().required(),
+        group_name: string().required(),
+        isUsing: boolean().optional(),
+        active_map_id: string().optional().nullable(),
+      })
+        .optional()
+        .nullable(),
+    }),
   ).required(),
   systemFilePath: string().required(),
 }).required();

@@ -25,6 +25,8 @@ import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { Robot_Control, Robot_Type, Robot_Upper_Control } from "./type";
 import useOneTaskDetailHumanRobot from "@/api/useOneTaskDetailHumanRobot";
+import { useAtomValue } from "jotai";
+import { currentMapIdAtom } from "@/utils/mapSelection";
 
 function isWithinLimits(jointName: string, angle: number): boolean {
   const joint = jointLimits.find((j) => j.jointName === jointName);
@@ -44,12 +46,14 @@ const TaskFormHumanRobot: FC<{
   const [form] = Form.useForm();
   const { t } = useTranslation();
   const mapData = useMap();
+  const currentMapId = useAtomValue(currentMapIdAtom);
 
   const editTaskMutation = useMutation({
     mutationFn: (newData: {
       id: string;
       action_type: string[];
       control: string[];
+      currentMapId: string;
       locationId?: string;
       params?: { joint: string; limitRad: number }[];
     }) => {
@@ -128,6 +132,7 @@ const TaskFormHumanRobot: FC<{
       id: editTaskKey,
       action_type: [values.action_type],
       control: values.control || [],
+      currentMapId: currentMapId || "",
       locationId: values.locationId,
       params: params.length > 0 ? params : undefined,
     };

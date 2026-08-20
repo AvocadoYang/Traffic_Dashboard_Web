@@ -16,7 +16,7 @@ import {
   TableColumnType,
   Typography,
 } from "antd";
-import { FC, memo, useEffect, useRef, useState } from "react";
+import { FC, memo, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import {
@@ -28,9 +28,11 @@ import {
 } from "@ant-design/icons";
 import { nanoid } from "nanoid";
 import { FilterDropdownProps } from "antd/es/table/interface";
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import useMap from "@/api/useMap";
+import useAllGroupsResources from "@/api/useAllGroupsResources";
+import { currentMapIdAtom } from "@/utils/mapSelection";
+import GroupMapFolderBrowser from "@/components/GroupMapFolderBrowser";
 import { hoverRoad } from "@/utils/gloable";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
@@ -51,6 +53,9 @@ type RoadListType = {
   disabled: boolean;
   limit: boolean;
   roadType: string;
+  mapFileName?: string;
+  groupName?: string;
+  isActiveGroup?: boolean;
 };
 
 type DataIndex = keyof RoadListType;
@@ -215,6 +220,7 @@ const SearchDropdown = styled.div`
   background: #ffffff;
   border: 1px solid #d9d9d9;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  max-width: calc(100vw - var(--space-lg));
 
   .ant-input {
     font-family: "Roboto Mono", monospace;
@@ -226,6 +232,26 @@ const SearchDropdown = styled.div`
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+  }
+`;
+
+const ActionCell = styled(Flex)`
+  && {
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+`;
+
+const WrapText = styled.span`
+  display: inline-block;
+  overflow-wrap: anywhere;
+  min-width: 5rem;
+`;
+
+const WrapRadioGroup = styled(Radio.Group)`
+  && {
+    display: inline-flex;
+    flex-wrap: wrap;
   }
 `;
 
@@ -338,14 +364,14 @@ const EditableCell: FC<EditableCellProps> = ({
       break;
     case "roadType":
       inputNode = (
-        <Radio.Group buttonStyle="solid">
+        <WrapRadioGroup buttonStyle="solid">
           <Radio.Button value="oneWayRoad">
             {t("edit_road_panel.single_road")}
           </Radio.Button>
           <Radio.Button value="twoWayRoad">
             {t("edit_road_panel.two_way_road")}
           </Radio.Button>
-        </Radio.Group>
+        </WrapRadioGroup>
       );
       break;
     case "priority":
@@ -393,7 +419,23 @@ const RoadList: React.FC<{
     | import("@dnd-kit/core/dist/hooks/utilities").SyntheticListenerMap
     | undefined;
 }> = ({ attributes, listeners }) => {
-  const { data: currentMap } = useMap();
+  const currentMapId = useAtomValue(currentMapIdAtom);
+  const { data: resources } = useAllGroupsResources();
+  const activeGroupId = useMemo(
+    () => resources?.groups.find((g) => g.isUsing)?.groupId ?? null,
+    [resources],
+  );
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(
+    activeGroupId,
+  );
+  const didInitGroupRef = useRef(false);
+  useEffect(() => {
+    if (!didInitGroupRef.current && activeGroupId) {
+      setSelectedGroupId(activeGroupId);
+      didInitGroupRef.current = true;
+    }
+  }, [activeGroupId]);
+  const [selectedMapId, setSelectedMapId] = useState<string | null>(null);
   const searchInput = useRef<InputRef>(null);
   const [messageApi, contextHolders] = message.useMessage();
   const queryClient = useQueryClient();
@@ -404,12 +446,18 @@ const RoadList: React.FC<{
   const [formRoad] = Form.useForm();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
+  const invalidateResourceQueries = () => {
+    queryClient.refetchQueries({ queryKey: ["map"] });
+    queryClient.refetchQueries({ queryKey: ["active-group-resources"] });
+    queryClient.refetchQueries({ queryKey: ["all-groups-resources"] });
+  };
+
   const deleteRoadMutation = useMutation({
     mutationFn: (roadId: string) =>
       client.post("api/setting/delete-edit-road", { roadId }),
     onSuccess: () => {
       void messageApi.success("success");
-      queryClient.refetchQueries({ queryKey: ["map"] });
+      invalidateResourceQueries();
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
@@ -419,7 +467,7 @@ const RoadList: React.FC<{
       client.post("api/setting/edit-edit-road", payload),
     onSuccess: () => {
       void messageApi.success("success");
-      queryClient.refetchQueries({ queryKey: ["map"] });
+      invalidateResourceQueries();
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
@@ -429,11 +477,47 @@ const RoadList: React.FC<{
       client.post("api/setting/delete-multi-edit-road", { roadId }),
     onSuccess: () => {
       void messageApi.success("success");
-      queryClient.refetchQueries({ queryKey: ["map"] });
+      invalidateResourceQueries();
       setSelectedRowKeys([]);
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
+
+  const folders = useMemo(
+    () =>
+      resources?.groups.map((g) => ({
+        groupId: g.groupId,
+        groupName: g.groupName,
+        isUsing: g.isUsing,
+        maps: g.maps.map((m) => ({
+          mapId: m.mapId,
+          fileName: m.fileName,
+          floor: m.floor,
+          count: m.roads.length,
+        })),
+      })) ?? [],
+    [resources],
+  );
+
+  const tableData = useMemo(() => {
+    if (!resources) return [];
+    const groups = selectedGroupId
+      ? resources.groups.filter((g) => g.groupId === selectedGroupId)
+      : resources.groups;
+    return groups.flatMap((g) => {
+      const maps = selectedMapId
+        ? g.maps.filter((m) => m.mapId === selectedMapId)
+        : g.maps;
+      return maps.flatMap((m) =>
+        m.roads.map((road) => ({
+          ...road,
+          mapFileName: m.fileName,
+          groupName: g.groupName,
+          isActiveGroup: g.isUsing,
+        })),
+      );
+    });
+  }, [resources, selectedGroupId, selectedMapId]);
 
   const handleSearch = (confirm: FilterDropdownProps["confirm"]) => confirm();
   const handleReset = (clearFilters: () => void) => clearFilters();
@@ -441,7 +525,7 @@ const RoadList: React.FC<{
   const handleMouseLeave = () => setHoverRoad("");
 
   const getColumnSearchProps = (
-    dataIndex: DataIndex
+    dataIndex: DataIndex,
   ): TableColumnType<RoadListType> => ({
     filterDropdown: ({
       setSelectedKeys,
@@ -461,7 +545,7 @@ const RoadList: React.FC<{
           onPressEnter={() => handleSearch(confirm)}
           style={{ marginBottom: 8, display: "block" }}
         />
-        <Space>
+        <Space wrap>
           <Button
             color="primary"
             variant="filled"
@@ -637,6 +721,20 @@ const RoadList: React.FC<{
       ),
     },
     {
+      title: t("map_group_table.name"),
+      dataIndex: "groupName",
+      key: "groupName",
+      minWidth: 100,
+      render: (groupName: string) => <WrapText>{groupName}</WrapText>,
+    },
+    {
+      title: t("map_manager.map_group"),
+      dataIndex: "mapFileName",
+      key: "mapFileName",
+      minWidth: 120,
+      render: (mapFileName: string) => <WrapText>{mapFileName}</WrapText>,
+    },
+    {
       title: "",
       dataIndex: "operation",
       key: nanoid(),
@@ -644,7 +742,7 @@ const RoadList: React.FC<{
       render(_v: unknown, record: RoadListType) {
         const editable = isEditing(record);
         return editable ? (
-          <Flex gap="small">
+          <ActionCell>
             <IndustrialButton
               className="primary"
               onClick={() => save(record.id)}
@@ -655,11 +753,17 @@ const RoadList: React.FC<{
             <IndustrialButton onClick={() => cancel()} icon={<CloseOutlined />}>
               {t("utils.cancel")}
             </IndustrialButton>
-          </Flex>
+          </ActionCell>
         ) : (
-          <Flex gap="small">
+          <ActionCell>
             <IndustrialButton
               className="primary"
+              disabled={!record.isActiveGroup}
+              title={
+                record.isActiveGroup
+                  ? undefined
+                  : t("map_manager.not_active_group_tooltip")
+              }
               onClick={() => edit(record)}
               icon={<EditOutlined />}
             >
@@ -677,7 +781,7 @@ const RoadList: React.FC<{
                 {t("utils.delete")}
               </IndustrialButton>
             </Popconfirm>
-          </Flex>
+          </ActionCell>
         );
       },
     },
@@ -711,6 +815,14 @@ const RoadList: React.FC<{
         vertical
         onMouseLeave={handleMouseLeave}
       >
+        <GroupMapFolderBrowser
+          groups={folders}
+          selectedGroupId={selectedGroupId}
+          selectedMapId={selectedMapId}
+          currentMapId={currentMapId}
+          onSelectGroup={setSelectedGroupId}
+          onSelectMap={setSelectedMapId}
+        />
         <IndustrialButton
           className="danger"
           onClick={deleteMultiItem}
@@ -721,7 +833,7 @@ const RoadList: React.FC<{
         </IndustrialButton>
         <Form form={formRoad} component={false}>
           <StyledTable
-            dataSource={currentMap?.roads}
+            dataSource={tableData}
             rowKey={(v) => v.roadId}
             rowSelection={{
               type: "checkbox",

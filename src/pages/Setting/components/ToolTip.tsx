@@ -4,6 +4,7 @@ import { rosCoord2DisplayCoord } from "@/utils/utils";
 import { useAtomValue } from "jotai";
 import { FC } from "react";
 import styled from "styled-components";
+import { HoverLabel, TOOLTIP_Z_INDEX } from "../mapComponents/components/HoverLabel";
 
 const TooltipWrapper = styled.div.attrs<{
   left: number;
@@ -15,21 +16,11 @@ const TooltipWrapper = styled.div.attrs<{
   top: number;
 }>`
   position: absolute;
-  background-color: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  white-space: nowrap;
-  z-index: 10;
+  z-index: ${TOOLTIP_Z_INDEX};
   pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.2s ease-in-out;
-
-  &.show {
-    opacity: 1;
-  }
+  transform: translateY(-50%);
 `;
+
 const ToolTip: FC = () => {
   const toolTipProps = useAtomValue(tooltipProp);
   const { data } = useMap();
@@ -45,9 +36,8 @@ const ToolTip: FC = () => {
     mapResolution: data.mapResolution,
   });
   return (
-    <TooltipWrapper left={displayX} top={displayY} className={"show"}>
-      {" "}
-      {toolTipProps.locationId}
+    <TooltipWrapper left={displayX} top={displayY}>
+      <HoverLabel $accent="blue">{toolTipProps.locationId}</HoverLabel>
     </TooltipWrapper>
   );
 };

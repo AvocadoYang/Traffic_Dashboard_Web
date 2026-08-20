@@ -13,11 +13,14 @@ import styled from "styled-components";
 const IconWrapper = styled.div.attrs<{
   left: number;
   top: number;
-}>(({ left, top }) => ({
+  amrId: string
+}>(({ left, top, amrId}) => ({
   style: {
     left,
     top,
-    transform: `translate(-50%, -100%)`,
+    transform: amrId.includes('mi') 
+      ? "translate(-50%, -50%)" 
+      : "translate(-50%, -100%)",
     transition: "x 1s, y 1s",
   },
 }))<{
@@ -26,6 +29,31 @@ const IconWrapper = styled.div.attrs<{
 }>`
   position: absolute;
   z-index: 200000;
+`;
+
+const SquareBody = styled.div.attrs<{
+  rotate: number;
+  color: string;
+}>(({ rotate, color }) => ({
+  style: {
+    transform: `rotate(${rotate}deg)`,
+    transition: "x 1s, y 1s",
+  },
+}))<{
+  rotate: number;
+  color: string;
+}>`
+  width: 15px;
+  height: 20px;
+  background-color: ${(p) => p.color};
+  border-radius: 3px;
+  position: relative;
+  /* 旋轉中心放在叉臂根部 */
+  transform-origin: center;
+  opacity: 80%;
+  border: "1px solid gray";
+  border: ${(p) => `1px solid ${p.color}`};
+  cursor: pointer;
 `;
 
 const ForkliftBody = styled.div.attrs<{
@@ -212,9 +240,11 @@ const ForkLiftIcon: FC<{
     <IconWrapper
       left={left}
       top={top}
+      amrId={amrId}
       className={`${needOpacity ? "opacity-icon" : ""}`}
     >
-      <ForkliftBody
+      { 
+        amrId.includes('mi') ? <SquareBody rotate={90-yaw} color={color}></SquareBody> :    <ForkliftBody
         rotate={amrId.includes("SW15") ? 90 - yaw + 180 : 90 - yaw}
         color={color}
         onClick={() => {
@@ -229,8 +259,12 @@ const ForkLiftIcon: FC<{
           });
         }}
       >
-        <LeftFork />
-        <RightFork />
+        {
+          amrId.includes('mi')? null:  <>
+            <LeftFork />
+            <RightFork />
+          </>
+        }
         {isCarry && <Cargo />}
         {isPause && (
           <Tooltip color="volcano" title={t("mode.isPause")}>
@@ -238,6 +272,7 @@ const ForkLiftIcon: FC<{
           </Tooltip>
         )}
       </ForkliftBody>
+      }
     </IconWrapper>
   );
 };

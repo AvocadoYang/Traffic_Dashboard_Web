@@ -14,6 +14,11 @@ export const isFork = (robotId: string): boolean => {
   );
 };
 
+export const isMir = (robotId: string): boolean => {
+  const list = robotId.split("-").map((v) => v.toLowerCase());
+  return list.includes("mi15");
+};
+
 export const prefixLevelName = (word: string | null | undefined): string => {
   if (!word) return "";
 

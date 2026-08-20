@@ -35,10 +35,18 @@ import {
   isShowPeripheralGroupTable,
   isShowPeripheralNameTable,
   isShowRegisterAMR,
+  isShowSystemAlarm,
   QuickEditLocationPanelSwitch,
   QuickEditRoadSwitch,
   RoadListTableSwitch,
   showZonesTableSwitch,
+  isOpenSwitchMap,
+  isShowMapGroupTable,
+  isShowChargeStationDockConfig,
+  isHowFootprint,
+  isShowSound,
+  isShowMarketType,
+  isShowSyncMirData,
 } from "@/utils/siderGloble";
 import { useAtomValue } from "jotai";
 import { ToolBarItemType, ToolBarType } from "./siderElement";
@@ -66,6 +74,14 @@ import EditPeripheralIcon from "../formComponent/forms/other/editPeripheralIcon/
 import { PeripheralGroupPanel, PeripheralNamePanel } from "./peripherals";
 import BlindLocationPanel from "../formComponent/forms/missionComponents/blindMission/BlindLocationPanel";
 import AllContainerTable from "../formComponent/forms/AllContainerTable";
+import SystemAlarmPanel from "../formComponent/forms/missionComponents/editMission/SystemAlarmPanel";
+import MapManager from "./ChangeMap/MapManager";
+import { MapGroupPanel } from "./mapGroup";
+import PeripheralChargeDockPanel from "./peripherals/PeripheralChargeDockPanel";
+import FootprintPanel from "../formComponent/forms/missionComponents/mir/footprinter/FootprintPanel";
+import SoundPanel from "../formComponent/forms/missionComponents/mir/sound/SoundPanel";
+import MarkerTypePanel from "../formComponent/forms/missionComponents/mir/markerTypes/MarkerTypePanel";
+import SyncDataPanel from "../formComponent/forms/missionComponents/mir/syncData/SyncDataPanel";
 
 const SortableWrap: FC<{
   sortableId: ToolBarItemType;
@@ -430,6 +446,21 @@ const SortableWrap: FC<{
               </Card>
             );
 
+          case "peripheral_charge_dock_config":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="peripheral_charge_dock_config"
+                />
+                <PeripheralChargeDockPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
+
           // 7-1 顯示編輯標籤
           case "edit_tag":
             return (
@@ -511,6 +542,95 @@ const SortableWrap: FC<{
                 />
               </Card>
             );
+          case "show_system_alarm":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="show_system_alarm"
+                />
+                <SystemAlarmPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
+          // 9-4 顯示變更地圖
+          case "switch_map":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn sortableId={sortableId} panelName="switch_map" />
+                <MapManager
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
+          // 9-8 顯示地圖群組表
+          case "map_group_table":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn
+                  sortableId={sortableId}
+                  panelName="map_group_table"
+                />
+                <MapGroupPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
+
+          case "footprint":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn sortableId={sortableId} panelName="footprint" />
+                <FootprintPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
+          case "sound":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn sortableId={sortableId} panelName="sound" />
+                <SoundPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
+
+          case "marker_type":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn sortableId={sortableId} panelName="marker_type" />
+                <MarkerTypePanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
+
+          case "sync_mir":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn sortableId={sortableId} panelName="sync_mir" />
+                <SyncDataPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
+
           default:
             return null;
         }
@@ -554,6 +674,9 @@ const ToolComponents: FC<{
 
   const openPeripheralNamePanel = useAtomValue(isShowPeripheralNameTable);
   const openPeripheralGroupPanel = useAtomValue(isShowPeripheralGroupTable);
+  const openPeripheraChargeDockPanel = useAtomValue(
+    isShowChargeStationDockConfig,
+  );
 
   const openTagPanel = useAtomValue(isShowEditMissionTag);
   const openChargeStylePanel = useAtomValue(isShowEditChargeStationPosition);
@@ -562,6 +685,14 @@ const ToolComponents: FC<{
 
   const openWarningPanel = useAtomValue(isShowEditWarningId);
   const openBackupPanel = useAtomValue(isShowEditBackup);
+  const openSystemAlarmPanel = useAtomValue(isShowSystemAlarm);
+  const openSwitchMapPanel = useAtomValue(isOpenSwitchMap);
+  const openMapGroupPanel = useAtomValue(isShowMapGroupTable);
+
+  const openFootprintPanel = useAtomValue(isHowFootprint);
+  const openSoundPanel = useAtomValue(isShowSound);
+  const openMarkerTypePanel = useAtomValue(isShowMarketType);
+  const openSyncMirDataPanel = useAtomValue(isShowSyncMirData);
 
   return dataList.map((form) => {
     const { key: formKey } = form;
@@ -689,6 +820,13 @@ const ToolComponents: FC<{
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
 
+    if (
+      formKey === "peripheral_charge_dock_config" &&
+      openPeripheraChargeDockPanel
+    ) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+
     if (formKey === "edit_tag" && openTagPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
@@ -705,6 +843,27 @@ const ToolComponents: FC<{
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     if (formKey === "backup_file" && openBackupPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "show_system_alarm" && openSystemAlarmPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "switch_map" && openSwitchMapPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "map_group_table" && openMapGroupPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "footprint" && openFootprintPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "sound" && openSoundPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "marker_type" && openMarkerTypePanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "sync_mir" && openSyncMirDataPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     return [];

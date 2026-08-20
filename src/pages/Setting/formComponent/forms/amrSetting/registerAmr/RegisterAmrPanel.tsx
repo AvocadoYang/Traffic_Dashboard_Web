@@ -43,6 +43,7 @@ type When_Finish = {
   robot_type: string;
   full_name: string;
   serialNum: string;
+  ip?: string
 };
 
 const RegisterAmrPanel: FC<{

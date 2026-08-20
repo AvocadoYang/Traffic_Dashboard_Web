@@ -65,13 +65,14 @@ const ZoneIconHint: FC<{
 
   useEffect(() => {
     const mouseMoveEventForMapRef = (e: MouseEvent) => {
-      if (!mapRef.current || !mapWrapRef.current || isDragging) return;
-      const { clientX, clientY } = e;
-      const Left = mapWrapRef.current.scrollLeft;
-      const Top = mapWrapRef.current.scrollTop;
-
-      const adjustX = clientX - mapRef.current.offsetLeft + Left;
-      const adjustY = clientY - mapRef.current.offsetTop + Top;
+      if (!mapRef.current || !mapImageRef.current || isDragging) return;
+      // offsetLeft/offsetTop 是相對於 offsetParent 的版面座標, 跟滑鼠事件用的
+      // viewport 座標(clientX/clientY)不是同一個座標系, 也沒有把 scale 縮放考慮進去,
+      // 這是圖示跟不上滑鼠的原因。改用 getBoundingClientRect(), 跟 useZoneFrame.tsx
+      // 拖曳矩形的算法一致(已經自動處理捲動位置, 不用再手動加 scrollLeft/scrollTop)。
+      const rect = mapImageRef.current.getBoundingClientRect();
+      const adjustX = e.clientX - rect.left;
+      const adjustY = e.clientY - rect.top;
 
       setMouseMoveLocationForFrame({
         displayX: adjustX / scale,

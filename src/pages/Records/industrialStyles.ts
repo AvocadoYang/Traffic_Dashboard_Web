@@ -166,6 +166,7 @@ export const IdDesc = styled.span`
   color: #6e6e6e;
   font-size: 11px;
   font-weight: 700;
+  max-width: 20vw;
   font-family: "Roboto Mono", monospace;
   letter-spacing: 1px;
   word-break: break-word;

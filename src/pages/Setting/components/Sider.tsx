@@ -1,9 +1,12 @@
-import React, { useState, memo, useEffect } from "react";
-import { Layout, Menu, message, Switch } from "antd";
+import React, { useState, memo, useEffect, useRef, useCallback } from "react";
+import { Layout, Menu, message, Switch, Drawer } from "antd";
+import styled from "styled-components";
+import { mq } from "@/styles/responsive";
 import useMap from "@/api/useMap";
 import UploadWarningModal from "./UploadWarningModal";
 import { useAtom, useSetAtom } from "jotai";
 import {
+  toolSheetPanelHost,
   EditLocationPanelSwitch,
   EditLocationListTableSwitch,
   isShowLocationTooltip,
@@ -37,6 +40,13 @@ import {
   isShowPeripheralGroupTable,
   isShowEditBlindLocationMission,
   isShowContainerTable,
+  isShowSystemAlarm,
+  isShowMapGroupTable,
+  isShowChargeStationDockConfig,
+  isHowFootprint,
+  isShowSound,
+  isShowMarketType,
+  isShowSyncMirData,
 } from "@/utils/siderGloble";
 import {
   AimOutlined,
@@ -49,6 +59,7 @@ import {
   DeliveredProcedureOutlined,
   RedoOutlined,
   CarOutlined,
+  PictureOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import type { MenuProps } from "antd";
@@ -59,8 +70,8 @@ import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import ImportMapConfigModal from "./importMap/ImportMapConfigModal";
-import MapManager from "./ChangeMap/MapManager";
 import StartPoint from "./StartPoint/StartPoint";
+import useIsWebMediaQuery from "@/hooks/useIsWebMediaQuery";
 
 export type MenuItem = Required<MenuProps>["items"][number];
 
@@ -81,6 +92,118 @@ function getItem(
 }
 
 const { Sider: AntdSider } = Layout;
+
+/* 側邊欄只在 web 的 breakpoint 出現，以下改用 ToolSheet */
+const DesktopSider = styled(AntdSider)`
+  && {
+    display: none;
+    background-color: #ffffff;
+    overflow-y: auto;
+  }
+
+  ${mq.web} {
+    && {
+      display: block;
+    }
+  }
+`;
+
+const ToolSheet = styled(Drawer)`
+  && {
+    border-radius: var(--space-lg) var(--space-lg) 0 0;
+    overflow: hidden;
+    max-height: var(--tool-sheet-max-height);
+  }
+
+  && .ant-drawer-header {
+    padding: 0 var(--space-sm);
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  && .ant-drawer-body {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+  }
+`;
+
+const SheetHandle = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-sm) 0;
+  cursor: ns-resize;
+  touch-action: none;
+
+  &::before {
+    content: "";
+    width: 60px;
+    height: 8px;
+    border-radius: 4px;
+    background: #d9d9d9;
+  }
+`;
+
+const SheetTabs = styled.div`
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-bottom: 1px solid #f0f0f0;
+`;
+
+const SheetTab = styled.button<{ $active: boolean }>`
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  min-width: 72px;
+  padding: var(--space-sm) var(--space-md);
+  border: none;
+  border-bottom: 2px solid
+    ${({ $active }) => ($active ? "#1890ff" : "transparent")};
+  background: ${({ $active }) =>
+    $active ? "rgba(24, 144, 255, 0.08)" : "transparent"};
+  color: ${({ $active }) => ($active ? "#1890ff" : "#595959")};
+  font-family: inherit;
+  font-size: var(--font-xs);
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+
+  .anticon {
+    font-size: var(--tool-sheet-icon-size);
+  }
+`;
+
+const SheetCategoryPanel = styled.div`
+  flex: 0 1 auto;
+  min-height: var(--tool-sheet-menu-min-height);
+  max-height: var(--tool-sheet-menu-max-height);
+  overflow-y: auto;
+  border-bottom: 1px solid #f0f0f0;
+`;
+
+const SheetPanelHost = styled.div`
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+`;
+
+const SheetPanelMenu = styled(Menu)`
+  && {
+    border-inline-end: none;
+    background: transparent;
+  }
+`;
 
 const Sider: React.FC<{
   setHasOpenTool: React.Dispatch<React.SetStateAction<boolean>>;
@@ -142,6 +265,10 @@ const Sider: React.FC<{
     useAtom(isShowEditMissionTag);
   const [openEditChargeStationIconPanel, setOpenEditChargeStationIconPanel] =
     useAtom(isShowEditChargeStationPosition);
+
+  const [openEditChargeDockConfigPanel, setOpenEditChargeDockConfigPanel] =
+    useAtom(isShowChargeStationDockConfig);
+
   const [openCustomCargoFormat, setOpenCustomCargoFormat] = useAtom(
     isShowEditCustomCargoFormat,
   );
@@ -156,7 +283,9 @@ const Sider: React.FC<{
   const [openBackup, setOpenBackup] = useAtom(isShowEditBackup);
   const [openStartPoint, setOpenStartPoint] = useState(false);
 
-  const setOpenSwitchMap = useSetAtom(isOpenSwitchMap);
+  const [openSwitchMap, setOpenSwitchMap] = useAtom(isOpenSwitchMap);
+  const [openMapGroupTable, setOpenMapGroupTable] =
+    useAtom(isShowMapGroupTable);
 
   const setShowLocationToolTip = useSetAtom(isShowLocationTooltip);
 
@@ -171,8 +300,34 @@ const Sider: React.FC<{
     isShowEditBlindLocationMission,
   );
 
+  const [showSystemAlarm, setShowSystemAlarm] = useAtom(isShowSystemAlarm);
+
+  const [showFootprint, setShowFootprint] = useAtom(isHowFootprint);
+  const [showSound, setShowSound] = useAtom(isShowSound);
+
   const [collapsed, setCollapsed] = useState(false);
+  const [activeCategoryKey, setActiveCategoryKey] = useState<string | null>(
+    null,
+  );
+
+  const [markerType, setShowMarkerType] = useAtom(isShowMarketType);
+  const [syncMirData, setSyncMirData] = useAtom(isShowSyncMirData);
+
+  const sheetTabsRef = useRef<HTMLDivElement>(null);
+  const setToolSheetPanelHost = useSetAtom(toolSheetPanelHost);
+  const panelHostRef = useCallback(
+    (node: HTMLDivElement | null) => setToolSheetPanelHost(node),
+    [setToolSheetPanelHost],
+  );
+  const sheetDragRef = useRef<{
+    startY: number;
+    startHeight: number;
+    wrapper: HTMLElement;
+    minHeight: number;
+    maxHeight: number;
+  } | null>(null);
   const { t } = useTranslation();
+  const isWeb = useIsWebMediaQuery();
   useEffect(() => {
     const isOpen = [
       openEditLocationPanel,
@@ -204,6 +359,14 @@ const Sider: React.FC<{
       openPeripheralNameMap,
       openPeripheralGroupMap,
       openBlindMis,
+      showSystemAlarm,
+      openSwitchMap,
+      openMapGroupTable,
+      openEditChargeDockConfigPanel,
+      showFootprint,
+      showSound,
+      markerType,
+      syncMirData,
     ].some((item) => item);
 
     setHasOpenTool(isOpen);
@@ -237,6 +400,14 @@ const Sider: React.FC<{
     openPeripheralNameMap,
     openPeripheralGroupMap,
     openBlindMis,
+    showSystemAlarm,
+    openSwitchMap,
+    openMapGroupTable,
+    openEditChargeDockConfigPanel,
+    showFootprint,
+    showSound,
+    markerType,
+    syncMirData,
   ]);
 
   const handleShowPanel = async (check: boolean, itemType: ToolBarItemType) => {
@@ -341,6 +512,10 @@ const Sider: React.FC<{
         setOpenPeripheralGroupMap(check);
         break;
 
+      case "peripheral_charge_dock_config":
+        setOpenEditChargeDockConfigPanel(check);
+        break;
+
       case "blind_mission":
         setOpenBlindMis(check);
         break;
@@ -380,6 +555,30 @@ const Sider: React.FC<{
       case "backup_file":
         setOpenBackup(check);
         break;
+      case "show_system_alarm":
+        setShowSystemAlarm(check);
+        break;
+      case "switch_map":
+        setOpenSwitchMap(check);
+        break;
+      case "map_group_table":
+        setOpenMapGroupTable(check);
+        break;
+      case "footprint":
+        setShowFootprint(check);
+        break;
+      case "sound":
+        setShowSound(check);
+        break;
+
+      case "marker_type":
+        setShowMarkerType(check);
+        break;
+
+      case "sync_mir":
+        setSyncMirData(check);
+        break;
+
       //=======
     }
   };
@@ -398,16 +597,16 @@ const Sider: React.FC<{
             checked={openEditLocationPanel}
           />,
         ),
-        getItem(
-          t("toolbar.location.quick_edit_locations"),
-          "1-2",
-          <Switch
-            onChange={(checked) =>
-              handleShowPanel(checked, "quick_location_panel")
-            }
-            checked={quickEditLocationPanel}
-          />,
-        ),
+        // getItem(
+        //   t("toolbar.location.quick_edit_locations"),
+        //   "1-2",
+        //   <Switch
+        //     onChange={(checked) =>
+        //       handleShowPanel(checked, "quick_location_panel")
+        //     }
+        //     checked={quickEditLocationPanel}
+        //   />,
+        // ),
         getItem(
           t("toolbar.location.show_locations_table"),
           "1-4",
@@ -644,6 +843,17 @@ const Sider: React.FC<{
           onChange={(checked) => handleShowPanel(checked, "edit_icon_style")}
         />,
       ),
+
+      getItem(
+        t("toolbar.others.charge_dock_config"),
+        "7-4",
+        <Switch
+          checked={openEditChargeDockConfigPanel}
+          onChange={(checked) =>
+            handleShowPanel(checked, "peripheral_charge_dock_config")
+          }
+        />,
+      ),
     ]),
 
     getItem(t("toolbar.others.others"), "8", <DeploymentUnitOutlined />, [
@@ -674,6 +884,24 @@ const Sider: React.FC<{
         />,
       ),
     ]),
+    getItem(t("toolbar.map_setting.map_setting"), "10", <PictureOutlined />, [
+      getItem(
+        t("toolbar.map_setting.switch_map"),
+        "10-1",
+        <Switch
+          checked={openSwitchMap}
+          onChange={(checked) => handleShowPanel(checked, "switch_map")}
+        />,
+      ),
+      getItem(
+        t("toolbar.map_setting.map_group"),
+        "10-2",
+        <Switch
+          checked={openMapGroupTable}
+          onChange={(checked) => handleShowPanel(checked, "map_group_table")}
+        />,
+      ),
+    ]),
     getItem(t("toolbar.file_setting.file_setting"), "9", <FileOutlined />, [
       getItem(
         t("toolbar.file_setting.warning_id"),
@@ -694,14 +922,17 @@ const Sider: React.FC<{
         />,
       ),
       getItem(
+        t("toolbar.file_setting.system_alarm"),
+        "9-7",
+        <Switch
+          checked={showSystemAlarm}
+          onChange={(checked) => handleShowPanel(checked, "show_system_alarm")}
+        />,
+      ),
+      getItem(
         t("toolbar.file_setting.start_point"),
         "9-3",
         <BorderOuterOutlined />,
-      ),
-      getItem(
-        t("toolbar.file_setting.switch_map"),
-        "9-4",
-        <DeliveredProcedureOutlined />,
       ),
       getItem(
         t("toolbar.file_setting.import_map"),
@@ -709,6 +940,43 @@ const Sider: React.FC<{
         <DeliveredProcedureOutlined />,
       ),
       getItem(t("toolbar.restart.restart"), "9-6", <RedoOutlined />),
+    ]),
+
+    getItem("MIR", "12", <FileOutlined />, [
+      getItem(
+        "footprint",
+        "12-1",
+        <Switch
+          checked={showFootprint}
+          onChange={(checked) => handleShowPanel(checked, "footprint")}
+        />,
+      ),
+      getItem(
+        "sound",
+        "12-2",
+        <Switch
+          checked={showSound}
+          onChange={(checked) => handleShowPanel(checked, "sound")}
+        />,
+      ),
+
+      getItem(
+        "marker_type",
+        "12-3",
+        <Switch
+          checked={markerType}
+          onChange={(checked) => handleShowPanel(checked, "marker_type")}
+        />,
+      ),
+
+      getItem(
+        "sync_mir",
+        "12-4",
+        <Switch
+          checked={syncMirData}
+          onChange={(checked) => handleShowPanel(checked, "sync_mir")}
+        />,
+      ),
     ]),
   ];
 
@@ -739,23 +1007,82 @@ const Sider: React.FC<{
       case "9-5":
         setImportMapConfig(true);
         break;
-      case "9-4":
-        setOpenSwitchMap(true);
-        console.log("open");
-        break;
       default:
         break;
     }
   };
+
+  const handleSheetDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
+    const wrapper = e.currentTarget.closest<HTMLElement>(
+      ".ant-drawer-content-wrapper",
+    );
+    if (!wrapper) return;
+
+    const header = wrapper.querySelector<HTMLElement>(".ant-drawer-header");
+    const section = wrapper.querySelector<HTMLElement>(".ant-drawer-section");
+    const maxHeight = section
+      ? parseFloat(window.getComputedStyle(section).maxHeight)
+      : NaN;
+
+    sheetDragRef.current = {
+      startY: e.clientY,
+      startHeight: wrapper.getBoundingClientRect().height,
+      wrapper,
+      minHeight: header?.offsetHeight ?? 0,
+      maxHeight: Number.isFinite(maxHeight) ? maxHeight : window.innerHeight,
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const handleSheetDragMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const drag = sheetDragRef.current;
+    if (!drag) return;
+
+    // 往上拉（clientY 變小）代表變高
+    const next = drag.startHeight - (e.clientY - drag.startY);
+    drag.wrapper.style.setProperty(
+      "--tool-sheet-height",
+      `${Math.min(Math.max(next, drag.minHeight), drag.maxHeight)}px`,
+    );
+  };
+
+  const handleSheetDragEnd = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!sheetDragRef.current) return;
+    sheetDragRef.current = null;
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+  };
+
+  const toolCategories = toolItem as Array<{
+    key: string;
+    icon: React.ReactNode;
+    label: React.ReactNode;
+    children: MenuItem[];
+  }>;
+  const activeCategory = toolCategories.find(
+    (category) => category.key === activeCategoryKey,
+  );
+
+  const handleSelectCategory = (key: string) => {
+    const next = activeCategoryKey === key ? null : key;
+    setActiveCategoryKey(next);
+
+    if (!next) {
+      sheetTabsRef.current
+        ?.closest<HTMLElement>(".ant-drawer-content-wrapper")
+        ?.style.removeProperty("--tool-sheet-height");
+    }
+  };
+
   return (
     <>
       {contextHolders}
-      <AntdSider
+      <DesktopSider
         collapsible
         width={230}
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
-        style={{ backgroundColor: "#ffffff", overflowY: "scroll" }}
         // className="setting-sider"
       >
         <Menu
@@ -765,7 +1092,53 @@ const Sider: React.FC<{
           items={toolItem}
           className="setting-sider-menu"
         />
-      </AntdSider>
+      </DesktopSider>
+
+      {!isWeb && (
+        <ToolSheet
+          placement="bottom"
+          open
+          closable={false}
+          defaultSize="var(--tool-sheet-height)"
+          mask={false}
+          title={
+            <SheetHandle
+              onPointerDown={handleSheetDragStart}
+              onPointerMove={handleSheetDragMove}
+              onPointerUp={handleSheetDragEnd}
+              onPointerCancel={handleSheetDragEnd}
+            />
+          }
+        >
+          <SheetTabs ref={sheetTabsRef}>
+            {toolCategories.map((category) => (
+              <SheetTab
+                key={category.key}
+                type="button"
+                $active={category.key === activeCategoryKey}
+                onClick={() => handleSelectCategory(category.key)}
+              >
+                {category.icon}
+                <span>{category.label}</span>
+              </SheetTab>
+            ))}
+          </SheetTabs>
+
+          {activeCategory && (
+            <SheetCategoryPanel>
+              <SheetPanelMenu
+                onClick={(e) => handleRestart(e.keyPath)}
+                mode="inline"
+                selectable={false}
+                items={activeCategory.children}
+                className="setting-sider-menu"
+              />
+            </SheetCategoryPanel>
+          )}
+
+          <SheetPanelHost ref={panelHostRef} />
+        </ToolSheet>
+      )}
 
       {/**  -------- 錯誤表 --------  */}
 
@@ -778,7 +1151,6 @@ const Sider: React.FC<{
         setOpenStartPoint={setOpenStartPoint}
       />
       <UploadWarningModal></UploadWarningModal>
-      <MapManager></MapManager>
     </>
   );
 };
