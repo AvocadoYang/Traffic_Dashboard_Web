@@ -19,7 +19,6 @@ const DevMain: React.FC = () => {
     <MainLayout>
       <Header />
       <WebView />
-  
     </MainLayout>
   );
 };

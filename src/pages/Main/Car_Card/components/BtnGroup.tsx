@@ -403,14 +403,7 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
             {t("charge.charge")}
           </IndustrialButton>
 
-          <IndustrialButton
-            className="charge-btn"
-            onClick={() => resetChargeMutation.mutate()}
-            icon={<ThunderboltOutlined />}
-          >
-            {t("amr_card.charge_reset")}
-          </IndustrialButton>
-
+ 
           <Divider />
 
           {/* Mission Management */}
