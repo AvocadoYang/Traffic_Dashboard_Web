@@ -474,6 +474,7 @@ const EditZonePanel: React.FC<{
                   style={tagFieldStyle}
                 >
                   <Input
+                    addonAfter="m/s"
                     type="number"
                     placeholder={t("edit_zone_panel.placeholder.speed_limit")}
                     style={{ width: "50%" }}
@@ -488,6 +489,7 @@ const EditZonePanel: React.FC<{
                   style={tagFieldStyle}
                 >
                   <Input
+                    addonAfter="m"
                     type="number"
                     placeholder={t("edit_zone_panel.placeholder.hight_limit")}
                     style={{ width: "50%" }}
@@ -502,8 +504,10 @@ const EditZonePanel: React.FC<{
                   style={tagFieldStyle}
                 >
                   <Input
+                    addonAfter="car (s)"
                     type="number"
                     placeholder={t("edit_zone_panel.placeholder.limit")}
+                    style={{ width: "50%" }}
                   />
                 </Form.Item>
               ) : null}

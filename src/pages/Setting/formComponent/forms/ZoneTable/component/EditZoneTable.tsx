@@ -465,7 +465,7 @@ const EditZoneTable: FC<{
                   rules={[{ required: true }]}
                 >
                   <InputNumber
-                    addonAfter="mm"
+                    addonAfter="m"
                     type="number"
                     placeholder="請輸入高度限制"
                     style={{ width: "50%" }}
@@ -481,6 +481,7 @@ const EditZoneTable: FC<{
                   rules={[{ required: true }]}
                 >
                   <InputNumber
+                    addonAfter="car (s)"
                     type="number"
                     placeholder={t("edit_zone_panel.placeholder.limit")}
                     style={{ width: "50%" }}
@@ -501,7 +502,9 @@ const EditZoneTable: FC<{
                   ]}
                 >
                   <Select
-                    placeholder={t("edit_zone_panel.placeholder.view_available")}
+                    placeholder={t(
+                      "edit_zone_panel.placeholder.view_available",
+                    )}
                     style={{ width: "50%" }}
                     options={viewAvailableOption}
                   />

@@ -1,6 +1,6 @@
 import { RefObject, memo, useCallback, useRef, useState } from "react";
 import "../setting.css";
-import { FormInstance } from "antd";
+import { Form, FormInstance } from "antd";
 import { useAtom, useAtomValue } from "jotai";
 import {
   DragLineInfo,
@@ -42,6 +42,7 @@ import {
   AllZones,
   LocationHoverCluster,
 } from "./components";
+import type { FrameColor } from "./components";
 import { LocationType } from "@/utils/jotai";
 import AllRoads from "./components/AllRoads/AllRoads";
 import RoadHoverCluster from "./components/AllRoads/RoadHoverCluster";
@@ -117,6 +118,8 @@ const MapView: React.FC<{
     width: 0,
     height: 0,
   } as RectInfo);
+  // 拉框的顏色跟著區域表單的 ColorPicker 走
+  const zoneFrameColor = Form.useWatch("color", zonePanelForm) as FrameColor;
   /** */
 
   const mapImageRef = useRef<HTMLImageElement>(null);
@@ -278,7 +281,11 @@ const MapView: React.FC<{
         []
       )}
 
-      {openEditZone ? <DragFrame rectInfo={rectInfo}></DragFrame> : []}
+      {openEditZone ? (
+        <DragFrame rectInfo={rectInfo} color={zoneFrameColor}></DragFrame>
+      ) : (
+        []
+      )}
 
       {openEditLocationPanel || openQuickEditLocationPanelSwitch ? (
         //編輯點位跟快速編輯點位時的小紅點
