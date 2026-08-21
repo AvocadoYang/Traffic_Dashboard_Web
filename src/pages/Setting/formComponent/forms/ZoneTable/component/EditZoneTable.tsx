@@ -28,6 +28,7 @@ import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import {
   isUnset,
   tagFieldStyle,
+  transformToNumber,
   zoneTagResetFields,
 } from "../../zoneTagSetting";
 
@@ -164,9 +165,12 @@ const EditZoneTable: FC<{
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
-  const save = () => {
-    if (isHint) {
-      messageApi.warning(t("edit_zone_panel.waring.tag_not_yet_setting"));
+  const save = async () => {
+    // 參數區的必填／數值範圍交給各欄位的 rules，錯誤訊息會直接顯示在欄位下方。
+    // 只有掛載中的欄位會被驗證，也就是目前有勾選的 tag。
+    try {
+      await editZoneForm.validateFields();
+    } catch {
       return;
     }
     const data = editZoneForm.getFieldsValue() as FormType;
@@ -192,15 +196,6 @@ const EditZoneTable: FC<{
     });
     if (exists) {
       messageApi.warning(t("edit_zone_panel.waring.name_duplicated_error"));
-      return;
-    }
-
-    if (
-      data.category?.includes("禁止區") &&
-      !data.all_forbidden &&
-      !data.forbidden?.length
-    ) {
-      messageApi.warning(t("edit_zone_panel.waring.tag_not_yet_setting"));
       return;
     }
 
@@ -298,7 +293,7 @@ const EditZoneTable: FC<{
           >
             {t("utils.cancel")}
           </Button>
-          <Button color="primary" variant="filled" onClick={() => save()}>
+          <Button color="primary" variant="filled" onClick={() => void save()}>
             {t("utils.save")}
           </Button>
         </Space>
@@ -444,13 +439,26 @@ const EditZoneTable: FC<{
                   name="speed_limit"
                   label={`${t("edit_zone_panel.highest_speed")}: (${t("edit_zone_panel.necessary")}) `}
                   style={tagFieldStyle}
-                  rules={[{ required: true }]}
+                  rules={[
+                    {
+                      required: true,
+                      message: t("edit_zone_panel.placeholder.speed_limit"),
+                    },
+                    {
+                      type: "number",
+                      min: 0.8,
+                      max: 1.5,
+                      transform: transformToNumber,
+                      message: t("edit_zone_panel.waring.non_negative"),
+                    },
+                  ]}
                 >
                   <InputNumber
                     addonAfter="m/s"
                     type="number"
                     min={0.8}
                     max={1.5}
+                    step={0.1}
                     placeholder="0.8~1.5"
                     style={{ width: "50%" }}
                   />
@@ -462,7 +470,18 @@ const EditZoneTable: FC<{
                   name="hight_limit"
                   label={`${t("edit_zone_panel.hight_limit")}: (${t("edit_zone_panel.necessary")})`}
                   style={tagFieldStyle}
-                  rules={[{ required: true }]}
+                  rules={[
+                    {
+                      required: true,
+                      message: t("edit_zone_panel.placeholder.hight_limit"),
+                    },
+                    {
+                      type: "number",
+                      min: 0,
+                      transform: transformToNumber,
+                      message: t("edit_zone_panel.waring.non_negative"),
+                    },
+                  ]}
                 >
                   <InputNumber
                     addonAfter="m"
@@ -478,7 +497,18 @@ const EditZoneTable: FC<{
                   name="limitNum"
                   label={`${t("edit_zone_panel.limit_count")}: `}
                   style={tagFieldStyle}
-                  rules={[{ required: true }]}
+                  rules={[
+                    {
+                      required: true,
+                      message: t("edit_zone_panel.placeholder.limit"),
+                    },
+                    {
+                      type: "number",
+                      min: 0,
+                      transform: transformToNumber,
+                      message: t("edit_zone_panel.waring.non_negative"),
+                    },
+                  ]}
                 >
                   <InputNumber
                     addonAfter="car (s)"
@@ -527,6 +557,20 @@ const EditZoneTable: FC<{
                   <Form.Item
                     name="forbidden"
                     label={`${t("edit_zone_panel.forbidden_vehicle")}: `}
+                    dependencies={["all_forbidden"]}
+                    rules={[
+                      ({ getFieldValue }) => ({
+                        validator: (_, value: string[] | undefined) => {
+                          if (getFieldValue("all_forbidden") || value?.length)
+                            return Promise.resolve();
+                          return Promise.reject(
+                            new Error(
+                              t("edit_zone_panel.waring.forbidden_empty"),
+                            ),
+                          );
+                        },
+                      }),
+                    ]}
                   >
                     <Select
                       placeholder={"請選擇限制進入車輛"}

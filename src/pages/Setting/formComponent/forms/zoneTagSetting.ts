@@ -16,3 +16,6 @@ export const tagFieldStyle: React.CSSProperties = {
 
 export const isUnset = (value: unknown) =>
   value === undefined || value === null || value === "";
+
+export const transformToNumber = (value: unknown) =>
+  isUnset(value) ? undefined : Number(value);

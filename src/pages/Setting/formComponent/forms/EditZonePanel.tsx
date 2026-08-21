@@ -20,7 +20,12 @@ import {
 import { SaveOutlined } from "@ant-design/icons";
 import FormHr from "../../utils/FormHr";
 import { initialTagFormValue, initialZoneValue } from "./formInitValue";
-import { isUnset, tagFieldStyle, zoneTagResetFields } from "./zoneTagSetting";
+import {
+  isUnset,
+  tagFieldStyle,
+  transformToNumber,
+  zoneTagResetFields,
+} from "./zoneTagSetting";
 import { openNotificationWithIcon } from "../../utils/notification";
 import { TagSettingType, ZoneType } from "@/utils/jotai";
 import client from "@/api/axiosClient";
@@ -187,7 +192,7 @@ const EditZonePanel: React.FC<{
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
-  const save = () => {
+  const save = async () => {
     if (!zonePanelForm.getFieldsValue()) return;
     const {
       name,
@@ -248,13 +253,9 @@ const EditZonePanel: React.FC<{
       );
       return;
     }
-    if (isHint) {
-      openNotificationWithIcon(
-        "warning",
-        t("edit_zone_panel.waring.tag_not_yet_setting"),
-        t("edit_zone_panel.waring.tag_not_yet_setting"),
-        "bottomLeft",
-      );
+    try {
+      await zonePanelForm.validateFields();
+    } catch {
       return;
     }
     if (layer && !lidar_front && !lidar_back) {
@@ -472,10 +473,26 @@ const EditZonePanel: React.FC<{
                   name="speed_limit"
                   label={`${t("edit_zone_panel.highest_speed")}: (${t("edit_zone_panel.necessary")}) `}
                   style={tagFieldStyle}
+                  rules={[
+                    {
+                      required: true,
+                      message: t("edit_zone_panel.placeholder.speed_limit"),
+                    },
+                    {
+                      type: "number",
+                      min: 0.8,
+                      max: 1.5,
+                      transform: transformToNumber,
+                      message: t("edit_zone_panel.waring.non_negative"),
+                    },
+                  ]}
                 >
                   <Input
                     addonAfter="m/s"
                     type="number"
+                    min={0.8}
+                    max={1.5}
+                    step={0.1}
                     placeholder={t("edit_zone_panel.placeholder.speed_limit")}
                     style={{ width: "50%" }}
                   />
@@ -487,10 +504,24 @@ const EditZonePanel: React.FC<{
                   name="hight_limit"
                   label={`${t("edit_zone_panel.hight_limit")}: (${t("edit_zone_panel.necessary")})`}
                   style={tagFieldStyle}
+                  rules={[
+                    {
+                      required: true,
+                      message: t("edit_zone_panel.placeholder.hight_limit"),
+                    },
+                    {
+                      type: "number",
+                      min: 0,
+                      transform: transformToNumber,
+                      message: t("edit_zone_panel.waring.non_negative"),
+                    },
+                  ]}
                 >
                   <Input
                     addonAfter="m"
                     type="number"
+                    min={0}
+                    step={0.1}
                     placeholder={t("edit_zone_panel.placeholder.hight_limit")}
                     style={{ width: "50%" }}
                   />
@@ -502,6 +533,18 @@ const EditZonePanel: React.FC<{
                   name="limitNum"
                   label={`${t("edit_zone_panel.limit_count")}: `}
                   style={tagFieldStyle}
+                  rules={[
+                    {
+                      required: true,
+                      message: t("edit_zone_panel.placeholder.limit"),
+                    },
+                    {
+                      type: "number",
+                      min: 0,
+                      transform: transformToNumber,
+                      message: t("edit_zone_panel.waring.non_negative"),
+                    },
+                  ]}
                 >
                   <Input
                     addonAfter="car (s)"
@@ -547,6 +590,20 @@ const EditZonePanel: React.FC<{
                     name="forbidden"
                     label={`${t("edit_zone_panel.forbidden_vehicle")}: `}
                     style={{ marginBottom: "5px" }}
+                    dependencies={["all_forbidden"]}
+                    rules={[
+                      ({ getFieldValue }) => ({
+                        validator: (_, value: string[] | undefined) => {
+                          if (getFieldValue("all_forbidden") || value?.length)
+                            return Promise.resolve();
+                          return Promise.reject(
+                            new Error(
+                              t("edit_zone_panel.waring.forbidden_empty"),
+                            ),
+                          );
+                        },
+                      }),
+                    ]}
                   >
                     <Select
                       placeholder={t("edit_zone_panel.placeholder.forbidden")}
@@ -568,7 +625,7 @@ const EditZonePanel: React.FC<{
           <Form.Item style={{ textAlign: "center" }}>
             <Button
               icon={<SaveOutlined />}
-              onClick={save}
+              onClick={() => void save()}
               color="primary"
               variant="filled"
             >

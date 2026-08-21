@@ -125,12 +125,12 @@ const Zone: FC<{ id: string; info: ZoneInfo; scale: number }> = ({
     <>
       <FrameName left={axis.x} top={axis.y - 18} draggable={false}>
         {hidden ? (
-          <EyeOutlined
+          <EyeInvisibleOutlined
             style={{ cursor: "pointer" }}
             onClick={() => setHidden(false)}
           />
         ) : (
-          <EyeInvisibleOutlined
+          <EyeOutlined
             style={{ cursor: "pointer" }}
             onClick={() => setHidden(true)}
           />

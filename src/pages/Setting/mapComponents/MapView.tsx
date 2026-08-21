@@ -118,7 +118,6 @@ const MapView: React.FC<{
     width: 0,
     height: 0,
   } as RectInfo);
-  // 拉框的顏色跟著區域表單的 ColorPicker 走
   const zoneFrameColor = Form.useWatch("color", zonePanelForm) as FrameColor;
   /** */
 

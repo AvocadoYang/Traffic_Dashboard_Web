@@ -11,8 +11,6 @@ export type FrameColor =
 const DEFAULT_BORDER = "red";
 const DEFAULT_FILL = "rgba(255, 0, 0, 0.03)";
 
-// 填色的 alpha 跟存檔時寫進 backgroundColor 的 0.05 一致(見 EditZonePanel 的 save),
-// 拉框當下看到的顏色就等於存檔後畫出來的區域顏色。
 const resolveColor = (color: FrameColor) => {
   if (!color) return { border: DEFAULT_BORDER, fill: DEFAULT_FILL };
   if (typeof color === "string") return { border: color, fill: color };
