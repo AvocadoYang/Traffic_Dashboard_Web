@@ -248,6 +248,19 @@ const AmrDetail = () => {
                     ? t("amr_detail.online")
                     : t("amr_detail.offline")}
                 </IndustrialTag>
+                {connectionStatus.isOnline && (
+                  <IndustrialTag
+                    color={
+                      connectionStatus.hasServiceInterruption
+                        ? "orange"
+                        : "green"
+                    }
+                  >
+                    {connectionStatus.hasServiceInterruption
+                      ? t("amr_detail.service_interrupted")
+                      : t("amr_detail.service_normal")}
+                  </IndustrialTag>
+                )}
                 <IndustrialTag
                   color={connectionStatus.isOverdue ? "red" : "blue"}
                 >
