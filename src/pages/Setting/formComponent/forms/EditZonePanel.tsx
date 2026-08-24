@@ -483,7 +483,10 @@ const EditZonePanel: React.FC<{
                       min: 0.8,
                       max: 1.5,
                       transform: transformToNumber,
-                      message: t("edit_zone_panel.waring.non_negative"),
+                      message: t(
+                        "edit_zone_panel.waring.need_to_be_within_range",
+                        { min: 0.8, max: 1.5 },
+                      ),
                     },
                   ]}
                 >
@@ -549,6 +552,8 @@ const EditZonePanel: React.FC<{
                   <Input
                     addonAfter="car (s)"
                     type="number"
+                    min={0}
+                    step={1}
                     placeholder={t("edit_zone_panel.placeholder.limit")}
                     style={{ width: "50%" }}
                   />

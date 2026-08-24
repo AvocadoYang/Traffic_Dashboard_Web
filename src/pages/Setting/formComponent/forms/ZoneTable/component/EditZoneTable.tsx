@@ -166,8 +166,6 @@ const EditZoneTable: FC<{
   });
 
   const save = async () => {
-    // 參數區的必填／數值範圍交給各欄位的 rules，錯誤訊息會直接顯示在欄位下方。
-    // 只有掛載中的欄位會被驗證，也就是目前有勾選的 tag。
     try {
       await editZoneForm.validateFields();
     } catch {
@@ -449,15 +447,16 @@ const EditZoneTable: FC<{
                       min: 0.8,
                       max: 1.5,
                       transform: transformToNumber,
-                      message: t("edit_zone_panel.waring.non_negative"),
+                      message: t(
+                        "edit_zone_panel.waring.need_to_be_within_range",
+                        { min: 0.8, max: 1.5 },
+                      ),
                     },
                   ]}
                 >
                   <InputNumber
                     addonAfter="m/s"
                     type="number"
-                    min={0.8}
-                    max={1.5}
                     step={0.1}
                     placeholder="0.8~1.5"
                     style={{ width: "50%" }}
@@ -513,6 +512,7 @@ const EditZoneTable: FC<{
                   <InputNumber
                     addonAfter="car (s)"
                     type="number"
+                    step={1}
                     placeholder={t("edit_zone_panel.placeholder.limit")}
                     style={{ width: "50%" }}
                   />
