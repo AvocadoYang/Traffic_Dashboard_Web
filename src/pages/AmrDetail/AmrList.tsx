@@ -137,20 +137,32 @@ const StatusBadge = styled.span<{ $status: string }>`
       ? "#f6ffed"
       : $status === "Charging"
         ? "#fffbe6"
-        : "#fafafa"};
+        : $status === "Error"
+          ? "#fff7e6"
+          : $status === "Offline"
+            ? "#fff1f0"
+            : "#fafafa"};
   border: 1px solid
     ${({ $status }) =>
       $status === "Active"
         ? "#52c41a"
         : $status === "Charging"
           ? "#faad14"
-          : "#d9d9d9"};
+          : $status === "Error"
+            ? "#ff9646"
+            : $status === "Offline"
+              ? "#ff4d4f"
+              : "#d9d9d9"};
   color: ${({ $status }) =>
     $status === "Active"
       ? "#52c41a"
       : $status === "Charging"
         ? "#faad14"
-        : "#8c8c8c"};
+        : $status === "Error"
+          ? "#ff9646"
+          : $status === "Offline"
+            ? "#ff4d4f"
+            : "#8c8c8c"};
   font-weight: 700;
   font-size: 10px;
   text-transform: uppercase;
@@ -197,11 +209,13 @@ const AmrList = () => {
                 amrId = "mock-" + amrId.slice(1);
               }
 
-              const status = amr.isOnline
-                ? amr.isOverdue
-                  ? "Error"
-                  : "Active"
-                : "Idle";
+              const status = !amr.isOnline
+                ? "Idle"
+                : amr.isOverdue
+                  ? "Offline"
+                  : amr.hasServiceInterruption
+                    ? "Error"
+                    : "Active";
 
               return (
                 <Col span={colSpan} key={amr.amrId}>
@@ -215,11 +229,13 @@ const AmrList = () => {
                       <InfoRow>
                         <span className="label">{t("utils.status")}:</span>
                         <StatusBadge $status={status}>
-                          {amr.isOnline
-                            ? amr.isOverdue
-                              ? t("utils.error")
-                              : t("utils.active")
-                            : t("utils.inactive")}
+                          {!amr.isOnline
+                            ? t("utils.inactive")
+                            : amr.isOverdue
+                              ? t("utils.offline")
+                              : amr.hasServiceInterruption
+                                ? t("utils.service_interrupted")
+                                : t("utils.active")}
                         </StatusBadge>
                       </InfoRow>
 
