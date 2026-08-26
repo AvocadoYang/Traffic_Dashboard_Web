@@ -30,6 +30,13 @@ type ZoneInfo = {
   };
 };
 
+const toOpaque = (color: string) => {
+  const rgb = color.match(/rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)/i);
+  if (!rgb) return color;
+  const [, r, g, b] = rgb;
+  return `rgb(${r}, ${g}, ${b})`;
+};
+
 const Frame = styled.div.attrs<{
   left: number;
   top: number;
@@ -43,11 +50,14 @@ const Frame = styled.div.attrs<{
     width: `${width}px`,
     height: `${height}px`,
     background: color,
-    border: "2px solid rgba(251, 23, 3, 0.32)",
+    border: `2px solid ${toOpaque(color)}`,
   },
 }))<{
   left: number;
   top: number;
+  width: number;
+  height: number;
+  color: string;
 }>`
   box-sizing: border-box;
   position: absolute;
@@ -115,12 +125,12 @@ const Zone: FC<{ id: string; info: ZoneInfo; scale: number }> = ({
     <>
       <FrameName left={axis.x} top={axis.y - 18} draggable={false}>
         {hidden ? (
-          <EyeOutlined
+          <EyeInvisibleOutlined
             style={{ cursor: "pointer" }}
             onClick={() => setHidden(false)}
           />
         ) : (
-          <EyeInvisibleOutlined
+          <EyeOutlined
             style={{ cursor: "pointer" }}
             onClick={() => setHidden(true)}
           />
@@ -166,7 +176,7 @@ const FrameInfo: FC<{ info: ZoneInfo }> = ({ info }) => {
           <p
             style={{ color: "yellow" }}
           >{`${t("edit_zone_panel.deceleration_zone")}: `}</p>
-          <p>{`${t("edit_zone_panel.highest_speed")} - ${info.tagSetting.speed_limit} (m/s)`}</p>
+          <p>{`${t("edit_zone_panel.highest_speed")} : ${info.tagSetting.speed_limit} (m/s)`}</p>
         </div>
       ) : (
         []
@@ -176,7 +186,7 @@ const FrameInfo: FC<{ info: ZoneInfo }> = ({ info }) => {
           <p
             style={{ color: "yellow" }}
           >{`${t("edit_zone_panel.height_limit_zone")}: `}</p>
-          <p>{`${t("edit_zone_panel.hight_limit")} - ${info.tagSetting.hight_limit} (mm)`}</p>
+          <p>{`${t("edit_zone_panel.hight_limit")} : ${info.tagSetting.hight_limit} (m)`}</p>
         </div>
       ) : (
         []
@@ -186,7 +196,7 @@ const FrameInfo: FC<{ info: ZoneInfo }> = ({ info }) => {
           <p
             style={{ color: "yellow" }}
           >{`${t("edit_zone_panel.controlled_zone")}: `}</p>
-          <p>{`${t("edit_zone_panel.limit_count")} - ${info.tagSetting.limitNum} `}</p>
+          <p>{`${t("edit_zone_panel.limit_count")} : ${info.tagSetting.limitNum} `}</p>
         </div>
       ) : (
         []

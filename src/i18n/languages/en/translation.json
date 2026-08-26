@@ -459,7 +459,10 @@
       "name_empty_error": "Name field cannot be empty",
       "name_duplicated_error": "Zone name already exists",
       "color_error": "Please choose a color for zone",
-      "invalid_frame": "Invalid selection"
+      "invalid_frame": "Invalid selection",
+      "non_negative": "Value cannot be less than 0",
+      "need_to_be_within_range": "Value must be within the range of {{min}} ~ {{max}}",
+      "forbidden_empty": "Select forbidden vehicles or check 'All vehicle forbidden'"
     }
   },
   "zone_table_form": {

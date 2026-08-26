@@ -188,7 +188,7 @@ const PointMainDiv = styled.div.attrs<{
 
   /* 有車正要前往這個點位時，在點位正上方常駐一個標籤顯示 locationId (顏色同該車) */
   ${(p) =>
-    p.$destinationLabel
+    false
       ? css`
           &::after {
             content: "${p.$destinationLabel}";

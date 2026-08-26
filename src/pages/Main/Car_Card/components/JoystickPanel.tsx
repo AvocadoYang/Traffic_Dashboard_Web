@@ -58,14 +58,29 @@ const JOYSTICK_STATE = {
 } as const;
 
 const RESUME_REASON = "press the resume button";
+const OWNED_BY_OTHERS_HINT = "joystick owned by others";
 
 const isResumeReason = (reason: string | null | undefined) =>
   !!reason && reason.toLowerCase().includes(RESUME_REASON);
 
+const isOwnedByOthers = (
+  status: ReadyToJoystick | undefined,
+  webSessionId: string,
+) =>
+  !!status?.joystick_owner_session_id &&
+  status.joystick_owner_session_id !== webSessionId;
+
 const getJoystickState = (
   status: ReadyToJoystick | undefined,
   isDark: boolean,
+  webSessionId: string,
 ) => {
+  const unknown = JOYSTICK_STATE.unknown[isDark ? "dark" : "light"];
+
+  // 被別人佔用時直接蓋掉後端回報的狀態，不再往下判斷 ready / stopped。
+  if (isOwnedByOthers(status, webSessionId))
+    return { ...unknown, hint: OWNED_BY_OTHERS_HINT };
+
   const state = (() => {
     if (status?.joystick_available) return JOYSTICK_STATE.ready;
 
@@ -74,7 +89,7 @@ const getJoystickState = (
         ? JOYSTICK_STATE.resume
         : JOYSTICK_STATE.stopped;
 
-    return JOYSTICK_STATE.unknown[isDark ? "dark" : "light"];
+    return unknown;
   })();
 
   if (!status?.status_text) return state;
@@ -192,7 +207,7 @@ const JoystickBody = ({
 }) => {
   const joystick = useJoystickControl(amrId);
   const status = useReadyToJoystick(amrId);
-  const state = getJoystickState(status, isDark);
+  const state = getJoystickState(status, isDark, joystick.webSessionId);
 
   return (
     <>

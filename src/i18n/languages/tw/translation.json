@@ -452,7 +452,10 @@
       "name_empty_error": "區域名稱不可為空",
       "name_duplicated_error": "已存在相同名稱區域",
       "color_error": "請為區域選擇顯示色",
-      "invalid_frame": "無效的點位框選"
+      "invalid_frame": "無效的點位框選",
+      "non_negative": "數值不可小於 0",
+      "need_to_be_within_range": "數值需在 {{min}} ~ {{max}} 範圍內",
+      "forbidden_empty": "請選擇禁止車輛，或勾選禁止所有車輛通行"
     }
   },
   "zone_table_form": {

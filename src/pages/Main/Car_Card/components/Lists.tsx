@@ -638,12 +638,16 @@ export const MiR_StatusColor = (status: string) => {
 
 const MiRRunningStatue: React.FC<{ amrId: string; isOffline?: boolean }> = memo(
   ({ amrId, isOffline }) => {
-    const { status } = useMiRStatus(amrId);
+    const [showText, setShowText] = useState<string>("")
+    const { status, protectiveStop  } = useMiRStatus(amrId);
+    useEffect(() => {
+      setShowText(protectiveStop ? "ProtectiveStop": status)
+    }, [protectiveStop, status])
     return (
       <CarStatus
         style={{ color: isOffline ? "#585757" : MiR_StatusColor(status) }}
       >
-        {isOffline ? "--" : status ? status : "---------------"}
+        {isOffline ? "--" : showText ? showText : "---------------"}
       </CarStatus>
     );
   },
@@ -674,16 +678,18 @@ export const MiR_Map_Status: React.FC<{ isDark: boolean;  amrId: string}> = memo
     const MiR_Status_IO = useMiRStatus(amrId);
     const { data: maps } = useMapList();
     const { data: groups, isSuccess: groupsLoaded } = useMapGroup();
+
     useEffect(() => {
       if(maps && maps.length){
         const active_map = maps.filter((map) => map.id == MiR_Status_IO.active_map_id).map((map) => {
           return { mapName: map.fileName, groupName: map.map_group_name}
         })
+        
         if(active_map && active_map.length){
           setActivateMap(active_map[0])
         }
       }
-    }, [MiR_Status_IO]);
+    }, [MiR_Status_IO, maps]);
     if(!maps) return <></>
     // 離線車輛沒有可用資料, 點了也沒意義才擋; 非 Ready 狀態仍讓使用者點進 modal,
     // 由 modal 裡明顯的提示說明「為什麼不能換」, 而不是在這裡默默擋掉、使用者不知所以然。
