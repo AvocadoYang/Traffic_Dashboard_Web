@@ -7,6 +7,7 @@ import {
   sameVersion,
   shelfSelectedStyleLocationId,
   showBlockId as ShowBlockId,
+  zoneRectInfo,
 } from "@/utils/gloable";
 import {
   EditLocationPanelSwitch,
@@ -22,7 +23,6 @@ import TempLocations from "./components/TempResources/TempLocations";
 import {
   draggableLineInitialPoint,
   MouseLocationForFrame,
-  RectInfo,
 } from "../hooks/hook";
 import {
   useMousePoint,
@@ -112,12 +112,7 @@ const MapView: React.FC<{
     rvizY: 0,
   } as MouseLocationForFrame);
 
-  const [rectInfo, setRectInfo] = useState({
-    axisX: -5000,
-    axisY: -5000,
-    width: 0,
-    height: 0,
-  } as RectInfo);
+  const [rectInfo, setRectInfo] = useAtom(zoneRectInfo);
   const zoneFrameColor = Form.useWatch("color", zonePanelForm) as FrameColor;
   /** */
 

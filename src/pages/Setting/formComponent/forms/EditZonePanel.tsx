@@ -35,8 +35,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import useActiveGroupResources from "@/api/useActiveGroupResources";
 import useAmrName from "@/api/useAmrName";
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { currentMapIdAtom } from "@/utils/mapSelection";
+import { initialZoneRectInfo, zoneRectInfo } from "@/utils/gloable";
 
 type TagRender = SelectProps["tagRender"];
 
@@ -98,6 +99,7 @@ const EditZonePanel: React.FC<{
   const { data: loc } = useLoc(undefined);
   const queryClient = useQueryClient();
   const currentMapId = useAtomValue(currentMapIdAtom);
+  const setZoneRectInfo = useSetAtom(zoneRectInfo);
 
   const [messageApi, contextHolders] = message.useMessage();
 
@@ -185,6 +187,7 @@ const EditZonePanel: React.FC<{
     onSuccess: () => {
       void messageApi.success("success");
       zonePanelForm.resetFields();
+      setZoneRectInfo(initialZoneRectInfo);
       queryClient.refetchQueries({ queryKey: ["map"] });
       queryClient.refetchQueries({ queryKey: ["active-group-resources"] });
       queryClient.refetchQueries({ queryKey: ["all-groups-resources"] });
