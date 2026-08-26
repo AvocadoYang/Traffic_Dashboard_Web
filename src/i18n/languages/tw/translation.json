@@ -1609,7 +1609,9 @@
     "show_io": "顯示 IO",
     "hide_io": "隱藏 IO",
     "io": "IO 資訊",
-    "no_io": "無 IO 資訊"
+    "no_io": "無 IO 資訊",
+    "mark_point": "打點",
+    "location_id": "點位 ID"
   },
   "peripheral_style": {
     "areaType": "地點功能"

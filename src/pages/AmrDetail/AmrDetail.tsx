@@ -31,6 +31,7 @@ import { useRecentMission } from "@/sockets/useMissions";
 import { useTranslation } from "react-i18next";
 import DPad from "./DPad";
 import EditCargoCarrier from "../Main/Car_Card/components/EditCargoCarrier";
+import MarkPointModal from "./MarkPointModal";
 import styled from "styled-components";
 
 const { Title, Text } = Typography;
@@ -206,7 +207,14 @@ const AmrDetail = () => {
   const [showCargoMetadata, setShowCargoMetadata] = useState(false);
   const [showIO, setShowIO] = useState(false);
   const [editCargoModalOpen, setEditCargoModalOpen] = useState(false);
+  const [markPointModalOpen, setMarkPointModalOpen] = useState(false);
   const { t } = useTranslation();
+
+  const hasPose =
+    pose !== undefined &&
+    typeof pose === "object" &&
+    pose.x !== undefined &&
+    pose.y !== undefined;
 
   const missionTasks = recentMission
     ? [
@@ -372,6 +380,15 @@ const AmrDetail = () => {
               >
                 {showIO ? t("amr_detail.hide_io") : t("amr_detail.show_io")}
               </IndustrialButton>
+
+              <IndustrialButton
+                type="primary"
+                disabled={!hasPose}
+                onClick={() => setMarkPointModalOpen(true)}
+                style={{ flex: 1, minWidth: 200 }}
+              >
+                {t("amr_detail.mark_point")}
+              </IndustrialButton>
             </Flex>
 
             {showControlPanel && <DPad amrId={prefixAmrId} />}
@@ -509,6 +526,14 @@ const AmrDetail = () => {
         isModalOpen={editCargoModalOpen}
         setIsModalOpen={setEditCargoModalOpen}
       />
+
+      {hasPose && (
+        <MarkPointModal
+          open={markPointModalOpen}
+          onClose={() => setMarkPointModalOpen(false)}
+          pose={pose as { x: number; y: number; yaw: number }}
+        />
+      )}
     </>
   );
 };
