@@ -14,20 +14,21 @@ import {
   mouseMoveSwitch,
 } from "@/utils/siderGloble";
 import { centerMap, mouseDetectLoc, Scale } from "@/utils/gloable";
+import { mq } from "@/styles/responsive";
 
 const ZoomPadWrap = styled.div`
   position: absolute;
   z-index: 4;
-  bottom: 20px;
   left: 50%;
-  transform: translateX(-50%);
-  background-color: #f5f5f5;
-  border-radius: 20px;
-  padding: 6px 13px;
+  top: 50%;
+  transform: translate(-50%, -50%);
+
   display: flex;
   align-items: center;
+  justify-content: center;
+
+  background-color: #f5f5f5;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  gap: 12px;
   opacity: 0.4;
   transition: opacity 0.3s ease-in-out;
 
@@ -35,57 +36,78 @@ const ZoomPadWrap = styled.div`
     opacity: 1;
   }
 
-  @media (max-width: 768px) {
-    padding: 10px 15px;
-    gap: 8px;
-    border-radius: 16px;
+  max-width: min(56vw, 260px);
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 
-  @media (max-width: 576px) {
-    padding: 9px 14px;
-    gap: 7px;
-    border-radius: 14px;
-  }
+  gap: 2px;
+  padding: 4px 8px;
+  border-radius: 14px;
 
-  @media (max-width: 480px) {
-    padding: 8px 12px;
-    gap: 6px;
-    border-radius: 12px;
+  ${mq.web} {
+    top: auto;
+    bottom: 20px;
+    transform: translateX(-50%);
+    max-width: none;
+    overflow-x: visible;
+    gap: 12px;
+    padding: 6px 13px;
+    border-radius: 20px;
   }
 `;
 
 const ResponsiveSVG = styled.svg`
-  width: 1.2em;
-  height: 1.2em;
-  font-size: 0.8em;
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
 
-  @media (max-width: 768px) {
-    width: 1em;
-    height: 1em;
-  }
-
-  @media (max-width: 480px) {
-    width: 1em;
-    height: 1em;
+  ${mq.web} {
+    width: 18px;
+    height: 18px;
   }
 `;
 
 const StyledButton = styled(Button)`
-  border: none;
-  background-color: transparent;
-  color: #151313;
-  margin: 0;
+  && {
+    flex: 0 0 auto;
+    border: none;
+    background-color: transparent;
+    color: #151313;
+    margin: 0;
+    padding: 0;
 
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    min-width: 0;
+    width: 26px;
+    height: 26px;
 
-  &:hover {
-    background-color: #ddd;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background-color: #ddd;
+    }
+
+    .anticon {
+      font-size: 15px;
+      line-height: 0;
+    }
+
+    ${mq.web} {
+      width: 32px;
+      height: 32px;
+
+      .anticon {
+        font-size: 18px;
+      }
+    }
   }
 
-  &.ant-btn-primary {
+  &&.ant-btn-primary {
     background-color: #359dfe;
     &:hover {
       background-color: #40a9ff;
@@ -115,8 +137,7 @@ const ZoomPad = () => {
         <StyledButton
           onClick={() => setCm((pre) => pre + 1)}
           icon={
-            <svg
-              width={20}
+            <ResponsiveSVG
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
             >
@@ -125,7 +146,7 @@ const ZoomPad = () => {
                 fill="#000000"
                 d="M15,19L9,16.89V5L15,7.11M20.5,3C20.44,3 20.39,3 20.34,3L15,5.1L9,3L3.36,4.9C3.15,4.97 3,5.15 3,5.38V20.5A0.5,0.5 0 0,0 3.5,21C3.55,21 3.61,21 3.66,20.97L9,18.9L15,21L20.64,19.1C20.85,19 21,18.85 21,18.62V3.5A0.5,0.5 0 0,0 20.5,3Z"
               />
-            </svg>
+            </ResponsiveSVG>
           }
         />
       </Tooltip>
