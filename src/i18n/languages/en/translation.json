@@ -1611,7 +1611,9 @@
     "show_io": "Show IO",
     "hide_io": "Hide IO",
     "io": "IO information",
-    "no_io": "No IO information"
+    "no_io": "No IO information",
+    "mark_point": "Mark Point",
+    "location_id": "Location ID"
   },
   "peripheral_style": {
     "areaType": "Area Type"
