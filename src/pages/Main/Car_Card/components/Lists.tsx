@@ -40,6 +40,7 @@ import useRoadConditions from "@/sockets/useAmrRoadConditions";
 import useMapGroup from "@/api/useMapGroup";
 import useMapList from "@/api/useMapList";
 import { useMiRStatus } from "@/sockets/useMirStatus";
+import { useSystemState } from "@/sockets/useSystemState";
 import { useSetAtom } from "jotai";
 import { JoystickAmrId } from "../../global/jotai";
 import MapSwitchModal from "./MapSwitchModal";
@@ -63,13 +64,13 @@ const GamepadSvg = () => (
   </svg>
 );
 
-const GamepadOutlined = (props: { amrId:string, className?: string }) => {
-    const setJoystickAmrId = useSetAtom(JoystickAmrId);
+const GamepadOutlined = (props: { amrId: string, className?: string }) => {
+  const setJoystickAmrId = useSetAtom(JoystickAmrId);
   return <Icon onClick={(e) => {
-                  e.stopPropagation();
-                  setJoystickAmrId(props.amrId);
-            }} component={GamepadSvg} {...props} />
-  };
+    e.stopPropagation();
+    setJoystickAmrId(props.amrId);
+  }} component={GamepadSvg} {...props} />
+};
 
 const shak = keyframes`
   0%,
@@ -179,7 +180,7 @@ export const DropDown: React.FC<{
 // ======= Login status icon ==========
 export const LogInStatus = styled.p.attrs<{ login: string }>((props) => {
   return { login: props.login };
-})<{ login: string }>`
+}) <{ login: string }>`
   background-color: ${(props) => (props.login === "true" ? "	#2eb800" : "red")};
   width: 0.6em;
   height: 0.6em;
@@ -190,7 +191,7 @@ export const LogInStatus = styled.p.attrs<{ login: string }>((props) => {
 // ======= First row in info card =======
 export const CarRow1 = styled.div.attrs<{ is_dark: string }>((props) => {
   return { is_dark: props.is_dark };
-})<{ is_dark: string }>`
+}) <{ is_dark: string }>`
   width: 100%;
   display: flex;
   overflow: hidden;
@@ -248,9 +249,8 @@ export const RowOne: React.FC<{ isDark: boolean; amrId: string }> = memo(
           <LogInStatus login={isOverdue ? "false" : "true"} />
 
           <span
-            className={`login-text ${
-              isOverdue ? "offline-text" : "online-text"
-            }`}
+            className={`login-text ${isOverdue ? "offline-text" : "online-text"
+              }`}
           >
             {isOverdue ? t("utils.offline") : t("utils.online")}
           </span>
@@ -372,10 +372,10 @@ export const RowSecond: React.FC<{
         {
           amrId.includes("mi") ? <></> :
             <LocValue
-                    amrId={amrId}
-                    isDark={isDark}
-                    isOffline={isOverdue}
-            ></LocValue>        
+              amrId={amrId}
+              isDark={isDark}
+              isOffline={isOverdue}
+            ></LocValue>
         }
       </Space>
       <Space
@@ -433,7 +433,7 @@ const HiddenInfo = styled.div.attrs<{
   is_dark: string;
 }>((props) => {
   return { open_hidden_row: props.open_hidden_row, is_dark: props.is_dark };
-})<{ open_hidden_row: string; is_dark: string }>`
+}) <{ open_hidden_row: string; is_dark: string }>`
   height: ${(props) => (props.open_hidden_row === "true" ? "25px" : "0px")};
   color: ${(props) => (props.is_dark === "true" ? "white" : "black")};
   overflow: hidden;
@@ -461,7 +461,7 @@ export const HiddenRow: React.FC<{
 
 const CarRow3 = styled.div.attrs<{ is_dark: string }>((props) => {
   return { is_dark: props.is_dark };
-})<{ is_dark: string }>`
+}) <{ is_dark: string }>`
   width: 100%;
   display: flex;
   color: ${(props) => (props.is_dark === "true" ? "white" : "black")};
@@ -475,7 +475,7 @@ const CarRow3 = styled.div.attrs<{ is_dark: string }>((props) => {
 
 const CarRow4 = styled.div.attrs<{ is_dark: string }>((props) => {
   return { is_dark: props.is_dark };
-})<{ is_dark: string; $disabled?: boolean }>`
+}) <{ is_dark: string; $disabled?: boolean }>`
   width: 100%;
   display: flex;
   color: ${(props) => (props.is_dark === "true" ? "white" : "black")};
@@ -495,14 +495,14 @@ const CarRow4 = styled.div.attrs<{ is_dark: string }>((props) => {
     css`
       &:hover {
         background-color: ${props.is_dark === "true"
-          ? "rgba(255, 255, 255, 0.08)"
-          : "rgba(0, 0, 0, 0.05)"};
+        ? "rgba(255, 255, 255, 0.08)"
+        : "rgba(0, 0, 0, 0.05)"};
       }
 
       &:active {
         background-color: ${props.is_dark === "true"
-          ? "rgba(255, 255, 255, 0.14)"
-          : "rgba(0, 0, 0, 0.09)"};
+        ? "rgba(255, 255, 255, 0.14)"
+        : "rgba(0, 0, 0, 0.09)"};
       }
 
       &:hover .map-switch-icon {
@@ -639,9 +639,9 @@ export const MiR_StatusColor = (status: string) => {
 const MiRRunningStatue: React.FC<{ amrId: string; isOffline?: boolean }> = memo(
   ({ amrId, isOffline }) => {
     const [showText, setShowText] = useState<string>("")
-    const { status, protectiveStop  } = useMiRStatus(amrId);
+    const { status, protectiveStop } = useMiRStatus(amrId);
     useEffect(() => {
-      setShowText(protectiveStop ? "ProtectiveStop": status)
+      setShowText(protectiveStop ? "ProtectiveStop" : status)
     }, [protectiveStop, status])
     return (
       <CarStatus
@@ -669,8 +669,8 @@ export const MiR_Running_Status: React.FC<{ isDark: boolean; amrId: string }> = 
 );
 
 
-export const MiR_Map_Status: React.FC<{ isDark: boolean;  amrId: string}> = memo(
-  ({ isDark, amrId}) => {
+export const MiR_Map_Status: React.FC<{ isDark: boolean; amrId: string }> = memo(
+  ({ isDark, amrId }) => {
     const [activateMap, setActivateMap] = useState<{ mapName: string; groupName: string } | null>(null)
     const [switchModalOpen, setSwitchModalOpen] = useState(false);
     const { t } = useTranslation();
@@ -680,36 +680,36 @@ export const MiR_Map_Status: React.FC<{ isDark: boolean;  amrId: string}> = memo
     const { data: groups, isSuccess: groupsLoaded } = useMapGroup();
 
     useEffect(() => {
-      if(maps && maps.length){
+      if (maps && maps.length) {
         const active_map = maps.filter((map) => map.id == MiR_Status_IO.active_map_id).map((map) => {
-          return { mapName: map.fileName, groupName: map.map_group_name}
+          return { mapName: map.fileName, groupName: map.map_group_name }
         })
-        
-        if(active_map && active_map.length){
+
+        if (active_map && active_map.length) {
           setActivateMap(active_map[0])
         }
       }
     }, [MiR_Status_IO, maps]);
-    if(!maps) return <></>
+    if (!maps) return <></>
     // 離線車輛沒有可用資料, 點了也沒意義才擋; 非 Ready 狀態仍讓使用者點進 modal,
     // 由 modal 裡明顯的提示說明「為什麼不能換」, 而不是在這裡默默擋掉、使用者不知所以然。
     const canOpenModal = !isOverdue;
     const isReady = MiR_Status_IO.status === MIR_MAP_SWITCHABLE_STATUS;
     return (
       <>
-      <CarRow4 onClick={(e) => {
-         e.stopPropagation();
-         if (!canOpenModal) return;
-         setSwitchModalOpen(true);
-      }} is_dark={isDark.toString()} $disabled={!canOpenModal} title={
-        isReady
-          ? (t("utils.activate_map") as string)
-          : (t("utils.switch_map_requires_ready") as string)
-      }>
-        <span
-          className={`third-row-span ${isDark ? "third-row-span-dark" : ""}`}
-        >{`${t("utils.activate_map")}:`}</span>
-        <MapValue>
+        <CarRow4 onClick={(e) => {
+          e.stopPropagation();
+          if (!canOpenModal) return;
+          setSwitchModalOpen(true);
+        }} is_dark={isDark.toString()} $disabled={!canOpenModal} title={
+          isReady
+            ? (t("utils.activate_map") as string)
+            : (t("utils.switch_map_requires_ready") as string)
+        }>
+          <span
+            className={`third-row-span ${isDark ? "third-row-span-dark" : ""}`}
+          >{`${t("utils.activate_map")}:`}</span>
+          <MapValue>
             {isOverdue || !maps?.length || !activateMap ? (
               <span style={{ color: "#585757" }}>--</span>
             ) : (
@@ -719,15 +719,15 @@ export const MiR_Map_Status: React.FC<{ isDark: boolean;  amrId: string}> = memo
                 <MapSwitchIcon className="map-switch-icon" />
               </>
             )}
-        </MapValue>
-    </CarRow4>
-      {switchModalOpen && (
-        <MapSwitchModal
-          amrId={amrId}
-          open={switchModalOpen}
-          onClose={() => setSwitchModalOpen(false)}
-        />
-      )}
+          </MapValue>
+        </CarRow4>
+        {switchModalOpen && (
+          <MapSwitchModal
+            amrId={amrId}
+            open={switchModalOpen}
+            onClose={() => setSwitchModalOpen(false)}
+          />
+        )}
       </>
     );
   }
@@ -751,9 +751,37 @@ export const RowFifth: React.FC<{ isDark: boolean; amrId: string }> = memo(
   },
 );
 
+const SystemStateStatue: React.FC<{ amrId: string; isOffline?: boolean }> = ({
+  amrId,
+  isOffline,
+}) => {
+  const systemState = useSystemState(amrId);
+  return (
+    <RoadStyle style={{ color: "#6a61e9" }}>
+      {isOffline ? "--" : systemState?.state ?? "---------------"}
+    </RoadStyle>
+  );
+};
+
+export const RowSixth: React.FC<{ isDark: boolean; amrId: string }> = memo(
+  ({ isDark, amrId }) => {
+    const { t } = useTranslation();
+    const { isOverdue } = useIsLogIn(amrId);
+    return (
+      <CarRow3 is_dark={isDark.toString()}>
+        <span
+          className={`third-row-span ${isDark ? "third-row-span-dark" : ""}`}
+
+        >{`${t("utils.status")}:`}</span>
+        <SystemStateStatue amrId={amrId} isOffline={isOverdue}></SystemStateStatue>
+      </CarRow3>
+    );
+  },
+);
+
 // ======= Tag Wrap ==============
 
-const TagWrap = styled(Flex)<{ $offline: boolean }>`
+const TagWrap = styled(Flex) <{ $offline: boolean }>`
   &&& {
     flex-wrap: wrap;
   }
@@ -779,14 +807,14 @@ export const CarTag: React.FC<{ openFullInfo: boolean; amrId: string }> = memo(
         gap={"small"}
         $offline={isOverdue}
       >
-      <MissionTag amrId={amrId} />
-      <CarryTag amrId={amrId} />
-      <ChargingTag amrId={amrId} />
-      <PowerTag amrId={amrId} />
-      {isOverdue ? <></> : <ManualTag amrId={amrId} />}
-      {isOverdue ? <></>: <IsPause amrId={amrId} />}
-      {amrId.includes("mi") ? isOverdue ? <></>:<MiR_Error amrId={amrId}></MiR_Error> : <></>}
-      {isOverdue || amrId.includes("mi") ? (
+        <MissionTag amrId={amrId} />
+        <CarryTag amrId={amrId} />
+        <ChargingTag amrId={amrId} />
+        <PowerTag amrId={amrId} />
+        {isOverdue ? <></> : <ManualTag amrId={amrId} />}
+        {isOverdue ? <></> : <IsPause amrId={amrId} />}
+        {amrId.includes("mi") ? isOverdue ? <></> : <MiR_Error amrId={amrId}></MiR_Error> : <></>}
+        {isOverdue || amrId.includes("mi") ? (
           <></>
         ) : (
           <IsPosAccurate amrId={amrId}></IsPosAccurate>
