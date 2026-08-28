@@ -195,6 +195,7 @@ const SYNC_TYPE_OPTIONS = [
   { value: "footprint", label: "Footprint", icon: <BorderOutlined /> },
   { value: "marker_type", label: "Marker Type", icon: <AimOutlined /> },
   { value: "location", label: "Location", icon: <EnvironmentOutlined /> },
+    { value: "retrieve_mission", label: "Retrieve Mission", icon: <ApartmentOutlined /> },
 ];
 
 const SyncDataPanel: FC<{
@@ -237,8 +238,8 @@ const SyncDataPanel: FC<{
   );
 
   const submitMutation = useMutation({
-    mutationFn: (payload: { amrId: string; syncType: string }) => {
-      return client.post("api/setting/mir-sync-data", payload);
+    mutationFn: (payload: { amrId: string; syncType: string , url: string}) => {
+      return client.post(`api/setting/${payload.url}`, payload);
     },
     onSuccess: () => {
       void messageApi.success(t("utils.success"));
@@ -256,7 +257,10 @@ const SyncDataPanel: FC<{
       void messageApi.warning("請先選擇車輛與同步項目");
       return;
     }
-    submitMutation.mutate({ amrId, syncType });
+
+    const url = syncType === "retrieve_mission" ? "sync-mir-mission" : "mir-sync-data" 
+
+    submitMutation.mutate({ amrId, syncType, url });
   };
 
   return (

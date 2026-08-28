@@ -66,6 +66,7 @@ export const formList = [
   { key: "sound" },
   { key: "marker_type" },
   { key: "sync_mir" },
+  { key: "mir_mission" },
 ] as const;
 
 export const toolbarState = formList.map((item) => ({ ...item }));

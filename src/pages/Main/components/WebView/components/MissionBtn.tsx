@@ -5,18 +5,20 @@ import {
   CloseOutlined,
   UploadOutlined,
   SyncOutlined,
+  RocketOutlined,
 } from "@ant-design/icons";
 import { Button, Flex, message, Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
 import { DialogMission } from "../../missionModal";
 import { memo, useState, useEffect } from "react";
-import { OpenAssignMission } from "@/pages/Main/global/jotai";
+import { OpenAssignMission, OpenQueueMirTask } from "@/pages/Main/global/jotai";
 import { useSetAtom } from "jotai";
 import QuickMissionWebView from "../../missionModal/QuickMissionWebView";
 import styled from "styled-components";
 import UploadMission from "../../missionModal/UploadMission";
 import CycleMissionV2 from "../../missionModal/CycleMissionV2";
 import CycleMissionViewer from "../../missionModal/CycleMissionViewer";
+import QueueMirTaskModal from "../../missionModal/QueueMirTaskModal";
 import { Cycle, Cycle_Mission } from "@/sockets/useCycleMission";
 import { useMutation } from "@tanstack/react-query";
 import { ErrorResponse } from "@/utils/globalType";
@@ -134,6 +136,7 @@ const ButtonGroup = styled(Flex)`
 const MissionBtn = () => {
   const { t } = useTranslation();
   const openAssignMission = useSetAtom(OpenAssignMission);
+  const openQueueMirTask = useSetAtom(OpenQueueMirTask);
   const [showQuickMission, setShowQuickMission] = useState(false);
   const [showUploadMission, setShowUploadMission] = useState(false);
   const [showCycleMission, setShowCycleMission] = useState(false);
@@ -226,6 +229,16 @@ const MissionBtn = () => {
               {t("main.card_name.new_mission")}
             </IndustrialButton>
 
+            <IndustrialButton
+              className="queue-mir-task"
+              onClick={() => {
+                openQueueMirTask(true);
+              }}
+              icon={<RocketOutlined />}
+            >
+              {t("main.card_name.queue_mir_task")}
+            </IndustrialButton>
+
             <Tooltip title="Minimize" placement="bottom">
               <MinimizeButton
                 icon={<CloseOutlined />}
@@ -256,6 +269,7 @@ const MissionBtn = () => {
         setShowEditCycleMission={setShowEditCycleMission}
         setEditCyc={setEditCyc}
       />
+      <QueueMirTaskModal />
     </>
   );
 };

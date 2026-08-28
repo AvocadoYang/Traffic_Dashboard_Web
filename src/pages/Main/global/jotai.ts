@@ -44,4 +44,6 @@ export const OpenDirect = atom<{ open: boolean; locationId: string | null }>({
   locationId: null,
 });
 
+export const OpenQueueMirTask = atom<boolean>(false);
+
 export const JoystickAmrId = atom<string | null>(null);

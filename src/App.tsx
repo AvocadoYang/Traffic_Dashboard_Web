@@ -10,6 +10,7 @@ import AllSimulateResult from "./pages/SimulateResult/AllSimulateResult";
 import { Navigate, Outlet } from "react-router-dom";
 import { SystemAlarmOverlay } from "./pages/Main/components/SystemAlarm";
 import { UserConformOverlay } from "./pages/Main/components/UserConformTaskStep";
+import MissionDispatchBoard from "./pages/MissionDispatchBoard/MissionDispatchBoard";
 
 import DevMain from "./pages/DevMain/DevMain";
 const client = new QueryClient({
@@ -66,6 +67,10 @@ function App() {
               element={<MonitorCenter></MonitorCenter>}
             ></Route>
             <Route path="/records" element={<Records />}></Route>
+            <Route
+              path="/mission-dispatch"
+              element={<MissionDispatchBoard />}
+            ></Route>
             <Route path="/amr" element={<AmrList />} />
             <Route path="/amr/:amrId" element={<AmrDetail />} />
             <Route path="*" element={<h1>Not Found</h1>} />

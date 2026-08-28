@@ -145,3 +145,5 @@ export const toolSheetPanelHost = atom<HTMLElement | null>(null);
 export const isShowMarketType = atom<boolean>(false);
 
 export const isShowSyncMirData = atom<boolean>(false);
+
+export const isShowAllMirMission = atom<boolean>(false);
