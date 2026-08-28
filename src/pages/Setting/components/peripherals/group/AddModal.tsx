@@ -16,12 +16,14 @@ import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { PeripheralGroupName } from "@/api/usePeripheralGroup";
 import { prefixLevelName } from "@/utils/globalFunction";
+import { MessageInstance } from "antd/es/message/interface";
 
 interface AddModalProps {
   isOpenModal: boolean;
   isEdit: boolean;
   editValue: PeripheralGroupName | null;
   resetEdit: () => void;
+  messageApi: MessageInstance;
 }
 
 const AddModal: React.FC<AddModalProps> = ({
@@ -29,12 +31,12 @@ const AddModal: React.FC<AddModalProps> = ({
   isEdit,
   editValue,
   resetEdit,
+  messageApi,
 }) => {
   const [form] = Form.useForm();
   const { t } = useTranslation();
   const { data: peripherals } = usePeripheralName();
   const queryClient = useQueryClient();
-  const [messageApi, contextHolder] = message.useMessage();
 
   // Transform peripherals data for Transfer component
   const transferDataSource = useMemo(
@@ -200,7 +202,6 @@ const AddModal: React.FC<AddModalProps> = ({
 
   return (
     <>
-      {contextHolder}
       <Modal
         width={1000}
         open={isOpenModal}

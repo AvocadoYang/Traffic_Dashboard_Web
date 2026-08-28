@@ -39,7 +39,7 @@ export const ManualTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
     <>
       {contextHolders}
       <Tag
-        color={`${amrId.includes("mi") ? (MiR_Status_IO.status == "EmergencyStop" ? "blue":"#e3e4e3"): (!isManual ? "#e3e4e3" : "blue")}`}
+        color={`${amrId.includes("mi") ? ((MiR_Status_IO.status == "EmergencyStop" && !MiR_Status_IO.protectiveStop) ? "blue":"#e3e4e3"): (!isManual ? "#e3e4e3" : "blue")}`}
         style={{ margin: 0, cursor: "pointer" }}
         onClick={(e) => {
           e.stopPropagation();
@@ -117,7 +117,7 @@ export const IsPause: React.FC<{ amrId: string }> = memo(({ amrId }) => {
 
   const { t } = useTranslation();
   return (
-    <Tag color={`${amrId.includes("mi") ? (MiR_Status_IO.status == "Pause" ? "volcano":"#e3e4e3"): (!isPause ? "#e3e4e3" : "volcano")}`} style={{ margin: 0 }}>
+    <Tag color={`${amrId.includes("mi") ? ((MiR_Status_IO.status == "Pause" && !MiR_Status_IO.protectiveStop) ? "volcano":"#e3e4e3"): (!isPause ? "#e3e4e3" : "volcano")}`} style={{ margin: 0 }}>
       {t("mode.isPause")}
     </Tag>
   );
@@ -128,7 +128,7 @@ export const MiR_Error: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const { t } = useTranslation();
 
   return (
-    <Tag color={MiR_Status_IO.status == "Error" ? "volcano" : "#e3e4e3"} style={{ margin: 0 }}>
+    <Tag color={(MiR_Status_IO.status == "Error" && !MiR_Status_IO.protectiveStop) ? "volcano" : "#e3e4e3"} style={{ margin: 0 }}>
       {t("mode.error")}
     </Tag>
   );

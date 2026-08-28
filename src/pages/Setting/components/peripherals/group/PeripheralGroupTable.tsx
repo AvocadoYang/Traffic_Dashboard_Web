@@ -145,6 +145,7 @@ const PeripheralGroupTable: React.FC = () => {
         editValue={editValue}
         isOpenModal={isOpenModal}
         resetEdit={resetEdit}
+        messageApi={messageApi}
       />
     </>
   );

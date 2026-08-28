@@ -1,6 +1,6 @@
 import { atom } from "jotai";
 import { LocationType } from "./jotai";
-import { mouseLocation } from "@/pages/Setting/hooks/hook";
+import { mouseLocation, RectInfo } from "@/pages/Setting/hooks/hook";
 import { SelectStation } from "@/api/type/useLocation";
 import { SelectProps } from "antd";
 
@@ -14,6 +14,14 @@ export const showBlockId = atom<string>("");
 export const DragLineInfo = atom<mouseLocation>({});
 
 export const hoverRoad = atom<string>("");
+
+export const initialZoneRectInfo: RectInfo = {
+  axisX: -5000,
+  axisY: -5000,
+  width: 0,
+  height: 0,
+};
+export const zoneRectInfo = atom<RectInfo>(initialZoneRectInfo);
 
 // ** 貨架樣式 */
 export const cargoStyle = atom<{

@@ -127,6 +127,11 @@ export type FleetInfo = {
   hasCargo: boolean;
   arriveInit: boolean;
   maintenanceLevel: MaintenanceLevel;
+  isOverdue?: boolean;
+  networkDelay?: number;
+  isPosAccurate?: boolean;
+  rosbridgeConnect?: boolean;
+  amrServiceConnect?: boolean;
 };
 
 const schema = () =>
@@ -233,6 +238,8 @@ const schema = () =>
       ).optional(),
       networkDelay: number().optional(),
       isOverdue: boolean().optional(),
+      rosbridgeConnect: boolean().optional(),
+      amrServiceConnect: boolean().optional(),
       maintenanceLevel: number().optional(),
       // 該車當前任務的目的地, 沒任務時為 null
       // 欄位都要 nullable: 後端只填得出部分欄位時會給 null,
@@ -510,6 +517,7 @@ export const useIsLogIn = (amrId: string) => {
     networkDelay: 0,
     isOverdue: true,
     isPosAccurate: false,
+    hasServiceInterruption: false,
   });
 
   useEffect(() => {
@@ -525,19 +533,32 @@ export const useIsLogIn = (amrId: string) => {
           delay: info.networkDelay,
           isOverdue: info.isOverdue,
           isPosAccurate: info.isPosAccurate,
+          rosbridgeConnect: info.rosbridgeConnect,
+          amrServiceConnect: info.amrServiceConnect,
         })),
         distinctUntilChanged(
           (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
         ),
       )
-      .subscribe(({ isOnline, delay, isOverdue, isPosAccurate }) => {
-        setData({
+      .subscribe(
+        ({
           isOnline,
-          isOverdue: isOverdue || false,
-          networkDelay: delay || 0,
-          isPosAccurate: isPosAccurate || false,
-        });
-      });
+          delay,
+          isOverdue,
+          isPosAccurate,
+          rosbridgeConnect,
+          amrServiceConnect,
+        }) => {
+          setData({
+            isOnline,
+            isOverdue: isOverdue || false,
+            networkDelay: delay || 0,
+            isPosAccurate: isPosAccurate || false,
+            hasServiceInterruption:
+              (rosbridgeConnect === false || amrServiceConnect === false),
+          });
+        },
+      );
 
     return () => {
       logIn$.unsubscribe();
@@ -555,6 +576,7 @@ export const useAllAmrStatus = () => {
       networkDelay: number;
       isOverdue: boolean;
       isPosAccurate: boolean;
+      hasServiceInterruption: boolean;
     }[]
   >([]);
 
@@ -571,6 +593,9 @@ export const useAllAmrStatus = () => {
                 networkDelay: info.networkDelay || 0,
                 isOverdue: info.isOverdue || false,
                 isPosAccurate: info.isPosAccurate || false,
+                hasServiceInterruption:
+                  (info.rosbridgeConnect === false ||
+                    info.amrServiceConnect === false),
               }))
               .sort((a, b) => a.amrId.localeCompare(b.amrId)), // <-- sort by amrId
         ),

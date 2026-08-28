@@ -180,7 +180,11 @@ export const DropDown: React.FC<{
 export const LogInStatus = styled.p.attrs<{ login: string }>((props) => {
   return { login: props.login };
 })<{ login: string }>`
-  background-color: ${(props) => (props.login === "true" ? "	#2eb800" : "red")};
+  background-color: ${(props) => {
+    if (props.login === "true") return "#2eb800";
+    if (props.login === "warning") return "#ff9646";
+    return "red";
+  }};
   width: 0.6em;
   height: 0.6em;
   margin-left: 3%;
@@ -233,26 +237,39 @@ export const AmrTitle = styled.h2`
 
 export const RowOne: React.FC<{ isDark: boolean; amrId: string }> = memo(
   ({ isDark, amrId }) => {
-    const { networkDelay, isOverdue } = useIsLogIn(amrId);
+    const { networkDelay, isOverdue, hasServiceInterruption } =
+      useIsLogIn(amrId);
     const { t } = useTranslation();
-
     const AmrID = useMemo(() => {
       return {
         num: amrId.split("-")[amrId.split("-").length - 1],
         category: amrId.split("-").slice(0, 3).join("-"),
       };
     }, [amrId]);
+    const loginState = isOverdue
+      ? "false"
+      : hasServiceInterruption
+        ? "warning"
+        : "true";
     return (
       <CarRow1 is_dark={isDark.toString()}>
         <div>
-          <LogInStatus login={isOverdue ? "false" : "true"} />
+          <LogInStatus login={loginState} />
 
           <span
             className={`login-text ${
-              isOverdue ? "offline-text" : "online-text"
+              isOverdue
+                ? "offline-text"
+                : hasServiceInterruption
+                  ? "warning-text"
+                  : "online-text"
             }`}
           >
-            {isOverdue ? t("utils.offline") : t("utils.online")}
+            {isOverdue
+              ? t("utils.offline")
+              : hasServiceInterruption
+                ? t("utils.service_interrupted")
+                : t("utils.online")}
           </span>
 
           {!isOverdue && (
@@ -638,12 +655,16 @@ export const MiR_StatusColor = (status: string) => {
 
 const MiRRunningStatue: React.FC<{ amrId: string; isOffline?: boolean }> = memo(
   ({ amrId, isOffline }) => {
-    const { status } = useMiRStatus(amrId);
+    const [showText, setShowText] = useState<string>("")
+    const { status, protectiveStop  } = useMiRStatus(amrId);
+    useEffect(() => {
+      setShowText(protectiveStop ? "ProtectiveStop": status)
+    }, [protectiveStop, status])
     return (
       <CarStatus
         style={{ color: isOffline ? "#585757" : MiR_StatusColor(status) }}
       >
-        {isOffline ? "--" : status ? status : "---------------"}
+        {isOffline ? "--" : showText ? showText : "---------------"}
       </CarStatus>
     );
   },
@@ -674,16 +695,18 @@ export const MiR_Map_Status: React.FC<{ isDark: boolean;  amrId: string}> = memo
     const MiR_Status_IO = useMiRStatus(amrId);
     const { data: maps } = useMapList();
     const { data: groups, isSuccess: groupsLoaded } = useMapGroup();
+
     useEffect(() => {
       if(maps && maps.length){
         const active_map = maps.filter((map) => map.id == MiR_Status_IO.active_map_id).map((map) => {
           return { mapName: map.fileName, groupName: map.map_group_name}
         })
+        
         if(active_map && active_map.length){
           setActivateMap(active_map[0])
         }
       }
-    }, [MiR_Status_IO]);
+    }, [MiR_Status_IO, maps]);
     if(!maps) return <></>
     // 離線車輛沒有可用資料, 點了也沒意義才擋; 非 Ready 狀態仍讓使用者點進 modal,
     // 由 modal 裡明顯的提示說明「為什麼不能換」, 而不是在這裡默默擋掉、使用者不知所以然。
