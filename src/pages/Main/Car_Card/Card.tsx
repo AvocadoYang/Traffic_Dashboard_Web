@@ -8,6 +8,7 @@ import {
   DropDown,
   RowFourth,
   RowFifth,
+  RowSixth,
   EmergencyIcon,
   MiR_Map_Status,
   MiR_Running_Status,
@@ -175,6 +176,7 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
               { id.includes('mi') ? <MiR_Running_Status amrId={id} isDark={isDark}></MiR_Running_Status> : <></>}
               { id.includes('mi') ?<MiR_Map_Status  amrId={id} isDark={isDark} ></MiR_Map_Status> :<RowFourth amrId={id} isDark={isDark}></RowFourth>}
               { id.includes('mi') ? <></> : <RowFifth amrId={id} isDark={isDark}></RowFifth>}
+              { id.includes('mi') ? <></> : <RowSixth amrId={id} isDark={isDark}></RowSixth>}
             </StatusRows>
             <CarTag openFullInfo={openFullInfo} amrId={id}></CarTag>
           </InfoWrap>
