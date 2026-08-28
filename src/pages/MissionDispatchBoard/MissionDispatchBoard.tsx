@@ -3,6 +3,7 @@ import useMissionDispatchPages, {
   DISPATCH_PAGE_QUERY_KEY,
   DispatchButton,
   DispatchWidget,
+  DispatchWidgetType,
 } from "@/api/useMissionDispatchBoard";
 import Header from "@/components/Header";
 import { ErrorResponse } from "@/utils/globalType";
@@ -60,7 +61,8 @@ const MissionDispatchBoard: React.FC = () => {
   const [widgetModal, setWidgetModal] = useState<{
     open: boolean;
     widget: DispatchWidget | null;
-  }>({ open: false, widget: null });
+    widgetType: DispatchWidgetType;
+  }>({ open: false, widget: null, widgetType: "MISSION_LIST" });
 
   useEffect(() => {
     if (!pages || pages.length === 0) return;
@@ -142,11 +144,15 @@ const MissionDispatchBoard: React.FC = () => {
                 onEditButton={(button) =>
                   setButtonModal({ open: true, button })
                 }
-                onAddWidget={() =>
-                  setWidgetModal({ open: true, widget: null })
+                onAddWidget={(widgetType) =>
+                  setWidgetModal({ open: true, widget: null, widgetType })
                 }
                 onEditWidget={(widget) =>
-                  setWidgetModal({ open: true, widget })
+                  setWidgetModal({
+                    open: true,
+                    widget,
+                    widgetType: widget.widget_type,
+                  })
                 }
               />
             ),
@@ -191,8 +197,15 @@ const MissionDispatchBoard: React.FC = () => {
         <DispatchWidgetFormModal
           open={widgetModal.open}
           pageId={activePage.id}
+          widgetType={widgetModal.widgetType}
           initialValues={widgetModal.widget}
-          onClose={() => setWidgetModal({ open: false, widget: null })}
+          onClose={() =>
+            setWidgetModal({
+              open: false,
+              widget: null,
+              widgetType: "MISSION_LIST",
+            })
+          }
         />
       )}
     </Layout>

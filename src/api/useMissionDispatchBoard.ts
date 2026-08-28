@@ -24,7 +24,7 @@ export interface DispatchButton {
   priority: number;
 }
 
-export type DispatchWidgetType = "MISSION_LIST";
+export type DispatchWidgetType = "MISSION_LIST" | "AMR_STATUS";
 
 export interface DispatchWidget {
   id: string;
@@ -35,6 +35,7 @@ export interface DispatchWidget {
   width: number;
   height: number;
   title: string | null;
+  amrId: string | null;
 }
 
 export interface DispatchPage {
@@ -70,12 +71,15 @@ const buttonSchema = object({
 const widgetSchema = object({
   id: string().required(),
   page_id: string().required(),
-  widget_type: mixed<DispatchWidgetType>().oneOf(["MISSION_LIST"]).required(),
+  widget_type: mixed<DispatchWidgetType>()
+    .oneOf(["MISSION_LIST", "AMR_STATUS"])
+    .required(),
   x: number().required(),
   y: number().required(),
   width: number().required(),
   height: number().required(),
   title: string().nullable().default(null),
+  amrId: string().nullable().default(null),
 });
 
 const pageSchema = array(

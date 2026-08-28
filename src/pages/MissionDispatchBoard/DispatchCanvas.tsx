@@ -4,6 +4,7 @@ import {
   DispatchButton,
   DispatchPage,
   DispatchWidget,
+  DispatchWidgetType,
 } from "@/api/useMissionDispatchBoard";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
@@ -14,6 +15,7 @@ import { Dropdown, Modal, message } from "antd";
 import React, { FC, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
+import AmrStatusWidgetCard from "./AmrStatusWidgetCard";
 import DispatchButtonCard from "./DispatchButtonCard";
 import MissionListWidgetCard from "./MissionListWidgetCard";
 import { GRID_SIZE, snapToGrid } from "./gridConstants";
@@ -64,7 +66,7 @@ const DispatchCanvas: FC<{
   editMode: boolean;
   onAddButton: () => void;
   onEditButton: (button: DispatchButton) => void;
-  onAddWidget: () => void;
+  onAddWidget: (widgetType: DispatchWidgetType) => void;
   onEditWidget: (widget: DispatchWidget) => void;
 }> = ({
   page,
@@ -211,7 +213,14 @@ const DispatchCanvas: FC<{
 
   const addMenuItems = [
     { key: "button", label: t("mission_dispatch_board.add_button_card") },
-    { key: "mission_list", label: t("mission_dispatch_board.add_widget_card") },
+    {
+      key: "MISSION_LIST",
+      label: t("mission_dispatch_board.add_widget_card"),
+    },
+    {
+      key: "AMR_STATUS",
+      label: t("mission_dispatch_board.add_amr_status_card"),
+    },
   ];
 
   return (
@@ -224,7 +233,9 @@ const DispatchCanvas: FC<{
               menu={{
                 items: addMenuItems,
                 onClick: ({ key }) =>
-                  key === "button" ? onAddButton() : onAddWidget(),
+                  key === "button"
+                    ? onAddButton()
+                    : onAddWidget(key as DispatchWidgetType),
               }}
               trigger={["click"]}
             >
@@ -245,18 +256,24 @@ const DispatchCanvas: FC<{
               }
             />
           ))}
-          {widgets.map((widget) => (
-            <MissionListWidgetCard
-              key={widget.id}
-              widget={widget}
-              editMode={editMode}
-              onEdit={() => onEditWidget(widget)}
-              onDelete={() => handleDeleteWidget(widget)}
-              onResizeEnd={(width, height) =>
-                handleWidgetResizeEnd(widget, width, height)
-              }
-            />
-          ))}
+          {widgets.map((widget) => {
+            const WidgetCard =
+              widget.widget_type === "AMR_STATUS"
+                ? AmrStatusWidgetCard
+                : MissionListWidgetCard;
+            return (
+              <WidgetCard
+                key={widget.id}
+                widget={widget}
+                editMode={editMode}
+                onEdit={() => onEditWidget(widget)}
+                onDelete={() => handleDeleteWidget(widget)}
+                onResizeEnd={(width, height) =>
+                  handleWidgetResizeEnd(widget, width, height)
+                }
+              />
+            );
+          })}
         </Canvas>
       </DndContext>
       {buttons.length === 0 && widgets.length === 0 && !editMode && (
