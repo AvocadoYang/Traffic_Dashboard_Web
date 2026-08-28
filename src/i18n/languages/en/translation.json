@@ -718,7 +718,33 @@
       "input_mission": "Input mission",
       "mission_info": "Mission information cards",
       "car_info": "Car information cards",
-      "cycle_mission": "Cycle mission"
+      "cycle_mission": "Cycle mission",
+      "queue_mir_task": "MiR Task"
+    },
+    "queue_mir_task_modal": {
+      "title": "Queue MiR Task",
+      "amr": "AMR",
+      "select_amr": "Select an AMR",
+      "select_amr_required": "Please select an AMR",
+      "mission_name": "Mission Name",
+      "select_mission": "Select a mission",
+      "select_mission_first": "Select an AMR first",
+      "select_mission_required": "Please select a mission",
+      "no_synced_mission": "This AMR hasn't synced any missions yet — run Sync Data on the Settings page first",
+      "table_title": "Select a MiR Mission",
+      "search_placeholder": "Search by name..."
+    },
+    "mir_mission_panel": {
+      "title": "Mir Mission",
+      "name_column": "Mission Name",
+      "synced": "Synced",
+      "missing": "Missing",
+      "no_sync_tooltip": "This AMR hasn't synced this mission name yet",
+      "select_hint": "Click a synced cell to select an AMR and mission",
+      "selected_amr": "AMR",
+      "selected_mission": "Mission",
+      "queue_button": "Queue Task",
+      "queue_button_loading": "Queuing..."
     },
     "mission_modal": {
       "title": "Select Mission",

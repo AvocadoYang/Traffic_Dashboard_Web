@@ -47,6 +47,7 @@ import {
   isShowSound,
   isShowMarketType,
   isShowSyncMirData,
+  isShowAllMirMission,
 } from "@/utils/siderGloble";
 import { useAtomValue } from "jotai";
 import { ToolBarItemType, ToolBarType } from "./siderElement";
@@ -82,6 +83,7 @@ import FootprintPanel from "../formComponent/forms/missionComponents/mir/footpri
 import SoundPanel from "../formComponent/forms/missionComponents/mir/sound/SoundPanel";
 import MarkerTypePanel from "../formComponent/forms/missionComponents/mir/markerTypes/MarkerTypePanel";
 import SyncDataPanel from "../formComponent/forms/missionComponents/mir/syncData/SyncDataPanel";
+import MirMissionPanel from "../formComponent/forms/missionComponents/mir/missionTable/MirMissionPanel";
 
 const SortableWrap: FC<{
   sortableId: ToolBarItemType;
@@ -631,6 +633,18 @@ const SortableWrap: FC<{
               </Card>
             );
 
+          case "mir_mission":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn sortableId={sortableId} panelName="mir_mission" />
+                <MirMissionPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
+
           default:
             return null;
         }
@@ -693,6 +707,7 @@ const ToolComponents: FC<{
   const openSoundPanel = useAtomValue(isShowSound);
   const openMarkerTypePanel = useAtomValue(isShowMarketType);
   const openSyncMirDataPanel = useAtomValue(isShowSyncMirData);
+  const openMirMissionPanel = useAtomValue(isShowAllMirMission);
 
   return dataList.map((form) => {
     const { key: formKey } = form;
@@ -864,6 +879,9 @@ const ToolComponents: FC<{
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     if (formKey === "sync_mir" && openSyncMirDataPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "mir_mission" && openMirMissionPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     return [];
