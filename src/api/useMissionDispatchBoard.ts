@@ -44,6 +44,7 @@ export interface DispatchWidget {
   fontColor: string | null;
   fontSize: number | null;
   fontWeight: number | null;
+  visibleFields: string[] | null;
 }
 
 export interface DispatchPage {
@@ -92,6 +93,7 @@ const widgetSchema = object({
   fontColor: string().nullable().default(null),
   fontSize: number().nullable().default(null),
   fontWeight: number().nullable().default(null),
+  visibleFields: array(string().required()).nullable().default(null),
 });
 
 const pageSchema = array(

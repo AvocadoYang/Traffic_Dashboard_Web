@@ -10,8 +10,7 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import DispatchItemFrame from "./DispatchItemFrame";
 import {
-  MAX_WIDGET_HEIGHT,
-  MAX_WIDGET_WIDTH,
+  MAX_MAP_WIDGET_SIZE,
   MIN_WIDGET_HEIGHT,
   MIN_WIDGET_WIDTH,
 } from "./gridConstants";
@@ -101,9 +100,9 @@ const MapViewWidgetCard: FC<{
       height={widget.height}
       editMode={editMode}
       minWidth={MIN_WIDGET_WIDTH}
-      maxWidth={MAX_WIDGET_WIDTH}
+      maxWidth={MAX_MAP_WIDGET_SIZE}
       minHeight={MIN_WIDGET_HEIGHT}
-      maxHeight={MAX_WIDGET_HEIGHT}
+      maxHeight={MAX_MAP_WIDGET_SIZE}
       onEdit={onEdit}
       onDelete={onDelete}
       onResizeEnd={onResizeEnd}

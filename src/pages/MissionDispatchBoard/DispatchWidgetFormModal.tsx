@@ -8,9 +8,19 @@ import {
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ColorPicker, Form, Input, message, Modal, Select, Slider } from "antd";
+import {
+  Checkbox,
+  ColorPicker,
+  Form,
+  Input,
+  message,
+  Modal,
+  Select,
+  Slider,
+} from "antd";
 import React, { FC, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { AMR_STATUS_FIELDS } from "./AmrStatusWidgetCard";
 
 interface FormValues {
   title: string;
@@ -18,6 +28,7 @@ interface FormValues {
   fontColor?: string;
   fontSize?: number;
   fontWeight?: number;
+  visibleFields?: string[];
 }
 
 const DEFAULT_SIZE: Record<DispatchWidgetType, { width: number; height: number }> = {
@@ -52,6 +63,7 @@ const DispatchWidgetFormModal: FC<{
       fontColor: initialValues?.fontColor ?? "#262626",
       fontSize: initialValues?.fontSize ?? 24,
       fontWeight: initialValues?.fontWeight ?? 600,
+      visibleFields: initialValues?.visibleFields ?? [...AMR_STATUS_FIELDS],
     });
   }, [open, initialValues, form]);
 
@@ -91,11 +103,17 @@ const DispatchWidgetFormModal: FC<{
           }
         : {};
 
+    const amrStatusFields =
+      effectiveType === "AMR_STATUS"
+        ? { visibleFields: values.visibleFields }
+        : {};
+
     if (isEdit) {
       mutation.mutate({
         title: values.title || null,
         ...(effectiveType === "AMR_STATUS" ? { amrId: values.amrId } : {}),
         ...fontFields,
+        ...amrStatusFields,
       });
       return;
     }
@@ -109,6 +127,7 @@ const DispatchWidgetFormModal: FC<{
       width: initialValues?.width ?? defaultSize.width,
       height: initialValues?.height ?? defaultSize.height,
       ...fontFields,
+      ...amrStatusFields,
     });
   };
 
@@ -140,17 +159,73 @@ const DispatchWidgetFormModal: FC<{
       >
         <Form form={form} layout="vertical">
           {effectiveType === "AMR_STATUS" && (
-            <Form.Item
-              label={t("mission_dispatch_board.amr")}
-              name="amrId"
-              rules={[{ required: true }]}
-            >
-              <Select
-                showSearch
-                options={amrOptions}
-                optionFilterProp="label"
-              />
-            </Form.Item>
+            <>
+              <Form.Item
+                label={t("mission_dispatch_board.amr")}
+                name="amrId"
+                rules={[{ required: true }]}
+              >
+                <Select
+                  showSearch
+                  options={amrOptions}
+                  optionFilterProp="label"
+                />
+              </Form.Item>
+
+              <Form.Item
+                label={t("mission_dispatch_board.visible_fields")}
+                name="visibleFields"
+              >
+                <Checkbox.Group
+                  options={[
+                    {
+                      value: "battery",
+                      label: t("mission_dispatch_board.amr_battery"),
+                    },
+                    {
+                      value: "status",
+                      label: t("mission_dispatch_board.amr_status"),
+                    },
+                    {
+                      value: "location",
+                      label: t("mission_dispatch_board.amr_location"),
+                    },
+                    {
+                      value: "destination",
+                      label: t("mission_dispatch_board.amr_destination"),
+                    },
+                    {
+                      value: "working",
+                      label: t("mission_dispatch_board.amr_working"),
+                    },
+                    {
+                      value: "carry",
+                      label: t("mission_dispatch_board.amr_carry"),
+                    },
+                    {
+                      value: "charging",
+                      label: t("mission_dispatch_board.amr_charging"),
+                    },
+                    {
+                      value: "lowBattery",
+                      label: t("mission_dispatch_board.amr_low_battery"),
+                    },
+                    {
+                      value: "maintenance",
+                      label: t("mission_dispatch_board.amr_maintenance"),
+                    },
+                    {
+                      value: "paused",
+                      label: t("mission_dispatch_board.amr_paused"),
+                    },
+                    {
+                      value: "posAccurate",
+                      label: t("mission_dispatch_board.amr_pos_accurate"),
+                    },
+                  ]}
+                />
+              </Form.Item>
+            </>
           )}
 
           <Form.Item
