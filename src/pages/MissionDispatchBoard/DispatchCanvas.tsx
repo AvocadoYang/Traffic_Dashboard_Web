@@ -8,24 +8,93 @@ import {
 } from "@/api/useMissionDispatchBoard";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import { PlusOutlined } from "@ant-design/icons";
+import {
+  BgColorsOutlined,
+  ClearOutlined,
+  FormatPainterOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Dropdown, Modal, message } from "antd";
-import React, { FC, useEffect, useMemo, useState } from "react";
+import { ColorPicker, Dropdown, Modal, message } from "antd";
+import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import AmrStatusWidgetCard from "./AmrStatusWidgetCard";
 import DispatchButtonCard from "./DispatchButtonCard";
+import MapViewWidgetCard from "./MapViewWidgetCard";
 import MissionListWidgetCard from "./MissionListWidgetCard";
+import QuickMissionWidgetCard from "./QuickMissionWidgetCard";
+import TextWidgetCard from "./TextWidgetCard";
 import { GRID_SIZE, snapToGrid } from "./gridConstants";
 
 const CANVAS_MIN_HEIGHT = 400;
+const MAX_FLOOD_FILL_CELLS = 50000;
 
-const Canvas = styled.div<{ $showGrid: boolean; $height: number }>`
-  position: relative;
+// 從 (startCol, startRow) 往上下左右擴散,把所有跟起點同色(含都沒上色)的
+// 相鄰格子一次換成 fillColor(null 代表擦除),直到碰到不同顏色的格子為止——
+// 就是一般畫圖軟體的「油漆桶」填滿。用畫布目前實際渲染的像素尺寸當邊界,
+// 避免在很大的空白畫布上無限擴散。
+const floodFill = (
+  cells: Record<string, string>,
+  startCol: number,
+  startRow: number,
+  fillColor: string | null,
+  widthPx: number,
+  heightPx: number,
+): Record<string, string> => {
+  const maxCol = Math.ceil(widthPx / GRID_SIZE);
+  const maxRow = Math.ceil(heightPx / GRID_SIZE);
+  const key = (col: number, row: number) => `${col}_${row}`;
+  const target = cells[key(startCol, startRow)] ?? null;
+  if (target === fillColor) return cells;
+
+  const next = { ...cells };
+  const visited = new Set<string>();
+  const queue: [number, number][] = [[startCol, startRow]];
+
+  while (queue.length > 0 && visited.size < MAX_FLOOD_FILL_CELLS) {
+    const [col, row] = queue.shift() as [number, number];
+    if (col < 0 || row < 0 || col >= maxCol || row >= maxRow) continue;
+
+    const k = key(col, row);
+    if (visited.has(k)) continue;
+    visited.add(k);
+
+    if ((next[k] ?? null) !== target) continue;
+
+    if (fillColor === null) {
+      delete next[k];
+    } else {
+      next[k] = fillColor;
+    }
+
+    queue.push([col + 1, row], [col - 1, row], [col, row + 1], [col, row - 1]);
+  }
+
+  return next;
+};
+
+// 按鈕/元件用的是絕對像素座標,螢幕比放置當下窄/矮的時候內容會超出容器;
+// 這層固定成跟外層 tabpane 一樣高(見 MissionDispatchBoard.tsx 的 TabsArea),
+// 兩個方向都能捲動,捲軸會貼在這個可視範圍的邊緣,而不是被畫布本身的高度/
+// 寬度撐到很遠的地方,要捲到底才看得到、甚至完全捲不到。
+const CanvasScrollArea = styled.div`
   width: 100%;
+  height: 100%;
+  overflow: auto;
+`;
+
+const Canvas = styled.div<{
+  $showGrid: boolean;
+  $height: number;
+  $width: number;
+  $paintMode: boolean;
+}>`
+  position: relative;
+  width: max(100%, ${({ $width }) => $width}px);
   height: ${({ $height }) => $height}px;
+  cursor: ${({ $paintMode }) => ($paintMode ? "crosshair" : "default")};
   background-image: ${({ $showGrid }) =>
     $showGrid
       ? "linear-gradient(to right, #e0e0e0 1px, transparent 1px), linear-gradient(to bottom, #e0e0e0 1px, transparent 1px)"
@@ -61,6 +130,45 @@ const EmptyHint = styled.div`
   text-align: center;
 `;
 
+const PaintedCell = styled.div<{ $color: string }>`
+  position: absolute;
+  width: ${GRID_SIZE}px;
+  height: ${GRID_SIZE}px;
+  background: ${({ $color }) => $color};
+  pointer-events: none;
+`;
+
+const PaintToolbar = styled.div`
+  position: absolute;
+  top: 12px;
+  left: 80px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+`;
+
+const ToolButton = styled.div<{ $active: boolean }>`
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: ${({ $active }) => ($active ? "#ffffff" : "#595959")};
+  background: ${({ $active }) => ($active ? "#1890ff" : "transparent")};
+
+  &:hover {
+    background: ${({ $active }) => ($active ? "#1890ff" : "#f0f0f0")};
+  }
+`;
+
 const DispatchCanvas: FC<{
   page: DispatchPage;
   editMode: boolean;
@@ -79,8 +187,15 @@ const DispatchCanvas: FC<{
   const { t } = useTranslation();
   const [messageApi, contextHolder] = message.useMessage();
   const queryClient = useQueryClient();
+  const canvasRef = useRef<HTMLDivElement>(null);
   const [buttons, setButtons] = useState<DispatchButton[]>(page.buttons);
   const [widgets, setWidgets] = useState<DispatchWidget[]>(page.widgets);
+  const [cellColors, setCellColors] = useState<Record<string, string>>(
+    page.cellColors,
+  );
+  const [tool, setTool] = useState<"brush" | "fill" | null>(null);
+  const [isErasing, setIsErasing] = useState(false);
+  const [paintColor, setPaintColor] = useState("#ffe58f");
 
   useEffect(() => {
     setButtons(page.buttons);
@@ -89,6 +204,10 @@ const DispatchCanvas: FC<{
   useEffect(() => {
     setWidgets(page.widgets);
   }, [page.widgets]);
+
+  useEffect(() => {
+    setCellColors(page.cellColors);
+  }, [page.cellColors]);
 
   const invalidateOnError = (e: ErrorResponse) => {
     errorHandler(e, messageApi);
@@ -138,6 +257,76 @@ const DispatchCanvas: FC<{
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
+
+  const cellsMutation = useMutation({
+    mutationFn: (cells: Record<string, string>) =>
+      client.patch("api/setting/dispatch-page/cells", {
+        page_id: page.id,
+        cells,
+      }),
+    onError: invalidateOnError,
+  });
+
+  const handleCanvasPointerDown = (e: React.PointerEvent) => {
+    if (!tool) return;
+    const target = e.target as HTMLElement;
+    if (target.closest("[data-dispatch-item]")) return;
+
+    const canvasEl = canvasRef.current;
+    if (!canvasEl) return;
+
+    const rect = canvasEl.getBoundingClientRect();
+    const colAt = (clientX: number) =>
+      Math.max(0, Math.floor((clientX - rect.left) / GRID_SIZE));
+    const rowAt = (clientY: number) =>
+      Math.max(0, Math.floor((clientY - rect.top) / GRID_SIZE));
+
+    if (tool === "fill") {
+      const filled = floodFill(
+        cellColors,
+        colAt(e.clientX),
+        rowAt(e.clientY),
+        isErasing ? null : paintColor,
+        rect.width,
+        rect.height,
+      );
+      setCellColors(filled);
+      cellsMutation.mutate(filled);
+      return;
+    }
+
+    let latest = cellColors;
+    let lastKey = "";
+
+    const paintAt = (clientX: number, clientY: number) => {
+      const key = `${colAt(clientX)}_${rowAt(clientY)}`;
+      if (key === lastKey) return;
+      lastKey = key;
+
+      latest = { ...latest };
+      if (isErasing) {
+        delete latest[key];
+      } else {
+        latest[key] = paintColor;
+      }
+      setCellColors(latest);
+    };
+
+    paintAt(e.clientX, e.clientY);
+
+    const handleMove = (moveEvent: PointerEvent) => {
+      paintAt(moveEvent.clientX, moveEvent.clientY);
+    };
+
+    const handleUp = () => {
+      window.removeEventListener("pointermove", handleMove);
+      window.removeEventListener("pointerup", handleUp);
+      cellsMutation.mutate(latest);
+    };
+
+    window.addEventListener("pointermove", handleMove);
+    window.addEventListener("pointerup", handleUp);
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, delta } = event;
@@ -211,6 +400,12 @@ const DispatchCanvas: FC<{
     return Math.max(CANVAS_MIN_HEIGHT, maxButtonY, maxWidgetY) + 80;
   }, [buttons, widgets]);
 
+  const canvasWidth = useMemo(() => {
+    const maxButtonX = buttons.reduce((max, b) => Math.max(max, b.x + b.width), 0);
+    const maxWidgetX = widgets.reduce((max, w) => Math.max(max, w.x + w.width), 0);
+    return Math.max(maxButtonX, maxWidgetX) + 80;
+  }, [buttons, widgets]);
+
   const addMenuItems = [
     { key: "button", label: t("mission_dispatch_board.add_button_card") },
     {
@@ -221,60 +416,141 @@ const DispatchCanvas: FC<{
       key: "AMR_STATUS",
       label: t("mission_dispatch_board.add_amr_status_card"),
     },
+    {
+      key: "MAP_VIEW",
+      label: t("mission_dispatch_board.add_map_view_card"),
+    },
+    {
+      key: "TEXT",
+      label: t("mission_dispatch_board.add_text_card"),
+    },
+    {
+      key: "QUICK_MISSION",
+      label: t("mission_dispatch_board.add_quick_mission_card"),
+    },
   ];
 
   return (
     <>
       {contextHolder}
       <DndContext onDragEnd={handleDragEnd}>
-        <Canvas $showGrid={editMode} $height={canvasHeight}>
-          {editMode && (
-            <Dropdown
-              menu={{
-                items: addMenuItems,
-                onClick: ({ key }) =>
-                  key === "button"
-                    ? onAddButton()
-                    : onAddWidget(key as DispatchWidgetType),
-              }}
-              trigger={["click"]}
-            >
-              <AddButton>
-                <PlusOutlined style={{ fontSize: 20 }} />
-              </AddButton>
-            </Dropdown>
-          )}
-          {buttons.map((button) => (
-            <DispatchButtonCard
-              key={button.id}
-              button={button}
-              editMode={editMode}
-              onEdit={() => onEditButton(button)}
-              onDelete={() => handleDeleteButton(button)}
-              onResizeEnd={(width, height) =>
-                handleButtonResizeEnd(button, width, height)
-              }
-            />
-          ))}
-          {widgets.map((widget) => {
-            const WidgetCard =
-              widget.widget_type === "AMR_STATUS"
-                ? AmrStatusWidgetCard
-                : MissionListWidgetCard;
-            return (
-              <WidgetCard
-                key={widget.id}
-                widget={widget}
+        <CanvasScrollArea>
+          <Canvas
+            ref={canvasRef}
+            $showGrid={editMode}
+            $height={canvasHeight}
+            $width={canvasWidth}
+            $paintMode={editMode && tool !== null}
+            onPointerDown={handleCanvasPointerDown}
+          >
+            {Object.entries(cellColors).map(([key, color]) => {
+              const [col, row] = key.split("_").map(Number);
+              return (
+                <PaintedCell
+                  key={key}
+                  $color={color}
+                  style={{ left: col * GRID_SIZE, top: row * GRID_SIZE }}
+                />
+              );
+            })}
+            {editMode && (
+              <Dropdown
+                menu={{
+                  items: addMenuItems,
+                  onClick: ({ key }) =>
+                    key === "button"
+                      ? onAddButton()
+                      : onAddWidget(key as DispatchWidgetType),
+                }}
+                trigger={["click"]}
+              >
+                <AddButton>
+                  <PlusOutlined style={{ fontSize: 20 }} />
+                </AddButton>
+              </Dropdown>
+            )}
+            {editMode && (
+              <PaintToolbar
+                onPointerDown={(e) => e.stopPropagation()}
+                data-dispatch-item="true"
+              >
+                <ToolButton
+                  $active={tool === "brush"}
+                  onClick={() =>
+                    setTool((prev) => (prev === "brush" ? null : "brush"))
+                  }
+                  title={t("mission_dispatch_board.paint_mode")}
+                >
+                  <BgColorsOutlined />
+                </ToolButton>
+                <ToolButton
+                  $active={tool === "fill"}
+                  onClick={() =>
+                    setTool((prev) => (prev === "fill" ? null : "fill"))
+                  }
+                  title={t("mission_dispatch_board.fill_mode")}
+                >
+                  <FormatPainterOutlined />
+                </ToolButton>
+                {tool && (
+                  <>
+                    <ColorPicker
+                      value={paintColor}
+                      format="hex"
+                      onChange={(color) => {
+                        setPaintColor(color.toHexString());
+                        setIsErasing(false);
+                      }}
+                    />
+                    <ToolButton
+                      $active={isErasing}
+                      onClick={() => setIsErasing((prev) => !prev)}
+                      title={t("mission_dispatch_board.eraser")}
+                    >
+                      <ClearOutlined />
+                    </ToolButton>
+                  </>
+                )}
+              </PaintToolbar>
+            )}
+            {buttons.map((button) => (
+              <DispatchButtonCard
+                key={button.id}
+                button={button}
                 editMode={editMode}
-                onEdit={() => onEditWidget(widget)}
-                onDelete={() => handleDeleteWidget(widget)}
+                onEdit={() => onEditButton(button)}
+                onDelete={() => handleDeleteButton(button)}
                 onResizeEnd={(width, height) =>
-                  handleWidgetResizeEnd(widget, width, height)
+                  handleButtonResizeEnd(button, width, height)
                 }
               />
-            );
-          })}
-        </Canvas>
+            ))}
+            {widgets.map((widget) => {
+              const WidgetCard =
+                widget.widget_type === "AMR_STATUS"
+                  ? AmrStatusWidgetCard
+                  : widget.widget_type === "MAP_VIEW"
+                    ? MapViewWidgetCard
+                    : widget.widget_type === "TEXT"
+                      ? TextWidgetCard
+                      : widget.widget_type === "QUICK_MISSION"
+                        ? QuickMissionWidgetCard
+                        : MissionListWidgetCard;
+              return (
+                <WidgetCard
+                  key={widget.id}
+                  widget={widget}
+                  editMode={editMode}
+                  onEdit={() => onEditWidget(widget)}
+                  onDelete={() => handleDeleteWidget(widget)}
+                  onResizeEnd={(width, height) =>
+                    handleWidgetResizeEnd(widget, width, height)
+                  }
+                />
+              );
+            })}
+          </Canvas>
+        </CanvasScrollArea>
       </DndContext>
       {buttons.length === 0 && widgets.length === 0 && !editMode && (
         <EmptyHint>{t("mission_dispatch_board.empty_page_hint")}</EmptyHint>

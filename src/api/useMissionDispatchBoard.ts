@@ -24,7 +24,12 @@ export interface DispatchButton {
   priority: number;
 }
 
-export type DispatchWidgetType = "MISSION_LIST" | "AMR_STATUS";
+export type DispatchWidgetType =
+  | "MISSION_LIST"
+  | "AMR_STATUS"
+  | "MAP_VIEW"
+  | "TEXT"
+  | "QUICK_MISSION";
 
 export interface DispatchWidget {
   id: string;
@@ -36,6 +41,9 @@ export interface DispatchWidget {
   height: number;
   title: string | null;
   amrId: string | null;
+  fontColor: string | null;
+  fontSize: number | null;
+  fontWeight: number | null;
 }
 
 export interface DispatchPage {
@@ -44,6 +52,7 @@ export interface DispatchPage {
   order: number;
   buttons: DispatchButton[];
   widgets: DispatchWidget[];
+  cellColors: Record<string, string>;
 }
 
 const buttonSchema = object({
@@ -72,7 +81,7 @@ const widgetSchema = object({
   id: string().required(),
   page_id: string().required(),
   widget_type: mixed<DispatchWidgetType>()
-    .oneOf(["MISSION_LIST", "AMR_STATUS"])
+    .oneOf(["MISSION_LIST", "AMR_STATUS", "MAP_VIEW", "TEXT", "QUICK_MISSION"])
     .required(),
   x: number().required(),
   y: number().required(),
@@ -80,6 +89,9 @@ const widgetSchema = object({
   height: number().required(),
   title: string().nullable().default(null),
   amrId: string().nullable().default(null),
+  fontColor: string().nullable().default(null),
+  fontSize: number().nullable().default(null),
+  fontWeight: number().nullable().default(null),
 });
 
 const pageSchema = array(
@@ -89,12 +101,17 @@ const pageSchema = array(
     order: number().required(),
     buttons: array(buttonSchema).required(),
     widgets: array(widgetSchema).required(),
+    cellColors: object().nullable().default(null),
   }).required(),
 ).required();
 
 const getDispatchPages = async () => {
   const { data } = await client.get<unknown>("api/setting/dispatch-page");
-  return (await pageSchema.validate(data)) as DispatchPage[];
+  const pages = (await pageSchema.validate(data)) as DispatchPage[];
+  return pages.map((page) => ({
+    ...page,
+    cellColors: page.cellColors ?? {},
+  }));
 };
 
 export const DISPATCH_PAGE_QUERY_KEY = ["dispatch-page"];

@@ -2,6 +2,8 @@
   "mission_dispatch_board": {
     "title": "Mission Dispatch Board",
     "edit_mode": "Edit Mode",
+    "collapse_header": "Collapse top menu",
+    "expand_header": "Expand top menu",
     "new_page_placeholder": "Enter a page name",
     "delete_page_confirm_title": "Delete this page? All its buttons will be deleted too.",
     "add_button_card": "Add Button",
@@ -25,6 +27,20 @@
     "delete_button_confirm_title": "Delete this button?",
     "add_widget_card": "Add Mission Status List",
     "add_amr_status_card": "Add AMR Status Card",
+    "add_map_view_card": "Add Map View",
+    "map_view_widget": "Map View",
+    "add_text_card": "Add Text",
+    "text_content": "Text Content",
+    "text_widget_placeholder": "Text",
+    "add_quick_mission_card": "Add Quick Mission (Pick on Map)",
+    "quick_mission_widget": "Quick Mission",
+    "quick_mission_pick_load_hint": "Click a pickup location on the map",
+    "quick_mission_pick_offload_hint": "Click a dropoff location on the map",
+    "pick_on_map": "Pick on Map",
+    "dispatch": "Dispatch",
+    "paint_mode": "Paint Brush",
+    "fill_mode": "Fill (Bucket)",
+    "eraser": "Eraser",
     "create_widget_title": "New Widget",
     "edit_widget_title": "Edit Widget",
     "widget_title": "Title",
@@ -1679,7 +1695,10 @@
     "io": "IO information",
     "no_io": "No IO information",
     "mark_point": "Mark Point",
-    "location_id": "Location ID"
+    "location_id": "Location ID",
+    "show_map": "Show Map",
+    "hide_map": "Hide Map",
+    "map": "Live Map"
   },
   "peripheral_style": {
     "areaType": "Area Type"

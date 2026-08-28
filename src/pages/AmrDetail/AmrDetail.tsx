@@ -32,6 +32,7 @@ import { useTranslation } from "react-i18next";
 import DPad from "./DPad";
 import EditCargoCarrier from "../Main/Car_Card/components/EditCargoCarrier";
 import MarkPointModal from "./MarkPointModal";
+import AmrLiveMap from "./AmrLiveMap";
 import styled from "styled-components";
 
 const { Title, Text } = Typography;
@@ -208,6 +209,7 @@ const AmrDetail = () => {
   const [showIO, setShowIO] = useState(false);
   const [editCargoModalOpen, setEditCargoModalOpen] = useState(false);
   const [markPointModalOpen, setMarkPointModalOpen] = useState(false);
+  const [showMap, setShowMap] = useState(false);
   const { t } = useTranslation();
 
   const hasPose =
@@ -389,7 +391,32 @@ const AmrDetail = () => {
               >
                 {t("amr_detail.mark_point")}
               </IndustrialButton>
+
+              <IndustrialButton
+                type="primary"
+                onClick={() => setShowMap((v) => !v)}
+                style={{ flex: 1, minWidth: 200 }}
+              >
+                {showMap ? t("amr_detail.hide_map") : t("amr_detail.show_map")}
+              </IndustrialButton>
             </Flex>
+
+            {showMap && (
+              <Card
+                style={{
+                  marginBottom: 24,
+                  border: "2px solid #d9d9d9",
+                  borderRadius: 0,
+                }}
+                styles={{ body: { padding: 0 } }}
+              >
+                <SectionTitle level={4} style={{ margin: "0 0 0 0", padding: 16 }}>
+                  <EnvironmentOutlined />
+                  {t("amr_detail.map")}
+                </SectionTitle>
+                <AmrLiveMap amrId={prefixAmrId} />
+              </Card>
+            )}
 
             {showControlPanel && <DPad amrId={prefixAmrId} />}
 

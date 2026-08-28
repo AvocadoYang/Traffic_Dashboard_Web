@@ -8,18 +8,24 @@ import {
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Form, Input, message, Modal, Select } from "antd";
+import { ColorPicker, Form, Input, message, Modal, Select, Slider } from "antd";
 import React, { FC, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 interface FormValues {
   title: string;
   amrId?: string;
+  fontColor?: string;
+  fontSize?: number;
+  fontWeight?: number;
 }
 
 const DEFAULT_SIZE: Record<DispatchWidgetType, { width: number; height: number }> = {
   MISSION_LIST: { width: 420, height: 320 },
   AMR_STATUS: { width: 220, height: 180 },
+  MAP_VIEW: { width: 480, height: 360 },
+  TEXT: { width: 200, height: 60 },
+  QUICK_MISSION: { width: 240, height: 260 },
 };
 
 const DispatchWidgetFormModal: FC<{
@@ -43,6 +49,9 @@ const DispatchWidgetFormModal: FC<{
     form.setFieldsValue({
       title: initialValues?.title ?? "",
       amrId: initialValues?.amrId ?? undefined,
+      fontColor: initialValues?.fontColor ?? "#262626",
+      fontSize: initialValues?.fontSize ?? 24,
+      fontWeight: initialValues?.fontWeight ?? 600,
     });
   }, [open, initialValues, form]);
 
@@ -73,10 +82,20 @@ const DispatchWidgetFormModal: FC<{
   const handleOk = async () => {
     const values = await form.validateFields();
 
+    const fontFields =
+      effectiveType === "TEXT"
+        ? {
+            fontColor: values.fontColor,
+            fontSize: values.fontSize,
+            fontWeight: values.fontWeight,
+          }
+        : {};
+
     if (isEdit) {
       mutation.mutate({
         title: values.title || null,
         ...(effectiveType === "AMR_STATUS" ? { amrId: values.amrId } : {}),
+        ...fontFields,
       });
       return;
     }
@@ -89,13 +108,20 @@ const DispatchWidgetFormModal: FC<{
       amrId: effectiveType === "AMR_STATUS" ? values.amrId : null,
       width: initialValues?.width ?? defaultSize.width,
       height: initialValues?.height ?? defaultSize.height,
+      ...fontFields,
     });
   };
 
   const titlePlaceholder =
     effectiveType === "AMR_STATUS"
       ? t("mission_dispatch_board.amr_status_widget")
-      : t("mission_dispatch_board.mission_list_widget");
+      : effectiveType === "MAP_VIEW"
+        ? t("mission_dispatch_board.map_view_widget")
+        : effectiveType === "TEXT"
+          ? t("mission_dispatch_board.text_widget_placeholder")
+          : effectiveType === "QUICK_MISSION"
+            ? t("mission_dispatch_board.quick_mission_widget")
+            : t("mission_dispatch_board.mission_list_widget");
 
   return (
     <>
@@ -128,11 +154,46 @@ const DispatchWidgetFormModal: FC<{
           )}
 
           <Form.Item
-            label={t("mission_dispatch_board.widget_title")}
+            label={
+              effectiveType === "TEXT"
+                ? t("mission_dispatch_board.text_content")
+                : t("mission_dispatch_board.widget_title")
+            }
             name="title"
+            rules={
+              effectiveType === "TEXT" ? [{ required: true }] : undefined
+            }
           >
-            <Input maxLength={20} placeholder={titlePlaceholder} />
+            <Input maxLength={40} placeholder={titlePlaceholder} />
           </Form.Item>
+
+          {effectiveType === "TEXT" && (
+            <>
+              <Form.Item
+                label={t("mission_dispatch_board.font_color")}
+                name="fontColor"
+                getValueFromEvent={(color) =>
+                  typeof color === "string" ? color : color.toHexString()
+                }
+              >
+                <ColorPicker format="hex" showText />
+              </Form.Item>
+
+              <Form.Item
+                label={t("mission_dispatch_board.font_size")}
+                name="fontSize"
+              >
+                <Slider min={10} max={48} step={1} />
+              </Form.Item>
+
+              <Form.Item
+                label={t("mission_dispatch_board.font_weight")}
+                name="fontWeight"
+              >
+                <Slider min={100} max={900} step={100} />
+              </Form.Item>
+            </>
+          )}
         </Form>
       </Modal>
     </>

@@ -2,6 +2,8 @@
   "mission_dispatch_board": {
     "title": "任務派發看板",
     "edit_mode": "編輯模式",
+    "collapse_header": "收合上方選單",
+    "expand_header": "展開上方選單",
     "new_page_placeholder": "輸入頁面名稱",
     "delete_page_confirm_title": "確定刪除此頁面？連同底下的按鈕都會一併刪除",
     "add_button_card": "新增按鈕",
@@ -25,6 +27,20 @@
     "delete_button_confirm_title": "確定刪除此按鈕？",
     "add_widget_card": "新增任務派發狀態列表",
     "add_amr_status_card": "新增車輛狀態卡片",
+    "add_map_view_card": "新增地圖顯示",
+    "map_view_widget": "地圖顯示",
+    "add_text_card": "新增文字",
+    "text_content": "文字內容",
+    "text_widget_placeholder": "文字",
+    "add_quick_mission_card": "新增快速派發(點地圖選點)",
+    "quick_mission_widget": "快速派發",
+    "quick_mission_pick_load_hint": "請在地圖上點選取貨儲位",
+    "quick_mission_pick_offload_hint": "請在地圖上點選放貨儲位",
+    "pick_on_map": "點地圖選取",
+    "dispatch": "派發",
+    "paint_mode": "填色畫筆",
+    "fill_mode": "油漆桶(填滿)",
+    "eraser": "橡皮擦",
     "create_widget_title": "新增元件",
     "edit_widget_title": "編輯元件",
     "widget_title": "標題",
@@ -1680,7 +1696,10 @@
     "io": "IO 資訊",
     "no_io": "無 IO 資訊",
     "mark_point": "打點",
-    "location_id": "點位 ID"
+    "location_id": "點位 ID",
+    "show_map": "顯示地圖",
+    "hide_map": "隱藏地圖",
+    "map": "即時地圖"
   },
   "peripheral_style": {
     "areaType": "地點功能"

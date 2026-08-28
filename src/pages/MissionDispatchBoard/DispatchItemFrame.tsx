@@ -149,6 +149,7 @@ const DispatchItemFrame: FC<DispatchItemFrameProps> = ({
   return (
     <div
       ref={setNodeRef}
+      data-dispatch-item="true"
       style={{
         position: "absolute",
         left: x,
