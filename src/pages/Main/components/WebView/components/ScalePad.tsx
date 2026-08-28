@@ -156,7 +156,7 @@ const ScalePad = () => {
     },
   });
 
-  const scaleOptions = Array.from({ length: 10 }, (_, index) => index + 1);
+  const scaleOptions = [0.1, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5];
 
   useEffect(() => {
     if (script?.isSimulate === false) {

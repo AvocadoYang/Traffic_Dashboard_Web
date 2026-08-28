@@ -178,7 +178,11 @@ export const DropDown: React.FC<{
 export const LogInStatus = styled.p.attrs<{ login: string }>((props) => {
   return { login: props.login };
 })<{ login: string }>`
-  background-color: ${(props) => (props.login === "true" ? "	#2eb800" : "red")};
+  background-color: ${(props) => {
+    if (props.login === "true") return "#2eb800";
+    if (props.login === "warning") return "#ff9646";
+    return "red";
+  }};
   width: 0.6em;
   height: 0.6em;
   margin-left: 3%;
@@ -231,26 +235,39 @@ export const AmrTitle = styled.h2`
 
 export const RowOne: React.FC<{ isDark: boolean; amrId: string }> = memo(
   ({ isDark, amrId }) => {
-    const { networkDelay, isOverdue } = useIsLogIn(amrId);
+    const { networkDelay, isOverdue, hasServiceInterruption } =
+      useIsLogIn(amrId);
     const { t } = useTranslation();
-
     const AmrID = useMemo(() => {
       return {
         num: amrId.split("-")[amrId.split("-").length - 1],
         category: amrId.split("-").slice(0, 3).join("-"),
       };
     }, [amrId]);
+    const loginState = isOverdue
+      ? "false"
+      : hasServiceInterruption
+        ? "warning"
+        : "true";
     return (
       <CarRow1 is_dark={isDark.toString()}>
         <div>
-          <LogInStatus login={isOverdue ? "false" : "true"} />
+          <LogInStatus login={loginState} />
 
           <span
             className={`login-text ${
-              isOverdue ? "offline-text" : "online-text"
+              isOverdue
+                ? "offline-text"
+                : hasServiceInterruption
+                  ? "warning-text"
+                  : "online-text"
             }`}
           >
-            {isOverdue ? t("utils.offline") : t("utils.online")}
+            {isOverdue
+              ? t("utils.offline")
+              : hasServiceInterruption
+                ? t("utils.service_interrupted")
+                : t("utils.online")}
           </span>
 
           {!isOverdue && (
