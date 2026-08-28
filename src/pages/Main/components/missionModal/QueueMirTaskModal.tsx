@@ -12,9 +12,17 @@ import { RocketOutlined, SettingOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import MirMissionTableSelect from "./MirMissionTableSelect";
 
+enum MissionPriority {
+  TRIVIAL,
+  NORMAL,
+  PIVOTAL,
+  CRITICAL,
+}
+
 interface QueueMirTaskFormValues {
   amrId: string;
   missionName: string;
+  priority: number;
 }
 
 // Industrial Modal Styling with RWD — mirrors DialogMission.tsx so both
@@ -342,7 +350,12 @@ const QueueMirTaskModal = () => {
       destroyOnHidden
     >
       {contextHolder}
-      <Form form={form} layout="vertical" size="large">
+      <Form
+        form={form}
+        layout="vertical"
+        size="large"
+        initialValues={{ priority: MissionPriority.NORMAL }}
+      >
         {/* AMR Selection */}
         <FormSection>
           <FieldLabel>
@@ -400,6 +413,46 @@ const QueueMirTaskModal = () => {
                 form.setFieldValue("missionName", name);
                 void messageApi.success(`Selected mission: ${name}`);
               }}
+            />
+          </Form.Item>
+        </FormSection>
+
+        <SectionDivider />
+
+        {/* Priority */}
+        <FormSection>
+          <FieldLabel>
+            <SettingOutlined style={{ marginRight: 6 }} />
+            [03] {t("main.queue_mir_task_modal.priority")}
+          </FieldLabel>
+          <Form.Item name="priority" style={{ marginBottom: 0 }}>
+            <StyledSelect
+              options={[
+                {
+                  value: MissionPriority.TRIVIAL,
+                  label: t(
+                    "main.mission_modal.dialog_mission.priority.TRIVIAL",
+                  ),
+                },
+                {
+                  value: MissionPriority.NORMAL,
+                  label: t(
+                    "main.mission_modal.dialog_mission.priority.NORMAL",
+                  ),
+                },
+                {
+                  value: MissionPriority.PIVOTAL,
+                  label: t(
+                    "main.mission_modal.dialog_mission.priority.PIVOTAL",
+                  ),
+                },
+                {
+                  value: MissionPriority.CRITICAL,
+                  label: t(
+                    "main.mission_modal.dialog_mission.priority.CRITICAL",
+                  ),
+                },
+              ]}
             />
           </Form.Item>
         </FormSection>

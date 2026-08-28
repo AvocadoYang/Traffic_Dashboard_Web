@@ -17,6 +17,10 @@
     "dispatch_type": "派發方式",
     "type_normal": "指定任務",
     "type_dynamic": "指定取放點",
+    "type_mir": "MIR任務",
+    "mir_mission_name": "MIR任務名稱",
+    "select_mir_mission": "選擇MIR任務",
+    "select_amr_first": "請先選擇車輛",
     "amr": "指定車輛",
     "mission_title": "任務",
     "select_mission_title": "選擇任務",
@@ -799,7 +803,8 @@
       "select_mission_required": "請選擇任務",
       "no_synced_mission": "這台車還沒有同步任務，請先到設定頁執行 Sync Data",
       "table_title": "選擇 MiR 任務",
-      "search_placeholder": "以名稱搜尋..."
+      "search_placeholder": "以名稱搜尋...",
+      "priority": "優先權"
     },
     "mir_mission_panel": {
       "title": "Mir 任務",
@@ -810,6 +815,7 @@
       "select_hint": "點擊已同步的儲存格以選擇車輛與任務",
       "selected_amr": "車輛",
       "selected_mission": "任務",
+      "priority": "優先權",
       "queue_button": "派發任務",
       "queue_button_loading": "派發中..."
     },

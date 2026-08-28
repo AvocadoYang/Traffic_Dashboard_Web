@@ -1,4 +1,5 @@
 import client from "@/api/axiosClient";
+import useAllMirMission from "@/api/useAllMirMission";
 import useAmrName from "@/api/useAmrName";
 import useAllMissionTitles from "@/api/useMissionTitle";
 import usePeripheralName from "@/api/usePeripheralName";
@@ -37,11 +38,12 @@ interface FormValues {
   fontColor: string;
   fontSize: number;
   fontWeight: number;
-  dispatch_type: "NORMAL" | "DYNAMIC";
+  dispatch_type: "NORMAL" | "DYNAMIC" | "MIR";
   amrId: string;
   missionTitleId?: string;
   ept_s?: string;
   ept_d?: string;
+  missionName?: string;
   priority: number;
 }
 
@@ -64,6 +66,38 @@ const MissionTitleField: FC<{
   );
 };
 
+const MirMissionField: FC<{
+  amrId?: string;
+  value?: string;
+  onChange?: (name: string) => void;
+}> = ({ amrId, value, onChange }) => {
+  const { t } = useTranslation();
+  const { data } = useAllMirMission();
+
+  const options = useMemo(() => {
+    if (!data || !amrId) return [];
+    return data
+      .filter((row) => Boolean(row.robots[amrId]))
+      .map((row) => ({ value: row.name, label: row.name }));
+  }, [data, amrId]);
+
+  return (
+    <Select
+      showSearch
+      value={value}
+      disabled={!amrId}
+      placeholder={
+        amrId
+          ? t("mission_dispatch_board.select_mir_mission")
+          : t("mission_dispatch_board.select_amr_first")
+      }
+      optionFilterProp="label"
+      options={options}
+      onChange={(name) => onChange?.(name)}
+    />
+  );
+};
+
 const DispatchButtonFormModal: FC<{
   open: boolean;
   pageId: string;
@@ -75,6 +109,7 @@ const DispatchButtonFormModal: FC<{
   const [messageApi, contextHolder] = message.useMessage();
   const queryClient = useQueryClient();
   const dispatchType = Form.useWatch("dispatch_type", form);
+  const amrIdValue = Form.useWatch("amrId", form);
   const { data: amrData } = useAmrName();
   const { data: peripheralData } = usePeripheralName();
 
@@ -93,6 +128,7 @@ const DispatchButtonFormModal: FC<{
       missionTitleId: initialValues?.missionTitleId ?? undefined,
       ept_s: initialValues?.ept_s ?? undefined,
       ept_d: initialValues?.ept_d ?? undefined,
+      missionName: initialValues?.missionName ?? undefined,
       priority: initialValues?.priority ?? MissionPriority.NORMAL,
     });
   }, [open, initialValues, form]);
@@ -107,6 +143,18 @@ const DispatchButtonFormModal: FC<{
       ...filtered.map((a) => ({ value: a.amrId, label: a.amrId })),
     ];
   }, [amrData, t]);
+
+  // MIR 任務一定要指定一台實體的 MiR 車(不能自動指派),而且只能是 MiR 家族的車
+  // (跟 missionAssigner.ts 對 QUEUE_MIR_TASK 的 amrId.includes('mi15') 過濾條件一致)。
+  const mirAmrOptions = useMemo(() => {
+    if (!amrData) return [];
+    const filtered = amrData.isSim
+      ? amrData.amrs.filter((a) => a.isReal === false)
+      : amrData.amrs.filter((a) => a.isReal === true);
+    return filtered
+      .filter((a) => a.amrId.includes("mi15"))
+      .map((a) => ({ value: a.amrId, label: a.amrId }));
+  }, [amrData]);
 
   const peripheralOptions = useMemo(() => {
     const names = new Set<string>();
@@ -159,6 +207,8 @@ const DispatchButtonFormModal: FC<{
         values.dispatch_type === "NORMAL" ? values.missionTitleId : null,
       ept_s: values.dispatch_type === "DYNAMIC" ? values.ept_s ?? null : null,
       ept_d: values.dispatch_type === "DYNAMIC" ? values.ept_d ?? null : null,
+      missionName:
+        values.dispatch_type === "MIR" ? values.missionName : null,
       priority: values.priority,
     });
   };
@@ -235,13 +285,32 @@ const DispatchButtonFormModal: FC<{
                   value: "DYNAMIC",
                   label: t("mission_dispatch_board.type_dynamic"),
                 },
+                {
+                  value: "MIR",
+                  label: t("mission_dispatch_board.type_mir"),
+                },
               ]}
               optionType="button"
+              onChange={() =>
+                form.resetFields([
+                  "amrId",
+                  "missionTitleId",
+                  "ept_s",
+                  "ept_d",
+                  "missionName",
+                ])
+              }
             />
           </Form.Item>
 
-          <Form.Item label={t("mission_dispatch_board.amr")} name="amrId">
-            <Select options={amrOptions} />
+          <Form.Item
+            label={t("mission_dispatch_board.amr")}
+            name="amrId"
+            rules={dispatchType === "MIR" ? [{ required: true }] : undefined}
+          >
+            <Select
+              options={dispatchType === "MIR" ? mirAmrOptions : amrOptions}
+            />
           </Form.Item>
 
           {dispatchType === "DYNAMIC" ? (
@@ -269,6 +338,14 @@ const DispatchButtonFormModal: FC<{
                 />
               </Form.Item>
             </>
+          ) : dispatchType === "MIR" ? (
+            <Form.Item
+              label={t("mission_dispatch_board.mir_mission_name")}
+              name="missionName"
+              rules={[{ required: true }]}
+            >
+              <MirMissionField amrId={amrIdValue} />
+            </Form.Item>
           ) : (
             <Form.Item
               label={t("mission_dispatch_board.mission_title")}
@@ -287,19 +364,27 @@ const DispatchButtonFormModal: FC<{
               options={[
                 {
                   value: MissionPriority.TRIVIAL,
-                  label: t("main.mission_modal.dialog_mission.priority.TRIVIAL"),
+                  label: t(
+                    "main.mission_modal.dialog_mission.priority.TRIVIAL",
+                  ),
                 },
                 {
                   value: MissionPriority.NORMAL,
-                  label: t("main.mission_modal.dialog_mission.priority.NORMAL"),
+                  label: t(
+                    "main.mission_modal.dialog_mission.priority.NORMAL",
+                  ),
                 },
                 {
                   value: MissionPriority.PIVOTAL,
-                  label: t("main.mission_modal.dialog_mission.priority.PIVOTAL"),
+                  label: t(
+                    "main.mission_modal.dialog_mission.priority.PIVOTAL",
+                  ),
                 },
                 {
                   value: MissionPriority.CRITICAL,
-                  label: t("main.mission_modal.dialog_mission.priority.CRITICAL"),
+                  label: t(
+                    "main.mission_modal.dialog_mission.priority.CRITICAL",
+                  ),
                 },
               ]}
             />

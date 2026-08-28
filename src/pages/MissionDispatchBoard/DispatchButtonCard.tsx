@@ -54,6 +54,14 @@ const DispatchButtonCard: FC<{
 
   const fireMutation = useMutation({
     mutationFn: () => {
+      if (button.dispatch_type === "MIR") {
+        // MIR 任務走既有的 QueueMirTaskModal 同一支端點
+        return client.post("api/setting/queue-mir-task", {
+          amrId: button.amrId,
+          missionName: button.missionName,
+          priority: button.priority,
+        });
+      }
       const amrId = button.amrId ?? "none";
       if (button.dispatch_type === "NORMAL") {
         return client.post("api/missions/dialog-mission", {

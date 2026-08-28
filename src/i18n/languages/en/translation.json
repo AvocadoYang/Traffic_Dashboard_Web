@@ -17,6 +17,10 @@
     "dispatch_type": "Dispatch Type",
     "type_normal": "Fixed Mission",
     "type_dynamic": "Pickup/Dropoff Points",
+    "type_mir": "MIR Mission",
+    "mir_mission_name": "MIR Mission Name",
+    "select_mir_mission": "Select a MIR mission",
+    "select_amr_first": "Select an AMR first",
     "amr": "AMR",
     "mission_title": "Mission",
     "select_mission_title": "Select a mission",
@@ -800,7 +804,8 @@
       "select_mission_required": "Please select a mission",
       "no_synced_mission": "This AMR hasn't synced any missions yet — run Sync Data on the Settings page first",
       "table_title": "Select a MiR Mission",
-      "search_placeholder": "Search by name..."
+      "search_placeholder": "Search by name...",
+      "priority": "Priority"
     },
     "mir_mission_panel": {
       "title": "Mir Mission",
@@ -811,6 +816,7 @@
       "select_hint": "Click a synced cell to select an AMR and mission",
       "selected_amr": "AMR",
       "selected_mission": "Mission",
+      "priority": "Priority",
       "queue_button": "Queue Task",
       "queue_button_loading": "Queuing..."
     },
