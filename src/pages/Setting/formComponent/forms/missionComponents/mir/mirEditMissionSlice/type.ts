@@ -51,6 +51,10 @@ export type Mir_Action = {
   value: string;
   operation: string;
   timeout: string;
+
+  // 欄位名稱 -> 變數名稱。有 key 代表該欄位設成「使用變數」，
+  // 派發時 MiR 端的 parameters[].input_name 要填這個變數名稱而不是寫死的值。
+  variables?: Record<string, string>;
 };
 
 export type Mir_Task =

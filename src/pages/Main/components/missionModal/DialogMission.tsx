@@ -1,8 +1,10 @@
-import { Button, Flex, Form, message, Modal, Radio, Select } from "antd";
+import { Button, Flex, Form, Input, message, Modal, Radio, Select } from "antd";
 import { useAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import { OpenAssignMission } from "../../global/jotai";
 import useAllMissionTitles from "@/api/useMissionTitle";
+import useTaskMir from "@/api/useTaskMir";
+import useMirTaskOptions from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/useMirTaskOptions";
 import { useEffect, useMemo, useState } from "react";
 import useName from "@/api/useAmrName";
 import { useMutation } from "@tanstack/react-query";
@@ -28,6 +30,23 @@ type MissionFrom = {
   amrId: string | null;
   titleId: string;
   priority: MissionPriority;
+  variableValues?: Record<string, string>;
+};
+
+// 值其實是 MiR 內部 GUID 的欄位名稱 -> 派發時要用哪種下拉選。
+// location_id/entry_position 存的是 QAMS 這邊的 location_id,要在 bridge
+// 那邊另外查表轉成 MiR marker GUID;footprint/marker_type/sound 這幾個欄位
+// 本身存的就已經是 MiR 的原始 GUID(直接來自 useMirTaskOptions 對應的
+// option value),不需要另外轉換,只是派發時一樣要用下拉選,不能讓使用者
+// 自己手打 GUID。其餘欄位(逾時、距離、速度等)MiR 原生介面也只是純文字/
+// 數字輸入,維持 Input 就好。
+type VariableFieldKind = "location" | "footprint" | "marker_type" | "sound";
+const VARIABLE_FIELD_KIND: Record<string, VariableFieldKind> = {
+  location_id: "location",
+  entry_position: "location",
+  footprint: "footprint",
+  marker_type: "marker_type",
+  sound: "sound",
 };
 
 // Industrial Modal Styling with RWD
@@ -375,7 +394,31 @@ const DialogMission = () => {
 
   const [openDialogMission, setOpenDialogMission] = useAtom(OpenAssignMission);
   const [, setAmrGenre] = useState<string | null>(null);
+  const [selectedTitleId, setSelectedTitleId] = useState("");
+  const { data: mirTaskData } = useTaskMir(selectedTitleId);
+  const { locationsOption, footprintOption, markerTypeOption, soundOption } =
+    useMirTaskOptions();
 
+  // 這個任務底下所有 slice 用到的變數名稱,以及每個變數名稱要用哪種下拉選
+  // (綁在 location_id/footprint/marker_type/sound 這類欄位上的變數不能讓
+  // 使用者手打 GUID)。沒有變數的任務(絕大多數情況)這裡都是空的,Modal
+  // 長得跟以前一樣。
+  const { variableNames, variableFieldKinds } = useMemo(() => {
+    const names = new Set<string>();
+    const kinds = new Map<string, VariableFieldKind>();
+    (mirTaskData ?? []).forEach((slice) => {
+      Object.entries(slice.operation?.variables ?? {}).forEach(
+        ([fieldName, varName]) => {
+          names.add(varName);
+          const kind = VARIABLE_FIELD_KIND[fieldName];
+          if (kind) {
+            kinds.set(varName, kind);
+          }
+        }
+      );
+    });
+    return { variableNames: [...names], variableFieldKinds: kinds };
+  }, [mirTaskData]);
   const reload = () => {
     refetchAgv();
     refetchMissions();
@@ -422,9 +465,17 @@ const DialogMission = () => {
 
   const submit = () => {
     const payload = missionForm.getFieldsValue() as MissionFrom;
-    const { titleId, priority } = payload;
+    const { titleId, priority, variableValues } = payload;
     if (!titleId || priority === undefined || priority === null) {
       void messageApi.error("尚未完成選項");
+      return;
+    }
+
+    const missingVariable = variableNames.some(
+      (name) => !variableValues?.[name],
+    );
+    if (missingVariable) {
+      void messageApi.error("這個任務有變數尚未填寫");
       return;
     }
 
@@ -539,12 +590,58 @@ const DialogMission = () => {
             <MissionTableSelect
               onSelect={(record) => {
                 missionForm.setFieldValue("titleId", record.id);
+                missionForm.setFieldValue("variableValues", undefined);
+                setSelectedTitleId(record.id);
                 void messageApi.success(`Selected mission: ${record.name}`);
               }}
               placeholder="Click to choose mission"
             />
           </Form.Item>
         </FormSection>
+
+        {variableNames.length > 0 && (
+          <>
+            <SectionDivider />
+            <FormSection>
+              <FieldLabel>
+                <SettingOutlined style={{ marginRight: 6 }} />
+                [04] {t("main.mission_modal.dialog_mission.variables")}
+              </FieldLabel>
+              {variableNames.map((name) => {
+                const kind = variableFieldKinds.get(name);
+                const selectOptionsByKind: Record<
+                  VariableFieldKind,
+                  { label: string; value: string }[]
+                > = {
+                  location: locationsOption,
+                  footprint: footprintOption,
+                  marker_type: markerTypeOption,
+                  sound: soundOption,
+                };
+
+                return (
+                  <Form.Item
+                    key={name}
+                    label={name}
+                    name={["variableValues", name]}
+                    rules={[{ required: true }]}
+                    style={{ marginBottom: 12 }}
+                  >
+                    {kind ? (
+                      <StyledSelect
+                        options={selectOptionsByKind[kind]}
+                        showSearch
+                        placeholder="Select a value"
+                      />
+                    ) : (
+                      <Input placeholder="Enter a value" />
+                    )}
+                  </Form.Item>
+                );
+              })}
+            </FormSection>
+          </>
+        )}
 
         <ActionBar align="center" justify="center">
           <IndustrialButton icon={<ReloadOutlined />} onClick={() => reload()}>

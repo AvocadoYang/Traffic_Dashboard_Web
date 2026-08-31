@@ -833,6 +833,7 @@
         "task_priority": "任務級別",
         "mission_type": "任務類型",
         "reload": "重新載入",
+        "variables": "變數",
         "priority": {
           "TRIVIAL": "不重要",
           "NORMAL": "普通",

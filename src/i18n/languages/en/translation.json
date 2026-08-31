@@ -834,6 +834,7 @@
         "task_priority": "Task priority",
         "mission_type": "Mission Type",
         "reload": "Reload",
+        "variables": "Variables",
         "priority": {
           "TRIVIAL": "Trivial",
           "NORMAL": "Normal",
