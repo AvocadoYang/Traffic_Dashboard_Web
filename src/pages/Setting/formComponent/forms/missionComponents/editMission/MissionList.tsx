@@ -1,4 +1,4 @@
-import { Button, Flex, Form, message, Modal, Popconfirm, Tooltip } from "antd";
+import { Button, Flex, Form, message, Modal, Popconfirm, Tabs, Tooltip } from "antd";
 import { Dispatch, FC, SetStateAction, useState } from "react";
 import { nanoid } from "nanoid";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -17,6 +17,7 @@ import { useAtomValue } from "jotai";
 import { currentMapIdAtom } from "@/utils/mapSelection";
 import MirTaskTable from "../mir/mirEditMissionSlice/MirTaskTable";
 import TaskFormMir from "../mir/mirEditMissionSlice/TaskFormMir";
+import EditMirMissionPanel from "../mir/mirEditMissionSlice/EditMirMissionPanel";
 
 const copy = (originKey: string, currentMapId: string) => {
   const randomId = nanoid();
@@ -266,10 +267,28 @@ const MissionList: FC<{
         )}
 
         {isMir(selectedMissionCar) && (
-          <MirTaskTable
-            showModal={showModal}
-            selectedMissionKey={selectedMissionKey}
-            selectedMissionCar={selectedMissionCar}
+          <Tabs
+            style={{ width: "100%" }}
+            items={[
+              {
+                key: "legacy",
+                label: "表格檢視 (Legacy)",
+                children: (
+                  <MirTaskTable
+                    showModal={showModal}
+                    selectedMissionKey={selectedMissionKey}
+                    selectedMissionCar={selectedMissionCar}
+                  />
+                ),
+              },
+              {
+                key: "mir-style",
+                label: "MiR 風格編輯",
+                children: (
+                  <EditMirMissionPanel selectedMissionKey={selectedMissionKey} />
+                ),
+              },
+            ]}
           />
         )}
 
