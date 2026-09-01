@@ -43,22 +43,7 @@ import useTaskMir from "@/api/useTaskMir";
 import { Err } from "@/utils/responseErr";
 import { Mir_Action_Slice } from "./type";
 
-/**
- * NOTE on types: this file assumes `Mir_Action_Slice` has two optional
- * fields (see the updated `Mir_Action` type):
- *   - scope_reference: only ever set on a reduce_protective_fields task —
- *     its own stable "content group" id.
- *   - scope_reference_content: only ever set on a task that's been dragged
- *     into a container's Content zone — the PARENT's scope_reference value
- *     (not the parent's row id). null/undefined = top-level task.
- * Please add both fields to `Mir_Action_Slice` in `./type` for full
- * type-safety; until then this file widens the type locally so it still
- * compiles.
- */
-type ScopedTask = Mir_Action_Slice & {
-  scope_reference?: string | null;
-  scope_reference_content?: string | null;
-};
+type ScopedTask = Mir_Action_Slice;
 
 const REDUCE_PROTECTIVE_FIELDS_TYPE = "reduce_protective_fields";
 const isContainerTask = (t?: ScopedTask | null) =>

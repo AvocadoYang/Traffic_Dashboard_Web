@@ -12,6 +12,7 @@ import {
   isShowRoadTooltip,
 } from "@/utils/siderGloble";
 import { centerMap } from "@/utils/gloable";
+import { mq } from "@/styles/responsive";
 
 const ZoomPadWrap = styled.div`
   position: absolute;
@@ -22,8 +23,13 @@ const ZoomPadWrap = styled.div`
   background-color: #f5f5f5;
   border-radius: 20px;
   padding: 6px 13px;
-  display: flex;
+  /* web 以下由 Header 的 ZoomPad 接手, 避免兩顆同時出現 */
+  display: none;
   align-items: center;
+
+  ${mq.web} {
+    display: flex;
+  }
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   gap: 12px;
   opacity: 0.9;

@@ -5,6 +5,10 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { locationHoverInfo, tooltipProp } from "@/utils/gloable";
 import { draggableLineInitialPoint } from "@/pages/Setting/hooks/hook";
 import { Point, DraggableLine } from "./components/PointAndLine";
+import {
+  MirAreaTypeMarker,
+  isMirAreaType,
+} from "./components/MirAreaTypeMarker";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
 import {
   EditRoadPanelSwitch,
@@ -77,7 +81,10 @@ const AllLocation: FC<{
     <>
       {data.locations
         .filter(
-          ({ areaType }) => areaType === "EXTRA" || areaType === "Dispatch",
+          ({ areaType }) =>
+            areaType === "EXTRA" ||
+            areaType === "Dispatch" ||
+            isMirAreaType(areaType),
         )
         .map((loc) => {
           const [displayX, displayY] = rosCoord2DisplayCoord({
@@ -88,6 +95,37 @@ const AllLocation: FC<{
             mapOriginY: data.mapOriginY,
             mapResolution: data.mapResolution,
           });
+
+          if (isMirAreaType(loc.areaType)) {
+            return (
+              <div
+                draggable={false}
+                key={loc.locationId}
+                onDragStart={(event) => {
+                  event.preventDefault();
+                }}
+                id={loc.locationId.toString()}
+              >
+                <MirAreaTypeMarker
+                  id={loc.locationId.toString()}
+                  areaType={loc.areaType}
+                  left={displayX}
+                  top={displayY}
+                  rotation={loc.rotate}
+                  onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
+                  onMouseLeave={() => handleLeave()}
+                  onMouseDown={(e) => handleClick(e, loc.locationId)}
+                />
+                <DraggableLine
+                  locId={loc.locationId.toString()}
+                  left={displayX}
+                  top={displayY}
+                  key={nanoid()}
+                ></DraggableLine>
+              </div>
+            );
+          }
+
           return (
             <div
               draggable={false}

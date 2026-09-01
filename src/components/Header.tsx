@@ -21,8 +21,8 @@ import {
   ClockCircleOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import { useAtom } from "jotai";
-import { AmrFilterCarCard, darkMode } from "@/utils/gloable";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { AmrFilterCarCard, centerMap, darkMode, Scale } from "@/utils/gloable";
 import { useMutation } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { errorHandler } from "@/utils/utils";
@@ -39,6 +39,9 @@ import ChangePasswordModal from "./ChangePasswordModal";
 import CreateUserModel from "./CreateUserModel";
 import { jwtDecode } from "jwt-decode";
 import SimTime from "./SimTime";
+import DirectMove from "@/pages/Main/components/missionModal/DirectMove";
+import ZoomPad from "@/pages/Main/components/WebView/components/ZoomPad";
+import useMap from "@/api/useMap";
 
 const { Header: AntdHeader } = Layout;
 
@@ -318,6 +321,13 @@ const UserAvatar = styled(Avatar)`
   }
 `;
 
+const MapOverlay = styled.div`
+  display: contents;
+  ${mq.web} {
+    display: none;
+  }
+`;
+
 const token = localStorage.getItem("token");
 const username = token ? jwtDecode<{ username: string }>(token).username : "";
 
@@ -336,6 +346,15 @@ const Header: React.FC = () => {
   const location = useLocation();
   const [openChangePassword, setOpenChangePassword] = useState(false);
   const [openCreateUser, setOpenCreateUser] = useState(false);
+  const currentMapInfo = useMap();
+  const setScale = useSetAtom(Scale);
+  const cm = useAtomValue(centerMap);
+
+  const mapScale = currentMapInfo?.data?.scale;
+  useEffect(() => {
+    if (mapScale === undefined) return;
+    setScale(mapScale);
+  }, [mapScale, cm, setScale]);
 
   const simMutation = useMutation({
     mutationFn: (data: {
@@ -397,6 +416,7 @@ const Header: React.FC = () => {
     `${t("page_simulate")}`,
     `${t("page_simulate_result")}`,
     `${t("page_record")}`,
+    `${t("page_mission_dispatch")}`,
   ].map((name, index) => ({
     key: index + 1,
     label: name,
@@ -424,6 +444,9 @@ const Header: React.FC = () => {
         break;
       case "7":
         navigate("/records");
+        break;
+      case "8":
+        navigate("/mission-dispatch");
         break;
       default:
         break;
@@ -491,6 +514,15 @@ const Header: React.FC = () => {
         <div onClick={() => navigate("/")} className="demo-logo"></div>
 
         <CompactBar gap="middle" align="center">
+          <MapOverlay>
+            <ZoomPad></ZoomPad>
+            {/* <MissionBtn></MissionBtn> */}
+            <DirectMove></DirectMove>
+            {/* <ECS_online />
+                      <ElevatorIO />
+                      <CorningTest></CorningTest>
+                      <TestBarcode /> */}
+          </MapOverlay>
           <IndustrialSelect
             value={i18n.language === "en" ? "en" : "ch.tw"}
             onChange={(e) => handleChineseItemClick(e as any)}

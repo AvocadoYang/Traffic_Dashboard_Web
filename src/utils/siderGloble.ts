@@ -6,6 +6,9 @@ export const EditLocationPanelSwitch = atom<boolean>(false);
 /** 1-2 快速編輯點位開關 */
 export const QuickEditLocationPanelSwitch = atom<boolean>(false);
 
+/** MiR 風格打點開關(Robot position / Shelf position / Charging station) */
+export const MirStyleLocationPlacerSwitch = atom<boolean>(false);
+
 /** 1-3 顯示所有點位表單 */
 export const EditLocationListTableSwitch = atom<boolean>(false);
 
@@ -133,3 +136,9 @@ export const isShowSound = atom<boolean>(false);
 export const toolSheetPanelHost = atom<HTMLElement | null>(null);
 
 export const isShowMarketType = atom<boolean>(false);
+
+export const isShowSyncMirData = atom<boolean>(false);
+
+export const isShowAllMirMission = atom<boolean>(false);
+
+export const isShowEditMirMission = atom<boolean>(false);

@@ -47,7 +47,7 @@ const StartSimModal: FC<{
     endTime,
   ]);
   const [isActiveStation, setIsActiveStation] = useState(true);
-  const [scale, setScale] = useState(10);
+  const [scale, setScale] = useState(1);
   const durationMinutes = Math.max(
     0,
     dayjs(timeRange[1]).diff(dayjs(timeRange[0]), "minute")
@@ -157,10 +157,11 @@ const StartSimModal: FC<{
             </label>
             <InputNumber
               id="scale-input"
-              max={10}
-              min={1}
+              max={5}
+              min={0.5}
+              step={0.5}
               value={scale}
-              onChange={(value) => setScale(value ?? 10)} // Explicit nullish coalescing
+              onChange={(value) => setScale(value ?? 1)} // Explicit nullish coalescing
               style={{ width: "100px" }} // Constrain width for consistency
               aria-label={t("sim.start_sim_modal.scale")} // Accessibility
             />

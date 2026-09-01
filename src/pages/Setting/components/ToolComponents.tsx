@@ -46,6 +46,9 @@ import {
   isHowFootprint,
   isShowSound,
   isShowMarketType,
+  isShowSyncMirData,
+  isShowAllMirMission,
+  isShowEditMirMission,
 } from "@/utils/siderGloble";
 import { useAtomValue } from "jotai";
 import { ToolBarItemType, ToolBarType } from "./siderElement";
@@ -80,6 +83,9 @@ import PeripheralChargeDockPanel from "./peripherals/PeripheralChargeDockPanel";
 import FootprintPanel from "../formComponent/forms/missionComponents/mir/footprinter/FootprintPanel";
 import SoundPanel from "../formComponent/forms/missionComponents/mir/sound/SoundPanel";
 import MarkerTypePanel from "../formComponent/forms/missionComponents/mir/markerTypes/MarkerTypePanel";
+import SyncDataPanel from "../formComponent/forms/missionComponents/mir/syncData/SyncDataPanel";
+import MirMissionPanel from "../formComponent/forms/missionComponents/mir/missionTable/MirMissionPanel";
+import EditMirMissionPanel from "../formComponent/forms/missionComponents/mir/editMirMission/MirMissionPanel";
 
 const SortableWrap: FC<{
   sortableId: ToolBarItemType;
@@ -617,6 +623,41 @@ const SortableWrap: FC<{
               </Card>
             );
 
+          case "sync_mir":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn sortableId={sortableId} panelName="sync_mir" />
+                <SyncDataPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
+
+          case "mir_mission":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn sortableId={sortableId} panelName="mir_mission" />
+                <MirMissionPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
+         case "mir_edit_mission":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn sortableId={sortableId} panelName="mir_edit_mission" />
+                <EditMirMissionPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
+
           default:
             return null;
         }
@@ -678,6 +719,9 @@ const ToolComponents: FC<{
   const openFootprintPanel = useAtomValue(isHowFootprint);
   const openSoundPanel = useAtomValue(isShowSound);
   const openMarkerTypePanel = useAtomValue(isShowMarketType);
+  const openSyncMirDataPanel = useAtomValue(isShowSyncMirData);
+  const openMirMissionPanel = useAtomValue(isShowAllMirMission);
+  const openMirEditMissionPanel = useAtomValue(isShowEditMirMission);
 
   return dataList.map((form) => {
     const { key: formKey } = form;
@@ -846,6 +890,15 @@ const ToolComponents: FC<{
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     if (formKey === "marker_type" && openMarkerTypePanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "sync_mir" && openSyncMirDataPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "mir_mission" && openMirMissionPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "mir_edit_mission" && openMirEditMissionPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     return [];
