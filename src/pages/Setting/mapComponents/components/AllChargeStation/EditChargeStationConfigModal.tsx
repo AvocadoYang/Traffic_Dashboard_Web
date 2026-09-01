@@ -1,5 +1,6 @@
 import client from "@/api/axiosClient";
 import useName from "@/api/useAmrName";
+import useMap from "@/api/useMap";
 import { ECSM } from "@/pages/Setting/utils/settingJotai";
 import { useAllAmrStatus } from "@/sockets/useAMRInfo";
 import useChargeStationSocket from "@/sockets/useChargeStationSocket";
@@ -36,6 +37,8 @@ type FormData = {
   ip: string;
   port: number;
   stationId: string;
+  amrIds: string[];
+  nearPointLocationIds: string[];
 };
 
 type DetectFormData = {
@@ -68,6 +71,7 @@ const EditChargeStationConfigModal = () => {
   const [detectResult, setDetectResult] = useState<DetectResponse | null>(null);
   const { data: name } = useName();
   const currentMapId = useAtomValue(currentMapIdAtom);
+  const { data: mapData } = useMap();
 
   const AmrOption: { value: string; label: string }[] | undefined =
     useMemo(() => {
@@ -83,6 +87,16 @@ const EditChargeStationConfigModal = () => {
       }
       return options ? [...options] : undefined;
     }, [name]);
+
+  // 靠近充電站的偵測點位——從所有地點裡選,取代原本寫死的單一 6005
+  const locationOptions = useMemo(
+    () =>
+      mapData?.locations.map((v) => ({
+        label: v.locationId,
+        value: v.locationId,
+      })) ?? [],
+    [mapData],
+  );
 
   const editMutation = useMutation({
     mutationFn: (payload: FormData) =>
@@ -160,6 +174,9 @@ const EditChargeStationConfigModal = () => {
       name: socketConfig[open.locationId].name,
       description: socketConfig[open.locationId].description,
       stationId: socketConfig[open.locationId].stationId,
+      amrIds: socketConfig[open.locationId].amrIds ?? [],
+      nearPointLocationIds:
+        socketConfig[open.locationId].nearPointLocationIds ?? [],
     });
     setIsFormInitialized(true);
   }, [socketConfig, open, form, open.locationId]);
@@ -237,6 +254,27 @@ const EditChargeStationConfigModal = () => {
                 name="description"
               >
                 <Input />
+              </Form.Item>
+
+              <Form.Item label="允許使用此充電站的 AMR" name="amrIds">
+                <Select
+                  mode="multiple"
+                  options={AmrOption}
+                  placeholder="選擇可以使用這個充電座的 AMR"
+                  allowClear
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="靠近充電站的偵測點位"
+                name="nearPointLocationIds"
+              >
+                <Select
+                  mode="multiple"
+                  options={locationOptions}
+                  placeholder="選擇靠近這個充電座的偵測點位"
+                  allowClear
+                />
               </Form.Item>
             </Form>
           ) : (
