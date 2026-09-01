@@ -16,7 +16,6 @@ import {
   isShowLocation,
 } from "@/utils/siderGloble";
 import {
-  EBLM,
   IsEditingQuickRoads,
   QuickRoadsArray,
 } from "@/pages/Setting/utils/settingJotai";
@@ -32,7 +31,6 @@ const AllLocation: FC<{
   const openEditZone = useAtomValue(EditZoneSwitch);
   const quickRoad = useAtomValue(IsEditingQuickRoads);
   const setQuickRoadArr = useSetAtom(QuickRoadsArray);
-  const setOpenEBLM = useSetAtom(EBLM);
   const hoverInfo = useAtomValue(locationHoverInfo);
 
   // 游標附近(偵測半徑內)的點位 id 集合，用來讓這些點稍微放大，方便使用者辨識與點擊。
@@ -68,9 +66,7 @@ const AllLocation: FC<{
       return;
     }
 
-    if (!openEditRoadPanel || openEditZone) {
-      setOpenEBLM({ locationId: locationId, isOpen: true });
-    } else {
+    if (openEditRoadPanel && !openEditZone) {
       setInitPoint({ clientX: e.clientX, clientY: e.clientY });
       handleMouseDown((e.target as HTMLInputElement).id);
     }
