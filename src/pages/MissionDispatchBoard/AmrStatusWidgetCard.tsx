@@ -1,6 +1,9 @@
 import { DispatchWidget } from "@/api/useMissionDispatchBoard";
 import BtnGroup from "@/pages/Main/Car_Card/components/BtnGroup";
-import { MiR_StatusColor } from "@/pages/Main/Car_Card/components/Lists";
+import {
+  GamepadOutlined,
+  MiR_StatusColor,
+} from "@/pages/Main/Car_Card/components/Lists";
 import {
   MaintenanceLevel,
   useAmrDestination,
@@ -14,6 +17,7 @@ import {
   useIsWorking,
   useMaintenanceStatus,
   usePosIsAccurate,
+  useSpeed,
 } from "@/sockets/useAMRInfo";
 import { useMiRStatus } from "@/sockets/useMirStatus";
 import { hintAmr } from "@/utils/gloable";
@@ -32,6 +36,7 @@ import {
 
 export const AMR_STATUS_FIELDS = [
   "battery",
+  "speed",
   "status",
   "location",
   "destination",
@@ -44,6 +49,21 @@ export const AMR_STATUS_FIELDS = [
   "posAccurate",
 ] as const;
 export type AmrStatusField = (typeof AMR_STATUS_FIELDS)[number];
+
+export const AMR_STATUS_FIELD_LABEL_KEY = {
+  battery: "mission_dispatch_board.amr_battery",
+  speed: "mission_dispatch_board.amr_speed",
+  status: "mission_dispatch_board.amr_status",
+  location: "mission_dispatch_board.amr_location",
+  destination: "mission_dispatch_board.amr_destination",
+  working: "mission_dispatch_board.amr_working",
+  carry: "mission_dispatch_board.amr_carry",
+  charging: "mission_dispatch_board.amr_charging",
+  lowBattery: "mission_dispatch_board.amr_low_battery",
+  maintenance: "mission_dispatch_board.amr_maintenance",
+  paused: "mission_dispatch_board.amr_paused",
+  posAccurate: "mission_dispatch_board.amr_pos_accurate",
+} as const satisfies Record<AmrStatusField, string>;
 
 const Card = styled.div<{
   $width: number;
@@ -81,8 +101,24 @@ const TitleBar = styled.div`
   background: #fafafa;
   flex-shrink: 0;
   overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
+`;
+
+const TitleText = styled.span`
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const JoystickButton = styled(GamepadOutlined)`
+  flex-shrink: 0;
+  font-size: 16px;
+  color: #595959;
+  cursor: pointer;
+
+  &:hover {
+    color: #1677ff;
+  }
 `;
 
 type OnlineState = "online" | "warning" | "offline";
@@ -161,6 +197,7 @@ const AmrStatusWidgetCard: FC<{
   const { battery } = useBattery(amrId);
   const { closeLoc } = useCloseLoc(amrId);
   const { status: rosStatus } = useAmrStatus(amrId);
+  const { speed } = useSpeed(amrId);
   const mirStatus = useMiRStatus(amrId);
   const { destination } = useAmrDestination(amrId);
   const { isWorking } = useIsWorking(amrId);
@@ -192,6 +229,8 @@ const AmrStatusWidgetCard: FC<{
 
   const visibleFields = widget.visibleFields ?? AMR_STATUS_FIELDS;
   const showField = (field: AmrStatusField) => visibleFields.includes(field);
+  const fieldLabel = (field: AmrStatusField) =>
+    t(AMR_STATUS_FIELD_LABEL_KEY[field]);
 
   const withData = (value: string | undefined | null) =>
     isOverdue || !value ? NO_DATA : value;
@@ -210,6 +249,10 @@ const AmrStatusWidgetCard: FC<{
       : undefined;
 
   const locationText = withData(closeLoc === "-" ? undefined : closeLoc);
+  const speedText =
+    isOverdue || speed == null
+      ? NO_DATA
+      : `${Math.abs(Number(speed)).toFixed(2)} m/s`;
 
   const lowBattery = battery !== undefined && battery < 25;
   const paused = isMiR
@@ -217,6 +260,7 @@ const AmrStatusWidgetCard: FC<{
     : isPause;
 
   const posAccurate = isMiR ? undefined : isPosAccurate;
+  const showJoystick = Boolean(amrId) && isMiR && !editMode;
   const maintenanceWarn =
     maintenanceLevel !== undefined &&
     maintenanceLevel !== MaintenanceLevel.UNKNOWN &&
@@ -250,14 +294,22 @@ const AmrStatusWidgetCard: FC<{
             onMouseEnter={hintThisAmr}
             onMouseLeave={clearHint}
           >
-            <TitleBar title={`${widget.title || amrId} (${onlineText})`}>
+            <TitleBar>
               <OnlineDot $state={onlineState} />
-              {widget.title || amrId}
+              <TitleText title={`${widget.title || amrId} (${onlineText})`}>
+                {widget.title || amrId}
+              </TitleText>
+              {showJoystick && (
+                <JoystickButton
+                  amrId={amrId}
+                  title={t("mission_dispatch_board.amr_joystick")}
+                />
+              )}
             </TitleBar>
             <Body>
               {showField("battery") && (
                 <StatRow
-                  label={t("mission_dispatch_board.amr_battery")}
+                  label={fieldLabel("battery")}
                   value={
                     isOverdue || battery === undefined
                       ? NO_DATA
@@ -266,46 +318,43 @@ const AmrStatusWidgetCard: FC<{
                   warn={lowBattery}
                 />
               )}
+              {showField("speed") && (
+                <StatRow label={fieldLabel("speed")} value={speedText} />
+              )}
               {showField("status") && (
                 <StatRow
-                  label={t("mission_dispatch_board.amr_status")}
+                  label={fieldLabel("status")}
                   value={statusText}
                   color={statusColor}
                 />
               )}
               {showField("location") && (
-                <StatRow
-                  label={t("mission_dispatch_board.amr_location")}
-                  value={locationText}
-                />
+                <StatRow label={fieldLabel("location")} value={locationText} />
               )}
               {showField("destination") && (
                 <StatRow
-                  label={t("mission_dispatch_board.amr_destination")}
+                  label={fieldLabel("destination")}
                   value={withData(destination?.name)}
                 />
               )}
               {showField("working") && (
                 <StatRow
-                  label={t("mission_dispatch_board.amr_working")}
+                  label={fieldLabel("working")}
                   value={yesNo(isWorking)}
                 />
               )}
               {showField("carry") && (
-                <StatRow
-                  label={t("mission_dispatch_board.amr_carry")}
-                  value={yesNo(isCarry)}
-                />
+                <StatRow label={fieldLabel("carry")} value={yesNo(isCarry)} />
               )}
               {showField("charging") && (
                 <StatRow
-                  label={t("mission_dispatch_board.amr_charging")}
+                  label={fieldLabel("charging")}
                   value={yesNo(isCharge)}
                 />
               )}
               {showField("lowBattery") && (
                 <StatRow
-                  label={t("mission_dispatch_board.amr_low_battery")}
+                  label={fieldLabel("lowBattery")}
                   value={
                     isOverdue || battery === undefined
                       ? NO_DATA
@@ -316,21 +365,21 @@ const AmrStatusWidgetCard: FC<{
               )}
               {showField("maintenance") && (
                 <StatRow
-                  label={t("mission_dispatch_board.amr_maintenance")}
+                  label={fieldLabel("maintenance")}
                   value={withData(maintenanceText)}
                   warn={maintenanceWarn}
                 />
               )}
               {showField("paused") && (
                 <StatRow
-                  label={t("mission_dispatch_board.amr_paused")}
+                  label={fieldLabel("paused")}
                   value={yesNo(paused)}
                   warn={Boolean(paused)}
                 />
               )}
               {showField("posAccurate") && (
                 <StatRow
-                  label={t("mission_dispatch_board.amr_pos_accurate")}
+                  label={fieldLabel("posAccurate")}
                   value={yesNo(posAccurate)}
                   warn={posAccurate === false}
                 />

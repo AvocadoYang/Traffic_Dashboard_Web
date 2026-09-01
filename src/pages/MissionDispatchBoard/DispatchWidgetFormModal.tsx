@@ -20,7 +20,10 @@ import {
 } from "antd";
 import React, { FC, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { AMR_STATUS_FIELDS } from "./AmrStatusWidgetCard";
+import {
+  AMR_STATUS_FIELD_LABEL_KEY,
+  AMR_STATUS_FIELDS,
+} from "./AmrStatusWidgetCard";
 
 interface FormValues {
   title: string;
@@ -31,7 +34,10 @@ interface FormValues {
   visibleFields?: string[];
 }
 
-const DEFAULT_SIZE: Record<DispatchWidgetType, { width: number; height: number }> = {
+const DEFAULT_SIZE: Record<
+  DispatchWidgetType,
+  { width: number; height: number }
+> = {
   MISSION_LIST: { width: 420, height: 320 },
   AMR_STATUS: { width: 220, height: 180 },
   MAP_VIEW: { width: 480, height: 360 },
@@ -74,6 +80,15 @@ const DispatchWidgetFormModal: FC<{
       : amrData.amrs.filter((a) => a.isReal === true);
     return filtered.map((a) => ({ value: a.amrId, label: a.amrId }));
   }, [amrData]);
+
+  const visibleFieldOptions = useMemo(
+    () =>
+      AMR_STATUS_FIELDS.map((field) => ({
+        value: field,
+        label: t(AMR_STATUS_FIELD_LABEL_KEY[field]),
+      })),
+    [t],
+  );
 
   const mutation = useMutation({
     mutationFn: (payload: Record<string, unknown>) =>
@@ -176,54 +191,7 @@ const DispatchWidgetFormModal: FC<{
                 label={t("mission_dispatch_board.visible_fields")}
                 name="visibleFields"
               >
-                <Checkbox.Group
-                  options={[
-                    {
-                      value: "battery",
-                      label: t("mission_dispatch_board.amr_battery"),
-                    },
-                    {
-                      value: "status",
-                      label: t("mission_dispatch_board.amr_status"),
-                    },
-                    {
-                      value: "location",
-                      label: t("mission_dispatch_board.amr_location"),
-                    },
-                    {
-                      value: "destination",
-                      label: t("mission_dispatch_board.amr_destination"),
-                    },
-                    {
-                      value: "working",
-                      label: t("mission_dispatch_board.amr_working"),
-                    },
-                    {
-                      value: "carry",
-                      label: t("mission_dispatch_board.amr_carry"),
-                    },
-                    {
-                      value: "charging",
-                      label: t("mission_dispatch_board.amr_charging"),
-                    },
-                    {
-                      value: "lowBattery",
-                      label: t("mission_dispatch_board.amr_low_battery"),
-                    },
-                    {
-                      value: "maintenance",
-                      label: t("mission_dispatch_board.amr_maintenance"),
-                    },
-                    {
-                      value: "paused",
-                      label: t("mission_dispatch_board.amr_paused"),
-                    },
-                    {
-                      value: "posAccurate",
-                      label: t("mission_dispatch_board.amr_pos_accurate"),
-                    },
-                  ]}
-                />
+                <Checkbox.Group options={visibleFieldOptions} />
               </Form.Item>
             </>
           )}
@@ -235,9 +203,7 @@ const DispatchWidgetFormModal: FC<{
                 : t("mission_dispatch_board.widget_title")
             }
             name="title"
-            rules={
-              effectiveType === "TEXT" ? [{ required: true }] : undefined
-            }
+            rules={effectiveType === "TEXT" ? [{ required: true }] : undefined}
           >
             <Input maxLength={40} placeholder={titlePlaceholder} />
           </Form.Item>
