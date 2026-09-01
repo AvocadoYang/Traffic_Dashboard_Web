@@ -84,18 +84,18 @@ const MarkerIcon = styled.img<{
   top: ${(p) => p.$top}px;
   width: 26px;
   height: 26px;
-  margin-left: -13px;
-  margin-top: -13px;
+  object-fit: contain;
   z-index: 40;
   cursor: move;
   filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.4));
   transform-origin: center;
-  transform: rotate(${(p) => -p.$angleDeg}deg);
+  transform: translate(-50%, -50%) rotate(${(p) => -p.$angleDeg}deg);
 `;
 
 const ButtonIcon = styled.img`
   width: 16px;
   height: 16px;
+  object-fit: contain;
   margin-right: 6px;
   vertical-align: -3px;
 `;
@@ -168,9 +168,8 @@ const MirStyleLocationPlacer: React.FC<{
 
   // 「已選類型、等待點地圖放置」的狀態不需要觸發 re-render,用 ref 存就好。
   const pendingTypeRef = useRef<MirAreaType | null>(null);
-  const [awaitingPlacement, setAwaitingPlacement] = useState<MirAreaType | null>(
-    null,
-  );
+  const [awaitingPlacement, setAwaitingPlacement] =
+    useState<MirAreaType | null>(null);
 
   const pickType = (type: MirAreaType) => {
     pendingTypeRef.current = type;
@@ -441,11 +440,13 @@ const MirStyleLocationPlacer: React.FC<{
           <RotateHandle
             $left={
               displayPos[0] +
-              ROTATE_HANDLE_RADIUS * Math.cos((pending.orientation * Math.PI) / 180)
+              ROTATE_HANDLE_RADIUS *
+                Math.cos((pending.orientation * Math.PI) / 180)
             }
             $top={
               displayPos[1] -
-              ROTATE_HANDLE_RADIUS * Math.sin((pending.orientation * Math.PI) / 180)
+              ROTATE_HANDLE_RADIUS *
+                Math.sin((pending.orientation * Math.PI) / 180)
             }
             onMouseDown={handleRotateMouseDown}
           />

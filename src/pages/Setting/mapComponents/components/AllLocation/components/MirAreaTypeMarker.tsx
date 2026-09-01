@@ -19,14 +19,13 @@ const MarkerImg = styled.img.attrs<{
   style: {
     left: Math.round(left),
     top: Math.round(top),
-    transform: `rotate(${-rotation}deg)`,
+    transform: `translate(-50%, -50%) rotate(${-rotation}deg)`,
   },
 }))<{ left: number; top: number; rotation: number }>`
   position: absolute;
   width: 22px;
   height: 22px;
-  margin-left: -11px;
-  margin-top: -11px;
+  object-fit: contain;
   cursor: pointer;
   z-index: 20;
   transform-origin: center;
