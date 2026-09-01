@@ -65,7 +65,7 @@ import EditPeripheralModal from "../formComponent/forms/peripheralModal/EditPeri
 import CargoEditor from "../formComponent/forms/peripheralModal/CargoEditor";
 import { SudoPeripheral } from "../formComponent/forms/other/editPeripheralIcon";
 import AllElevator from "./components/AllElevator/AllElevator";
-import { EBLM, ECSM, EEC, EEM, ESM } from "../utils/settingJotai";
+import { EBLM, ECSM, EEC, EEM, ESM, LDM } from "../utils/settingJotai";
 import EditElevatorModal from "./components/AllElevator/EditElevatorModal";
 import CargoEditorElevator from "./components/AllElevator/Form/CargoEditorElevator";
 import EditChargeStationConfigModal from "./components/AllChargeStation/EditChargeStationConfigModal";
@@ -76,6 +76,7 @@ import YfyPackage from "./components/YFYPackage/YfyPackage";
 import EditStackModal from "./components/AllStack/EditStackModal";
 import CargoEditorStack from "./components/AllStack/CargoEditorStack";
 import BlindLocationMissionModal from "../components/BlindLocationMissionModal";
+import LocationDetectModal from "../components/LocationDetectModal";
 import useCenterMap from "@/hooks/useCenterMap";
 
 const MapView: React.FC<{
@@ -138,6 +139,7 @@ const MapView: React.FC<{
   const openEditChargeStationModal = useAtomValue(ECSM);
   const openStackContainereditor = useAtomValue(ESM);
   const openBlindMission = useAtomValue(EBLM);
+  const openLocationDetect = useAtomValue(LDM);
 
   if (currentVersion) {
     const defaultCookie = Cookies.get("version");
@@ -330,6 +332,8 @@ const MapView: React.FC<{
       {openStackContainereditor.isOpen ? <CargoEditorStack /> : null}
 
       {openBlindMission.isOpen ? <BlindLocationMissionModal /> : null}
+
+      {openLocationDetect.isOpen ? <LocationDetectModal /> : null}
     </div>
   );
 };

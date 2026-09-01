@@ -7,21 +7,15 @@ import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { useMutation } from "@tanstack/react-query";
 import {
-  Alert,
-  Button,
-  Divider,
   Form,
   Input,
-  InputNumber,
   message,
   Modal,
-  Select,
   Skeleton,
   Space,
   Switch,
   Typography,
 } from "antd";
-import { AimOutlined } from "@ant-design/icons";
 import { useAtom, useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -247,60 +241,6 @@ const EditChargeStationConfigModal = () => {
               <Skeleton active title={false} paragraph={{ rows: 1 }} />
             </Space>
           )}
-        </div>
-
-        <Divider style={{ margin: "20px 0" }}>
-          <Space size={6}>
-            <AimOutlined style={{ color: "#1890ff" }} />
-            <Text strong>{"點位偵測"}</Text>
-          </Space>
-        </Divider>
-
-        <div style={CARD_STYLE}>
-          <Form form={formDetect} layout="vertical" size="large">
-            <Form.Item
-              label="AMR"
-              name="amrId"
-              rules={[{ required: true, message: t("utils.required") }]}
-            >
-              <Select
-                placeholder={"please select an amr"}
-                options={AmrOption}
-              />
-            </Form.Item>
-
-            <Form.Item
-              label="Marker Pattern"
-              name="markerPattern"
-              initialValue={20}
-              rules={[{ required: true, message: t("utils.required") }]}
-            >
-              <InputNumber min={0} style={{ width: "100%" }} />
-            </Form.Item>
-
-            <Form.Item style={{ marginBottom: detectResult ? 16 : 0 }}>
-              <Button
-                type="primary"
-                icon={<AimOutlined />}
-                loading={detectMutation.isPending}
-                onClick={handleDetect}
-                block
-              >
-                {"開始偵測點位"}
-              </Button>
-            </Form.Item>
-
-            {detectResult && (
-              <Alert
-                type={detectResult.ok === false ? "error" : "success"}
-                showIcon
-                message={detectResult.ok === false ? "偵測失敗" : "偵測完成"}
-                description={
-                  detectResult.message ?? JSON.stringify(detectResult)
-                }
-              />
-            )}
-          </Form>
         </div>
       </Modal>
     </>
