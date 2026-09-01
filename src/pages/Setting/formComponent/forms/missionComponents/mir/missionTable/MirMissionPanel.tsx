@@ -7,7 +7,7 @@ import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { CheckCircleFilled, CloseCircleFilled, SendOutlined } from "@ant-design/icons";
-import { Table, TableColumnsType, Tag, Tooltip, message } from "antd";
+import { Select, Table, TableColumnsType, Tag, Tooltip, message } from "antd";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -148,6 +148,13 @@ const QueueButton = styled.button`
 
 type Selected = { amrId: string; missionName: string };
 
+enum MissionPriority {
+  TRIVIAL,
+  NORMAL,
+  PIVOTAL,
+  CRITICAL,
+}
+
 const RobotStatusCell: FC<{
   status: MirMissionRobotStatus | null;
   selected: boolean;
@@ -197,12 +204,14 @@ const MirMissionPanel: FC<{
   const [messageApi, contextHolder] = message.useMessage();
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState<Selected | null>(null);
+  const [priority, setPriority] = useState<number>(MissionPriority.NORMAL);
 
   const queueMutation = useMutation({
     mutationFn: (payload: Selected) => {
       return client.post("api/setting/queue-mir-task", {
         amrId: payload.amrId,
         missionName: payload.missionName,
+        priority,
       });
     },
     onSuccess: () => {
@@ -298,6 +307,41 @@ const MirMissionPanel: FC<{
             <SummaryRow>
               <span>{t("main.mir_mission_panel.selected_mission")}</span>
               <span>{selected?.missionName ?? "—"}</span>
+            </SummaryRow>
+            <SummaryRow>
+              <span>{t("main.mir_mission_panel.priority")}</span>
+              <Select<number>
+                size="small"
+                value={priority}
+                onChange={setPriority}
+                style={{ minWidth: 120 }}
+                options={[
+                  {
+                    value: MissionPriority.TRIVIAL,
+                    label: t(
+                      "main.mission_modal.dialog_mission.priority.TRIVIAL",
+                    ),
+                  },
+                  {
+                    value: MissionPriority.NORMAL,
+                    label: t(
+                      "main.mission_modal.dialog_mission.priority.NORMAL",
+                    ),
+                  },
+                  {
+                    value: MissionPriority.PIVOTAL,
+                    label: t(
+                      "main.mission_modal.dialog_mission.priority.PIVOTAL",
+                    ),
+                  },
+                  {
+                    value: MissionPriority.CRITICAL,
+                    label: t(
+                      "main.mission_modal.dialog_mission.priority.CRITICAL",
+                    ),
+                  },
+                ]}
+              />
             </SummaryRow>
           </SummaryBar>
 

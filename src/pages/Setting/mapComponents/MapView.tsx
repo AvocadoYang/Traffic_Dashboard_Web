@@ -16,7 +16,9 @@ import {
   isShowRoad,
   isShowRoadTooltip,
   QuickEditLocationPanelSwitch,
+  MirStyleLocationPlacerSwitch,
 } from "@/utils/siderGloble";
+import MirStyleLocationPlacer from "../formComponent/forms/MirStyleLocationPlacer";
 import useMap from "@/api/useMap";
 import Cookies from "js-cookie";
 import TempLocations from "./components/TempResources/TempLocations";
@@ -122,6 +124,7 @@ const MapView: React.FC<{
   const openQuickEditLocationPanelSwitch = useAtomValue(
     QuickEditLocationPanelSwitch,
   );
+  const openMirStyleLocationPlacer = useAtomValue(MirStyleLocationPlacerSwitch);
   const openEditZone = useAtomValue(EditZoneSwitch);
   const shelfSelectedStyleId = useAtomValue(shelfSelectedStyleLocationId);
   const showLocationToolTip = useAtomValue(isShowLocationTooltip);
@@ -287,6 +290,14 @@ const MapView: React.FC<{
       ) : (
         <></>
       )}
+
+      {openMirStyleLocationPlacer ? (
+        <MirStyleLocationPlacer
+          mapRef={mapRef}
+          mapImageRef={mapImageRef}
+          scale={scale}
+        />
+      ) : null}
 
       {openElevatorModal?.isOpen ? <EditElevatorModal /> : null}
 

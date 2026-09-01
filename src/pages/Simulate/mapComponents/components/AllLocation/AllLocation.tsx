@@ -4,6 +4,10 @@ import { FC, memo, useCallback } from "react";
 import { useAtomValue, useSetAtom } from "jotai";
 import { tooltipProp } from "@/utils/gloable";
 import { Point } from "./components/PointAndLine";
+import {
+  MirAreaTypeMarker,
+  isMirAreaType,
+} from "@/pages/Setting/mapComponents/components/AllLocation/components/MirAreaTypeMarker";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
 import { isShowLocation } from "@/utils/siderGloble";
 
@@ -32,7 +36,10 @@ const AllLocation: FC = () => {
     <>
       {data.locations
         .filter(
-          ({ areaType }) => areaType === "EXTRA" || areaType === "Dispatch",
+          ({ areaType }) =>
+            areaType === "EXTRA" ||
+            areaType === "Dispatch" ||
+            isMirAreaType(areaType),
         )
         .map((loc) => {
           const [displayX, displayY] = rosCoord2DisplayCoord({
@@ -50,15 +57,27 @@ const AllLocation: FC = () => {
               style={{ borderRadius: "50%" }}
               id={loc.locationId.toString()}
             >
-              <Point
-                id={loc.locationId.toString()}
-                canrotate={`${loc.canRotate}`}
-                left={displayX}
-                top={displayY}
-                key={nanoid()}
-                onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
-                onMouseLeave={() => handleLeave()}
-              ></Point>
+              {isMirAreaType(loc.areaType) ? (
+                <MirAreaTypeMarker
+                  id={loc.locationId.toString()}
+                  areaType={loc.areaType}
+                  left={displayX}
+                  top={displayY}
+                  rotation={loc.rotate}
+                  onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
+                  onMouseLeave={() => handleLeave()}
+                />
+              ) : (
+                <Point
+                  id={loc.locationId.toString()}
+                  canrotate={`${loc.canRotate}`}
+                  left={displayX}
+                  top={displayY}
+                  key={nanoid()}
+                  onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
+                  onMouseLeave={() => handleLeave()}
+                ></Point>
+              )}
             </div>
           );
         })}

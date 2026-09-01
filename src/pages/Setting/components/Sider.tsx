@@ -9,6 +9,7 @@ import {
   toolSheetPanelHost,
   EditLocationPanelSwitch,
   EditLocationListTableSwitch,
+  MirStyleLocationPlacerSwitch,
   isShowLocationTooltip,
   EditRoadPanelSwitch,
   QuickEditLocationPanelSwitch,
@@ -51,6 +52,7 @@ import {
   isShowMarketType,
   isShowSyncMirData,
   isShowAllMirMission,
+  isShowEditMirMission,
 } from "@/utils/siderGloble";
 import {
   AimOutlined,
@@ -225,6 +227,9 @@ const Sider: React.FC<{
   const [showAllLocationListTable, setShowAllLocationListTable] = useAtom(
     EditLocationListTableSwitch,
   );
+  const [openMirStyleLocationPlacer, setOpenMirStyleLocationPlacer] = useAtom(
+    MirStyleLocationPlacerSwitch,
+  );
 
   const [openEditRoadPanel, setOpenEditRoadPanel] =
     useAtom(EditRoadPanelSwitch);
@@ -325,6 +330,7 @@ const Sider: React.FC<{
   const [markerType, setShowMarkerType] = useAtom(isShowMarketType);
   const [syncMirData, setSyncMirData] = useAtom(isShowSyncMirData);
   const [mirMission, setMirMission] = useAtom(isShowAllMirMission);
+  const [mirEditMission, setEditMirMission] = useAtom(isShowEditMirMission);
 
   const sheetTabsRef = useRef<HTMLDivElement>(null);
   const setToolSheetPanelHost = useSetAtom(toolSheetPanelHost);
@@ -384,6 +390,7 @@ const Sider: React.FC<{
       markerType,
       syncMirData,
       mirMission,
+      mirEditMission,
     ].some((item) => item);
 
     setHasOpenTool(isOpen);
@@ -429,6 +436,7 @@ const Sider: React.FC<{
     markerType,
     syncMirData,
     mirMission,
+    mirEditMission,
   ]);
 
   const handleShowPanel = async (check: boolean, itemType: ToolBarItemType) => {
@@ -616,6 +624,10 @@ const Sider: React.FC<{
         setMirMission(check);
         break;
 
+      case "mir_edit_mission":
+        setEditMirMission(check)
+        break
+
       //=======
     }
   };
@@ -644,6 +656,14 @@ const Sider: React.FC<{
         //     checked={quickEditLocationPanel}
         //   />,
         // ),
+        getItem(
+          "MiR 風格打點",
+          "1-3",
+          <Switch
+            onChange={(checked) => setOpenMirStyleLocationPlacer(checked)}
+            checked={openMirStyleLocationPlacer}
+          />,
+        ),
         getItem(
           t("toolbar.location.show_locations_table"),
           "1-4",
@@ -1048,6 +1068,15 @@ const Sider: React.FC<{
         <Switch
           checked={mirMission}
           onChange={(checked) => handleShowPanel(checked, "mir_mission")}
+        />,
+      ),
+
+      getItem(
+        "mir_edit_mission",
+        "12-5",
+        <Switch
+          checked={mirMission}
+          onChange={(checked) => handleShowPanel(checked, "mir_edit_mission")}
         />,
       ),
     ]),

@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { array, mixed, number, object, string } from "yup";
 import client from "./axiosClient";
 
-export type DispatchButtonType = "NORMAL" | "DYNAMIC";
+export type DispatchButtonType = "NORMAL" | "DYNAMIC" | "MIR";
 
 export interface DispatchButton {
   id: string;
@@ -21,6 +21,7 @@ export interface DispatchButton {
   missionTitleId: string | null;
   ept_s: string | null;
   ept_d: string | null;
+  missionName: string | null;
   priority: number;
 }
 
@@ -69,12 +70,13 @@ const buttonSchema = object({
   fontSize: number().required(),
   fontWeight: number().required(),
   dispatch_type: mixed<DispatchButtonType>()
-    .oneOf(["NORMAL", "DYNAMIC"])
+    .oneOf(["NORMAL", "DYNAMIC", "MIR"])
     .required(),
   amrId: string().nullable().default(null),
   missionTitleId: string().nullable().default(null),
   ept_s: string().nullable().default(null),
   ept_d: string().nullable().default(null),
+  missionName: string().nullable().default(null),
   priority: number().required(),
 });
 

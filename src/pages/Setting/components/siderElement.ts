@@ -67,6 +67,7 @@ export const formList = [
   { key: "marker_type" },
   { key: "sync_mir" },
   { key: "mir_mission" },
+  { key: "mir_edit_mission" },
 ] as const;
 
 export const toolbarState = formList.map((item) => ({ ...item }));

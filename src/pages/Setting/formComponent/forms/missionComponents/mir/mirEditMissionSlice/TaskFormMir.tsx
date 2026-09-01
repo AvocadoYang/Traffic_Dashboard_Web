@@ -48,6 +48,7 @@ import { useAtomValue } from "jotai";
 import { currentMapIdAtom } from "@/utils/mapSelection";
 import useTaskMir from "@/api/useTaskMir";
 import useTaskMirOne from "@/api/useTaskMirOne";
+import { MirVariableProvider, useMirVariableFields } from "./MirVariableContext";
 
 const IndustrialContainer = styled.div`
   background: #f5f5f5;
@@ -305,7 +306,7 @@ const IndustrialSegmented: React.FC<IndustrialSegmentedProps> = ({
   );
 };
 
-const TaskFormMir: FC<{
+const TaskFormMirContent: FC<{
   editTaskKey: string;
   selectedMissionCar: string;
   selectedMissionKey: string;
@@ -320,6 +321,8 @@ const TaskFormMir: FC<{
   const currentMapId = useAtomValue(currentMapIdAtom);
   const { data: taskDataSource } = useTaskMirOne(editTaskKey);
   const isCurrentPosition = Form.useWatch("is_current_position", form);
+  const { fields: variableFields, setAllFields: setAllVariableFields } =
+    useMirVariableFields();
 
   useEffect(() => {
     if (!taskDataSource) return;
@@ -385,7 +388,18 @@ const TaskFormMir: FC<{
         timeout: formattedTimeout,
       });
     }, 0);
-  }, [taskDataSource, form]);
+
+    // 把上次存檔存的「哪些欄位是變數」還原回畫面上
+    const savedVariables: Record<string, string> = op.variables ?? {};
+    setAllVariableFields(
+      Object.fromEntries(
+        Object.entries(savedVariables).map(([fieldName, name]) => [
+          fieldName,
+          { enabled: true, name },
+        ]),
+      ),
+    );
+  }, [taskDataSource, form, setAllVariableFields]);
 
   // 2. 切換大類別的 Handle 函式
   const handleCategoryChange = (newType: Mir_Task) => {
@@ -477,6 +491,13 @@ const TaskFormMir: FC<{
         rawPayload.timeout && dayjs(rawPayload.timeout).isValid()
           ? dayjs(rawPayload.timeout).format("HH:mm:ss")
           : "00:00:00",
+
+      // 7. 哪些欄位設成「使用變數」
+      variables: Object.fromEntries(
+        Object.entries(variableFields)
+          .filter(([, v]) => v.enabled && v.name)
+          .map(([fieldName, v]) => [fieldName, v.name]),
+      ),
     };
 
     // alert(JSON.stringify(newPayload, null, 2));
@@ -640,5 +661,16 @@ const TaskFormMir: FC<{
     </IndustrialContainer>
   );
 };
+
+const TaskFormMir: FC<{
+  editTaskKey: string;
+  selectedMissionCar: string;
+  selectedMissionKey: string;
+  form: FormInstance<any>;
+}> = (props) => (
+  <MirVariableProvider>
+    <TaskFormMirContent {...props} />
+  </MirVariableProvider>
+);
 
 export default TaskFormMir;

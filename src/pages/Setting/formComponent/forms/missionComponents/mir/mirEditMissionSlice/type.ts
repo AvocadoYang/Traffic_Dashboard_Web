@@ -6,7 +6,13 @@ export type Mir_Action_Slice = {
   disable: boolean;
   process_order: number;
   operation: Mir_Action;
+  // 只有 reduce_protective_fields(Mute protective fields)動作會有值:
+  // 它自己這個「內容群組」的穩定 id,其他動作把 scope_reference_content
+  // 設成這個值,代表被拖進了這個容器裡。
   scope_reference?: string | null;
+  // 只有被拖進某個容器的動作會有值:對應該容器自己的 scope_reference。
+  // null/undefined 代表這是頂層動作。
+  scope_reference_content?: string | null;
 };
 
 export type Mir_Action = {
@@ -51,6 +57,10 @@ export type Mir_Action = {
   value: string;
   operation: string;
   timeout: string;
+
+  // 欄位名稱 -> 變數名稱。有 key 代表該欄位設成「使用變數」，
+  // 派發時 MiR 端的 parameters[].input_name 要填這個變數名稱而不是寫死的值。
+  variables?: Record<string, string>;
 };
 
 export type Mir_Task =
