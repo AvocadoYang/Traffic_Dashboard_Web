@@ -14,7 +14,8 @@ import { errorHandler } from "@/utils/utils";
 type MirAreaType =
   | "MIR_ROBOT_POSITION"
   | "MIR_SHELF_POSITION"
-  | "MIR_CHARGING_STATION";
+  | "MIR_CHARGING_STATION"
+  | "MIR_VL_MARKER";
 
 const TYPE_OPTIONS: {
   value: MirAreaType;
@@ -23,6 +24,7 @@ const TYPE_OPTIONS: {
   { value: "MIR_ROBOT_POSITION", label: "Robot position" },
   { value: "MIR_SHELF_POSITION", label: "Shelf position" },
   { value: "MIR_CHARGING_STATION", label: "Charging station" },
+  { value: "MIR_VL_MARKER", label: "VL marker" },
 ];
 
 type Pending = {
