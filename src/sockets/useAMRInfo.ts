@@ -555,7 +555,7 @@ export const useIsLogIn = (amrId: string) => {
             networkDelay: delay || 0,
             isPosAccurate: isPosAccurate || false,
             hasServiceInterruption:
-              (rosbridgeConnect === false || amrServiceConnect === false),
+              rosbridgeConnect === false || amrServiceConnect === false,
           });
         },
       );
@@ -594,8 +594,8 @@ export const useAllAmrStatus = () => {
                 isOverdue: info.isOverdue || false,
                 isPosAccurate: info.isPosAccurate || false,
                 hasServiceInterruption:
-                  (info.rosbridgeConnect === false ||
-                    info.amrServiceConnect === false),
+                  info.rosbridgeConnect === false ||
+                  info.amrServiceConnect === false,
               }))
               .sort((a, b) => a.amrId.localeCompare(b.amrId)), // <-- sort by amrId
         ),
@@ -880,7 +880,7 @@ export const useAmrStatus = (amrId: string) => {
 };
 
 export const useMaintenanceStatus = (amrId: string) => {
-  const [status, setStatus] = useState<string>("");
+  const [level, setLevel] = useState<MaintenanceLevel | undefined>(undefined);
   const { t } = useTranslation();
 
   const translateMaintenance = (value: MaintenanceLevel | undefined) => {
@@ -912,16 +912,11 @@ export const useMaintenanceStatus = (amrId: string) => {
     );
     const battery$ = maintenance$
       .pipe(
-        map((info) => {
-          const { maintenanceLevel } = info;
-          return translateMaintenance(maintenanceLevel);
-        }),
-        distinctUntilChanged(
-          (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
-        ),
+        map((info) => info.maintenanceLevel as MaintenanceLevel | undefined),
+        distinctUntilChanged(),
       )
-      .subscribe((info) => {
-        setStatus(info);
+      .subscribe((maintenanceLevel) => {
+        setLevel(maintenanceLevel);
       });
 
     return () => {
@@ -929,7 +924,7 @@ export const useMaintenanceStatus = (amrId: string) => {
     };
   }, [amrId]);
 
-  return { status };
+  return { status: translateMaintenance(level), level };
 };
 
 export const useIsWorking = (amrId: string) => {

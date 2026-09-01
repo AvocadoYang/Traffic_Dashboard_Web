@@ -1,11 +1,12 @@
 import { DispatchWidget } from "@/api/useMissionDispatchBoard";
 import BtnGroup from "@/pages/Main/Car_Card/components/BtnGroup";
+import { MiR_StatusColor } from "@/pages/Main/Car_Card/components/Lists";
 import {
   MaintenanceLevel,
-  useAMR,
-  useAMRAllIO,
   useAmrDestination,
-  useAmrDetail,
+  useAmrStatus,
+  useBattery,
+  useCloseLoc,
   useIsCarry,
   useIsCharging,
   useIsLogIn,
@@ -14,8 +15,11 @@ import {
   useMaintenanceStatus,
   usePosIsAccurate,
 } from "@/sockets/useAMRInfo";
+import { useMiRStatus } from "@/sockets/useMirStatus";
+import { hintAmr } from "@/utils/gloable";
 import { Modal } from "antd";
-import React, { FC, useState } from "react";
+import { useSetAtom } from "jotai";
+import React, { FC, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import DispatchItemFrame from "./DispatchItemFrame";
@@ -41,7 +45,11 @@ export const AMR_STATUS_FIELDS = [
 ] as const;
 export type AmrStatusField = (typeof AMR_STATUS_FIELDS)[number];
 
-const Card = styled.div<{ $width: number; $height: number; $editable: boolean }>`
+const Card = styled.div<{
+  $width: number;
+  $height: number;
+  $editable: boolean;
+}>`
   width: ${({ $width }) => $width}px;
   height: ${({ $height }) => $height}px;
   border-radius: 8px;
@@ -56,7 +64,9 @@ const Card = styled.div<{ $width: number; $height: number; $editable: boolean }>
 
   &:hover {
     box-shadow: ${({ $editable }) =>
-      $editable ? "0 2px 6px rgba(0, 0, 0, 0.15)" : "0 4px 12px rgba(0, 0, 0, 0.25)"};
+      $editable
+        ? "0 2px 6px rgba(0, 0, 0, 0.15)"
+        : "0 4px 12px rgba(0, 0, 0, 0.25)"};
   }
 `;
 
@@ -75,12 +85,20 @@ const TitleBar = styled.div`
   white-space: nowrap;
 `;
 
-const OnlineDot = styled.span<{ $online: boolean }>`
+type OnlineState = "online" | "warning" | "offline";
+
+const ONLINE_DOT_COLOR: Record<OnlineState, string> = {
+  online: "#2eb800",
+  warning: "#ff9646",
+  offline: "red",
+};
+
+const OnlineDot = styled.span<{ $state: OnlineState }>`
   flex-shrink: 0;
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: ${({ $online }) => ($online ? "#52c41a" : "#d9d9d9")};
+  background: ${({ $state }) => ONLINE_DOT_COLOR[$state]};
 `;
 
 const Body = styled.div`
@@ -94,19 +112,40 @@ const Body = styled.div`
   color: #595959;
 `;
 
-const Row = styled.div<{ $warn?: boolean }>`
+const Row = styled.div<{ $warn?: boolean; $muted?: boolean }>`
   display: flex;
   justify-content: space-between;
   gap: 8px;
 
   span:last-child {
-    color: ${({ $warn }) => ($warn ? "#ff4d4f" : "#262626")};
+    color: ${({ $warn, $muted }) => {
+      if ($muted) return "#bfbfbf";
+      return $warn ? "#ff4d4f" : "#262626";
+    }};
     font-weight: 600;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 `;
+
+const NO_DATA = "--";
+
+const StatRow: FC<{
+  label: string;
+  value: string;
+  warn?: boolean;
+  color?: string;
+}> = ({ label, value, warn, color }) => {
+  const muted = value === NO_DATA;
+  const highlight = !muted && !warn && color;
+  return (
+    <Row $warn={warn && !muted} $muted={muted}>
+      <span>{label}</span>
+      <span style={highlight ? { color } : undefined}>{value}</span>
+    </Row>
+  );
+};
 
 const AmrStatusWidgetCard: FC<{
   widget: DispatchWidget;
@@ -117,27 +156,71 @@ const AmrStatusWidgetCard: FC<{
 }> = ({ widget, editMode, onEdit, onDelete, onResizeEnd }) => {
   const { t } = useTranslation();
   const amrId = widget.amrId ?? "";
-  const detail = useAmrDetail(amrId);
-  const { isOnline, isOverdue } = useIsLogIn(amrId);
+  const isMiR = amrId.includes("mi");
+  const { isOverdue, hasServiceInterruption } = useIsLogIn(amrId);
+  const { battery } = useBattery(amrId);
+  const { closeLoc } = useCloseLoc(amrId);
+  const { status: rosStatus } = useAmrStatus(amrId);
+  const mirStatus = useMiRStatus(amrId);
   const { destination } = useAmrDestination(amrId);
   const { isWorking } = useIsWorking(amrId);
   const { isCarry } = useIsCarry(amrId);
   const { isCharge } = useIsCharging(amrId);
   const { isPause } = useIsPause(amrId);
   const { isPosAccurate } = usePosIsAccurate(amrId);
-  const { io } = useAMRAllIO(amrId);
-  const { data: amrData } = useAMR(amrId);
-  const { status: maintenanceText } = useMaintenanceStatus(amrId);
+  const { status: maintenanceText, level: maintenanceLevel } =
+    useMaintenanceStatus(amrId);
   const [controlOpen, setControlOpen] = useState(false);
 
-  const online = isOnline && !isOverdue;
+  const setHintAmr = useSetAtom(hintAmr);
+  const hintThisAmr = () => {
+    if (amrId) setHintAmr(amrId);
+  };
+  const clearHint = () => setHintAmr((cur) => (cur === amrId ? "" : cur));
+  useEffect(() => clearHint, [amrId]);
+
+  const onlineState: OnlineState = isOverdue
+    ? "offline"
+    : hasServiceInterruption
+      ? "warning"
+      : "online";
+  const onlineText = isOverdue
+    ? t("utils.offline")
+    : hasServiceInterruption
+      ? t("utils.service_interrupted")
+      : t("utils.online");
+
   const visibleFields = widget.visibleFields ?? AMR_STATUS_FIELDS;
   const showField = (field: AmrStatusField) => visibleFields.includes(field);
-  const lowBattery = io?.battery_info.low_battery ?? false;
-  const isMaintenanceNormal =
-    amrData?.maintenanceLevel === undefined ||
-    amrData.maintenanceLevel === MaintenanceLevel.NORMAL;
-  const yesNo = (v: boolean) => (v ? t("utils.yes") : t("utils.no"));
+
+  const withData = (value: string | undefined | null) =>
+    isOverdue || !value ? NO_DATA : value;
+  const yesNo = (v: boolean | undefined) => {
+    if (isOverdue || v === undefined) return NO_DATA;
+    return v ? t("utils.yes") : t("utils.no");
+  };
+
+  const mirStatusText = mirStatus.protectiveStop
+    ? "ProtectiveStop"
+    : mirStatus.status;
+  const statusText = withData(isMiR ? mirStatusText : rosStatus);
+  const statusColor =
+    isMiR && statusText !== NO_DATA
+      ? MiR_StatusColor(mirStatus.status)
+      : undefined;
+
+  const locationText = withData(closeLoc === "-" ? undefined : closeLoc);
+
+  const lowBattery = battery !== undefined && battery < 25;
+  const paused = isMiR
+    ? mirStatus.status === "Pause" && !mirStatus.protectiveStop
+    : isPause;
+
+  const posAccurate = isMiR ? undefined : isPosAccurate;
+  const maintenanceWarn =
+    maintenanceLevel !== undefined &&
+    maintenanceLevel !== MaintenanceLevel.UNKNOWN &&
+    maintenanceLevel !== MaintenanceLevel.NORMAL;
 
   return (
     <>
@@ -164,79 +247,93 @@ const AmrStatusWidgetCard: FC<{
             onClick={() => {
               if (!editMode) setControlOpen(true);
             }}
+            onMouseEnter={hintThisAmr}
+            onMouseLeave={clearHint}
           >
-            <TitleBar>
-              <OnlineDot $online={online} />
+            <TitleBar title={`${widget.title || amrId} (${onlineText})`}>
+              <OnlineDot $state={onlineState} />
               {widget.title || amrId}
             </TitleBar>
             <Body>
               {showField("battery") && (
-                <Row>
-                  <span>{t("mission_dispatch_board.amr_battery")}</span>
-                  <span>
-                    {detail ? `${Math.round(detail.battery)}%` : "-"}
-                  </span>
-                </Row>
+                <StatRow
+                  label={t("mission_dispatch_board.amr_battery")}
+                  value={
+                    isOverdue || battery === undefined
+                      ? NO_DATA
+                      : `${battery.toFixed(1)}%`
+                  }
+                  warn={lowBattery}
+                />
               )}
               {showField("status") && (
-                <Row>
-                  <span>{t("mission_dispatch_board.amr_status")}</span>
-                  <span>{detail?.status || "-"}</span>
-                </Row>
+                <StatRow
+                  label={t("mission_dispatch_board.amr_status")}
+                  value={statusText}
+                  color={statusColor}
+                />
               )}
               {showField("location") && (
-                <Row>
-                  <span>{t("mission_dispatch_board.amr_location")}</span>
-                  <span>{detail?.locationId || "-"}</span>
-                </Row>
+                <StatRow
+                  label={t("mission_dispatch_board.amr_location")}
+                  value={locationText}
+                />
               )}
-              {showField("destination") && destination?.name && (
-                <Row>
-                  <span>{t("mission_dispatch_board.amr_destination")}</span>
-                  <span>{destination.name}</span>
-                </Row>
+              {showField("destination") && (
+                <StatRow
+                  label={t("mission_dispatch_board.amr_destination")}
+                  value={withData(destination?.name)}
+                />
               )}
               {showField("working") && (
-                <Row>
-                  <span>{t("mission_dispatch_board.amr_working")}</span>
-                  <span>{yesNo(Boolean(isWorking))}</span>
-                </Row>
+                <StatRow
+                  label={t("mission_dispatch_board.amr_working")}
+                  value={yesNo(isWorking)}
+                />
               )}
               {showField("carry") && (
-                <Row>
-                  <span>{t("mission_dispatch_board.amr_carry")}</span>
-                  <span>{yesNo(isCarry)}</span>
-                </Row>
+                <StatRow
+                  label={t("mission_dispatch_board.amr_carry")}
+                  value={yesNo(isCarry)}
+                />
               )}
               {showField("charging") && (
-                <Row>
-                  <span>{t("mission_dispatch_board.amr_charging")}</span>
-                  <span>{yesNo(Boolean(isCharge))}</span>
-                </Row>
+                <StatRow
+                  label={t("mission_dispatch_board.amr_charging")}
+                  value={yesNo(isCharge)}
+                />
               )}
               {showField("lowBattery") && (
-                <Row $warn={lowBattery}>
-                  <span>{t("mission_dispatch_board.amr_low_battery")}</span>
-                  <span>{yesNo(lowBattery)}</span>
-                </Row>
+                <StatRow
+                  label={t("mission_dispatch_board.amr_low_battery")}
+                  value={
+                    isOverdue || battery === undefined
+                      ? NO_DATA
+                      : yesNo(lowBattery)
+                  }
+                  warn={lowBattery}
+                />
               )}
               {showField("maintenance") && (
-                <Row $warn={!isMaintenanceNormal}>
-                  <span>{t("mission_dispatch_board.amr_maintenance")}</span>
-                  <span>{maintenanceText || "-"}</span>
-                </Row>
+                <StatRow
+                  label={t("mission_dispatch_board.amr_maintenance")}
+                  value={withData(maintenanceText)}
+                  warn={maintenanceWarn}
+                />
               )}
               {showField("paused") && (
-                <Row $warn={Boolean(isPause)}>
-                  <span>{t("mission_dispatch_board.amr_paused")}</span>
-                  <span>{yesNo(Boolean(isPause))}</span>
-                </Row>
+                <StatRow
+                  label={t("mission_dispatch_board.amr_paused")}
+                  value={yesNo(paused)}
+                  warn={Boolean(paused)}
+                />
               )}
               {showField("posAccurate") && (
-                <Row $warn={isPosAccurate === false}>
-                  <span>{t("mission_dispatch_board.amr_pos_accurate")}</span>
-                  <span>{yesNo(Boolean(isPosAccurate))}</span>
-                </Row>
+                <StatRow
+                  label={t("mission_dispatch_board.amr_pos_accurate")}
+                  value={yesNo(posAccurate)}
+                  warn={posAccurate === false}
+                />
               )}
             </Body>
           </Card>
