@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAtom, useAtomValue } from "jotai";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Alert,
   Button,
@@ -42,10 +42,6 @@ const CARD_STYLE: React.CSSProperties = {
   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
 };
 
-// 點位偵測。原本只存在於 EditChargeStationConfigModal 裡當作編輯充電站設定的
-// 輔助動作,這裡抽成獨立 modal,直接點地圖上的點位就能觸發。
-// 由 AllLocation 的 handleClick 透過 LDM atom 開啟(僅限有實體 marker 的類型,
-// 見 MirAreaTypeMarker 的 isDetectableAreaType),渲染在 MapView。
 const LocationDetectModal = () => {
   const [open, setOpen] = useAtom(LDM);
   const [formDetect] = Form.useForm<DetectFormData>();
@@ -54,6 +50,7 @@ const LocationDetectModal = () => {
   const [detectResult, setDetectResult] = useState<DetectResponse | null>(null);
   const { data: name } = useName();
   const currentMapId = useAtomValue(currentMapIdAtom);
+  const queryClient = useQueryClient();
 
   const AmrOption: { value: string; label: string }[] | undefined =
     useMemo(() => {
@@ -77,6 +74,7 @@ const LocationDetectModal = () => {
       // 偵測結果留在 modal 裡顯示,不自動關閉,讓使用者可以看結果後再決定重試。
       setDetectResult(res.data ?? { ok: true });
       messageApi.success(t("utils.success"));
+      void queryClient.invalidateQueries({ queryKey: ["map"] });
     },
     onError: (e: ErrorResponse) => {
       setDetectResult(null);
