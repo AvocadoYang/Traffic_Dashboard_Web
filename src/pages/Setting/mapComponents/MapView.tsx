@@ -32,6 +32,7 @@ import {
   useZoneFrame,
   useLocationHoverTooltip,
   useRoadHoverTooltip,
+  useWheelZoom,
 } from "../hooks";
 import { getLocationInfoById } from "@/pages/Setting/utils/utils";
 import useVerityVersion from "@/api/useVerityVersion";
@@ -78,6 +79,7 @@ import CargoEditorStack from "./components/AllStack/CargoEditorStack";
 import BlindLocationMissionModal from "../components/BlindLocationMissionModal";
 import LocationDetectModal from "../components/LocationDetectModal";
 import useCenterMap from "@/hooks/useCenterMap";
+import useDragPan from "@/pages/Main/components/WebView/hooks/useDragPan";
 
 const MapView: React.FC<{
   scale: number;
@@ -197,7 +199,21 @@ const MapView: React.FC<{
   //控制「路徑提示」開啟時，游標移動附近路徑浮出 tooltip
   useRoadHoverTooltip(mapRef, mapImageRef, scale);
 
+  //控制滑鼠滾輪縮放
+  useWheelZoom(mapWrapRef, scale);
+
+  // 控制地圖置中
   useCenterMap(mapWrapRef, mapImageRef);
+
+  // 打點/圈選模式下左鍵要留給地圖操作，只保留中鍵拖曳
+  const isEditingOnMap =
+    openEditLocationPanel ||
+    openQuickEditLocationPanelSwitch ||
+    openEditZone ||
+    openMirStyleLocationPlacer;
+
+  // 控制地圖拖曳
+  useDragPan(mapWrapRef, mapRef, mapImageRef, !isEditingOnMap);
 
   const handleMouseDown = useCallback(
     (startId: string) => {
