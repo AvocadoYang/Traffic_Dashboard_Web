@@ -439,6 +439,8 @@
     "Storage": "存貨區",
     "STACK": "堆疊",
     "GATE_WAIT_POINT": "門前等待點",
+    "ip": "電梯 IP (選填)",
+    "invalid_ip_address": "IP 格式錯誤",
     "save_pose_notify": {
       "empty_value": "X/Y 為必填值",
       "fill_in_value": "請填入 X/Y 值",
