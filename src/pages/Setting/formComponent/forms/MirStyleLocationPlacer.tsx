@@ -1,6 +1,6 @@
 import { RefObject, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Button, Input, InputNumber, message } from "antd";
+import { Button, Input, InputNumber, message, Select } from "antd";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import styled from "styled-components";
@@ -27,12 +27,24 @@ const TYPE_OPTIONS: {
   { value: "MIR_VL_MARKER", label: "VL marker" },
 ];
 
+// VL marker 目前只能設給電梯用,之後若有其他裝置類型可以在這裡擴充選項。
+type VlMarkerFor = "ELEVATOR";
+
+const VL_MARKER_FOR_OPTIONS: { value: VlMarkerFor; label: string }[] = [
+  { value: "ELEVATOR", label: "Elevator" },
+];
+
+const IP_REGEX =
+  /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+
 type Pending = {
   areaType: MirAreaType;
   x: number;
   y: number;
   orientation: number;
   name: string;
+  markerFor?: VlMarkerFor;
+  ip?: string;
 };
 
 const Toolbar = styled.div`
@@ -158,6 +170,7 @@ const MirStyleLocationPlacer: React.FC<{
       canRotate: boolean;
       rotation: number;
       map_id: string;
+      ip?: string;
     }) => client.post("api/setting/save-edit-loc", payload),
     onSuccess: () => {
       void messageApi.success("建立成功");
@@ -311,6 +324,22 @@ const MirStyleLocationPlacer: React.FC<{
       void messageApi.warning("請輸入名稱");
       return;
     }
+    if (pending.areaType === "MIR_VL_MARKER") {
+      if (!pending.markerFor) {
+        void messageApi.warning("請選擇 Marker 用途");
+        return;
+      }
+      if (pending.markerFor === "ELEVATOR") {
+        if (!pending.ip?.trim()) {
+          void messageApi.warning("請輸入 IP");
+          return;
+        }
+        if (!IP_REGEX.test(pending.ip.trim())) {
+          void messageApi.warning("IP 格式不正確");
+          return;
+        }
+      }
+    }
     if (!currentMapId) {
       void messageApi.error("尚未選擇地圖");
       return;
@@ -323,6 +352,10 @@ const MirStyleLocationPlacer: React.FC<{
       canRotate: true,
       rotation: pending.orientation,
       map_id: currentMapId,
+      ...(pending.areaType === "MIR_VL_MARKER" &&
+      pending.markerFor === "ELEVATOR"
+        ? { ip: pending.ip?.trim() }
+        : {}),
     });
   };
 
@@ -390,6 +423,39 @@ const MirStyleLocationPlacer: React.FC<{
               }
             />
           </div>
+          {pending.areaType === "MIR_VL_MARKER" ? (
+            <div>
+              <FieldLabel>For</FieldLabel>
+              <Select
+                style={{ width: "100%" }}
+                placeholder="Select a device type"
+                value={pending.markerFor}
+                options={VL_MARKER_FOR_OPTIONS}
+                onChange={(v: VlMarkerFor) =>
+                  setPending((prev) =>
+                    prev ? { ...prev, markerFor: v } : prev,
+                  )
+                }
+              />
+            </div>
+          ) : null}
+
+          {pending.areaType === "MIR_VL_MARKER" &&
+          pending.markerFor === "ELEVATOR" ? (
+            <div>
+              <FieldLabel>IP *</FieldLabel>
+              <Input
+                placeholder="192.168.1.1"
+                value={pending.ip}
+                onChange={(e) =>
+                  setPending((prev) =>
+                    prev ? { ...prev, ip: e.target.value } : prev,
+                  )
+                }
+              />
+            </div>
+          ) : null}
+
           <div>
             <FieldLabel>Orientation from X-axis (deg)</FieldLabel>
             <InputNumber

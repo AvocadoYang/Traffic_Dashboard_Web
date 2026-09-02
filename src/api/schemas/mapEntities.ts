@@ -10,6 +10,7 @@ export const locationSchema = object({
   canRotate: boolean().required(),
   rotate: number().required(),
   areaType: string().required(),
+  ip: string().nullable().optional(),
 }).required();
 
 export const roadSchema = object({

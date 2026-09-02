@@ -50,6 +50,7 @@ const IndustrialContainer = styled.div`
   padding: 20px;
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  max-width: min(1280px, 90vw);
 `;
 
 const PanelHeader = styled.h3`
@@ -76,6 +77,8 @@ const PanelHeader = styled.h3`
 `;
 
 const IndustrialTableContainer = styled.div`
+  width: 100%;
+
   .ant-table {
     background: #ffffff;
     border: 1px solid #d9d9d9;
@@ -276,6 +279,17 @@ const EditableCell: React.FC<EditableCellProps> = ({
     { value: false, label: t("utils.no") },
   ];
 
+  const validateIpAddress = (_: unknown, value: string) => {
+    const ipRegex =
+      /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+    if (!value || ipRegex.test(value)) {
+      return Promise.resolve();
+    }
+    return Promise.reject(
+      new Error(t("edit_location_panel.invalid_ip_address")),
+    );
+  };
+
   let inputNode;
 
   switch (dataIndex) {
@@ -298,18 +312,22 @@ const EditableCell: React.FC<EditableCellProps> = ({
         <Select options={canRotateOption} style={{ width: "100%" }} />
       );
       break;
+    case "ip":
+      inputNode = <Input style={{ width: "100%" }} placeholder="192.168.1.1" />;
+      break;
     default:
       inputNode = <InputNumber style={{ width: "100%" }} />;
   }
 
+  const rules =
+    dataIndex === "ip"
+      ? [{ validator: validateIpAddress }]
+      : [{ required: true, message: "REQUIRED!" }];
+
   return (
     <td {...restProps}>
       {editing ? (
-        <Form.Item
-          name={dataIndex}
-          style={{ margin: 0 }}
-          rules={[{ required: true, message: "REQUIRED!" }]}
-        >
+        <Form.Item name={dataIndex} style={{ margin: 0 }} rules={rules}>
           {inputNode}
         </Form.Item>
       ) : (
@@ -456,6 +474,7 @@ const AllLocationTable: React.FC<{
     locationPanelForm.setFieldValue("rotate", record.rotate);
     locationPanelForm.setFieldValue("areaType", record.areaType);
     locationPanelForm.setFieldValue("locationId", record.locationId);
+    locationPanelForm.setFieldValue("ip", record.ip);
     setEditingKey(record.locationId);
   };
 
@@ -591,7 +610,7 @@ const AllLocationTable: React.FC<{
       dataIndex: "locationId",
       key: "locationId",
       editable: false,
-      width: "30%",
+      width: 110,
       sorter: (a: LocationType, b: LocationType) =>
         Number(a.locationId) - Number(b.locationId),
       ...getColumnSearchProps("locationId"),
@@ -600,7 +619,7 @@ const AllLocationTable: React.FC<{
     {
       title: "X",
       dataIndex: "x",
-      width: "30%",
+      width: 100,
       editable: true,
       key: "x",
       render: (text: string) => <CoordinateText>{text}</CoordinateText>,
@@ -608,7 +627,7 @@ const AllLocationTable: React.FC<{
     {
       title: "Y",
       dataIndex: "y",
-      width: "30%",
+      width: 100,
       editable: true,
       key: "y",
       render: (text: string) => <CoordinateText>{text}</CoordinateText>,
@@ -616,7 +635,7 @@ const AllLocationTable: React.FC<{
     {
       title: "offset_x",
       dataIndex: "offset_x",
-      width: "30%",
+      width: 110,
       editable: true,
       key: "offset_x",
       render: (text: string) => <CoordinateText>{text}</CoordinateText>,
@@ -624,7 +643,7 @@ const AllLocationTable: React.FC<{
     {
       title: "offset_y",
       dataIndex: "offset_y",
-      width: "30%",
+      width: 110,
       editable: true,
       key: "offset_y",
       render: (text: string) => <CoordinateText>{text}</CoordinateText>,
@@ -633,7 +652,7 @@ const AllLocationTable: React.FC<{
       title: "ROTATE",
       dataIndex: "rotate",
       key: "rotate",
-      width: "12%",
+      width: 100,
       editable: true,
       render: (text: string) => <CoordinateText>{text}</CoordinateText>,
     },
@@ -641,7 +660,7 @@ const AllLocationTable: React.FC<{
       title: "ROTATABLE",
       dataIndex: "canRotate",
       key: "canRotate",
-      width: "12%",
+      width: 100,
       editable: true,
       render: (_: unknown, record: LocationType) => {
         return <Checkbox checked={record.canRotate} disabled />;
@@ -652,7 +671,7 @@ const AllLocationTable: React.FC<{
       dataIndex: "areaType",
       editable: false,
       key: "areaType",
-      width: "18%",
+      width: 120,
       sorter: (a: LocationType, b: LocationType) =>
         a.areaType.localeCompare(b.areaType),
       render: (_: unknown, record: LocationType) => {
@@ -668,24 +687,33 @@ const AllLocationTable: React.FC<{
       },
     },
     {
+      title: "IP",
+      dataIndex: "ip",
+      key: "ip",
+      editable: true,
+      width: 160,
+      render: (text: string | null) => <CoordinateText>{text || "-"}</CoordinateText>,
+    },
+    {
       title: t("map_group_table.name"),
       dataIndex: "groupName",
       key: "groupName",
       editable: false,
-      width: "14%",
+      width: 130,
     },
     {
       title: t("map_manager.map_group"),
       dataIndex: "mapFileName",
       key: "mapFileName",
       editable: false,
-      width: "18%",
+      width: 150,
     },
     {
       title: "ACTIONS",
       dataIndex: "operation",
       key: "operation",
-      width: "30%",
+      width: 190,
+      fixed: "right",
       render: (
         _: unknown,
         record: LocationType & { isActiveGroup?: boolean },
@@ -826,6 +854,7 @@ const AllLocationTable: React.FC<{
               }}
               dataSource={tableData}
               columns={mergedColumns as []}
+              scroll={{ x: 1530 }}
               pagination={{
                 onChange: cancel,
                 pageSize: 10,
