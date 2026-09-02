@@ -435,6 +435,8 @@
     "Storage": "Storage point",
     "STACK": "Stack",
     "GATE_WAIT_POINT": "Gate wait point",
+    "ip": "Elevator IP (optional)",
+    "invalid_ip_address": "Invalid IP address format",
     "save_pose_notify": {
       "empty_value": "X/Y is required",
       "fill_in_value": "Please fill in the X/Y value",

@@ -40,6 +40,18 @@ const EditLocationPanel: React.FC<{
   const { data: locGenre } = useAllAreaTypes();
   const { t } = useTranslation();
   const currentMapId = useAtomValue(currentMapIdAtom);
+  const areaType = Form.useWatch("areaType", locationPanelForm);
+
+  const validateIpAddress = (_: unknown, value: string) => {
+    const ipRegex =
+      /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+    if (!value || ipRegex.test(value)) {
+      return Promise.resolve();
+    }
+    return Promise.reject(
+      new Error(t("edit_location_panel.invalid_ip_address")),
+    );
+  };
 
   const saveLocationMutation = useMutation({
     mutationFn: (payload: LocationType) => {
@@ -162,6 +174,14 @@ const EditLocationPanel: React.FC<{
           initialValues={initialLocationFormValue}
           form={locationPanelForm}
           className="industrial-form"
+          onValuesChange={(changed) => {
+            if (
+              Object.prototype.hasOwnProperty.call(changed, "areaType") &&
+              changed.areaType !== "ELEVATOR"
+            ) {
+              locationPanelForm.setFieldValue("ip", undefined);
+            }
+          }}
         >
           {/* Location ID */}
           <Form.Item
@@ -248,6 +268,18 @@ const EditLocationPanel: React.FC<{
               ))}
             </Radio.Group>
           </Form.Item>
+
+          {/* Elevator IP (optional, only shown for elevator points) */}
+          {areaType === "ELEVATOR" && (
+            <Form.Item
+              label={t("edit_location_panel.ip")}
+              name="ip"
+              className="industrial-item"
+              rules={[{ validator: validateIpAddress }]}
+            >
+              <Input placeholder="192.168.1.1" />
+            </Form.Item>
+          )}
 
           {/* Save Button */}
           <Form.Item className="industrial-item form-submit-center">
