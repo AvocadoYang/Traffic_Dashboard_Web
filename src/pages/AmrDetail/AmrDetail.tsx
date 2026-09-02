@@ -27,7 +27,7 @@ import {
   useIsLogIn,
   useMaintenanceStatus,
 } from "@/sockets/useAMRInfo";
-import { useRecentMission } from "@/sockets/useMissions";
+import { useActiveMission } from "@/sockets/useMissions";
 import { useTranslation } from "react-i18next";
 import DPad from "./DPad";
 import EditCargoCarrier from "../Main/Car_Card/components/EditCargoCarrier";
@@ -201,7 +201,7 @@ const AmrDetail = () => {
   const currier = useIsCarry(prefixAmrId || "");
   const maintenance = useMaintenanceStatus(prefixAmrId || "");
   const { pose } = useAmrPose(prefixAmrId || "");
-  const { recentMission } = useRecentMission(prefixAmrId || "");
+  const { activeMission } = useActiveMission(prefixAmrId || "");
   const connectionStatus = useIsLogIn(prefixAmrId || "");
   const io = useAMRAllIO(prefixAmrId || "");
   const [showControlPanel, setShowControlPanel] = useState(false);
@@ -218,18 +218,18 @@ const AmrDetail = () => {
     pose.x !== undefined &&
     pose.y !== undefined;
 
-  const missionTasks = recentMission
+  const missionTasks = activeMission
     ? [
         {
-          key: recentMission.missionId,
-          id: recentMission.missionId,
+          key: activeMission.missionId,
+          id: activeMission.missionId,
           desc:
-            recentMission.full_name?.join(" / ") ||
-            recentMission.sub_name ||
+            activeMission.full_name?.join(" / ") ||
+            activeMission.sub_name ||
             "-",
-          status: recentMission.missionStatus,
-          time: recentMission.startedAt
-            ? new Date(recentMission.startedAt).toLocaleTimeString()
+          status: activeMission.missionStatus,
+          time: activeMission.startedAt
+            ? new Date(activeMission.startedAt).toLocaleTimeString()
             : "-",
         },
       ]

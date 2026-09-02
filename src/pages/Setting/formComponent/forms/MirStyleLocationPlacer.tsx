@@ -84,8 +84,8 @@ const MarkerIcon = styled.img<{
   position: absolute;
   left: ${(p) => p.$left}px;
   top: ${(p) => p.$top}px;
-  width: 24.6px;
-  height: 24.6px;
+  width: 21.6px;
+  height: 21.6px;
   object-fit: contain;
   z-index: 40;
   cursor: move;
