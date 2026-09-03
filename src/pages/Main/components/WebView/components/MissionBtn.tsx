@@ -188,7 +188,7 @@ const MissionBtn = () => {
             >
               {t("main.card_name.elevate_mission")}
             </IndustrialButton>
-
+{/* 
             <IndustrialButton
               className="upload-mission"
               onClick={() => {
@@ -197,9 +197,9 @@ const MissionBtn = () => {
               icon={<UploadOutlined />}
             >
               {t("main.card_name.upload_mission")}
-            </IndustrialButton>
+            </IndustrialButton> */}
 
-            <IndustrialButton
+            {/* <IndustrialButton
               className="cycle-mission"
               onClick={() => {
                 setShowCycleMission(!showCycleMission);
@@ -207,7 +207,7 @@ const MissionBtn = () => {
               icon={<SyncOutlined />}
             >
               {t("main.card_name.cycle_mission")}
-            </IndustrialButton>
+            </IndustrialButton> */}
 
             <IndustrialButton
               className="quick-mission"
@@ -229,7 +229,7 @@ const MissionBtn = () => {
               {t("main.card_name.new_mission")}
             </IndustrialButton>
 
-            <IndustrialButton
+            {/* <IndustrialButton
               className="queue-mir-task"
               onClick={() => {
                 openQueueMirTask(true);
@@ -237,7 +237,7 @@ const MissionBtn = () => {
               icon={<RocketOutlined />}
             >
               {t("main.card_name.queue_mir_task")}
-            </IndustrialButton>
+            </IndustrialButton> */}
 
             <Tooltip title="Minimize" placement="bottom">
               <MinimizeButton
