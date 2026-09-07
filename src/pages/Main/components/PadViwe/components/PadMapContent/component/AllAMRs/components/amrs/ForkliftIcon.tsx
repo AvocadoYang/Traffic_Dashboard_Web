@@ -13,13 +13,13 @@ import styled from "styled-components";
 const IconWrapper = styled.div.attrs<{
   left: number;
   top: number;
-  amrId: string
-}>(({ left, top, amrId}) => ({
+  amrId: string;
+}>(({ left, top, amrId }) => ({
   style: {
     left,
     top,
-    transform: amrId.includes('mi') 
-      ? "translate(-50%, -50%)" 
+    transform: amrId.includes("mi")
+      ? "translate(-50%, -50%)"
       : "translate(-50%, -100%)",
     transition: "x 1s, y 1s",
   },
@@ -113,6 +113,34 @@ const Cargo = styled.div`
   &::after {
     transform: translate(-50%, -50%) rotate(-45deg);
   }
+`;
+
+const MiRDirection = styled.div`
+  position: absolute;
+  top: 1px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.8));
+`;
+
+const NoseChevron = styled.div`
+  width: 9px;
+  height: 3px;
+  background: #ffffff;
+  clip-path: polygon(50% 0%, 100% 60%, 100% 100%, 50% 40%, 0% 100%, 0% 60%);
+`;
+
+const MiRCargo = styled.div`
+  position: absolute;
+  inset: -3px;
+  background: #ff7875;
+  opacity: 60%;
+  border-radius: 2px;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
 `;
 
 const ForkArm = styled.div`
@@ -243,36 +271,43 @@ const ForkLiftIcon: FC<{
       amrId={amrId}
       className={`${needOpacity ? "opacity-icon" : ""}`}
     >
-      { 
-        amrId.includes('mi') ? <SquareBody rotate={90-yaw} color={color}></SquareBody> :    <ForkliftBody
-        rotate={amrId.includes("SW15") ? 90 - yaw + 180 : 90 - yaw}
-        color={color}
-        onClick={() => {
-          setAmrFilterCarCard((pre) => {
-            if (pre.has(amrId)) {
-              pre.delete(amrId);
-              return new Set([...pre]);
-            } else {
-              pre.add(amrId);
-              return new Set([...pre]);
-            }
-          });
-        }}
-      >
-        {
-          amrId.includes('mi')? null:  <>
-            <LeftFork />
-            <RightFork />
-          </>
-        }
-        {isCarry && <Cargo />}
-        {isPause && (
-          <Tooltip color="volcano" title={t("mode.isPause")}>
-            <StopSignOverlay />
-          </Tooltip>
-        )}
-      </ForkliftBody>
-      }
+      {amrId.includes("mi") ? (
+        <SquareBody rotate={90 - yaw} color={color}>
+          <MiRDirection>
+            <NoseChevron />
+          </MiRDirection>
+          {isCarry && <MiRCargo />}
+        </SquareBody>
+      ) : (
+        <ForkliftBody
+          rotate={amrId.includes("SW15") ? 90 - yaw + 180 : 90 - yaw}
+          color={color}
+          onClick={() => {
+            setAmrFilterCarCard((pre) => {
+              if (pre.has(amrId)) {
+                pre.delete(amrId);
+                return new Set([...pre]);
+              } else {
+                pre.add(amrId);
+                return new Set([...pre]);
+              }
+            });
+          }}
+        >
+          {amrId.includes("mi") ? null : (
+            <>
+              <LeftFork />
+              <RightFork />
+            </>
+          )}
+          {isCarry && <Cargo />}
+          {isPause && (
+            <Tooltip color="volcano" title={t("mode.isPause")}>
+              <StopSignOverlay />
+            </Tooltip>
+          )}
+        </ForkliftBody>
+      )}
     </IconWrapper>
   );
 };
