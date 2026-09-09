@@ -18,6 +18,14 @@ export const MIR_AREA_TYPES = new Set([
 
 export const isMirAreaType = (areaType: string) => MIR_AREA_TYPES.has(areaType);
 
+export const MIR_DETECTABLE_AREA_TYPES = new Set([
+  "MIR_CHARGING_STATION",
+  "MIR_VL_MARKER",
+]);
+
+export const isDetectableAreaType = (areaType: string) =>
+  MIR_DETECTABLE_AREA_TYPES.has(areaType);
+
 const MarkerImg = styled.img.attrs<{
   left: number;
   top: number;

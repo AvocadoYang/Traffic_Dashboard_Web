@@ -147,8 +147,17 @@ export const useMissionsOnce = () => {
   return { missions };
 };
 
-export const useRecentMission = (amrId: string) => {
-  const [recentMission, setRecentMission] = useState<MissionInfo | undefined>(
+// mission socket 會把這台車佇列中的任務一起送過來(含已結束的), 所以要用
+// 白名單挑出還沒結束的, 並依「這台車現在在做什麼」的優先度排序:
+// 正在跑的 > 已派給車還沒開始的 > 還在排隊的。
+const ACTIVE_MISSION_STATUS = ["executing", "aborting", "assigned", "pending"];
+
+const activeRank = (mission: MissionInfo) =>
+  ACTIVE_MISSION_STATUS.indexOf(mission.missionStatus);
+
+/** 只回傳這台車正在執行的任務, 都結束後回 undefined */
+export const useActiveMission = (amrId: string) => {
+  const [activeMission, setActiveMission] = useState<MissionInfo | undefined>(
     undefined
   );
 
@@ -160,21 +169,21 @@ export const useRecentMission = (amrId: string) => {
         map(
           (missions: MissionInfo[]) =>
             missions
-              .filter((m) => m.amrId === amrId)
-              .sort(
-                (a, b) =>
-                  (b.startedAt?.getTime?.() || 0) -
-                  (a.startedAt?.getTime?.() || 0)
-              )[0]
+              .filter((m) => m.amrId === amrId && activeRank(m) !== -1)
+              // 同一個狀態的(例如佇列中的好幾筆)再用佇列順序決定
+              .sort((a, b) => {
+                const rankDiff = activeRank(a) - activeRank(b);
+                return rankDiff !== 0 ? rankDiff : a.order - b.order;
+              })[0]
         ),
         distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
       )
-      .subscribe(setRecentMission);
+      .subscribe(setActiveMission);
 
     return () => sub.unsubscribe();
   }, [amrId]);
 
-  return { recentMission };
+  return { activeMission };
 };
 
 export type MissionInfo = {
