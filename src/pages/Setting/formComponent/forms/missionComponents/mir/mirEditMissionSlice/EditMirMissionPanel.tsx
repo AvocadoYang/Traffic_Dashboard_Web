@@ -77,7 +77,11 @@ import {
   MirXInput,
   MirYInput,
 } from "./FormInputs";
-import { MirVariableProvider, useMirVariableFields } from "./MirVariableContext";
+import {
+  MirVariableProvider,
+  useMirVariableFields,
+} from "./MirVariableContext";
+import { buildMirOperationFields } from "./mirActionFields";
 
 const REDUCE_PROTECTIVE_FIELDS_TYPE = "reduce_protective_fields";
 
@@ -154,9 +158,7 @@ type EditorSlice = {
 const isContainerOperation = (op?: Mir_Action | null) =>
   op?.type === REDUCE_PROTECTIVE_FIELDS_TYPE;
 
-const summarizeAction = (
-  op: Mir_Action,
-): { verb: string; chip?: string } => {
+const summarizeAction = (op: Mir_Action): { verb: string; chip?: string } => {
   switch (op.type) {
     case "move":
       return { verb: "Move to", chip: op.location_id || "-" };
@@ -187,18 +189,21 @@ const summarizeAction = (
     case REDUCE_PROTECTIVE_FIELDS_TYPE:
       return { verb: "Mute protective fields" };
     case "set_io":
-      return { verb: `Set IO ${op.module ?? ""} port ${op.port ?? 0} to ${op.value ?? ""}` };
+      return {
+        verb: `Set IO ${op.module ?? ""} port ${op.port ?? 0} to`,
+        chip: op.operation || "-",
+      };
     case "wait_for_io":
-      return { verb: `Wait for IO ${op.module ?? ""} port ${op.port ?? 0}` };
+      return {
+        verb: `Wait for IO ${op.module ?? ""} port ${op.port ?? 0} =`,
+        chip: op.value || "-",
+      };
     default:
       return { verb: op.type || "Unknown action" };
   }
 };
 
-const renderActionFields = (
-  actionType: string,
-  isCurrentPosition: boolean,
-) => {
+const renderActionFields = (actionType: string, isCurrentPosition: boolean) => {
   switch (actionType) {
     case "docking":
       return (
@@ -314,7 +319,8 @@ const CardRow = styled.div<{ $dragging?: boolean; $isContainer?: boolean }>`
   align-items: center;
   gap: 10px;
   background: ${({ $isContainer }) => ($isContainer ? "#fffbe6" : "#e6f4ff")};
-  border: 1px solid ${({ $isContainer }) => ($isContainer ? "#ffe58f" : "#91caff")};
+  border: 1px solid
+    ${({ $isContainer }) => ($isContainer ? "#ffe58f" : "#91caff")};
   border-radius: 4px;
   padding: 8px 12px;
   opacity: ${({ $dragging }) => ($dragging ? 0.4 : 1)};
@@ -439,7 +445,12 @@ const Card: FC<{
         </CardLabel>
         <CardActions>
           <Tooltip title="Edit">
-            <Button type="text" size="small" icon={<EditOutlined />} onClick={onEdit} />
+            <Button
+              type="text"
+              size="small"
+              icon={<EditOutlined />}
+              onClick={onEdit}
+            />
           </Tooltip>
           <Tooltip title="Duplicate">
             <Button
@@ -451,7 +462,12 @@ const Card: FC<{
           </Tooltip>
           <Popconfirm title="Delete this action?" onConfirm={onDelete}>
             <Tooltip title="Delete">
-              <Button type="text" size="small" danger icon={<DeleteOutlined />} />
+              <Button
+                type="text"
+                size="small"
+                danger
+                icon={<DeleteOutlined />}
+              />
             </Tooltip>
           </Popconfirm>
         </CardActions>
@@ -476,11 +492,7 @@ const ContainerDropZone: FC<{
 
   return (
     <ContainerContent ref={setNodeRef} $isOver={isOver} $isEmpty={isEmpty}>
-      {isEmpty ? (
-        <EmptyHint>Drag and drop actions here.</EmptyHint>
-      ) : (
-        children
-      )}
+      {isEmpty ? <EmptyHint>Drag and drop actions here.</EmptyHint> : children}
     </ContainerContent>
   );
 };
@@ -557,36 +569,7 @@ const ParameterDrawer: FC<{
     const raw = form.getFieldsValue();
     const nextOperation: Mir_Action = {
       ...slice.operation,
-      location_id: raw.location_id ?? "",
-      entry_position: raw.entry_position ?? "",
-      footprint: raw.footprint ?? "",
-      marker_type: raw.marker_type ?? null,
-      blocked_path_timeout: raw.blocked_path_timeout ?? 60,
-      blocked_docking_timeout: raw.blocked_docking_timeout ?? 60,
-      maximum_linear_speed: raw.maximum_linear_speed ?? 0.25,
-      maximum_angular_speed: raw.maximum_angular_speed ?? 0.25,
-      distance_threshold: raw.distance_threshold ?? 0.25,
-      x: raw.x ?? 0,
-      y: raw.y ?? 0,
-      orientation: raw.orientation ?? 0,
-      collision_detection: raw.collision_detection ?? true,
-      wait:
-        raw.wait && dayjs(raw.wait).isValid()
-          ? dayjs(raw.wait).format("HH:mm:ss")
-          : "00:00:00",
-      sound: raw.sound ?? "",
-      volume: raw.volume ?? 0,
-      front: raw.front ?? "unmuted",
-      rear: raw.rear ?? "unmuted",
-      sides: raw.sides ?? "unmuted",
-      module: raw.module ?? null,
-      port: raw.port ?? 0,
-      value: raw.value ?? "on",
-      operation: raw.operation ?? "on",
-      timeout:
-        raw.timeout && dayjs(raw.timeout).isValid()
-          ? dayjs(raw.timeout).format("HH:mm:ss")
-          : "00:00:00",
+      ...buildMirOperationFields(slice.operation.type, raw, slice.operation),
       variables: Object.fromEntries(
         Object.entries(variableFields)
           .filter(([, v]) => v.enabled && v.name)
@@ -610,7 +593,11 @@ const ParameterDrawer: FC<{
             {renderActionFields(slice.operation.type, !!isCurrentPosition)}
           </Form>
           <div
-            style={{ display: "flex", justifyContent: "space-between", marginTop: 24 }}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginTop: 24,
+            }}
           >
             <Button type="primary" onClick={handleUpdate}>
               Update
@@ -708,7 +695,9 @@ const EditMirMissionPanelContent: FC<{
     ]);
   };
 
-  const categoryMenu = (category: (typeof CATEGORY_OPTIONS)[number]): MenuProps => ({
+  const categoryMenu = (
+    category: (typeof CATEGORY_OPTIONS)[number],
+  ): MenuProps => ({
     items: category.actions.map((a) => ({ key: a, label: a })),
     onClick: ({ key }) => addAction(key),
   });
@@ -837,7 +826,11 @@ const EditMirMissionPanelContent: FC<{
       {contextHolder}
       <Toolbar>
         {CATEGORY_OPTIONS.map((category) => (
-          <Dropdown key={category.value} menu={categoryMenu(category)} trigger={["click"]}>
+          <Dropdown
+            key={category.value}
+            menu={categoryMenu(category)}
+            trigger={["click"]}
+          >
             <CategoryButton>
               {category.label} <DownOutlined />
             </CategoryButton>
@@ -903,8 +896,12 @@ const EditMirMissionPanelContent: FC<{
                                 slice={child}
                                 expanded={false}
                                 onToggleExpand={() => {}}
-                                onEdit={() => setEditingClientId(child.clientId)}
-                                onDuplicate={() => duplicateSlice(child.clientId)}
+                                onEdit={() =>
+                                  setEditingClientId(child.clientId)
+                                }
+                                onDuplicate={() =>
+                                  duplicateSlice(child.clientId)
+                                }
                                 onDelete={() => deleteSlice(child.clientId)}
                               />
                             ))}
