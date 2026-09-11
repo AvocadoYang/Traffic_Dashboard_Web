@@ -1,4 +1,7 @@
 {
+  "header": {
+    "switch_row": "Switch between navigation and tools row"
+  },
   "mission_dispatch_board": {
     "title": "Mission Dispatch Board",
     "edit_mode": "Edit Mode",

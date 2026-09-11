@@ -18,6 +18,7 @@ import {
   InferType,
 } from "yup";
 import { MissionPriority } from "@/types/mission";
+import { deepEqual } from "@/utils/deepEqual";
 
 export type Cycle_Mission = {
   amrId: string;
@@ -55,7 +56,7 @@ export const useCycleMission = () => {
     const scriptStatus = getC$
       .pipe(
         distinctUntilChanged(
-          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
+          (prev, curr) => deepEqual(prev, curr)
         )
       )
       .subscribe((data) => {

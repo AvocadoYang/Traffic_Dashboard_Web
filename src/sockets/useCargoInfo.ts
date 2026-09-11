@@ -9,6 +9,7 @@ import {
 import { useEffect, useState } from "react";
 import { io } from "./socketConnect";
 import { LayerType } from "@/api/type/useLocation";
+import { deepEqual } from "@/utils/deepEqual";
 
 export const levelSchema = object({
   levelName: string().optional().nullable(),
@@ -72,7 +73,7 @@ const profiles$ = fromEventPattern(
     return from([message]);
   }),
   distinctUntilChanged(
-    (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
+    (prev, curr) => deepEqual(prev, curr),
   ),
   share(),
 );
@@ -86,7 +87,7 @@ const useCargoInfo = () => {
     const subscription = profiles$
       .pipe(
         distinctUntilChanged(
-          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
+          (prev, curr) => deepEqual(prev, curr),
         ),
       )
       .subscribe((filteredData) => {

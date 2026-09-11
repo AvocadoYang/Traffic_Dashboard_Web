@@ -2,6 +2,7 @@ import { distinctUntilChanged, filter, fromEventPattern, share } from "rxjs";
 import { io } from "./socketConnect";
 import { isDefined } from "ts-extras";
 import { useEffect, useState } from "react";
+import { deepEqual } from "@/utils/deepEqual";
 
 const remainScheduleMission$ = fromEventPattern(
   (next) => {
@@ -19,7 +20,7 @@ export const useScheduleStatus = () => {
     const sub = remainScheduleMission$
       .pipe(
         distinctUntilChanged(
-          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
+          (prev, curr) => deepEqual(prev, curr),
         ),
       )
       .subscribe((info) => {
