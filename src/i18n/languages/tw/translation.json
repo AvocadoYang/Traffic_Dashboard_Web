@@ -1,4 +1,7 @@
 {
+  "header": {
+    "switch_row": "切換導覽列 / 工具列"
+  },
   "mission_dispatch_board": {
     "title": "任務派發看板",
     "edit_mode": "編輯模式",
