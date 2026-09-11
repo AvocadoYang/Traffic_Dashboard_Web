@@ -32,6 +32,7 @@ import {
 import { translate } from "@/i18n";
 import { useTranslation } from "react-i18next";
 import { Cargo } from "@/types/peripheral";
+import { deepEqual } from "@/utils/deepEqual";
 
 export enum MaintenanceLevel {
   /**初始值 */
@@ -451,7 +452,7 @@ export const useAmrDestination = (amrId: string) => {
       .pipe(
         map((info) => info.destination ?? null),
         distinctUntilChanged(
-          (pre, cur) => JSON.stringify(pre) === JSON.stringify(cur),
+          (pre, cur) => deepEqual(pre, cur),
         ),
       )
       .subscribe((d) => {
@@ -498,7 +499,7 @@ export const useAllAmrDestinations = () => {
           }, {}),
         ),
         distinctUntilChanged(
-          (pre, cur) => JSON.stringify(pre) === JSON.stringify(cur),
+          (pre, cur) => deepEqual(pre, cur),
         ),
       )
       .subscribe(setDestinations);
@@ -537,7 +538,7 @@ export const useIsLogIn = (amrId: string) => {
           amrServiceConnect: info.amrServiceConnect,
         })),
         distinctUntilChanged(
-          (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
+          (pre, current) => deepEqual(pre, current),
         ),
       )
       .subscribe(
@@ -600,7 +601,7 @@ export const useAllAmrStatus = () => {
               .sort((a, b) => a.amrId.localeCompare(b.amrId)), // <-- sort by amrId
         ),
         distinctUntilChanged(
-          (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
+          (pre, current) => deepEqual(pre, current),
         ),
       )
       .subscribe((amrStatusArr) => {
@@ -795,7 +796,7 @@ export const useAMRAllIO = (amrId: string) => {
       .pipe(
         map((info) => info.IO),
         distinctUntilChanged(
-          (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
+          (pre, current) => deepEqual(pre, current),
         ),
       )
       .subscribe((io) => {
@@ -864,7 +865,7 @@ export const useAmrStatus = (amrId: string) => {
           return tipText;
         }),
         distinctUntilChanged(
-          (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
+          (pre, current) => deepEqual(pre, current),
         ),
       )
       .subscribe((info) => {
@@ -939,7 +940,7 @@ export const useIsWorking = (amrId: string) => {
       .pipe(
         map((info) => info.doingTask),
         distinctUntilChanged(
-          (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
+          (pre, current) => deepEqual(pre, current),
         ),
       )
       .subscribe((isWorking) => setIsWorking(isWorking));
@@ -990,7 +991,7 @@ export const useIsManual = (amrId: string) => {
       .pipe(
         map((info) => info.IO?.manual_mode),
         distinctUntilChanged(
-          (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
+          (pre, current) => deepEqual(pre, current),
         ),
       )
       .subscribe((isWorking) => setIsManual(isWorking));
@@ -1024,7 +1025,7 @@ export const useIsCarry = (amrId: string) => {
           cargo: info.cargo as Cargo[],
         })),
         distinctUntilChanged(
-          (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
+          (pre, current) => deepEqual(pre, current),
         ),
       )
       .subscribe(({ hasCargo, cargo }) =>
@@ -1051,7 +1052,7 @@ export const useIsCharging = (amrId: string) => {
       .pipe(
         map((info) => info.IO?.battery_info.charging),
         distinctUntilChanged(
-          (pre, current) => JSON.stringify(pre) === JSON.stringify(current),
+          (pre, current) => deepEqual(pre, current),
         ),
       )
       .subscribe((isWorking) => setIsCharge(isWorking));

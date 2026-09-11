@@ -35,6 +35,7 @@ import { mq } from "@/styles/responsive";
 import { useTimelineSocket } from "@/sockets/useTimelineSocket";
 import dayjs from "dayjs";
 import MissionBtn from "@/pages/Main/components/WebView/components/MissionBtn";
+import HaStatusWidget from "@/pages/Main/components/HaStatusWidget";
 import ChangePasswordModal from "./ChangePasswordModal";
 import CreateUserModel from "./CreateUserModel";
 import { jwtDecode } from "jwt-decode";
@@ -555,6 +556,7 @@ const Header: React.FC = () => {
           />
 
           <Flex gap="middle" align="center">
+            {location.pathname === "/" && <HaStatusWidget />}
             {location.pathname === "/" && <MissionBtn />}
 
             {script?.isSimulate ? (

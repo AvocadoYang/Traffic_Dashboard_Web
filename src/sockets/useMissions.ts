@@ -23,6 +23,7 @@ import {
 import { InferObservableType } from "@/utils/globalType";
 import { io } from "./socketConnect";
 import { CancelReason } from "@/types/mission";
+import { deepEqual } from "@/utils/deepEqual";
 
 const missionTypeMap = {
   sprinkle: "sprinkle",
@@ -120,7 +121,7 @@ export const useMissions = () => {
       .pipe(
         pluck("missions"),
         distinctUntilChanged(
-          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
+          (prev, curr) => deepEqual(prev, curr)
         )
       )
       .subscribe((ms) => {
@@ -176,7 +177,7 @@ export const useActiveMission = (amrId: string) => {
                 return rankDiff !== 0 ? rankDiff : a.order - b.order;
               })[0]
         ),
-        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
+        distinctUntilChanged((a, b) => deepEqual(a, b))
       )
       .subscribe(setActiveMission);
 
