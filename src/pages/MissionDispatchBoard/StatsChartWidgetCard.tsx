@@ -3,7 +3,7 @@ import {
   STATS_METRIC_LABEL_KEY,
 } from "@/api/useMissionDispatchBoard";
 import useDispatchWidgetStats from "@/api/useDispatchWidgetStats";
-import { Empty, Spin } from "antd";
+import { Empty, Spin, Table } from "antd";
 import React, { FC } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -74,6 +74,11 @@ const ChartArea = styled.div`
   padding: 8px;
 `;
 
+const TableScroll = styled.div`
+  height: 100%;
+  overflow: auto;
+`;
+
 const CenterFill = styled.div`
   height: 100%;
   display: flex;
@@ -90,10 +95,8 @@ const StatsChartWidgetCard: FC<{
 }> = ({ widget, editMode, onEdit, onDelete, onResizeEnd }) => {
   const { t } = useTranslation();
   const metric = widget.chartConfig?.metric;
-  const dateRangeDays = widget.chartConfig?.dateRangeDays ?? 30;
   const { data: result, isLoading } = useDispatchWidgetStats(
-    metric,
-    dateRangeDays,
+    widget.chartConfig ?? undefined,
   );
 
   const title =
@@ -119,13 +122,36 @@ const StatsChartWidgetCard: FC<{
         </CenterFill>
       );
     }
-    if (!result || result.data.length === 0) {
+    const isEmpty =
+      !result ||
+      (result.chartType === "table"
+        ? result.rows.length === 0
+        : result.data.length === 0);
+    if (!result || isEmpty) {
       return (
         <CenterFill>
           <Empty
             description={t("mission_dispatch_board.stats_no_data")}
           />
         </CenterFill>
+      );
+    }
+
+    if (result.chartType === "table") {
+      return (
+        <TableScroll>
+          <Table
+            size="small"
+            pagination={false}
+            rowKey={(_, index) => String(index)}
+            columns={result.columns.map((col) => ({
+              key: col.key,
+              dataIndex: col.key,
+              title: col.label,
+            }))}
+            dataSource={result.rows}
+          />
+        </TableScroll>
       );
     }
 

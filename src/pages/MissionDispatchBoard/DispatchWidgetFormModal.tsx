@@ -7,6 +7,7 @@ import {
   STATS_METRIC_LABEL_KEY,
   STATS_METRICS,
   StatsMetric,
+  StatsRangeMode,
 } from "@/api/useMissionDispatchBoard";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
@@ -14,20 +15,25 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Checkbox,
   ColorPicker,
+  DatePicker,
   Form,
   Input,
   InputNumber,
   message,
   Modal,
+  Radio,
   Select,
   Slider,
 } from "antd";
+import dayjs, { Dayjs } from "dayjs";
 import React, { FC, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AMR_STATUS_FIELD_LABEL_KEY,
   AMR_STATUS_FIELDS,
 } from "./AmrStatusWidgetCard";
+
+const { RangePicker } = DatePicker;
 
 interface FormValues {
   title: string;
@@ -38,7 +44,11 @@ interface FormValues {
   visibleFields?: string[];
   statsMetric?: StatsMetric;
   dateRangeDays?: number;
+  statsRangeMode?: StatsRangeMode;
+  statsDateRange?: [Dayjs, Dayjs] | null;
 }
+
+const DATE_FORMAT = "YYYY-MM-DD";
 
 const DEFAULT_SIZE: Record<
   DispatchWidgetType,
@@ -83,8 +93,21 @@ const DispatchWidgetFormModal: FC<{
       dateRangeDays:
         initialValues?.chartConfig?.dateRangeDays ??
         DEFAULT_STATS_DATE_RANGE_DAYS,
+      statsRangeMode: initialValues?.chartConfig?.rangeMode ?? "relative",
     });
+    form.setFieldValue(
+      "statsDateRange",
+      initialValues?.chartConfig?.startDate &&
+        initialValues?.chartConfig?.endDate
+        ? [
+            dayjs(initialValues.chartConfig.startDate),
+            dayjs(initialValues.chartConfig.endDate),
+          ]
+        : null,
+    );
   }, [open, initialValues, form]);
+
+  const statsRangeMode = Form.useWatch("statsRangeMode", form);
 
   const amrOptions = useMemo(() => {
     if (!amrData) return [];
@@ -145,6 +168,7 @@ const DispatchWidgetFormModal: FC<{
         ? { visibleFields: values.visibleFields }
         : {};
 
+    const isAbsoluteRange = values.statsRangeMode === "absolute";
     const statsChartFields =
       effectiveType === "STATS_CHART"
         ? {
@@ -152,6 +176,13 @@ const DispatchWidgetFormModal: FC<{
               metric: values.statsMetric,
               dateRangeDays:
                 values.dateRangeDays ?? DEFAULT_STATS_DATE_RANGE_DAYS,
+              rangeMode: values.statsRangeMode ?? "relative",
+              startDate: isAbsoluteRange
+                ? values.statsDateRange?.[0].format(DATE_FORMAT)
+                : null,
+              endDate: isAbsoluteRange
+                ? values.statsDateRange?.[1].format(DATE_FORMAT)
+                : null,
             },
           }
         : {};
@@ -256,12 +287,41 @@ const DispatchWidgetFormModal: FC<{
               </Form.Item>
 
               <Form.Item
-                label={t("mission_dispatch_board.stats_date_range")}
-                name="dateRangeDays"
-                rules={[{ required: true }]}
+                label={t("mission_dispatch_board.stats_range_mode")}
+                name="statsRangeMode"
               >
-                <InputNumber min={1} max={365} style={{ width: "100%" }} />
+                <Radio.Group
+                  options={[
+                    {
+                      label: t("mission_dispatch_board.stats_range_relative"),
+                      value: "relative",
+                    },
+                    {
+                      label: t("mission_dispatch_board.stats_range_absolute"),
+                      value: "absolute",
+                    },
+                  ]}
+                  optionType="button"
+                />
               </Form.Item>
+
+              {statsRangeMode === "absolute" ? (
+                <Form.Item
+                  label={t("mission_dispatch_board.stats_date_range")}
+                  name="statsDateRange"
+                  rules={[{ required: true }]}
+                >
+                  <RangePicker style={{ width: "100%" }} format={DATE_FORMAT} />
+                </Form.Item>
+              ) : (
+                <Form.Item
+                  label={t("mission_dispatch_board.stats_date_range")}
+                  name="dateRangeDays"
+                  rules={[{ required: true }]}
+                >
+                  <InputNumber min={1} max={365} style={{ width: "100%" }} />
+                </Form.Item>
+              )}
             </>
           )}
 

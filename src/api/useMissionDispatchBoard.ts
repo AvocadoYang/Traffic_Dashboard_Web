@@ -46,6 +46,8 @@ export const STATS_METRICS = [
   "charging_trend",
   "send_by_breakdown",
   "battery_cost_ranking",
+  "route_cycle_breakdown",
+  "fleet_utilization",
 ] as const;
 export type StatsMetric = (typeof STATS_METRICS)[number];
 
@@ -62,11 +64,20 @@ export const STATS_METRIC_LABEL_KEY = {
   charging_trend: "mission_dispatch_board.metric_charging_trend",
   send_by_breakdown: "mission_dispatch_board.metric_send_by_breakdown",
   battery_cost_ranking: "mission_dispatch_board.metric_battery_cost_ranking",
+  route_cycle_breakdown: "mission_dispatch_board.metric_route_cycle_breakdown",
+  fleet_utilization: "mission_dispatch_board.metric_fleet_utilization",
 } as const satisfies Record<StatsMetric, string>;
+
+export type StatsRangeMode = "relative" | "absolute";
 
 export interface StatsChartConfig {
   metric: StatsMetric;
   dateRangeDays: number;
+  // rangeMode 沒設定時視同 "relative"（近 dateRangeDays 天）；"absolute"
+  // 則改用 startDate ~ endDate 這個固定區間，兩者為 "YYYY-MM-DD" 字串。
+  rangeMode?: StatsRangeMode;
+  startDate?: string | null;
+  endDate?: string | null;
 }
 
 export interface DispatchWidget {
@@ -144,6 +155,11 @@ const widgetSchema = object({
   chartConfig: object({
     metric: mixed<StatsMetric>().oneOf([...STATS_METRICS]).required(),
     dateRangeDays: number().required(),
+    rangeMode: mixed<StatsRangeMode>()
+      .oneOf(["relative", "absolute"])
+      .default("relative"),
+    startDate: string().nullable().default(null),
+    endDate: string().nullable().default(null),
   })
     .nullable()
     .default(null),
