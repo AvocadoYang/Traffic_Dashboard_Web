@@ -10,6 +10,7 @@ import {
   Select,
   Avatar,
   Dropdown,
+  Segmented,
 } from "antd";
 import "./component.css";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -19,6 +20,8 @@ import {
   UserOutlined,
   PoweroffOutlined,
   ClockCircleOutlined,
+  AppstoreOutlined,
+  ToolOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
@@ -35,6 +38,7 @@ import { mq } from "@/styles/responsive";
 import { useTimelineSocket } from "@/sockets/useTimelineSocket";
 import dayjs from "dayjs";
 import MissionBtn from "@/pages/Main/components/WebView/components/MissionBtn";
+import HaStatusWidget from "@/pages/Main/components/HaStatusWidget";
 import ChangePasswordModal from "./ChangePasswordModal";
 import CreateUserModel from "./CreateUserModel";
 import { jwtDecode } from "jwt-decode";
@@ -42,6 +46,7 @@ import SimTime from "./SimTime";
 import DirectMove from "@/pages/Main/components/missionModal/DirectMove";
 import ZoomPad from "@/pages/Main/components/WebView/components/ZoomPad";
 import useMap from "@/api/useMap";
+import { headerNavItemBase, headerNavItemActive } from "@/styles/headerNavItemStyle";
 
 const { Header: AntdHeader } = Layout;
 
@@ -90,6 +95,32 @@ const DesktopBar = styled.div`
   }
 `;
 
+// HaStatusWidget/MissionBtn/模擬控制/語言切換/頭像這一整排,內容量會隨功能增加
+// (例如 HA 開啟時多出兩個 Tag + 按鈕)超出可視寬度。原本沒有 min-width:0,
+// flex-shrink 對這個 flex item 不生效(預設 min-width:auto 讓它撐開),
+// 於是右側的語言切換/頭像被擠到看不到的地方,中間留一片空白。
+// 這裡讓它可以真的縮小、縮不下的部分改成自己橫向捲動,不去擠壓整條 header。
+const ActionsBar = styled(Flex)`
+  min-width: 0;
+  flex-shrink: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  > * {
+    flex-shrink: 0;
+  }
+`;
+
+// 導覽選單跟 HA/任務工具列不再同時擠在同一排,改成一次只顯示一排,
+// 用這顆切換要看哪一排,兩排都用不到的空間就還給彼此。
+const RowSwitch = styled(Segmented)`
+  flex-shrink: 0;
+`;
+
 const IndustrialMenu = styled(Menu)`
   /* .ant-menu root 的 antd 規則為 10 */
   && {
@@ -104,29 +135,10 @@ const IndustrialMenu = styled(Menu)`
      （.ant-menu-light.ant-menu-horizontal > .ant-menu-item… 設 background-color），
      所以這裡必須 &&&& = 50；&& 只有 30 會被蓋掉。 */
   &&&& .ant-menu-item {
-    color: #595959;
-    font-size: var(--font-sm);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 600;
-    border-bottom: 3px solid transparent;
-    margin: 0 var(--space-xs);
-    padding: 0 var(--space-lg);
-    height: var(--header-height);
-    line-height: var(--header-height);
-    transition: all 0.2s;
-
-    &:hover {
-      color: #1890ff;
-      background: rgba(24, 144, 255, 0.05);
-      border-bottom-color: #1890ff;
-    }
+    ${headerNavItemBase}
 
     &.ant-menu-item-selected {
-      color: #1890ff;
-      background: rgba(24, 144, 255, 0.08);
-      border-bottom-color: #1890ff;
-      box-shadow: inset 0 -3px 0 #1890ff;
+      ${headerNavItemActive}
     }
   }
 `;
@@ -331,6 +343,9 @@ const MapOverlay = styled.div`
 const token = localStorage.getItem("token");
 const username = token ? jwtDecode<{ username: string }>(token).username : "";
 
+type HeaderRow = "nav" | "tools";
+const HEADER_ROW_KEY = "headerActiveRow";
+
 const Header: React.FC = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -340,6 +355,13 @@ const Header: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [hintAmrId, setHintAmrId] = useAtom(AmrFilterCarCard);
   const script = useMockInfo();
+  const [headerRow, setHeaderRow] = useState<HeaderRow>(
+    () => (localStorage.getItem(HEADER_ROW_KEY) as HeaderRow) || "nav",
+  );
+
+  useEffect(() => {
+    localStorage.setItem(HEADER_ROW_KEY, headerRow);
+  }, [headerRow]);
 
   const { refetch: amrNameRefetch } = useName();
   const [messageApi, contextHolder] = message.useMessage();
@@ -552,15 +574,38 @@ const Header: React.FC = () => {
         </IndustrialDrawer>
 
         <DesktopBar>
-          <IndustrialMenu
-            mode="horizontal"
-            items={items}
-            onClick={handleMenuClick}
-          />
+          <Tooltip title={t("header.switch_row")}>
+            <RowSwitch
+              size="small"
+              value={headerRow}
+              onChange={(v) => setHeaderRow(v as HeaderRow)}
+              options={[
+                { value: "nav", icon: <AppstoreOutlined /> },
+                { value: "tools", icon: <ToolOutlined /> },
+              ]}
+            />
+          </Tooltip>
 
-          <Flex gap="middle" align="center">
-            {location.pathname === "/" && <MissionBtn />}
+          {headerRow === "nav" && (
+            <IndustrialMenu
+              mode="horizontal"
+              items={items}
+              onClick={handleMenuClick}
+            />
+          )}
 
+          {headerRow === "tools" && (
+            <ActionsBar gap="middle" align="center">
+              {location.pathname === "/" && <HaStatusWidget />}
+              {location.pathname === "/" && <MissionBtn />}
+            </ActionsBar>
+          )}
+
+          <Flex
+            gap="middle"
+            align="center"
+            style={{ flexShrink: 0, marginLeft: "auto" }}
+          >
             {script?.isSimulate ? (
               <SimulationStatus>
                 <ClockCircleOutlined />

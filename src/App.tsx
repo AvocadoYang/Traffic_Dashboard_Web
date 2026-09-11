@@ -2,7 +2,6 @@ import MonitorCenter from "./pages/SWMoniter/SWMoniter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 import { Main, LogIn, Setting, Register, Simulate, Records } from "./pages";
-import MissionAnalysis from "./pages/MissionAnalysis/MissionAnalysis";
 import CargoHistory from "./pages/CargoHistory/CargoHistory";
 import AmrDetail from "./pages/AmrDetail/AmrDetail";
 import AmrList from "./pages/AmrDetail/AmrList";
@@ -51,10 +50,6 @@ function App() {
             <Route path="/dashboard" element={<Register />}></Route>
             <Route path="/setting" element={<Setting></Setting>}></Route>
             <Route path="/simulate" element={<Simulate />}></Route>
-            <Route
-              path="/mission-analysis"
-              element={<MissionAnalysis />}
-            ></Route>
             <Route path="/cargo-history" element={<CargoHistory />}></Route>
             <Route
               path="/simulate-result"

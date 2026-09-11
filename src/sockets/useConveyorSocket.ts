@@ -9,6 +9,7 @@ import {
 import { useEffect, useState } from "react";
 import { io } from "./socketConnect";
 import { Conveyor_Info } from "@/types/peripheral";
+import { deepEqual } from "@/utils/deepEqual";
 
 const strSchema = string().optional().nullable();
 
@@ -54,7 +55,7 @@ const profiles$ = fromEventPattern(
     return from([message]);
   }),
   distinctUntilChanged(
-    (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
+    (prev, curr) => deepEqual(prev, curr),
   ),
   share(),
 );
@@ -68,7 +69,7 @@ const useConveyorSocket = () => {
     const subscription = profiles$
       .pipe(
         distinctUntilChanged(
-          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
+          (prev, curr) => deepEqual(prev, curr),
         ), // Avoid state update if data is identical
       )
       .subscribe((filteredData) => {

@@ -29,6 +29,8 @@ export const locationOption = (value) => {
       return "Charging station";
     case "MIR_SHELF_POSITION":
       return "Shelf position";
+    case "MIR_VL_MARKER":
+      return "VL marker";
     default:
       return value;
   }
