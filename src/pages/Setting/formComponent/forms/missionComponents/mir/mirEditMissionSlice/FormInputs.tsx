@@ -377,9 +377,9 @@ export const MirPortInput = () => {
   return (
     <ParameterCard fieldName="port" label="Port">
       <Form.Item name="port" style={{ marginBottom: 0 }}>
-        <InputNumber defaultValue={0} />
+        <InputNumber min={0} max={3} precision={0} />
       </Form.Item>
-      Enter which output port relay should be activated (1-4).
+      Enter which output port relay should be activated (0-3).
     </ParameterCard>
   );
 };
