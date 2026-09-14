@@ -31,3 +31,9 @@ export const EBLM = atom<{ locationId: string | null; isOpen: boolean }>({
   locationId: null,
   isOpen: false,
 });
+
+//Location detect modal (點位偵測)
+export const LDM = atom<{ locationId: string | null; isOpen: boolean }>({
+  locationId: null,
+  isOpen: false,
+});

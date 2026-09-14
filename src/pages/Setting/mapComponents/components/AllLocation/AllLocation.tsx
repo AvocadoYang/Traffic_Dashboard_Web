@@ -7,6 +7,7 @@ import { draggableLineInitialPoint } from "@/pages/Setting/hooks/hook";
 import { Point, DraggableLine } from "./components/PointAndLine";
 import {
   MirAreaTypeMarker,
+  isDetectableAreaType,
   isMirAreaType,
 } from "./components/MirAreaTypeMarker";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
@@ -16,8 +17,8 @@ import {
   isShowLocation,
 } from "@/utils/siderGloble";
 import {
-  EBLM,
   IsEditingQuickRoads,
+  LDM,
   QuickRoadsArray,
 } from "@/pages/Setting/utils/settingJotai";
 
@@ -32,7 +33,7 @@ const AllLocation: FC<{
   const openEditZone = useAtomValue(EditZoneSwitch);
   const quickRoad = useAtomValue(IsEditingQuickRoads);
   const setQuickRoadArr = useSetAtom(QuickRoadsArray);
-  const setOpenEBLM = useSetAtom(EBLM);
+  const setOpenLDM = useSetAtom(LDM);
   const hoverInfo = useAtomValue(locationHoverInfo);
 
   // 游標附近(偵測半徑內)的點位 id 集合，用來讓這些點稍微放大，方便使用者辨識與點擊。
@@ -62,14 +63,18 @@ const AllLocation: FC<{
     setTooltip(null);
   }, []);
 
-  const handleClick = (e: any, locationId: string) => {
+  const handleClick = (e: any, locationId: string, areaType: string) => {
     if (quickRoad) {
       handleQuickRoad(locationId);
       return;
     }
 
     if (!openEditRoadPanel || openEditZone) {
-      setOpenEBLM({ locationId: locationId, isOpen: true });
+      // 將地點榜定移動功能改到其他地方
+      // setOpenEBLM({ locationId: locationId, isOpen: true });
+      // 只有有實體 marker 的類型(充電站、VL marker)才開啟點位偵測。
+      if (!isDetectableAreaType(areaType)) return;
+      setOpenLDM({ locationId: locationId, isOpen: true });
     } else {
       setInitPoint({ clientX: e.clientX, clientY: e.clientY });
       handleMouseDown((e.target as HTMLInputElement).id);
@@ -114,7 +119,9 @@ const AllLocation: FC<{
                   rotation={loc.rotate}
                   onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
                   onMouseLeave={() => handleLeave()}
-                  onMouseDown={(e) => handleClick(e, loc.locationId)}
+                  onMouseDown={(e) =>
+                    handleClick(e, loc.locationId, loc.areaType)
+                  }
                 />
                 <DraggableLine
                   locId={loc.locationId.toString()}
@@ -145,7 +152,9 @@ const AllLocation: FC<{
                 isNear={nearbyLocationIds.has(loc.locationId.toString())}
                 onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
                 onMouseLeave={() => handleLeave()}
-                onMouseDown={(e) => handleClick(e, loc.locationId)}
+                onMouseDown={(e) =>
+                  handleClick(e, loc.locationId, loc.areaType)
+                }
               ></Point>
               <DraggableLine
                 locId={loc.locationId.toString()}

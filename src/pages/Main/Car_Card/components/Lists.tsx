@@ -61,7 +61,7 @@ const GamepadSvg = () => (
   </svg>
 );
 
-const GamepadOutlined = (props: { amrId:string, className?: string }) => {
+export const GamepadOutlined = (props: { amrId:string, className?: string, title?: string }) => {
     const setJoystickAmrId = useSetAtom(JoystickAmrId);
   return <Icon onClick={(e) => {
                   e.stopPropagation();

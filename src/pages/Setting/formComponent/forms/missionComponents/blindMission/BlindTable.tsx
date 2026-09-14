@@ -1,12 +1,13 @@
 import client from "@/api/axiosClient";
 import { EBLM } from "@/pages/Setting/utils/settingJotai";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { Table, Flex, Popconfirm } from "antd";
 import { useAtom } from "jotai";
 import React, { FC, useMemo, useState } from "react";
 import styled from "styled-components";
-import { RedoOutlined, ToolOutlined } from "@ant-design/icons";
+import { PlusOutlined, RedoOutlined, ToolOutlined } from "@ant-design/icons";
 import useBlindMission from "@/api/useBlindMission";
+import AddBlindLocationMissionModal from "./AddBlindLocationMissionModal";
 
 // ===== 共用 Industrial Style（直接複用 TaskFormFork） =====
 const IndustrialContainer = styled.div`
@@ -135,6 +136,7 @@ const IndustrialSearchInput = styled.input`
 const BlindTable: FC = () => {
   const [, setOpen] = useAtom(EBLM);
   const [searchText, setSearchText] = useState("");
+  const [showAddModal, setShowAddModal] = useState(false);
   const { data, isLoading, refetch } = useBlindMission();
 
   const deleteMutation = useMutation({
@@ -185,7 +187,9 @@ const BlindTable: FC = () => {
         <>
           <Flex gap={3}>
             <IndustrialButton
-              onClick={() => setOpen({ locationId: record.id, isOpen: true })}
+              onClick={() =>
+                setOpen({ locationId: record.locationId, isOpen: true })
+              }
             >
               EDIT
             </IndustrialButton>
@@ -224,6 +228,9 @@ const BlindTable: FC = () => {
             <IndustrialButton onClick={() => refetch()}>
               <RedoOutlined />
             </IndustrialButton>
+            <IndustrialButton onClick={() => setShowAddModal(true)}>
+              <PlusOutlined />
+            </IndustrialButton>
           </Flex>
         </StatusBar>
         <IndustrialTable
@@ -233,6 +240,10 @@ const BlindTable: FC = () => {
           rowKey="id"
         />
       </IndustrialCard>
+      <AddBlindLocationMissionModal
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+      />
     </IndustrialContainer>
   );
 };

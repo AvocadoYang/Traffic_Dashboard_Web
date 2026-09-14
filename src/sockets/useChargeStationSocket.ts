@@ -135,6 +135,9 @@ export type Charge_Status_Info = {
 
   stationId: string;
   barOut: string;
+
+  amrIds: string[];
+  nearPointLocationIds: string[];
 };
 
 const useChargeStationSocket = () => {
