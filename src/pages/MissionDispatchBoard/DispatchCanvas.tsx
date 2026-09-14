@@ -25,6 +25,7 @@ import DispatchButtonCard from "./DispatchButtonCard";
 import MapViewWidgetCard from "./MapViewWidgetCard";
 import MissionListWidgetCard from "./MissionListWidgetCard";
 import QuickMissionWidgetCard from "./QuickMissionWidgetCard";
+import StatsChartWidgetCard from "./StatsChartWidgetCard";
 import TextWidgetCard from "./TextWidgetCard";
 import { GRID_SIZE, snapToGrid } from "./gridConstants";
 
@@ -428,6 +429,10 @@ const DispatchCanvas: FC<{
       key: "QUICK_MISSION",
       label: t("mission_dispatch_board.add_quick_mission_card"),
     },
+    {
+      key: "STATS_CHART",
+      label: t("mission_dispatch_board.add_stats_chart_card"),
+    },
   ];
 
   return (
@@ -535,7 +540,9 @@ const DispatchCanvas: FC<{
                       ? TextWidgetCard
                       : widget.widget_type === "QUICK_MISSION"
                         ? QuickMissionWidgetCard
-                        : MissionListWidgetCard;
+                        : widget.widget_type === "STATS_CHART"
+                          ? StatsChartWidgetCard
+                          : MissionListWidgetCard;
               return (
                 <WidgetCard
                   key={widget.id}

@@ -10,6 +10,7 @@ import {
 } from "rxjs";
 import { isDefined } from "ts-extras";
 import { array, object, string, ValidationError } from "yup";
+import { deepEqual } from "@/utils/deepEqual";
 
 const schema = () =>
   object({
@@ -52,7 +53,7 @@ const claimedResource$ = fromEventPattern(
   ),
   filter(isDefined),
   distinctUntilChanged(
-    (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
+    (prev, curr) => deepEqual(prev, curr),
   ),
   share(),
 );

@@ -9,6 +9,7 @@ import {
 import { useEffect, useState } from "react";
 import { io } from "./socketConnect";
 import { Elevator_Info } from "@/types/peripheral";
+import { deepEqual } from "@/utils/deepEqual";
 
 const schema = object({
   isAlive: boolean().required(),
@@ -35,7 +36,7 @@ const profiles$ = fromEventPattern(
     )
   ),
   distinctUntilChanged(
-    (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
+    (prev, curr) => deepEqual(prev, curr)
   ),
   share()
 );
@@ -46,7 +47,7 @@ const useEcsAlive = () => {
     const subscription = profiles$
       .pipe(
         distinctUntilChanged(
-          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
+          (prev, curr) => deepEqual(prev, curr)
         )
       )
       .subscribe((filteredData) => {

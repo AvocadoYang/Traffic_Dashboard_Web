@@ -15,6 +15,7 @@ import Cookies from "js-cookie";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
+import JoystickPanelWrap from "@/pages/Main/Car_Card/JoystickPanelWrap";
 import DispatchButtonFormModal from "./DispatchButtonFormModal";
 import DispatchCanvas from "./DispatchCanvas";
 import DispatchWidgetFormModal from "./DispatchWidgetFormModal";
@@ -307,6 +308,7 @@ const MissionDispatchBoard: React.FC = () => {
           }
         />
       )}
+      <JoystickPanelWrap />
     </Layout>
   );
 };

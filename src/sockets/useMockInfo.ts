@@ -18,6 +18,7 @@ import {
   InferType,
   number,
 } from "yup";
+import { deepEqual } from "@/utils/deepEqual";
 
 const schema = object({
   robot: array(
@@ -66,7 +67,7 @@ export const useMockInfo = () => {
     const scriptStatus = getC$
       .pipe(
         distinctUntilChanged(
-          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
+          (prev, curr) => deepEqual(prev, curr),
         ),
       )
       .subscribe((data) => {

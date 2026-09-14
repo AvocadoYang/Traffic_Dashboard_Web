@@ -12,6 +12,7 @@ const useDragPan = (
   mapWrapRef: RefObject<HTMLDivElement>,
   mapRef: RefObject<HTMLDivElement>,
   mapImageRef: RefObject<HTMLImageElement>,
+  enabled = true,
 ) => {
   useEffect(() => {
     const container = mapWrapRef.current;
@@ -27,7 +28,7 @@ const useDragPan = (
     /** 左鍵只在底圖或空白處啟動，中鍵則不限位置 */
     const canStart = (e: PointerEvent) => {
       if (e.button === 1) return true;
-      if (e.button !== 0) return false;
+      if (e.button !== 0 || !enabled) return false;
       const target = e.target;
       return (
         target === mapImageRef.current ||
@@ -92,7 +93,7 @@ const useDragPan = (
       container.removeEventListener("click", handleClickCapture, true);
       container.style.cursor = "";
     };
-  }, [mapWrapRef, mapRef, mapImageRef]);
+  }, [mapWrapRef, mapRef, mapImageRef, enabled]);
 };
 
 export default useDragPan;

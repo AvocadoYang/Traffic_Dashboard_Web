@@ -1,16 +1,14 @@
 import {
   ThunderboltOutlined,
   CalendarOutlined,
-  SwapOutlined,
-  CloseOutlined,
   UploadOutlined,
   SyncOutlined,
   RocketOutlined,
 } from "@ant-design/icons";
-import { Button, Flex, Tooltip } from "antd";
+import { Button, Flex } from "antd";
 import { useTranslation } from "react-i18next";
 import { DialogMission } from "../../missionModal";
-import { memo, useState, useEffect } from "react";
+import { memo, useState } from "react";
 import { OpenAssignMission, OpenQueueMirTask } from "@/pages/Main/global/jotai";
 import { useSetAtom } from "jotai";
 import QuickMissionWebView from "../../missionModal/QuickMissionWebView";
@@ -20,92 +18,16 @@ import CycleMissionV2 from "../../missionModal/CycleMissionV2";
 import CycleMissionViewer from "../../missionModal/CycleMissionViewer";
 import QueueMirTaskModal from "../../missionModal/QueueMirTaskModal";
 import { Cycle, Cycle_Mission } from "@/sockets/useCycleMission";
-import { missionAccentStyles } from "./missionButtonStyles";
+import { headerNavItemBase } from "@/styles/headerNavItemStyle";
 
-// Industrial Button Styling - Light Mode
-const MissionBtnWrap = styled.div<{ $isMinimized: boolean }>`
-  position: relative;
-`;
-
-const IndustrialButton = styled(Button)`
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  color: #595959;
-  font-family: "Roboto Mono", monospace;
-  text-transform: uppercase;
-  font-size: 10px;
-  letter-spacing: 1px;
-  height: 36px;
-  font-weight: 600;
-  padding: 0 16px;
-
-  ${missionAccentStyles}
-
-  .anticon {
-    font-size: 14px;
-  }
-`;
-
-const MinimizeButton = styled(Button)`
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
-  padding: 0;
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  color: #8c8c8c;
-  font-size: 12px;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &:hover {
-    background: #fff1f0;
-    border-color: #ff4d4f;
-    color: #ff4d4f;
-    box-shadow: 0 2px 8px rgba(255, 77, 79, 0.2);
-    transform: rotate(90deg);
-  }
-`;
-
-const ExpandButton = styled(Button)`
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
-  padding: 0;
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  color: #595959;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &:hover {
-    background: #f0f5ff;
-    border-color: #1890ff;
-    color: #1890ff;
-    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
-    transform: scale(1.1);
-  }
+// 跟 Header 上「切換頁面」的導覽按鈕共用同一份樣式,讓這排任務派發按鈕
+// 看起來就是導覽列的一部分,不是另一種風格的工具列。
+const NavStyleButton = styled(Button)`
+  ${headerNavItemBase}
 `;
 
 const ButtonGroup = styled(Flex)`
-  gap: 8px;
-  position: relative;
-  padding-left: 12px;
-
-  &::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 3px;
-    height: 100%;
-    background: linear-gradient(180deg, transparent, #1890ff, transparent);
-  }
+  gap: 4px;
 `;
 
 const MissionBtn = () => {
@@ -116,91 +38,57 @@ const MissionBtn = () => {
   const [showUploadMission, setShowUploadMission] = useState(false);
   const [showCycleMission, setShowCycleMission] = useState(false);
   const [showEditCycleMission, setShowEditCycleMission] = useState(false);
-  const [$isMinimized, set$isMinimized] = useState(false);
   const [editCyc, setEditCyc] = useState<null | Cycle>(null);
-
-  useEffect(() => {
-    const savedState = localStorage.getItem("missionBtnMinimized");
-    if (savedState) {
-      set$isMinimized(JSON.parse(savedState));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("missionBtnMinimized", JSON.stringify($isMinimized));
-  }, [$isMinimized]);
 
   return (
     <>
-      <MissionBtnWrap $isMinimized={$isMinimized}>
-        {$isMinimized ? (
-          <Tooltip title={t("main.card_name.mission")} placement="bottom">
-            <ExpandButton
-              icon={<SwapOutlined />}
-              onClick={() => set$isMinimized(false)}
-            />
-          </Tooltip>
-        ) : (
-          <ButtonGroup align="center">
-            <IndustrialButton
-              className="upload-mission"
-              onClick={() => {
-                setShowUploadMission(!showUploadMission);
-              }}
-              icon={<UploadOutlined />}
-            >
-              {t("main.card_name.upload_mission")}
-            </IndustrialButton>
+      <ButtonGroup align="center">
+        <NavStyleButton
+          onClick={() => {
+            setShowUploadMission(!showUploadMission);
+          }}
+          icon={<UploadOutlined />}
+        >
+          {t("main.card_name.upload_mission")}
+        </NavStyleButton>
 
-            <IndustrialButton
-              className="cycle-mission"
-              onClick={() => {
-                setShowCycleMission(!showCycleMission);
-              }}
-              icon={<SyncOutlined />}
-            >
-              {t("main.card_name.cycle_mission")}
-            </IndustrialButton>
+        <NavStyleButton
+          onClick={() => {
+            setShowCycleMission(!showCycleMission);
+          }}
+          icon={<SyncOutlined />}
+        >
+          {t("main.card_name.cycle_mission")}
+        </NavStyleButton>
 
-            <IndustrialButton
-              className="quick-mission"
-              onClick={() => {
-                setShowQuickMission(!showQuickMission);
-              }}
-              icon={<ThunderboltOutlined />}
-            >
-              {t("main.card_name.quick_mission")}
-            </IndustrialButton>
+        <NavStyleButton
+          onClick={() => {
+            setShowQuickMission(!showQuickMission);
+          }}
+          icon={<ThunderboltOutlined />}
+        >
+          {t("main.card_name.quick_mission")}
+        </NavStyleButton>
 
-            <IndustrialButton
-              className="new-mission"
-              onClick={() => {
-                openAssignMission(true);
-              }}
-              icon={<CalendarOutlined />}
-            >
-              {t("main.card_name.new_mission")}
-            </IndustrialButton>
+        <NavStyleButton
+          onClick={() => {
+            openAssignMission(true);
+          }}
+          icon={<CalendarOutlined />}
+        >
+          {t("main.card_name.new_mission")}
+        </NavStyleButton>
 
-            <IndustrialButton
-              className="queue-mir-task"
-              onClick={() => {
-                openQueueMirTask(true);
-              }}
-              icon={<RocketOutlined />}
-            >
-              {t("main.card_name.queue_mir_task")}
-            </IndustrialButton>
+        <NavStyleButton
+          onClick={() => {
+            openQueueMirTask(true);
+          }}
+          icon={<RocketOutlined />}
+        >
+          {t("main.card_name.queue_mir_task")}
+        </NavStyleButton>
+      </ButtonGroup>
 
-            <Tooltip title="Minimize" placement="bottom">
-              <MinimizeButton
-                icon={<CloseOutlined />}
-                onClick={() => set$isMinimized(true)}
-              />
-            </Tooltip>
-          </ButtonGroup>
-        )}
-      </MissionBtnWrap>
       <DialogMission />
       <QuickMissionWebView
         showQuickMission={showQuickMission}

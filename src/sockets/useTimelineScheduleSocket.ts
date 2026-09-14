@@ -19,6 +19,7 @@ import {
   string,
 } from "yup";
 import { Mission_Schedule } from "@/types/timeline";
+import { deepEqual } from "@/utils/deepEqual";
 
 export const schema = array(
   object({
@@ -159,7 +160,7 @@ export const useTimelineScheduleSocket = () => {
     const scriptStatus = getC$
       .pipe(
         distinctUntilChanged(
-          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
+          (prev, curr) => deepEqual(prev, curr),
         ),
       )
       .subscribe((data) => {
