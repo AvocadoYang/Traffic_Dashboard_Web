@@ -1018,6 +1018,7 @@
       "wait_other_finish": "後執行",
       "in_use": "使用此動作",
       "stop_this_process": "停用次動作",
+      "extend_next_mission_hint": "勾選後，車輛做完這動會直接接續下一動，不用等交管再送一次指令",
       "import_mission": "引入任務",
       "special": "特別動作",
       "normal": "普通動作",

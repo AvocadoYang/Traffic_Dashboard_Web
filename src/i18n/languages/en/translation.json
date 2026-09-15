@@ -1017,6 +1017,7 @@
       "wait_other_finish": "Execute After Others",
       "in_use": "Use This Action",
       "stop_this_process": "Disable This Action",
+      "extend_next_mission_hint": "When checked, the vehicle continues straight into the next action after finishing this one, without waiting for another command from the traffic controller",
       "import_mission": "import mission",
       "special": "Special",
       "normal": "Normal",
