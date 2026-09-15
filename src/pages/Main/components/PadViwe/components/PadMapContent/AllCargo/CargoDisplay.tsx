@@ -160,7 +160,7 @@ interface CargoDisplayProps {
   handleMouseDown: (
     e: React.MouseEvent<HTMLElement>,
     locId: string,
-    level: number
+    level: number,
   ) => void;
 }
 
@@ -177,7 +177,7 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
 }) => {
   const [selectMode, setQuickSettingMode] = useAtom(QuickMissionSettingMode);
   const [isStartSelecting, setStartQuickSetting] = useAtom(
-    StartQuickMissionSetting
+    StartQuickMissionSetting,
   );
   const setLoad = useSetAtom(QuickMissionLoad);
   const setOffload = useSetAtom(QuickMissionOffload);

@@ -52,6 +52,8 @@ const WrapperForCargo = styled.div.attrs<{
   position: absolute;
   width: 5px;
   height: 5px;
+  /* 高於 MirAreaTypeMarker(z-index:20)，避免儲位標籤被 MiR 圖示擋住 */
+  z-index: 21;
 `;
 
 const AllCargo: React.FC = () => {

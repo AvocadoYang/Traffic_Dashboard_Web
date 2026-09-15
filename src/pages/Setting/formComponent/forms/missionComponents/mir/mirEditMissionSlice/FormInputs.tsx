@@ -22,8 +22,33 @@ export const MirLocationInput: React.FC<MirLocationInputProps> = ({
   const { locationsOption, markerTypeLocationIds } = useMirTaskOptions();
   const form = Form.useFormInstance();
 
+  const handleLocationChange = (value?: string) => {
+    // 換成不是 type_1 貨架 / Shelf position 的位置：Marker type 不再適用，要清空
+    if (!markerTypeLocationIds.has(value ?? "")) {
+      form.setFieldValue("marker_type", null);
+    }
+  };
+
   return (
-    <ParameterCard fieldName="location_id" label="Marker position">
+    <ParameterCard
+      fieldName="location_id"
+      label="Marker position"
+      variableChildren={
+        <Form.Item
+          name="location_id"
+          label={<FieldLabel>Default marker position</FieldLabel>}
+          rules={[{ required: true, message: "請選擇預設的 Marker position" }]}
+          style={{ marginTop: 12, marginBottom: 0 }}
+        >
+          <Select
+            options={locationsOption}
+            style={{ width: "100%" }}
+            allowClear
+            onChange={handleLocationChange}
+          />
+        </Form.Item>
+      }
+    >
       <Form.Item
         name="location_id"
         dependencies={["is_current_position"]}
@@ -57,11 +82,7 @@ export const MirLocationInput: React.FC<MirLocationInputProps> = ({
           style={{ width: "100%" }}
           disabled={disabled}
           allowClear
-          onChange={(value?: string) => {
-            if (!markerTypeLocationIds.has(value ?? "")) {
-              form.setFieldValue("marker_type", null);
-            }
-          }}
+          onChange={handleLocationChange}
         />
       </Form.Item>
 
