@@ -47,10 +47,11 @@ const Block = styled(Button)`
   border: 1px solid #ff0000;
   background-color: unset;
   border-radius: 3px;
-  min-width: 15px;
-  max-height: 15px;
-  max-width: 100%;
-  padding: 0 2px;
+  min-height: 15px;
+  max-width: 15px;
+  max-height: 100%;
+  height: auto;
+  padding: 2px 0;
   transition: all 0.2s ease;
   position: relative;
   flex-grow: 1;
@@ -62,6 +63,8 @@ const Block = styled(Button)`
 const BlockSpan = styled.span`
   font-size: 12px;
   font-weight: 500;
+  writing-mode: vertical-rl;
+  text-orientation: sideways;
   white-space: nowrap;
   user-select: none;
   text-align: center;
