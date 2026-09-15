@@ -19,7 +19,7 @@ interface MirLocationInputProps {
 export const MirLocationInput: React.FC<MirLocationInputProps> = ({
   disabled = false,
 }) => {
-  const { locationsOption } = useMirTaskOptions();
+  const { locationsOption, markerTypeLocationIds } = useMirTaskOptions();
   const form = Form.useFormInstance();
 
   return (
@@ -57,6 +57,11 @@ export const MirLocationInput: React.FC<MirLocationInputProps> = ({
           style={{ width: "100%" }}
           disabled={disabled}
           allowClear
+          onChange={(value?: string) => {
+            if (!markerTypeLocationIds.has(value ?? "")) {
+              form.setFieldValue("marker_type", null);
+            }
+          }}
         />
       </Form.Item>
 
@@ -94,25 +99,27 @@ export const MirLocationInput: React.FC<MirLocationInputProps> = ({
 };
 
 export const MirMarkerTypeInput = () => {
-  const { markerTypeOption } = useMirTaskOptions();
+  const { markerTypeOption, markerTypeLocationIds } = useMirTaskOptions();
 
   return (
     <ParameterCard fieldName="marker_type" label="Marker type">
       <Form.Item
         name="marker_type"
-        dependencies={["is_current_position"]}
+        dependencies={["is_current_position", "location_id"]}
         rules={[
           ({ getFieldValue }) => ({
             validator(_, value) {
-              const isCurrentPosition = getFieldValue("is_current_position");
-              if (isCurrentPosition && !value) {
-                return Promise.reject(
-                  new Error("Current position 開啟時，請選擇 Marker type"),
-                );
+              const needMarkerType =
+                getFieldValue("is_current_position") ||
+                markerTypeLocationIds.has(getFieldValue("location_id") ?? "");
+              if (needMarkerType && !value) {
+                return Promise.reject(new Error("請選擇 Marker type"));
               }
-              if (!isCurrentPosition && value) {
+              if (!needMarkerType && value) {
                 return Promise.reject(
-                  new Error("Current position 關閉時，Marker type 必須留空"),
+                  new Error(
+                    "只有 Current position、type_1 貨架或 Shelf position 可以設定 Marker type",
+                  ),
                 );
               }
               return Promise.resolve();
@@ -133,7 +140,10 @@ export const MirMarkerTypeInput = () => {
 
 export const MirBlockedPathTimeoutInputInput = () => {
   return (
-    <ParameterCard fieldName="blocked_path_timeout" label="Blocked path timeout">
+    <ParameterCard
+      fieldName="blocked_path_timeout"
+      label="Blocked path timeout"
+    >
       <Form.Item
         name="blocked_path_timeout"
         initialValue={60}

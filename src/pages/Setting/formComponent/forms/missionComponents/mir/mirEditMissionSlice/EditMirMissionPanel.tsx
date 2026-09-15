@@ -82,6 +82,7 @@ import {
   useMirVariableFields,
 } from "./MirVariableContext";
 import { buildMirOperationFields } from "./mirActionFields";
+import { useMirDockingMarkerType } from "./useMirTaskOptions";
 
 const REDUCE_PROTECTIVE_FIELDS_TYPE = "reduce_protective_fields";
 
@@ -203,17 +204,20 @@ const summarizeAction = (op: Mir_Action): { verb: string; chip?: string } => {
   }
 };
 
-const renderActionFields = (actionType: string, isCurrentPosition: boolean) => {
+const renderActionFields = (
+  actionType: string,
+  {
+    isCurrentPosition,
+    showMarkerType,
+  }: { isCurrentPosition: boolean; showMarkerType: boolean },
+) => {
   switch (actionType) {
     case "docking":
       return (
         <>
           <MirLocationInput disabled={isCurrentPosition} />
-          {isCurrentPosition ? (
-            <MirMarkerTypeInput />
-          ) : (
-            <MirBlockedPathTimeoutInputInput />
-          )}
+          {showMarkerType && <MirMarkerTypeInput />}
+          {!isCurrentPosition && <MirBlockedPathTimeoutInputInput />}
           <MirBlockedDockingTimeoutInputInput />
           <MirMaximumLinearSpeedInputInput />
         </>
@@ -510,7 +514,7 @@ const ParameterDrawer: FC<{
   const [form] = Form.useForm();
   const { fields: variableFields, setAllFields: setAllVariableFields } =
     useMirVariableFields();
-  const isCurrentPosition = Form.useWatch("is_current_position", form);
+  const dockingMarkerType = useMirDockingMarkerType(form);
 
   useEffect(() => {
     if (!slice) return;
@@ -530,6 +534,7 @@ const ParameterDrawer: FC<{
       entry_position: op.entry_position,
       footprint: op.footprint,
       marker_type: op.marker_type || null,
+      is_current_position: !op.location_id && !!op.marker_type,
       blocked_path_timeout: op.blocked_path_timeout ?? 60,
       blocked_docking_timeout: op.blocked_docking_timeout ?? 60,
       maximum_linear_speed: op.maximum_linear_speed ?? 0.25,
@@ -567,6 +572,13 @@ const ParameterDrawer: FC<{
   const handleUpdate = () => {
     if (!slice) return;
     const raw = form.getFieldsValue();
+    // Marker type 欄位隱藏時 getFieldsValue 拿不到它，會沿用舊值，這裡要清掉
+    if (
+      slice.operation.type === "docking" &&
+      !dockingMarkerType.showMarkerType
+    ) {
+      raw.marker_type = null;
+    }
     const nextOperation: Mir_Action = {
       ...slice.operation,
       ...buildMirOperationFields(slice.operation.type, raw, slice.operation),
@@ -590,7 +602,7 @@ const ParameterDrawer: FC<{
       {slice ? (
         <>
           <Form form={form} layout="vertical">
-            {renderActionFields(slice.operation.type, !!isCurrentPosition)}
+            {renderActionFields(slice.operation.type, dockingMarkerType)}
           </Form>
           <div
             style={{

@@ -53,6 +53,7 @@ import {
   useMirVariableFields,
 } from "./MirVariableContext";
 import { buildMirOperationFields } from "./mirActionFields";
+import { useMirDockingMarkerType } from "./useMirTaskOptions";
 
 // save-edit-mir-task 實際送出去的形狀:是一個 Mir_Action 加上 missionTitleId,
 // 但不含 scope_reference —— 那是後端自己維護的「內容群組」id,前端不該回寫,
@@ -331,7 +332,7 @@ const TaskFormMirContent: FC<{
   const [taskAction, setTaskAction] = useState<Mir_All_Action>();
   const currentMapId = useAtomValue(currentMapIdAtom);
   const { data: taskDataSource } = useTaskMirOne(editTaskKey);
-  const isCurrentPosition = Form.useWatch("is_current_position", form);
+  const { isCurrentPosition, showMarkerType } = useMirDockingMarkerType(form);
   const { fields: variableFields, setAllFields: setAllVariableFields } =
     useMirVariableFields();
 
@@ -375,6 +376,7 @@ const TaskFormMirContent: FC<{
         entry_position: op.entry_position,
         footprint: op.footprint,
         marker_type: op?.marker_type || null,
+        is_current_position: !op.location_id && !!op.marker_type,
 
         blocked_path_timeout: op.blocked_path_timeout ?? 60,
         blocked_docking_timeout: op.blocked_docking_timeout ?? 60,
@@ -456,6 +458,10 @@ const TaskFormMirContent: FC<{
   const onFinish = () => {
     const rawPayload = form.getFieldsValue();
     const actionType = rawPayload.action_type ?? "";
+    // Marker type 欄位隱藏時 getFieldsValue 拿不到它，會沿用舊值，這裡明確清掉
+    if (actionType === "docking" && !showMarkerType) {
+      rawPayload.marker_type = null;
+    }
     const newPayload = {
       missionTitleId: selectedMissionKey,
       currentMapId: currentMapId || "",
@@ -534,13 +540,8 @@ const TaskFormMirContent: FC<{
             {/* 🎯 將 isCurrentPosition 作為 disabled 傳給 MirLocationInput */}
             <MirLocationInput disabled={isCurrentPosition} />
 
-            {/* 依開關狀態切換顯示的輸入框 */}
-            {isCurrentPosition ? (
-              <MirMarkerTypeInput />
-            ) : (
-              <MirBlockedPathTimeoutInputInput />
-            )}
-
+            {showMarkerType && <MirMarkerTypeInput />}
+            {!isCurrentPosition && <MirBlockedPathTimeoutInputInput />}
             <MirBlockedDockingTimeoutInputInput />
             <MirMaximumLinearSpeedInputInput />
           </>
