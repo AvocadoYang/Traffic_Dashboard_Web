@@ -32,6 +32,7 @@ import {
   useZoneFrame,
   useLocationHoverTooltip,
   useRoadHoverTooltip,
+  useWheelZoom,
 } from "../hooks";
 import { getLocationInfoById } from "@/pages/Setting/utils/utils";
 import useVerityVersion from "@/api/useVerityVersion";
@@ -65,7 +66,7 @@ import EditPeripheralModal from "../formComponent/forms/peripheralModal/EditPeri
 import CargoEditor from "../formComponent/forms/peripheralModal/CargoEditor";
 import { SudoPeripheral } from "../formComponent/forms/other/editPeripheralIcon";
 import AllElevator from "./components/AllElevator/AllElevator";
-import { EBLM, ECSM, EEC, EEM, ESM } from "../utils/settingJotai";
+import { EBLM, ECSM, EEC, EEM, ESM, LDM } from "../utils/settingJotai";
 import EditElevatorModal from "./components/AllElevator/EditElevatorModal";
 import CargoEditorElevator from "./components/AllElevator/Form/CargoEditorElevator";
 import EditChargeStationConfigModal from "./components/AllChargeStation/EditChargeStationConfigModal";
@@ -76,7 +77,9 @@ import YfyPackage from "./components/YFYPackage/YfyPackage";
 import EditStackModal from "./components/AllStack/EditStackModal";
 import CargoEditorStack from "./components/AllStack/CargoEditorStack";
 import BlindLocationMissionModal from "../components/BlindLocationMissionModal";
+import LocationDetectModal from "../components/LocationDetectModal";
 import useCenterMap from "@/hooks/useCenterMap";
+import useDragPan from "@/pages/Main/components/WebView/hooks/useDragPan";
 
 const MapView: React.FC<{
   scale: number;
@@ -138,6 +141,7 @@ const MapView: React.FC<{
   const openEditChargeStationModal = useAtomValue(ECSM);
   const openStackContainereditor = useAtomValue(ESM);
   const openBlindMission = useAtomValue(EBLM);
+  const openLocationDetect = useAtomValue(LDM);
 
   if (currentVersion) {
     const defaultCookie = Cookies.get("version");
@@ -195,7 +199,21 @@ const MapView: React.FC<{
   //控制「路徑提示」開啟時，游標移動附近路徑浮出 tooltip
   useRoadHoverTooltip(mapRef, mapImageRef, scale);
 
+  //控制滑鼠滾輪縮放
+  useWheelZoom(mapWrapRef, scale);
+
+  // 控制地圖置中
   useCenterMap(mapWrapRef, mapImageRef);
+
+  // 打點/圈選模式下左鍵要留給地圖操作，只保留中鍵拖曳
+  const isEditingOnMap =
+    openEditLocationPanel ||
+    openQuickEditLocationPanelSwitch ||
+    openEditZone ||
+    openMirStyleLocationPlacer;
+
+  // 控制地圖拖曳
+  useDragPan(mapWrapRef, mapRef, mapImageRef, !isEditingOnMap);
 
   const handleMouseDown = useCallback(
     (startId: string) => {
@@ -330,6 +348,8 @@ const MapView: React.FC<{
       {openStackContainereditor.isOpen ? <CargoEditorStack /> : null}
 
       {openBlindMission.isOpen ? <BlindLocationMissionModal /> : null}
+
+      {openLocationDetect.isOpen ? <LocationDetectModal /> : null}
     </div>
   );
 };
