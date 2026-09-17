@@ -37,7 +37,6 @@ const schema = array(
     createdAt: date().required(),
     updatedAt: date().required(),
     register_robot_id: string().nullable(),
-    script_robot_id: string().nullable(),
     shelfConfigId: string().nullable(),
     custom_cargo_metadata_id: string().nullable(),
 
