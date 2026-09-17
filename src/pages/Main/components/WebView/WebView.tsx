@@ -263,6 +263,7 @@ const WebView = () => {
               </MapScrollArea>
               <MapOverlay>
                 <ZoomPad></ZoomPad>
+                <ScalePad></ScalePad>
                 {/* <MissionBtn></MissionBtn> */}
                 <DirectMove></DirectMove>
                 {/* <ECS_online />
