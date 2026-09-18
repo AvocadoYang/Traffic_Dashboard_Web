@@ -4,6 +4,7 @@ import {
   UploadOutlined,
   SyncOutlined,
   RocketOutlined,
+  VerticalAlignMiddleOutlined,
 } from "@ant-design/icons";
 import { Button, Flex, message } from "antd";
 import { useTranslation } from "react-i18next";
@@ -59,23 +60,23 @@ const MissionBtn = () => {
     <>
     {contextHolder}
       <ButtonGroup align="center">
-        <NavStyleButton
+        {/* <NavStyleButton
           onClick={() => {
             setShowUploadMission(!showUploadMission);
           }}
           icon={<UploadOutlined />}
         >
           {t("main.card_name.upload_mission")}
-        </NavStyleButton>
+        </NavStyleButton> */}
 
-        <NavStyleButton
+        {/* <NavStyleButton
           onClick={() => {
             setShowCycleMission(!showCycleMission);
           }}
           icon={<SyncOutlined />}
         >
           {t("main.card_name.cycle_mission")}
-        </NavStyleButton>
+        </NavStyleButton> */}
 
         <NavStyleButton
           onClick={() => {
@@ -88,6 +89,15 @@ const MissionBtn = () => {
 
         <NavStyleButton
           onClick={() => {
+            submitMutation.mutate();
+          }}
+          icon={<VerticalAlignMiddleOutlined />}
+        >
+          {t("main.card_name.elevate_mission")}
+        </NavStyleButton>
+
+        <NavStyleButton
+          onClick={() => {
             openAssignMission(true);
           }}
           icon={<CalendarOutlined />}
@@ -95,14 +105,14 @@ const MissionBtn = () => {
           {t("main.card_name.new_mission")}
         </NavStyleButton>
 
-        <NavStyleButton
+        {/* <NavStyleButton
           onClick={() => {
             openQueueMirTask(true);
           }}
           icon={<RocketOutlined />}
         >
           {t("main.card_name.queue_mir_task")}
-        </NavStyleButton>
+        </NavStyleButton> */}
       </ButtonGroup>
 
       <DialogMission />
