@@ -8,6 +8,8 @@ export type GroupFolder = {
   groupName: string;
   isUsing: boolean;
   maps: { mapId: string; fileName: string; floor: number; count: number }[];
+  /** 群組上要顯示的筆數。沒給就把各地圖的 count 加總,給了就以它為準 */
+  count?: number;
 };
 
 const Wrap = styled.div`
@@ -114,7 +116,7 @@ const GroupMapFilter: FC<Props> = ({
         </Chip>
         {groups.map((g) => {
           const active = g.groupId === selectedGroupId;
-          const total = g.maps.reduce((s, m) => s + m.count, 0);
+          const total = g.count ?? g.maps.reduce((s, m) => s + m.count, 0);
           return (
             <Chip
               key={g.groupId}

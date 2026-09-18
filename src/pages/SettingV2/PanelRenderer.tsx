@@ -27,13 +27,13 @@ import PeripheralStylePanel from "./panels/peripheral/PeripheralStylePanel";
 import TagPanel from "./panels/other/TagPanel";
 import CustomCargoInfoPanel from "./panels/other/CustomCargoInfoPanel";
 import ContainerTablePanel from "./panels/other/ContainerTablePanel";
+import MapManagerPanel from "./panels/map/MapManagerPanel";
+import MapGroupPanel from "./panels/map/MapGroupPanel";
 import type { ToolBarItemType } from "@/pages/Setting/components/siderElement";
 import EditMissionPanel from "@/pages/Setting/formComponent/forms/missionComponents/editMission/MissionPanel";
 import { EditWarningListPanel } from "@/pages/Setting/formComponent/forms/file/warningId";
 import { BackupPanel } from "@/pages/Setting/formComponent/forms/file/backup";
 import SystemAlarmPanel from "@/pages/Setting/formComponent/forms/missionComponents/editMission/SystemAlarmPanel";
-import MapManager from "@/pages/Setting/components/ChangeMap/MapManager";
-import { MapGroupPanel } from "@/pages/Setting/components/mapGroup";
 import FootprintPanel from "@/pages/Setting/formComponent/forms/missionComponents/mir/footprinter/FootprintPanel";
 import SoundPanel from "@/pages/Setting/formComponent/forms/missionComponents/mir/sound/SoundPanel";
 import MarkerTypePanel from "@/pages/Setting/formComponent/forms/missionComponents/mir/markerTypes/MarkerTypePanel";
@@ -150,21 +150,9 @@ const PanelRenderer: FC<Props> = ({
         />
       );
     case "switch_map":
-      return (
-        <MapManager
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <MapManagerPanel />;
     case "map_group_table":
-      return (
-        <MapGroupPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <MapGroupPanel />;
     case "footprint":
       return (
         <FootprintPanel
