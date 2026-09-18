@@ -24,13 +24,13 @@ import PeripheralNamePanel from "./panels/peripheral/PeripheralNamePanel";
 import PeripheralGroupPanel from "./panels/peripheral/PeripheralGroupPanel";
 import ChargeDockPanel from "./panels/peripheral/ChargeDockPanel";
 import PeripheralStylePanel from "./panels/peripheral/PeripheralStylePanel";
+import TagPanel from "./panels/other/TagPanel";
+import CustomCargoInfoPanel from "./panels/other/CustomCargoInfoPanel";
+import ContainerTablePanel from "./panels/other/ContainerTablePanel";
 import type { ToolBarItemType } from "@/pages/Setting/components/siderElement";
 import EditMissionPanel from "@/pages/Setting/formComponent/forms/missionComponents/editMission/MissionPanel";
-import { EditTagPanel } from "@/pages/Setting/formComponent/forms/other/editTag";
 import { EditWarningListPanel } from "@/pages/Setting/formComponent/forms/file/warningId";
 import { BackupPanel } from "@/pages/Setting/formComponent/forms/file/backup";
-import CustomCargoInfoPanel from "@/pages/Setting/formComponent/forms/other/customCargoInfo/CustomCargoInfoPanel";
-import AllContainerTable from "@/pages/Setting/formComponent/forms/AllContainerTable";
 import SystemAlarmPanel from "@/pages/Setting/formComponent/forms/missionComponents/editMission/SystemAlarmPanel";
 import MapManager from "@/pages/Setting/components/ChangeMap/MapManager";
 import { MapGroupPanel } from "@/pages/Setting/components/mapGroup";
@@ -118,23 +118,11 @@ const PanelRenderer: FC<Props> = ({
     case "peripheral_charge_dock_config":
       return <ChargeDockPanel />;
     case "edit_tag":
-      return (
-        <EditTagPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <TagPanel />;
     case "edit_icon_style":
       return <PeripheralStylePanel />;
     case "custom_cargo_info":
-      return (
-        <CustomCargoInfoPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <CustomCargoInfoPanel />;
     case "warning_id":
       return (
         <EditWarningListPanel
@@ -152,13 +140,7 @@ const PanelRenderer: FC<Props> = ({
         />
       );
     case "container_table":
-      return (
-        <AllContainerTable
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <ContainerTablePanel />;
     case "show_system_alarm":
       return (
         <SystemAlarmPanel
