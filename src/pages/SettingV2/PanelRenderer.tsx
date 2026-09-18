@@ -13,24 +13,24 @@ import ShelfCategoryPanel from "./panels/shelf/ShelfCategoryPanel";
 import YawPanel from "./panels/shelf/YawPanel";
 import RegisterAmrPanel from "./panels/amr/RegisterAmrPanel";
 import AmrConfigPanel from "./panels/amr/AmrConfigPanel";
+import ChargePanel from "./panels/mission/ChargePanel";
+import BeforeLeftChargeStationPanel from "./panels/mission/BeforeLeftChargeStationPanel";
+import SchedulePanel from "./panels/mission/SchedulePanel";
+import IdleMissionPanel from "./panels/mission/IdleMissionPanel";
+import TopicMissionPanel from "./panels/mission/TopicMissionPanel";
+import AbortCargoMissionPanel from "./panels/mission/AbortCargoMissionPanel";
+import BlindLocationPanel from "./panels/mission/BlindLocationPanel";
 import type { ToolBarItemType } from "@/pages/Setting/components/siderElement";
 import EditMissionPanel from "@/pages/Setting/formComponent/forms/missionComponents/editMission/MissionPanel";
-import { ChargePanel } from "@/pages/Setting/formComponent/forms/missionComponents/chargeMission";
-import { BeforeLeftChargeStationPanel } from "@/pages/Setting/formComponent/forms/missionComponents/beforLeftChargeStationMission";
-import { SchedulePanel } from "@/pages/Setting/formComponent/forms/missionComponents/scheduleMission";
-import { IdleMissionPanel } from "@/pages/Setting/formComponent/forms/missionComponents/idleMission";
-import { TopicMissionPanel } from "@/pages/Setting/formComponent/forms/missionComponents/topicMission";
 import { EditTagPanel } from "@/pages/Setting/formComponent/forms/other/editTag";
 import { EditWarningListPanel } from "@/pages/Setting/formComponent/forms/file/warningId";
 import { BackupPanel } from "@/pages/Setting/formComponent/forms/file/backup";
-import { AbortCargoMissionPanel } from "@/pages/Setting/formComponent/forms/missionComponents/abortCargoMission";
 import CustomCargoInfoPanel from "@/pages/Setting/formComponent/forms/other/customCargoInfo/CustomCargoInfoPanel";
 import EditPeripheralIcon from "@/pages/Setting/formComponent/forms/other/editPeripheralIcon/EditPeripheralIcon";
 import {
   PeripheralGroupPanel,
   PeripheralNamePanel,
 } from "@/pages/Setting/components/peripherals";
-import BlindLocationPanel from "@/pages/Setting/formComponent/forms/missionComponents/blindMission/BlindLocationPanel";
 import AllContainerTable from "@/pages/Setting/formComponent/forms/AllContainerTable";
 import SystemAlarmPanel from "@/pages/Setting/formComponent/forms/missionComponents/editMission/SystemAlarmPanel";
 import MapManager from "@/pages/Setting/components/ChangeMap/MapManager";
@@ -100,61 +100,19 @@ const PanelRenderer: FC<Props> = ({
         />
       );
     case "charge_mission":
-      return (
-        <ChargePanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <ChargePanel />;
     case "before_left_charge_station_task":
-      return (
-        <BeforeLeftChargeStationPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <BeforeLeftChargeStationPanel />;
     case "schedule_mission":
-      return (
-        <SchedulePanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <SchedulePanel />;
     case "idle_mission":
-      return (
-        <IdleMissionPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <IdleMissionPanel />;
     case "topic_mission":
-      return (
-        <TopicMissionPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <TopicMissionPanel />;
     case "abort_cargo_mission":
-      return (
-        <AbortCargoMissionPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <AbortCargoMissionPanel />;
     case "blind_mission":
-      return (
-        <BlindLocationPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <BlindLocationPanel />;
     case "peripheral_name_table":
       return (
         <PeripheralNamePanel
