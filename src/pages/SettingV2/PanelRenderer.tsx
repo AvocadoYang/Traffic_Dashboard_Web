@@ -20,22 +20,20 @@ import IdleMissionPanel from "./panels/mission/IdleMissionPanel";
 import TopicMissionPanel from "./panels/mission/TopicMissionPanel";
 import AbortCargoMissionPanel from "./panels/mission/AbortCargoMissionPanel";
 import BlindLocationPanel from "./panels/mission/BlindLocationPanel";
+import PeripheralNamePanel from "./panels/peripheral/PeripheralNamePanel";
+import PeripheralGroupPanel from "./panels/peripheral/PeripheralGroupPanel";
+import ChargeDockPanel from "./panels/peripheral/ChargeDockPanel";
+import PeripheralStylePanel from "./panels/peripheral/PeripheralStylePanel";
 import type { ToolBarItemType } from "@/pages/Setting/components/siderElement";
 import EditMissionPanel from "@/pages/Setting/formComponent/forms/missionComponents/editMission/MissionPanel";
 import { EditTagPanel } from "@/pages/Setting/formComponent/forms/other/editTag";
 import { EditWarningListPanel } from "@/pages/Setting/formComponent/forms/file/warningId";
 import { BackupPanel } from "@/pages/Setting/formComponent/forms/file/backup";
 import CustomCargoInfoPanel from "@/pages/Setting/formComponent/forms/other/customCargoInfo/CustomCargoInfoPanel";
-import EditPeripheralIcon from "@/pages/Setting/formComponent/forms/other/editPeripheralIcon/EditPeripheralIcon";
-import {
-  PeripheralGroupPanel,
-  PeripheralNamePanel,
-} from "@/pages/Setting/components/peripherals";
 import AllContainerTable from "@/pages/Setting/formComponent/forms/AllContainerTable";
 import SystemAlarmPanel from "@/pages/Setting/formComponent/forms/missionComponents/editMission/SystemAlarmPanel";
 import MapManager from "@/pages/Setting/components/ChangeMap/MapManager";
 import { MapGroupPanel } from "@/pages/Setting/components/mapGroup";
-import PeripheralChargeDockPanel from "@/pages/Setting/components/peripherals/PeripheralChargeDockPanel";
 import FootprintPanel from "@/pages/Setting/formComponent/forms/missionComponents/mir/footprinter/FootprintPanel";
 import SoundPanel from "@/pages/Setting/formComponent/forms/missionComponents/mir/sound/SoundPanel";
 import MarkerTypePanel from "@/pages/Setting/formComponent/forms/missionComponents/mir/markerTypes/MarkerTypePanel";
@@ -114,29 +112,11 @@ const PanelRenderer: FC<Props> = ({
     case "blind_mission":
       return <BlindLocationPanel />;
     case "peripheral_name_table":
-      return (
-        <PeripheralNamePanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <PeripheralNamePanel />;
     case "peripheral_group_table":
-      return (
-        <PeripheralGroupPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <PeripheralGroupPanel />;
     case "peripheral_charge_dock_config":
-      return (
-        <PeripheralChargeDockPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <ChargeDockPanel />;
     case "edit_tag":
       return (
         <EditTagPanel
@@ -146,13 +126,7 @@ const PanelRenderer: FC<Props> = ({
         />
       );
     case "edit_icon_style":
-      return (
-        <EditPeripheralIcon
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <PeripheralStylePanel />;
     case "custom_cargo_info":
       return (
         <CustomCargoInfoPanel
