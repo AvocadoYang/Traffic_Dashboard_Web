@@ -2,12 +2,13 @@ import { FC, memo } from "react";
 import { FormInstance } from "antd";
 import type { DraggableAttributes } from "@dnd-kit/core";
 import LocationEditPanel from "./panels/location/LocationEditPanel";
+import RoadEditPanel from "./panels/road/RoadEditPanel";
+import RoadQuickPanel from "./panels/road/RoadQuickPanel";
+import RoadListPanel from "./panels/road/RoadListPanel";
+import ZoneEditPanel from "./panels/zone/ZoneEditPanel";
+import ZoneListPanel from "./panels/zone/ZoneListPanel";
 import LocationListPanel from "./panels/location/LocationListPanel";
 import {
-  EditRoadPanel,
-  EditZonePanel,
-  RoadList,
-  ZoneTable,
 } from "@/pages/Setting/formComponent/forms";
 import type { ToolBarItemType } from "@/pages/Setting/components/siderElement";
 import { ShelfPanel } from "@/pages/Setting/formComponent/forms/shelfComponents/editShelf";
@@ -24,7 +25,6 @@ import { EditWarningListPanel } from "@/pages/Setting/formComponent/forms/file/w
 import { BackupPanel } from "@/pages/Setting/formComponent/forms/file/backup";
 import { RegisterAmrPanel } from "@/pages/Setting/formComponent/forms/amrSetting/registerAmr";
 import AmrConfigPanel from "@/pages/Setting/formComponent/forms/amrSetting/amrConfig/AmrConfigPanel";
-import QuickEditRoadPanel from "@/pages/Setting/formComponent/QuickEditRoadPanel";
 import { AbortCargoMissionPanel } from "@/pages/Setting/formComponent/forms/missionComponents/abortCargoMission";
 import CustomCargoInfoPanel from "@/pages/Setting/formComponent/forms/other/customCargoInfo/CustomCargoInfoPanel";
 import EditPeripheralIcon from "@/pages/Setting/formComponent/forms/other/editPeripheralIcon/EditPeripheralIcon";
@@ -72,48 +72,17 @@ const PanelRenderer: FC<Props> = ({
       return <LocationEditPanel locationPanelForm={locationPanelForm} />;
     case "location_list":
       return <LocationListPanel />;
+    // ✅ 已改用 v2 重新設計的版本(灰黑白 + RWD)
     case "road_panel":
-      return (
-        <EditRoadPanel
-          sortableId={activeKey}
-          roadPanelForm={roadPanelForm}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <RoadEditPanel roadPanelForm={roadPanelForm} />;
     case "show_roads_table":
-      return (
-        <RoadList
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <RoadListPanel />;
     case "quick_road_panel":
-      return (
-        <QuickEditRoadPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <RoadQuickPanel />;
     case "edit_zone":
-      return (
-        <EditZonePanel
-          sortableId={activeKey}
-          zonePanelForm={zonePanelForm}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <ZoneEditPanel zonePanelForm={zonePanelForm} />;
     case "show_zone_table":
-      return (
-        <ZoneTable
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <ZoneListPanel />;
     case "edit_shelve":
       return (
         <ShelfPanel
