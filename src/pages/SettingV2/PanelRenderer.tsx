@@ -11,6 +11,8 @@ import LocationListPanel from "./panels/location/LocationListPanel";
 import ShelfEditPanel from "./panels/shelf/ShelfEditPanel";
 import ShelfCategoryPanel from "./panels/shelf/ShelfCategoryPanel";
 import YawPanel from "./panels/shelf/YawPanel";
+import RegisterAmrPanel from "./panels/amr/RegisterAmrPanel";
+import AmrConfigPanel from "./panels/amr/AmrConfigPanel";
 import type { ToolBarItemType } from "@/pages/Setting/components/siderElement";
 import EditMissionPanel from "@/pages/Setting/formComponent/forms/missionComponents/editMission/MissionPanel";
 import { ChargePanel } from "@/pages/Setting/formComponent/forms/missionComponents/chargeMission";
@@ -21,8 +23,6 @@ import { TopicMissionPanel } from "@/pages/Setting/formComponent/forms/missionCo
 import { EditTagPanel } from "@/pages/Setting/formComponent/forms/other/editTag";
 import { EditWarningListPanel } from "@/pages/Setting/formComponent/forms/file/warningId";
 import { BackupPanel } from "@/pages/Setting/formComponent/forms/file/backup";
-import { RegisterAmrPanel } from "@/pages/Setting/formComponent/forms/amrSetting/registerAmr";
-import AmrConfigPanel from "@/pages/Setting/formComponent/forms/amrSetting/amrConfig/AmrConfigPanel";
 import { AbortCargoMissionPanel } from "@/pages/Setting/formComponent/forms/missionComponents/abortCargoMission";
 import CustomCargoInfoPanel from "@/pages/Setting/formComponent/forms/other/customCargoInfo/CustomCargoInfoPanel";
 import EditPeripheralIcon from "@/pages/Setting/formComponent/forms/other/editPeripheralIcon/EditPeripheralIcon";
@@ -88,21 +88,9 @@ const PanelRenderer: FC<Props> = ({
     case "edit_yaw":
       return <YawPanel />;
     case "edit_register_amr":
-      return (
-        <RegisterAmrPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <RegisterAmrPanel />;
     case "edit_amr_config":
-      return (
-        <AmrConfigPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <AmrConfigPanel />;
     case "edit_mission":
       return (
         <EditMissionPanel
