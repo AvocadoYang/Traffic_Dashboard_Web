@@ -397,6 +397,10 @@ export const MirModuleInput = () => {
               value: "mirconst-guid-0000-0001-internalIO00",
               label: "MiR Internal IOs",
             },
+            {
+              value: "ead43e49-acc6-11f1-b60c-000e8ebbc419",
+              label: "WISE-4060/LAN",
+            },
           ]}
         />
       </Form.Item>
