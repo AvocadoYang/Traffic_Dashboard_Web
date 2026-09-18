@@ -41,6 +41,27 @@
     "text_widget_placeholder": "Text",
     "add_quick_mission_card": "Add Quick Mission (Pick on Map)",
     "quick_mission_widget": "Quick Mission",
+    "add_stats_chart_card": "Add Stats Chart",
+    "stats_chart_widget": "Stats Chart",
+    "stats_metric": "Metric",
+    "stats_date_range": "Date Range",
+    "stats_range_mode": "Range Mode",
+    "stats_range_relative": "Last N Days",
+    "stats_range_absolute": "Custom Dates",
+    "stats_metric_not_set": "Metric not set yet",
+    "stats_no_data": "No data in this range",
+    "metric_status_distribution": "Mission Status Distribution",
+    "metric_throughput": "Mission Throughput",
+    "metric_amr_mission_ranking": "AMR Mission Ranking",
+    "metric_amr_distance_ranking": "AMR Distance Ranking",
+    "metric_duration_breakdown": "Mission Duration Breakdown",
+    "metric_cancel_reason": "Cancel Reason Breakdown",
+    "metric_category_breakdown": "Mission Category Breakdown",
+    "metric_charging_trend": "Charging Mission Trend",
+    "metric_send_by_breakdown": "Dispatch Source Breakdown",
+    "metric_battery_cost_ranking": "Battery Cost Ranking",
+    "metric_route_cycle_breakdown": "Route Cycle Time Breakdown",
+    "metric_fleet_utilization": "Fleet Utilization",
     "quick_mission_pick_load_hint": "Click a pickup location on the map",
     "quick_mission_pick_offload_hint": "Click a dropoff location on the map",
     "pick_on_map": "Pick on Map",
@@ -996,6 +1017,7 @@
       "wait_other_finish": "Execute After Others",
       "in_use": "Use This Action",
       "stop_this_process": "Disable This Action",
+      "extend_next_mission_hint": "When checked, the vehicle continues straight into the next action after finishing this one, without waiting for another command from the traffic controller",
       "import_mission": "import mission",
       "special": "Special",
       "normal": "Normal",
@@ -1992,5 +2014,19 @@
   "container_table": {
     "title": "Current Cargo Information at Locations",
     "container_info": "container info"
+  },
+  "system_alarm": {
+    "title": "System Alarm",
+    "type_filter": "Alarm type display",
+    "type_filter_hint": "Turn a type off to stop showing it on the dashboard (this browser only)",
+    "type": {
+      "error": "Error",
+      "warn": "Warning",
+      "success": "Success",
+      "info": "Info"
+    },
+    "alarm_code": "Alarm Code",
+    "description": "Description",
+    "enable": "Enable"
   }
 }

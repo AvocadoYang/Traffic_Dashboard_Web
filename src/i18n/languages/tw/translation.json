@@ -41,6 +41,27 @@
     "text_widget_placeholder": "文字",
     "add_quick_mission_card": "新增快速派發(點地圖選點)",
     "quick_mission_widget": "快速派發",
+    "add_stats_chart_card": "新增統計圖",
+    "stats_chart_widget": "統計圖",
+    "stats_metric": "統計項目",
+    "stats_date_range": "統計區間",
+    "stats_range_mode": "區間模式",
+    "stats_range_relative": "近 N 天",
+    "stats_range_absolute": "自訂日期",
+    "stats_metric_not_set": "尚未設定統計項目",
+    "stats_no_data": "此區間沒有資料",
+    "metric_status_distribution": "任務狀態分布",
+    "metric_throughput": "任務量趨勢",
+    "metric_amr_mission_ranking": "車輛任務量排行",
+    "metric_amr_distance_ranking": "車輛里程排行",
+    "metric_duration_breakdown": "任務耗時分解",
+    "metric_cancel_reason": "取消原因分布",
+    "metric_category_breakdown": "任務類型分布",
+    "metric_charging_trend": "充電任務趨勢",
+    "metric_send_by_breakdown": "派發來源分布",
+    "metric_battery_cost_ranking": "電量消耗排行",
+    "metric_route_cycle_breakdown": "路線耗時分析",
+    "metric_fleet_utilization": "車隊稼動率",
     "quick_mission_pick_load_hint": "請在地圖上點選取貨儲位",
     "quick_mission_pick_offload_hint": "請在地圖上點選放貨儲位",
     "pick_on_map": "點地圖選取",
@@ -997,6 +1018,7 @@
       "wait_other_finish": "後執行",
       "in_use": "使用此動作",
       "stop_this_process": "停用次動作",
+      "extend_next_mission_hint": "勾選後，車輛做完這動會直接接續下一動，不用等交管再送一次指令",
       "import_mission": "引入任務",
       "special": "特別動作",
       "normal": "普通動作",
@@ -1993,5 +2015,19 @@
   "container_table": {
     "title": "現存於點位上的貨物資訊",
     "container_info": "貨物資訊"
+  },
+  "system_alarm": {
+    "title": "系統告警",
+    "type_filter": "告警類型顯示",
+    "type_filter_hint": "關掉的類型就不會在畫面上跳出來(只影響這台瀏覽器)",
+    "type": {
+      "error": "錯誤",
+      "warn": "警告",
+      "success": "成功",
+      "info": "資訊"
+    },
+    "alarm_code": "告警代碼",
+    "description": "說明",
+    "enable": "啟用"
   }
 }

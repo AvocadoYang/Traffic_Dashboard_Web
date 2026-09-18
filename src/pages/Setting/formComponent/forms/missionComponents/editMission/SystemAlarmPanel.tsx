@@ -1,9 +1,15 @@
 import { FC, useEffect, useState } from "react";
-import { Table, Switch, Typography, Form } from "antd";
+import { Table, Switch } from "antd";
 import { io } from "@/sockets/socketConnect";
 import styled from "styled-components";
 import FormHr from "@/pages/Setting/utils/FormHr";
 import { useTranslation } from "react-i18next";
+import { useAtom } from "jotai";
+import {
+  ALARM_ACCENT,
+  ALARM_TYPES,
+  systemAlarmTypeFilter,
+} from "@/utils/systemAlarmFilter";
 
 const IndustrialContainer = styled.div`
   font-family: "Roboto Mono", monospace;
@@ -37,6 +43,42 @@ const PanelHeader = styled.h3`
   }
 `;
 
+const SectionLabel = styled.div`
+  color: #262626;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+`;
+
+const SectionHint = styled.div`
+  color: #8c8c8c;
+  font-size: 11px;
+  margin-top: 4px;
+`;
+
+const TypeSwitchGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+  margin: 12px 0 20px;
+`;
+
+const TypeSwitchItem = styled.label<{ $accent: string }>`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid #d9d9d9;
+  border-left: 3px solid ${(props) => props.$accent};
+  border-radius: 4px;
+  background: #fafafa;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+`;
+
 interface SystemAlarmConfig {
   [code: string]: {
     enable: boolean;
@@ -53,6 +95,7 @@ const SystemAlarmPanel: FC<{
 }> = ({ attributes, listeners }) => {
   const { t } = useTranslation();
   const [config, setConfig] = useState<SystemAlarmConfig>({});
+  const [typeFilter, setTypeFilter] = useAtom(systemAlarmTypeFilter);
 
   useEffect(() => {
     const handleConfig = (data: SystemAlarmConfig) => {
@@ -92,10 +135,24 @@ const SystemAlarmPanel: FC<{
     <>
       <IndustrialContainer>
         <PanelHeader {...listeners} {...attributes}>
-          {t("mission.add_mission.title")}
+          {t("system_alarm.title")}
         </PanelHeader>
         <FormHr />
-        <Typography.Title level={4}>System Alarm</Typography.Title>
+
+        <SectionLabel>{t("system_alarm.type_filter")}</SectionLabel>
+        <SectionHint>{t("system_alarm.type_filter_hint")}</SectionHint>
+        <TypeSwitchGrid>
+          {ALARM_TYPES.map((type) => (
+            <TypeSwitchItem key={type} $accent={ALARM_ACCENT[type]}>
+              <Switch
+                size="small"
+                checked={typeFilter[type]}
+                onChange={(checked) => setTypeFilter(type, checked)}
+              />
+              {t(`system_alarm.type.${type}`)}
+            </TypeSwitchItem>
+          ))}
+        </TypeSwitchGrid>
 
         <Table
           rowKey="code"
@@ -103,15 +160,15 @@ const SystemAlarmPanel: FC<{
           dataSource={dataSource}
           columns={[
             {
-              title: "Alarm Code",
+              title: t("system_alarm.alarm_code"),
               dataIndex: "code",
             },
             {
-              title: "description",
+              title: t("system_alarm.description"),
               dataIndex: "description",
             },
             {
-              title: "Enable",
+              title: t("system_alarm.enable"),
               render: (_, record) => (
                 <Switch
                   checked={record.enable}
