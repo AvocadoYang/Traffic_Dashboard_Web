@@ -31,7 +31,7 @@ const UploadWarningModal = () => {
     name: "file",
     multiple: false,
     // eslint-disable-next-line no-restricted-globals
-    action: `https://${location.host.split(":")[0]}:4000/api/test/update/warning`,
+    action: `http://${location.host.split(":")[0]}:4000/api/test/update/warning`,
     headers: {
       authorization: localStorage.getItem("_KMT") as string,
     },
