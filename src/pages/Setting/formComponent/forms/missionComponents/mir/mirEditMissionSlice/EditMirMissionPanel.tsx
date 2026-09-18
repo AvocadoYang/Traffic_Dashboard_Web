@@ -36,6 +36,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
+import { nanoid } from "nanoid";
 import styled from "styled-components";
 import client from "@/api/axiosClient";
 import { useAtomValue } from "jotai";
@@ -698,7 +699,7 @@ const EditMirMissionPanelContent: FC<{
     setSlices((prev) => [
       ...prev,
       {
-        clientId: crypto.randomUUID(),
+        clientId: nanoid(),
         dbId: null,
         disable: false,
         operation: buildDefaultOperation(actionType),
@@ -720,7 +721,7 @@ const EditMirMissionPanelContent: FC<{
       if (!target) return prev;
       const clone: EditorSlice = {
         ...target,
-        clientId: crypto.randomUUID(),
+        clientId: nanoid(),
         dbId: null,
       };
       const index = prev.findIndex((s) => s.clientId === clientId);
