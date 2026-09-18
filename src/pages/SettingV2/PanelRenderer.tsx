@@ -8,12 +8,10 @@ import RoadListPanel from "./panels/road/RoadListPanel";
 import ZoneEditPanel from "./panels/zone/ZoneEditPanel";
 import ZoneListPanel from "./panels/zone/ZoneListPanel";
 import LocationListPanel from "./panels/location/LocationListPanel";
-import {
-} from "@/pages/Setting/formComponent/forms";
+import ShelfEditPanel from "./panels/shelf/ShelfEditPanel";
+import ShelfCategoryPanel from "./panels/shelf/ShelfCategoryPanel";
+import YawPanel from "./panels/shelf/YawPanel";
 import type { ToolBarItemType } from "@/pages/Setting/components/siderElement";
-import { ShelfPanel } from "@/pages/Setting/formComponent/forms/shelfComponents/editShelf";
-import { ShelfCategoryPanel } from "@/pages/Setting/formComponent/forms/shelfComponents/category";
-import { YawPanel } from "@/pages/Setting/formComponent/forms/shelfComponents/yaw";
 import EditMissionPanel from "@/pages/Setting/formComponent/forms/missionComponents/editMission/MissionPanel";
 import { ChargePanel } from "@/pages/Setting/formComponent/forms/missionComponents/chargeMission";
 import { BeforeLeftChargeStationPanel } from "@/pages/Setting/formComponent/forms/missionComponents/beforLeftChargeStationMission";
@@ -84,29 +82,11 @@ const PanelRenderer: FC<Props> = ({
     case "show_zone_table":
       return <ZoneListPanel />;
     case "edit_shelve":
-      return (
-        <ShelfPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <ShelfEditPanel />;
     case "edit_shelve_type":
-      return (
-        <ShelfCategoryPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <ShelfCategoryPanel />;
     case "edit_yaw":
-      return (
-        <YawPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <YawPanel />;
     case "edit_register_amr":
       return (
         <RegisterAmrPanel

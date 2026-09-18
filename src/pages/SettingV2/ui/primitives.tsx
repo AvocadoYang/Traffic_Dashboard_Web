@@ -250,3 +250,26 @@ export const Tag = styled.span`
   letter-spacing: 0.5px;
   text-transform: uppercase;
 `;
+
+/**
+ * 破壞性操作的警語(例如「編輯貨架種類可能會刪除既有資料」)。
+ * 灰黑白之外唯一會出現紅色的地方,就是這種會造成資料遺失的提醒。
+ */
+export const WarnNote = styled.p`
+  margin: 0;
+  padding: ${space.sm} ${space.md};
+  border: 1px solid ${c.border};
+  border-left: 3px solid ${c.danger};
+  background: ${c.dangerSoft};
+  color: ${c.danger};
+  font-size: ${font.xs};
+  line-height: 1.6;
+`;
+
+/** 卡片 / 表格上方的計數說明,例如「已選 3 筆」 */
+export const CountNote = styled.span`
+  font-size: ${font.xs};
+  letter-spacing: 0.5px;
+  color: ${c.textMuted};
+  white-space: nowrap;
+`;
