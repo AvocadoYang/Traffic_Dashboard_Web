@@ -34,7 +34,6 @@ import { OpenChargeStationModal } from "@/pages/Main/global/jotai";
 import StatusPanel from "../../PadViwe/components/PadMapContent/AllChargeStation/StatusPanel";
 import useDetectLoc from "../hooks/useDetectLoc";
 import useMouseClick from "../hooks/useMouseClick";
-import ScalePad from "./ScalePad";
 import AllGateWaitPoint from "../../PadViwe/components/PadMapContent/AllGateWaitPoint/AllGateWaitPoint";
 import AllLiftGate from "../../PadViwe/components/PadMapContent/AllGate/AllLiftGate";
 import AllStack from "../../PadViwe/components/PadMapContent/AllStack/AllStack";
@@ -147,7 +146,6 @@ const WebMapView: React.FC<{
           <AllZones scale={scale}></AllZones>
           <AllChargeStation></AllChargeStation>
           {showChargeConfig ? <StatusPanel locId={showChargeConfig} /> : null}
-          <ScalePad></ScalePad>
         </>
       )}
     </div>
