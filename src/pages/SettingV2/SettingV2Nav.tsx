@@ -1,11 +1,14 @@
 import { FC, useMemo, useState, createElement } from "react";
-import { Menu, Switch, Popconfirm, message } from "antd";
+import { Menu, Switch, Popconfirm, message, Segmented, Tooltip } from "antd";
 import type { MenuProps } from "antd";
 import {
   DeliveredProcedureOutlined,
   BorderOuterOutlined,
   RedoOutlined,
   UploadOutlined,
+  EyeInvisibleOutlined,
+  BorderHorizontalOutlined,
+  ExpandOutlined,
 } from "@ant-design/icons";
 import { useAtom } from "jotai";
 import { useTranslation } from "react-i18next";
@@ -23,6 +26,7 @@ import StartPoint from "@/pages/Setting/components/StartPoint/StartPoint";
 import ImportMapConfigModal from "@/pages/Setting/components/importMap/ImportMapConfigModal";
 import UploadWarningModal from "@/pages/Setting/components/UploadWarningModal";
 import { navCategories } from "./navItems";
+import { mapViewModeAtom, type MapViewMode } from "./mapViewModeAtom";
 
 const NavWrap = styled.div`
   width: 240px;
@@ -80,6 +84,7 @@ type Props = {
 };
 
 const SettingV2Nav: FC<Props> = ({ activePanel, onSelectPanel }) => {
+  const [mapMode, setMapMode] = useAtom(mapViewModeAtom);
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [messageApi, contextHolder] = message.useMessage();
@@ -121,6 +126,41 @@ const SettingV2Nav: FC<Props> = ({ activePanel, onSelectPanel }) => {
   return (
     <NavWrap>
       {contextHolder}
+
+      <ExtraRow>
+        <span>地圖</span>
+        <Segmented
+          size="small"
+          value={mapMode}
+          onChange={(v) => setMapMode(v as MapViewMode)}
+          options={[
+            {
+              value: "hidden",
+              label: (
+                <Tooltip title="全隱藏">
+                  <EyeInvisibleOutlined />
+                </Tooltip>
+              ),
+            },
+            {
+              value: "half",
+              label: (
+                <Tooltip title="半開">
+                  <BorderHorizontalOutlined />
+                </Tooltip>
+              ),
+            },
+            {
+              value: "full",
+              label: (
+                <Tooltip title="全開">
+                  <ExpandOutlined />
+                </Tooltip>
+              ),
+            },
+          ]}
+        />
+      </ExtraRow>
 
       <ExtraRow>
         <span>MiR 風格打點</span>

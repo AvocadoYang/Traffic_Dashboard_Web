@@ -1,11 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
-import { Layout, Form, Button, ConfigProvider, Segmented, Tooltip } from "antd";
-import {
-  CloseOutlined,
-  EyeInvisibleOutlined,
-  BorderHorizontalOutlined,
-  ExpandOutlined,
-} from "@ant-design/icons";
+import { Layout, Form, Button, ConfigProvider } from "antd";
+import { CloseOutlined } from "@ant-design/icons";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
@@ -40,22 +35,23 @@ const Body = styled.div`
 `;
 
 const PanelColumn = styled.div<{ $mode: MapViewMode }>`
-  /* 地圖全隱藏時面板吃滿剩餘空間;半開時各佔一半;全開時面板整個收起來。 */
-  ${({ $mode }) =>
-    $mode === "hidden"
-      ? `flex: 1; min-width: 0;`
-      : `width: clamp(380px, 42%, 900px); flex-shrink: 0;`}
+  /* 三種模式要有三種版面:
+     hidden = 地圖收起、面板吃滿;half = 左右各半;full = 面板收起、地圖吃滿。 */
+  ${({ $mode }) => {
+    if ($mode === "full") return `display: none;`;
+    if ($mode === "hidden") return `display: flex; flex: 1; min-width: 0;`;
+    return `display: flex; width: clamp(380px, 42%, 900px); flex-shrink: 0;`;
+  }}
   height: 100%;
-  display: flex;
   flex-direction: column;
   background: ${c.bg};
   border-right: 1px solid ${c.border};
   min-height: 0;
 
   ${mqNarrow} {
-    /* 窄螢幕:面板優先,地圖靠下面的切換鈕決定要不要看 */
-    width: 100%;
-    flex: 1;
+    /* 窄螢幕一次只看一邊:除非切到「全開」,否則都以面板為主 */
+    ${({ $mode }) =>
+      $mode === "full" ? `display: none;` : `display: flex; width: 100%; flex: 1;`}
   }
 `;
 
@@ -78,9 +74,18 @@ const PanelHeader = styled.div`
 const PanelBody = styled.div`
   flex: 1;
   min-height: 0;
-  overflow: auto;
+  /* 只允許垂直捲動。橫向溢出交給面板內自己的捲動容器(例如表格)處理,
+     否則整個面板被捲出去時,白色底只到可視寬度為止,右邊會露出灰色底。 */
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: 12px;
   background: ${c.bgSubtle};
+
+  /* v1 的舊面板是照「整個內容區寬度」設計的(有些寫死 100vw),
+     這裡強制收斂到面板欄寬度,讓它們的表格用自己的橫向捲軸。 */
+  > * {
+    max-width: 100%;
+  }
 `;
 
 const MapColumn = styled.div<{ $mode: MapViewMode }>`
@@ -95,20 +100,6 @@ const MapColumn = styled.div<{ $mode: MapViewMode }>`
     /* 窄螢幕一次只顯示一邊,避免兩邊都擠成不能用 */
     display: ${({ $mode }) => ($mode === "full" ? "block" : "none")};
   }
-`;
-
-const MapModeBar = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  background: ${c.bg};
-  border-bottom: 1px solid ${c.border};
-  font-family: ${font.mono};
-  font-size: ${font.xs};
-  color: ${c.textMuted};
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
 `;
 
 const MapScroll = styled.div`
@@ -135,7 +126,7 @@ const SettingV2: React.FC = () => {
   const currentMapInfo = useMap();
   const cm = useAtomValue(centerMap);
   const [activePanel, setActivePanel] = useAtom(activeSettingPanelAtom);
-  const [mapMode, setMapMode] = useAtom(mapViewModeAtom);
+  const mapMode = useAtomValue(mapViewModeAtom);
 
   // v1 也是這樣做的:進頁面先把幾顆地圖編輯模式的 atom 歸零。因為 v1/v2 共用同一份
   // atom,誰後進來誰負責重置,不會互相殘留狀態。
@@ -174,20 +165,6 @@ const SettingV2: React.FC = () => {
     return activePanel;
   }, [activePanel, t]);
 
-  const mapModeOptions = [
-    {
-      value: "hidden" as const,
-      icon: <EyeInvisibleOutlined />,
-      title: "全隱藏",
-    },
-    {
-      value: "half" as const,
-      icon: <BorderHorizontalOutlined />,
-      title: "半開",
-    },
-    { value: "full" as const, icon: <ExpandOutlined />, title: "全開" },
-  ];
-
   return (
     <ConfigProvider theme={settingV2Theme}>
       <Layout style={{ height: "var(--app-height)" }}>
@@ -210,23 +187,6 @@ const SettingV2: React.FC = () => {
                   onClick={() => setActivePanel(null)}
                 />
               </PanelHeader>
-
-              <MapModeBar>
-                <span>地圖</span>
-                <Segmented
-                  size="small"
-                  value={mapMode}
-                  onChange={(v) => setMapMode(v as MapViewMode)}
-                  options={mapModeOptions.map((o) => ({
-                    value: o.value,
-                    label: (
-                      <Tooltip title={o.title}>
-                        <span>{o.icon}</span>
-                      </Tooltip>
-                    ),
-                  }))}
-                />
-              </MapModeBar>
 
               <PanelBody>
                 <PanelRenderer
