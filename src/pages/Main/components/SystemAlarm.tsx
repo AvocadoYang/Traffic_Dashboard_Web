@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   CloseCircleFilled,
   WarningFilled,
@@ -8,11 +8,13 @@ import {
   InfoCircleFilled,
   CloseOutlined,
 } from "@ant-design/icons";
+import { useAtomValue } from "jotai";
 import {
   AlarmType,
   SystemAlarmData,
   useSystemAlarm,
 } from "@/sockets/useSystemAlarm";
+import { ALARM_ACCENT, systemAlarmTypeFilter } from "@/utils/systemAlarmFilter";
 
 // 同時最多疊幾張卡。超過就把最舊的擠掉,避免一串警報把整個畫面洗成瀑布。
 const MAX_VISIBLE = 4;
@@ -29,10 +31,18 @@ const THEMES: Record<
   AlarmType,
   { accent: string; label: string; Icon: typeof InfoCircleFilled }
 > = {
-  error: { accent: "#ff4d4f", label: "error", Icon: CloseCircleFilled },
-  warn: { accent: "#faad14", label: "warning", Icon: WarningFilled },
-  success: { accent: "#52c41a", label: "success", Icon: CheckCircleFilled },
-  info: { accent: "#1890ff", label: "info", Icon: InfoCircleFilled },
+  error: {
+    accent: ALARM_ACCENT.error,
+    label: "error",
+    Icon: CloseCircleFilled,
+  },
+  warn: { accent: ALARM_ACCENT.warn, label: "warning", Icon: WarningFilled },
+  success: {
+    accent: ALARM_ACCENT.success,
+    label: "success",
+    Icon: CheckCircleFilled,
+  },
+  info: { accent: ALARM_ACCENT.info, label: "info", Icon: InfoCircleFilled },
 };
 
 const AlarmContainer = styled.div`
@@ -141,6 +151,14 @@ const CloseButton = styled.button`
 export const SystemAlarmOverlay = () => {
   const systemAlarm = useSystemAlarm();
   const [alarms, setAlarms] = useState<ActiveAlarm[]>([]);
+  // 用 ref 讀設定頁的開關,避免把它放進下面 effect 的 deps —— 那會讓「切換開關」
+  // 這件事重跑一次 effect,把最後一則告警重複加進來。
+  const typeFilter = useAtomValue(systemAlarmTypeFilter);
+  const typeFilterRef = useRef(typeFilter);
+
+  useEffect(() => {
+    typeFilterRef.current = typeFilter;
+  }, [typeFilter]);
 
   const removeAlarm = (key: string) => {
     setAlarms((prev) => prev.filter((a) => a.key !== key));
@@ -148,6 +166,8 @@ export const SystemAlarmOverlay = () => {
 
   useEffect(() => {
     if (!systemAlarm.message) return;
+    // 只擋「明確關掉」的類型;後端若送來沒看過的 alarmType 就照常顯示,不要靜靜吃掉告警。
+    if (typeFilterRef.current[systemAlarm.alarmType] === false) return;
 
     const key = `${systemAlarm.alarmType}|${systemAlarm.message}`;
     const expiresAt =

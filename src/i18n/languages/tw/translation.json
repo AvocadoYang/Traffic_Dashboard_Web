@@ -2015,5 +2015,19 @@
   "container_table": {
     "title": "現存於點位上的貨物資訊",
     "container_info": "貨物資訊"
+  },
+  "system_alarm": {
+    "title": "系統告警",
+    "type_filter": "告警類型顯示",
+    "type_filter_hint": "關掉的類型就不會在畫面上跳出來(只影響這台瀏覽器)",
+    "type": {
+      "error": "錯誤",
+      "warn": "警告",
+      "success": "成功",
+      "info": "資訊"
+    },
+    "alarm_code": "告警代碼",
+    "description": "說明",
+    "enable": "啟用"
   }
 }

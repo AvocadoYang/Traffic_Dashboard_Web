@@ -2014,5 +2014,19 @@
   "container_table": {
     "title": "Current Cargo Information at Locations",
     "container_info": "container info"
+  },
+  "system_alarm": {
+    "title": "System Alarm",
+    "type_filter": "Alarm type display",
+    "type_filter_hint": "Turn a type off to stop showing it on the dashboard (this browser only)",
+    "type": {
+      "error": "Error",
+      "warn": "Warning",
+      "success": "Success",
+      "info": "Info"
+    },
+    "alarm_code": "Alarm Code",
+    "description": "Description",
+    "enable": "Enable"
   }
 }
