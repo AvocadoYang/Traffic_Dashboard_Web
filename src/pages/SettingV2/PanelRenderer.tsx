@@ -31,15 +31,14 @@ import MapManagerPanel from "./panels/map/MapManagerPanel";
 import MapGroupPanel from "./panels/map/MapGroupPanel";
 import WarningListPanel from "./panels/file/WarningListPanel";
 import SystemAlarmPanel from "./panels/file/SystemAlarmPanel";
+import FootprintPanel from "./panels/mir/FootprintPanel";
+import SoundPanel from "./panels/mir/SoundPanel";
+import MarkerTypePanel from "./panels/mir/MarkerTypePanel";
+import SyncDataPanel from "./panels/mir/SyncDataPanel";
+import MirMissionPanel from "./panels/mir/MirMissionPanel";
 import type { ToolBarItemType } from "@/pages/Setting/components/siderElement";
 import EditMissionPanel from "@/pages/Setting/formComponent/forms/missionComponents/editMission/MissionPanel";
 import { BackupPanel } from "@/pages/Setting/formComponent/forms/file/backup";
-import FootprintPanel from "@/pages/Setting/formComponent/forms/missionComponents/mir/footprinter/FootprintPanel";
-import SoundPanel from "@/pages/Setting/formComponent/forms/missionComponents/mir/sound/SoundPanel";
-import MarkerTypePanel from "@/pages/Setting/formComponent/forms/missionComponents/mir/markerTypes/MarkerTypePanel";
-import SyncDataPanel from "@/pages/Setting/formComponent/forms/missionComponents/mir/syncData/SyncDataPanel";
-import MirMissionPanel from "@/pages/Setting/formComponent/forms/missionComponents/mir/missionTable/MirMissionPanel";
-import EditMirMissionPanel from "@/pages/Setting/formComponent/forms/missionComponents/mir/editMirMission/MirMissionPanel";
 
 // v1 的面板都吃 dnd-kit 的 attributes/listeners,但它們只被展開到面板標題上當拖曳
 // 把手,沒有任何其他邏輯會讀它。v2 沒有拖曳,所以統一餵空值,面板照常渲染,
@@ -142,53 +141,15 @@ const PanelRenderer: FC<Props> = ({
     case "map_group_table":
       return <MapGroupPanel />;
     case "footprint":
-      return (
-        <FootprintPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <FootprintPanel />;
     case "sound":
-      return (
-        <SoundPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <SoundPanel />;
     case "marker_type":
-      return (
-        <MarkerTypePanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <MarkerTypePanel />;
     case "sync_mir":
-      return (
-        <SyncDataPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <SyncDataPanel />;
     case "mir_mission":
-      return (
-        <MirMissionPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
-    case "mir_edit_mission":
-      return (
-        <EditMirMissionPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <MirMissionPanel />;
     default:
       return null;
   }

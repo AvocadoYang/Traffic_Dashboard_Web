@@ -33,6 +33,8 @@ export type NavCategory = {
 //   - backup_file / edit_region_name / cycle_mission 在 v1 選單裡根本沒有入口,維持一致不加
 //   - MiR 風格打點不是面板,是地圖互動模式,放在 SettingV2Nav 另外用 Switch 呈現
 //   - upload_warning_file 開的是 Modal 不是面板,已在 SettingV2Nav 的動作列裡
+//   - mir_edit_mission 的 v1 元件是空殼(標題印 ""、內容是空的),真正的 MiR
+//     任務編輯器掛在 edit_mission 的 MissionList 底下,所以這裡不列
 export const navCategories: NavCategory[] = [
   {
     key: "location",
@@ -187,7 +189,6 @@ export const navCategories: NavCategory[] = [
       { key: "marker_type", rawLabel: "marker_type" },
       { key: "sync_mir", rawLabel: "sync_mir" },
       { key: "mir_mission", rawLabel: "mir_mission" },
-      { key: "mir_edit_mission", rawLabel: "mir_edit_mission" },
     ],
   },
 ];
