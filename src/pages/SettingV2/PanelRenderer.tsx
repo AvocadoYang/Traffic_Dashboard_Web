@@ -36,8 +36,8 @@ import SoundPanel from "./panels/mir/SoundPanel";
 import MarkerTypePanel from "./panels/mir/MarkerTypePanel";
 import SyncDataPanel from "./panels/mir/SyncDataPanel";
 import MirMissionPanel from "./panels/mir/MirMissionPanel";
+import EditMissionPanel from "./panels/mission/edit/EditMissionPanel";
 import type { ToolBarItemType } from "@/pages/Setting/components/siderElement";
-import EditMissionPanel from "@/pages/Setting/formComponent/forms/missionComponents/editMission/MissionPanel";
 import { BackupPanel } from "@/pages/Setting/formComponent/forms/file/backup";
 
 // v1 的面板都吃 dnd-kit 的 attributes/listeners,但它們只被展開到面板標題上當拖曳
@@ -89,13 +89,7 @@ const PanelRenderer: FC<Props> = ({
     case "edit_amr_config":
       return <AmrConfigPanel />;
     case "edit_mission":
-      return (
-        <EditMissionPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <EditMissionPanel />;
     case "charge_mission":
       return <ChargePanel />;
     case "before_left_charge_station_task":
