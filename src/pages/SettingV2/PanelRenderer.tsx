@@ -29,11 +29,11 @@ import CustomCargoInfoPanel from "./panels/other/CustomCargoInfoPanel";
 import ContainerTablePanel from "./panels/other/ContainerTablePanel";
 import MapManagerPanel from "./panels/map/MapManagerPanel";
 import MapGroupPanel from "./panels/map/MapGroupPanel";
+import WarningListPanel from "./panels/file/WarningListPanel";
+import SystemAlarmPanel from "./panels/file/SystemAlarmPanel";
 import type { ToolBarItemType } from "@/pages/Setting/components/siderElement";
 import EditMissionPanel from "@/pages/Setting/formComponent/forms/missionComponents/editMission/MissionPanel";
-import { EditWarningListPanel } from "@/pages/Setting/formComponent/forms/file/warningId";
 import { BackupPanel } from "@/pages/Setting/formComponent/forms/file/backup";
-import SystemAlarmPanel from "@/pages/Setting/formComponent/forms/missionComponents/editMission/SystemAlarmPanel";
 import FootprintPanel from "@/pages/Setting/formComponent/forms/missionComponents/mir/footprinter/FootprintPanel";
 import SoundPanel from "@/pages/Setting/formComponent/forms/missionComponents/mir/sound/SoundPanel";
 import MarkerTypePanel from "@/pages/Setting/formComponent/forms/missionComponents/mir/markerTypes/MarkerTypePanel";
@@ -124,13 +124,7 @@ const PanelRenderer: FC<Props> = ({
     case "custom_cargo_info":
       return <CustomCargoInfoPanel />;
     case "warning_id":
-      return (
-        <EditWarningListPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <WarningListPanel />;
     case "backup_file":
       return (
         <BackupPanel
@@ -142,13 +136,7 @@ const PanelRenderer: FC<Props> = ({
     case "container_table":
       return <ContainerTablePanel />;
     case "show_system_alarm":
-      return (
-        <SystemAlarmPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <SystemAlarmPanel />;
     case "switch_map":
       return <MapManagerPanel />;
     case "map_group_table":

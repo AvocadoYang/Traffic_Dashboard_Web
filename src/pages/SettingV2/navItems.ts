@@ -32,6 +32,7 @@ export type NavCategory = {
 //   - shelf_mission / todo_dependent_on_return_id_task 已標記 deprecated,無 atom 無面板
 //   - backup_file / edit_region_name / cycle_mission 在 v1 選單裡根本沒有入口,維持一致不加
 //   - MiR 風格打點不是面板,是地圖互動模式,放在 SettingV2Nav 另外用 Switch 呈現
+//   - upload_warning_file 開的是 Modal 不是面板,已在 SettingV2Nav 的動作列裡
 export const navCategories: NavCategory[] = [
   {
     key: "location",
@@ -170,10 +171,6 @@ export const navCategories: NavCategory[] = [
     icon: FileOutlined,
     children: [
       { key: "warning_id", labelKey: "toolbar.file_setting.warning_id" },
-      {
-        key: "upload_warning_file",
-        labelKey: "toolbar.file_setting.upload_warning_file",
-      },
       {
         key: "show_system_alarm",
         labelKey: "toolbar.file_setting.system_alarm",
