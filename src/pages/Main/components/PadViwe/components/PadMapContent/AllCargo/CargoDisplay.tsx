@@ -173,7 +173,7 @@ interface CargoDisplayProps {
   handleMouseDown: (
     e: React.MouseEvent<HTMLElement>,
     locId: string,
-    level: number
+    level: number,
   ) => void;
 }
 
@@ -190,7 +190,7 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
 }) => {
   const [selectMode, setQuickSettingMode] = useAtom(QuickMissionSettingMode);
   const [isStartSelecting, setStartQuickSetting] = useAtom(
-    StartQuickMissionSetting
+    StartQuickMissionSetting,
   );
   const setLoad = useSetAtom(QuickMissionLoad);
   const setOffload = useSetAtom(QuickMissionOffload);
@@ -240,7 +240,14 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
         $isHaveAction={isHaveAction}
         $isHovered={isHovered}
         disabled={isDisable}
-        onMouseDown={(e) => handleMouseDown(e, locId, level)}
+        // 中鍵在 Chrome 按下去會啟動自動捲動(那個圓形游標),地圖跟著滑鼠跑,
+        // 看起來就像「按了沒反應」。先擋掉預設行為,真正的動作交給 auxclick。
+        onMouseDown={(e) => {
+          if (e.button === 1) e.preventDefault();
+        }}
+        // auxclick 才是給非主要按鍵用的事件,而且是放開才觸發,
+        // 不會跟拖曳地圖搶。mousedown 在 <button> 上不是每種情況都吃得到。
+        onAuxClick={(e) => handleMouseDown(e, locId, level)}
         onClick={isStartSelecting ? handleQuickMissionPayload : undefined}
         role="button"
       >
