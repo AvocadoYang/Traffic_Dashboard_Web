@@ -34,6 +34,16 @@ export const cargoStyle = atom<{
 
 export const shelfSelectedStyleLocationId = atom<string>("");
 
+// 多選貨架「批次微調樣式」的即時預覽：每個貨架以自己目前的值加上位移量
+export const batchCargoStyle = atom<{
+  locIds: string[]; // Loc.id
+  dx: number;
+  dy: number;
+  dRotate: number;
+  dScale: number;
+  flex_direction: string | null; // null = 各自維持原本方向
+} | null>(null);
+
 export const darkMode = atom<boolean>(false);
 
 export const centerMap = atom<number>(0);

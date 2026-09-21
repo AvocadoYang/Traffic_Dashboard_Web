@@ -221,6 +221,10 @@ const ShelfTable: FC<{
   const { t } = useTranslation();
   const searchInput = useRef<InputRef>(null);
 
+  const handleEdit = (id: string) => {
+    setSelectId(id);
+  };
+
   const handleSearch = (confirm: FilterDropdownProps["confirm"]) => {
     confirm();
   };
@@ -364,6 +368,23 @@ const ShelfTable: FC<{
       key: "region_name",
       render: (_v, recorder) => {
         return recorder.Loc?.loc_regions?.name || "";
+      },
+    },
+    {
+      title: t("edit_shelf_panel.setting"),
+      dataIndex: "operation",
+      key: "operation",
+      render: (_v, recorder) => {
+        return (
+          <Button
+            icon={<FormatPainterOutlined />}
+            onClick={() => handleEdit(recorder.Loc.id)}
+            color="primary"
+            variant="filled"
+          >
+            {t("edit_shelf_panel.edit_position")}
+          </Button>
+        );
       },
     },
   ];
@@ -528,6 +549,12 @@ const ShelfTable: FC<{
           }}
         />
       </Wrapper>
+      {selectId ? (
+        <SettingCargoStyleForm
+          selectId={selectId}
+          cancelEditStyle={cancelEditStyle}
+        />
+      ) : null}
     </>
   );
 };
