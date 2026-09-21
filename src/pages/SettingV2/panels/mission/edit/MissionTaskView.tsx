@@ -15,11 +15,8 @@ import { currentMapIdAtom } from "@/utils/mapSelection";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { isFork, isHumanRobot, isMir } from "@/utils/globalFunction";
-import ForkTaskTable from "@/pages/Setting/formComponent/forms/missionComponents/editMission/ForkTaskTable";
-import HumanRobotTaskTable from "@/pages/Setting/formComponent/forms/missionComponents/editMission/HumanRobotTaskTable";
 import TaskFormFork from "@/pages/Setting/formComponent/forms/missionComponents/editMission/forkEditMissionSlice/TaskFormFork";
 import TaskFormHumanRobot from "@/pages/Setting/formComponent/forms/missionComponents/editMission/humanRobotEditMissionSlice/TaskFormHumanRobot";
-import MirTaskTable from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/MirTaskTable";
 import TaskFormMir from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/TaskFormMir";
 import EditMirMissionPanel from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/EditMirMissionPanel";
 import {
@@ -31,6 +28,10 @@ import {
   GhostButton,
   Tag,
 } from "../../../ui/primitives";
+import ForkStepList from "./steps/ForkStepList";
+import HumanRobotStepList from "./steps/HumanRobotStepList";
+import MirStepList from "./steps/MirStepList";
+import { STEP_QUERY_BASE, StepVariant } from "./steps/useStepMutations";
 
 type Props = {
   missionId: string;
@@ -55,19 +56,25 @@ const MissionTaskView: FC<Props> = ({
   const [editTaskKey, setEditTaskKey] = useState("");
   const [formOpen, setFormOpen] = useState(false);
 
+  const variant: StepVariant | null = isFork(robotValue)
+    ? "fork"
+    : isHumanRobot(robotValue)
+      ? "humanRobot"
+      : isMir(robotValue)
+        ? "mir"
+        : null;
+
   const addTaskMutation = useMutation({
     mutationFn: () =>
-      client.post("api/setting/add-task", {
-        key: missionId,
-        currentMapId,
-      }),
+      client.post("api/setting/add-task", { key: missionId, currentMapId }),
     onSuccess: async () => {
-      await queryClient.refetchQueries({
-        queryKey: ["all-relate-all-relate-task-fork", missionId],
-      });
-      await queryClient.refetchQueries({
-        queryKey: ["all-relate-task-human-robot", missionId],
-      });
+      // v1 這裡打的是 "all-relate-all-relate-task-fork",多寫了一次前綴,
+      // 所以其實沒有對到任何 query,只是靠 2 秒的輪詢才看到新步驟。
+      if (variant) {
+        await queryClient.refetchQueries({
+          queryKey: [STEP_QUERY_BASE[variant], missionId],
+        });
+      }
       void messageApi.success(t("utils.success"));
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
@@ -136,34 +143,34 @@ const MissionTaskView: FC<Props> = ({
           </Popconfirm>
         </Toolbar>
 
-        {isFork(robotValue) && (
-          <ForkTaskTable
-            showModal={openTaskForm}
-            selectedMissionKey={missionId}
-            selectedMissionCar={robotValue}
+        {variant === "fork" && (
+          <ForkStepList
+            missionId={missionId}
+            robotValue={robotValue}
+            onEditStep={openTaskForm}
           />
         )}
 
-        {isHumanRobot(robotValue) && (
-          <HumanRobotTaskTable
-            showModal={openTaskForm}
-            selectedMissionKey={missionId}
-            selectedMissionCar={robotValue}
+        {variant === "humanRobot" && (
+          <HumanRobotStepList
+            missionId={missionId}
+            robotValue={robotValue}
+            onEditStep={openTaskForm}
           />
         )}
 
-        {isMir(robotValue) && (
+        {variant === "mir" && (
           <Tabs
             style={{ width: "100%" }}
             items={[
               {
-                key: "legacy",
-                label: t("utils.detail"),
+                key: "steps",
+                label: t("mission.add_mission.edit_detail"),
                 children: (
-                  <MirTaskTable
-                    showModal={openTaskForm}
-                    selectedMissionKey={missionId}
-                    selectedMissionCar={robotValue}
+                  <MirStepList
+                    missionId={missionId}
+                    robotValue={robotValue}
+                    onEditStep={openTaskForm}
                   />
                 ),
               },
@@ -186,7 +193,7 @@ const MissionTaskView: FC<Props> = ({
         style={{ top: 24 }}
         destroyOnHidden
       >
-        {isFork(robotValue) && (
+        {variant === "fork" && (
           <TaskFormFork
             key={editTaskKey}
             editTaskKey={editTaskKey}
@@ -196,14 +203,14 @@ const MissionTaskView: FC<Props> = ({
           />
         )}
 
-        {isHumanRobot(robotValue) && (
+        {variant === "humanRobot" && (
           <TaskFormHumanRobot
             editTaskKey={editTaskKey}
             selectedMissionKey={missionId}
           />
         )}
 
-        {isMir(robotValue) && (
+        {variant === "mir" && (
           <TaskFormMir
             key={editTaskKey}
             editTaskKey={editTaskKey}
