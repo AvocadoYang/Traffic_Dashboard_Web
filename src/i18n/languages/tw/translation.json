@@ -583,7 +583,21 @@
     "scale": "縮放",
     "rotate": "旋轉",
     "flexDirection": "Flex 方向",
-    "selectDirection": "選擇方向"
+    "selectDirection": "選擇方向",
+    "title": "批次調整位置",
+    "selected": "已選取 {{n}} 個貨架",
+    "hint": "只有打開開關的欄位會套用到所有已選的貨架，沒打開的維持各自原本的值。數值預設帶入第一個貨架目前的樣式。"
+  },
+  "batchStyle": {
+    "title": "批次調整樣式",
+    "selected": "已選取 {{n}} 個貨架",
+    "hint": "用按鈕或數值微調，地圖上會即時預覽。每個貨架是「自己目前的值」加上位移量，各自原本的差異會保留。",
+    "reset": "重設",
+    "dx": "X 位移",
+    "dy": "Y 位移",
+    "dScale": "縮放增減",
+    "dRotate": "旋轉增減",
+    "keep_direction": "保持各自的方向"
   },
   "shelf": {
     "shelf": "貨架",
@@ -875,11 +889,45 @@
       "offload_tooltip": "選擇一個貨架來卸載貨物",
       "load": "裝載",
       "offload": "卸載",
-      "click_shelves_or_cancel": "點擊地圖中的貨架或按 ESC 鍵取消"
+      "click_shelves_or_cancel": "點擊地圖中的貨架或按 ESC 鍵取消",
+      "picker_title": "選擇儲位",
+      "picker_shelf": "貨架",
+      "picker_level": "第 {{n}} 層",
+      "picker_has_cargo": "有貨",
+      "picker_empty": "空位",
+      "picker_booked_by": "預約：{{name}}",
+      "picker_hint_load": "取貨只能選「有貨」的儲位",
+      "picker_hint_offload": "放貨只能選「空位」的儲位",
+      "picker_reason_disabled": "此儲位已停用",
+      "picker_reason_no_cargo": "沒有貨物，無法取貨",
+      "picker_reason_occupied": "已有貨物，無法放貨",
+      "selectable_levels": "可選 {{n}} 層",
+      "click_to_select": "點擊選擇"
     }
   },
   "car_card": {},
   "mission": {
+    "upgrade_format": {
+      "button": "更新任務格式",
+      "tooltip": "派任務出現 0026「任務內容包含舊格式」時使用",
+      "title": "更新全部任務為最新格式",
+      "confirm": "立即更新",
+      "summary": "共 {{total}} 個任務步驟，其中 {{need}} 個是舊格式，需要更新",
+      "all_latest": "共 {{n}} 個任務步驟，已經全部是最新格式，不需要更新",
+      "change_level": "取放貨步驟補上「樓層設定」(is_define_level)，這是 0026 的直接原因",
+      "change_fork": "舊的叉高控制「H」換成 fork_height，並把叉高設定搬到對應的步驟，其他控制步驟 (F/C/B/S/W…) 不變",
+      "change_fields": "補上新版才有的欄位 (周邊動作、光達、等待其他車輛…)，原有設定不會被移除",
+      "backup_note": "更新前會先把原始資料備份成檔案，可還原",
+      "warnings": "有 {{n}} 個步驟已自動處理，請確認",
+      "skipped": "有 {{n}} 個步驟無法自動轉換，會維持原樣",
+      "skipped_desc": "這些步驟含有無法確定對應關係的舊設定，請到該任務裡手動編輯並儲存一次",
+      "col_mission": "任務",
+      "col_step": "步驟",
+      "col_reason": "原因",
+      "done_title": "更新完成",
+      "done_desc": "已將 {{n}} 個任務步驟更新為最新格式",
+      "backup": "原始資料備份"
+    },
     "task_form_fork": {
       "system_title": "任務配置系統 v2.1",
       "task_id": "任務 ID",

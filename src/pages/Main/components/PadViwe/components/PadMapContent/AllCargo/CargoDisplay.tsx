@@ -1,10 +1,11 @@
 import {
+  QuickMissionHoverCell,
   QuickMissionLoad,
   QuickMissionOffload,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
 } from "@/pages/Main/global/jotai";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { FC } from "react";
 import styled from "styled-components";
 import { Button } from "antd";
@@ -59,6 +60,7 @@ const Block = styled(Button)<{
   $isSelecting: boolean;
   $canBeClick: boolean;
   $isHaveAction: boolean;
+  $isHovered: boolean;
 }>`
   display: inline-flex;
   align-items: center;
@@ -75,7 +77,8 @@ const Block = styled(Button)<{
   transition: all 0.2s ease;
   position: relative;
   flex-grow: 1;
-  z-index: ${({ $isSelecting }) => ($isSelecting ? 50 : 1)};
+  z-index: ${({ $isSelecting, $isHovered }) =>
+    $isHovered ? 100 : $isSelecting ? 50 : 1};
   cursor: ${({ $isDisable, $isSelecting, $canBeClick }) =>
     $isDisable
       ? "not-allowed"
@@ -85,6 +88,16 @@ const Block = styled(Button)<{
   opacity: ${({ $isDisable }) => ($isDisable ? 0.6 : 1)};
   box-shadow: ${({ $isSelecting, $canBeClick }) =>
     $isSelecting && $canBeClick ? "0 0 8px rgba(24, 144, 255, 0.3)" : "none"};
+
+  ${({ $isHovered }) =>
+    $isHovered
+      ? `
+        border: 2px solid #fa541c;
+        background-color: #fff2e8;
+        box-shadow: 0 0 0 3px rgba(250, 84, 28, 0.4);
+        transform: scale(1.25);
+      `
+      : ""}
 
   ${({ $isHaveAction, $isDisable }) =>
     $isHaveAction && !$isDisable
@@ -181,6 +194,11 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
   );
   const setLoad = useSetAtom(QuickMissionLoad);
   const setOffload = useSetAtom(QuickMissionOffload);
+  const hoverCell = useAtomValue(QuickMissionHoverCell);
+  const isHovered =
+    hoverCell !== null &&
+    hoverCell.locationId === locId &&
+    hoverCell.level === level;
 
   const canBeClickInSelection =
     isStartSelecting &&
@@ -220,6 +238,7 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
         $isSelecting={isStartSelecting}
         $canBeClick={isStartSelecting ? canBeClickInSelection : true}
         $isHaveAction={isHaveAction}
+        $isHovered={isHovered}
         disabled={isDisable}
         onMouseDown={(e) => handleMouseDown(e, locId, level)}
         onClick={isStartSelecting ? handleQuickMissionPayload : undefined}

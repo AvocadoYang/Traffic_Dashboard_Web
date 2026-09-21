@@ -585,7 +585,21 @@
     "scale": "Scale",
     "rotate": "Rotate",
     "flexDirection": "Flex Direction",
-    "selectDirection": "Select direction"
+    "selectDirection": "Select direction",
+    "title": "Batch edit style",
+    "selected": "{{n}} shelves selected",
+    "hint": "Only fields whose switch is on are applied to every selected shelf; the others keep their own values. Values start from the first shelf."
+  },
+  "batchStyle": {
+    "title": "Batch adjust style",
+    "selected": "{{n}} shelves selected",
+    "hint": "Nudge with the buttons or values and preview on the map. Each shelf gets its own current value plus the offset, so existing differences are kept.",
+    "reset": "Reset",
+    "dx": "Offset X",
+    "dy": "Offset Y",
+    "dScale": "Scale change",
+    "dRotate": "Rotate change",
+    "keep_direction": "Keep each shelf direction"
   },
   "shelf": {
     "shelf": "Shelf",
@@ -876,10 +890,44 @@
       "offload_tooltip": "Select a shelf to offload cargo to",
       "load": "Load",
       "offload": "Offload",
-      "click_shelves_or_cancel": "Click the shelves in the map or press ESC to cancel"
+      "click_shelves_or_cancel": "Click the shelves in the map or press ESC to cancel",
+      "picker_title": "Select a slot",
+      "picker_shelf": "Shelf",
+      "picker_level": "Level {{n}}",
+      "picker_has_cargo": "Has cargo",
+      "picker_empty": "Empty",
+      "picker_booked_by": "Booked: {{name}}",
+      "picker_hint_load": "Load: only slots with cargo can be selected",
+      "picker_hint_offload": "Offload: only empty slots can be selected",
+      "picker_reason_disabled": "This slot is disabled",
+      "picker_reason_no_cargo": "No cargo to load",
+      "picker_reason_occupied": "Already occupied",
+      "selectable_levels": "{{n}} selectable",
+      "click_to_select": "Click to select"
     }
   },
   "mission": {
+    "upgrade_format": {
+      "button": "Update task format",
+      "tooltip": "Use this when dispatching fails with 0026 (mission contains an old format)",
+      "title": "Update all tasks to the latest format",
+      "confirm": "Update now",
+      "summary": "{{total}} task steps in total, {{need}} use the old format and need updating",
+      "all_latest": "All {{n}} task steps are already in the latest format",
+      "change_level": "Load/offload steps get the level setting (is_define_level), the direct cause of 0026",
+      "change_fork": "The old fork-height control \"H\" becomes fork_height and its settings move to that step; other controls (F/C/B/S/W...) are unchanged",
+      "change_fields": "Fields introduced later (peripheral action, lidar, wait-for-robot...) are added; existing settings are kept",
+      "backup_note": "The original data is backed up to a file first so it can be restored",
+      "warnings": "{{n}} steps were handled automatically, please review",
+      "skipped": "{{n}} steps cannot be converted automatically and are left unchanged",
+      "skipped_desc": "These steps contain old settings with no certain mapping. Open the task, edit and save it once",
+      "col_mission": "Mission",
+      "col_step": "Step",
+      "col_reason": "Reason",
+      "done_title": "Update complete",
+      "done_desc": "{{n}} task steps were updated to the latest format",
+      "backup": "Backup of the original data"
+    },
     "task_form_fork": {
       "system_title": "TASK CONFIGURATION SYSTEM v2.1",
       "task_id": "TASK ID",

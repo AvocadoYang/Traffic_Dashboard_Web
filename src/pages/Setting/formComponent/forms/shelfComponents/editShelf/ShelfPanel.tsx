@@ -1,8 +1,12 @@
-import { Alert, Button, Flex } from "antd";
-import { useState } from "react";
+import { Alert, Button, Flex, Modal } from "antd";
+import { FormatPainterOutlined, DragOutlined } from "@ant-design/icons";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ShelfTable from "./ShelfTable";
 import ShelfDrawer from "./ShelfDrawer";
+import SettingMultiCargoStyleForm from "./SettingMultiCargoStyleForm";
+import SettingBatchCargoStyleForm from "./SettingBatchCargoStyleForm";
+import useShelf from "@/api/useShelf";
 import FormHr from "../../../../utils/FormHr";
 
 const ShelfPanel: React.FC<{
@@ -14,6 +18,18 @@ const ShelfPanel: React.FC<{
 }> = ({ attributes, listeners }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [openStyle, setOpenStyle] = useState(false);
+  const [batchEditing, setBatchEditing] = useState(false);
+  const { data: shelves } = useShelf();
+
+  // 表格勾選的是貨架 id，樣式是存在 Loc 上，這裡轉成 Loc.id 與 locationId
+  const selectedLocs = useMemo(
+    () =>
+      (shelves ?? [])
+        .filter((s) => selectedRowKeys.includes(s.id))
+        .map((s) => ({ id: s.Loc.id, locationId: s.Loc.locationId })),
+    [shelves, selectedRowKeys],
+  );
 
   const { t } = useTranslation();
 
@@ -25,22 +41,64 @@ const ShelfPanel: React.FC<{
 
       <FormHr></FormHr>
 
-      <Flex align="start" gap="middle">
-        <Button
-          color="primary"
-          variant="filled"
-          onClick={() => setOpenDrawer(true)}
-          disabled={selectedRowKeys.length === 0}
-        >
-          {t("utils.edit")}
-        </Button>
+      {batchEditing ? (
+        <SettingBatchCargoStyleForm
+          locIds={selectedLocs.map((l) => l.id)}
+          locationIds={selectedLocs.map((l) => l.locationId)}
+          onDone={() => setBatchEditing(false)}
+        />
+      ) : (
+        <>
+          <Flex align="start" gap="middle">
+            <Button
+              color="primary"
+              variant="filled"
+              onClick={() => setOpenDrawer(true)}
+              disabled={selectedRowKeys.length === 0}
+            >
+              {t("utils.edit")}
+            </Button>
+            <Button
+              color="primary"
+              variant="filled"
+              icon={<FormatPainterOutlined />}
+              onClick={() => setOpenStyle(true)}
+              disabled={selectedLocs.length === 0}
+            >
+              {t("multiStyle.title")}
+            </Button>
+            <Button
+              color="primary"
+              variant="filled"
+              icon={<DragOutlined />}
+              onClick={() => setBatchEditing(true)}
+              disabled={selectedLocs.length === 0}
+            >
+              {t("batchStyle.title")}
+            </Button>
 
-        <Alert title={t("edit_shelf_panel.warn")} type="error" />
-      </Flex>
-      <ShelfTable
-        selectedRowKeys={selectedRowKeys}
-        setSelectedRowKeys={setSelectedRowKeys}
-      />
+            <Alert title={t("edit_shelf_panel.warn")} type="error" />
+          </Flex>
+          <ShelfTable
+            selectedRowKeys={selectedRowKeys}
+            setSelectedRowKeys={setSelectedRowKeys}
+          />
+        </>
+      )}
+      <Modal
+        title={t("multiStyle.title")}
+        open={openStyle}
+        onCancel={() => setOpenStyle(false)}
+        footer={null}
+        destroyOnHidden
+        width={560}
+      >
+        <SettingMultiCargoStyleForm
+          locIds={selectedLocs.map((l) => l.id)}
+          locationIds={selectedLocs.map((l) => l.locationId)}
+          onDone={() => setOpenStyle(false)}
+        />
+      </Modal>
       <ShelfDrawer
         openDrawer={openDrawer}
         setOpenDrawer={setOpenDrawer}
