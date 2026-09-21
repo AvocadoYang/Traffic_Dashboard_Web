@@ -86,6 +86,31 @@ import { buildMirOperationFields } from "./mirActionFields";
 import { useMirDockingMarkerType } from "./useMirTaskOptions";
 
 const REDUCE_PROTECTIVE_FIELDS_TYPE = "reduce_protective_fields";
+const TRY_CATCH_TYPE = "try_catch";
+
+// 容器動作底下可以放子動作的區塊:reduce_protective_fields 只有一個
+// content 區,try_catch 有 try / catch 兩個區
+type ParentSlot = "content" | "try" | "catch";
+
+const containerSlots = (op?: Mir_Action | null): ParentSlot[] => {
+  switch (op?.type) {
+    case REDUCE_PROTECTIVE_FIELDS_TYPE:
+      return ["content"];
+    case TRY_CATCH_TYPE:
+      return ["try", "catch"];
+    default:
+      return [];
+  }
+};
+
+const SLOT_LABEL: Record<ParentSlot, string> = {
+  content: "Content",
+  try: "Try",
+  catch: "Catch",
+};
+
+const slotKey = (parentClientId: string, slot: ParentSlot) =>
+  `${parentClientId}:${slot}`;
 
 type CategoryValue =
   | "move"
@@ -104,7 +129,8 @@ const CATEGORY_OPTIONS: {
   {
     label: "Error Handling",
     value: "Error Handling",
-    actions: mirErrorHandlingList,
+    // try_catch 只放在這個編輯器,Legacy 表格不支援兩個 content 區
+    actions: [...mirErrorHandlingList, TRY_CATCH_TYPE],
   },
   { label: "IO module", value: "IO module", actions: mirIoModule },
   {
@@ -155,10 +181,11 @@ type EditorSlice = {
   disable: boolean;
   operation: Mir_Action;
   parentClientId: string | null;
+  parentSlot: ParentSlot | null;
 };
 
 const isContainerOperation = (op?: Mir_Action | null) =>
-  op?.type === REDUCE_PROTECTIVE_FIELDS_TYPE;
+  containerSlots(op).length > 0;
 
 const summarizeAction = (op: Mir_Action): { verb: string; chip?: string } => {
   switch (op.type) {
@@ -190,6 +217,8 @@ const summarizeAction = (op: Mir_Action): { verb: string; chip?: string } => {
       return { verb: "Show light" };
     case REDUCE_PROTECTIVE_FIELDS_TYPE:
       return { verb: "Mute protective fields" };
+    case TRY_CATCH_TYPE:
+      return { verb: "Try / Catch" };
     case "set_io":
       return {
         verb: `Set IO ${op.module ?? ""} port ${op.port ?? 0} to`,
@@ -370,6 +399,21 @@ const ContainerBlock = styled.div`
   background: #fffdf5;
 `;
 
+const SlotSection = styled.div`
+  & + & {
+    margin-top: 8px;
+  }
+`;
+
+const SlotHeader = styled.div`
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #262626;
+  margin-bottom: 4px;
+`;
+
 const ContainerContent = styled.div<{ $isOver: boolean; $isEmpty: boolean }>`
   border: 1px dashed ${({ $isOver }) => ($isOver ? "#1890ff" : "#d9d9d9")};
   background: ${({ $isOver }) => ($isOver ? "#e6f7ff" : "#ffffff")};
@@ -430,6 +474,7 @@ const Card: FC<{
   };
 
   const isContainer = isContainerOperation(slice.operation);
+  const hasParameters = slice.operation.type !== TRY_CATCH_TYPE;
   const { verb, chip } = summarizeAction(slice.operation);
 
   return (
@@ -449,14 +494,16 @@ const Card: FC<{
           {chip ? <CardChip>{chip}</CardChip> : null}
         </CardLabel>
         <CardActions>
-          <Tooltip title="Edit">
-            <Button
-              type="text"
-              size="small"
-              icon={<EditOutlined />}
-              onClick={onEdit}
-            />
-          </Tooltip>
+          {hasParameters ? (
+            <Tooltip title="Edit">
+              <Button
+                type="text"
+                size="small"
+                icon={<EditOutlined />}
+                onClick={onEdit}
+              />
+            </Tooltip>
+          ) : null}
           <Tooltip title="Duplicate">
             <Button
               type="text"
@@ -486,13 +533,14 @@ const Card: FC<{
 /* ------------------------------------------------------------------ */
 
 const ContainerDropZone: FC<{
-  contentId: string;
+  parentClientId: string;
+  slot: ParentSlot;
   isEmpty: boolean;
   children: React.ReactNode;
-}> = ({ contentId, isEmpty, children }) => {
+}> = ({ parentClientId, slot, isEmpty, children }) => {
   const { setNodeRef, isOver } = useDroppable({
-    id: `scope-${contentId}`,
-    data: { type: "scope-container", contentId },
+    id: `scope-${slotKey(parentClientId, slot)}`,
+    data: { type: "scope-container", parentClientId, slot },
   });
 
   return (
@@ -646,20 +694,41 @@ const EditMirMissionPanelContent: FC<{
   // 巢狀/參數編輯全部只改這份本地 state,不打任何 API,直到按 Save。
   useEffect(() => {
     if (!taskDataSource) return;
-    const byScopeReference = new Map(
-      taskDataSource
-        .filter((s) => s.scope_reference)
-        .map((s) => [s.scope_reference as string, s.id]),
-    );
-    const next: EditorSlice[] = taskDataSource.map((s) => ({
-      clientId: s.id,
-      dbId: s.id,
-      disable: s.disable,
-      operation: s.operation,
-      parentClientId: s.scope_reference_content
-        ? (byScopeReference.get(s.scope_reference_content) ?? null)
-        : null,
-    }));
+    // 子動作的 scope_reference_content 對應回 (父容器, 區塊):
+    // reduce_protective_fields 的 content 區、try_catch 的 catch 區指向父容器
+    // 的 scope_reference;try_catch 的 try 區指向父容器自己的 id
+    const parentByAnchor = new Map<
+      string,
+      { parentClientId: string; parentSlot: ParentSlot }
+    >();
+    taskDataSource.forEach((s) => {
+      if (!s.scope_reference) return;
+      if (s.operation?.type === TRY_CATCH_TYPE) {
+        parentByAnchor.set(s.id, { parentClientId: s.id, parentSlot: "try" });
+        parentByAnchor.set(s.scope_reference, {
+          parentClientId: s.id,
+          parentSlot: "catch",
+        });
+      } else {
+        parentByAnchor.set(s.scope_reference, {
+          parentClientId: s.id,
+          parentSlot: "content",
+        });
+      }
+    });
+    const next: EditorSlice[] = taskDataSource.map((s) => {
+      const parent = s.scope_reference_content
+        ? parentByAnchor.get(s.scope_reference_content)
+        : undefined;
+      return {
+        clientId: s.id,
+        dbId: s.id,
+        disable: s.disable,
+        operation: s.operation,
+        parentClientId: parent?.parentClientId ?? null,
+        parentSlot: parent?.parentSlot ?? null,
+      };
+    });
     setSlices(next);
     setExpanded(
       new Set(
@@ -675,13 +744,15 @@ const EditMirMissionPanelContent: FC<{
     () => slices.filter((s) => !s.parentClientId),
     [slices],
   );
-  const childrenByParent = useMemo(() => {
+  // keyed by slotKey(parentClientId, parentSlot)
+  const childrenBySlot = useMemo(() => {
     const map = new Map<string, EditorSlice[]>();
     slices.forEach((s) => {
-      if (!s.parentClientId) return;
-      const list = map.get(s.parentClientId) ?? [];
+      if (!s.parentClientId || !s.parentSlot) return;
+      const key = slotKey(s.parentClientId, s.parentSlot);
+      const list = map.get(key) ?? [];
       list.push(s);
-      map.set(s.parentClientId, list);
+      map.set(key, list);
     });
     return map;
   }, [slices]);
@@ -704,6 +775,7 @@ const EditMirMissionPanelContent: FC<{
         disable: false,
         operation: buildDefaultOperation(actionType),
         parentClientId: null,
+        parentSlot: null,
       },
     ]);
   };
@@ -736,7 +808,7 @@ const EditMirMissionPanelContent: FC<{
     if (
       target &&
       isContainerOperation(target.operation) &&
-      (childrenByParent.get(clientId)?.length ?? 0) > 0
+      slices.some((s) => s.parentClientId === clientId)
     ) {
       messageApi.warning("這個區塊裡還有任務，請先把裡面的任務拖出來再刪除");
       return;
@@ -767,21 +839,35 @@ const EditMirMissionPanelContent: FC<{
     const activeSliceData = slices.find((s) => s.clientId === activeId);
     if (!activeSliceData) return;
 
-    const overParentId = overId.startsWith("scope-")
-      ? overId.replace("scope-", "")
-      : (slices.find((s) => s.clientId === overId)?.parentClientId ?? null);
+    const overZone = over.data.current as
+      | { type?: string; parentClientId?: string; slot?: ParentSlot }
+      | undefined;
+    const overSlice = slices.find((s) => s.clientId === overId);
+    const overParentId =
+      overZone?.type === "scope-container"
+        ? (overZone.parentClientId ?? null)
+        : (overSlice?.parentClientId ?? null);
+    const overSlot =
+      overZone?.type === "scope-container"
+        ? (overZone.slot ?? null)
+        : (overSlice?.parentSlot ?? null);
 
     const sourceParentId = activeSliceData.parentClientId ?? null;
+    const sourceSlot = activeSliceData.parentSlot ?? null;
 
     if (isContainerOperation(activeSliceData.operation) && overParentId) {
-      messageApi.warning("Mute protective fields 本身不能被拖進另一個區塊");
+      messageApi.warning(
+        `${summarizeAction(activeSliceData.operation).verb} 本身不能被拖進另一個區塊`,
+      );
       return;
     }
 
-    if (sourceParentId === overParentId) {
-      const siblings = slices.filter(
-        (s) => (s.parentClientId ?? null) === sourceParentId,
-      );
+    const isSameList = (s: EditorSlice) =>
+      (s.parentClientId ?? null) === sourceParentId &&
+      (s.parentSlot ?? null) === sourceSlot;
+
+    if (sourceParentId === overParentId && sourceSlot === overSlot) {
+      const siblings = slices.filter(isSameList);
       const activeIndex = siblings.findIndex((s) => s.clientId === activeId);
       const overIndex = siblings.findIndex((s) => s.clientId === overId);
       if (activeIndex === -1 || overIndex === -1) return;
@@ -794,16 +880,14 @@ const EditMirMissionPanelContent: FC<{
       // undefined，混進 slices 裡讓後面的 .filter/.map 整個炸掉。
       setSlices((prev) => {
         let cursor = 0;
-        return prev.map((s) =>
-          (s.parentClientId ?? null) === sourceParentId
-            ? reordered[cursor++]
-            : s,
-        );
+        return prev.map((s) => (isSameList(s) ? reordered[cursor++] : s));
       });
     } else {
       setSlices((prev) =>
         prev.map((s) =>
-          s.clientId === activeId ? { ...s, parentClientId: overParentId } : s,
+          s.clientId === activeId
+            ? { ...s, parentClientId: overParentId, parentSlot: overSlot }
+            : s,
         ),
       );
       if (overParentId) {
@@ -823,6 +907,7 @@ const EditMirMissionPanelContent: FC<{
           disable: s.disable,
           operation: s.operation,
           parentClientId: s.parentClientId,
+          parentSlot: s.parentSlot,
         })),
       }),
     onSuccess: async () => {
@@ -871,8 +956,7 @@ const EditMirMissionPanelContent: FC<{
           >
             <CardList>
               {topLevelSlices.map((slice) => {
-                const isContainer = isContainerOperation(slice.operation);
-                const children = childrenByParent.get(slice.clientId) ?? [];
+                const slots = containerSlots(slice.operation);
                 return (
                   <div key={slice.clientId}>
                     <Card
@@ -893,33 +977,48 @@ const EditMirMissionPanelContent: FC<{
                       onDuplicate={() => duplicateSlice(slice.clientId)}
                       onDelete={() => deleteSlice(slice.clientId)}
                     />
-                    {isContainer && expanded.has(slice.clientId) ? (
+                    {slots.length > 0 && expanded.has(slice.clientId) ? (
                       <ContainerBlock>
-                        <SortableContext
-                          items={children.map((c) => c.clientId)}
-                          strategy={verticalListSortingStrategy}
-                        >
-                          <ContainerDropZone
-                            contentId={slice.clientId}
-                            isEmpty={children.length === 0}
-                          >
-                            {children.map((child) => (
-                              <Card
-                                key={child.clientId}
-                                slice={child}
-                                expanded={false}
-                                onToggleExpand={() => {}}
-                                onEdit={() =>
-                                  setEditingClientId(child.clientId)
-                                }
-                                onDuplicate={() =>
-                                  duplicateSlice(child.clientId)
-                                }
-                                onDelete={() => deleteSlice(child.clientId)}
-                              />
-                            ))}
-                          </ContainerDropZone>
-                        </SortableContext>
+                        {slots.map((slot) => {
+                          const children =
+                            childrenBySlot.get(slotKey(slice.clientId, slot)) ??
+                            [];
+                          return (
+                            <SlotSection key={slot}>
+                              {slots.length > 1 ? (
+                                <SlotHeader>{SLOT_LABEL[slot]}</SlotHeader>
+                              ) : null}
+                              <SortableContext
+                                items={children.map((c) => c.clientId)}
+                                strategy={verticalListSortingStrategy}
+                              >
+                                <ContainerDropZone
+                                  parentClientId={slice.clientId}
+                                  slot={slot}
+                                  isEmpty={children.length === 0}
+                                >
+                                  {children.map((child) => (
+                                    <Card
+                                      key={child.clientId}
+                                      slice={child}
+                                      expanded={false}
+                                      onToggleExpand={() => {}}
+                                      onEdit={() =>
+                                        setEditingClientId(child.clientId)
+                                      }
+                                      onDuplicate={() =>
+                                        duplicateSlice(child.clientId)
+                                      }
+                                      onDelete={() =>
+                                        deleteSlice(child.clientId)
+                                      }
+                                    />
+                                  ))}
+                                </ContainerDropZone>
+                              </SortableContext>
+                            </SlotSection>
+                          );
+                        })}
                       </ContainerBlock>
                     ) : null}
                   </div>
