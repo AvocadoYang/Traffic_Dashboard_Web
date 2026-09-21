@@ -27,6 +27,7 @@ import ImportMapConfigModal from "@/pages/Setting/components/importMap/ImportMap
 import UploadWarningModal from "@/pages/Setting/components/UploadWarningModal";
 import { navCategories } from "./navItems";
 import { mapViewModeAtom, type MapViewMode } from "./mapViewModeAtom";
+import { mqNarrow } from "./ui/tokens";
 
 const NavWrap = styled.div`
   width: 240px;
@@ -38,6 +39,12 @@ const NavWrap = styled.div`
   border-right: 1px solid #d9d9d9;
   overflow-y: auto;
   scrollbar-width: thin;
+
+  /* 窄螢幕時這份選單是塞在抽屜裡的,要吃滿抽屜寬度也不用右邊框 */
+  ${mqNarrow} {
+    width: 100%;
+    border-right: none;
+  }
 `;
 
 const ExtraRow = styled.div`
@@ -81,9 +88,15 @@ const ActionButton = styled.button`
 type Props = {
   activePanel: ToolBarItemType | null;
   onSelectPanel: (key: ToolBarItemType | null) => void;
+  /** 選完一個項目之後要做的事。窄螢幕用來把抽屜收起來。 */
+  onAfterSelect?: () => void;
 };
 
-const SettingV2Nav: FC<Props> = ({ activePanel, onSelectPanel }) => {
+const SettingV2Nav: FC<Props> = ({
+  activePanel,
+  onSelectPanel,
+  onAfterSelect,
+}) => {
   const [mapMode, setMapMode] = useAtom(mapViewModeAtom);
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -121,6 +134,8 @@ const SettingV2Nav: FC<Props> = ({ activePanel, onSelectPanel }) => {
   // 點同一個項目 = 收起來,點別的 = 直接換過去,永遠只會有一個面板。
   const handleClick: MenuProps["onClick"] = ({ key }) => {
     onSelectPanel(activePanel === key ? null : (key as ToolBarItemType));
+    // 窄螢幕時選單是抽屜,選完要收起來才看得到面板
+    onAfterSelect?.();
   };
 
   return (

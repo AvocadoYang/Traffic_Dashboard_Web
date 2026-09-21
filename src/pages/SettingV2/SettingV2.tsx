@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef } from "react";
-import { Layout, Form, Button, ConfigProvider } from "antd";
-import { CloseOutlined } from "@ant-design/icons";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Layout, Form, Button, ConfigProvider, Drawer, Segmented } from "antd";
+import { CloseOutlined, MenuOutlined } from "@ant-design/icons";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
@@ -23,15 +23,52 @@ import { navCategories } from "./navItems";
 import SettingV2Nav from "./SettingV2Nav";
 import PanelRenderer from "./PanelRenderer";
 import { settingV2Theme } from "./ui/theme";
-import { c, font, mqNarrow } from "./ui/tokens";
+import useIsNarrow from "./ui/useIsNarrow";
+import { c, font, mqNarrow, space } from "./ui/tokens";
 
 const { Content } = Layout;
 
-const Body = styled.div`
+const Shell = styled.div`
   display: flex;
+  flex-direction: column;
   height: 100%;
   width: 100%;
   min-height: 0;
+`;
+
+const Body = styled.div`
+  display: flex;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+`;
+
+/**
+ * 窄螢幕專用的頂列。選單收進抽屜之後,要有地方放「開選單」和
+ * 「面板 / 地圖」的切換,不然在手機上兩邊都到不了。
+ */
+const MobileBar = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${space.sm};
+  padding: ${space.sm} ${space.md};
+  background: ${c.bg};
+  border-bottom: 1px solid ${c.border};
+  font-family: ${font.mono};
+  font-size: ${font.sm};
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: ${c.text};
+`;
+
+const MobileBarTitle = styled.span`
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-transform: uppercase;
+  color: ${c.textSecondary};
 `;
 
 const PanelColumn = styled.div<{ $mode: MapViewMode }>`
@@ -51,7 +88,9 @@ const PanelColumn = styled.div<{ $mode: MapViewMode }>`
   ${mqNarrow} {
     /* 窄螢幕一次只看一邊:除非切到「全開」,否則都以面板為主 */
     ${({ $mode }) =>
-      $mode === "full" ? `display: none;` : `display: flex; width: 100%; flex: 1;`}
+      $mode === "full"
+        ? `display: none;`
+        : `display: flex; width: 100%; flex: 1;`}
   }
 `;
 
@@ -126,7 +165,9 @@ const SettingV2: React.FC = () => {
   const currentMapInfo = useMap();
   const cm = useAtomValue(centerMap);
   const [activePanel, setActivePanel] = useAtom(activeSettingPanelAtom);
-  const mapMode = useAtomValue(mapViewModeAtom);
+  const [mapMode, setMapMode] = useAtom(mapViewModeAtom);
+  const isNarrow = useIsNarrow();
+  const [navOpen, setNavOpen] = useState(false);
 
   // v1 也是這樣做的:進頁面先把幾顆地圖編輯模式的 atom 歸零。因為 v1/v2 共用同一份
   // atom,誰後進來誰負責重置,不會互相殘留狀態。
@@ -170,54 +211,107 @@ const SettingV2: React.FC = () => {
       <Layout style={{ height: "var(--app-height)" }}>
         <Header />
         <Content>
-        <Body>
-          <SettingV2Nav
-            activePanel={activePanel}
-            onSelectPanel={setActivePanel}
-          />
-
-          {activePanel && (
-            <PanelColumn $mode={mapMode}>
-              <PanelHeader>
-                <span>{activeLabel}</span>
+          <Shell>
+            {isNarrow && (
+              <MobileBar>
                 <Button
                   type="text"
                   size="small"
-                  icon={<CloseOutlined />}
-                  onClick={() => setActivePanel(null)}
+                  icon={<MenuOutlined />}
+                  onClick={() => setNavOpen(true)}
                 />
-              </PanelHeader>
+                <MobileBarTitle>{activeLabel || "SETTINGS"}</MobileBarTitle>
+                {activePanel && (
+                  <>
+                    <Segmented
+                      size="small"
+                      value={mapMode === "full" ? "map" : "panel"}
+                      onChange={(v) => setMapMode(v === "map" ? "full" : "half")}
+                      options={[
+                        { value: "panel", label: "面板" },
+                        { value: "map", label: "地圖" },
+                      ]}
+                    />
+                    {/* 窄螢幕的面板沒有自己的標題列,關閉鈕要放在這裡 */}
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<CloseOutlined />}
+                      onClick={() => setActivePanel(null)}
+                    />
+                  </>
+                )}
+              </MobileBar>
+            )}
 
-              <PanelBody>
-                <PanelRenderer
-                  activeKey={activePanel}
-                  locationPanelForm={locationPanelForm}
-                  roadPanelForm={roadPanelForm}
-                  zonePanelForm={zonePanelForm}
+            <Body>
+              {isNarrow ? (
+                <Drawer
+                  open={navOpen}
+                  onClose={() => setNavOpen(false)}
+                  placement="left"
+                  width={280}
+                  styles={{ body: { padding: 0 } }}
+                >
+                  <SettingV2Nav
+                    activePanel={activePanel}
+                    onSelectPanel={setActivePanel}
+                    onAfterSelect={() => setNavOpen(false)}
+                  />
+                </Drawer>
+              ) : (
+                <SettingV2Nav
+                  activePanel={activePanel}
+                  onSelectPanel={setActivePanel}
                 />
-              </PanelBody>
-            </PanelColumn>
-          )}
+              )}
 
-          {/* 沒有選任何面板時,地圖一律全開,不然畫面會整片空的 */}
-          <MapColumn $mode={activePanel ? mapMode : "full"}>
-            <MapSelectorSlot>
-              <MapSelector />
-            </MapSelectorSlot>
-            <MapScroll draggable={false} ref={mapWrapRef}>
-              <MapView
-                scale={scale}
-                mapRef={mapRef}
-                mapWrapRef={mapWrapRef}
-                roadPanelForm={roadPanelForm}
-                locationPanelForm={locationPanelForm}
-                zonePanelForm={zonePanelForm}
-              />
-            </MapScroll>
-            <ZoomPad setScale={setScale} />
-            <BKBtn />
-          </MapColumn>
-        </Body>
+              {activePanel && (
+                <PanelColumn $mode={mapMode}>
+                  {/* 窄螢幕的標題已經在 MobileBar 上了,這一列不用再出現一次 */}
+                  {!isNarrow && (
+                    <PanelHeader>
+                      <span>{activeLabel}</span>
+                      <Button
+                        type="text"
+                        size="small"
+                        icon={<CloseOutlined />}
+                        onClick={() => setActivePanel(null)}
+                      />
+                    </PanelHeader>
+                  )}
+
+                  <PanelBody>
+                    <PanelRenderer
+                      activeKey={activePanel}
+                      locationPanelForm={locationPanelForm}
+                      roadPanelForm={roadPanelForm}
+                      zonePanelForm={zonePanelForm}
+                    />
+                  </PanelBody>
+                </PanelColumn>
+              )}
+
+              {/* 沒有選任何面板時,地圖一律全開,不然畫面會整片空的 */}
+              <MapColumn $mode={activePanel ? mapMode : "full"}>
+                <MapSelectorSlot>
+                  <MapSelector />
+                </MapSelectorSlot>
+                <MapScroll draggable={false} ref={mapWrapRef}>
+                  <MapView
+                    scale={scale}
+                    mapRef={mapRef}
+                    mapWrapRef={mapWrapRef}
+                    roadPanelForm={roadPanelForm}
+                    locationPanelForm={locationPanelForm}
+                    zonePanelForm={zonePanelForm}
+                  />
+                </MapScroll>
+                <ZoomPad setScale={setScale} />
+                <BKBtn />
+              </MapColumn>
+            </Body>
+          </Shell>
         </Content>
       </Layout>
     </ConfigProvider>
