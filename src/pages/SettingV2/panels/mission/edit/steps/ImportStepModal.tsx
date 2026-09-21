@@ -7,16 +7,15 @@ import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";
 import useAllMissionTitlesDetail from "@/api/useMissionTitleDetail";
 import { currentMapIdAtom } from "@/utils/mapSelection";
-import { isFork, isHumanRobot, isMir } from "@/utils/globalFunction";
+import { isFork, isMir } from "@/utils/globalFunction";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { Field, FieldLabel, Hint } from "../../../../ui/primitives";
-import { STEP_QUERY_BASE, StepVariant } from "./useStepMutations";
+import { STEP_QUERY_BASE } from "./useStepMutations";
 
 type Props = {
   /** 要插在哪一個步驟後面。null 代表關閉 */
   target: { missionId: string; afterOrder: number } | null;
-  variant: StepVariant;
   /** 目前這個任務綁的車型,用來過濾可引入的任務 */
   robotValue: string;
   messageApi: MessageInstance;
@@ -24,13 +23,10 @@ type Props = {
 };
 
 /**
- * 把另一個任務的步驟整串複製進目前任務的指定位置。
- * v1 的版本只支援 Fork 與人形車,MiR 會拿到空清單;而且 MirTaskTable
- * 有引入按鈕卻根本沒把對話框掛上去,按了沒反應。這裡兩個都補上。
+ * 把另一個任務的步驟整串複製進目前任務的指定位置。只列得出同車型的任務。
  */
 const ImportStepModal: FC<Props> = ({
   target,
-  variant,
   robotValue,
   messageApi,
   onClose,
@@ -45,7 +41,6 @@ const ImportStepModal: FC<Props> = ({
   const options = useMemo(() => {
     const sameKind = (value: string) => {
       if (isFork(robotValue)) return isFork(value);
-      if (isHumanRobot(robotValue)) return isHumanRobot(value);
       if (isMir(robotValue)) return isMir(value);
       return false;
     };
@@ -68,7 +63,7 @@ const ImportStepModal: FC<Props> = ({
     onSuccess: async () => {
       void messageApi.success(t("utils.success"));
       await queryClient.refetchQueries({
-        queryKey: [STEP_QUERY_BASE[variant], target?.missionId],
+        queryKey: [STEP_QUERY_BASE, target?.missionId],
       });
       setPick(undefined);
       onClose();

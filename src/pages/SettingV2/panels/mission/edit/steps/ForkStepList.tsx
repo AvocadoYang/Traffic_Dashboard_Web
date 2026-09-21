@@ -67,12 +67,10 @@ const ForkStepList: FC<Props> = ({ missionId, robotValue, onEditStep }) => {
   const steps = useMemo(() => (data ?? []) as ForkStep[], [data]);
 
   const { setDisabled, setExtendNext, busy } = useStepMutations(
-    "fork",
     missionId,
     messageApi,
   );
   const { moveStep, onDragEnd, removeStep } = useStepList(
-    "fork",
     missionId,
     steps,
     messageApi,
@@ -269,7 +267,6 @@ const ForkStepList: FC<Props> = ({ missionId, robotValue, onEditStep }) => {
             ? null
             : { missionId, afterOrder: importAfter + 1 }
         }
-        variant="fork"
         robotValue={robotValue}
         messageApi={messageApi}
         onClose={() => setImportAfter(null)}

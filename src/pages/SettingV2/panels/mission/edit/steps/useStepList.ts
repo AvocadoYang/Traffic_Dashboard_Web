@@ -3,9 +3,9 @@ import type { MessageInstance } from "antd/es/message/interface";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { useQueryClient } from "@tanstack/react-query";
-import useStepMutations, { StepVariant } from "./useStepMutations";
+import useStepMutations from "./useStepMutations";
 
-/** 三種車型的步驟至少都有這三個欄位,排序與刪除只需要這些 */
+/** 步驟至少都有這三個欄位,排序與刪除只需要這些 */
 export type BaseStep = {
   id: string;
   process_order: number;
@@ -13,25 +13,17 @@ export type BaseStep = {
 };
 
 /**
- * 步驟清單的排序 / 刪除邏輯。三種車型完全一樣,差別只在資料來源,
- * 所以把它抽出來讓三個清單共用。
+ * 步驟清單的排序 / 刪除邏輯。
  *
- * @param orderable 有全域 process_order 的那一層步驟。MiR 的巢狀子步驟
- *                  不參與全域編號,所以只傳頂層那些進來。
+ * @param orderable 有全域 process_order 的步驟
  */
 const useStepList = <T extends BaseStep>(
-  variant: StepVariant,
   missionId: string,
   orderable: T[],
   messageApi: MessageInstance,
-  /**
-   * 排序後要寫回快取的完整清單。MiR 的巢狀子步驟不在 orderable 裡,
-   * 少了這個 callback 就會被樂觀更新整批蓋掉。
-   */
-  rebuild?: (renumbered: T[]) => T[],
 ) => {
   const queryClient = useQueryClient();
-  const mutations = useStepMutations(variant, missionId, messageApi);
+  const mutations = useStepMutations(missionId, messageApi);
   const { queryKey, reorder, remove } = mutations;
 
   return useMemo(() => {
@@ -42,10 +34,7 @@ const useStepList = <T extends BaseStep>(
      */
     const applyOrder = (next: T[]) => {
       const renumbered = next.map((v, i) => ({ ...v, process_order: i }));
-      queryClient.setQueryData(
-        queryKey,
-        rebuild ? rebuild(renumbered) : renumbered,
-      );
+      queryClient.setQueryData(queryKey, renumbered);
       reorder.mutate(
         renumbered.map((v) => ({ key: v.id, order: v.process_order })),
       );
@@ -75,7 +64,7 @@ const useStepList = <T extends BaseStep>(
     };
 
     return { moveStep, onDragEnd, removeStep };
-  }, [orderable, rebuild, queryClient, queryKey, reorder, remove]);
+  }, [orderable, queryClient, queryKey, reorder, remove]);
 };
 
 export default useStepList;

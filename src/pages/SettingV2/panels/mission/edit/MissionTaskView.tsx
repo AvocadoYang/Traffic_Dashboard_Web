@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { Form, Modal, Popconfirm, Tabs, message } from "antd";
+import { Form, Modal, Popconfirm, message } from "antd";
 import {
   CopyOutlined,
   LeftOutlined,
@@ -14,10 +14,7 @@ import client from "@/api/axiosClient";
 import { currentMapIdAtom } from "@/utils/mapSelection";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import { isFork, isHumanRobot, isMir } from "@/utils/globalFunction";
-import TaskFormHumanRobot from "@/pages/Setting/formComponent/forms/missionComponents/editMission/humanRobotEditMissionSlice/TaskFormHumanRobot";
-import TaskFormMir from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/TaskFormMir";
-import EditMirMissionPanel from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/EditMirMissionPanel";
+import { isFork, isMir } from "@/utils/globalFunction";
 import {
   PanelShell,
   Section,
@@ -25,18 +22,18 @@ import {
   Toolbar,
   SolidButton,
   GhostButton,
+  EmptyState,
   Tag,
 } from "../../../ui/primitives";
 import ForkStepList from "./steps/ForkStepList";
 import ForkTaskForm from "./forkForm/ForkTaskForm";
-import HumanRobotStepList from "./steps/HumanRobotStepList";
-import MirStepList from "./steps/MirStepList";
-import { STEP_QUERY_BASE, StepVariant } from "./steps/useStepMutations";
+import MirMissionEditor from "./mirForm/MirMissionEditor";
+import { STEP_QUERY_BASE } from "./steps/useStepMutations";
 
 type Props = {
   missionId: string;
   missionName: string;
-  /** Robot_types.value,用來判斷是 fork / 人形 / MiR */
+  /** Robot_types.value,用來判斷是 fork 還是 MiR */
   robotValue: string;
   onBack: () => void;
 };
@@ -56,25 +53,23 @@ const MissionTaskView: FC<Props> = ({
   const [editTaskKey, setEditTaskKey] = useState("");
   const [formOpen, setFormOpen] = useState(false);
 
-  const variant: StepVariant | null = isFork(robotValue)
-    ? "fork"
-    : isHumanRobot(robotValue)
-      ? "humanRobot"
-      : isMir(robotValue)
-        ? "mir"
-        : null;
+  // 人形車的步驟編輯器沒有人在用,v2 不做這一支;v1 的 /setting 還留著。
+  const isForkMission = isFork(robotValue);
+  const isMirMission = isMir(robotValue);
 
+  /**
+   * Fork 的步驟是一次加一筆、當下就寫進後端;
+   * MiR 走的是自己那一套(本地先排好,按儲存才一次送出),所以不用這顆按鈕。
+   */
   const addTaskMutation = useMutation({
     mutationFn: () =>
       client.post("api/setting/add-task", { key: missionId, currentMapId }),
     onSuccess: async () => {
       // v1 這裡打的是 "all-relate-all-relate-task-fork",多寫了一次前綴,
       // 所以其實沒有對到任何 query,只是靠 2 秒的輪詢才看到新步驟。
-      if (variant) {
-        await queryClient.refetchQueries({
-          queryKey: [STEP_QUERY_BASE[variant], missionId],
-        });
-      }
+      await queryClient.refetchQueries({
+        queryKey: [STEP_QUERY_BASE, missionId],
+      });
       void messageApi.success(t("utils.success"));
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
@@ -123,13 +118,17 @@ const MissionTaskView: FC<Props> = ({
             <LeftOutlined />
             {t("mission.mission_list.previous")}
           </GhostButton>
-          <SolidButton
-            onClick={() => addTaskMutation.mutate()}
-            disabled={addTaskMutation.isLoading}
-          >
-            <PlusOutlined />
-            {t("mission.mission_list.create_mission")}
-          </SolidButton>
+
+          {isForkMission && (
+            <SolidButton
+              onClick={() => addTaskMutation.mutate()}
+              disabled={addTaskMutation.isLoading}
+            >
+              <PlusOutlined />
+              {t("mission.mission_list.create_mission")}
+            </SolidButton>
+          )}
+
           <Popconfirm
             title={t("mission.mission_list.copy_mission")}
             okText={t("utils.confirm")}
@@ -143,7 +142,14 @@ const MissionTaskView: FC<Props> = ({
           </Popconfirm>
         </Toolbar>
 
-        {variant === "fork" && (
+        {!isForkMission && !isMirMission && (
+          <EmptyState>
+            這個車種的步驟編輯還沒有搬到新版設定頁。請先從舊版設定頁
+            (/setting)編輯。
+          </EmptyState>
+        )}
+
+        {isForkMission && (
           <ForkStepList
             missionId={missionId}
             robotValue={robotValue}
@@ -151,41 +157,14 @@ const MissionTaskView: FC<Props> = ({
           />
         )}
 
-        {variant === "humanRobot" && (
-          <HumanRobotStepList
-            missionId={missionId}
-            robotValue={robotValue}
-            onEditStep={openTaskForm}
-          />
-        )}
-
-        {variant === "mir" && (
-          <Tabs
-            style={{ width: "100%" }}
-            items={[
-              {
-                key: "steps",
-                label: t("mission.add_mission.edit_detail"),
-                children: (
-                  <MirStepList
-                    missionId={missionId}
-                    robotValue={robotValue}
-                    onEditStep={openTaskForm}
-                  />
-                ),
-              },
-              {
-                key: "mir-style",
-                label: "MiR",
-                children: <EditMirMissionPanel selectedMissionKey={missionId} />,
-              },
-            ]}
-          />
+        {isMirMission && (
+          <MirMissionEditor key={missionId} missionId={missionId} />
         )}
       </Section>
 
+      {/* MiR 的參數是在自己的抽屜裡改,不會用到這個對話框 */}
       <Modal
-        open={formOpen}
+        open={formOpen && isForkMission}
         title={t("utils.edit")}
         onCancel={closeTaskForm}
         footer={null}
@@ -193,31 +172,12 @@ const MissionTaskView: FC<Props> = ({
         style={{ top: 24 }}
         destroyOnHidden
       >
-        {variant === "fork" && (
-          <ForkTaskForm
-            key={editTaskKey}
-            editTaskKey={editTaskKey}
-            selectedMissionKey={missionId}
-            form={taskForm}
-          />
-        )}
-
-        {variant === "humanRobot" && (
-          <TaskFormHumanRobot
-            editTaskKey={editTaskKey}
-            selectedMissionKey={missionId}
-          />
-        )}
-
-        {variant === "mir" && (
-          <TaskFormMir
-            key={editTaskKey}
-            editTaskKey={editTaskKey}
-            selectedMissionCar={robotValue}
-            selectedMissionKey={missionId}
-            form={taskForm}
-          />
-        )}
+        <ForkTaskForm
+          key={editTaskKey}
+          editTaskKey={editTaskKey}
+          selectedMissionKey={missionId}
+          form={taskForm}
+        />
       </Modal>
     </PanelShell>
   );

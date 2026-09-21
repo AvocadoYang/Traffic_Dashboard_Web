@@ -24,7 +24,7 @@ type Props = {
   onJson?: () => void;
 };
 
-/** 每一個步驟後面那排操作。三種車型共用,只有要不要顯示引入 / 詳情不同。 */
+/** 每一個步驟後面那排操作。各車型共用,只有要不要顯示引入 / 詳情不同。 */
 const StepActionBar: FC<Props> = ({
   disabled,
   withText,
