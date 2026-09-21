@@ -15,7 +15,6 @@ import { currentMapIdAtom } from "@/utils/mapSelection";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { isFork, isHumanRobot, isMir } from "@/utils/globalFunction";
-import TaskFormFork from "@/pages/Setting/formComponent/forms/missionComponents/editMission/forkEditMissionSlice/TaskFormFork";
 import TaskFormHumanRobot from "@/pages/Setting/formComponent/forms/missionComponents/editMission/humanRobotEditMissionSlice/TaskFormHumanRobot";
 import TaskFormMir from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/TaskFormMir";
 import EditMirMissionPanel from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/EditMirMissionPanel";
@@ -29,6 +28,7 @@ import {
   Tag,
 } from "../../../ui/primitives";
 import ForkStepList from "./steps/ForkStepList";
+import ForkTaskForm from "./forkForm/ForkTaskForm";
 import HumanRobotStepList from "./steps/HumanRobotStepList";
 import MirStepList from "./steps/MirStepList";
 import { STEP_QUERY_BASE, StepVariant } from "./steps/useStepMutations";
@@ -194,10 +194,9 @@ const MissionTaskView: FC<Props> = ({
         destroyOnHidden
       >
         {variant === "fork" && (
-          <TaskFormFork
+          <ForkTaskForm
             key={editTaskKey}
             editTaskKey={editTaskKey}
-            selectedMissionCar={robotValue}
             selectedMissionKey={missionId}
             form={taskForm}
           />
