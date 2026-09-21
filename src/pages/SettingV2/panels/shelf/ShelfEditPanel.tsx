@@ -15,7 +15,9 @@ import {
 import type { TableColumnsType } from "antd";
 import {
   DownOutlined,
+  DragOutlined,
   EditOutlined,
+  FormatPainterOutlined,
   GoldOutlined,
   MinusCircleOutlined,
   PlusOutlined,
@@ -35,6 +37,9 @@ import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import { ShelfWithoutList } from "@/api/type/useShelf";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
+import SettingCargoStyleForm from "@/pages/Setting/formComponent/forms/shelfComponents/editShelf/SettingCargoStyleForm";
+import SettingMultiCargoStyleForm from "@/pages/Setting/formComponent/forms/shelfComponents/editShelf/SettingMultiCargoStyleForm";
+import SettingBatchCargoStyleForm from "@/pages/Setting/formComponent/forms/shelfComponents/editShelf/SettingBatchCargoStyleForm";
 import useIsNarrow from "../../ui/useIsNarrow";
 import ShelfConfigDetail from "./ShelfConfigDetail";
 import {
@@ -55,6 +60,7 @@ import {
   Tag,
   WarnNote,
   CountNote,
+  Hint,
 } from "../../ui/primitives";
 
 type EditPayload = {
@@ -81,6 +87,12 @@ const ShelfEditPanel: FC = () => {
   const { data: locData } = useLoc(undefined);
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  /** 單筆「調整位置」正在編輯的 Loc.id */
+  const [styleLocId, setStyleLocId] = useState<string | null>(null);
+  /** 批次調整位置:套用統一數值,開在對話框裡 */
+  const [multiStyleOpen, setMultiStyleOpen] = useState(false);
+  /** 批次調整樣式:相對微調,地圖上會即時預覽,所以佔滿面板不要蓋住地圖 */
+  const [batchStyleOpen, setBatchStyleOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [openEdit, setOpenEdit] = useState(false);
   /** 卡片模式下展開詳細資訊的那幾筆 */
@@ -158,6 +170,18 @@ const ShelfEditPanel: FC = () => {
     submitMutation.mutate({ ...values, shelfId: selectedRowKeys });
   };
 
+  /**
+   * 表格勾選的是貨架 id,但樣式(位置、縮放、旋轉)是存在 Loc 上,
+   * 所以要換算成 Loc.id 與 locationId 再交給樣式表單。
+   */
+  const selectedLocs = useMemo(
+    () =>
+      (shelfData ?? [])
+        .filter((s) => selectedRowKeys.includes(s.id))
+        .map((s) => ({ id: s.Loc.id, locationId: s.Loc.locationId })),
+    [shelfData, selectedRowKeys],
+  );
+
   const toggleCard = (id: string) =>
     setExpanded((prev) =>
       prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id],
@@ -211,9 +235,60 @@ const ShelfEditPanel: FC = () => {
       width: 120,
       render: (_, r) => r.Loc?.loc_regions?.name || "—",
     },
+    {
+      title: t("edit_shelf_panel.setting"),
+      key: "style",
+      width: 120,
+      fixed: "right",
+      render: (_, r) => (
+        <GhostButton onClick={() => setStyleLocId(r.Loc.id)}>
+          <FormatPainterOutlined />
+          {t("edit_shelf_panel.edit_position")}
+        </GhostButton>
+      ),
+    },
   ];
 
   if (isLoading) return <Skeleton active />;
+
+  // 這兩個編輯器都會在地圖上即時預覽,所以佔滿面板欄,不要用對話框蓋住地圖
+  if (styleLocId) {
+    return (
+      <PanelShell>
+        {contextHolder}
+        <Section>
+          <SectionTitle>
+            <FormatPainterOutlined />
+            {t("edit_shelf_panel.edit_position")}
+          </SectionTitle>
+          <Hint>調整會即時反映在地圖上,按儲存才會寫回後端。</Hint>
+          <SettingCargoStyleForm
+            selectId={styleLocId}
+            cancelEditStyle={() => setStyleLocId(null)}
+          />
+        </Section>
+      </PanelShell>
+    );
+  }
+
+  if (batchStyleOpen) {
+    return (
+      <PanelShell>
+        {contextHolder}
+        <Section>
+          <SectionTitle>
+            <DragOutlined />
+            {t("batchStyle.title")}
+          </SectionTitle>
+          <SettingBatchCargoStyleForm
+            locIds={selectedLocs.map((l) => l.id)}
+            locationIds={selectedLocs.map((l) => l.locationId)}
+            onDone={() => setBatchStyleOpen(false)}
+          />
+        </Section>
+      </PanelShell>
+    );
+  }
 
   return (
     <PanelShell>
@@ -248,6 +323,20 @@ const ShelfEditPanel: FC = () => {
             disabled={selectedRowKeys.length === 0}
           >
             {t("utils.reset")}
+          </GhostButton>
+          <GhostButton
+            onClick={() => setMultiStyleOpen(true)}
+            disabled={selectedLocs.length === 0}
+          >
+            <FormatPainterOutlined />
+            {t("multiStyle.title")}
+          </GhostButton>
+          <GhostButton
+            onClick={() => setBatchStyleOpen(true)}
+            disabled={selectedLocs.length === 0}
+          >
+            <DragOutlined />
+            {t("batchStyle.title")}
           </GhostButton>
           <GhostButton onClick={() => void refetch()} disabled={isFetching}>
             <ReloadOutlined />
@@ -295,6 +384,10 @@ const ShelfEditPanel: FC = () => {
                     <GhostButton onClick={() => toggleCard(row.id)}>
                       {isOpen ? <DownOutlined /> : <RightOutlined />}
                       {t("edit_shelf_panel.detail")}
+                    </GhostButton>
+                    <GhostButton onClick={() => setStyleLocId(row.Loc.id)}>
+                      <FormatPainterOutlined />
+                      {t("edit_shelf_panel.edit_position")}
                     </GhostButton>
                   </Toolbar>
 
@@ -491,6 +584,22 @@ const ShelfEditPanel: FC = () => {
             )}
           </Form.List>
         </Form>
+      </Modal>
+
+      {/* 批次調整位置:套用一組統一數值,沒有地圖預覽,放對話框就好 */}
+      <Modal
+        open={multiStyleOpen}
+        title={t("multiStyle.title")}
+        onCancel={() => setMultiStyleOpen(false)}
+        footer={null}
+        width={560}
+        destroyOnHidden
+      >
+        <SettingMultiCargoStyleForm
+          locIds={selectedLocs.map((l) => l.id)}
+          locationIds={selectedLocs.map((l) => l.locationId)}
+          onDone={() => setMultiStyleOpen(false)}
+        />
       </Modal>
     </PanelShell>
   );
