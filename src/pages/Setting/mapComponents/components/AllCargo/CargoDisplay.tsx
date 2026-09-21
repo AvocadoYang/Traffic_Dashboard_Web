@@ -83,7 +83,8 @@ interface CargoDisplayProps {
   isDisable: boolean;
   locId: string;
   rotate: number;
-  handleMouseDown: (
+  /** 右鍵時切換這一層有沒有貨 */
+  onToggleCargo: (
     e: React.MouseEvent<HTMLElement>,
     locId: string,
     level: number,
@@ -97,7 +98,7 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
   isDisable,
   locId,
   rotate,
-  handleMouseDown,
+  onToggleCargo,
 }) => {
   const [selectMode, setQuickSettingMode] = useAtom(QuickMissionSettingMode);
   const [isStartSelecting, setStartQuickSetting] = useAtom(
@@ -142,14 +143,12 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
       $isDisable={isDisable}
       $isSelecting={isStartSelecting}
       $canBeClick={isStartSelecting ? canBeClickInSelection : true}
-      // 中鍵在 Chrome 按下去會啟動自動捲動(那個圓形游標),地圖跟著滑鼠跑,
-      // 看起來就像「按了沒反應」。先擋掉預設行為,真正的動作交給 auxclick。
-      onMouseDown={(e) => {
-        if (e.button === 1) e.preventDefault();
+      // 右鍵直接切換這一層有沒有貨。preventDefault 是要擋掉瀏覽器自己的
+      // 右鍵選單,不然選單會蓋在地圖上。
+      onContextMenu={(e) => {
+        e.preventDefault();
+        onToggleCargo(e, locId, level);
       }}
-      // auxclick 才是給非主要按鍵用的事件,而且是放開才觸發,
-      // 不會跟拖曳地圖搶。mousedown 在 <button> 上不是每種情況都吃得到。
-      onAuxClick={(e) => handleMouseDown(e, locId, level)}
       onClick={isStartSelecting ? handleQuickMissionPayload : undefined}
       role="button"
     >
