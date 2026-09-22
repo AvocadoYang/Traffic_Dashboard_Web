@@ -1,6 +1,8 @@
+import useAmrName from "@/api/useAmrName";
 import { useFootprint } from "@/api/useFootprint";
 import useMap from "@/api/useMap";
 import { useMarkerType } from "@/api/useMarkerType";
+import useMirIoModules from "@/api/useMirIoModules";
 import useShelf from "@/api/useShelf";
 import { useSound } from "@/api/useSound";
 import { Form, FormInstance } from "antd";
@@ -76,6 +78,26 @@ const useMirTaskOptions = () => {
     markerTypeOption,
     markerTypeLocationIds,
   };
+};
+
+// /mir-io-modules 挑第一台可用的車：模擬環境用模擬車，否則用實體車。
+// 同一隊 MiR 的 IO module 設定是一樣的，問哪一台結果都相同。
+export const useMirIoModuleOptions = () => {
+  const { data: amrName } = useAmrName();
+
+  const amrId = useMemo(() => {
+    const wantReal = !amrName?.isSim;
+    return amrName?.amrs.find((a) => a.isReal === wantReal)?.amrId;
+  }, [amrName]);
+
+  const { data, isFetching, error, refetch } = useMirIoModules(amrId);
+
+  const ioModuleOption = useMemo(
+    () => data?.map((m) => ({ label: m.name, value: m.guid })) ?? [],
+    [data],
+  );
+
+  return { ioModuleOption, amrId, isFetching, error, refetch };
 };
 
 export const useMirDockingMarkerType = (form: FormInstance) => {

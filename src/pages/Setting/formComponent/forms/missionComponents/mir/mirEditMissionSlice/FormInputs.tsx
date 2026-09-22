@@ -2,7 +2,7 @@ import { Form, Input, InputNumber, Select, Switch, TimePicker } from "antd";
 import React from "react";
 import styled from "styled-components";
 import dayjs from "dayjs";
-import useMirTaskOptions from "./useMirTaskOptions";
+import useMirTaskOptions, { useMirIoModuleOptions } from "./useMirTaskOptions";
 import ParameterCard, { FieldLabel } from "./ParameterCard";
 
 const SwitchContainer = styled.div`
@@ -388,20 +388,26 @@ export const MirSideInput = () => {
 };
 
 export const MirModuleInput = () => {
+  const { ioModuleOption, amrId, isFetching, error, refetch } =
+    useMirIoModuleOptions();
+
+  const notFoundContent = () => {
+    if (isFetching) return "讀取中…";
+    if (!amrId) return "找不到可用的 MiR 車輛";
+    if (error) return "讀取 IO module 失敗";
+    return undefined;
+  };
+
   return (
     <ParameterCard fieldName="module" label="Module">
       <Form.Item name="module" style={{ marginBottom: 0 }}>
         <Select
-          options={[
-            {
-              value: "mirconst-guid-0000-0001-internalIO00",
-              label: "MiR Internal IOs",
-            },
-            {
-              value: "ead43e49-acc6-11f1-b60c-000e8ebbc419",
-              label: "WISE-4060/LAN",
-            },
-          ]}
+          options={ioModuleOption}
+          loading={isFetching}
+          onOpenChange={(visible) => {
+            if (visible) void refetch();
+          }}
+          notFoundContent={notFoundContent()}
         />
       </Form.Item>
     </ParameterCard>
