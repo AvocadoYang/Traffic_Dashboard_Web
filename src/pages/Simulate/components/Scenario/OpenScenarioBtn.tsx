@@ -5,10 +5,13 @@ import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { OpenScenarioDrawer } from "../../utils/mapStatus";
 
+// 左側欄由上往下: 11% 效能 / 18% 情境 / 25% 切換腳本 /
+// 30-70% 車輛面板 (top:50% + height:40vh) / 75% 時間軸高度 / 82% 排程表。
+// 車輛面板那一段不能放東西, 會被蓋住。
 const Btn = styled.div`
   position: absolute;
   z-index: 5;
-  top: 68%;
+  top: 18%;
   left: 20px;
   transform: translateY(-50%);
   background-color: #f5f5f5;
