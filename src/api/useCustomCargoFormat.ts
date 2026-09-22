@@ -17,7 +17,16 @@ const getData = async () => {
     "api/setting/custom-cargo-metadata"
   );
 
-  return schema.validate(data, { stripUnknown: true });
+  // 舊備份還原後可能留下沒有 unique_key 的格式，這種格式無法使用；
+  // 略過它們，不要讓一筆壞資料害整份清單(以及所有貨物編輯畫面)驗證失敗
+  const rows = Array.isArray(data)
+    ? data.filter(
+        (row: { unique_key?: unknown }) =>
+          typeof row?.unique_key === "string" && row.unique_key !== "",
+      )
+    : data;
+
+  return schema.validate(rows, { stripUnknown: true });
 };
 
 const useCustomCargoFormat = () => {

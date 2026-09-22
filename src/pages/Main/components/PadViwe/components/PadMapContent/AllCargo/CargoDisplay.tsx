@@ -1,10 +1,11 @@
 import {
+  QuickMissionHoverCell,
   QuickMissionLoad,
   QuickMissionOffload,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
 } from "@/pages/Main/global/jotai";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { FC } from "react";
 import styled from "styled-components";
 import { Button } from "antd";
@@ -12,11 +13,14 @@ import { Button } from "antd";
 const InfoBlock = styled.div`
   position: absolute;
   z-index: 200;
-  top: -70px;
-  left: 50%;
-  transform: translateX(-50%);
-  min-width: 120px;
-  padding: 8px 12px;
+  top: 50%;
+  left: calc(100% + 10px);
+  transform: translateY(-50%);
+  writing-mode: vertical-rl;
+  text-orientation: sideways;
+  white-space: nowrap;
+  min-height: 120px;
+  padding: 12px 8px;
   background-color: rgba(255, 255, 255, 0.98);
   border: 1px solid #e8e8e8;
   border-radius: 6px;
@@ -32,13 +36,13 @@ const InfoBlock = styled.div`
   &::before {
     content: "";
     position: absolute;
-    bottom: -6px;
-    left: 50%;
-    transform: translateX(-50%) rotate(45deg);
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
     width: 10px;
     height: 10px;
     background-color: white;
-    border-right: 1px solid #e8e8e8;
+    border-left: 1px solid #e8e8e8;
     border-bottom: 1px solid #e8e8e8;
   }
 
@@ -59,6 +63,7 @@ const Block = styled(Button)<{
   $isSelecting: boolean;
   $canBeClick: boolean;
   $isHaveAction: boolean;
+  $isHovered: boolean;
 }>`
   display: inline-flex;
   align-items: center;
@@ -68,14 +73,16 @@ const Block = styled(Button)<{
   border: ${({ $isSelecting, $canBeClick }) =>
     $isSelecting && $canBeClick ? "2px solid #1890ff" : "1px dashed #727272"};
   border-radius: 3px;
-  min-width: 15px;
-  max-height: 15px;
-  max-width: 100%;
-  padding: 0 2px;
+  min-height: 15px;
+  max-width: 15px;
+  max-height: 100%;
+  height: auto;
+  padding: 2px 0;
   transition: all 0.2s ease;
   position: relative;
   flex-grow: 1;
-  z-index: ${({ $isSelecting }) => ($isSelecting ? 50 : 1)};
+  z-index: ${({ $isSelecting, $isHovered }) =>
+    $isHovered ? 100 : $isSelecting ? 50 : 1};
   cursor: ${({ $isDisable, $isSelecting, $canBeClick }) =>
     $isDisable
       ? "not-allowed"
@@ -85,6 +92,16 @@ const Block = styled(Button)<{
   opacity: ${({ $isDisable }) => ($isDisable ? 0.6 : 1)};
   box-shadow: ${({ $isSelecting, $canBeClick }) =>
     $isSelecting && $canBeClick ? "0 0 8px rgba(24, 144, 255, 0.3)" : "none"};
+
+  ${({ $isHovered }) =>
+    $isHovered
+      ? `
+        border: 2px solid #fa541c;
+        background-color: #fff2e8;
+        box-shadow: 0 0 0 3px rgba(250, 84, 28, 0.4);
+        transform: scale(1.25);
+      `
+      : ""}
 
   ${({ $isHaveAction, $isDisable }) =>
     $isHaveAction && !$isDisable
@@ -138,6 +155,8 @@ const BlockSpan = styled.span<{ rotate: number; $hasCargo: boolean }>`
   font-weight: 500;
   color: ${({ $hasCargo }) => ($hasCargo ? "#000" : "#333")};
   transform: ${({ rotate }) => `rotate(${-rotate}deg)`};
+  writing-mode: vertical-rl;
+  text-orientation: sideways;
   white-space: nowrap;
   user-select: none;
   text-align: center;
@@ -160,7 +179,7 @@ interface CargoDisplayProps {
   handleMouseDown: (
     e: React.MouseEvent<HTMLElement>,
     locId: string,
-    level: number
+    level: number,
   ) => void;
 }
 
@@ -177,10 +196,15 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
 }) => {
   const [selectMode, setQuickSettingMode] = useAtom(QuickMissionSettingMode);
   const [isStartSelecting, setStartQuickSetting] = useAtom(
-    StartQuickMissionSetting
+    StartQuickMissionSetting,
   );
   const setLoad = useSetAtom(QuickMissionLoad);
   const setOffload = useSetAtom(QuickMissionOffload);
+  const hoverCell = useAtomValue(QuickMissionHoverCell);
+  const isHovered =
+    hoverCell !== null &&
+    hoverCell.locationId === locId &&
+    hoverCell.level === level;
 
   const canBeClickInSelection =
     isStartSelecting &&
@@ -220,8 +244,16 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
         $isSelecting={isStartSelecting}
         $canBeClick={isStartSelecting ? canBeClickInSelection : true}
         $isHaveAction={isHaveAction}
+        $isHovered={isHovered}
         disabled={isDisable}
-        onMouseDown={(e) => handleMouseDown(e, locId, level)}
+        // 中鍵在 Chrome 按下去會啟動自動捲動(那個圓形游標),地圖跟著滑鼠跑,
+        // 看起來就像「按了沒反應」。先擋掉預設行為,真正的動作交給 auxclick。
+        onMouseDown={(e) => {
+          if (e.button === 1) e.preventDefault();
+        }}
+        // auxclick 才是給非主要按鍵用的事件,而且是放開才觸發,
+        // 不會跟拖曳地圖搶。mousedown 在 <button> 上不是每種情況都吃得到。
+        onAuxClick={(e) => handleMouseDown(e, locId, level)}
         onClick={isStartSelecting ? handleQuickMissionPayload : undefined}
         role="button"
       >

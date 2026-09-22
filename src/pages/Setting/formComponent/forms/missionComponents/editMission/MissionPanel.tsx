@@ -26,6 +26,7 @@ import SwitchTable from "./SwitchTable";
 import useAllMissionTitlesDetail from "@/api/useMissionTitleDetail";
 import Folder from "./folder/Folder";
 import FolderEditor from "./folder/FolderEditor";
+import UpgradeTaskFormat from "./UpgradeTaskFormat";
 import { useAtomValue } from "jotai";
 import { currentMapIdAtom } from "@/utils/mapSelection";
 
@@ -380,11 +381,14 @@ const EditMissionPanel: FC<{
                     {t("folder_editor.title")}
                   </IndustrialButton>
                 </Col>
-                <Col span={12}>
+                <Col span={8}>
                   <IndustrialInput
                     placeholder={t("mission.add_mission.search_mission")}
                     onChange={(e) => setSearch(e.target.value)}
                   />
+                </Col>
+                <Col span={4}>
+                  <UpgradeTaskFormat />
                 </Col>
                 <Col span={2}>
                   <IndustrialButton

@@ -37,7 +37,7 @@ type ShelfCategory = {
 export type ShelfWithoutList = {
   id: string;
   shelfCategoryId: string | null;
-  Loc: Loc;
+  peripheral_station: { source: Loc };
   ShelfCategory: ShelfCategory;
   ShelfConfig: ShelfConfig[];
 };

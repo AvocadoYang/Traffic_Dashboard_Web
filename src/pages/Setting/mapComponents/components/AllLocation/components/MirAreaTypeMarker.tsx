@@ -14,6 +14,7 @@ export const MIR_AREA_TYPES = new Set([
   "MIR_SHELF_POSITION",
   "MIR_CHARGING_STATION",
   "MIR_VL_MARKER",
+  "MIR_STRIPE_MARKER",
 ]);
 
 export const isMirAreaType = (areaType: string) => MIR_AREA_TYPES.has(areaType);
@@ -21,10 +22,22 @@ export const isMirAreaType = (areaType: string) => MIR_AREA_TYPES.has(areaType);
 export const MIR_DETECTABLE_AREA_TYPES = new Set([
   "MIR_CHARGING_STATION",
   "MIR_VL_MARKER",
+  "MIR_STRIPE_MARKER",
 ]);
 
 export const isDetectableAreaType = (areaType: string) =>
   MIR_DETECTABLE_AREA_TYPES.has(areaType);
+
+const DEFAULT_MARKER_PATTERN: Record<string, number> = {
+  MIR_STRIPE_MARKER: 31,
+  MIR_CHARGING_STATION: 20,
+  MIR_VL_MARKER: 11,
+};
+
+export const FALLBACK_MARKER_PATTERN = 20;
+
+export const getDefaultMarkerPattern = (areaType?: string) =>
+  DEFAULT_MARKER_PATTERN[areaType ?? ""] ?? FALLBACK_MARKER_PATTERN;
 
 const MarkerImg = styled.img.attrs<{
   left: number;
