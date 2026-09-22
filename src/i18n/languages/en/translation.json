@@ -847,7 +847,13 @@
       "no_synced_mission": "This AMR hasn't synced any missions yet — run Sync Data on the Settings page first",
       "table_title": "Select a MiR Mission",
       "search_placeholder": "Search by name...",
-      "priority": "Priority"
+      "priority": "Priority",
+      "variables": "Mission Variables",
+      "no_variables": "This mission has no variables to set",
+      "query_variables_failed": "Failed to query mission variables from MiR — the mission will be queued without variables",
+      "variable_required": "Please enter a value for this variable",
+      "select_location": "Select a location",
+      "mixed_type_hint": "This variable is bound to fields of different types — please check the mission settings"
     },
     "mir_mission_panel": {
       "title": "Mir Mission",

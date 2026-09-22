@@ -846,7 +846,13 @@
       "no_synced_mission": "這台車還沒有同步任務，請先到設定頁執行 Sync Data",
       "table_title": "選擇 MiR 任務",
       "search_placeholder": "以名稱搜尋...",
-      "priority": "優先權"
+      "priority": "優先權",
+      "variables": "任務變數",
+      "no_variables": "這個任務沒有需要設定的變數",
+      "query_variables_failed": "向 MiR 查詢任務變數失敗，送出時不會帶變數",
+      "variable_required": "請輸入這個變數的值",
+      "select_location": "選擇位置",
+      "mixed_type_hint": "這個變數綁在型別不一致的欄位上，請檢查任務設定"
     },
     "mir_mission_panel": {
       "title": "Mir 任務",

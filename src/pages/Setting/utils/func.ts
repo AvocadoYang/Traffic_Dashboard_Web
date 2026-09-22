@@ -31,6 +31,8 @@ export const locationOption = (value) => {
       return "Shelf position";
     case "MIR_VL_MARKER":
       return "VL marker";
+    case "MIR_STRIPE_MARKER":
+      return "Robot stripe marker";
     default:
       return value;
   }
