@@ -565,6 +565,65 @@ const ContainerDropZone: FC<{
   );
 };
 
+type SliceTreeContext = {
+  childrenBySlot: Map<string, EditorSlice[]>;
+  expanded: Set<string>;
+  onToggleExpand: (clientId: string) => void;
+  onEdit: (clientId: string) => void;
+  onDuplicate: (clientId: string) => void;
+  onDelete: (clientId: string) => void;
+};
+
+const SliceNode: FC<{ slice: EditorSlice; ctx: SliceTreeContext }> = ({
+  slice,
+  ctx,
+}) => {
+  const slots = containerSlots(slice.operation);
+  const isExpanded = ctx.expanded.has(slice.clientId);
+
+  return (
+    <div>
+      <Card
+        slice={slice}
+        expanded={isExpanded}
+        onToggleExpand={() => ctx.onToggleExpand(slice.clientId)}
+        onEdit={() => ctx.onEdit(slice.clientId)}
+        onDuplicate={() => ctx.onDuplicate(slice.clientId)}
+        onDelete={() => ctx.onDelete(slice.clientId)}
+      />
+      {slots.length > 0 && isExpanded ? (
+        <ContainerBlock>
+          {slots.map((slot) => {
+            const children =
+              ctx.childrenBySlot.get(slotKey(slice.clientId, slot)) ?? [];
+            return (
+              <SlotSection key={slot}>
+                {slots.length > 1 ? (
+                  <SlotHeader>{SLOT_LABEL[slot]}</SlotHeader>
+                ) : null}
+                <SortableContext
+                  items={children.map((c) => c.clientId)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <ContainerDropZone
+                    parentClientId={slice.clientId}
+                    slot={slot}
+                    isEmpty={children.length === 0}
+                  >
+                    {children.map((child) => (
+                      <SliceNode key={child.clientId} slice={child} ctx={ctx} />
+                    ))}
+                  </ContainerDropZone>
+                </SortableContext>
+              </SlotSection>
+            );
+          })}
+        </ContainerBlock>
+      ) : null}
+    </div>
+  );
+};
+
 /* ------------------------------------------------------------------ */
 /*  Parameter drawer                                                    */
 /* ------------------------------------------------------------------ */
@@ -712,25 +771,27 @@ const EditMirMissionPanelContent: FC<{
     if (!taskDataSource) return;
     // 子動作的 scope_reference_content 對應回 (父容器, 區塊):
     // reduce_protective_fields 的 content 區、try_catch 的 catch 區指向父容器
-    // 的 scope_reference;try_catch 的 try 區指向父容器自己的 id
+    // 的 scope_reference;try_catch 的 try 區指向父容器自己的 id。
     const parentByAnchor = new Map<
       string,
       { parentClientId: string; parentSlot: ParentSlot }
     >();
     taskDataSource.forEach((s) => {
-      if (!s.scope_reference) return;
       if (s.operation?.type === TRY_CATCH_TYPE) {
         parentByAnchor.set(s.id, { parentClientId: s.id, parentSlot: "try" });
-        parentByAnchor.set(s.scope_reference, {
-          parentClientId: s.id,
-          parentSlot: "catch",
-        });
-      } else {
-        parentByAnchor.set(s.scope_reference, {
-          parentClientId: s.id,
-          parentSlot: "content",
-        });
+        if (s.scope_reference) {
+          parentByAnchor.set(s.scope_reference, {
+            parentClientId: s.id,
+            parentSlot: "catch",
+          });
+        }
+        return;
       }
+      if (!s.scope_reference) return;
+      parentByAnchor.set(s.scope_reference, {
+        parentClientId: s.id,
+        parentSlot: "content",
+      });
     });
     const next: EditorSlice[] = taskDataSource.map((s) => {
       const parent = s.scope_reference_content
@@ -840,6 +901,27 @@ const EditMirMissionPanelContent: FC<{
     setEditingClientId(null);
   };
 
+  const toggleExpand = (clientId: string) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(clientId)) {
+        next.delete(clientId);
+      } else {
+        next.add(clientId);
+      }
+      return next;
+    });
+  };
+
+  const sliceTreeContext: SliceTreeContext = {
+    childrenBySlot,
+    expanded,
+    onToggleExpand: toggleExpand,
+    onEdit: setEditingClientId,
+    onDuplicate: duplicateSlice,
+    onDelete: deleteSlice,
+  };
+
   const onDragStart = ({ active }: DragStartEvent) => {
     setActiveClientId(active.id as string);
   };
@@ -870,13 +952,6 @@ const EditMirMissionPanelContent: FC<{
 
     const sourceParentId = activeSliceData.parentClientId ?? null;
     const sourceSlot = activeSliceData.parentSlot ?? null;
-
-    if (isContainerOperation(activeSliceData.operation) && overParentId) {
-      messageApi.warning(
-        `${summarizeAction(activeSliceData.operation).verb} 本身不能被拖進另一個區塊`,
-      );
-      return;
-    }
 
     const isSameList = (s: EditorSlice) =>
       (s.parentClientId ?? null) === sourceParentId &&
@@ -971,75 +1046,13 @@ const EditMirMissionPanelContent: FC<{
             strategy={verticalListSortingStrategy}
           >
             <CardList>
-              {topLevelSlices.map((slice) => {
-                const slots = containerSlots(slice.operation);
-                return (
-                  <div key={slice.clientId}>
-                    <Card
-                      slice={slice}
-                      expanded={expanded.has(slice.clientId)}
-                      onToggleExpand={() =>
-                        setExpanded((prev) => {
-                          const next = new Set(prev);
-                          if (next.has(slice.clientId)) {
-                            next.delete(slice.clientId);
-                          } else {
-                            next.add(slice.clientId);
-                          }
-                          return next;
-                        })
-                      }
-                      onEdit={() => setEditingClientId(slice.clientId)}
-                      onDuplicate={() => duplicateSlice(slice.clientId)}
-                      onDelete={() => deleteSlice(slice.clientId)}
-                    />
-                    {slots.length > 0 && expanded.has(slice.clientId) ? (
-                      <ContainerBlock>
-                        {slots.map((slot) => {
-                          const children =
-                            childrenBySlot.get(slotKey(slice.clientId, slot)) ??
-                            [];
-                          return (
-                            <SlotSection key={slot}>
-                              {slots.length > 1 ? (
-                                <SlotHeader>{SLOT_LABEL[slot]}</SlotHeader>
-                              ) : null}
-                              <SortableContext
-                                items={children.map((c) => c.clientId)}
-                                strategy={verticalListSortingStrategy}
-                              >
-                                <ContainerDropZone
-                                  parentClientId={slice.clientId}
-                                  slot={slot}
-                                  isEmpty={children.length === 0}
-                                >
-                                  {children.map((child) => (
-                                    <Card
-                                      key={child.clientId}
-                                      slice={child}
-                                      expanded={false}
-                                      onToggleExpand={() => {}}
-                                      onEdit={() =>
-                                        setEditingClientId(child.clientId)
-                                      }
-                                      onDuplicate={() =>
-                                        duplicateSlice(child.clientId)
-                                      }
-                                      onDelete={() =>
-                                        deleteSlice(child.clientId)
-                                      }
-                                    />
-                                  ))}
-                                </ContainerDropZone>
-                              </SortableContext>
-                            </SlotSection>
-                          );
-                        })}
-                      </ContainerBlock>
-                    ) : null}
-                  </div>
-                );
-              })}
+              {topLevelSlices.map((slice) => (
+                <SliceNode
+                  key={slice.clientId}
+                  slice={slice}
+                  ctx={sliceTreeContext}
+                />
+              ))}
             </CardList>
           </SortableContext>
 
