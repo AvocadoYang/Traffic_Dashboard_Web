@@ -110,3 +110,9 @@ export const localizationCorrection = atom<{
   dy: number;
   dYaw: number;
 } | null>(null);
+
+/** 效能監看面板 (模擬頁與 Main 頁共用) */
+export const OpenPerformancePanel = atom<boolean>(false);
+
+/** 效能統計的回看區間 (分鐘) */
+export const PerformanceWindowMin = atom<number>(10);
