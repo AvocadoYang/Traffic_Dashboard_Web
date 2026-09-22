@@ -451,6 +451,29 @@ export const MirTimeoutInput = () => {
   );
 };
 
+export const MirOptionInput = () => {
+  return (
+    <ParameterCard fieldName="option" label="Option">
+      <Form.Item name="option" style={{ marginBottom: 0 }}>
+        <Select
+          options={[
+            {
+              value: "free",
+              label: "Free",
+            },
+            {
+              value: "occupied",
+              label: "Occupied",
+            },
+          ]}
+        />
+      </Form.Item>
+      Choose whether the position has to be free or occupied for the check to
+      pass.
+    </ParameterCard>
+  );
+};
+
 export const MirValueInput = () => {
   return (
     <ParameterCard fieldName="value" label="Value">

@@ -40,6 +40,8 @@ export type Mir_Action = {
   orientation?: number;
   collision_detection?: boolean;
 
+  option?: "free" | "occupied" | string;
+
   // 時間與聲音相關
   wait?: string;
   sound?: string;
@@ -72,7 +74,7 @@ export type Mir_Task =
 
 export const mirMoveActonList = [
   "adjust_localization",
-  // "check_position_status",
+  "check_pose",
   "docking",
   "move",
   "move_to_coordinate",

@@ -65,6 +65,7 @@ import {
   MirMaximumLinearSpeedInputInput,
   MirModuleInput,
   MirOperationInput,
+  MirOptionInput,
   MirOrientationInput,
   MirPortInput,
   MirRearInput,
@@ -160,6 +161,7 @@ const buildDefaultOperation = (type: string): Mir_Action => ({
   y: 0,
   orientation: 0,
   collision_detection: true,
+  option: "free",
   wait: "00:00:00",
   sound: "",
   volume: 0,
@@ -207,6 +209,8 @@ const summarizeAction = (op: Mir_Action): { verb: string; chip?: string } => {
       return { verb: "Switch map" };
     case "adjust_localization":
       return { verb: "Adjust localization" };
+    case "check_pose":
+      return { verb: "Check pose is", chip: op.option || "free" };
     case "wait":
       return { verb: `Wait ${op.wait || "00:00:00"}` };
     case "play_sound":
@@ -270,6 +274,17 @@ const renderActionFields = (
           <MirMaximumAngularSpeedInputInput />
           <MirCollisionDetectionInput />
           <MirBlockedPathTimeoutInputInput />
+        </>
+      );
+    case "check_pose":
+      return (
+        <>
+          <MirLocationInput />
+          <MirXInput />
+          <MirYInput />
+          <MirOrientationInput />
+          <MirOptionInput />
+          <MirTimeoutInput />
         </>
       );
     case "set_footprint":
@@ -593,6 +608,7 @@ const ParameterDrawer: FC<{
       y: op.y ?? 0,
       orientation: op.orientation ?? 0,
       collision_detection: op.collision_detection ?? true,
+      option: op.option ?? "free",
       wait: formattedWait,
       sound: op.sound,
       volume: op.volume ?? 0,

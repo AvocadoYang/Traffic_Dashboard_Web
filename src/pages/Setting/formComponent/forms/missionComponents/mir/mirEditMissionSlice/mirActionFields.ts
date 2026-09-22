@@ -15,6 +15,7 @@ export type MirEditableField =
   | "y"
   | "orientation"
   | "collision_detection"
+  | "option"
   | "wait"
   | "sound"
   | "volume"
@@ -41,6 +42,7 @@ const ALL_EDITABLE_FIELDS: readonly MirEditableField[] = [
   "y",
   "orientation",
   "collision_detection",
+  "option",
   "wait",
   "sound",
   "volume",
@@ -56,6 +58,7 @@ const ALL_EDITABLE_FIELDS: readonly MirEditableField[] = [
 
 export const MIR_ACTION_FIELDS: Record<string, readonly MirEditableField[]> = {
   adjust_localization: [],
+  check_pose: ["location_id", "x", "y", "orientation", "option", "timeout"],
   docking: [
     "location_id",
     "marker_type",
@@ -99,6 +102,7 @@ const DEFAULTS: Record<MirEditableField, unknown> = {
   y: 0,
   orientation: 0,
   collision_detection: true,
+  option: "free",
   wait: "00:00:00",
   sound: "",
   volume: 0,
