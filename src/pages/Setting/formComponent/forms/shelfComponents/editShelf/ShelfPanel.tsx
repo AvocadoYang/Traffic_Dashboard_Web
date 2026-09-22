@@ -27,7 +27,10 @@ const ShelfPanel: React.FC<{
     () =>
       (shelves ?? [])
         .filter((s) => selectedRowKeys.includes(s.id))
-        .map((s) => ({ id: s.Loc.id, locationId: s.Loc.locationId })),
+        .map((s) => ({
+          id: s.peripheral_station.source.id,
+          locationId: s.peripheral_station.source.locationId,
+        })),
     [shelves, selectedRowKeys],
   );
 

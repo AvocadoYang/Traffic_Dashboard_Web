@@ -302,7 +302,7 @@ const ShelfTable: FC<{
       />
     ),
     onFilter: (value, record) => {
-      return record.Loc.locationId
+      return record.peripheral_station.source.locationId
         .toString()
         .toLowerCase()
         .includes((value as string).toLowerCase());
@@ -324,10 +324,10 @@ const ShelfTable: FC<{
       key: "locationId",
       sortDirections: ["ascend", "descend"],
       defaultSortOrder: "ascend",
-      sorter: (a, b) => Number(a.Loc.locationId) - Number(b.Loc.locationId),
+      sorter: (a, b) => Number(a.peripheral_station.source.locationId) - Number(b.peripheral_station.source.locationId),
       ...getColumnSearchProps("locationId"),
       render: (_v, recorder) => {
-        const { locationId } = recorder.Loc;
+        const { locationId } = recorder.peripheral_station.source;
         return locationId;
       },
     },
@@ -357,7 +357,7 @@ const ShelfTable: FC<{
       key: "yaw",
       render: (_v, recorder) => {
         if (!yaw) return "-";
-        const yawIndex = yaw?.findIndex((s) => s.id === recorder.Loc.dirId);
+        const yawIndex = yaw?.findIndex((s) => s.id === recorder.peripheral_station.source.dirId);
         if (yawIndex === -1) return "-";
         return yaw[yawIndex].yaw;
       },
@@ -367,7 +367,7 @@ const ShelfTable: FC<{
       dataIndex: "region_name",
       key: "region_name",
       render: (_v, recorder) => {
-        return recorder.Loc?.loc_regions?.name || "";
+        return recorder.peripheral_station.source?.loc_regions?.name || "";
       },
     },
     {
@@ -378,7 +378,7 @@ const ShelfTable: FC<{
         return (
           <Button
             icon={<FormatPainterOutlined />}
-            onClick={() => handleEdit(recorder.Loc.id)}
+            onClick={() => handleEdit(recorder.peripheral_station.source.id)}
             color="primary"
             variant="filled"
           >
@@ -435,7 +435,7 @@ const ShelfTable: FC<{
                 (a, b) => a.level - b.level
               );
               const thisLocationInfo = (locData as LocWithoutArr[]).find(
-                (v) => v.locationId === record.Loc.locationId
+                (v) => v.locationId === record.peripheral_station.source.locationId
               );
 
               const relationshipsDisplay = thisLocationInfo?.relationships

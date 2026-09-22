@@ -101,12 +101,12 @@ const ShelfEditPanel: FC = () => {
   const rows = useMemo(() => {
     const all = (shelfData ?? []) as unknown as ShelfWithoutList[];
     const sorted = [...all].sort(
-      (a, b) => Number(a.Loc.locationId) - Number(b.Loc.locationId),
+      (a, b) => Number(a.peripheral_station.source.locationId) - Number(b.peripheral_station.source.locationId),
     );
     const keyword = search.trim().toLowerCase();
     if (!keyword) return sorted;
     return sorted.filter((s) =>
-      s.Loc.locationId.toLowerCase().includes(keyword),
+      s.peripheral_station.source.locationId.toLowerCase().includes(keyword),
     );
   }, [shelfData, search]);
 
@@ -178,7 +178,7 @@ const ShelfEditPanel: FC = () => {
     () =>
       (shelfData ?? [])
         .filter((s) => selectedRowKeys.includes(s.id))
-        .map((s) => ({ id: s.Loc.id, locationId: s.Loc.locationId })),
+        .map((s) => ({ id: s.peripheral_station.source.id, locationId: s.peripheral_station.source.locationId })),
     [shelfData, selectedRowKeys],
   );
 
@@ -199,8 +199,8 @@ const ShelfEditPanel: FC = () => {
       width: 90,
       fixed: "left",
       defaultSortOrder: "ascend",
-      sorter: (a, b) => Number(a.Loc.locationId) - Number(b.Loc.locationId),
-      render: (_, r) => r.Loc.locationId,
+      sorter: (a, b) => Number(a.peripheral_station.source.locationId) - Number(b.peripheral_station.source.locationId),
+      render: (_, r) => r.peripheral_station.source.locationId,
     },
     {
       title: t("edit_shelf_panel.category"),
@@ -219,21 +219,21 @@ const ShelfEditPanel: FC = () => {
       title: t("edit_shelf_panel.yaw"),
       key: "yaw",
       width: 80,
-      render: (_, r) => yawOf(r.Loc.dirId),
+      render: (_, r) => yawOf(r.peripheral_station.source.dirId),
     },
     {
       title: t("edit_shelf_panel.placement_priority"),
       key: "priority",
       width: 90,
       render: (_, r) =>
-        locList.find((l) => l.locationId === r.Loc.locationId)
+        locList.find((l) => l.locationId === r.peripheral_station.source.locationId)
           ?.placement_priority ?? t("utils.none"),
     },
     {
       title: t("edit_shelf_panel.region_name"),
       key: "region_name",
       width: 120,
-      render: (_, r) => r.Loc?.loc_regions?.name || "—",
+      render: (_, r) => r.peripheral_station.source?.loc_regions?.name || "—",
     },
     {
       title: t("edit_shelf_panel.setting"),
@@ -241,7 +241,7 @@ const ShelfEditPanel: FC = () => {
       width: 120,
       fixed: "right",
       render: (_, r) => (
-        <GhostButton onClick={() => setStyleLocId(r.Loc.id)}>
+        <GhostButton onClick={() => setStyleLocId(r.peripheral_station.source.id)}>
           <FormatPainterOutlined />
           {t("edit_shelf_panel.edit_position")}
         </GhostButton>
@@ -363,7 +363,7 @@ const ShelfEditPanel: FC = () => {
                       checked={selectedRowKeys.includes(row.id)}
                       onChange={() => toggleSelect(row.id)}
                     >
-                      {row.Loc.locationId}
+                      {row.peripheral_station.source.locationId}
                     </Checkbox>
                     <Tag>{row.ShelfCategory?.name ?? t("utils.none")}</Tag>
                   </CardTitleRow>
@@ -372,10 +372,10 @@ const ShelfEditPanel: FC = () => {
                     <dt>{t("edit_shelf_panel.level")}</dt>
                     <dd>{row.ShelfCategory?.Height?.length ?? 0}</dd>
                     <dt>{t("edit_shelf_panel.yaw")}</dt>
-                    <dd>{yawOf(row.Loc.dirId)}</dd>
+                    <dd>{yawOf(row.peripheral_station.source.dirId)}</dd>
                     <dt>{t("edit_shelf_panel.placement_priority")}</dt>
                     <dd>
-                      {locList.find((l) => l.locationId === row.Loc.locationId)
+                      {locList.find((l) => l.locationId === row.peripheral_station.source.locationId)
                         ?.placement_priority ?? t("utils.none")}
                     </dd>
                   </CardFacts>
@@ -385,7 +385,7 @@ const ShelfEditPanel: FC = () => {
                       {isOpen ? <DownOutlined /> : <RightOutlined />}
                       {t("edit_shelf_panel.detail")}
                     </GhostButton>
-                    <GhostButton onClick={() => setStyleLocId(row.Loc.id)}>
+                    <GhostButton onClick={() => setStyleLocId(row.peripheral_station.source.id)}>
                       <FormatPainterOutlined />
                       {t("edit_shelf_panel.edit_position")}
                     </GhostButton>

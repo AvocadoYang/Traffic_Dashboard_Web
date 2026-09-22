@@ -89,7 +89,9 @@ const ShelfPreview: FC<{ locationId: string; style: PreviewStyle }> = ({
   const { data: shelf } = useShelf();
   if (!data || !shelf) return null;
 
-  const eachShelf = shelf.find((v) => v.Loc.locationId === locationId);
+  const eachShelf = shelf.find(
+    (v) => v.peripheral_station.source.locationId === locationId,
+  );
   const currentShelf = eachShelf?.ShelfConfig.length || 1;
   const loc = data.locations.find((v) => v.locationId === locationId);
 

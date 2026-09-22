@@ -69,7 +69,9 @@ const ShelfConfigDetail: FC<Props> = ({ shelf, locList }) => {
   const sortedConfig = [...(shelf.ShelfConfig ?? [])].sort(
     (a, b) => a.level - b.level,
   );
-  const locInfo = locList.find((v) => v.locationId === shelf.Loc.locationId);
+  const locInfo = locList.find(
+    (v) => v.locationId === shelf.peripheral_station.source.locationId,
+  );
 
   const relationships = locInfo?.relationships
     ? Object.entries(locInfo.relationships).map(
