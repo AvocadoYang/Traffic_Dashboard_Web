@@ -21,7 +21,7 @@ import {
   PoweroffOutlined,
   ClockCircleOutlined,
   AppstoreOutlined,
-  ToolOutlined,
+  PlusSquareOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
@@ -46,7 +46,10 @@ import SimTime from "./SimTime";
 import DirectMove from "@/pages/Main/components/missionModal/DirectMove";
 import ZoomPad from "@/pages/Main/components/WebView/components/ZoomPad";
 import useMap from "@/api/useMap";
-import { headerNavItemBase, headerNavItemActive } from "@/styles/headerNavItemStyle";
+import {
+  headerNavItemBase,
+  headerNavItemActive,
+} from "@/styles/headerNavItemStyle";
 
 const { Header: AntdHeader } = Layout;
 
@@ -577,7 +580,7 @@ const Header: React.FC = () => {
               onChange={(v) => setHeaderRow(v as HeaderRow)}
               options={[
                 { value: "nav", icon: <AppstoreOutlined /> },
-                { value: "tools", icon: <ToolOutlined /> },
+                { value: "tools", icon: <PlusSquareOutlined /> },
               ]}
             />
           </Tooltip>
