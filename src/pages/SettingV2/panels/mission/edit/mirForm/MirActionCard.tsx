@@ -38,7 +38,8 @@ const Row = styled.div<{ $dragging?: boolean; $container?: boolean }>`
   background: ${({ $container }) => ($container ? c.bgSubtle : c.bg)};
   /* 容器用粗左邊框標出來,不用另一種底色 */
   border: 1px solid ${c.border};
-  border-left: ${({ $container }) => ($container ? `3px solid ${c.accent}` : `1px solid ${c.border}`)};
+  border-left: ${({ $container }) =>
+    $container ? `3px solid ${c.accent}` : `1px solid ${c.border}`};
   opacity: ${({ $dragging }) => ($dragging ? 0.4 : 1)};
 
   &:hover {

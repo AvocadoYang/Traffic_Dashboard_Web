@@ -82,7 +82,9 @@ const MirMissionEditorContent: FC<Props> = ({ missionId }) => {
     }));
     setSlices(next);
     setExpanded(
-      next.filter((s) => isContainerOperation(s.operation)).map((s) => s.clientId),
+      next
+        .filter((s) => isContainerOperation(s.operation))
+        .map((s) => s.clientId),
     );
   }, [data]);
 
