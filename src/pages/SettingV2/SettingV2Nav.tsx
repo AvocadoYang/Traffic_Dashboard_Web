@@ -26,6 +26,7 @@ import StartPoint from "@/pages/Setting/components/StartPoint/StartPoint";
 import ImportMapConfigModal from "@/pages/Setting/components/importMap/ImportMapConfigModal";
 import UploadWarningModal from "@/pages/Setting/components/UploadWarningModal";
 import { navCategories } from "./navItems";
+import useConfigFlags from "@/api/useConfigFlags";
 import { mapViewModeAtom, type MapViewMode } from "./mapViewModeAtom";
 import { mqNarrow } from "./ui/tokens";
 
@@ -107,6 +108,8 @@ const SettingV2Nav: FC<Props> = ({
     MirStyleLocationPlacerSwitch,
   );
   const [, setOpenUploadWarning] = useAtom(isOpenUploadWarningIDModal);
+  const { data: configFlags } = useConfigFlags();
+  const hasMir = configFlags?.hasMir ?? true;
 
   const restartMutate = useMutation({
     mutationFn: () => client.post("api/setting/restart"),
@@ -119,16 +122,18 @@ const SettingV2Nav: FC<Props> = ({
 
   const menuItems: MenuProps["items"] = useMemo(
     () =>
-      navCategories.map((category) => ({
-        key: category.key,
-        icon: createElement(category.icon),
-        label: category.rawLabel ?? t(category.labelKey as never),
-        children: category.children.map((leaf) => ({
-          key: leaf.key,
-          label: leaf.rawLabel ?? t(leaf.labelKey as never),
+      navCategories
+        .filter((category) => hasMir || category.key !== "mir")
+        .map((category) => ({
+          key: category.key,
+          icon: createElement(category.icon),
+          label: category.rawLabel ?? t(category.labelKey as never),
+          children: category.children.map((leaf) => ({
+            key: leaf.key,
+            label: leaf.rawLabel ?? t(leaf.labelKey as never),
+          })),
         })),
-      })),
-    [t],
+    [t, hasMir],
   );
 
   // 點同一個項目 = 收起來,點別的 = 直接換過去,永遠只會有一個面板。
@@ -177,14 +182,16 @@ const SettingV2Nav: FC<Props> = ({
         />
       </ExtraRow>
 
-      <ExtraRow>
-        <span>MiR 風格打點</span>
-        <Switch
-          size="small"
-          checked={mirStylePlacer}
-          onChange={setMirStylePlacer}
-        />
-      </ExtraRow>
+      {hasMir && (
+        <ExtraRow>
+          <span>MiR 風格打點</span>
+          <Switch
+            size="small"
+            checked={mirStylePlacer}
+            onChange={setMirStylePlacer}
+          />
+        </ExtraRow>
+      )}
 
       <Menu
         mode="inline"

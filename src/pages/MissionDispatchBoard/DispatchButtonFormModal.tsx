@@ -2,6 +2,7 @@ import client from "@/api/axiosClient";
 import useAllMirMission from "@/api/useAllMirMission";
 import useAmrName from "@/api/useAmrName";
 import useAllMissionTitles from "@/api/useMissionTitle";
+import useConfigFlags from "@/api/useConfigFlags";
 import usePeripheralName from "@/api/usePeripheralName";
 import {
   DISPATCH_PAGE_QUERY_KEY,
@@ -112,6 +113,8 @@ const DispatchButtonFormModal: FC<{
   const amrIdValue = Form.useWatch("amrId", form);
   const { data: amrData } = useAmrName();
   const { data: peripheralData } = usePeripheralName();
+  const { data: configFlags } = useConfigFlags();
+  const hasMir = configFlags?.hasMir ?? true;
 
   const isEdit = Boolean(initialValues);
 
@@ -285,10 +288,14 @@ const DispatchButtonFormModal: FC<{
                   value: "DYNAMIC",
                   label: t("mission_dispatch_board.type_dynamic"),
                 },
-                {
-                  value: "MIR",
-                  label: t("mission_dispatch_board.type_mir"),
-                },
+                ...(hasMir
+                  ? [
+                      {
+                        value: "MIR",
+                        label: t("mission_dispatch_board.type_mir"),
+                      },
+                    ]
+                  : []),
               ]}
               optionType="button"
               onChange={() =>
