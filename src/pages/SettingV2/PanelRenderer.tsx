@@ -40,6 +40,9 @@ import SyncDataPanel from "./panels/mir/SyncDataPanel";
 import MirMissionPanel from "./panels/mir/MirMissionPanel";
 import EditMissionPanel from "./panels/mission/edit/EditMissionPanel";
 import AppearancePanel from "./panels/appearance/AppearancePanel";
+import ElevatorMissionPanel from "./panels/corning/ElevatorMissionPanel";
+import ClampHeightPanel from "./panels/corning/ClampHeightPanel";
+import LockByMissionPanel from "./panels/corning/LockByMissionPanel";
 import type { SettingV2PanelKey } from "./panelKeys";
 import { BackupPanel } from "@/pages/Setting/formComponent/forms/file/backup";
 
@@ -153,6 +156,13 @@ const PanelRenderer: FC<Props> = ({
       return <MirMissionPanel />;
     case "appearance":
       return <AppearancePanel />;
+    // 康寧專用
+    case "elevator_mission":
+      return <ElevatorMissionPanel />;
+    case "clamp_height":
+      return <ClampHeightPanel />;
+    case "lock_by_mission":
+      return <LockByMissionPanel />;
     default:
       return null;
   }

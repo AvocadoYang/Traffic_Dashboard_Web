@@ -9,6 +9,7 @@ import {
   FileOutlined,
   PictureOutlined,
   BgColorsOutlined,
+  AndroidOutlined,
 } from "@ant-design/icons";
 import type { SettingV2PanelKey } from "./panelKeys";
 
@@ -186,6 +187,18 @@ export const navCategories: NavCategory[] = [
         key: "show_system_alarm",
         labelKey: "toolbar.file_setting.system_alarm",
       },
+    ],
+  },
+  // 康寧客製的設定。v1 的 Sider 裡是「康寧專用」那一組,沒有任何旗標控制顯示,
+  // 這個分支本來就是康寧專用的,所以 v2 也照樣一直顯示。
+  {
+    key: "corning",
+    rawLabel: "康寧專用",
+    icon: AndroidOutlined,
+    children: [
+      { key: "elevator_mission", rawLabel: "電梯任務" },
+      { key: "clamp_height", rawLabel: "夾具線高" },
+      { key: "lock_by_mission", rawLabel: "任務卡住鎖定" },
     ],
   },
   {
