@@ -2,6 +2,7 @@ import { FC, memo } from "react";
 import { FormInstance } from "antd";
 import type { DraggableAttributes } from "@dnd-kit/core";
 import LocationEditPanel from "./panels/location/LocationEditPanel";
+import QuickLocationPanel from "./panels/location/QuickLocationPanel";
 import RoadEditPanel from "./panels/road/RoadEditPanel";
 import RoadQuickPanel from "./panels/road/RoadQuickPanel";
 import RoadListPanel from "./panels/road/RoadListPanel";
@@ -22,8 +23,8 @@ import AbortCargoMissionPanel from "./panels/mission/AbortCargoMissionPanel";
 import BlindLocationPanel from "./panels/mission/BlindLocationPanel";
 import PeripheralNamePanel from "./panels/peripheral/PeripheralNamePanel";
 import PeripheralGroupPanel from "./panels/peripheral/PeripheralGroupPanel";
-import ChargeDockPanel from "./panels/peripheral/ChargeDockPanel";
 import StackBatchPanel from "./panels/peripheral/StackBatchPanel";
+import ChargeDockPanel from "./panels/peripheral/ChargeDockPanel";
 import PeripheralStylePanel from "./panels/peripheral/PeripheralStylePanel";
 import TagPanel from "./panels/other/TagPanel";
 import CustomCargoInfoPanel from "./panels/other/CustomCargoInfoPanel";
@@ -66,6 +67,8 @@ const PanelRenderer: FC<Props> = ({
     // ✅ 已改用 v2 重新設計的版本(灰黑白 + RWD)
     case "location_panel":
       return <LocationEditPanel locationPanelForm={locationPanelForm} />;
+    case "quick_location_panel":
+      return <QuickLocationPanel />;
     case "location_list":
       return <LocationListPanel />;
     // ✅ 已改用 v2 重新設計的版本(灰黑白 + RWD)
@@ -109,11 +112,11 @@ const PanelRenderer: FC<Props> = ({
       return <PeripheralNamePanel />;
     case "peripheral_group_table":
       return <PeripheralGroupPanel />;
+    case "stack_batch_edit":
+      return <StackBatchPanel />;
     case "peripheral_charge_dock_config":
       return <ChargeDockPanel />;
     case "edit_tag":
-    case "stack_batch_edit":
-      return <StackBatchPanel />;
       return <TagPanel />;
     case "edit_icon_style":
       return <PeripheralStylePanel />;

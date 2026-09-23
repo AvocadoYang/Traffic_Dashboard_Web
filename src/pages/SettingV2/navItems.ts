@@ -43,6 +43,10 @@ export const navCategories: NavCategory[] = [
     children: [
       { key: "location_panel", labelKey: "toolbar.location.edit_locations" },
       {
+        key: "quick_location_panel",
+        labelKey: "toolbar.location.quick_edit_locations",
+      },
+      {
         key: "location_list",
         labelKey: "toolbar.location.show_locations_table",
       },
@@ -136,12 +140,12 @@ export const navCategories: NavCategory[] = [
         labelKey: "toolbar.peripheral.group_table",
       },
       {
-        key: "edit_icon_style",
-        labelKey: "toolbar.others.edit_peripheral_style",
-      },
-      {
         key: "stack_batch_edit",
         labelKey: "toolbar.peripheral.stack_batch_edit",
+      },
+      {
+        key: "edit_icon_style",
+        labelKey: "toolbar.others.edit_peripheral_style",
       },
       {
         key: "peripheral_charge_dock_config",

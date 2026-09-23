@@ -12,6 +12,7 @@ import {
   EditLocationPanelSwitch,
   EditRoadPanelSwitch,
   EditZoneSwitch,
+  QuickEditLocationPanelSwitch,
 } from "@/utils/siderGloble";
 import MapView from "@/pages/Setting/mapComponents/MapView";
 import { ZoomPad, BKBtn } from "@/pages/Setting/components";
@@ -180,15 +181,20 @@ const SettingV2: React.FC = () => {
   const setEditLocationPanelSwitch = useSetAtom(EditLocationPanelSwitch);
   const setEditRoadPanelSwitch = useSetAtom(EditRoadPanelSwitch);
   const setEditZoneSwitch = useSetAtom(EditZoneSwitch);
+  const setQuickEditLocationPanelSwitch = useSetAtom(
+    QuickEditLocationPanelSwitch,
+  );
   useEffect(() => {
     setEditLocationPanelSwitch(activePanel === "location_panel");
     setEditRoadPanelSwitch(activePanel === "road_panel");
     setEditZoneSwitch(activePanel === "edit_zone");
+    setQuickEditLocationPanelSwitch(activePanel === "quick_location_panel");
   }, [
     activePanel,
     setEditLocationPanelSwitch,
     setEditRoadPanelSwitch,
     setEditZoneSwitch,
+    setQuickEditLocationPanelSwitch,
   ]);
 
   const mapScale = currentMapInfo?.data?.scale;
