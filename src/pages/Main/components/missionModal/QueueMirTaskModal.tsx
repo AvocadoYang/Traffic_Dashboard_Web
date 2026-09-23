@@ -1,8 +1,22 @@
-import { Flex, Form, message, Modal, Select } from "antd";
+import {
+  Flex,
+  Form,
+  Input,
+  InputNumber,
+  message,
+  Modal,
+  Select,
+  Spin,
+  Switch,
+} from "antd";
 import { useAtom } from "jotai";
 import React, { useMemo } from "react";
 import { OpenQueueMirTask } from "../../global/jotai";
 import useAllMirMission from "@/api/useAllMirMission";
+import useMirMissionVariables, {
+  MirMissionVariable,
+} from "@/api/useMirMissionVariables";
+import useLoc from "@/api/useLoc";
 import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -23,6 +37,14 @@ interface QueueMirTaskFormValues {
   amrId: string;
   missionName: string;
   priority: number;
+  variables?: Record<string, string | number | boolean | null | undefined>;
+}
+
+interface QueueMirTaskPayload {
+  amrId: string;
+  missionName: string;
+  priority: number;
+  variables?: Record<string, string>;
 }
 
 // Industrial Modal Styling with RWD — mirrors DialogMission.tsx so both
@@ -280,6 +302,19 @@ const ResponsiveFooter = styled(Flex)`
   }
 `;
 
+const VariableHint = styled.div<{ $error?: boolean }>`
+  font-family: "Roboto Mono", monospace;
+  font-size: 12px;
+  color: ${({ $error }) => ($error ? "#ff4d4f" : "#8c8c8c")};
+`;
+
+const VariableName = styled.span`
+  font-family: "Roboto Mono", monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: #262626;
+`;
+
 const QueueMirTaskModal = () => {
   const [open, setOpen] = useAtom(OpenQueueMirTask);
   const { data, isLoading } = useAllMirMission();
@@ -289,6 +324,9 @@ const QueueMirTaskModal = () => {
   const queryClient = useQueryClient();
   const amrId = Form.useWatch("amrId", form);
   const missionName = Form.useWatch("missionName", form);
+  const variablesQuery = useMirMissionVariables(amrId, missionName);
+  const variables = variablesQuery.data ?? [];
+  const { data: locs } = useLoc(undefined);
 
   const amrOptions = useMemo(() => {
     const names = new Set<string>();
@@ -298,8 +336,43 @@ const QueueMirTaskModal = () => {
     return [...names].sort().map((name) => ({ value: name, label: name }));
   }, [data]);
 
+  // bridge 會用 locationId 自己查成 MiR position guid，所以 value 填 locationId
+  const locationOptions = useMemo(
+    () =>
+      (Array.isArray(locs) ? locs : []).map((loc) => ({
+        value: loc.locationId,
+        label: loc.locationId,
+      })),
+    [locs],
+  );
+
+  const renderVariableInput = (variable: MirMissionVariable) => {
+    if (variable.is_location || variable.value_type === "location") {
+      return (
+        <StyledSelect
+          showSearch
+          options={locationOptions}
+          placeholder={t("main.queue_mir_task_modal.select_location")}
+        />
+      );
+    }
+
+    switch (variable.value_type) {
+      case "int":
+        return <InputNumber precision={0} style={{ width: "100%" }} />;
+      case "float":
+        return <InputNumber style={{ width: "100%" }} />;
+      case "bool":
+        return <Switch />;
+      default:
+        return <Input />;
+    }
+  };
+
+  const resetVariables = () => form.setFieldValue("variables", undefined);
+
   const mutation = useMutation({
-    mutationFn: (payload: QueueMirTaskFormValues) =>
+    mutationFn: (payload: QueueMirTaskPayload) =>
       client.post("api/setting/queue-mir-task", payload),
     onSuccess: () => {
       void messageApi.success(t("utils.success"));
@@ -311,8 +384,19 @@ const QueueMirTaskModal = () => {
   });
 
   const submit = async () => {
-    const values = await form.validateFields();
-    mutation.mutate(values);
+    const { variables: rawVariables, ...values } = await form.validateFields();
+    const variableEntries = Object.entries(rawVariables ?? {})
+      .filter(
+        ([, value]) => value !== undefined && value !== null && value !== "",
+      )
+      .map(([name, value]) => [name, String(value)] as const);
+
+    mutation.mutate({
+      ...values,
+      variables: variableEntries.length
+        ? Object.fromEntries(variableEntries)
+        : undefined,
+    });
   };
 
   const handleCancel = () => {
@@ -340,7 +424,7 @@ const QueueMirTaskModal = () => {
           <IndustrialButton
             className="primary"
             onClick={submit}
-            disabled={mutation.isPending}
+            disabled={mutation.isPending || variablesQuery.isFetching}
           >
             {mutation.isPending ? "DEPLOYING..." : t("utils.submit")}
           </IndustrialButton>
@@ -376,7 +460,10 @@ const QueueMirTaskModal = () => {
               options={amrOptions}
               loading={isLoading}
               placeholder={t("main.queue_mir_task_modal.select_amr")}
-              onChange={() => form.setFieldValue("missionName", undefined)}
+              onChange={() => {
+                form.setFieldValue("missionName", undefined);
+                resetVariables();
+              }}
               onMouseDown={(e) => e.preventDefault()}
               onPopupScroll={(e) => {
                 e.stopPropagation();
@@ -411,11 +498,69 @@ const QueueMirTaskModal = () => {
               value={missionName}
               onSelect={(name) => {
                 form.setFieldValue("missionName", name);
+                resetVariables();
                 void messageApi.success(`Selected mission: ${name}`);
               }}
             />
           </Form.Item>
         </FormSection>
+
+        {/* Mission Variables — 在 MiR 介面自己建的任務查不到變數，沒有變數是正常狀態 */}
+        {missionName && (
+          <>
+            <SectionDivider />
+            <FormSection>
+              <FieldLabel>
+                <SettingOutlined style={{ marginRight: 6 }} />
+                [03] {t("main.queue_mir_task_modal.variables")}
+              </FieldLabel>
+              {variablesQuery.isFetching ? (
+                <Spin size="small" />
+              ) : variablesQuery.isError ? (
+                <VariableHint $error>
+                  {t("main.queue_mir_task_modal.query_variables_failed")}
+                </VariableHint>
+              ) : variables.length === 0 ? (
+                <VariableHint>
+                  {t("main.queue_mir_task_modal.no_variables")}
+                </VariableHint>
+              ) : (
+                variables.map((variable) => (
+                  <Form.Item
+                    key={variable.name}
+                    name={["variables", variable.name]}
+                    label={<VariableName>{variable.name}</VariableName>}
+                    valuePropName={
+                      variable.value_type === "bool" ? "checked" : "value"
+                    }
+                    initialValue={
+                      variable.value_type === "bool" ? false : undefined
+                    }
+                    extra={
+                      variable.value_type === "mixed"
+                        ? t("main.queue_mir_task_modal.mixed_type_hint")
+                        : undefined
+                    }
+                    rules={
+                      variable.value_type === "bool"
+                        ? []
+                        : [
+                            {
+                              required: true,
+                              message: t(
+                                "main.queue_mir_task_modal.variable_required",
+                              ),
+                            },
+                          ]
+                    }
+                  >
+                    {renderVariableInput(variable)}
+                  </Form.Item>
+                ))
+              )}
+            </FormSection>
+          </>
+        )}
 
         <SectionDivider />
 
@@ -423,7 +568,7 @@ const QueueMirTaskModal = () => {
         <FormSection>
           <FieldLabel>
             <SettingOutlined style={{ marginRight: 6 }} />
-            [03] {t("main.queue_mir_task_modal.priority")}
+            [04] {t("main.queue_mir_task_modal.priority")}
           </FieldLabel>
           <Form.Item name="priority" style={{ marginBottom: 0 }}>
             <StyledSelect
@@ -436,9 +581,7 @@ const QueueMirTaskModal = () => {
                 },
                 {
                   value: MissionPriority.NORMAL,
-                  label: t(
-                    "main.mission_modal.dialog_mission.priority.NORMAL",
-                  ),
+                  label: t("main.mission_modal.dialog_mission.priority.NORMAL"),
                 },
                 {
                   value: MissionPriority.PIVOTAL,

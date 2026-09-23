@@ -19,11 +19,36 @@ interface MirLocationInputProps {
 export const MirLocationInput: React.FC<MirLocationInputProps> = ({
   disabled = false,
 }) => {
-  const { locationsOption } = useMirTaskOptions();
+  const { locationsOption, markerTypeLocationIds } = useMirTaskOptions();
   const form = Form.useFormInstance();
 
+  const handleLocationChange = (value?: string) => {
+    // 換成不是 type_1 貨架 / Shelf position 的位置：Marker type 不再適用，要清空
+    if (!markerTypeLocationIds.has(value ?? "")) {
+      form.setFieldValue("marker_type", null);
+    }
+  };
+
   return (
-    <ParameterCard fieldName="location_id" label="Marker position">
+    <ParameterCard
+      fieldName="location_id"
+      label="Marker position"
+      variableChildren={
+        <Form.Item
+          name="location_id"
+          label={<FieldLabel>Default marker position</FieldLabel>}
+          rules={[{ required: true, message: "請選擇預設的 Marker position" }]}
+          style={{ marginTop: 12, marginBottom: 0 }}
+        >
+          <Select
+            options={locationsOption}
+            style={{ width: "100%" }}
+            allowClear
+            onChange={handleLocationChange}
+          />
+        </Form.Item>
+      }
+    >
       <Form.Item
         name="location_id"
         dependencies={["is_current_position"]}
@@ -57,6 +82,7 @@ export const MirLocationInput: React.FC<MirLocationInputProps> = ({
           style={{ width: "100%" }}
           disabled={disabled}
           allowClear
+          onChange={handleLocationChange}
         />
       </Form.Item>
 
@@ -94,25 +120,27 @@ export const MirLocationInput: React.FC<MirLocationInputProps> = ({
 };
 
 export const MirMarkerTypeInput = () => {
-  const { markerTypeOption } = useMirTaskOptions();
+  const { markerTypeOption, markerTypeLocationIds } = useMirTaskOptions();
 
   return (
     <ParameterCard fieldName="marker_type" label="Marker type">
       <Form.Item
         name="marker_type"
-        dependencies={["is_current_position"]}
+        dependencies={["is_current_position", "location_id"]}
         rules={[
           ({ getFieldValue }) => ({
             validator(_, value) {
-              const isCurrentPosition = getFieldValue("is_current_position");
-              if (isCurrentPosition && !value) {
-                return Promise.reject(
-                  new Error("Current position 開啟時，請選擇 Marker type"),
-                );
+              const needMarkerType =
+                getFieldValue("is_current_position") ||
+                markerTypeLocationIds.has(getFieldValue("location_id") ?? "");
+              if (needMarkerType && !value) {
+                return Promise.reject(new Error("請選擇 Marker type"));
               }
-              if (!isCurrentPosition && value) {
+              if (!needMarkerType && value) {
                 return Promise.reject(
-                  new Error("Current position 關閉時，Marker type 必須留空"),
+                  new Error(
+                    "只有 Current position、type_1 貨架或 Shelf position 可以設定 Marker type",
+                  ),
                 );
               }
               return Promise.resolve();
@@ -133,7 +161,10 @@ export const MirMarkerTypeInput = () => {
 
 export const MirBlockedPathTimeoutInputInput = () => {
   return (
-    <ParameterCard fieldName="blocked_path_timeout" label="Blocked path timeout">
+    <ParameterCard
+      fieldName="blocked_path_timeout"
+      label="Blocked path timeout"
+    >
       <Form.Item
         name="blocked_path_timeout"
         initialValue={60}
@@ -366,6 +397,10 @@ export const MirModuleInput = () => {
               value: "mirconst-guid-0000-0001-internalIO00",
               label: "MiR Internal IOs",
             },
+            {
+              value: "ead43e49-acc6-11f1-b60c-000e8ebbc419",
+              label: "WISE-4060/LAN",
+            },
           ]}
         />
       </Form.Item>
@@ -377,9 +412,9 @@ export const MirPortInput = () => {
   return (
     <ParameterCard fieldName="port" label="Port">
       <Form.Item name="port" style={{ marginBottom: 0 }}>
-        <InputNumber defaultValue={0} />
+        <InputNumber min={0} max={3} precision={0} />
       </Form.Item>
-      Enter which output port relay should be activated (1-4).
+      Enter which output port relay should be activated (0-3).
     </ParameterCard>
   );
 };

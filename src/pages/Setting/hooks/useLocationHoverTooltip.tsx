@@ -4,12 +4,13 @@ import { fromEvent, throttleTime, map, tap } from "rxjs";
 import { rvizCoord } from "@/utils/utils";
 import useMap from "@/api/useMap";
 import { locationHoverInfo } from "@/utils/gloable";
+import { isMirAreaType } from "@/pages/Setting/mapComponents/components/AllLocation/components/MirAreaTypeMarker";
 
 // 偵測半徑(公尺)：游標所在的 ROS 座標範圍內的點位都會浮出提示
 const DETECT_RADIUS = 2;
 
 const isTooltipTarget = ({ areaType }: { areaType: string }) =>
-  areaType === "EXTRA" || areaType === "Dispatch";
+  areaType === "EXTRA" || areaType === "Dispatch" || isMirAreaType(areaType);
 
 // 偵測游標附近的點位。這份資訊除了驅動「地點提示」的懸浮標籤外，
 // 也持續提供給地圖上的點位圖示做「靠近游標時放大」的效果，因此不受

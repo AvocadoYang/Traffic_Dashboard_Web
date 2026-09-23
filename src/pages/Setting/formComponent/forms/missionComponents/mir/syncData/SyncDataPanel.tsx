@@ -3,6 +3,8 @@ import useName from "@/api/useAmrName";
 import FormHr from "@/pages/Setting/utils/FormHr";
 import { useMutation } from "@tanstack/react-query";
 import { Button, message, Select, Typography } from "antd";
+import { useAtomValue } from "jotai";
+import { currentMapIdAtom } from "@/utils/mapSelection";
 import {
   ApartmentOutlined,
   BorderOutlined,
@@ -195,8 +197,24 @@ const SYNC_TYPE_OPTIONS = [
   { value: "footprint", label: "Footprint", icon: <BorderOutlined /> },
   { value: "marker_type", label: "Marker Type", icon: <AimOutlined /> },
   { value: "location", label: "Location", icon: <EnvironmentOutlined /> },
-    { value: "retrieve_mission", label: "Retrieve Mission", icon: <ApartmentOutlined /> },
+  {
+    value: "retrieve_mission",
+    label: "Retrieve Mission",
+    icon: <ApartmentOutlined />,
+  },
+  {
+    value: "retrieve_location",
+    label: "Retrieve Location",
+    icon: <EnvironmentOutlined />,
+  },
 ];
+
+const SYNC_TYPE_URL: Record<string, string> = {
+  retrieve_mission: "sync-mir-mission",
+  retrieve_location: "sync-mir-locations",
+};
+
+const DEFAULT_SYNC_URL = "mir-sync-data";
 
 const SyncDataPanel: FC<{
   sortableId: string;
@@ -208,6 +226,7 @@ const SyncDataPanel: FC<{
   const { data: name } = useName();
   const { t } = useTranslation();
   const [messageApi, contextHolder] = message.useMessage();
+  const currentMapId = useAtomValue(currentMapIdAtom);
   const [amrId, setAmrId] = useState<string | undefined>(undefined);
   const [syncType, setSyncType] = useState<string | undefined>(undefined);
 
@@ -238,7 +257,12 @@ const SyncDataPanel: FC<{
   );
 
   const submitMutation = useMutation({
-    mutationFn: (payload: { amrId: string; syncType: string , url: string}) => {
+    mutationFn: (payload: {
+      amrId: string;
+      syncType: string;
+      url: string;
+      currentMapId?: string;
+    }) => {
       return client.post(`api/setting/${payload.url}`, payload);
     },
     onSuccess: () => {
@@ -258,7 +282,16 @@ const SyncDataPanel: FC<{
       return;
     }
 
-    const url = syncType === "retrieve_mission" ? "sync-mir-mission" : "mir-sync-data" 
+    const url = SYNC_TYPE_URL[syncType] ?? DEFAULT_SYNC_URL;
+
+    if (syncType === "retrieve_location") {
+      if (!currentMapId) {
+        void messageApi.error(t("map_manager.no_map_selected"));
+        return;
+      }
+      submitMutation.mutate({ amrId, syncType, url, currentMapId });
+      return;
+    }
 
     submitMutation.mutate({ amrId, syncType, url });
   };

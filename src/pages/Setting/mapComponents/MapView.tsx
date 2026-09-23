@@ -3,6 +3,7 @@ import "../setting.css";
 import { Form, FormInstance } from "antd";
 import { useAtom, useAtomValue } from "jotai";
 import {
+  batchCargoStyle,
   DragLineInfo,
   sameVersion,
   shelfSelectedStyleLocationId,
@@ -51,7 +52,7 @@ import AllRoads from "./components/AllRoads/AllRoads";
 import RoadHoverCluster from "./components/AllRoads/RoadHoverCluster";
 import AllCargo from "./components/AllCargo/AllCargo";
 import ToolTip from "../components/ToolTip";
-import SudoCargo from "./components/AllCargo/SudoCargo";
+import SudoCargo, { SudoBatchCargo } from "./components/AllCargo/SudoCargo";
 import { AllChargeStation } from "./components/AllChargeStation";
 import CargoDetail from "./components/AllCargo/CargoDetail";
 import { GlobalCargoInfoModal } from "./components/AllCargo/jotaiState";
@@ -130,6 +131,7 @@ const MapView: React.FC<{
   const openMirStyleLocationPlacer = useAtomValue(MirStyleLocationPlacerSwitch);
   const openEditZone = useAtomValue(EditZoneSwitch);
   const shelfSelectedStyleId = useAtomValue(shelfSelectedStyleLocationId);
+  const batchStyle = useAtomValue(batchCargoStyle);
   const showLocationToolTip = useAtomValue(isShowLocationTooltip);
   const showRoad = useAtomValue(isShowRoad);
   const showRoadToolTip = useAtomValue(isShowRoadTooltip);
@@ -332,6 +334,8 @@ const MapView: React.FC<{
       {showRoad && showRoadToolTip ? <RoadHoverCluster /> : []}
 
       {shelfSelectedStyleId === "" ? [] : <SudoCargo />}
+
+      {batchStyle ? <SudoBatchCargo /> : []}
 
       <SudoPeripheral />
 

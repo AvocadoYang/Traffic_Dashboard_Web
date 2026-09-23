@@ -16,6 +16,11 @@ import { AimOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";
 import useName from "@/api/useAmrName";
+import useMap from "@/api/useMap";
+import {
+  getDefaultMarkerPattern,
+  FALLBACK_MARKER_PATTERN,
+} from "@/pages/Setting/mapComponents/components/AllLocation/components/MirAreaTypeMarker";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { currentMapIdAtom } from "@/utils/mapSelection";
@@ -49,8 +54,16 @@ const LocationDetectModal = () => {
   const { t } = useTranslation();
   const [detectResult, setDetectResult] = useState<DetectResponse | null>(null);
   const { data: name } = useName();
+  const { data: mapData } = useMap();
   const currentMapId = useAtomValue(currentMapIdAtom);
   const queryClient = useQueryClient();
+
+  const defaultMarkerPattern = useMemo(() => {
+    const areaType = mapData?.locations.find(
+      (loc) => loc.locationId === open.locationId,
+    )?.areaType;
+    return getDefaultMarkerPattern(areaType);
+  }, [mapData, open.locationId]);
 
   const AmrOption: { value: string; label: string }[] | undefined =
     useMemo(() => {
@@ -104,8 +117,10 @@ const LocationDetectModal = () => {
     if (!open.isOpen) {
       setDetectResult(null);
       formDetect.resetFields();
+      return;
     }
-  }, [open.isOpen, formDetect]);
+    formDetect.setFieldValue("markerPattern", defaultMarkerPattern);
+  }, [open.isOpen, formDetect, defaultMarkerPattern]);
 
   return (
     <>
@@ -154,7 +169,7 @@ const LocationDetectModal = () => {
             <Form.Item
               label="Marker Pattern"
               name="markerPattern"
-              initialValue={20}
+              initialValue={FALLBACK_MARKER_PATTERN}
               rules={[{ required: true, message: t("utils.required") }]}
             >
               <InputNumber min={0} style={{ width: "100%" }} />

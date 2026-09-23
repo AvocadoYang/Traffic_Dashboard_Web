@@ -54,6 +54,7 @@ interface FootprintRow {
   config_id: ProductKey;
   height: number;
   footprint_points: string;
+  created_by?: string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -197,6 +198,8 @@ const FieldHint = styled.div`
 
 const PAGE_SIZE = 8;
 
+const MIR_CREATED_BY = "MiR";
+
 export const FootprintsPage: React.FC = () => {
   const [search, setSearch] = useState("");
   const [current, setCurrent] = useState(1);
@@ -333,8 +336,15 @@ export const FootprintsPage: React.FC = () => {
             />
           </Tooltip>
 
-          <Tooltip title="摧毀">
+          <Tooltip
+            title={
+              row.created_by === MIR_CREATED_BY
+                ? "MiR 內建資料不可刪除"
+                : "摧毀"
+            }
+          >
             <ActionButton
+              disabled={row.created_by === MIR_CREATED_BY}
               onClick={() => {
                 if (row.id) {
                   deleteMutation.mutate(row.id);
@@ -369,6 +379,7 @@ export const FootprintsPage: React.FC = () => {
               setActiveRow(null);
             }}
             onSave={handleEditorSave}
+            readOnly={activeRow?.created_by === MIR_CREATED_BY}
             messageApi={messageApi}
           />
         </div>

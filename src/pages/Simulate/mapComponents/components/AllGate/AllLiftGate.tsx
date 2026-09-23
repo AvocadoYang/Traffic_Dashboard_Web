@@ -7,6 +7,7 @@ import { tooltipProp } from "@/utils/gloable";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
 import LiftGate from "./LiftGate";
 import useLiftGateSocket from "@/sockets/useLiftGateSocket";
+import { Lift_Gate_Status } from "@/types/peripheral";
 
 const Point = styled.div.attrs<{
   left: number;
@@ -92,7 +93,10 @@ const AllLiftGate = () => {
           const LocScale = info?.find((i) => i.locationId === loc.locationId)
             ?.scale as number;
 
-          const status = gateSocket[loc.locationId].status;
+          // 地圖上的 LIFT_GATE 點位不一定都設定了 peripheral_station，
+          // 沒設定的點位不會出現在 socket 裡，當作關閉處理。
+          const status =
+            gateSocket[loc.locationId]?.status || Lift_Gate_Status.CLOSED;
 
           return (
             <div

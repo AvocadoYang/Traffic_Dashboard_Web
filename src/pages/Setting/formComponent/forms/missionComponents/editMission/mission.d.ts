@@ -60,6 +60,7 @@ export interface EmitActions {
 export interface Fork_mission_Slice {
   id: string;
   disable: boolean;
+  extend_next_mission: boolean;
   process_order: number;
   operation: {
     type: string;

@@ -90,8 +90,8 @@ const AllElevator: FC = () => {
           const customName = eleSocket[loc.locationId]?.name || "";
           const isDisable = eleSocket[loc.locationId]?.disable;
           const isBook = eleSocket[loc.locationId]?.booker;
-          const isManual = eleSocket[loc.locationId].isManualMode;
-          const isRunning = eleSocket[loc.locationId].isRunning;
+          const isManual = eleSocket[loc.locationId]?.isManualMode;
+          const isRunning = eleSocket[loc.locationId]?.isRunning;
           return (
             <div
               draggable={false}

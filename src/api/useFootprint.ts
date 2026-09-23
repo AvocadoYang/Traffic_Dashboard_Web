@@ -11,6 +11,7 @@ const getFootprint = async () => {
         id: string().required(),
         name: string().required(),
         config_id: string().required(),
+        created_by: string().optional(),
         footprint_points: string().required(),
         height: string().required(),
       }).required(),

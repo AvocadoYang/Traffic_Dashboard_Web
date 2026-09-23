@@ -6,14 +6,15 @@ const shelfSchema = array(
   object({
     id: string().required(),
     shelfCategoryId: string().nullable(),
-    Loc: object({
-      id: string().required(),
-      name: string().optional().nullable(),
-      region: string().optional().nullable(),
-      locationId: string().required(),
-      areaType: string().optional(),
-      dirId: string().nullable(),
-      shelfId: string().optional(),
+    peripheral_station: object({
+      source: object({
+        id: string().required(),
+        name: string().optional().nullable(),
+        region: string().optional().nullable(),
+        locationId: string().required(),
+        areaType: string().optional(),
+        dirId: string().nullable(),
+      }).required(),
     }).required(),
     ShelfCategory: object({
       id: string().required(),
