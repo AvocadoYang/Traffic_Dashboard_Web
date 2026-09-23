@@ -2252,5 +2252,24 @@
     "nothing_to_apply": "請至少勾選一個要修改的欄位,或開啟自動產生名稱。",
     "no_selection": "請至少選擇一個 stack。",
     "no_stack": "沒有 STACK"
+  },
+  "appearance": {
+    "title": "外觀",
+    "theme": "配色主題",
+    "hint": "選一套設定頁與上方工具列要用的配色。選擇會存在這台瀏覽器,切換後立即生效。",
+    "scope_note": "「灰階」就是原本的配色。其他主題只換顏色,版面、間距與字體都不會變。",
+    "preview_label": "預覽",
+    "preview_action": "儲存",
+    "mode": {
+      "light": "淺色",
+      "dark": "深色"
+    },
+    "themes": {
+      "mono": "灰階",
+      "indigo": "靛藍",
+      "teal": "青綠",
+      "sand": "暖砂",
+      "midnight": "深夜"
+    }
   }
 }

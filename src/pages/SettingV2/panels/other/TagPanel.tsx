@@ -44,6 +44,7 @@ import {
   CardFacts,
   Hint,
 } from "../../ui/primitives";
+import { c } from "../../ui/tokens";
 
 type TagRow = {
   id: string;
@@ -62,7 +63,7 @@ const colorDot = (bg: string) => (
       display: "inline-block",
       width: 14,
       height: 14,
-      border: "1px solid #c8c8c8",
+      border: `1px solid ${c.borderStrong}`,
       background: bg,
       verticalAlign: "middle",
       marginRight: 6,

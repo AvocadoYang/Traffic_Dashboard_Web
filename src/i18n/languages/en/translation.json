@@ -2251,5 +2251,24 @@
     "nothing_to_apply": "Select at least one field to change or enable name generation.",
     "no_selection": "Select at least one stack.",
     "no_stack": "NO STACKS"
+  },
+  "appearance": {
+    "title": "Appearance",
+    "theme": "Color theme",
+    "hint": "Pick a color theme for the settings page and the top bar. The choice is saved in this browser and applies right away.",
+    "scope_note": "Grayscale is the original look. The other themes only change colors — layout, spacing and font stay the same.",
+    "preview_label": "Preview",
+    "preview_action": "Save",
+    "mode": {
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "themes": {
+      "mono": "Grayscale",
+      "indigo": "Indigo",
+      "teal": "Teal",
+      "sand": "Sand",
+      "midnight": "Midnight"
+    }
   }
 }

@@ -39,7 +39,8 @@ import MarkerTypePanel from "./panels/mir/MarkerTypePanel";
 import SyncDataPanel from "./panels/mir/SyncDataPanel";
 import MirMissionPanel from "./panels/mir/MirMissionPanel";
 import EditMissionPanel from "./panels/mission/edit/EditMissionPanel";
-import type { ToolBarItemType } from "@/pages/Setting/components/siderElement";
+import AppearancePanel from "./panels/appearance/AppearancePanel";
+import type { SettingV2PanelKey } from "./panelKeys";
 import { BackupPanel } from "@/pages/Setting/formComponent/forms/file/backup";
 
 // v1 的面板都吃 dnd-kit 的 attributes/listeners,但它們只被展開到面板標題上當拖曳
@@ -49,7 +50,7 @@ const noopAttributes = {} as DraggableAttributes;
 const noopListeners = undefined;
 
 type Props = {
-  activeKey: ToolBarItemType | null;
+  activeKey: SettingV2PanelKey | null;
   locationPanelForm: FormInstance<unknown>;
   roadPanelForm: FormInstance<unknown>;
   zonePanelForm: FormInstance<unknown>;
@@ -150,6 +151,8 @@ const PanelRenderer: FC<Props> = ({
       return <SyncDataPanel />;
     case "mir_mission":
       return <MirMissionPanel />;
+    case "appearance":
+      return <AppearancePanel />;
     default:
       return null;
   }

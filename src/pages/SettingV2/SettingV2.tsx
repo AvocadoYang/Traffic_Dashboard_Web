@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Layout, Form, Button, ConfigProvider, Drawer, Segmented } from "antd";
+import { Layout, Form, Button, Drawer, Segmented } from "antd";
 import { CloseOutlined, MenuOutlined } from "@ant-design/icons";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
@@ -23,7 +23,7 @@ import { mapViewModeAtom, type MapViewMode } from "./mapViewModeAtom";
 import { navCategories } from "./navItems";
 import SettingV2Nav from "./SettingV2Nav";
 import PanelRenderer from "./PanelRenderer";
-import { settingV2Theme } from "./ui/theme";
+import { ThemedConfigProvider } from "@/theme";
 import useIsNarrow from "./ui/useIsNarrow";
 import { c, font, mqNarrow, space } from "./ui/tokens";
 
@@ -213,7 +213,7 @@ const SettingV2: React.FC = () => {
   }, [activePanel, t]);
 
   return (
-    <ConfigProvider theme={settingV2Theme}>
+    <ThemedConfigProvider>
       <Layout style={{ height: "var(--app-height)" }}>
         <Header />
         <Content>
@@ -320,7 +320,7 @@ const SettingV2: React.FC = () => {
           </Shell>
         </Content>
       </Layout>
-    </ConfigProvider>
+    </ThemedConfigProvider>
   );
 };
 

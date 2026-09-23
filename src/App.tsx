@@ -18,6 +18,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { SystemAlarmOverlay } from "./pages/Main/components/SystemAlarm";
 import { UserConformOverlay } from "./pages/Main/components/UserConformTaskStep";
 import MissionDispatchBoard from "./pages/MissionDispatchBoard/MissionDispatchBoard";
+import { ThemeVarsProvider } from "./theme";
 
 const client = new QueryClient({
   defaultOptions: {
@@ -44,7 +45,8 @@ function App() {
 
   // const ipcHandle = (): void => window.electron.ipc.send('ping')
   return (
-    <QueryClientProvider client={client}>
+    <ThemeVarsProvider>
+      <QueryClientProvider client={client}>
       <SystemAlarmOverlay />
       <UserConformOverlay />
       <BrowserRouter
@@ -55,7 +57,13 @@ function App() {
 
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Register />}></Route>
-            <Route path="/setting" element={<Setting></Setting>}></Route>
+            {/* 設定頁正式改用 v2。/setting 保留成轉址,舊書籤跟外部連結不會壞;
+                舊版仍可從 /setting-v1 進去,真的少了什麼功能時還有得退。 */}
+            <Route
+              path="/setting"
+              element={<Navigate to="/setting-v2" replace />}
+            ></Route>
+            <Route path="/setting-v1" element={<Setting></Setting>}></Route>
             <Route path="/setting-v2" element={<SettingV2 />}></Route>
             <Route path="/simulate" element={<Simulate />}></Route>
             <Route path="/cargo-history" element={<CargoHistory />}></Route>
@@ -79,7 +87,8 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </ThemeVarsProvider>
   );
 }
 

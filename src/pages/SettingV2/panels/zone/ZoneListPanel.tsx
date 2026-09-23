@@ -46,6 +46,7 @@ import {
   CardFacts,
   Tag,
 } from "../../ui/primitives";
+import { c } from "../../ui/tokens";
 
 type ZoneRow = {
   id: string;
@@ -215,7 +216,7 @@ const ZoneListPanel: FC = () => {
         display: "inline-block",
         width: 14,
         height: 14,
-        border: "1px solid #c8c8c8",
+        border: `1px solid ${c.borderStrong}`,
         background: bg,
         verticalAlign: "middle",
       }}

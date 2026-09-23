@@ -8,11 +8,12 @@ import {
   DeploymentUnitOutlined,
   FileOutlined,
   PictureOutlined,
+  BgColorsOutlined,
 } from "@ant-design/icons";
-import type { ToolBarItemType } from "@/pages/Setting/components/siderElement";
+import type { SettingV2PanelKey } from "./panelKeys";
 
 export type NavLeaf = {
-  key: ToolBarItemType;
+  key: SettingV2PanelKey;
   /** i18n key;沒有對應翻譯的(MIR 那幾個)直接用 rawLabel */
   labelKey?: string;
   rawLabel?: string;
@@ -186,6 +187,12 @@ export const navCategories: NavCategory[] = [
         labelKey: "toolbar.file_setting.system_alarm",
       },
     ],
+  },
+  {
+    key: "appearance_group",
+    labelKey: "appearance.title",
+    icon: BgColorsOutlined,
+    children: [{ key: "appearance", labelKey: "appearance.theme" }],
   },
   {
     key: "mir",

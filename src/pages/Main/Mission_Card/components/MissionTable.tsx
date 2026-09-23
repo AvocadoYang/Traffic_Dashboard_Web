@@ -32,6 +32,7 @@ import {
 } from "@ant-design/icons";
 import { MissionStatus } from "@/types/mission";
 import I18nCancelReason from "@/i18n/I18nCancelReason";
+import { themeAtom } from "@/theme";
 
 const MISSION_SORT = [
   "executing",
@@ -45,40 +46,39 @@ const MISSION_SORT = [
 // Industrial Styled Components
 const IndustrialTableContainer = styled.div<{ $isDark: boolean }>`
   .ant-table {
-    background: ${({ $isDark }) => ($isDark ? "#0f0f0f" : "#ffffff")};
-    border: 1px solid ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#d9d9d9")};
+    background: var(--c-bg);
+    border: 1px solid var(--c-header-border);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
 
   .ant-table-thead > tr > th {
-    background: ${({ $isDark }) => ($isDark ? "#0a0a0a" : "#fafafa")};
-    color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#262626")};
+    background: var(--c-bg-subtle);
+    color: var(--c-text);
     font-weight: 600;
     text-transform: uppercase;
     font-size: 11px;
     letter-spacing: 1px;
     border-bottom: 2px solid
-      ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#d9d9d9")};
+      var(--c-header-border);
     font-family: "Roboto Mono", monospace;
   }
 
   .ant-table-tbody > tr {
-    background: ${({ $isDark }) => ($isDark ? "#0f0f0f" : "#ffffff")};
+    background: var(--c-bg);
     transition: all 0.2s ease;
     font-family: "Roboto Mono", monospace;
 
     &:hover {
-      background: ${({ $isDark }) =>
-        $isDark ? "#1a1a1a" : "#f0f5ff"} !important;
+      background: var(--c-header-accent-soft) !important;
       box-shadow: 0 2px 4px rgba(24, 144, 255, 0.1);
     }
   }
 
   .ant-table-tbody > tr > td {
     border-bottom: 1px solid
-      ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#f0f0f0")};
+      var(--c-bg-muted);
     font-size: 12px;
-    color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#595959")};
+    color: var(--c-text-secondary);
   }
 
   .ant-pagination {
@@ -91,8 +91,8 @@ const TaskInfo = styled.div<{ $isDark: boolean }>`
   flex-direction: column;
   align-items: flex-start;
   padding: 8px 12px;
-  background: ${({ $isDark }) => ($isDark ? "#0a0a0a" : "#fafafa")};
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#d9d9d9")};
+  background: var(--c-bg-subtle);
+  border: 1px solid var(--c-header-border);
   border-radius: 4px;
   transition: all 0.2s ease;
 `;
@@ -100,7 +100,7 @@ const TaskInfo = styled.div<{ $isDark: boolean }>`
 const TaskTitle = styled.div<{ $isDark: boolean }>`
   font-size: 12px;
   font-weight: 600;
-  color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#262626")};
+  color: var(--c-text);
   margin-bottom: 4px;
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
@@ -109,7 +109,7 @@ const TaskTitle = styled.div<{ $isDark: boolean }>`
 
 const SubTitle = styled.div<{ $isDark: boolean }>`
   font-size: 11px;
-  color: ${({ $isDark }) => ($isDark ? "#666" : "#8c8c8c")};
+  color: var(--c-text-muted);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -117,7 +117,7 @@ const SubTitle = styled.div<{ $isDark: boolean }>`
 
   &::before {
     content: "→";
-    color: #1890ff;
+    color: var(--c-header-accent);
     font-weight: bold;
   }
 `;
@@ -151,20 +151,20 @@ const IndustrialButton = styled(Button)`
     }
 
     &:disabled {
-      background: #f5f5f5;
-      border-color: #d9d9d9;
-      color: #bfbfbf;
+      background: var(--c-bg-subtle);
+      border-color: var(--c-header-border);
+      color: var(--c-text-muted);
     }
   }
 
   &.history-btn {
-    background: #e6f7ff;
-    border: 1px solid #1890ff;
-    color: #1890ff;
+    background: var(--c-header-accent-soft);
+    border: 1px solid var(--c-header-accent);
+    color: var(--c-header-accent);
 
     &:hover {
-      background: #1890ff;
-      border-color: #1890ff;
+      background: var(--c-header-accent);
+      border-color: var(--c-header-accent);
       color: #ffffff;
       box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
     }
@@ -184,10 +184,10 @@ const MissionIdTag = styled(Tag)`
 const AmrBadge = styled.span<{ $isDark: boolean }>`
   display: inline-block;
   padding: 2px 8px;
-  background: ${({ $isDark }) => ($isDark ? "#0a0a0a" : "#e6f7ff")};
-  border: 1px solid #1890ff;
+  background: var(--c-header-accent-soft);
+  border: 1px solid var(--c-header-accent);
   border-radius: 4px;
-  color: #1890ff;
+  color: var(--c-header-accent);
   font-family: "Roboto Mono", monospace;
   font-size: 13px;
   font-weight: 600;
@@ -215,7 +215,7 @@ const StatusBadge = styled.span<{ $status: MissionStatus; $isDark: boolean }>`
       },
       assigned: {
         bg: $isDark ? "#0a0a0a" : "#e6f7ff",
-        border: "#1890ff",
+        border: "var(--c-header-accent)",
         text: "#1890ff",
       },
       pending: {
@@ -225,7 +225,7 @@ const StatusBadge = styled.span<{ $status: MissionStatus; $isDark: boolean }>`
       },
       completed: {
         bg: $isDark ? "#0a0a0a" : "#fafafa",
-        border: "#8c8c8c",
+        border: "var(--c-text-muted)",
         text: "#8c8c8c",
       },
       aborting: {
@@ -250,9 +250,9 @@ const StatusBadge = styled.span<{ $status: MissionStatus; $isDark: boolean }>`
 `;
 
 const IndustrialCheckboxGroup = styled.div<{ $isDark: boolean }>`
-  background: ${({ $isDark }) => ($isDark ? "#0a0a0a" : "#fafafa")};
+  background: var(--c-bg-subtle);
   padding: 12px;
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#d9d9d9")};
+  border: 1px solid var(--c-header-border);
   border-radius: 4px;
   margin-bottom: 16px;
   display: inline-block;
@@ -266,28 +266,28 @@ const IndustrialCheckboxGroup = styled.div<{ $isDark: boolean }>`
 
   /* Label Text Style */
   .ant-checkbox-wrapper {
-    color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#262626")};
+    color: var(--c-text);
     font-family: "Roboto Mono", monospace;
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 
     &:hover .ant-checkbox-inner {
-      border-color: #1890ff;
+      border-color: var(--c-header-accent);
     }
   }
 
   /* Checkbox Box Style */
   .ant-checkbox-inner {
-    background-color: ${({ $isDark }) => ($isDark ? "#000" : "#fff")};
-    border-color: ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#d9d9d9")};
+    background-color: var(--c-bg);
+    border-color: var(--c-header-border);
     border-radius: 2px;
   }
 
   /* Checked State */
   .ant-checkbox-checked .ant-checkbox-inner {
-    background-color: #1890ff;
-    border-color: #1890ff;
+    background-color: var(--c-header-accent);
+    border-color: var(--c-header-accent);
   }
 
   /* Label when checked */
@@ -308,6 +308,8 @@ const defaultOpenColumn = ["amrId", "missionStatus", "taskInfo"];
 const MissionTable = () => {
   const { t } = useTranslation();
   const isDark = useAtomValue(darkMode);
+  // antd 的 token 不能吃 var(),要餵真實色碼,所以這裡直接拿 palette
+  const { colors } = useAtomValue(themeAtom);
   const { data: name } = useName();
   const [selectionType] = useState<"checkbox" | "radio">("checkbox");
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -529,7 +531,7 @@ const MissionTable = () => {
       theme={{
         components: {
           Table: {
-            rowHoverBg: isDark ? "#1a1a1a" : "#f0f5ff",
+            rowHoverBg: colors.headerAccentSoft,
           },
         },
       }}

@@ -16,7 +16,7 @@ const StatusTag = styled.span<{ $on: boolean }>`
   white-space: nowrap;
   border: 1px solid ${({ $on }) => ($on ? c.accent : c.border)};
   background: ${({ $on }) => ($on ? c.accent : c.bgSubtle)};
-  color: ${({ $on }) => ($on ? "#ffffff" : c.textMuted)};
+  color: ${({ $on }) => ($on ? c.onAccent : c.textMuted)};
 `;
 
 export default StatusTag;

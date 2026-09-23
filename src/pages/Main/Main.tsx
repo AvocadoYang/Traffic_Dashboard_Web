@@ -3,6 +3,7 @@ import { Layout } from "antd";
 import styled from "styled-components";
 import WebView from "./components/WebView/WebView";
 import Header from "../../components/Header";
+import { ThemedAppConfigProvider } from "@/theme";
 
 // import { Scene } from './3D'
 // import CarCardWrap from './Car_Card/CardWrap'
@@ -14,10 +15,12 @@ const MainLayout = styled(Layout)`
 
 const Main: React.FC = () => {
   return (
-    <MainLayout>
-      <Header />
-      <WebView />
-    </MainLayout>
+    <ThemedAppConfigProvider>
+      <MainLayout>
+        <Header />
+        <WebView />
+      </MainLayout>
+    </ThemedAppConfigProvider>
   );
 };
 

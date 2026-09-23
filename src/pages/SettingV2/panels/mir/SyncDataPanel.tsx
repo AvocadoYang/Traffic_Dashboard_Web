@@ -62,11 +62,11 @@ const TypeButton = styled.button<{ $active: boolean }>`
 
   border: 1px solid ${({ $active }) => ($active ? c.accent : c.border)};
   background: ${({ $active }) => ($active ? c.accent : c.bg)};
-  color: ${({ $active }) => ($active ? "#ffffff" : c.textSecondary)};
+  color: ${({ $active }) => ($active ? c.onAccent : c.textSecondary)};
 
   &:hover {
     border-color: ${({ $active }) => ($active ? c.accent : c.borderStrong)};
-    color: ${({ $active }) => ($active ? "#ffffff" : c.text)};
+    color: ${({ $active }) => ($active ? c.onAccent : c.text)};
   }
 `;
 

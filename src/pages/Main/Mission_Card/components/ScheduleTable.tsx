@@ -26,44 +26,44 @@ import { useMutation } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
+import { themeAtom } from "@/theme";
 
 // Industrial Styled Components (matching MissionTable)
 const IndustrialTableContainer = styled.div<{ $isDark: boolean }>`
   .ant-table {
-    background: ${({ $isDark }) => ($isDark ? "#0f0f0f" : "#ffffff")};
-    border: 1px solid ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#d9d9d9")};
+    background: var(--c-bg);
+    border: 1px solid var(--c-header-border);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
 
   .ant-table-thead > tr > th {
-    background: ${({ $isDark }) => ($isDark ? "#0a0a0a" : "#fafafa")};
-    color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#262626")};
+    background: var(--c-bg-subtle);
+    color: var(--c-text);
     font-weight: 600;
     text-transform: uppercase;
     font-size: 11px;
     letter-spacing: 1px;
     border-bottom: 2px solid
-      ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#d9d9d9")};
+      var(--c-header-border);
     font-family: "Roboto Mono", monospace;
   }
 
   .ant-table-tbody > tr {
-    background: ${({ $isDark }) => ($isDark ? "#0f0f0f" : "#ffffff")};
+    background: var(--c-bg);
     transition: all 0.2s ease;
     font-family: "Roboto Mono", monospace;
 
     &:hover {
-      background: ${({ $isDark }) =>
-        $isDark ? "#1a1a1a" : "#f0f5ff"} !important;
+      background: var(--c-header-accent-soft) !important;
       box-shadow: 0 2px 4px rgba(24, 144, 255, 0.1);
     }
   }
 
   .ant-table-tbody > tr > td {
     border-bottom: 1px solid
-      ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#f0f0f0")};
+      var(--c-bg-muted);
     font-size: 12px;
-    color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#595959")};
+    color: var(--c-text-secondary);
   }
 
   .ant-pagination {
@@ -74,10 +74,10 @@ const IndustrialTableContainer = styled.div<{ $isDark: boolean }>`
 const AmrBadge = styled.span<{ $isDark: boolean }>`
   display: inline-block;
   padding: 4px 12px;
-  background: ${({ $isDark }) => ($isDark ? "#0a0a0a" : "#e6f7ff")};
-  border: 1px solid #1890ff;
+  background: var(--c-header-accent-soft);
+  border: 1px solid var(--c-header-accent);
   border-radius: 4px;
-  color: #1890ff;
+  color: var(--c-header-accent);
   font-family: "Roboto Mono", monospace;
   font-size: 13px;
   font-weight: 600;
@@ -88,8 +88,8 @@ const RouteInfo = styled.div<{ $isDark: boolean }>`
   flex-direction: column;
   gap: 4px;
   padding: 8px 12px;
-  background: ${({ $isDark }) => ($isDark ? "#0a0a0a" : "#fafafa")};
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#d9d9d9")};
+  background: var(--c-bg-subtle);
+  border: 1px solid var(--c-header-border);
   border-radius: 4px;
 `;
 
@@ -134,9 +134,9 @@ const PriorityBadge = styled.span<{ $priority: number; $isDark: boolean }>`
       `;
     } else {
       return `
-        background: ${$isDark ? "#0a0a0a" : "#e6f7ff"};
-        border: 1px solid #1890ff;
-        color: #1890ff;
+        background: var(--c-header-accent-soft);
+        border: 1px solid var(--c-header-accent);
+        color: var(--c-header-accent);
       `;
     }
   }}
@@ -150,8 +150,8 @@ const TimeTag = styled(Tag)`
 `;
 
 const StatusHeader = styled.div<{ $isDark: boolean; $status: "1" | "0" }>`
-  background: ${({ $isDark }) => ($isDark ? "#0a0a0a" : "#fafafa")};
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#d9d9d9")};
+  background: var(--c-bg-subtle);
+  border: 1px solid var(--c-header-border);
   border-left: 4px solid
     ${({ $status }) => ($status === "1" ? "#52c41a" : "#ff4d4f")};
   padding: 12px 16px;
@@ -168,7 +168,7 @@ const StatusText = styled.span<{ $isDark: boolean }>`
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#262626")};
+  color: var(--c-text);
 `;
 
 const ButtonWrapper = styled.div`
@@ -203,13 +203,13 @@ const IndustrialButton = styled(Button)`
 
   /* RESUME: Tactical Blue Aesthetic */
   &.resume-btn {
-    background: #e6f7ff; /* Light processing blue */
+    background: var(--c-header-accent-soft); /* Light processing blue */
     border: 1px solid #91d5ff;
     color: #096dd9;
 
     &:hover:not(:disabled) {
-      background: #1890ff; /* Primary Action Blue */
-      border-color: #1890ff;
+      background: var(--c-header-accent); /* Primary Action Blue */
+      border-color: var(--c-header-accent);
       color: #ffffff;
       box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
     }
@@ -230,9 +230,9 @@ const IndustrialButton = styled(Button)`
   }
 
   &:disabled {
-    background: #f5f5f5 !important;
-    border-color: #d9d9d9 !important;
-    color: #bfbfbf !important;
+    background: var(--c-bg-subtle) !important;
+    border-color: var(--c-header-border) !important;
+    color: var(--c-text-muted) !important;
     cursor: not-allowed;
     box-shadow: none !important;
   }
@@ -259,6 +259,8 @@ type ScheduleDataType = {
 const ScheduleTable: FC<{}> = () => {
   const { t } = useTranslation();
   const isDark = useAtomValue(darkMode);
+  // antd 的 token 不能吃 var(),要餵真實色碼,所以這裡直接拿 palette
+  const { colors } = useAtomValue(themeAtom);
   const remainSchedule = useRemainSchedule();
   const scheduleStatus = useScheduleStatus();
   const [messageApi, contextHolder] = message.useMessage();
@@ -340,7 +342,7 @@ const ScheduleTable: FC<{}> = () => {
       theme={{
         components: {
           Table: {
-            rowHoverBg: isDark ? "#1a1a1a" : "#f0f5ff",
+            rowHoverBg: colors.headerAccentSoft,
           },
         },
       }}

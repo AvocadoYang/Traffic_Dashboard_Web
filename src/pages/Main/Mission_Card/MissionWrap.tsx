@@ -8,7 +8,7 @@ import { darkMode } from "@/utils/gloable";
 
 const IndustrialContainer = styled.div<{ $isDark: boolean }>`
   font-family: "Roboto Mono", monospace;
-  background: ${({ $isDark }) => ($isDark ? "#1a1a1a" : "#f5f5f5")};
+  background: var(--c-bg-subtle);
   padding: 20px;
   border-radius: 4px;
   min-height: 100%;

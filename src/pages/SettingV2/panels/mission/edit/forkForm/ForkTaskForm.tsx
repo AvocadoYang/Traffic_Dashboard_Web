@@ -84,7 +84,7 @@ const StatusNote = styled.div<{ $ok: boolean }>`
   letter-spacing: 0.8px;
   border: 1px ${({ $ok }) => ($ok ? "solid" : "dashed")} ${c.borderStrong};
   background: ${({ $ok }) => ($ok ? c.accent : c.bgSubtle)};
-  color: ${({ $ok }) => ($ok ? "#ffffff" : c.textSecondary)};
+  color: ${({ $ok }) => ($ok ? c.onAccent : c.textSecondary)};
 `;
 
 const FormShell = styled.div`

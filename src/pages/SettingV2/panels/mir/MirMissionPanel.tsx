@@ -67,7 +67,7 @@ const StatusCell = styled.button<{ $synced: boolean; $selected: boolean }>`
   background: ${({ $selected, $synced }) =>
     $selected ? c.accent : $synced ? c.bg : c.bgSubtle};
   color: ${({ $selected, $synced }) =>
-    $selected ? "#ffffff" : $synced ? c.text : c.textMuted};
+    $selected ? c.onAccent : $synced ? c.text : c.textMuted};
   cursor: ${({ $synced }) => ($synced ? "pointer" : "not-allowed")};
 
   &:hover:not(:disabled) {

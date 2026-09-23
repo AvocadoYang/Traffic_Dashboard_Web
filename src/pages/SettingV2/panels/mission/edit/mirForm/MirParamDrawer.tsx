@@ -68,11 +68,11 @@ const GearButton = styled.button<{ $active: boolean }>`
   cursor: pointer;
   background: ${({ $active }) => ($active ? c.accent : "transparent")};
   border: 1px solid ${({ $active }) => ($active ? c.accent : c.border)};
-  color: ${({ $active }) => ($active ? "#ffffff" : c.textMuted)};
+  color: ${({ $active }) => ($active ? c.onAccent : c.textMuted)};
 
   &:hover {
     border-color: ${c.borderStrong};
-    color: ${({ $active }) => ($active ? "#ffffff" : c.text)};
+    color: ${({ $active }) => ($active ? c.onAccent : c.text)};
   }
 `;
 

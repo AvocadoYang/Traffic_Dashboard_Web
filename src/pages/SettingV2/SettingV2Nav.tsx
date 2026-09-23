@@ -21,14 +21,14 @@ import {
   MirStyleLocationPlacerSwitch,
   isOpenUploadWarningIDModal,
 } from "@/utils/siderGloble";
-import type { ToolBarItemType } from "@/pages/Setting/components/siderElement";
+import type { SettingV2PanelKey } from "./panelKeys";
 import StartPoint from "@/pages/Setting/components/StartPoint/StartPoint";
 import ImportMapConfigModal from "@/pages/Setting/components/importMap/ImportMapConfigModal";
 import UploadWarningModal from "@/pages/Setting/components/UploadWarningModal";
 import { navCategories } from "./navItems";
 import useConfigFlags from "@/api/useConfigFlags";
 import { mapViewModeAtom, type MapViewMode } from "./mapViewModeAtom";
-import { mqNarrow } from "./ui/tokens";
+import { c, font, mqNarrow } from "./ui/tokens";
 
 const NavWrap = styled.div`
   width: 240px;
@@ -36,8 +36,8 @@ const NavWrap = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #ffffff;
-  border-right: 1px solid #d9d9d9;
+  background: ${c.bg};
+  border-right: 1px solid ${c.borderStrong};
   overflow-y: auto;
   scrollbar-width: thin;
 
@@ -54,14 +54,14 @@ const ExtraRow = styled.div`
   justify-content: space-between;
   gap: 8px;
   padding: 10px 16px;
-  border-bottom: 1px solid #f0f0f0;
-  font-family: "Roboto Mono", monospace;
-  font-size: 12px;
-  color: #595959;
+  border-bottom: 1px solid ${c.border};
+  font-family: ${font.mono};
+  font-size: ${font.sm};
+  color: ${c.textSecondary};
 `;
 
 const ActionList = styled.div`
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid ${c.border};
   padding: 8px 0;
   margin-top: auto;
 `;
@@ -74,21 +74,21 @@ const ActionButton = styled.button`
   padding: 10px 16px;
   border: none;
   background: transparent;
-  font-family: "Roboto Mono", monospace;
-  font-size: 12px;
-  color: #595959;
+  font-family: ${font.mono};
+  font-size: ${font.sm};
+  color: ${c.textSecondary};
   cursor: pointer;
   text-align: left;
 
   &:hover {
-    background: #f0f5ff;
-    color: #1890ff;
+    background: ${c.bgMuted};
+    color: ${c.text};
   }
 `;
 
 type Props = {
-  activePanel: ToolBarItemType | null;
-  onSelectPanel: (key: ToolBarItemType | null) => void;
+  activePanel: SettingV2PanelKey | null;
+  onSelectPanel: (key: SettingV2PanelKey | null) => void;
   /** 選完一個項目之後要做的事。窄螢幕用來把抽屜收起來。 */
   onAfterSelect?: () => void;
 };
@@ -138,7 +138,7 @@ const SettingV2Nav: FC<Props> = ({
 
   // 點同一個項目 = 收起來,點別的 = 直接換過去,永遠只會有一個面板。
   const handleClick: MenuProps["onClick"] = ({ key }) => {
-    onSelectPanel(activePanel === key ? null : (key as ToolBarItemType));
+    onSelectPanel(activePanel === key ? null : (key as SettingV2PanelKey));
     // 窄螢幕時選單是抽屜,選完要收起來才看得到面板
     onAfterSelect?.();
   };
