@@ -24,10 +24,11 @@ const Block = styled(Button)<{
   border: ${({ $isSelecting, $canBeClick }) =>
     $isSelecting && $canBeClick ? "2px solid #1890ff" : "1px dashed #727272"};
   border-radius: 3px;
-  min-width: 15px;
-  max-height: 15px;
-  max-width: 100%;
-  padding: 0 2px;
+  min-height: 15px;
+  max-width: 15px;
+  max-height: 100%;
+  height: auto;
+  padding: 2px 0;
   transition: all 0.2s ease;
   position: relative;
   z-index: ${({ $isSelecting }) => ($isSelecting ? 50 : 1)};
@@ -71,6 +72,8 @@ const BlockSpan = styled.span<{ rotate: number; $hasCargo: boolean }>`
   font-weight: 500;
   color: ${({ $hasCargo }) => ($hasCargo ? "#000" : "#333")};
   transform: ${({ rotate }) => `rotate(${-rotate}deg)`};
+  writing-mode: vertical-rl;
+  text-orientation: sideways;
   white-space: nowrap;
   user-select: none;
   text-align: center;
@@ -83,7 +86,8 @@ interface CargoDisplayProps {
   isDisable: boolean;
   locId: string;
   rotate: number;
-  handleMouseDown: (
+  /** 右鍵時切換這一層有沒有貨 */
+  onToggleCargo: (
     e: React.MouseEvent<HTMLElement>,
     locId: string,
     level: number,
@@ -97,7 +101,7 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
   isDisable,
   locId,
   rotate,
-  handleMouseDown,
+  onToggleCargo,
 }) => {
   const [selectMode, setQuickSettingMode] = useAtom(QuickMissionSettingMode);
   const [isStartSelecting, setStartQuickSetting] = useAtom(
@@ -142,7 +146,12 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
       $isDisable={isDisable}
       $isSelecting={isStartSelecting}
       $canBeClick={isStartSelecting ? canBeClickInSelection : true}
-      onMouseDown={(e) => handleMouseDown(e, locId, level)}
+      // 右鍵直接切換這一層有沒有貨。preventDefault 是要擋掉瀏覽器自己的
+      // 右鍵選單,不然選單會蓋在地圖上。
+      onContextMenu={(e) => {
+        e.preventDefault();
+        onToggleCargo(e, locId, level);
+      }}
       onClick={isStartSelecting ? handleQuickMissionPayload : undefined}
       role="button"
     >

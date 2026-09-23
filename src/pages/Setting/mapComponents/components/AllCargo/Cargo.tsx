@@ -88,13 +88,12 @@ const Cargo: FC<{
     setGlobalData(data);
   };
 
-  const handleMouseDown = useCallback(
+  const toggleCargo = useCallback(
     (
       event: React.MouseEvent<HTMLDivElement>,
       targetId: string,
       targetLevel: number
     ) => {
-      if (event.button !== 1) return;
       editColumnMutation.mutate({
         id,
         locationId: targetId,
@@ -137,8 +136,8 @@ const Cargo: FC<{
               isDisable={isDisable}
               locId={locId}
               rotate={0}
-              handleMouseDown={(e) =>
-                handleMouseDown(
+              onToggleCargo={(e) =>
+                toggleCargo(
                   e as React.MouseEvent<HTMLDivElement>,
                   locId,
                   level

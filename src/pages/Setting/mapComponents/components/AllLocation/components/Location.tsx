@@ -32,6 +32,7 @@ const AREA_TYPE_ICON: Record<string, { icon: JSX.Element; color: string }> = {
   MIR_ROBOT_POSITION: { icon: <CompassOutlined />, color: "#1890ff" },
   MIR_SHELF_POSITION: { icon: <DatabaseOutlined />, color: "#722ed1" },
   MIR_CHARGING_STATION: { icon: <ThunderboltOutlined />, color: "#262626" },
+  MIR_STRIPE_MARKER: { icon: <CompassOutlined />, color: "#1890ff" },
 };
 
 const IconBadge = styled.div.attrs<{ left: number; top: number }>(

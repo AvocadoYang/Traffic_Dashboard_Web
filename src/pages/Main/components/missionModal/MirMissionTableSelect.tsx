@@ -14,15 +14,15 @@ dayjs.extend(relativeTime);
 // look and behave identically.
 const IndustrialModal = styled(Modal)`
   .ant-modal-content {
-    background: #ffffff;
-    border: 2px solid #d9d9d9;
+    background: var(--c-bg);
+    border: 2px solid var(--c-header-border);
     border-radius: 0;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   }
 
   .ant-modal-header {
-    background: #fafafa;
-    border-bottom: 2px solid #d9d9d9;
+    background: var(--c-bg-subtle);
+    border-bottom: 2px solid var(--c-header-border);
     padding: 16px 24px;
     position: relative;
     border-radius: 0;
@@ -34,7 +34,7 @@ const IndustrialModal = styled(Modal)`
       top: 0;
       bottom: 0;
       width: 4px;
-      background: #1890ff;
+      background: var(--c-header-accent);
     }
   }
 
@@ -42,7 +42,7 @@ const IndustrialModal = styled(Modal)`
     font-family: "Roboto Mono", monospace;
     font-size: 16px;
     font-weight: 700;
-    color: #1890ff;
+    color: var(--c-header-accent);
     text-transform: uppercase;
     letter-spacing: 1.5px;
     display: flex;
@@ -52,14 +52,14 @@ const IndustrialModal = styled(Modal)`
 
   .ant-modal-body {
     padding: 24px;
-    background: #ffffff;
+    background: var(--c-bg);
   }
 `;
 
 const IndustrialButton = styled.button`
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  color: #262626;
+  background: var(--c-bg);
+  border: 1px solid var(--c-header-border);
+  color: var(--c-text);
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
   font-size: 11px;
@@ -83,14 +83,14 @@ const IndustrialButton = styled.button`
     top: 0;
     bottom: 0;
     width: 0;
-    background: #1890ff;
+    background: var(--c-header-accent);
     transition: width 0.2s;
   }
 
   &:hover:not(:disabled) {
-    background: #f0f5ff;
-    border-color: #1890ff;
-    color: #1890ff;
+    background: var(--c-header-accent-soft);
+    border-color: var(--c-header-accent);
+    color: var(--c-header-accent);
     box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
 
     &::before {
@@ -99,9 +99,9 @@ const IndustrialButton = styled.button`
   }
 
   &.selected {
-    background: #e6f7ff;
-    border-color: #1890ff;
-    color: #1890ff;
+    background: var(--c-header-accent-soft);
+    border-color: var(--c-header-accent);
+    color: var(--c-header-accent);
     box-shadow: inset 0 0 20px rgba(24, 144, 255, 0.08);
 
     &::before {
@@ -110,9 +110,9 @@ const IndustrialButton = styled.button`
   }
 
   &:disabled {
-    background: #f5f5f5;
-    border-color: #d9d9d9;
-    color: #bfbfbf;
+    background: var(--c-bg-subtle);
+    border-color: var(--c-header-border);
+    color: var(--c-text-muted);
     cursor: not-allowed;
   }
 `;
@@ -124,39 +124,39 @@ const SearchContainer = styled.div`
 
 const IndustrialInput = styled(Input)`
   border-radius: 0;
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--c-header-border);
   font-family: "Roboto Mono", monospace;
   height: 44px;
-  background: #fafafa;
+  background: var(--c-bg-subtle);
 
   &:hover {
-    border-color: #1890ff;
-    background: #ffffff;
+    border-color: var(--c-header-accent);
+    background: var(--c-bg);
   }
 
   &:focus,
   &.ant-input-focused {
-    border-color: #1890ff;
+    border-color: var(--c-header-accent);
     box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
-    background: #ffffff;
+    background: var(--c-bg);
   }
 
   .ant-input-prefix {
-    color: #1890ff;
+    color: var(--c-header-accent);
   }
 `;
 
 const IndustrialTable = styled(Table)`
   .ant-table {
-    border: 1px solid #d9d9d9;
+    border: 1px solid var(--c-header-border);
     border-radius: 0;
     font-family: "Roboto Mono", monospace;
   }
 
   .ant-table-thead > tr > th {
-    background: #fafafa;
-    border-bottom: 2px solid #d9d9d9;
-    color: #595959;
+    background: var(--c-bg-subtle);
+    border-bottom: 2px solid var(--c-header-border);
+    color: var(--c-text-secondary);
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -174,7 +174,7 @@ const IndustrialTable = styled(Table)`
     transition: all 0.2s;
 
     &:hover {
-      background: #f0f5ff;
+      background: var(--c-header-accent-soft);
 
       td {
         background: transparent;
@@ -182,7 +182,7 @@ const IndustrialTable = styled(Table)`
     }
 
     &.ant-table-row-selected {
-      background: #e6f7ff;
+      background: var(--c-header-accent-soft);
 
       td {
         background: transparent;
@@ -191,7 +191,7 @@ const IndustrialTable = styled(Table)`
   }
 
   .ant-table-tbody > tr > td {
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--c-bg-muted);
     padding: 12px 16px;
     font-size: 12px;
   }
@@ -201,19 +201,19 @@ const IndustrialTable = styled(Table)`
   }
 
   .ant-pagination-item {
-    border: 1px solid #d9d9d9;
+    border: 1px solid var(--c-header-border);
     border-radius: 0;
     font-family: "Roboto Mono", monospace;
-    background: #fafafa;
+    background: var(--c-bg-subtle);
 
     &:hover {
-      border-color: #1890ff;
-      background: #f0f5ff;
+      border-color: var(--c-header-accent);
+      background: var(--c-header-accent-soft);
     }
 
     &.ant-pagination-item-active {
-      border-color: #1890ff;
-      background: #1890ff;
+      border-color: var(--c-header-accent);
+      background: var(--c-header-accent);
 
       a {
         color: #ffffff;
@@ -224,7 +224,7 @@ const IndustrialTable = styled(Table)`
 
 const MissionName = styled.div`
   font-weight: 600;
-  color: #262626;
+  color: var(--c-text);
   font-size: 13px;
   font-family: "Roboto Mono", monospace;
 `;

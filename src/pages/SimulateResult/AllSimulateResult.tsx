@@ -13,7 +13,7 @@ const { Text } = Typography;
 
 const PageContainer = styled.div`
   padding: 24px;
-  background-color: #f5f5f5;
+  background-color: var(--c-bg-subtle);
 `;
 
 const StyledTable = styled(Table)`

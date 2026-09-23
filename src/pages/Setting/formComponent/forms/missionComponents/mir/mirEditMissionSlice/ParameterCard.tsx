@@ -104,7 +104,9 @@ const ParameterCard: FC<{
   fieldName: string;
   label: ReactNode;
   children: ReactNode;
-}> = ({ fieldName, label, children }) => {
+  // 設成變數時顯示在變數 chip 下面，例如變數的預設值
+  variableChildren?: ReactNode;
+}> = ({ fieldName, label, children, variableChildren }) => {
   const { enabled, name, setVariable } = useMirVariableField(fieldName);
   const [popoverOpen, setPopoverOpen] = useState(false);
 
@@ -133,10 +135,13 @@ const ParameterCard: FC<{
       </CardHeader>
 
       {enabled ? (
-        <VariableChip onClick={() => setPopoverOpen(true)}>
-          <SettingOutlined />
-          {name || "(未命名變數)"}
-        </VariableChip>
+        <>
+          <VariableChip onClick={() => setPopoverOpen(true)}>
+            <SettingOutlined />
+            {name || "(未命名變數)"}
+          </VariableChip>
+          {variableChildren}
+        </>
       ) : (
         children
       )}

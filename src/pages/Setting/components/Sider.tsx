@@ -79,6 +79,7 @@ import { errorHandler } from "@/utils/utils";
 import ImportMapConfigModal from "./importMap/ImportMapConfigModal";
 import StartPoint from "./StartPoint/StartPoint";
 import useIsWebMediaQuery from "@/hooks/useIsWebMediaQuery";
+import useConfigFlags from "@/api/useConfigFlags";
 
 export type MenuItem = Required<MenuProps>["items"][number];
 
@@ -322,6 +323,8 @@ const Sider: React.FC<{
   const [showFootprint, setShowFootprint] = useAtom(isHowFootprint);
   const [showSound, setShowSound] = useAtom(isShowSound);
 
+  const { data: configFlags } = useConfigFlags();
+  const hasMir = configFlags?.hasMir ?? true;
   const [collapsed, setCollapsed] = useState(false);
   const [activeCategoryKey, setActiveCategoryKey] = useState<string | null>(
     null,
@@ -646,16 +649,16 @@ const Sider: React.FC<{
             checked={openEditLocationPanel}
           />,
         ),
-        // getItem(
-        //   t("toolbar.location.quick_edit_locations"),
-        //   "1-2",
-        //   <Switch
-        //     onChange={(checked) =>
-        //       handleShowPanel(checked, "quick_location_panel")
-        //     }
-        //     checked={quickEditLocationPanel}
-        //   />,
-        // ),
+        getItem(
+          t("toolbar.location.quick_edit_locations"),
+          "1-2",
+          <Switch
+            onChange={(checked) =>
+              handleShowPanel(checked, "quick_location_panel")
+            }
+            checked={quickEditLocationPanel}
+          />,
+        ),
         getItem(
           "MiR 風格打點",
           "1-3",
@@ -1026,7 +1029,7 @@ const Sider: React.FC<{
         />,
       ),
     ]),
-    getItem("MIR", "12", <FileOutlined />, [
+    hasMir && getItem("MIR", "12", <FileOutlined />, [
       getItem(
         "footprint",
         "12-1",
@@ -1080,7 +1083,7 @@ const Sider: React.FC<{
         />,
       ),
     ]),
-  ];
+  ].filter(Boolean) as MenuItem[];
 
   const [messageApi, contextHolders] = message.useMessage();
   const restartMutate = useMutation({

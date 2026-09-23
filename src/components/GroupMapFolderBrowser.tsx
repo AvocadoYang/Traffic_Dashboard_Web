@@ -17,7 +17,7 @@ const FolderRow = styled.div`
 // 標題只是區分「地圖群組」與「地圖」兩個區塊，與下方項目的選取／使用中狀態無關，
 // 因此維持各自的標題色（群組藍、地圖紫）。
 const HEADER_ACCENT = {
-  group: "#1890ff",
+  group: "var(--c-header-accent)",
   map: "#722ed1",
 } as const;
 
@@ -50,8 +50,8 @@ const ACCENT = {
   map: { radius: "10px" },
 } as const;
 
-const SELECTED = { main: "#52c41a", bg: "#f6ffed" };
-const IN_USE = { main: "#1890ff", bg: "#e6f7ff" };
+const SELECTED = { main: "var(--c-success)", bg: "var(--c-success-soft)" };
+const IN_USE = { main: "var(--c-header-accent)", bg: "var(--c-header-accent-soft)" };
 
 const FolderItem = styled.div<{
   $isSelected: boolean;
@@ -64,16 +64,17 @@ const FolderItem = styled.div<{
   padding: 6px 10px;
   cursor: pointer;
   border-radius: ${({ $accent = "group" }) => ACCENT[$accent].radius};
-  background: ${({ $isSelected }) => ($isSelected ? SELECTED.bg : "#ffffff")};
+  background: ${({ $isSelected }) =>
+    $isSelected ? SELECTED.bg : "var(--c-bg)"};
   border: 1px solid
-    ${({ $isSelected }) => ($isSelected ? SELECTED.main : "#d9d9d9")};
+    ${({ $isSelected }) => ($isSelected ? SELECTED.main : "var(--c-header-border)")};
   border-left: 2px solid
     ${({ $isSelected, $isMarked }) =>
-      $isMarked ? IN_USE.main : $isSelected ? SELECTED.main : "#d9d9d9"};
+      $isMarked ? IN_USE.main : $isSelected ? SELECTED.main : "var(--c-header-border)"};
   font-family: "Roboto Mono", monospace;
   font-size: 11px;
   font-weight: ${({ $isSelected }) => ($isSelected ? 700 : 600)};
-  color: ${({ $isSelected }) => ($isSelected ? SELECTED.main : "#262626")};
+  color: ${({ $isSelected }) => ($isSelected ? SELECTED.main : "var(--c-text)")};
   transition: all 0.15s;
   box-shadow: ${({ $isSelected }) =>
     $isSelected
@@ -89,7 +90,7 @@ ${({ $isMarked }) =>
 
 
   .anticon {
-    color: ${({ $isSelected }) => ($isSelected ? SELECTED.main : "#8c8c8c")};
+    color: ${({ $isSelected }) => ($isSelected ? SELECTED.main : "var(--c-text-muted)")};
   }
 
   &:hover {
@@ -107,8 +108,8 @@ const FolderCount = styled.span<{
   justify-content: center;
   min-width: 18px;
   padding: 0 4px;
-  background: ${({ $isSelected }) => ($isSelected ? SELECTED.main : "#f0f0f0")};
-  color: ${({ $isSelected }) => ($isSelected ? "#ffffff" : "#595959")};
+  background: ${({ $isSelected }) => ($isSelected ? SELECTED.main : "var(--c-bg-muted)")};
+  color: ${({ $isSelected }) => ($isSelected ? "#ffffff" : "var(--c-text-secondary)")};
   font-size: 10px;
   font-weight: 700;
   border-radius: ${({ $accent = "group" }) => ACCENT[$accent].radius};

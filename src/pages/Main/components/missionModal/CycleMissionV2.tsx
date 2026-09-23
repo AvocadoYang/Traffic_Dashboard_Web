@@ -44,15 +44,15 @@ import { Cycle, Cycle_Mission } from "@/sockets/useCycleMission";
 // Industrial Styled Components
 const StyledModal = styled(Modal)`
   .ant-modal-content {
-    background: #ffffff;
-    border: 2px solid #d9d9d9;
+    background: var(--c-bg);
+    border: 2px solid var(--c-header-border);
     border-radius: 0;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   }
 
   .ant-modal-header {
-    background: #fafafa;
-    border-bottom: 2px solid #d9d9d9;
+    background: var(--c-bg-subtle);
+    border-bottom: 2px solid var(--c-header-border);
     padding: 12px 16px;
     position: relative;
     border-radius: 0;
@@ -64,7 +64,7 @@ const StyledModal = styled(Modal)`
       top: 0;
       bottom: 0;
       width: 4px;
-      background: #1890ff;
+      background: var(--c-header-accent);
     }
 
     @media (min-width: 768px) {
@@ -76,7 +76,7 @@ const StyledModal = styled(Modal)`
     font-family: "Roboto Mono", monospace;
     font-size: 13px;
     font-weight: 700;
-    color: #1890ff;
+    color: var(--c-header-accent);
     text-transform: uppercase;
     letter-spacing: 1px;
     display: flex;
@@ -92,7 +92,7 @@ const StyledModal = styled(Modal)`
 
   .ant-modal-body {
     padding: 16px;
-    background: #ffffff;
+    background: var(--c-bg);
     max-height: calc(100vh - 200px);
     overflow-y: auto;
 
@@ -102,8 +102,8 @@ const StyledModal = styled(Modal)`
   }
 
   .ant-modal-footer {
-    background: #fafafa;
-    border-top: 2px solid #d9d9d9;
+    background: var(--c-bg-subtle);
+    border-top: 2px solid var(--c-header-border);
     padding: 12px 16px;
     border-radius: 0;
 
@@ -114,13 +114,13 @@ const StyledModal = styled(Modal)`
 `;
 
 const SectionHeader = styled.div`
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  border-left: 3px solid #fa8c16;
+  background: var(--c-bg);
+  border: 1px solid var(--c-header-border);
+  border-left: 3px solid var(--c-warning);
   padding: 8px 12px;
   margin-bottom: 12px;
   font-family: "Roboto Mono", monospace;
-  color: #fa8c16;
+  color: var(--c-warning);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -138,7 +138,7 @@ const SectionHeader = styled.div`
 `;
 
 const FieldLabel = styled.div`
-  color: #595959;
+  color: var(--c-text-secondary);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.8px;
@@ -166,8 +166,8 @@ const PriorityRadioGroup = styled(Radio.Group)`
   .ant-radio-button-wrapper {
     height: 38px;
     line-height: 36px;
-    border: 1px solid #d9d9d9;
-    background: #fafafa;
+    border: 1px solid var(--c-header-border);
+    background: var(--c-bg-subtle);
     font-family: "Roboto Mono", monospace;
     font-size: 10px;
     text-transform: uppercase;
@@ -187,19 +187,19 @@ const PriorityRadioGroup = styled(Radio.Group)`
     }
 
     &:hover {
-      background: #f5f5f5;
-      border-color: #bfbfbf;
+      background: var(--c-bg-subtle);
+      border-color: var(--c-text-muted);
     }
 
     &.ant-radio-button-wrapper-checked {
-      background: #e6f7ff;
-      border-color: #1890ff;
-      color: #1890ff;
+      background: var(--c-header-accent-soft);
+      border-color: var(--c-header-accent);
+      color: var(--c-header-accent);
       box-shadow: inset 0 0 20px rgba(24, 144, 255, 0.08);
       position: relative;
 
       &::before {
-        background: #1890ff;
+        background: var(--c-header-accent);
       }
 
       &::after {
@@ -209,16 +209,16 @@ const PriorityRadioGroup = styled(Radio.Group)`
         left: 0;
         right: 0;
         height: 3px;
-        background: #1890ff;
+        background: var(--c-header-accent);
       }
     }
   }
 `;
 
 const IndustrialButton = styled(Button)`
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  color: #1890ff;
+  background: var(--c-bg);
+  border: 1px solid var(--c-header-border);
+  color: var(--c-header-accent);
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
   font-size: 10px;
@@ -234,46 +234,46 @@ const IndustrialButton = styled(Button)`
   }
 
   &:hover {
-    background: #f0f5ff;
-    border-color: #1890ff;
-    color: #1890ff;
+    background: var(--c-header-accent-soft);
+    border-color: var(--c-header-accent);
+    color: var(--c-header-accent);
     box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
   }
 
   &.primary {
-    background: #1890ff;
-    border-color: #1890ff;
+    background: var(--c-header-accent);
+    border-color: var(--c-header-accent);
     color: #ffffff;
 
     &:hover {
-      background: #40a9ff;
-      border-color: #40a9ff;
+      background: var(--c-header-accent);
+      border-color: var(--c-header-accent);
       box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
     }
   }
 
   &.success {
-    background: #52c41a;
-    border-color: #52c41a;
+    background: var(--c-success);
+    border-color: var(--c-success);
     color: #ffffff;
 
     &:hover {
-      background: #73d13d;
-      border-color: #73d13d;
+      background: var(--c-success);
+      border-color: var(--c-success);
     }
   }
 
   &:disabled {
-    background: #f5f5f5;
-    border-color: #d9d9d9;
-    color: #bfbfbf;
+    background: var(--c-bg-subtle);
+    border-color: var(--c-header-border);
+    color: var(--c-text-muted);
   }
 `;
 
 const StyledSelect = styled(Select)`
   .ant-select-selector {
     border-radius: 0 !important;
-    border: 1px solid #d9d9d9 !important;
+    border: 1px solid var(--c-header-border) !important;
     font-family: "Roboto Mono", monospace;
     min-height: 36px !important;
 
@@ -282,19 +282,19 @@ const StyledSelect = styled(Select)`
     }
 
     &:hover {
-      border-color: #1890ff !important;
+      border-color: var(--c-header-accent) !important;
     }
   }
 
   &.ant-select-focused .ant-select-selector {
-    border-color: #1890ff !important;
+    border-color: var(--c-header-accent) !important;
     box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1) !important;
   }
 `;
 
 const StyledInput = styled(Input)`
   border-radius: 0 !important;
-  border: 1px solid #d9d9d9 !important;
+  border: 1px solid var(--c-header-border) !important;
   font-family: "Roboto Mono", monospace;
   height: 36px !important;
 
@@ -303,18 +303,18 @@ const StyledInput = styled(Input)`
   }
 
   &:hover {
-    border-color: #1890ff !important;
+    border-color: var(--c-header-accent) !important;
   }
 
   &:focus {
-    border-color: #1890ff !important;
+    border-color: var(--c-header-accent) !important;
     box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1) !important;
   }
 `;
 
 const CollectionDisplay = styled.div`
-  background: #fafafa;
-  border: 2px solid #d9d9d9;
+  background: var(--c-bg-subtle);
+  border: 2px solid var(--c-header-border);
   padding: 16px;
   min-height: 300px;
   max-height: 600px;
@@ -353,15 +353,15 @@ const RightPanel = styled.div`
 `;
 
 const EmptyStateText = styled.div`
-  color: #8c8c8c;
+  color: var(--c-text-muted);
   font-size: 11px;
   text-align: center;
   padding: 20px;
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
   letter-spacing: 2px;
-  border: 1px dashed #d9d9d9;
-  background: #ffffff;
+  border: 1px dashed var(--c-header-border);
+  background: var(--c-bg);
 
   @media (min-width: 768px) {
     font-size: 13px;
@@ -373,9 +373,9 @@ const MissionItem = styled.div`
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  border-left: 3px solid #1890ff;
+  background: var(--c-bg);
+  border: 1px solid var(--c-header-border);
+  border-left: 3px solid var(--c-header-accent);
   margin-bottom: 8px;
   transition: all 0.2s ease;
   font-family: "Roboto Mono", monospace;
@@ -386,8 +386,8 @@ const MissionItem = styled.div`
   }
 
   &:hover {
-    background: #fafafa;
-    border-left-color: #fa8c16;
+    background: var(--c-bg-subtle);
+    border-left-color: var(--c-warning);
     transform: translateX(4px);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
@@ -400,9 +400,9 @@ const MissionIndex = styled.span`
   min-width: 28px;
   height: 22px;
   padding: 0 6px;
-  background: #e6f7ff;
-  border: 1px solid #1890ff;
-  color: #1890ff;
+  background: var(--c-header-accent-soft);
+  border: 1px solid var(--c-header-accent);
+  color: var(--c-header-accent);
   font-size: 10px;
   font-weight: 700;
   font-family: "Roboto Mono", monospace;
@@ -419,21 +419,21 @@ const MissionIndex = styled.span`
 const MissionContent = styled.div`
   flex: 1;
   font-size: 10px;
-  color: #262626;
+  color: var(--c-text);
 
   @media (min-width: 768px) {
     font-size: 11px;
   }
 
   .mission-type {
-    color: #1890ff;
+    color: var(--c-header-accent);
     font-weight: 600;
     text-transform: uppercase;
     margin-bottom: 2px;
   }
 
   .mission-details {
-    color: #595959;
+    color: var(--c-text-secondary);
     font-size: 9px;
 
     @media (min-width: 768px) {
@@ -450,7 +450,7 @@ const ActionButtonGroup = styled.div`
   button {
     background: transparent;
     border: none;
-    color: #8c8c8c;
+    color: var(--c-text-muted);
     padding: 2px;
     height: 18px;
     width: 22px;
@@ -463,25 +463,25 @@ const ActionButtonGroup = styled.div`
     }
 
     &:hover:not(:disabled) {
-      color: #1890ff;
+      color: var(--c-header-accent);
     }
 
     &:disabled {
-      color: #d9d9d9;
+      color: var(--c-header-border);
     }
   }
 `;
 
 const StatusIndicator = styled.div<{ hasItems: boolean }>`
-  background: ${({ hasItems }) => (hasItems ? "#f6ffed" : "#fffbe6")};
-  border: 2px solid ${({ hasItems }) => (hasItems ? "#52c41a" : "#faad14")};
+  background: ${({ hasItems }) => (hasItems ? "var(--c-success-soft)" : "var(--c-warning-soft)")};
+  border: 2px solid ${({ hasItems }) => (hasItems ? "var(--c-success)" : "var(--c-warning)")};
   padding: 10px 12px;
   margin-bottom: 16px;
   display: flex;
   align-items: center;
   gap: 8px;
   font-family: "Roboto Mono", monospace;
-  color: ${({ hasItems }) => (hasItems ? "#52c41a" : "#faad14")};
+  color: ${({ hasItems }) => (hasItems ? "var(--c-success)" : "var(--c-warning)")};
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
@@ -971,7 +971,7 @@ const CycleMissionV2: FC<{
                         size="small"
                         icon={<DeleteOutlined />}
                         onClick={() => handleRemove(index)}
-                        style={{ color: "#ff4d4f" }}
+                        style={{ color: "var(--c-danger)" }}
                       />
                     </Tooltip>
                   </MissionItem>

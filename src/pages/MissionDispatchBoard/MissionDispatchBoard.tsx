@@ -42,15 +42,15 @@ const ChromeToggle = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fafafa;
-  border-bottom: 1px solid #f0f0f0;
-  color: #bfbfbf;
+  background: var(--c-bg-subtle);
+  border-bottom: 1px solid var(--c-bg-muted);
+  color: var(--c-text-muted);
   cursor: pointer;
   font-size: 12px;
 
   &:hover {
-    color: #1890ff;
-    background: #f0f0f0;
+    color: var(--c-header-accent);
+    background: var(--c-bg-muted);
   }
 `;
 
@@ -98,7 +98,7 @@ const HeaderBar = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 12px 24px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--c-bg-muted);
 `;
 
 const Title = styled.h1`
@@ -115,7 +115,7 @@ const EditModeToggle = styled.div`
 
 const EmptyHint = styled.div`
   padding: 48px;
-  color: #8c8c8c;
+  color: var(--c-text-muted);
   text-align: center;
 `;
 

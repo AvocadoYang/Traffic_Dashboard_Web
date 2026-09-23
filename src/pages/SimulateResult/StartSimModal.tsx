@@ -66,13 +66,13 @@ const StartSimModal: FC<{
       style={{
         padding: "24px",
         borderRadius: "8px",
-        background: "#fff",
+        background: "var(--c-bg)",
         boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
       }}
     >
       <div style={{ textAlign: "center", marginBottom: "24px" }}>
-        <Title level={4} style={{ margin: 0, color: "#1d39c4" }}>
-          <CarOutlined style={{ marginRight: "8px", color: "#1d39c4" }} />
+        <Title level={4} style={{ margin: 0, color: "var(--c-header-accent)" }}>
+          <CarOutlined style={{ marginRight: "8px", color: "var(--c-header-accent)" }} />
           {t("sim.start_sim_modal.active_sim")}
         </Title>
         <Text type="secondary">
@@ -100,9 +100,9 @@ const StartSimModal: FC<{
               maxHeight: "150px",
               overflowY: "auto",
               padding: "12px",
-              background: "#f5f5f5", // Slightly lighter grey
+              background: "var(--c-bg-subtle)",
               borderRadius: "8px",
-              border: "1px solid #f0f0f0",
+              border: "1px solid var(--c-border)",
             }}
           >
             <Flex vertical gap="small">
@@ -113,7 +113,7 @@ const StartSimModal: FC<{
                   style={{ padding: "4px 0" }}
                 >
                   <CarOutlined
-                    style={{ marginRight: "8px", color: "#1890ff" }}
+                    style={{ marginRight: "8px", color: "var(--c-header-accent)" }}
                   />
                   <Text>{robot.id}</Text>
                 </Flex>
@@ -196,8 +196,10 @@ const StartSimModal: FC<{
             icon={<CheckCircleOutlined />}
             onClick={() => handleSim(timeRange, isActiveStation, scale)}
             style={{
-              background: canSim ? "#1d39c4" : "#fff",
-              borderColor: "#1d39c4",
+              background: canSim
+                ? "var(--c-header-accent)"
+                : "var(--c-bg-muted)",
+              borderColor: "var(--c-header-accent)",
               borderRadius: "4px",
               padding: "0 24px",
             }}

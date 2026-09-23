@@ -69,7 +69,7 @@ const GaugeCarousel: FC = () => {
               configs={[{ mass: 1, tension: 180, friction: 90 }]}
             />
             <div>
-              <FireOutlined style={{ color: "#ff4d4f", fontSize: 20 }} />
+              <FireOutlined style={{ color: "var(--c-danger)", fontSize: 20 }} />
             </div>
           </div>
         </GlassCard>

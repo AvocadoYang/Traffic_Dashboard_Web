@@ -19,7 +19,7 @@ export type Local_Range_Table_Value = {
 export const StyledCard = styled.div`
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+  background: linear-gradient(135deg, var(--c-bg) 0%, #f9f9f9 100%);
   transition: all 0.3s ease;
   min-height: 65vh;
   max-height: 65vh;
@@ -39,8 +39,8 @@ export const StyledModal = styled(Modal)`
   }
 
   .ant-modal-header {
-    background: #1890ff;
-    border-bottom: 1px solid #d9d9d9;
+    background: var(--c-header-accent);
+    border-bottom: 1px solid var(--c-header-border);
     border-radius: 12px 12px 0 0;
     padding: 16px 24px;
   }

@@ -43,15 +43,15 @@ const { Panel } = Collapse;
 // Industrial Styled Components
 const StyledModal = styled(Modal)`
   .ant-modal-content {
-    background: #ffffff;
-    border: 2px solid #d9d9d9;
+    background: var(--c-bg);
+    border: 2px solid var(--c-header-border);
     border-radius: 0;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   }
 
   .ant-modal-header {
-    background: #fafafa;
-    border-bottom: 2px solid #d9d9d9;
+    background: var(--c-bg-subtle);
+    border-bottom: 2px solid var(--c-header-border);
     padding: 12px 16px;
     position: relative;
     border-radius: 0;
@@ -63,7 +63,7 @@ const StyledModal = styled(Modal)`
       top: 0;
       bottom: 0;
       width: 4px;
-      background: #1890ff;
+      background: var(--c-header-accent);
     }
 
     @media (min-width: 768px) {
@@ -75,7 +75,7 @@ const StyledModal = styled(Modal)`
     font-family: "Roboto Mono", monospace;
     font-size: 13px;
     font-weight: 700;
-    color: #1890ff;
+    color: var(--c-header-accent);
     text-transform: uppercase;
     letter-spacing: 1px;
     display: flex;
@@ -91,7 +91,7 @@ const StyledModal = styled(Modal)`
 
   .ant-modal-body {
     padding: 16px;
-    background: #ffffff;
+    background: var(--c-bg);
     max-height: 70vh;
     overflow-y: auto;
 
@@ -101,8 +101,8 @@ const StyledModal = styled(Modal)`
   }
 
   .ant-modal-footer {
-    background: #fafafa;
-    border-top: 2px solid #d9d9d9;
+    background: var(--c-bg-subtle);
+    border-top: 2px solid var(--c-header-border);
     padding: 12px 16px;
     border-radius: 0;
 
@@ -115,12 +115,12 @@ const StyledModal = styled(Modal)`
 const EmptyState = styled.div`
   text-align: center;
   padding: 60px 20px;
-  color: #8c8c8c;
+  color: var(--c-text-muted);
   font-family: "Roboto Mono", monospace;
 
   .empty-icon {
     font-size: 64px;
-    color: #d9d9d9;
+    color: var(--c-header-border);
     margin-bottom: 16px;
   }
 
@@ -128,19 +128,19 @@ const EmptyState = styled.div`
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 2px;
-    color: #8c8c8c;
+    color: var(--c-text-muted);
   }
 `;
 
 const CycleCard = styled.div<{ isActive: boolean }>`
-  background: #ffffff;
-  border: 2px solid ${({ isActive }) => (isActive ? "#52c41a" : "#d9d9d9")};
-  border-left: 4px solid ${({ isActive }) => (isActive ? "#52c41a" : "#8c8c8c")};
+  background: var(--c-bg);
+  border: 2px solid ${({ isActive }) => (isActive ? "var(--c-success)" : "var(--c-header-border)")};
+  border-left: 4px solid ${({ isActive }) => (isActive ? "var(--c-success)" : "var(--c-text-muted)")};
   margin-bottom: 16px;
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: ${({ isActive }) => (isActive ? "#73d13d" : "#bfbfbf")};
+    border-color: ${({ isActive }) => (isActive ? "var(--c-success)" : "var(--c-text-muted)")};
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
 `;
@@ -150,8 +150,8 @@ const CycleHeader = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-  background: #fafafa;
-  border-bottom: 1px solid #d9d9d9;
+  background: var(--c-bg-subtle);
+  border-bottom: 1px solid var(--c-header-border);
 
   @media (max-width: 768px) {
     padding: 12px;
@@ -165,7 +165,7 @@ const CycleName = styled.div`
   font-family: "Roboto Mono", monospace;
   font-size: 13px;
   font-weight: 700;
-  color: #262626;
+  color: var(--c-text);
   text-transform: uppercase;
   letter-spacing: 1px;
 
@@ -181,9 +181,9 @@ const EditBadge = styled.div`
   align-items: center;
   gap: 6px;
   padding: 4px 12px;
-  background: "#fafafa";
-  border: 1px solid #d9d9d9;
-  color: "#8c8c8c";
+  background: "var(--c-bg-subtle)";
+  border: 1px solid var(--c-header-border);
+  color: "var(--c-text-muted)";
   font-family: "Roboto Mono", monospace;
   font-size: 10px;
   font-weight: 300;
@@ -201,9 +201,9 @@ const StatusBadge = styled.div<{ isActive: boolean }>`
   align-items: center;
   gap: 6px;
   padding: 4px 12px;
-  background: ${({ isActive }) => (isActive ? "#f6ffed" : "#fafafa")};
-  border: 1px solid ${({ isActive }) => (isActive ? "#52c41a" : "#d9d9d9")};
-  color: ${({ isActive }) => (isActive ? "#52c41a" : "#8c8c8c")};
+  background: ${({ isActive }) => (isActive ? "var(--c-success-soft)" : "var(--c-bg-subtle)")};
+  border: 1px solid ${({ isActive }) => (isActive ? "var(--c-success)" : "var(--c-header-border)")};
+  color: ${({ isActive }) => (isActive ? "var(--c-success)" : "var(--c-text-muted)")};
   font-family: "Roboto Mono", monospace;
   font-size: 10px;
   font-weight: 600;
@@ -220,9 +220,9 @@ const MissionCount = styled.div`
   align-items: center;
   gap: 6px;
   padding: 4px 12px;
-  background: #e6f7ff;
-  border: 1px solid #1890ff;
-  color: #1890ff;
+  background: var(--c-header-accent-soft);
+  border: 1px solid var(--c-header-accent);
+  color: var(--c-header-accent);
   font-family: "Roboto Mono", monospace;
   font-size: 10px;
   font-weight: 600;
@@ -239,9 +239,9 @@ const ActionButtons = styled.div`
 `;
 
 const IndustrialButton = styled(Button)`
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  color: #1890ff;
+  background: var(--c-bg);
+  border: 1px solid var(--c-header-border);
+  color: var(--c-header-accent);
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
   font-size: 10px;
@@ -258,32 +258,32 @@ const IndustrialButton = styled(Button)`
   }
 
   &:hover {
-    background: #f0f5ff;
-    border-color: #1890ff;
-    color: #1890ff;
+    background: var(--c-header-accent-soft);
+    border-color: var(--c-header-accent);
+    color: var(--c-header-accent);
   }
 
   &.danger {
-    border-color: #ff4d4f;
-    color: #ff4d4f;
+    border-color: var(--c-danger);
+    color: var(--c-danger);
 
     &:hover {
-      background: #fff1f0;
-      border-color: #ff7875;
-      color: #ff7875;
+      background: var(--c-danger-soft);
+      border-color: var(--c-danger);
+      color: var(--c-danger);
     }
   }
 `;
 
 const StyledSwitch = styled(Switch)`
   &.ant-switch-checked {
-    background: #52c41a;
+    background: var(--c-success);
   }
 `;
 
 const MissionList = styled.div`
   padding: 16px;
-  background: #fafafa;
+  background: var(--c-bg-subtle);
 `;
 
 const MissionItem = styled.div`
@@ -291,9 +291,9 @@ const MissionItem = styled.div`
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  border-left: 3px solid #1890ff;
+  background: var(--c-bg);
+  border: 1px solid var(--c-header-border);
+  border-left: 3px solid var(--c-header-accent);
   margin-bottom: 8px;
   font-family: "Roboto Mono", monospace;
   transition: all 0.2s ease;
@@ -304,8 +304,8 @@ const MissionItem = styled.div`
   }
 
   &:hover {
-    background: #fafafa;
-    border-left-color: #fa8c16;
+    background: var(--c-bg-subtle);
+    border-left-color: var(--c-warning);
     transform: translateX(4px);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
@@ -318,9 +318,9 @@ const MissionIndex = styled.span`
   min-width: 28px;
   height: 22px;
   padding: 0 6px;
-  background: #e6f7ff;
-  border: 1px solid #1890ff;
-  color: #1890ff;
+  background: var(--c-header-accent-soft);
+  border: 1px solid var(--c-header-accent);
+  color: var(--c-header-accent);
   font-size: 10px;
   font-weight: 700;
 
@@ -341,14 +341,14 @@ const MissionContent = styled.div`
   }
 
   .mission-type {
-    color: #1890ff;
+    color: var(--c-header-accent);
     font-weight: 600;
     text-transform: uppercase;
     margin-bottom: 2px;
   }
 
   .mission-details {
-    color: #595959;
+    color: var(--c-text-secondary);
     font-size: 9px;
 
     @media (min-width: 768px) {
@@ -358,9 +358,9 @@ const MissionContent = styled.div`
 `;
 
 const StatsBar = styled.div`
-  background: #e6f7ff;
-  border: 1px solid #91d5ff;
-  border-left: 3px solid #1890ff;
+  background: var(--c-header-accent-soft);
+  border: 1px solid var(--c-header-accent);
+  border-left: 3px solid var(--c-header-accent);
   padding: 12px 16px;
   margin-bottom: 20px;
   display: flex;
@@ -386,12 +386,12 @@ const StatItem = styled.div`
   }
 
   .label {
-    color: #595959;
+    color: var(--c-text-secondary);
     text-transform: uppercase;
   }
 
   .value {
-    color: #1890ff;
+    color: var(--c-header-accent);
     font-weight: 700;
   }
 `;
@@ -508,21 +508,21 @@ const CycleMissionViewer: FC<{
           >
             <Flex gap="middle">
               <StatItem>
-                <InfoCircleOutlined style={{ color: "#1890ff" }} />
+                <InfoCircleOutlined style={{ color: "var(--c-header-accent)" }} />
                 <span className="label">
                   {t("mission.cycle_mission.total_cycles")}
                 </span>
                 <span className="value">{totalCycles}</span>
               </StatItem>
               <StatItem>
-                <CheckCircleOutlined style={{ color: "#52c41a" }} />
+                <CheckCircleOutlined style={{ color: "var(--c-success)" }} />
                 <span className="label">
                   {t("mission.cycle_mission.active")}
                 </span>
                 <span className="value">{activeCycles}</span>
               </StatItem>
               <StatItem>
-                <RocketOutlined style={{ color: "#1890ff" }} />
+                <RocketOutlined style={{ color: "var(--c-header-accent)" }} />
                 <span className="label">
                   {t("mission.cycle_mission.total_missions")}
                 </span>
@@ -633,7 +633,7 @@ const CycleMissionViewer: FC<{
                               fontFamily: "'Roboto Mono', monospace",
                               fontSize: 11,
                               textTransform: "uppercase",
-                              color: "#595959",
+                              color: "var(--c-text-secondary)",
                             }}
                           >
                             {t("mission.cycle_mission.start_from")} #

@@ -59,6 +59,7 @@ interface FootprintEditorProps {
   onSave?: (next: FootprintRecord) => void | Promise<void>;
   onBack?: () => void;
   messageApi: MessageInstance;
+  readOnly?: boolean;
 }
 
 /** Default record used when no `data` prop is supplied. */
@@ -394,6 +395,7 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
   onSave,
   onBack,
   messageApi,
+  readOnly = false,
 }) => {
   const initialPoints = useMemo(
     () => parsePoints(data.footprint_points),
@@ -486,11 +488,12 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
   const handlePointerDown = useCallback(
     (index: number) => (e: React.PointerEvent) => {
       e.stopPropagation();
+      setSelected(index);
+      if (readOnly) return;
       (e.target as Element).setPointerCapture?.(e.pointerId);
       draggingRef.current = index;
-      setSelected(index);
     },
-    [],
+    [readOnly],
   );
 
   const handlePointerMove = useCallback(
@@ -680,6 +683,7 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
       key: "delete",
       label: "刪除",
       danger: true,
+      disabled: readOnly,
       onClick: handleDelete,
     },
   ];
@@ -694,6 +698,7 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
             <TitleInput
               value={name}
               onChange={(e) => setName(e.target.value)}
+              readOnly={readOnly}
               placeholder={data.config_id}
               aria-label="Footprint name"
               size={Math.max(name.length, data.config_id.length, 6)}
@@ -707,7 +712,12 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
           <Button onClick={onBack} disabled={saving}>
             Go back
           </Button>
-          <Button type="primary" loading={saving} onClick={handleSave}>
+          <Button
+            type="primary"
+            loading={saving}
+            disabled={readOnly}
+            onClick={handleSave}
+          >
             Save
           </Button>
           <Dropdown menu={{ items: menuItems }} trigger={["click"]}>
@@ -892,6 +902,7 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
               rx={2}
               $selected={selected === i}
               onPointerDown={handlePointerDown(i)}
+              onClick={(e) => e.stopPropagation()}
             />
           ))}
         </StyledSvg>
@@ -902,6 +913,7 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
               <FieldLabel>X</FieldLabel>
               <StepperRow>
                 <StepButton
+                  disabled={readOnly}
                   onClick={() =>
                     updatePoint(selected as number, [
                       round(selectedPoint[0] - STEP),
@@ -912,6 +924,7 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
                   <MinusOutlined />
                 </StepButton>
                 <NumberField
+                  disabled={readOnly}
                   value={selectedPoint[0]}
                   step={STEP}
                   controls={false}
@@ -923,6 +936,7 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
                   }
                 />
                 <StepButton
+                  disabled={readOnly}
                   onClick={() =>
                     updatePoint(selected as number, [
                       round(selectedPoint[0] + STEP),
@@ -939,6 +953,7 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
               <FieldLabel>Y</FieldLabel>
               <StepperRow>
                 <StepButton
+                  disabled={readOnly}
                   onClick={() =>
                     updatePoint(selected as number, [
                       selectedPoint[0],
@@ -949,6 +964,7 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
                   <MinusOutlined />
                 </StepButton>
                 <NumberField
+                  disabled={readOnly}
                   value={selectedPoint[1]}
                   step={STEP}
                   controls={false}
@@ -960,6 +976,7 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
                   }
                 />
                 <StepButton
+                  disabled={readOnly}
                   onClick={() =>
                     updatePoint(selected as number, [
                       selectedPoint[0],
@@ -973,7 +990,11 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
             </FieldBlock>
           </XYPanel>
         ) : (
-          <EmptyHint>點選或拖曳任一頂點以編輯座標</EmptyHint>
+          <EmptyHint>
+            {readOnly
+              ? "MiR 內建 footprint 不可修改。請從右上角選單「複製」，再編輯複製出來的那筆。"
+              : "點選或拖曳任一頂點以編輯座標"}
+          </EmptyHint>
         )}
 
         {vehicleBodyAttr && (

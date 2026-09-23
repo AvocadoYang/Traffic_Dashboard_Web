@@ -2,7 +2,7 @@ import { array, string, object, ValidationError, number, boolean } from "yup";
 import {
   from,
   fromEventPattern,
-  share,
+  shareReplay,
   switchMap,
   distinctUntilChanged,
 } from "rxjs";
@@ -37,7 +37,9 @@ const profiles$ = fromEventPattern(
   distinctUntilChanged(
     (prev, curr) => deepEqual(prev, curr),
   ),
-  share(),
+  // 資料沒變時 distinctUntilChanged 不會再發,晚訂閱的元件(例如設定頁面板)
+  // 會一直拿不到資料,所以要 replay 最新一筆
+  shareReplay({ bufferSize: 1, refCount: true }),
 );
 const useStackSocket = () => {
   const [cargoInfo, setCargoInfo] = useState<{

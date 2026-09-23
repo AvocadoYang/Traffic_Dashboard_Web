@@ -117,6 +117,9 @@ const SettingCargoStyleForm: FC<{
     });
   };
 
+  // 連按 ±0.1 會累積浮點誤差 (0.30000000000000004)，統一四捨五入到小數 2 位
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+
   const handleBtnChange = (val: Val) => {
     setCStyle((prev) => {
       if (!prev) return null;
@@ -124,14 +127,18 @@ const SettingCargoStyleForm: FC<{
         flex_direction: prev.flex_direction,
         translateX:
           val.input === "translateX"
-            ? val.value + prev.translateX
+            ? round2(val.value + prev.translateX)
             : prev.translateX,
         translateY:
           val.input === "translateY"
-            ? val.value + prev.translateY
+            ? round2(val.value + prev.translateY)
             : prev.translateY,
-        rotate: val.input === "rotate" ? val.value + prev.rotate : prev.rotate,
-        scale: val.input === "scale" ? val.value + prev.scale : prev.scale,
+        rotate:
+          val.input === "rotate"
+            ? round2(val.value + prev.rotate)
+            : prev.rotate,
+        scale:
+          val.input === "scale" ? round2(val.value + prev.scale) : prev.scale,
       };
     });
   };

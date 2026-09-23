@@ -37,7 +37,7 @@ const SvgStyle = styled.svg<{
   fill: ${({ $hasCargo }) => ($hasCargo ? "#ffe73c" : "#999")};
 
   border: ${({ $isSelecting, $canBeClick }) =>
-    $isSelecting && $canBeClick ? "2px solid #1890ff" : "1px dashed #727272"};
+    $isSelecting && $canBeClick ? "2px solid var(--c-header-accent)" : "1px dashed #727272"};
 
   box-shadow: ${({ $isSelecting, $canBeClick }) =>
     $isSelecting && $canBeClick ? "0 0 8px rgba(24, 144, 255, 0.3)" : "none"};

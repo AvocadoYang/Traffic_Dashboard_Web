@@ -7,7 +7,7 @@ export const headerNavItemBase = css`
   border: none;
   border-radius: 0;
   background: transparent;
-  color: #595959;
+  color: var(--c-header-text);
   font-family: "Roboto Mono", monospace;
   font-size: var(--font-sm);
   text-transform: uppercase;
@@ -26,19 +26,19 @@ export const headerNavItemBase = css`
   box-shadow: none;
 
   &:hover {
-    color: #1890ff;
-    background: rgba(24, 144, 255, 0.05);
-    border-bottom-color: #1890ff;
+    color: var(--c-header-accent);
+    background: var(--c-header-accent-soft);
+    border-bottom-color: var(--c-header-accent);
   }
 
   &:focus {
-    color: #595959;
+    color: var(--c-header-text);
   }
 `;
 
 export const headerNavItemActive = css`
-  color: #1890ff;
-  background: rgba(24, 144, 255, 0.08);
-  border-bottom-color: #1890ff;
-  box-shadow: inset 0 -3px 0 #1890ff;
+  color: var(--c-header-accent);
+  background: var(--c-header-accent-soft);
+  border-bottom-color: var(--c-header-accent);
+  box-shadow: inset 0 -3px 0 var(--c-header-accent);
 `;

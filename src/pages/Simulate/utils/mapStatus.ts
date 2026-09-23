@@ -34,3 +34,6 @@ export const IsEditSchedule = atom<boolean>(false);
 export const SelectTime = atom<string | null>(null);
 
 export const EditTask = atom<Mission_Schedule | null>(null);
+
+/** 情境設定抽屜 (貨源 / 派送規則 / 出口) */
+export const OpenScenarioDrawer = atom<boolean>(false);

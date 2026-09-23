@@ -32,22 +32,22 @@
 }
 .custom-header {
   /* background-color: rgba(240, 202, 167, 0.925); */
-  background-color: #f5f5f5;
+  background-color: var(--c-bg-subtle);
   /* background-color: #fff7eb; */
   border-radius: 0 0 2px 2px;
   /* border-bottom: 1.5px solid gainsboro; */
 }
 
 .dark-mode {
-  background-color: #262626;
+  background-color: var(--c-bg-subtle);
 }
 
 .custom-header > ul {
-  background-color: #f5f5f5;
+  background-color: var(--c-bg-subtle);
 }
 
 .dark-mode > ul {
-  background-color: #262626;
+  background-color: var(--c-bg-subtle);
 }
 
 .custom-header span {

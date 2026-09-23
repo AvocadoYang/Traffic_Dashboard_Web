@@ -15,7 +15,8 @@ type MirAreaType =
   | "MIR_ROBOT_POSITION"
   | "MIR_SHELF_POSITION"
   | "MIR_CHARGING_STATION"
-  | "MIR_VL_MARKER";
+  | "MIR_VL_MARKER"
+  | "MIR_STRIPE_MARKER";
 
 const TYPE_OPTIONS: {
   value: MirAreaType;
@@ -25,6 +26,7 @@ const TYPE_OPTIONS: {
   { value: "MIR_SHELF_POSITION", label: "Shelf position" },
   { value: "MIR_CHARGING_STATION", label: "Charging station" },
   { value: "MIR_VL_MARKER", label: "VL marker" },
+  { value: "MIR_STRIPE_MARKER", label: "Stripe marker" },
 ];
 
 // VL marker 目前只能設給電梯用,之後若有其他裝置類型可以在這裡擴充選項。

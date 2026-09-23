@@ -24,6 +24,7 @@ import { useMutation } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
+import useConfigFlags from "@/api/useConfigFlags";
 
 // 跟 Header 上「切換頁面」的導覽按鈕共用同一份樣式,讓這排任務派發按鈕
 // 看起來就是導覽列的一部分,不是另一種風格的工具列。
@@ -37,6 +38,8 @@ const ButtonGroup = styled(Flex)`
 
 const MissionBtn = () => {
   const { t } = useTranslation();
+  const { data: configFlags } = useConfigFlags();
+  const hasMir = configFlags?.hasMir ?? true;
   const openAssignMission = useSetAtom(OpenAssignMission);
   const openQueueMirTask = useSetAtom(OpenQueueMirTask);
   const [showQuickMission, setShowQuickMission] = useState(false);
@@ -136,7 +139,7 @@ const MissionBtn = () => {
         setShowEditCycleMission={setShowEditCycleMission}
         setEditCyc={setEditCyc}
       />
-      <QueueMirTaskModal />
+      {/* <QueueMirTaskModal /> */}
     </>
   );
 };
