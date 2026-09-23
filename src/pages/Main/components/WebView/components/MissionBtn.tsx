@@ -19,6 +19,7 @@ import CycleMissionViewer from "../../missionModal/CycleMissionViewer";
 import QueueMirTaskModal from "../../missionModal/QueueMirTaskModal";
 import { Cycle, Cycle_Mission } from "@/sockets/useCycleMission";
 import { headerNavItemBase } from "@/styles/headerNavItemStyle";
+import useConfigFlags from "@/api/useConfigFlags";
 
 // 跟 Header 上「切換頁面」的導覽按鈕共用同一份樣式,讓這排任務派發按鈕
 // 看起來就是導覽列的一部分,不是另一種風格的工具列。
@@ -32,6 +33,8 @@ const ButtonGroup = styled(Flex)`
 
 const MissionBtn = () => {
   const { t } = useTranslation();
+  const { data: configFlags } = useConfigFlags();
+  const hasMir = configFlags?.hasMir ?? true;
   const openAssignMission = useSetAtom(OpenAssignMission);
   const openQueueMirTask = useSetAtom(OpenQueueMirTask);
   const [showQuickMission, setShowQuickMission] = useState(false);
@@ -79,14 +82,16 @@ const MissionBtn = () => {
           {t("main.card_name.new_mission")}
         </NavStyleButton>
 
-        <NavStyleButton
-          onClick={() => {
-            openQueueMirTask(true);
-          }}
-          icon={<RocketOutlined />}
-        >
-          {t("main.card_name.queue_mir_task")}
-        </NavStyleButton>
+        {hasMir && (
+          <NavStyleButton
+            onClick={() => {
+              openQueueMirTask(true);
+            }}
+            icon={<RocketOutlined />}
+          >
+            {t("main.card_name.queue_mir_task")}
+          </NavStyleButton>
+        )}
       </ButtonGroup>
 
       <DialogMission />
@@ -110,7 +115,7 @@ const MissionBtn = () => {
         setShowEditCycleMission={setShowEditCycleMission}
         setEditCyc={setEditCyc}
       />
-      <QueueMirTaskModal />
+      {hasMir && <QueueMirTaskModal />}
     </>
   );
 };
