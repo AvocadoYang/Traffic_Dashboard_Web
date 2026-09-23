@@ -65,7 +65,7 @@ const useMirTaskOptions = () => {
           ?.filter(
             (v) => v.ShelfCategory?.shelf_style === MARKER_TYPE_SHELF_STYLE,
           )
-          .map((v) => v.Loc.locationId) ?? []),
+          .map((v) => v.peripheral_station.source.locationId) ?? []),
         ...(mapData?.locations
           .filter((v) => v.areaType === MARKER_TYPE_AREA_TYPE)
           .map((v) => v.locationId) ?? []),

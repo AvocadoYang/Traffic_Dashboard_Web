@@ -75,6 +75,7 @@ import { errorHandler } from "@/utils/utils";
 import ImportMapConfigModal from "./importMap/ImportMapConfigModal";
 import StartPoint from "./StartPoint/StartPoint";
 import useIsWebMediaQuery from "@/hooks/useIsWebMediaQuery";
+import useConfigFlags from "@/api/useConfigFlags";
 
 export type MenuItem = Required<MenuProps>["items"][number];
 
@@ -311,6 +312,8 @@ const Sider: React.FC<{
   const [showFootprint, setShowFootprint] = useAtom(isHowFootprint);
   const [showSound, setShowSound] = useAtom(isShowSound);
 
+  const { data: configFlags } = useConfigFlags();
+  const hasMir = configFlags?.hasMir ?? true;
   const [collapsed, setCollapsed] = useState(false);
   const [activeCategoryKey, setActiveCategoryKey] = useState<string | null>(
     null,
@@ -970,7 +973,7 @@ const Sider: React.FC<{
       getItem(t("toolbar.restart.restart"), "9-6", <RedoOutlined />),
     ]),
 
-    getItem("MIR", "12", <FileOutlined />, [
+    hasMir && getItem("MIR", "12", <FileOutlined />, [
       getItem(
         "footprint",
         "12-1",
@@ -1024,7 +1027,7 @@ const Sider: React.FC<{
         />,
       ),
     ]),
-  ];
+  ].filter(Boolean) as MenuItem[];
 
   const [messageApi, contextHolders] = message.useMessage();
   const restartMutate = useMutation({

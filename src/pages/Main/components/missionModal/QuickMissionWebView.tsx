@@ -704,7 +704,9 @@ const QuickMissionWebView: React.FC<{
                       </LocationTitle>
                     </LocationHeader>
                     {loadValue && (
-                      <LocationValue>ID: {loadValue.locationId}</LocationValue>
+                      <LocationValue>
+                        ID: {loadValue.locationId} · {loadValue.columnName}
+                      </LocationValue>
                     )}
                     {!loadValue && (
                       <div
@@ -736,7 +738,8 @@ const QuickMissionWebView: React.FC<{
                     </LocationHeader>
                     {offloadValue && (
                       <LocationValue>
-                        ID: {offloadValue.locationId}
+                        ID: {offloadValue.locationId} ·{" "}
+                        {offloadValue.columnName}
                       </LocationValue>
                     )}
                     {!offloadValue && (

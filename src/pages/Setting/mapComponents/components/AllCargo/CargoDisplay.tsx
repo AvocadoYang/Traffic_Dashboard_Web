@@ -86,7 +86,8 @@ interface CargoDisplayProps {
   isDisable: boolean;
   locId: string;
   rotate: number;
-  handleMouseDown: (
+  /** 右鍵時切換這一層有沒有貨 */
+  onToggleCargo: (
     e: React.MouseEvent<HTMLElement>,
     locId: string,
     level: number,
@@ -100,7 +101,7 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
   isDisable,
   locId,
   rotate,
-  handleMouseDown,
+  onToggleCargo,
 }) => {
   const [selectMode, setQuickSettingMode] = useAtom(QuickMissionSettingMode);
   const [isStartSelecting, setStartQuickSetting] = useAtom(
@@ -145,7 +146,12 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
       $isDisable={isDisable}
       $isSelecting={isStartSelecting}
       $canBeClick={isStartSelecting ? canBeClickInSelection : true}
-      onMouseDown={(e) => handleMouseDown(e, locId, level)}
+      // 右鍵直接切換這一層有沒有貨。preventDefault 是要擋掉瀏覽器自己的
+      // 右鍵選單,不然選單會蓋在地圖上。
+      onContextMenu={(e) => {
+        e.preventDefault();
+        onToggleCargo(e, locId, level);
+      }}
       onClick={isStartSelecting ? handleQuickMissionPayload : undefined}
       role="button"
     >

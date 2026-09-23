@@ -26,6 +26,8 @@ import MissionDispatchPanel from "./components/MissionDispatchPanel";
 import useMap from "@/api/useMap";
 import JoystickPanelWrap from "../../Car_Card/JoystickPanelWrap";
 import MapSelector from "@/components/MapSelector";
+import PerformancePanel from "@/components/Performance/PerformancePanel";
+import OpenPerformanceBtn from "@/components/Performance/OpenPerformanceBtn";
 import styled, { css } from "styled-components";
 import { mq } from "@/styles/responsive";
 import { useTranslation } from "react-i18next";
@@ -264,6 +266,12 @@ const WebView = () => {
               <MapOverlay>
                 <ZoomPad></ZoomPad>
                 <ScalePad></ScalePad>
+
+                {/* 效能監看: 車隊跟不跟得上 + 程式卡不卡。
+                    按鈕排在 ScalePad (top 16px) 下面;
+                    面板讓開右上角的 MapSelectorSlot */}
+                <OpenPerformanceBtn top="72px" left="16px" />
+                <PerformancePanel top="64px" right="16px" />
                 {/* <MissionBtn></MissionBtn> */}
                 <DirectMove></DirectMove>
                 {/* <ECS_online />

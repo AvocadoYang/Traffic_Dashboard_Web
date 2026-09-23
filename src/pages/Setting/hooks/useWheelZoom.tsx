@@ -1,10 +1,10 @@
 import { RefObject, useEffect, useLayoutEffect, useRef } from "react";
-import { useSetAtom } from "jotai";
+import { PrimitiveAtom, useSetAtom } from "jotai";
 import { filter, fromEvent, map, tap } from "rxjs";
 import { Scale } from "@/utils/gloable";
 
-const MIN_SCALE = 0.05;
-const MAX_SCALE = 8;
+export const MIN_SCALE = 0.05;
+export const MAX_SCALE = 8;
 const ZOOM_SENSITIVITY = 0.0003;
 const MAX_DELTA = 200;
 
@@ -13,8 +13,18 @@ const normalizeDelta = ({ deltaY, deltaMode }: WheelEvent) => {
   return Math.max(-MAX_DELTA, Math.min(MAX_DELTA, pixels));
 };
 
-const useWheelZoom = (mapWrapRef: RefObject<HTMLDivElement>, scale: number) => {
-  const setScale = useSetAtom(Scale);
+/**
+ * 滑鼠滾輪縮放, 並且以游標為中心 (捲動位置跟著補正)。
+ *
+ * scaleAtom 可以換掉, 因為模擬頁用的是自己那顆 globalScale, 不是全域的 Scale;
+ * 兩邊的縮放行為要一致, 但不該互相影響。
+ */
+const useWheelZoom = (
+  mapWrapRef: RefObject<HTMLDivElement>,
+  scale: number,
+  scaleAtom: PrimitiveAtom<number> = Scale,
+) => {
+  const setScale = useSetAtom(scaleAtom);
   const scaleRef = useRef(scale);
   const pendingScrollRef = useRef<{ left: number; top: number } | null>(null);
 

@@ -1,6 +1,6 @@
 import useMap from "@/api/useMap";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import Cargo from "./Cargo";
 import { useAtomValue, useSetAtom } from "jotai";
 import { isShowLocation } from "@/utils/siderGloble";
@@ -9,7 +9,12 @@ import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import useCargoInfo from "@/sockets/useCargoInfo";
 import styled from "styled-components";
 import { tooltipProp } from "@/utils/gloable";
-import { OpenDirect } from "@/pages/Main/global/jotai";
+import {
+  OpenDirect,
+  QuickMissionHoverCell,
+  QuickMissionPickerLoc,
+  StartQuickMissionSetting,
+} from "@/pages/Main/global/jotai";
 
 const Point = styled.div.attrs<{
   left: number;
@@ -62,6 +67,16 @@ const AllCargo: React.FC = () => {
   const { data } = useMap();
   const setTooltip = useSetAtom(tooltipProp);
   const setOpen = useSetAtom(OpenDirect);
+  const isSelecting = useAtomValue(StartQuickMissionSetting);
+  const setPickerLoc = useSetAtom(QuickMissionPickerLoc);
+  const setHoverCell = useSetAtom(QuickMissionHoverCell);
+
+  // 選取結束(選好、取消、ESC)後，別讓上一次展開的層數選擇器殘留到下一次
+  useEffect(() => {
+    if (isSelecting) return;
+    setPickerLoc(null);
+    setHoverCell(null);
+  }, [isSelecting]);
 
   const handleEnter = (locationId: string, x: number, y: number) => {
     setTooltip({
