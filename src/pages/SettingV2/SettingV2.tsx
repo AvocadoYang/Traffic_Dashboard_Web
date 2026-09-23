@@ -20,6 +20,7 @@ import { useResetSiderSwitch } from "@/pages/Setting/hooks";
 import "@/pages/Setting/setting.css";
 import { activeSettingPanelAtom } from "./activePanelAtom";
 import { mapViewModeAtom, type MapViewMode } from "./mapViewModeAtom";
+import { navCollapsedAtom } from "./navCollapsedAtom";
 import { navCategories } from "./navItems";
 import SettingV2Nav from "./SettingV2Nav";
 import PanelRenderer from "./PanelRenderer";
@@ -169,6 +170,7 @@ const SettingV2: React.FC = () => {
   const [mapMode, setMapMode] = useAtom(mapViewModeAtom);
   const isNarrow = useIsNarrow();
   const [navOpen, setNavOpen] = useState(false);
+  const [navCollapsed, setNavCollapsed] = useAtom(navCollapsedAtom);
 
   // v1 也是這樣做的:進頁面先把幾顆地圖編輯模式的 atom 歸零。因為 v1/v2 共用同一份
   // atom,誰後進來誰負責重置,不會互相殘留狀態。
@@ -232,7 +234,9 @@ const SettingV2: React.FC = () => {
                     <Segmented
                       size="small"
                       value={mapMode === "full" ? "map" : "panel"}
-                      onChange={(v) => setMapMode(v === "map" ? "full" : "half")}
+                      onChange={(v) =>
+                        setMapMode(v === "map" ? "full" : "half")
+                      }
                       options={[
                         { value: "panel", label: "面板" },
                         { value: "map", label: "地圖" },
@@ -269,6 +273,8 @@ const SettingV2: React.FC = () => {
                 <SettingV2Nav
                   activePanel={activePanel}
                   onSelectPanel={setActivePanel}
+                  collapsed={navCollapsed}
+                  onToggleCollapse={() => setNavCollapsed(!navCollapsed)}
                 />
               )}
 
