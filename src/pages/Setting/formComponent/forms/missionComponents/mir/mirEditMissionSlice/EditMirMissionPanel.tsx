@@ -36,6 +36,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { nanoid } from "nanoid";
 import styled from "styled-components";
 import client from "@/api/axiosClient";
@@ -56,9 +57,15 @@ import {
   MirBlockedDockingTimeoutInputInput,
   MirBlockedPathTimeoutInputInput,
   MirCollisionDetectionInput,
+  MirColor1Input,
+  MirColor2Input,
   MirDistanceThresholdInput,
+  MirDurationInput,
   MirFootprintInput,
   MirFrontInput,
+  MirIntensityInput,
+  MirLightEffectInput,
+  MirLightSpeedInput,
   MirLocationInput,
   MirMarkerTypeInput,
   MirMaximumAngularSpeedInputInput,
@@ -71,6 +78,7 @@ import {
   MirRearInput,
   MirSideInput,
   MirSoundInput,
+  MirSoundModeInput,
   MirSwitchMapInput,
   MirTimeoutInput,
   MirValueInput,
@@ -83,8 +91,10 @@ import {
   MirVariableProvider,
   useMirVariableFields,
 } from "./MirVariableContext";
-import { buildMirOperationFields } from "./mirActionFields";
+import { MIR_ACTION_FIELDS, buildMirOperationFields } from "./mirActionFields";
 import { useMirDockingMarkerType } from "./useMirTaskOptions";
+
+dayjs.extend(customParseFormat);
 
 const REDUCE_PROTECTIVE_FIELDS_TYPE = "reduce_protective_fields";
 const TRY_CATCH_TYPE = "try_catch";
@@ -165,6 +175,13 @@ const buildDefaultOperation = (type: string): Mir_Action => ({
   wait: "00:00:00",
   sound: "",
   volume: 0,
+  mode: "full",
+  duration: "00:00:01.000000",
+  light_effect: "solid",
+  speed: "slow",
+  color_1: "#ffffff",
+  color_2: "#ffffff",
+  intensity: 100,
   front: "unmuted",
   rear: "unmuted",
   sides: "unmuted",
@@ -213,12 +230,12 @@ const summarizeAction = (op: Mir_Action): { verb: string; chip?: string } => {
       return { verb: "Check pose is", chip: op.option || "free" };
     case "wait":
       return { verb: `Wait ${op.wait || "00:00:00"}` };
-    case "play_sound":
-      return { verb: "Play sound", chip: op.sound || "-" };
-    case "stop_sound":
+    case "sound":
+      return { verb: "Play sound", chip: op.mode || "full" };
+    case "sound_stop":
       return { verb: "Stop sound" };
-    case "show_light":
-      return { verb: "Show light" };
+    case "light":
+      return { verb: "Show light", chip: op.light_effect || "-" };
     case REDUCE_PROTECTIVE_FIELDS_TYPE:
       return { verb: "Mute protective fields" };
     case TRY_CATCH_TYPE:
@@ -293,6 +310,26 @@ const renderActionFields = (
       return <MirSwitchMapInput />;
     case "wait":
       return <MirWaitInput />;
+    case "sound":
+      return (
+        <>
+          <MirSoundInput />
+          <MirVolumeInput />
+          <MirSoundModeInput />
+          <MirDurationInput />
+        </>
+      );
+    case "light":
+      return (
+        <>
+          <MirLightEffectInput />
+          <MirLightSpeedInput />
+          <MirColor1Input />
+          <MirColor2Input />
+          <MirIntensityInput />
+          <MirTimeoutInput />
+        </>
+      );
     case REDUCE_PROTECTIVE_FIELDS_TYPE:
       return (
         <>
@@ -489,7 +526,8 @@ const Card: FC<{
   };
 
   const isContainer = isContainerOperation(slice.operation);
-  const hasParameters = slice.operation.type !== TRY_CATCH_TYPE;
+  const hasParameters =
+    (MIR_ACTION_FIELDS[slice.operation.type]?.length ?? 0) > 0;
   const { verb, chip } = summarizeAction(slice.operation);
 
   return (
@@ -651,6 +689,12 @@ const ParameterDrawer: FC<{
       op.timeout && dayjs(op.timeout, "HH:mm:ss").isValid()
         ? dayjs(op.timeout, "HH:mm:ss")
         : undefined;
+    // duration 存的是 "HH:MM:SS.ffffff",TimePicker 只吃到秒,小數部分先切掉
+    const durationHms = op.duration?.split(".")[0];
+    const formattedDuration =
+      durationHms && dayjs(durationHms, "HH:mm:ss").isValid()
+        ? dayjs(durationHms, "HH:mm:ss")
+        : undefined;
 
     form.setFieldsValue({
       location_id: op.location_id,
@@ -671,6 +715,13 @@ const ParameterDrawer: FC<{
       wait: formattedWait,
       sound: op.sound,
       volume: op.volume ?? 0,
+      mode: op.mode ?? "full",
+      duration: formattedDuration,
+      light_effect: op.light_effect ?? "solid",
+      speed: op.speed ?? "slow",
+      color_1: op.color_1 ?? "#ffffff",
+      color_2: op.color_2 ?? "#ffffff",
+      intensity: op.intensity ?? 100,
       front: op.front ?? "unmuted",
       rear: op.rear ?? "unmuted",
       sides: op.sides ?? "unmuted",

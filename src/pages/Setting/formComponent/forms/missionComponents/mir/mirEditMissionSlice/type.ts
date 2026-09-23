@@ -46,6 +46,15 @@ export type Mir_Action = {
   wait?: string;
   sound?: string;
   volume?: number;
+  mode?: "full" | "custom" | string;
+  duration?: string;
+
+  // light 動作
+  light_effect?: string;
+  speed?: string;
+  color_1?: string;
+  color_2?: string;
+  intensity?: number;
 
   // 安全防護區域
   front?: "muted" | "unmuted" | string;
@@ -61,7 +70,6 @@ export type Mir_Action = {
   timeout: string;
 
   // 欄位名稱 -> 變數名稱。有 key 代表該欄位設成「使用變數」，
-  // 派發時 MiR 端的 parameters[].input_name 要填這個變數名稱而不是寫死的值。
   variables?: Record<string, string>;
 };
 
@@ -84,11 +92,7 @@ export const mirMoveActonList = [
   "switch_map",
 ] as const;
 
-export const mirSoundLight = [
-  "play_sound",
-  "stop_sound",
-  "show_light",
-] as const;
+export const mirSoundLight = ["sound", "sound_stop", "light"] as const;
 
 export const mirErrorHandlingList = ["wait"] as const;
 
