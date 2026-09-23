@@ -380,7 +380,8 @@
     "peripheral": {
       "title": "設備",
       "name_table": "設備名稱表",
-      "group_table": "設備群組表"
+      "group_table": "設備群組表",
+      "stack_batch_edit": "Stack 批次編輯"
     },
     "others": {
       "others": "其它",
@@ -2219,5 +2220,37 @@
     "alarm_code": "告警代碼",
     "description": "說明",
     "enable": "啟用"
+  },
+  "stack_batch": {
+    "title": "Stack 批次編輯",
+    "hint": "在表格勾選要改的 stack,勾選要修改的欄位,預覽後套用。沒勾的欄位不會被改動。",
+    "location_id": "地點 ID",
+    "name": "名稱",
+    "new_name": "新名稱",
+    "load_mission": "取貨任務",
+    "offload_mission": "放貨任務",
+    "load_priority": "取貨優先度",
+    "offload_priority": "放貨優先度",
+    "disable": "停用",
+    "cargo": "貨物",
+    "selected": "已選 {{count}} 個",
+    "change": "修改",
+    "clear_mission": "(清除)",
+    "rename": "自動產生名稱",
+    "prefix": "前綴",
+    "start": "起始編號",
+    "digits": "位數",
+    "order": "排序",
+    "order_location": "依地點 ID",
+    "order_name": "依目前名稱",
+    "mode_seq": "前綴 + 流水號",
+    "mode_loc": "前綴 + 地點 ID",
+    "preview": "預覽:{{first}} … {{last}}",
+    "invalid_prefix": "前綴只能包含英數字與 _",
+    "apply": "套用到已選",
+    "confirm": "確定要更新 {{count}} 個 stack?",
+    "nothing_to_apply": "請至少勾選一個要修改的欄位,或開啟自動產生名稱。",
+    "no_selection": "請至少選擇一個 stack。",
+    "no_stack": "沒有 STACK"
   }
 }

@@ -382,7 +382,8 @@
     "peripheral": {
       "title": "Device",
       "name_table": "Device Name Table",
-      "group_table": "Device Area Table"
+      "group_table": "Device Area Table",
+      "stack_batch_edit": "Stack Batch Edit"
     },
     "others": {
       "others": "Others",
@@ -2218,5 +2219,37 @@
     "alarm_code": "Alarm Code",
     "description": "Description",
     "enable": "Enable"
+  },
+  "stack_batch": {
+    "title": "Stack Batch Edit",
+    "hint": "Select stacks in the table, choose which fields to change, then preview and apply. Unchecked fields are left untouched.",
+    "location_id": "Location ID",
+    "name": "Name",
+    "new_name": "New name",
+    "load_mission": "Load mission",
+    "offload_mission": "Offload mission",
+    "load_priority": "Load priority",
+    "offload_priority": "Offload priority",
+    "disable": "Disable",
+    "cargo": "Cargo",
+    "selected": "{{count}} selected",
+    "change": "Change",
+    "clear_mission": "(clear)",
+    "rename": "Auto-generate names",
+    "prefix": "Prefix",
+    "start": "Start number",
+    "digits": "Digits",
+    "order": "Order",
+    "order_location": "By location ID",
+    "order_name": "By current name",
+    "mode_seq": "Prefix + sequence",
+    "mode_loc": "Prefix + location ID",
+    "preview": "Preview: {{first}} … {{last}}",
+    "invalid_prefix": "Prefix may only contain letters, digits and _",
+    "apply": "Apply to selected",
+    "confirm": "Update {{count}} stacks?",
+    "nothing_to_apply": "Select at least one field to change or enable name generation.",
+    "no_selection": "Select at least one stack.",
+    "no_stack": "NO STACKS"
   }
 }

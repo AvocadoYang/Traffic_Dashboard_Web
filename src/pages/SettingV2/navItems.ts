@@ -140,6 +140,10 @@ export const navCategories: NavCategory[] = [
         labelKey: "toolbar.others.edit_peripheral_style",
       },
       {
+        key: "stack_batch_edit",
+        labelKey: "toolbar.peripheral.stack_batch_edit",
+      },
+      {
         key: "peripheral_charge_dock_config",
         labelKey: "toolbar.others.charge_dock_config",
       },
