@@ -179,39 +179,39 @@ const StatusBadge = styled.span<{ $status: number; $isDark: boolean }>`
     > = {
       0: {
         // pending
-        bg: $isDark ? "#0a0a0a" : "#fff7e6",
-        border: "#faad14",
-        text: "#faad14",
+        bg: "var(--c-warning-soft)",
+        border: "var(--c-warning)",
+        text: "var(--c-warning)",
       },
       1: {
         // assigned
-        bg: $isDark ? "#0a0a0a" : "#e6f7ff",
+        bg: "var(--c-header-accent-soft)",
         border: "var(--c-header-accent)",
-        text: "#1890ff",
+        text: "var(--c-header-accent)",
       },
       2: {
         // executing
-        bg: $isDark ? "#0a0a0a" : "#f6ffed",
-        border: "#52c41a",
-        text: "#52c41a",
+        bg: "var(--c-success-soft)",
+        border: "var(--c-success)",
+        text: "var(--c-success)",
       },
       3: {
         // completed
-        bg: $isDark ? "#0a0a0a" : "#fafafa",
+        bg: "var(--c-bg-subtle)",
         border: "var(--c-text-muted)",
-        text: "#8c8c8c",
+        text: "var(--c-text-muted)",
       },
       4: {
         // aborting
-        bg: $isDark ? "#0a0a0a" : "#fff1f0",
-        border: "#ff4d4f",
-        text: "#ff4d4f",
+        bg: "var(--c-danger-soft)",
+        border: "var(--c-danger)",
+        text: "var(--c-danger)",
       },
       5: {
         // canceled
-        bg: $isDark ? "#0a0a0a" : "#fff1f0",
-        border: "#ff4d4f",
-        text: "#ff4d4f",
+        bg: "var(--c-danger-soft)",
+        border: "var(--c-danger)",
+        text: "var(--c-danger)",
       },
     };
     const color = statusColors[$status] || statusColors[0];
@@ -235,11 +235,11 @@ const ModeTag = styled(Tag)<{ $isDark: boolean }>`
 const ErrorMessage = styled.div<{ $isDark: boolean }>`
   text-align: center;
   padding: 20px;
-  color: ${({ $isDark }) => ($isDark ? "#ff4d4f" : "#ff4d4f")};
+  color: ${({ $isDark }) => ($isDark ? "var(--c-danger)" : "var(--c-danger)")};
   font-family: "Roboto Mono", monospace;
   font-size: 12px;
-  background: ${({ $isDark }) => ($isDark ? "#1a1a1a" : "#fff1f0")};
-  border: 1px solid #ff4d4f;
+  background: var(--c-danger-soft);
+  border: 1px solid var(--c-danger);
   border-radius: 4px;
 `;
 
@@ -442,7 +442,7 @@ const MissionHistory: FC<{
               maxWidth: 260,
               fontFamily: "Roboto Mono",
               fontSize: 11,
-              color: isDark ? "#00ff41" : "#595959",
+              color: "var(--c-text-secondary)",
             }}
           >
             {info.map((entry, idx) => (

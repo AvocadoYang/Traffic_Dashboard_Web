@@ -61,8 +61,8 @@ const ResizeHandleCorner = styled.div`
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #ffffff;
-  border: 2px solid #1890ff;
+  background: var(--c-bg);
+  border: 2px solid var(--c-header-accent);
   cursor: nwse-resize;
   z-index: 3;
 `;

@@ -83,15 +83,15 @@ const QuickMissionContainer = styled.div<{ $visible: boolean }>`
 `;
 
 const IndustrialPanel = styled.div`
-  background: #ffffff;
-  border: 2px solid #d9d9d9;
+  background: var(--c-bg);
+  border: 2px solid var(--c-header-border);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   max-height: calc(100vh - 40px);
   overflow-y: auto;
 
   @media (max-width: 576px) {
     border: none;
-    border-top: 2px solid #d9d9d9;
+    border-top: 2px solid var(--c-header-border);
     box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
     max-height: 90vh;
     border-radius: 0;
@@ -99,8 +99,8 @@ const IndustrialPanel = styled.div`
 `;
 
 const PanelHeader = styled.div`
-  background: #fafafa;
-  border-bottom: 2px solid #d9d9d9;
+  background: var(--c-bg-subtle);
+  border-bottom: 2px solid var(--c-header-border);
   padding: 12px 16px;
   display: flex;
   justify-content: space-between;
@@ -116,7 +116,7 @@ const PanelHeader = styled.div`
     top: 0;
     bottom: 0;
     width: 4px;
-    background: #1890ff;
+    background: var(--c-header-accent);
   }
 
   @media (min-width: 768px) {
@@ -131,7 +131,7 @@ const PanelTitle = styled.div`
   font-family: "Roboto Mono", monospace;
   font-size: 13px;
   font-weight: 700;
-  color: #1890ff;
+  color: var(--c-header-accent);
   text-transform: uppercase;
   letter-spacing: 1px;
 
@@ -144,8 +144,8 @@ const PanelTitle = styled.div`
 
 const CloseButton = styled(Button)`
   background: transparent;
-  border: 1px solid #d9d9d9;
-  color: #8c8c8c;
+  border: 1px solid var(--c-header-border);
+  color: var(--c-text-muted);
   width: 36px;
   height: 36px;
   padding: 0;
@@ -160,15 +160,15 @@ const CloseButton = styled(Button)`
   }
 
   &:hover {
-    background: #fff1f0;
-    border-color: #ff4d4f;
-    color: #ff4d4f;
+    background: var(--c-danger-soft);
+    border-color: var(--c-danger);
+    color: var(--c-danger);
   }
 `;
 
 const PanelBody = styled.div`
   padding: 16px;
-  background: #ffffff;
+  background: var(--c-bg);
 
   @media (min-width: 768px) {
     padding: 24px;
@@ -178,17 +178,17 @@ const PanelBody = styled.div`
 const StatusIndicator = styled.div<{ status: "idle" | "selecting" | "ready" }>`
   background: ${({ status }) =>
     status === "ready"
-      ? "#f6ffed"
+      ? "var(--c-success-soft)"
       : status === "selecting"
-        ? "#fffbe6"
-        : "#fafafa"};
+        ? "var(--c-warning-soft)"
+        : "var(--c-bg-subtle)"};
   border: 2px solid;
   border-color: ${({ status }) =>
     status === "ready"
-      ? "#52c41a"
+      ? "var(--c-success)"
       : status === "selecting"
-        ? "#faad14"
-        : "#d9d9d9"};
+        ? "var(--c-warning)"
+        : "var(--c-header-border)"};
   padding: 10px 12px;
   margin-bottom: 16px;
   display: flex;
@@ -197,10 +197,10 @@ const StatusIndicator = styled.div<{ status: "idle" | "selecting" | "ready" }>`
   font-family: "Roboto Mono", monospace;
   color: ${({ status }) =>
     status === "ready"
-      ? "#52c41a"
+      ? "var(--c-success)"
       : status === "selecting"
-        ? "#faad14"
-        : "#8c8c8c"};
+        ? "var(--c-warning)"
+        : "var(--c-text-muted)"};
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
@@ -216,7 +216,7 @@ const StatusIndicator = styled.div<{ status: "idle" | "selecting" | "ready" }>`
 `;
 
 const FieldLabel = styled.div`
-  color: #595959;
+  color: var(--c-text-secondary);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.8px;
@@ -236,10 +236,10 @@ const LocationCard = styled.div<{
   selected: boolean;
 }>`
   background: ${({ selected, type }) =>
-    selected ? (type === "load" ? "#e6f7ff" : "#f6ffed") : "#fafafa"};
+    selected ? (type === "load" ? "var(--c-header-accent-soft)" : "var(--c-success-soft)") : "var(--c-bg-subtle)"};
   border: 2px solid;
   border-color: ${({ selected, type }) =>
-    selected ? (type === "load" ? "#1890ff" : "#52c41a") : "#d9d9d9"};
+    selected ? (type === "load" ? "var(--c-header-accent)" : "var(--c-success)") : "var(--c-header-border)"};
   padding: 12px;
   margin-bottom: 10px;
   position: relative;
@@ -253,9 +253,9 @@ const LocationCard = styled.div<{
 
   &:hover {
     border-color: ${({ selected, type }) =>
-      selected ? (type === "load" ? "#1890ff" : "#52c41a") : "#bfbfbf"};
+      selected ? (type === "load" ? "var(--c-header-accent)" : "var(--c-success)") : "var(--c-text-muted)"};
     background: ${({ selected, type }) =>
-      selected ? (type === "load" ? "#e6f7ff" : "#f6ffed") : "#f5f5f5"};
+      selected ? (type === "load" ? "var(--c-header-accent-soft)" : "var(--c-success-soft)") : "var(--c-bg-subtle)"};
   }
 
   &::before {
@@ -265,7 +265,7 @@ const LocationCard = styled.div<{
     top: 0;
     bottom: 0;
     width: 3px;
-    background: ${({ type }) => (type === "load" ? "#1890ff" : "#52c41a")};
+    background: ${({ type }) => (type === "load" ? "var(--c-header-accent)" : "var(--c-success)")};
     opacity: ${({ selected }) => (selected ? 1 : 0)};
     transition: opacity 0.2s;
 
@@ -293,11 +293,11 @@ const LocationIcon = styled.div<{ type: "load" | "offload" }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${({ type }) => (type === "load" ? "#1890ff" : "#52c41a")};
+  background: ${({ type }) => (type === "load" ? "var(--c-header-accent)" : "var(--c-success)")};
   color: #ffffff;
   font-size: 14px;
   border: 1px solid;
-  border-color: ${({ type }) => (type === "load" ? "#096dd9" : "#389e0d")};
+  border-color: ${({ type }) => (type === "load" ? "var(--c-header-accent)" : "var(--c-success)")};
   flex-shrink: 0;
 
   @media (min-width: 768px) {
@@ -311,7 +311,7 @@ const LocationTitle = styled.div`
   font-family: "Roboto Mono", monospace;
   font-size: 11px;
   font-weight: 700;
-  color: #262626;
+  color: var(--c-text);
   text-transform: uppercase;
   letter-spacing: 0.8px;
   flex: 1;
@@ -325,7 +325,7 @@ const LocationTitle = styled.div`
 const LocationValue = styled.div`
   font-family: "Roboto Mono", monospace;
   font-size: 12px;
-  color: #1890ff;
+  color: var(--c-header-accent);
   font-weight: 600;
   padding-left: 38px;
 
@@ -336,8 +336,8 @@ const LocationValue = styled.div`
 `;
 
 const InstructionBanner = styled.div`
-  background: #fffbe6;
-  border: 2px solid #faad14;
+  background: var(--c-warning-soft);
+  border: 2px solid var(--c-warning);
   padding: 12px;
   margin-bottom: 12px;
   display: flex;
@@ -345,7 +345,7 @@ const InstructionBanner = styled.div`
   gap: 8px;
   font-family: "Roboto Mono", monospace;
   font-size: 10px;
-  color: #faad14;
+  color: var(--c-warning);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -364,9 +364,9 @@ const InstructionBanner = styled.div`
 `;
 
 const IndustrialButton = styled(Button)`
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  color: #1890ff;
+  background: var(--c-bg);
+  border: 1px solid var(--c-header-border);
+  color: var(--c-header-accent);
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
   font-size: 10px;
@@ -381,52 +381,52 @@ const IndustrialButton = styled(Button)`
   }
 
   &:hover {
-    background: #f0f5ff;
-    border-color: #1890ff;
-    color: #1890ff;
+    background: var(--c-header-accent-soft);
+    border-color: var(--c-header-accent);
+    color: var(--c-header-accent);
     box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
   }
 
   &.danger {
-    border-color: #ff4d4f;
-    color: #ff4d4f;
+    border-color: var(--c-danger);
+    color: var(--c-danger);
 
     &:hover {
-      background: #fff1f0;
-      border-color: #ff7875;
-      color: #ff7875;
+      background: var(--c-danger-soft);
+      border-color: var(--c-danger);
+      color: var(--c-danger);
       box-shadow: 0 2px 8px rgba(255, 77, 79, 0.2);
     }
   }
 
   &.primary {
-    background: #1890ff;
-    border-color: #1890ff;
+    background: var(--c-header-accent);
+    border-color: var(--c-header-accent);
     color: #ffffff;
 
     &:hover {
-      background: #40a9ff;
-      border-color: #40a9ff;
+      background: var(--c-header-accent);
+      border-color: var(--c-header-accent);
       box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
     }
   }
 
   &.success {
-    background: #52c41a;
-    border-color: #52c41a;
+    background: var(--c-success);
+    border-color: var(--c-success);
     color: #ffffff;
 
     &:hover {
-      background: #73d13d;
-      border-color: #73d13d;
+      background: var(--c-success);
+      border-color: var(--c-success);
       box-shadow: 0 2px 8px rgba(82, 196, 26, 0.4);
     }
   }
 
   &:disabled {
-    background: #f5f5f5;
-    border-color: #d9d9d9;
-    color: #bfbfbf;
+    background: var(--c-bg-subtle);
+    border-color: var(--c-header-border);
+    color: var(--c-text-muted);
   }
 `;
 
@@ -443,8 +443,8 @@ const PriorityRadioGroup = styled(Radio.Group)`
   .ant-radio-button-wrapper {
     height: 36px;
     line-height: 34px;
-    border: 1px solid #d9d9d9;
-    background: #fafafa;
+    border: 1px solid var(--c-header-border);
+    background: var(--c-bg-subtle);
     font-family: "Roboto Mono", monospace;
     font-size: 10px;
     text-transform: uppercase;
@@ -460,18 +460,18 @@ const PriorityRadioGroup = styled(Radio.Group)`
     }
 
     &:hover {
-      background: #f5f5f5;
-      border-color: #bfbfbf;
+      background: var(--c-bg-subtle);
+      border-color: var(--c-text-muted);
     }
 
     &.ant-radio-button-wrapper-checked {
-      background: #e6f7ff;
-      border-color: #1890ff;
-      color: #1890ff;
+      background: var(--c-header-accent-soft);
+      border-color: var(--c-header-accent);
+      color: var(--c-header-accent);
       box-shadow: inset 0 0 20px rgba(24, 144, 255, 0.08);
 
       &::before {
-        background: #1890ff;
+        background: var(--c-header-accent);
       }
     }
   }
@@ -712,7 +712,7 @@ const QuickMissionWebView: React.FC<{
                       <div
                         style={{
                           paddingLeft: "38px",
-                          color: "#8c8c8c",
+                          color: "var(--c-text-muted)",
                           fontSize: "10px",
                           fontFamily: "Roboto Mono, monospace",
                           textTransform: "uppercase",
@@ -746,7 +746,7 @@ const QuickMissionWebView: React.FC<{
                       <div
                         style={{
                           paddingLeft: "38px",
-                          color: "#8c8c8c",
+                          color: "var(--c-text-muted)",
                           fontSize: "10px",
                           fontFamily: "Roboto Mono, monospace",
                           textTransform: "uppercase",

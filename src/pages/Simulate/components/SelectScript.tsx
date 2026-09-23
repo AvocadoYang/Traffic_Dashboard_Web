@@ -29,7 +29,7 @@ const FloatBtn = styled.div`
   top: 25%;
   left: 20px;
   transform: translateY(-50%);
-  background-color: #f5f5f5;
+  background-color: var(--c-bg-subtle);
   border-radius: 20px;
   display: flex;
   flex-direction: column;

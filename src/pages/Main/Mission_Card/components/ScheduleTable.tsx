@@ -97,14 +97,14 @@ const RouteNode = styled.div<{ $isDark: boolean; $isStart?: boolean }>`
   font-size: 11px;
   font-family: "Roboto Mono", monospace;
   color: ${({ $isDark, $isStart }) =>
-    $isStart ? "#52c41a" : $isDark ? "#00ff41" : "#262626"};
+    $isStart ? "var(--c-success)" : "var(--c-text)"};
   display: flex;
   align-items: center;
   gap: 6px;
 
   &::before {
     content: "${({ $isStart }) => ($isStart ? "→" : "⊙")}";
-    color: ${({ $isStart }) => ($isStart ? "#52c41a" : "#1890ff")};
+    color: ${({ $isStart }) => ($isStart ? "var(--c-success)" : "var(--c-header-accent)")};
     font-weight: bold;
   }
 `;
@@ -122,15 +122,15 @@ const PriorityBadge = styled.span<{ $priority: number; $isDark: boolean }>`
   ${({ $priority, $isDark }) => {
     if ($priority >= 80) {
       return `
-        background: ${$isDark ? "#0a0a0a" : "#fff1f0"};
-        border: 1px solid #ff4d4f;
-        color: #ff4d4f;
+        background: ${"var(--c-danger-soft)"};
+        border: 1px solid var(--c-danger);
+        color: var(--c-danger);
       `;
     } else if ($priority >= 50) {
       return `
-        background: ${$isDark ? "#0a0a0a" : "#fff7e6"};
-        border: 1px solid #faad14;
-        color: #faad14;
+        background: ${"var(--c-warning-soft)"};
+        border: 1px solid var(--c-warning);
+        color: var(--c-warning);
       `;
     } else {
       return `
@@ -153,7 +153,7 @@ const StatusHeader = styled.div<{ $isDark: boolean; $status: "1" | "0" }>`
   background: var(--c-bg-subtle);
   border: 1px solid var(--c-header-border);
   border-left: 4px solid
-    ${({ $status }) => ($status === "1" ? "#52c41a" : "#ff4d4f")};
+    ${({ $status }) => ($status === "1" ? "var(--c-success)" : "var(--c-danger)")};
   padding: 12px 16px;
   margin-bottom: 16px;
   border-radius: 4px;
@@ -189,13 +189,13 @@ const IndustrialButton = styled(Button)`
 
   /* PAUSE: Warning/Amber Aesthetic */
   &.pause-btn {
-    background: #fffbe6; /* Light warning yellow */
-    border: 1px solid #ffe58f;
-    color: #d48806;
+    background: var(--c-warning-soft); /* Light warning yellow */
+    border: 1px solid var(--c-warning);
+    color: var(--c-warning);
 
     &:hover:not(:disabled) {
-      background: #faad14; /* Warning Gold */
-      border-color: #faad14;
+      background: var(--c-warning); /* Warning Gold */
+      border-color: var(--c-warning);
       color: #ffffff;
       box-shadow: 0 2px 8px rgba(250, 173, 20, 0.3);
     }
@@ -204,8 +204,8 @@ const IndustrialButton = styled(Button)`
   /* RESUME: Tactical Blue Aesthetic */
   &.resume-btn {
     background: var(--c-header-accent-soft); /* Light processing blue */
-    border: 1px solid #91d5ff;
-    color: #096dd9;
+    border: 1px solid var(--c-header-accent);
+    color: var(--c-header-accent);
 
     &:hover:not(:disabled) {
       background: var(--c-header-accent); /* Primary Action Blue */
@@ -217,13 +217,13 @@ const IndustrialButton = styled(Button)`
 
   /* DELETE: Hazard Red (Already good, just aligning style) */
   &.delete-btn {
-    background: #fff1f0;
-    border: 1px solid #ffa39e;
-    color: #cf1322;
+    background: var(--c-danger-soft);
+    border: 1px solid var(--c-danger);
+    color: var(--c-danger);
 
     &:hover:not(:disabled) {
-      background: #ff4d4f;
-      border-color: #ff4d4f;
+      background: var(--c-danger);
+      border-color: var(--c-danger);
       color: #ffffff;
       box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3);
     }
@@ -239,11 +239,11 @@ const IndustrialButton = styled(Button)`
 `;
 
 const SvgResumeStyle = styled.svg`
-  fill: #096dd9;
+  fill: var(--c-header-accent);
   width: 1.2em;
 `;
 const SvgPauseStyle = styled.svg`
-  fill: #d48806;
+  fill: var(--c-warning);
   width: 1.2em;
 `;
 
@@ -358,7 +358,7 @@ const ScheduleTable: FC<{}> = () => {
                 fontFamily: "Roboto Mono",
                 fontSize: 11,
                 fontWeight: 600,
-                color: scheduleStatus.status === "1" ? "#52c41a" : "#ff4d4f",
+                color: scheduleStatus.status === "1" ? "var(--c-success)" : "var(--c-danger)",
               }}
             >
               {scheduleStatus.status === "1" ? (

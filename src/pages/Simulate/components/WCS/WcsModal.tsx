@@ -39,10 +39,10 @@ const StyledModal = styled(Modal)`
 const StyledCard = styled(Card)`
   border-radius: 8px;
   border: 1px solid #e5e7eb;
-  background: #ffffff;
+  background: var(--c-bg);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   .ant-card-head {
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--c-bg-muted);
     padding: 0 16px;
   }
   .ant-card-head-title {

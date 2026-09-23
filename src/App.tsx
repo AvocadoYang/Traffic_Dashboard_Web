@@ -18,7 +18,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { SystemAlarmOverlay } from "./pages/Main/components/SystemAlarm";
 import { UserConformOverlay } from "./pages/Main/components/UserConformTaskStep";
 import MissionDispatchBoard from "./pages/MissionDispatchBoard/MissionDispatchBoard";
-import { ThemeVarsProvider } from "./theme";
+import { ThemeVarsProvider, ThemedAppConfigProvider } from "./theme";
 
 const client = new QueryClient({
   defaultOptions: {
@@ -46,48 +46,50 @@ function App() {
   // const ipcHandle = (): void => window.electron.ipc.send('ping')
   return (
     <ThemeVarsProvider>
-      <QueryClientProvider client={client}>
-      <SystemAlarmOverlay />
-      <UserConformOverlay />
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <Routes>
-          <Route path="/login" element={<LogIn />}></Route>
+      <ThemedAppConfigProvider>
+        <QueryClientProvider client={client}>
+          <SystemAlarmOverlay />
+          <UserConformOverlay />
+          <BrowserRouter
+            future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+          >
+            <Routes>
+              <Route path="/login" element={<LogIn />}></Route>
 
-          <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Register />}></Route>
-            {/* 設定頁正式改用 v2。/setting 保留成轉址,舊書籤跟外部連結不會壞;
+              <Route element={<ProtectedRoute />}>
+                <Route path="/dashboard" element={<Register />}></Route>
+                {/* 設定頁正式改用 v2。/setting 保留成轉址,舊書籤跟外部連結不會壞;
                 舊版仍可從 /setting-v1 進去,真的少了什麼功能時還有得退。 */}
-            <Route
-              path="/setting"
-              element={<Navigate to="/setting-v2" replace />}
-            ></Route>
-            <Route path="/setting-v1" element={<Setting></Setting>}></Route>
-            <Route path="/setting-v2" element={<SettingV2 />}></Route>
-            <Route path="/simulate" element={<Simulate />}></Route>
-            <Route path="/cargo-history" element={<CargoHistory />}></Route>
-            <Route
-              path="/simulate-result"
-              element={<AllSimulateResult />}
-            ></Route>
-            <Route path="/" element={<Main />}></Route>
-            <Route
-              path="/test"
-              element={<MonitorCenter></MonitorCenter>}
-            ></Route>
-            <Route path="/records" element={<Records />}></Route>
-            <Route
-              path="/mission-dispatch"
-              element={<MissionDispatchBoard />}
-            ></Route>
-            <Route path="/amr" element={<AmrList />} />
-            <Route path="/amr/:amrId" element={<AmrDetail />} />
-            <Route path="*" element={<h1>Not Found</h1>} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-      </QueryClientProvider>
+                <Route
+                  path="/setting"
+                  element={<Navigate to="/setting-v2" replace />}
+                ></Route>
+                <Route path="/setting-v1" element={<Setting></Setting>}></Route>
+                <Route path="/setting-v2" element={<SettingV2 />}></Route>
+                <Route path="/simulate" element={<Simulate />}></Route>
+                <Route path="/cargo-history" element={<CargoHistory />}></Route>
+                <Route
+                  path="/simulate-result"
+                  element={<AllSimulateResult />}
+                ></Route>
+                <Route path="/" element={<Main />}></Route>
+                <Route
+                  path="/test"
+                  element={<MonitorCenter></MonitorCenter>}
+                ></Route>
+                <Route path="/records" element={<Records />}></Route>
+                <Route
+                  path="/mission-dispatch"
+                  element={<MissionDispatchBoard />}
+                ></Route>
+                <Route path="/amr" element={<AmrList />} />
+                <Route path="/amr/:amrId" element={<AmrDetail />} />
+                <Route path="*" element={<h1>Not Found</h1>} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </QueryClientProvider>
+      </ThemedAppConfigProvider>
     </ThemeVarsProvider>
   );
 }

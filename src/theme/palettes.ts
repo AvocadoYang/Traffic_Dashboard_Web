@@ -36,6 +36,16 @@ export type PaletteColors = {
   /** 疊在 accent 上面的文字色。淺色主題是白字,深色主題要反過來用深字 */
   onAccent: string;
 
+  /**
+   * 狀態色。這幾顆刻意不跟著主題的色相走——綠色就是成功、黃色就是警告,
+   * 換了操作員會看不懂。淺色主題四套共用同一組值,只有深色主題要另外調:
+   * 原本的淺底(例如 #f6ffed)疊在深色面板上會變成一塊發亮的白。
+   */
+  success: string;
+  successSoft: string;
+  warning: string;
+  warningSoft: string;
+
   /** 只給刪除 / 破壞性動作 */
   danger: string;
   dangerSoft: string;
@@ -80,6 +90,11 @@ const mono: PaletteColors = {
   accentHover: "#3a3a3a",
   onAccent: "#ffffff",
 
+  success: "#52c41a",
+  successSoft: "#f6ffed",
+  warning: "#faad14",
+  warningSoft: "#fffbe6",
+
   danger: "#c0341d",
   dangerSoft: "#fbf0ed",
 
@@ -107,6 +122,11 @@ const indigo: PaletteColors = {
   accent: "#2f5bd0",
   accentHover: "#2449ac",
   onAccent: "#ffffff",
+
+  success: "#52c41a",
+  successSoft: "#f6ffed",
+  warning: "#faad14",
+  warningSoft: "#fffbe6",
 
   danger: "#c0341d",
   dangerSoft: "#fdf0ed",
@@ -136,6 +156,11 @@ const teal: PaletteColors = {
   accentHover: "#0c5c52",
   onAccent: "#ffffff",
 
+  success: "#52c41a",
+  successSoft: "#f6ffed",
+  warning: "#faad14",
+  warningSoft: "#fffbe6",
+
   danger: "#bd3a20",
   dangerSoft: "#fbf0ed",
 
@@ -163,6 +188,11 @@ const sand: PaletteColors = {
   accent: "#a0571c",
   accentHover: "#83450f",
   onAccent: "#ffffff",
+
+  success: "#52c41a",
+  successSoft: "#f6ffed",
+  warning: "#faad14",
+  warningSoft: "#fffbe6",
 
   danger: "#b5301c",
   dangerSoft: "#fbeeea",
@@ -194,6 +224,11 @@ const midnight: PaletteColors = {
   accent: "#5b8cf0",
   accentHover: "#7aa3f5",
   onAccent: "#0f1216",
+
+  success: "#6abe4b",
+  successSoft: "#1d2a1b",
+  warning: "#e0a33a",
+  warningSoft: "#2e2616",
 
   danger: "#ef6a55",
   dangerSoft: "#38221f",

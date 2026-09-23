@@ -139,13 +139,13 @@ const IndustrialButton = styled(Button)`
   transition: all 0.2s ease;
 
   &.delete-btn {
-    background: #fff1f0;
-    border: 1px solid #ff4d4f;
-    color: #ff4d4f;
+    background: var(--c-danger-soft);
+    border: 1px solid var(--c-danger);
+    color: var(--c-danger);
 
     &:hover:not(:disabled) {
-      background: #ff4d4f;
-      border-color: #ff4d4f;
+      background: var(--c-danger);
+      border-color: var(--c-danger);
       color: #ffffff;
       box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3);
     }
@@ -209,34 +209,34 @@ const StatusBadge = styled.span<{ $status: MissionStatus; $isDark: boolean }>`
       { bg: string; border: string; text: string }
     > = {
       executing: {
-        bg: $isDark ? "#0a0a0a" : "#f6ffed",
-        border: "#52c41a",
-        text: "#52c41a",
+        bg: "var(--c-success-soft)",
+        border: "var(--c-success)",
+        text: "var(--c-success)",
       },
       assigned: {
-        bg: $isDark ? "#0a0a0a" : "#e6f7ff",
+        bg: "var(--c-header-accent-soft)",
         border: "var(--c-header-accent)",
-        text: "#1890ff",
+        text: "var(--c-header-accent)",
       },
       pending: {
-        bg: $isDark ? "#0a0a0a" : "#fff7e6",
-        border: "#faad14",
-        text: "#faad14",
+        bg: "var(--c-warning-soft)",
+        border: "var(--c-warning)",
+        text: "var(--c-warning)",
       },
       completed: {
-        bg: $isDark ? "#0a0a0a" : "#fafafa",
+        bg: "var(--c-bg-subtle)",
         border: "var(--c-text-muted)",
-        text: "#8c8c8c",
+        text: "var(--c-text-muted)",
       },
       aborting: {
-        bg: $isDark ? "#0a0a0a" : "#fff1f0",
-        border: "#ff4d4f",
-        text: "#ff4d4f",
+        bg: "var(--c-danger-soft)",
+        border: "var(--c-danger)",
+        text: "var(--c-danger)",
       },
       canceled: {
-        bg: $isDark ? "#0a0a0a" : "#fff1f0",
-        border: "#ff4d4f",
-        text: "#ff4d4f",
+        bg: "var(--c-danger-soft)",
+        border: "var(--c-danger)",
+        text: "var(--c-danger)",
       },
     };
 
@@ -575,7 +575,7 @@ const MissionTable = () => {
             style={{
               marginBottom: 8,
               fontSize: 10,
-              color: isDark ? "#666" : "#8c8c8c",
+              color: "var(--c-text-muted)",
               fontFamily: "Roboto Mono",
             }}
           >

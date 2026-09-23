@@ -25,17 +25,17 @@ const SvgStyle = styled.svg<{
   fill: ${({ $status }) => {
     switch ($status) {
       case Lift_Gate_Status.OPENED:
-        return "#52c41a"; // green
+        return "var(--c-success)"; // green
       case Lift_Gate_Status.OPENING:
-        return "#1890ff"; // blue
+        return "var(--c-header-accent)"; // blue
       case Lift_Gate_Status.CLOSING:
-        return "#faad14"; // orange
+        return "var(--c-warning)"; // orange
       case Lift_Gate_Status.CLOSED:
         return "#999"; // gray
       case Lift_Gate_Status.E_STOP:
       case Lift_Gate_Status.VFD_Alarm:
       case Lift_Gate_Status.System_Error:
-        return "#ff4d4f"; // red
+        return "var(--c-danger)"; // red
       default:
         return "#076aff";
     }
@@ -47,10 +47,10 @@ const SvgStyle = styled.svg<{
       case Lift_Gate_Status.E_STOP:
       case Lift_Gate_Status.VFD_Alarm:
       case Lift_Gate_Status.System_Error:
-        return "2px solid #ff4d4f";
+        return "2px solid var(--c-danger)";
       case Lift_Gate_Status.OPENING:
       case Lift_Gate_Status.CLOSING:
-        return "2px dashed #1890ff";
+        return "2px dashed var(--c-header-accent)";
       default:
         return "1px dashed #727272";
     }

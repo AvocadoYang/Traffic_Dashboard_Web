@@ -53,8 +53,8 @@ const LoginCard = styled.div`
   z-index: 1;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
-  border: 1px solid #d9d9d9;
-  border-left: 4px solid #1890ff;
+  border: 1px solid var(--c-header-border);
+  border-left: 4px solid var(--c-header-accent);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   padding: 48px;
   width: 100%;
@@ -69,7 +69,7 @@ const LoginCard = styled.div`
 
 const LoginHeader = styled.div`
   margin-bottom: 40px;
-  border-bottom: 2px solid #1890ff;
+  border-bottom: 2px solid var(--c-header-accent);
   padding-bottom: 16px;
 `;
 
@@ -77,7 +77,7 @@ const LoginTitle = styled.h1`
   font-family: "Roboto Mono", monospace;
   font-size: 28px;
   font-weight: 700;
-  color: #1890ff;
+  color: var(--c-header-accent);
   text-transform: uppercase;
   letter-spacing: 3px;
   margin: 0;
@@ -86,20 +86,20 @@ const LoginTitle = styled.h1`
   &::before {
     content: "[";
     margin-right: 8px;
-    color: #fa8c16;
+    color: var(--c-warning);
   }
 
   &::after {
     content: "]";
     margin-left: 8px;
-    color: #fa8c16;
+    color: var(--c-warning);
   }
 `;
 
 const SystemLabel = styled.div`
   font-family: "Roboto Mono", monospace;
   font-size: 11px;
-  color: #595959;
+  color: var(--c-text-secondary);
   text-transform: uppercase;
   letter-spacing: 2px;
   text-align: center;
@@ -113,42 +113,42 @@ const StyledForm = styled(Form)`
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: #595959;
+    color: var(--c-text-secondary);
     font-weight: 600;
   }
 
   .ant-input,
   .ant-input-password {
     font-family: "Roboto Mono", monospace;
-    border: 1px solid #d9d9d9;
+    border: 1px solid var(--c-header-border);
     border-radius: 0;
     height: 48px;
     font-size: 13px;
-    background: #ffffff;
+    background: var(--c-bg);
 
     &:hover {
-      border-color: #1890ff;
+      border-color: var(--c-header-accent);
     }
 
     &:focus {
-      border-color: #1890ff;
+      border-color: var(--c-header-accent);
       box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
     }
   }
 
   .ant-input-affix-wrapper {
     font-family: "Roboto Mono", monospace;
-    border: 1px solid #d9d9d9;
+    border: 1px solid var(--c-header-border);
     border-radius: 0;
     padding: 0 16px;
-    background: #ffffff;
+    background: var(--c-bg);
 
     &:hover {
-      border-color: #1890ff;
+      border-color: var(--c-header-accent);
     }
 
     &.ant-input-affix-wrapper-focused {
-      border-color: #1890ff;
+      border-color: var(--c-header-accent);
       box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
     }
 
@@ -164,19 +164,19 @@ const StyledForm = styled(Form)`
   }
 
   .ant-input-prefix {
-    color: #8c8c8c;
+    color: var(--c-text-muted);
     font-size: 16px;
     margin-right: 12px;
   }
 
   .ant-input-suffix {
-    color: #8c8c8c;
+    color: var(--c-text-muted);
   }
 `;
 
 const IndustrialButton = styled(Button)`
-  background: #1890ff;
-  border: 1px solid #1890ff;
+  background: var(--c-header-accent);
+  border: 1px solid var(--c-header-accent);
   color: #ffffff;
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
@@ -188,8 +188,8 @@ const IndustrialButton = styled(Button)`
   box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
 
   &:hover {
-    background: #40a9ff;
-    border-color: #40a9ff;
+    background: var(--c-header-accent);
+    border-color: var(--c-header-accent);
     color: #ffffff;
     box-shadow: 0 6px 16px rgba(24, 144, 255, 0.5);
     transform: translateY(-2px);
@@ -202,9 +202,9 @@ const IndustrialButton = styled(Button)`
   }
 
   &:disabled {
-    background: #d9d9d9;
-    border-color: #d9d9d9;
-    color: #8c8c8c;
+    background: var(--c-header-border);
+    border-color: var(--c-header-border);
+    color: var(--c-text-muted);
   }
 `;
 
@@ -215,14 +215,14 @@ const ForgotLink = styled.div`
   a {
     font-family: "Roboto Mono", monospace;
     font-size: 11px;
-    color: #595959;
+    color: var(--c-text-secondary);
     text-transform: uppercase;
     letter-spacing: 1px;
     text-decoration: none;
     transition: all 0.2s;
 
     &:hover {
-      color: #1890ff;
+      color: var(--c-header-accent);
       text-decoration: underline;
     }
   }
@@ -241,7 +241,7 @@ const StatusDot = styled.div<{ $active?: boolean }>`
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: ${(props) => (props.$active ? "#52c41a" : "#d9d9d9")};
+  background: ${(props) => (props.$active ? "var(--c-success)" : "var(--c-header-border)")};
   box-shadow: ${(props) =>
     props.$active ? "0 0 8px rgba(82, 196, 26, 0.6)" : "none"};
   animation: ${(props) => (props.$active ? "pulse 2s infinite" : "none")};
@@ -260,7 +260,7 @@ const StatusDot = styled.div<{ $active?: boolean }>`
 const StatusText = styled.span`
   font-family: "Roboto Mono", monospace;
   font-size: 10px;
-  color: #8c8c8c;
+  color: var(--c-text-muted);
   text-transform: uppercase;
   letter-spacing: 1px;
 `;

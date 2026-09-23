@@ -49,7 +49,7 @@ const EventCount: React.FC = () => {
                             }}
 
                         />
-                        <div><AlertOutlined style={{ color: "#ff4d4f", fontSize: 15 }} /></div>
+                        <div><AlertOutlined style={{ color: "var(--c-danger)", fontSize: 15 }} /></div>
                         </div>
                     </CardWrap>
             </Col>
@@ -73,7 +73,7 @@ const EventCount: React.FC = () => {
                             }}
 
                         />
-                            <div><VideoCameraOutlined style={{ color: "#ff4d4f", fontSize: 15 }} /></div>
+                            <div><VideoCameraOutlined style={{ color: "var(--c-danger)", fontSize: 15 }} /></div>
                             </div>
                   </CardWrap>
             </Col>
@@ -97,7 +97,7 @@ const EventCount: React.FC = () => {
                             }}
 
                         />
-                            <div><FireOutlined style={{ color: "#ff4d4f", fontSize: 15 }} /></div>
+                            <div><FireOutlined style={{ color: "var(--c-danger)", fontSize: 15 }} /></div>
                             </div>
                   </CardWrap>
             </Col>
@@ -121,7 +121,7 @@ const EventCount: React.FC = () => {
                             }}
 
                         />
-                        <div><DashboardOutlined style={{ color: "#ff4d4f", fontSize: 15 }} /></div>
+                        <div><DashboardOutlined style={{ color: "var(--c-danger)", fontSize: 15 }} /></div>
                         </div>
                   </CardWrap>
             </Col>

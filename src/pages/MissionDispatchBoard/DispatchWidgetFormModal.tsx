@@ -85,7 +85,7 @@ const DispatchWidgetFormModal: FC<{
     form.setFieldsValue({
       title: initialValues?.title ?? "",
       amrId: initialValues?.amrId ?? undefined,
-      fontColor: initialValues?.fontColor ?? "#262626",
+      fontColor: initialValues?.fontColor ?? "var(--c-text)",
       fontSize: initialValues?.fontSize ?? 24,
       fontWeight: initialValues?.fontWeight ?? 600,
       visibleFields: initialValues?.visibleFields ?? [...AMR_STATUS_FIELDS],

@@ -71,7 +71,7 @@ const IndustrialHeader = styled(AntdHeader)`
     left: 0;
     right: 0;
     height: 1px;
-    // background: linear-gradient(90deg, transparent, #1890ff, transparent);
+    // background: linear-gradient(90deg, transparent, var(--c-header-accent), transparent);
   }
 `;
 
@@ -148,9 +148,9 @@ const SimulationStatus = styled.div`
   align-items: center;
   gap: var(--space-md);
   padding: var(--space-sm) var(--space-lg);
-  /* background: #fff1f0; */
-  /* border: 2px solid #ff4d4f; */
-  /* border-left: 4px solid #ff4d4f; */
+  /* background: var(--c-danger-soft); */
+  /* border: 2px solid var(--c-danger); */
+  /* border-left: 4px solid var(--c-danger); */
   font-family: "Roboto Mono", monospace;
   box-shadow: inset 0 0 20px rgba(255, 77, 79, 0.05);
 
