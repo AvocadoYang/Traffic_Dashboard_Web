@@ -2,7 +2,10 @@ import { Form, Input, InputNumber, Select, Switch, TimePicker } from "antd";
 import React from "react";
 import styled from "styled-components";
 import dayjs from "dayjs";
-import useMirTaskOptions from "./useMirTaskOptions";
+import useMirTaskOptions, {
+  useMirIoModuleOptions,
+  useMirSoundOptions,
+} from "./useMirTaskOptions";
 import ParameterCard, { FieldLabel } from "./ParameterCard";
 
 const SwitchContainer = styled.div`
@@ -324,13 +327,44 @@ export const MirWaitInput = () => {
   );
 };
 
+// 即時向 MiR 查來的清單(音檔、IO module)共用
+const liveSelectProps = ({
+  amrId,
+  isFetching,
+  error,
+  refetch,
+  what,
+}: {
+  amrId?: string;
+  isFetching: boolean;
+  error: unknown;
+  refetch: () => unknown;
+  what: string;
+}) => ({
+  loading: isFetching,
+  onOpenChange: (visible: boolean) => {
+    // react-query v4 的手動 refetch 不管 enabled，沒車在線就別打空的 amrId
+    if (visible && amrId) void refetch();
+  },
+  notFoundContent: isFetching
+    ? "讀取中…"
+    : !amrId
+      ? "目前沒有連線中的 MiR 車輛"
+      : error
+        ? `讀取${what}失敗`
+        : undefined,
+});
+
 export const MirSoundInput = () => {
-  const { soundOption } = useMirTaskOptions();
+  const { soundOption, ...sounds } = useMirSoundOptions();
 
   return (
     <ParameterCard fieldName="sound" label="Sound">
       <Form.Item name="sound" style={{ marginBottom: 0 }}>
-        <Select options={soundOption} />
+        <Select
+          options={soundOption}
+          {...liveSelectProps({ ...sounds, what: "音檔清單" })}
+        />
       </Form.Item>
       <span>
         Select a sound from the list. If you want to hear the sounds before
@@ -345,9 +379,117 @@ export const MirVolumeInput = () => {
   return (
     <ParameterCard fieldName="volume" label="Volume">
       <Form.Item name="volume" style={{ marginBottom: 0 }}>
-        <Input defaultValue={0} />
+        <InputNumber min={0} max={100} precision={0} />
       </Form.Item>
       Set the volume of the sound. 100% is approximately 80 dB.
+    </ParameterCard>
+  );
+};
+
+export const MirSoundModeInput = () => {
+  return (
+    <ParameterCard fieldName="mode" label="Mode">
+      <Form.Item name="mode" style={{ marginBottom: 0 }}>
+        <Select
+          options={[
+            { value: "full", label: "Full" },
+            { value: "custom", label: "Custom" },
+          ]}
+        />
+      </Form.Item>
+      Full plays the whole sound file. Custom truncates it to the duration
+      below.
+    </ParameterCard>
+  );
+};
+
+export const MirDurationInput = () => {
+  return (
+    <ParameterCard fieldName="duration" label="Duration">
+      <Form.Item name="duration" style={{ marginBottom: 0 }}>
+        <TimePicker defaultOpenValue={dayjs("00:00:00", "HH:mm:ss")} />
+      </Form.Item>
+      Only used when Mode is Custom. Seconds is the smallest unit here.
+    </ParameterCard>
+  );
+};
+
+const lightEffectOption = [
+  { value: "blink", label: "Blink" },
+  { value: "cancel", label: "Cancel" },
+  { value: "chase", label: "Chase" },
+  { value: "fade", label: "Fade" },
+  { value: "rainbow", label: "Rainbow" },
+  { value: "solid", label: "Solid" },
+  { value: "wave", label: "Wave" },
+];
+
+const lightSpeedOption = [
+  { value: "fast", label: "Fast" },
+  { value: "slow", label: "Slow" },
+];
+
+export const MirLightEffectInput = () => {
+  return (
+    <ParameterCard fieldName="light_effect" label="Light effect">
+      <Form.Item name="light_effect" style={{ marginBottom: 0 }}>
+        <Select options={lightEffectOption} />
+      </Form.Item>
+    </ParameterCard>
+  );
+};
+
+export const MirLightSpeedInput = () => {
+  return (
+    <ParameterCard fieldName="speed" label="Speed">
+      <Form.Item name="speed" style={{ marginBottom: 0 }}>
+        <Select options={lightSpeedOption} />
+      </Form.Item>
+    </ParameterCard>
+  );
+};
+
+const colorOption = [
+  { value: "#000000", label: "Black" },
+  { value: "#0000ff", label: "Blue" }, // 確認過
+  { value: "#00ffff", label: "Cyan" }, // 確認過
+  { value: "#008000", label: "Green" },
+  { value: "#ff00ff", label: "Magenta" },
+  { value: "#ffa500", label: "Orange" },
+  { value: "#ffc0cb", label: "Pink" },
+  { value: "#ff0000", label: "Red" },
+  { value: "#ffffff", label: "White" },
+  { value: "#ffff00", label: "Yellow" },
+];
+
+const MirColorInput: React.FC<{
+  fieldName: "color_1" | "color_2";
+  label: string;
+}> = ({ fieldName, label }) => {
+  return (
+    <ParameterCard fieldName={fieldName} label={label}>
+      <Form.Item name={fieldName} style={{ marginBottom: 0 }}>
+        <Select options={colorOption} />
+      </Form.Item>
+    </ParameterCard>
+  );
+};
+
+export const MirColor1Input = () => (
+  <MirColorInput fieldName="color_1" label="Color 1" />
+);
+
+export const MirColor2Input = () => (
+  <MirColorInput fieldName="color_2" label="Color 2" />
+);
+
+export const MirIntensityInput = () => {
+  return (
+    <ParameterCard fieldName="intensity" label="Intensity">
+      <Form.Item name="intensity" style={{ marginBottom: 0 }}>
+        <InputNumber min={0} max={100} precision={0} />
+      </Form.Item>
+      Brightness of the light, 0-100.
     </ParameterCard>
   );
 };
@@ -388,20 +530,26 @@ export const MirSideInput = () => {
 };
 
 export const MirModuleInput = () => {
+  const { ioModuleOption, amrId, isFetching, error, refetch } =
+    useMirIoModuleOptions();
+
+  const notFoundContent = () => {
+    if (isFetching) return "讀取中…";
+    if (!amrId) return "目前沒有連線中的 MiR 車輛";
+    if (error) return "讀取 IO module 失敗";
+    return undefined;
+  };
+
   return (
     <ParameterCard fieldName="module" label="Module">
       <Form.Item name="module" style={{ marginBottom: 0 }}>
         <Select
-          options={[
-            {
-              value: "mirconst-guid-0000-0001-internalIO00",
-              label: "MiR Internal IOs",
-            },
-            {
-              value: "ead43e49-acc6-11f1-b60c-000e8ebbc419",
-              label: "WISE-4060/LAN",
-            },
-          ]}
+          options={ioModuleOption}
+          loading={isFetching}
+          onOpenChange={(visible) => {
+            if (visible && amrId) void refetch();
+          }}
+          notFoundContent={notFoundContent()}
         />
       </Form.Item>
     </ParameterCard>
@@ -447,6 +595,29 @@ export const MirTimeoutInput = () => {
         <TimePicker defaultOpenValue={dayjs("00:00:00", "HH:mm:ss")} />
       </Form.Item>
       Set an amount of time the relay should stay on.
+    </ParameterCard>
+  );
+};
+
+export const MirOptionInput = () => {
+  return (
+    <ParameterCard fieldName="option" label="Option">
+      <Form.Item name="option" style={{ marginBottom: 0 }}>
+        <Select
+          options={[
+            {
+              value: "free",
+              label: "Free",
+            },
+            {
+              value: "occupied",
+              label: "Occupied",
+            },
+          ]}
+        />
+      </Form.Item>
+      Choose whether the position has to be free or occupied for the check to
+      pass.
     </ParameterCard>
   );
 };

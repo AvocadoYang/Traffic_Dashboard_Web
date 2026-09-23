@@ -26,6 +26,7 @@ import {
   MirMaximumLinearSpeedInputInput,
   MirModuleInput,
   MirOperationInput,
+  MirOptionInput,
   MirOrientationInput,
   MirPortInput,
   MirRearInput,
@@ -387,6 +388,7 @@ const TaskFormMirContent: FC<{
         y: op.y ?? 0,
         orientation: op.orientation ?? 0,
         collision_detection: op.collision_detection ?? true,
+        option: op.option ?? "free",
         wait: formattedWait,
         sound: op.sound,
         volume: op.volume ?? 0,
@@ -564,6 +566,17 @@ const TaskFormMirContent: FC<{
             <MirMaximumAngularSpeedInputInput />
             <MirCollisionDetectionInput />
             <MirBlockedPathTimeoutInputInput />
+          </>
+        )}
+
+        {taskAction === "check_pose" && (
+          <>
+            <MirLocationInput />
+            <MirXInput />
+            <MirYInput />
+            <MirOrientationInput />
+            <MirOptionInput />
+            <MirTimeoutInput />
           </>
         )}
 

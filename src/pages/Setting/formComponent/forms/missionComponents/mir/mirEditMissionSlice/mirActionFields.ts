@@ -15,9 +15,17 @@ export type MirEditableField =
   | "y"
   | "orientation"
   | "collision_detection"
+  | "option"
   | "wait"
   | "sound"
   | "volume"
+  | "mode"
+  | "duration"
+  | "light_effect"
+  | "speed"
+  | "color_1"
+  | "color_2"
+  | "intensity"
   | "front"
   | "rear"
   | "sides"
@@ -41,9 +49,17 @@ const ALL_EDITABLE_FIELDS: readonly MirEditableField[] = [
   "y",
   "orientation",
   "collision_detection",
+  "option",
   "wait",
   "sound",
   "volume",
+  "mode",
+  "duration",
+  "light_effect",
+  "speed",
+  "color_1",
+  "color_2",
+  "intensity",
   "front",
   "rear",
   "sides",
@@ -56,6 +72,7 @@ const ALL_EDITABLE_FIELDS: readonly MirEditableField[] = [
 
 export const MIR_ACTION_FIELDS: Record<string, readonly MirEditableField[]> = {
   adjust_localization: [],
+  check_pose: ["location_id", "x", "y", "orientation", "option", "timeout"],
   docking: [
     "location_id",
     "marker_type",
@@ -76,9 +93,16 @@ export const MIR_ACTION_FIELDS: Record<string, readonly MirEditableField[]> = {
   ],
   set_footprint: ["footprint"],
   switch_map: ["entry_position"],
-  play_sound: [],
-  stop_sound: [],
-  show_light: [],
+  sound: ["sound", "volume", "mode", "duration"],
+  sound_stop: [],
+  light: [
+    "light_effect",
+    "speed",
+    "color_1",
+    "color_2",
+    "intensity",
+    "timeout",
+  ],
   wait: ["wait"],
   reduce_protective_fields: ["sound", "volume", "front", "rear", "sides"],
   set_io: ["module", "port", "operation", "timeout"],
@@ -99,9 +123,17 @@ const DEFAULTS: Record<MirEditableField, unknown> = {
   y: 0,
   orientation: 0,
   collision_detection: true,
+  option: "free",
   wait: "00:00:00",
   sound: "",
   volume: 0,
+  mode: "full",
+  duration: "00:00:01.000000",
+  light_effect: "solid",
+  speed: "slow",
+  color_1: "#ffffff",
+  color_2: "#ffffff",
+  intensity: 100,
   front: "unmuted",
   rear: "unmuted",
   sides: "unmuted",
@@ -114,11 +146,31 @@ const DEFAULTS: Record<MirEditableField, unknown> = {
 
 const TIME_FIELDS: readonly MirEditableField[] = ["wait", "timeout"];
 
+const DURATION_FIELDS: readonly MirEditableField[] = ["duration"];
+const ENUM_FIELDS: readonly MirEditableField[] = [
+  "option",
+  "mode",
+  "light_effect",
+  "speed",
+  "color_1",
+  "color_2",
+  "front",
+  "rear",
+  "sides",
+  "value",
+  "operation",
+];
+
 // 表單上是 dayjs 物件,DB 存的是 "HH:mm:ss" 字串
 const toTimeString = (v: unknown) =>
   v && dayjs(v as dayjs.Dayjs).isValid()
     ? dayjs(v as dayjs.Dayjs).format("HH:mm:ss")
     : "00:00:00";
+
+const toDurationString = (v: unknown) =>
+  v && dayjs(v as dayjs.Dayjs).isValid()
+    ? `${dayjs(v as dayjs.Dayjs).format("HH:mm:ss")}.000000`
+    : "00:00:00.000000";
 
 type RawFormValues = Record<string, unknown>;
 
@@ -142,7 +194,20 @@ export const buildMirOperationFields = (
       return;
     }
 
+    if (DURATION_FIELDS.includes(field)) {
+      out[field] = fromForm
+        ? toDurationString(raw[field])
+        : (prevValue as string) || DEFAULTS[field];
+      return;
+    }
+
     const next = fromForm ? raw[field] : prevValue;
+
+    if (ENUM_FIELDS.includes(field) && next === "") {
+      out[field] = DEFAULTS[field];
+      return;
+    }
+
     out[field] = next ?? DEFAULTS[field];
   });
 

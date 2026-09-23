@@ -1,20 +1,21 @@
 import { useCallback, useEffect, useRef } from "react";
-import { Subject } from "rxjs";
-import { throttleTime } from "rxjs/operators";
 import { io } from "@/sockets/socketConnect";
 import type { JoystickValue } from "../pages/Main/Car_Card/components/Joystick";
 
 const JOYSTICK_CONTROL = "joystick-control" as const;
-const THROTTLE_MS = 100;
+const SEND_INTERVAL_MS = 100;
 
 const generateWebSessionId = () => `${Date.now()}-${Math.random() * 100}`;
 
-export const useJoystickControl = (amrId: string) => {
-  const move$ = useRef(new Subject<JoystickValue>()).current;
+const CENTER: JoystickValue = { x: 0, y: 0 };
 
+export const useJoystickControl = (amrId: string) => {
   const webSessionIdRef = useRef<string>();
   if (!webSessionIdRef.current)
     webSessionIdRef.current = generateWebSessionId();
+
+  const latestRef = useRef<JoystickValue>(CENTER);
+  const timerRef = useRef<ReturnType<typeof setInterval>>();
 
   const send = useCallback(
     (value: JoystickValue) => {
@@ -27,26 +28,39 @@ export const useJoystickControl = (amrId: string) => {
     [amrId],
   );
 
-  useEffect(() => {
-    const subscription = move$
-      .pipe(
-        throttleTime(THROTTLE_MS, undefined, { leading: true, trailing: true }),
-      )
-      .subscribe(send);
-
-    return () => {
-      subscription.unsubscribe();
-      send({ x: 0, y: 0 });
-    };
-  }, [move$, send]);
+  const stopHeartbeat = useCallback(() => {
+    if (timerRef.current === undefined) return;
+    clearInterval(timerRef.current);
+    timerRef.current = undefined;
+  }, []);
 
   const onMove = useCallback(
-    (value: JoystickValue) => move$.next(value),
-    [move$],
+    (value: JoystickValue) => {
+      latestRef.current = value;
+      if (timerRef.current !== undefined) return;
+
+      send(value);
+      timerRef.current = setInterval(
+        () => send(latestRef.current),
+        SEND_INTERVAL_MS,
+      );
+    },
+    [send],
   );
 
-  // 放開搖桿：不經節流，立即送出歸零值，確保車輛馬上停止。
-  const onEnd = useCallback(() => send({ x: 0, y: 0 }), [send]);
+  const onEnd = useCallback(() => {
+    stopHeartbeat();
+    latestRef.current = CENTER;
+    send(CENTER);
+  }, [send, stopHeartbeat]);
+
+  useEffect(() => {
+    return () => {
+      stopHeartbeat();
+      latestRef.current = CENTER;
+      send(CENTER);
+    };
+  }, [send, stopHeartbeat]);
 
   return { onMove, onEnd, webSessionId: webSessionIdRef.current };
 };
