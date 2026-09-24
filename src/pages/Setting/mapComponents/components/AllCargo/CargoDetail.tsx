@@ -235,6 +235,7 @@ const CargoDetail: FC = () => {
       locationId: string;
       level: number;
       cargo: Cargo[];
+      knownCargoIds?: string[];
     }) => client.post("/api/setting/update-cargo-info", payload),
     onSuccess: () => {
       messageApi.success(t("utils.success"));
@@ -381,6 +382,10 @@ const CargoDetail: FC = () => {
           dbId,
           locationId,
           level,
+          // 打開編輯時看到的貨,後端只移除這裡面被拿掉的,編輯期間才進來的貨會保留
+          knownCargoIds: (cargo ?? []).flatMap((c) =>
+            c.cargoInfoId ? [c.cargoInfoId] : [],
+          ),
           cargo: (values.cargo || []).map((entry: any) => ({
             cargoInfoId: entry.cargoInfoId,
             metadata: JSON.stringify(entry.metadata),

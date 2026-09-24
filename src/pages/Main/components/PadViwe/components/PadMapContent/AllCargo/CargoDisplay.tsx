@@ -1,4 +1,5 @@
 import {
+  CargoPanelTarget,
   QuickMissionHoverCell,
   QuickMissionLoad,
   QuickMissionOffload,
@@ -7,7 +8,7 @@ import {
 } from "@/pages/Main/global/jotai";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { FC } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { Button } from "antd";
 
 const InfoBlock = styled.div`
@@ -83,12 +84,8 @@ const Block = styled(Button)<{
   flex-grow: 1;
   z-index: ${({ $isSelecting, $isHovered }) =>
     $isHovered ? 100 : $isSelecting ? 50 : 1};
-  cursor: ${({ $isDisable, $isSelecting, $canBeClick }) =>
-    $isDisable
-      ? "not-allowed"
-      : $isSelecting && !$canBeClick
-        ? "not-allowed"
-        : "pointer"};
+  cursor: ${({ $isSelecting, $canBeClick }) =>
+    $isSelecting && !$canBeClick ? "not-allowed" : "pointer"};
   opacity: ${({ $isDisable }) => ($isDisable ? 0.6 : 1)};
   box-shadow: ${({ $isSelecting, $canBeClick }) =>
     $isSelecting && $canBeClick ? "0 0 8px rgba(24, 144, 255, 0.3)" : "none"};
@@ -125,29 +122,34 @@ const Block = styled(Button)<{
     display: block;
   }
 
-  &:hover:not(:disabled) {
-    background-color: ${({ $hasCargo }) =>
-      $hasCargo ? "#ffe73cb3" : "#e8e8e8b3"};
-    transform: scale(1.05);
-  }
-
-  &:disabled::after {
-    content: "X";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: #fff;
-    font-size: 16px;
-    font-weight: bold;
-    background-color: rgba(113, 113, 113, 0.7);
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+  /* 停用的層還是要點得到(打開貨物面板),所以不用 disabled 屬性,改用樣式標示 */
+  ${({ $isDisable, $hasCargo }) =>
+    $isDisable
+      ? css`
+          &::after {
+            content: "X";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: rgba(113, 113, 113, 0.7);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        `
+      : css`
+          &:hover {
+            background-color: ${$hasCargo ? "#ffe73cb3" : "#e8e8e8b3"};
+            transform: scale(1.05);
+          }
+        `}
 `;
 
 const BlockSpan = styled.span<{ rotate: number; $hasCargo: boolean }>`
@@ -200,6 +202,7 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
   );
   const setLoad = useSetAtom(QuickMissionLoad);
   const setOffload = useSetAtom(QuickMissionOffload);
+  const openCargoPanel = useSetAtom(CargoPanelTarget);
   const hoverCell = useAtomValue(QuickMissionHoverCell);
   const isHovered =
     hoverCell !== null &&
@@ -245,7 +248,7 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
         $canBeClick={isStartSelecting ? canBeClickInSelection : true}
         $isHaveAction={isHaveAction}
         $isHovered={isHovered}
-        disabled={isDisable}
+        aria-disabled={isDisable}
         // 中鍵在 Chrome 按下去會啟動自動捲動(那個圓形游標),地圖跟著滑鼠跑,
         // 看起來就像「按了沒反應」。先擋掉預設行為,真正的動作交給 auxclick。
         onMouseDown={(e) => {
@@ -254,7 +257,11 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
         // auxclick 才是給非主要按鍵用的事件,而且是放開才觸發,
         // 不會跟拖曳地圖搶。mousedown 在 <button> 上不是每種情況都吃得到。
         onAuxClick={(e) => handleMouseDown(e, locId, level)}
-        onClick={isStartSelecting ? handleQuickMissionPayload : undefined}
+        onClick={
+          isStartSelecting
+            ? handleQuickMissionPayload
+            : () => openCargoPanel({ type: "STORAGE", locationId: locId, level })
+        }
         role="button"
       >
         <BlockSpan $hasCargo={cargoValue} rotate={rotate} id={locId}>

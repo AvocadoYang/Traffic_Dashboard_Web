@@ -22,6 +22,7 @@ import ElevatorIO from "./components/ElevatorIO";
 import TestBarcode from "./components/TestBarcode";
 import ECS_online from "./components/ECS_online";
 import DirectMove from "../missionModal/DirectMove";
+import CargoPanel from "../CargoPanel/CargoPanel";
 import MissionDispatchPanel from "./components/MissionDispatchPanel";
 import useMap from "@/api/useMap";
 import JoystickPanelWrap from "../../Car_Card/JoystickPanelWrap";
@@ -226,6 +227,8 @@ const WebView = () => {
 
   return (
     <WebViewContent>
+      {/* 點地圖上的貨架 / 輸送帶 / stack / 電梯,右側打開貨物面板 */}
+      <CargoPanel />
       <ConfigProvider
         theme={{
           components: {

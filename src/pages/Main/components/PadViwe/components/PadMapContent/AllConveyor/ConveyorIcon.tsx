@@ -4,6 +4,7 @@ import { LoadingStation } from "../AllCargo/LoadingStation";
 import { Conveyor_Info } from "@/types/peripheral";
 import { useAtom, useSetAtom } from "jotai";
 import {
+  CargoPanelTarget,
   QuickMissionLoad,
   QuickMissionOffload,
   QuickMissionSettingMode,
@@ -13,6 +14,13 @@ import {
 const ConveyorContainer = styled.div`
   position: relative;
   display: inline-block;
+
+  /* 圖示只有 24px,手指不好點,往外多留一圈點擊範圍 */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+  }
 `;
 
 const MAX_VISIBLE_CARGO = 5;
@@ -52,6 +60,8 @@ const SvgStyle = styled.svg<{
   $canBeClick: boolean;
   $isHaveAction: boolean;
 }>`
+  /* 疊在外圈點擊範圍上面,hover 效果才吃得到 */
+  position: relative;
   width: 24px;
   height: 24px;
   padding: 2px;
@@ -110,6 +120,7 @@ const ConveyorIcon: React.FC<{
   );
   const setLoad = useSetAtom(QuickMissionLoad);
   const setOffload = useSetAtom(QuickMissionOffload);
+  const openCargoPanel = useSetAtom(CargoPanelTarget);
 
   const canBeClickInSelection =
     isStartSelecting &&
@@ -119,8 +130,11 @@ const ConveyorIcon: React.FC<{
       (selectMode === "offload" && info.cargo.length === 0));
 
   const handleQuickMissionPayload = () => {
-    if (!isStartSelecting || !canBeClickInSelection || selectMode === null)
+    if (!isStartSelecting) {
+      if (info) openCargoPanel({ type: "CONVEYOR", locationId: info.locationId });
       return;
+    }
+    if (!canBeClickInSelection || selectMode === null) return;
 
     if (selectMode === "load") {
       setLoad({
@@ -154,12 +168,13 @@ const ConveyorIcon: React.FC<{
       style={{
         transform: `translate(${translateX}px, ${translateY}px) scale(${scale}) rotate(${rotate}deg)`,
       }}
+      // 點旁邊的貨物方塊也算點到輸送帶
+      onClick={() => handleQuickMissionPayload()}
     >
       <SvgStyle
         $isSelecting={isStartSelecting}
         $canBeClick={isStartSelecting ? canBeClickInSelection : true}
         $isHaveAction={info.booker as boolean}
-        onClick={() => handleQuickMissionPayload()}
         $hasCargo={info.cargo.length > 0}
         $isDisable={info.disable}
         xmlns="http://www.w3.org/2000/svg"

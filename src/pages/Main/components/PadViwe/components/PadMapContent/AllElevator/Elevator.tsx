@@ -1,10 +1,11 @@
 import {
+  CargoPanelTarget,
   QuickMissionLoad,
   QuickMissionOffload,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
 } from "@/pages/Main/global/jotai";
-import { Flex, Popover, Tooltip } from "antd";
+import { Tooltip } from "antd";
 import { useAtom, useSetAtom } from "jotai";
 import React, { FC } from "react";
 import styled from "styled-components";
@@ -31,12 +32,8 @@ const SvgStyle = styled.svg<{
   padding: 2px;
   border-radius: 4px;
   transition: all 0.2s ease;
-  cursor: ${({ $isDisable, $isSelecting, $canBeClick }) =>
-    $isDisable
-      ? "not-allowed"
-      : $isSelecting && !$canBeClick
-        ? "not-allowed"
-        : "pointer"};
+  cursor: ${({ $isSelecting, $canBeClick }) =>
+    $isSelecting && !$canBeClick ? "not-allowed" : "pointer"};
   opacity: ${({ $isDisable }) => ($isDisable ? 0.6 : 1)};
   fill: ${({ $hasCargo }) => ($hasCargo ? "#ffe73c" : "#999")};
 
@@ -81,27 +78,6 @@ const SvgStyle = styled.svg<{
       : ""}
 `;
 
-const PopoverContent = styled(Flex)`
-  padding: 4px;
-  min-width: 200px;
-`;
-
-const StatusItem = styled(Flex)`
-  justify-content: space-between;
-  width: 100%;
-  padding: 4px 0;
-
-  .label {
-    color: #8c8c8c;
-    margin-right: 12px;
-  }
-
-  .value {
-    font-weight: 500;
-    color: ${(props) => props.color || "#262626"};
-  }
-`;
-
 const Elevator: FC<{
   locationId: string;
   hasCargo: boolean;
@@ -114,7 +90,6 @@ const Elevator: FC<{
 }> = ({
   locationId,
   hasCargo,
-  hasCargoSignal,
   isDisable,
   isBook,
   customName,
@@ -127,6 +102,7 @@ const Elevator: FC<{
   );
   const setLoad = useSetAtom(QuickMissionLoad);
   const setOffload = useSetAtom(QuickMissionOffload);
+  const openCargoPanel = useSetAtom(CargoPanelTarget);
 
   const canBeClickInSelection =
     isStartSelecting &&
@@ -135,8 +111,12 @@ const Elevator: FC<{
       (selectMode === "offload" && !hasCargo));
 
   const handleQuickMissionPayload = () => {
-    if (!isStartSelecting || !canBeClickInSelection || selectMode === null)
+    // 手動模式 / 運行中 / 有貨訊號這些狀態也顯示在貨物面板裡
+    if (!isStartSelecting) {
+      openCargoPanel({ type: "ELEVATOR", locationId });
       return;
+    }
+    if (!canBeClickInSelection || selectMode === null) return;
 
     if (selectMode === "load") {
       setLoad({
@@ -159,61 +139,22 @@ const Elevator: FC<{
   };
 
   return (
-    <>
-      <Popover
-        content={
-          <PopoverContent vertical gap={8}>
-            <StatusItem>
-              <span className="label">Manual Mode:</span>
-              <span
-                className="value"
-                style={{ color: isManual ? "#f5222d" : "#52c41a" }}
-              >
-                {isManual ? "Yes" : "No"}
-              </span>
-            </StatusItem>
-            <StatusItem>
-              <span className="label">Running Status:</span>
-              <span
-                className="value"
-                style={{ color: isRunning ? "#1890ff" : "#8c8c8c" }}
-              >
-                {isRunning ? "Active" : "Idle"}
-              </span>
-            </StatusItem>
-            <StatusItem>
-              <span className="label">Cargo Status:</span>
-              <span
-                className="value"
-                style={{ color: hasCargoSignal ? "#faad14" : "#8c8c8c" }}
-              >
-                {hasCargoSignal ? "Loaded" : "Empty"}
-              </span>
-            </StatusItem>
-          </PopoverContent>
-        }
-        title={<div style={{ fontWeight: 500 }}>{customName}</div>}
-        trigger="click"
-        placement="right"
+    <Tooltip title={customName}>
+      <SvgStyle
+        $hasCargo={hasCargo}
+        $isDisable={isDisable}
+        $isSelecting={isStartSelecting}
+        $canBeClick={isStartSelecting ? canBeClickInSelection : true}
+        $isManual={isManual}
+        $isHaveAction={isBook}
+        $isRunning={isRunning}
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        onClick={() => handleQuickMissionPayload()}
       >
-        <Tooltip title={customName}>
-          <SvgStyle
-            $hasCargo={hasCargo}
-            $isDisable={isDisable}
-            $isSelecting={isStartSelecting}
-            $canBeClick={isStartSelecting ? canBeClickInSelection : true}
-            $isManual={isManual}
-            $isHaveAction={isBook}
-            $isRunning={isRunning}
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            onClick={() => handleQuickMissionPayload()}
-          >
-            <path d="M9 9V11H7V9H5V11H3V9H1V21H3V19H5V21H7V19H9V21H11V19H13V21H15V19H17V21H19V19H21V21H23V9H21V11H19V9H17V11H15V9H13V11H11V9H9M3 13H5V17H3V13M7 13H9V17H7V13M11 13H13V17H11V13M15 13H17V17H15V13M19 13H21V17H19V13M7 4H11V2L17 5H13V7L7 4Z" />
-          </SvgStyle>
-        </Tooltip>
-      </Popover>
-    </>
+        <path d="M9 9V11H7V9H5V11H3V9H1V21H3V19H5V21H7V19H9V21H11V19H13V21H15V19H17V21H19V19H21V21H23V9H21V11H19V9H17V11H15V9H13V11H11V9H9M3 13H5V17H3V13M7 13H9V17H7V13M11 13H13V17H11V13M15 13H17V17H15V13M19 13H21V17H19V13M7 4H11V2L17 5H13V7L7 4Z" />
+      </SvgStyle>
+    </Tooltip>
   );
 };
 

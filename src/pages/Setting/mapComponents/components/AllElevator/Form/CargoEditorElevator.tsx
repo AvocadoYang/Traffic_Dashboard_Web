@@ -57,6 +57,7 @@ const CargoEditorElevator: FC = () => {
       locationId: string;
       cargo: Cargo[];
       peripheralType: PeripheralTypes;
+      knownCargoIds?: string[];
     }) => client.post("/api/peripherals/update-cargo-info-peripheral", payload),
     onSuccess: () => {
       messageApi.success(t("utils.success"));
@@ -280,6 +281,10 @@ const CargoEditorElevator: FC = () => {
         const payload = {
           locationId: open.locationId as string,
           peripheralType: "ELEVATOR" as PeripheralTypes,
+          // 打開編輯時看到的貨,後端只移除這裡面被拿掉的,編輯期間才進來的貨會保留
+          knownCargoIds: (elevator?.cargo ?? []).flatMap((c) =>
+            c.cargoInfoId ? [c.cargoInfoId] : [],
+          ),
           cargo: (values.cargo || []).map(
             (entry: CargoFormData, i: number) => ({
               cargoInfoId: entry.cargoInfoId,
