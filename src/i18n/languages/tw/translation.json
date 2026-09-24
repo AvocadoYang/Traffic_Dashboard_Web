@@ -1400,7 +1400,8 @@
     "unique_key": "唯一值",
     "other_fields": "其他欄位（不在格式內，儲存時會保留）",
     "level_disabled": "停用",
-    "signal_mismatch": "電梯有貨訊號與系統紀錄不一致（訊號：{{signal}}，紀錄：{{count}} 件），請確認後修正"
+    "signal_mismatch": "電梯有貨訊號與系統紀錄不一致（訊號：{{signal}}，紀錄：{{count}} 件），請確認後修正",
+    "type_amr": "車輛"
   },
   "sim": {
     "add_car": "新增車輛",

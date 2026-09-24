@@ -7,7 +7,7 @@ import useStackSocket from "@/sockets/useStackSocket";
 import useElevatorSocket from "@/sockets/useElevatorSocket";
 import { Cargo, STACK_MAX_LEVEL } from "@/types/peripheral";
 import { prefixLevelName } from "@/utils/globalFunction";
-import { CargoPanelTarget } from "@/pages/Main/global/jotai";
+import { CargoPanelTarget } from "./state";
 import { CargoPayload, sortCargo } from "./cargoList";
 
 export type CargoPanelLevel = {

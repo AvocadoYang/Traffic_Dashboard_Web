@@ -1,10 +1,10 @@
 import useElevatorInfo from "@/api/useElevatorInfo";
 import {
-  EEC,
   EEM,
   IsEditingQuickRoads,
   QuickRoadsArray,
 } from "@/pages/Setting/utils/settingJotai";
+import { CargoPanelTarget } from "@/components/CargoPanel/state";
 import {
   Button,
   Form,
@@ -28,7 +28,7 @@ const RightSide: FC<{
   const quickRoad = useAtomValue(IsEditingQuickRoads);
   const setQuickRoadArr = useSetAtom(QuickRoadsArray);
   const { data: elevator } = useElevatorInfo(locationId);
-  const setOpenModal = useSetAtom(EEC);
+  const openCargoPanel = useSetAtom(CargoPanelTarget);
   const setOpenFirst = useSetAtom(EEM);
   const handleCon = () => {
     if (quickRoad) {
@@ -40,7 +40,8 @@ const RightSide: FC<{
     setOpenFirst((prev) => {
       return { locationId: prev.locationId, isOpen: false };
     });
-    setOpenModal(true);
+    // 貨物改用跟主畫面同一個面板編輯
+    openCargoPanel({ type: "ELEVATOR", locationId });
   };
 
   return (

@@ -20,6 +20,12 @@ export type CargoPayload = {
   addon_metadata?: string | null;
 };
 
+/** 只能填固定值的字串欄位(Corning 容器),表單改用下拉選單 */
+export const FIELD_PRESETS: Record<string, string[]> = {
+  container_gen: ["6-Metal", "5", "6-Inno", "6-Wooden", "6-KC", "5.5", "6-TC"],
+  container_type: ["Full", "Pallet", "Wooden", "Unknown", "Empty"],
+};
+
 export const parseFormatFields = (format?: CargoFormat): FormatField[] => {
   if (!format?.format) return [];
   try {

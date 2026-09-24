@@ -10,7 +10,7 @@ import { useSetAtom } from "jotai";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { localizationCorrection } from "@/utils/gloable";
-import EditCargoCarrier from "./EditCargoCarrier";
+import AmrCargoPanel from "@/components/CargoPanel/AmrCargoPanel";
 import {
   RedoOutlined,
   ThunderboltOutlined,
@@ -512,13 +512,11 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
         </ButtonGroup>
       </IndustrialContainer>
 
-      {isCarrierModalOpen && (
-        <EditCargoCarrier
-          amrId={amrId}
-          isModalOpen={isCarrierModalOpen}
-          setIsModalOpen={setIsCarrierModalOpen}
-        />
-      )}
+      <AmrCargoPanel
+        amrId={amrId}
+        open={isCarrierModalOpen}
+        onClose={() => setIsCarrierModalOpen(false)}
+      />
     </>
   );
 };

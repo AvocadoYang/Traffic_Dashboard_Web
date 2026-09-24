@@ -4,12 +4,12 @@ import { LoadingStation } from "../AllCargo/LoadingStation";
 import { Conveyor_Info } from "@/types/peripheral";
 import { useAtom, useSetAtom } from "jotai";
 import {
-  CargoPanelTarget,
   QuickMissionLoad,
   QuickMissionOffload,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
 } from "@/pages/Main/global/jotai";
+import { CargoPanelTarget } from "@/components/CargoPanel/state";
 
 const ConveyorContainer = styled.div`
   position: relative;

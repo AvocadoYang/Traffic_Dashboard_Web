@@ -3,12 +3,12 @@ import styled, { keyframes, css } from "styled-components";
 import { STACK_MAX_LEVEL, Stack_Info } from "@/types/peripheral";
 import { useAtom, useSetAtom } from "jotai";
 import {
-  CargoPanelTarget,
   QuickMissionLoad,
   QuickMissionOffload,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
 } from "@/pages/Main/global/jotai";
+import { CargoPanelTarget } from "@/components/CargoPanel/state";
 
 const pulse = keyframes`
   0% {

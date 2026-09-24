@@ -1399,7 +1399,8 @@
     "unique_key": "Unique key",
     "other_fields": "Other fields (not in the format, kept on save)",
     "level_disabled": "Disabled",
-    "signal_mismatch": "The elevator cargo signal doesn't match the record (signal: {{signal}}, recorded: {{count}}). Please check and correct it."
+    "signal_mismatch": "The elevator cargo signal doesn't match the record (signal: {{signal}}, recorded: {{count}}). Please check and correct it.",
+    "type_amr": "Vehicle"
   },
   "sim": {
     "add_car": "Add car",

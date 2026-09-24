@@ -1,11 +1,21 @@
 import { FC, useEffect, useMemo, useState } from "react";
-import { Alert, Button, Form, Input, InputNumber, Segmented, Select } from "antd";
+import {
+  Alert,
+  Button,
+  ConfigProvider,
+  Form,
+  Input,
+  InputNumber,
+  Segmented,
+  Select,
+} from "antd";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { Cargo } from "@/types/peripheral";
 import {
   CargoFormat,
   CargoMetadata,
+  FIELD_PRESETS,
   FormatField,
   formatValue,
   parseFormatFields,
@@ -74,6 +84,11 @@ const Footer = styled.div`
   }
 `;
 
+// 下拉選單的選項預設 32px 高,手指容易點錯行,拉到 44px
+const TOUCH_THEME = {
+  components: { Select: { optionHeight: 44, optionFontSize: 15 } },
+};
+
 const toBooleanValue = (value: unknown) => {
   if (value === true || value === "true") return "true";
   if (value === false || value === "false") return "false";
@@ -87,9 +102,15 @@ const initialValuesOf = (fields: FormatField[], metadata: CargoMetadata) =>
       if (type === "boolean") return [name, toBooleanValue(value)];
       if (type === "number") {
         const n = typeof value === "number" ? value : Number(value);
-        return [name, value === undefined || value === "" || isNaN(n) ? undefined : n];
+        return [
+          name,
+          value === undefined || value === "" || isNaN(n) ? undefined : n,
+        ];
       }
-      return [name, value === undefined || value === null ? undefined : String(value)];
+      return [
+        name,
+        value === undefined || value === null ? undefined : String(value),
+      ];
     }),
   );
 
@@ -180,6 +201,16 @@ const CargoForm: FC<{
         />
       );
     }
+    const presets = FIELD_PRESETS[field.name];
+    if (presets) {
+      return (
+        <Select
+          size="large"
+          allowClear
+          options={presets.map((value) => ({ label: value, value }))}
+        />
+      );
+    }
     return <Input size="large" allowClear />;
   };
 
@@ -197,55 +228,57 @@ const CargoForm: FC<{
         {formats.length === 0 ? (
           <Alert type="info" showIcon title={t("cargo_panel.no_formats")} />
         ) : (
-          <Form form={form} layout="vertical" requiredMark={false}>
-            <Form.Item label={t("cargo_panel.format")}>
-              <Select
-                size="large"
-                value={formatId}
-                onChange={setFormatId}
-                options={formats.map((f) => ({
-                  label: f.custom_name,
-                  value: f.id,
-                }))}
-              />
-            </Form.Item>
+          <ConfigProvider theme={TOUCH_THEME}>
+            <Form form={form} layout="vertical" requiredMark={false}>
+              <Form.Item label={t("cargo_panel.format")}>
+                <Select
+                  size="large"
+                  value={formatId}
+                  onChange={setFormatId}
+                  options={formats.map((f) => ({
+                    label: f.custom_name,
+                    value: f.id,
+                  }))}
+                />
+              </Form.Item>
 
-            {fields.map((field) => {
-              const isUnique = field.name === format?.unique_key;
-              return (
-                <Form.Item
-                  key={`${formatId}-${field.name}`}
-                  name={field.name}
-                  label={
-                    <>
-                      {field.name}
-                      {isUnique && (
-                        <UniqueTag>{t("cargo_panel.unique_key")}</UniqueTag>
-                      )}
-                    </>
-                  }
-                  rules={
-                    isUnique
-                      ? [{ required: true, message: t("utils.required") }]
-                      : undefined
-                  }
-                >
-                  {renderInput(field)}
-                </Form.Item>
-              );
-            })}
+              {fields.map((field) => {
+                const isUnique = field.name === format?.unique_key;
+                return (
+                  <Form.Item
+                    key={`${formatId}-${field.name}`}
+                    name={field.name}
+                    label={
+                      <>
+                        {field.name}
+                        {isUnique && (
+                          <UniqueTag>{t("cargo_panel.unique_key")}</UniqueTag>
+                        )}
+                      </>
+                    }
+                    rules={
+                      isUnique
+                        ? [{ required: true, message: t("utils.required") }]
+                        : undefined
+                    }
+                  >
+                    {renderInput(field)}
+                  </Form.Item>
+                );
+              })}
 
-            {extraKeys.length > 0 && (
-              <>
-                <SectionTitle>{t("cargo_panel.other_fields")}</SectionTitle>
-                <ExtraFields>
-                  {extraKeys.map((key) => (
-                    <FragmentRow key={key} name={key} value={original[key]} />
-                  ))}
-                </ExtraFields>
-              </>
-            )}
-          </Form>
+              {extraKeys.length > 0 && (
+                <>
+                  <SectionTitle>{t("cargo_panel.other_fields")}</SectionTitle>
+                  <ExtraFields>
+                    {extraKeys.map((key) => (
+                      <FragmentRow key={key} name={key} value={original[key]} />
+                    ))}
+                  </ExtraFields>
+                </>
+              )}
+            </Form>
+          </ConfigProvider>
         )}
       </FormBody>
       <Footer>

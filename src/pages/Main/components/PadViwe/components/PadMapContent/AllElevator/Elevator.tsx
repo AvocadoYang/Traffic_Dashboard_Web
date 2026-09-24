@@ -1,10 +1,10 @@
 import {
-  CargoPanelTarget,
   QuickMissionLoad,
   QuickMissionOffload,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
 } from "@/pages/Main/global/jotai";
+import { CargoPanelTarget } from "@/components/CargoPanel/state";
 import { Tooltip } from "antd";
 import { useAtom, useSetAtom } from "jotai";
 import React, { FC } from "react";

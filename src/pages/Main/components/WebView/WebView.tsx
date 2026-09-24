@@ -22,7 +22,7 @@ import ElevatorIO from "./components/ElevatorIO";
 import TestBarcode from "./components/TestBarcode";
 import ECS_online from "./components/ECS_online";
 import DirectMove from "../missionModal/DirectMove";
-import CargoPanel from "../CargoPanel/CargoPanel";
+import CargoPanel from "@/components/CargoPanel/CargoPanel";
 import MissionDispatchPanel from "./components/MissionDispatchPanel";
 import useMap from "@/api/useMap";
 import JoystickPanelWrap from "../../Car_Card/JoystickPanelWrap";

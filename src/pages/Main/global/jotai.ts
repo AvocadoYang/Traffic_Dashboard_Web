@@ -46,14 +46,6 @@ export const QuickMissionHoverCell = atom<{
 
 export const OpenChargeStationModal = atom<string | null>(null);
 
-// 地圖上點了哪個點位,右側的貨物面板就顯示它;null 代表面板關閉
-export type CargoPanelTarget = {
-  type: "STORAGE" | "CONVEYOR" | "STACK" | "ELEVATOR";
-  locationId: string;
-  /** 只有貨架用得到 */
-  level?: number;
-};
-export const CargoPanelTarget = atom<CargoPanelTarget | null>(null);
 
 export const OpenDirect = atom<{ open: boolean; locationId: string | null }>({
   open: false,

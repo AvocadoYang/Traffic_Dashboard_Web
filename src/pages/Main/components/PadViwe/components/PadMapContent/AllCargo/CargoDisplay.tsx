@@ -1,11 +1,11 @@
 import {
-  CargoPanelTarget,
   QuickMissionHoverCell,
   QuickMissionLoad,
   QuickMissionOffload,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
 } from "@/pages/Main/global/jotai";
+import { CargoPanelTarget } from "@/components/CargoPanel/state";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { FC } from "react";
 import styled, { css } from "styled-components";
