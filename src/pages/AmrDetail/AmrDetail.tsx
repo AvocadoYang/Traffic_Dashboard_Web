@@ -30,7 +30,7 @@ import {
 import { useActiveMission } from "@/sockets/useMissions";
 import { useTranslation } from "react-i18next";
 import DPad from "./DPad";
-import EditCargoCarrier from "../Main/Car_Card/components/EditCargoCarrier";
+import AmrCargoPanel from "@/components/CargoPanel/AmrCargoPanel";
 import MarkPointModal from "./MarkPointModal";
 import AmrLiveMap from "./AmrLiveMap";
 import styled from "styled-components";
@@ -561,10 +561,10 @@ const AmrDetail = () => {
         </pre>
       </Modal>
 
-      <EditCargoCarrier
+      <AmrCargoPanel
         amrId={prefixAmrId}
-        isModalOpen={editCargoModalOpen}
-        setIsModalOpen={setEditCargoModalOpen}
+        open={editCargoModalOpen}
+        onClose={() => setEditCargoModalOpen(false)}
       />
 
       {hasPose && (

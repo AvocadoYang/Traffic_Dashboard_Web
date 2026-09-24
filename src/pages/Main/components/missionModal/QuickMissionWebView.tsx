@@ -8,6 +8,7 @@ import {
   DownloadOutlined,
 } from "@ant-design/icons";
 import useName from "@/api/useAmrName";
+import usePeripheralGroup from "@/api/usePeripheralGroup";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAtom, useSetAtom } from "jotai";
@@ -515,6 +516,7 @@ const QuickMissionWebView: React.FC<{
 }> = ({ setShowQuickMission, showQuickMission }) => {
   const [form] = Form.useForm();
   const { data: names } = useName();
+  const { data: peripheralGroups } = usePeripheralGroup();
   const [loadValue, setLoad] = useAtom(QuickMissionLoad);
   const [offloadValue, setOffload] = useAtom(QuickMissionOffload);
   const [startQuickSetting, setStartQuickSetting] = useAtom(
@@ -541,6 +543,30 @@ const QuickMissionWebView: React.FC<{
         ? [...options, { value: "none", label: t("utils.random") }]
         : undefined;
     }, [names, t]);
+
+  const groupOptions = useMemo(
+    () =>
+      (peripheralGroups ?? [])
+        .filter((g): g is NonNullable<typeof g> => !!g)
+        .map((g) => ({ label: g.name, value: g.name })),
+    [peripheralGroups],
+  );
+
+  const handleSelectGroup = (action: "load" | "offload", name: string) => {
+    const value = {
+      missionType: action,
+      columnName: name,
+      locationId: "",
+      level: 0,
+    };
+    if (action === "load") setLoad(value);
+    else setOffload(value);
+  };
+
+  const renderValue = (v: { locationId: string; columnName: string }) =>
+    v.locationId
+      ? `ID: ${v.locationId} · ${v.columnName}`
+      : `${t("main.quick_mission.group")}: ${v.columnName}`;
 
   const handlePayload = (action: "load" | "offload") => {
     setStartQuickSetting(true);
@@ -705,7 +731,7 @@ const QuickMissionWebView: React.FC<{
                     </LocationHeader>
                     {loadValue && (
                       <LocationValue>
-                        ID: {loadValue.locationId} · {loadValue.columnName}
+                        {renderValue(loadValue)}
                       </LocationValue>
                     )}
                     {!loadValue && (
@@ -719,6 +745,20 @@ const QuickMissionWebView: React.FC<{
                         }}
                       >
                         Click to select
+                      </div>
+                    )}
+                    {!loadValue && (
+                      <div
+                        style={{ paddingLeft: "38px", marginTop: 8 }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <StyledSelect
+                          options={groupOptions}
+                          placeholder={t("main.quick_mission.select_group")}
+                          onChange={(v) => handleSelectGroup("load", v as string)}
+                          allowClear={false}
+                          style={{ width: "100%" }}
+                        />
                       </div>
                     )}
                   </LocationCard>
@@ -738,8 +778,7 @@ const QuickMissionWebView: React.FC<{
                     </LocationHeader>
                     {offloadValue && (
                       <LocationValue>
-                        ID: {offloadValue.locationId} ·{" "}
-                        {offloadValue.columnName}
+                        {renderValue(offloadValue)}
                       </LocationValue>
                     )}
                     {!offloadValue && (
@@ -753,6 +792,20 @@ const QuickMissionWebView: React.FC<{
                         }}
                       >
                         Click to select
+                      </div>
+                    )}
+                    {!offloadValue && (
+                      <div
+                        style={{ paddingLeft: "38px", marginTop: 8 }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <StyledSelect
+                          options={groupOptions}
+                          placeholder={t("main.quick_mission.select_group")}
+                          onChange={(v) => handleSelectGroup("offload", v as string)}
+                          allowClear={false}
+                          style={{ width: "100%" }}
+                        />
                       </div>
                     )}
                   </LocationCard>

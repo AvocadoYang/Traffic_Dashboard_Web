@@ -1,16 +1,16 @@
 import client from "@/api/axiosClient";
+import { CargoPanelTarget } from "@/components/CargoPanel/state";
 import {
   QuickMissionLoad,
   QuickMissionOffload,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
 } from "@/pages/Main/global/jotai";
-import { ErrorResponse } from "@/utils/globalType";
-import { errorHandler } from "@/utils/utils";
 import { useMutation } from "@tanstack/react-query";
 import { Button, Flex, message, Popover, Tooltip } from "antd";
 import { useAtom, useSetAtom } from "jotai";
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 
 interface ElevatorProps {
@@ -35,12 +35,8 @@ const SvgStyle = styled.svg<{
   padding: 2px;
   border-radius: 4px;
   transition: all 0.2s ease;
-  cursor: ${({ $isDisable, $isSelecting, $canBeClick }) =>
-    $isDisable
-      ? "not-allowed"
-      : $isSelecting && !$canBeClick
-        ? "not-allowed"
-        : "pointer"};
+  cursor: ${({ $isSelecting, $canBeClick }) =>
+    $isSelecting && !$canBeClick ? "not-allowed" : "pointer"};
   opacity: ${({ $isDisable }) => ($isDisable ? 0.6 : 1)};
   fill: ${({ $hasCargo }) => ($hasCargo ? "#ffe73c" : "#999")};
 
@@ -106,6 +102,16 @@ const StatusItem = styled(Flex)`
   }
 `;
 
+// 觸控螢幕操作,按鈕做到手指好點的高度
+const PopoverActions = styled(Flex)`
+  margin-top: 4px;
+
+  .ant-btn {
+    height: 44px;
+    font-size: 15px;
+  }
+`;
+
 const Elevator: FC<{
   locationId: string;
   hasCargo: boolean;
@@ -125,20 +131,23 @@ const Elevator: FC<{
   isManual,
   isRunning,
 }) => {
+  const { t } = useTranslation();
   const [selectMode, setQuickSettingMode] = useAtom(QuickMissionSettingMode);
   const [isStartSelecting, setStartQuickSetting] = useAtom(
     StartQuickMissionSetting,
   );
   const setLoad = useSetAtom(QuickMissionLoad);
   const setOffload = useSetAtom(QuickMissionOffload);
+  const openCargoPanel = useSetAtom(CargoPanelTarget);
   const [messageApi, contextHolder] = message.useMessage();
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   const resetMutation = useMutation({
     mutationFn: () => client.post("/api/corning/force-reset-elevator"),
     onSuccess: () => {
       messageApi.success("ok");
     },
-    onError: (e: ErrorResponse) => {
+    onError: () => {
       messageApi.warning("操作過於頻繁，請於 5 秒後再試");
     },
   });
@@ -173,19 +182,20 @@ const Elevator: FC<{
     setQuickSettingMode(null);
   };
 
+  const handleEditCargo = () => {
+    setIsPopoverOpen(false);
+    openCargoPanel({ type: "ELEVATOR", locationId });
+  };
+
   return (
     <>
       {contextHolder}
       <Popover
+        // 選快速任務的點位時,點下去是選點,不跳出狀態視窗
+        open={isPopoverOpen && !isStartSelecting}
+        onOpenChange={(open) => setIsPopoverOpen(open && !isStartSelecting)}
         content={
           <PopoverContent vertical gap={8}>
-            {locationId === "12001" ? (
-              <Button onClick={() => resetMutation.mutate()} danger>
-                強制復歸
-              </Button>
-            ) : (
-              ""
-            )}
             <StatusItem>
               <span className="label">Manual Mode:</span>
               <span
@@ -213,6 +223,21 @@ const Elevator: FC<{
                 {hasCargoSignal ? "Loaded" : "Empty"}
               </span>
             </StatusItem>
+            <PopoverActions vertical gap={8}>
+              <Button type="primary" block onClick={handleEditCargo}>
+                {t("cargo_panel.edit_title")}
+              </Button>
+              {locationId === "12001" && (
+                <Button
+                  danger
+                  block
+                  loading={resetMutation.isLoading}
+                  onClick={() => resetMutation.mutate()}
+                >
+                  強制復歸
+                </Button>
+              )}
+            </PopoverActions>
           </PopoverContent>
         }
         title={<div style={{ fontWeight: 500 }}>{customName}</div>}
