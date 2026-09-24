@@ -20,7 +20,7 @@ const ZoomPadWrap = styled.div`
   top: 6em;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #f5f5f5;
+  background-color: var(--c-bg-subtle);
   border-radius: 20px;
   padding: 15px 23px;
   display: flex;
@@ -87,7 +87,7 @@ const StyledButton = styled(Button)`
   &.ant-btn-primary {
     background-color: #359dfe;
     &:hover {
-      background-color: #40a9ff;
+      background-color: var(--c-header-accent);
     }
   }
 `;

@@ -52,15 +52,15 @@ interface QueueMirTaskPayload {
 // "dispatch a mission" flows share the exact same look and feel.
 const IndustrialModal = styled(Modal)`
   .ant-modal-content {
-    background: #ffffff;
-    border: 2px solid #d9d9d9;
+    background: var(--c-bg);
+    border: 2px solid var(--c-header-border);
     border-radius: 0;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   }
 
   .ant-modal-header {
-    background: #fafafa;
-    border-bottom: 2px solid #d9d9d9;
+    background: var(--c-bg-subtle);
+    border-bottom: 2px solid var(--c-header-border);
     padding: 12px 16px;
     position: relative;
     border-radius: 0;
@@ -72,7 +72,7 @@ const IndustrialModal = styled(Modal)`
       top: 0;
       bottom: 0;
       width: 4px;
-      background: #1890ff;
+      background: var(--c-header-accent);
     }
 
     @media (min-width: 768px) {
@@ -84,7 +84,7 @@ const IndustrialModal = styled(Modal)`
     font-family: "Roboto Mono", monospace;
     font-size: 13px;
     font-weight: 700;
-    color: #1890ff;
+    color: var(--c-header-accent);
     text-transform: uppercase;
     letter-spacing: 1px;
     display: flex;
@@ -100,7 +100,7 @@ const IndustrialModal = styled(Modal)`
 
   .ant-modal-body {
     padding: 16px;
-    background: #ffffff;
+    background: var(--c-bg);
     max-height: calc(100vh - 200px);
     overflow-y: auto;
 
@@ -112,8 +112,8 @@ const IndustrialModal = styled(Modal)`
   }
 
   .ant-modal-footer {
-    background: #fafafa;
-    border-top: 2px solid #d9d9d9;
+    background: var(--c-bg-subtle);
+    border-top: 2px solid var(--c-header-border);
     padding: 12px 16px;
     border-radius: 0;
 
@@ -165,8 +165,8 @@ const SectionDivider = styled.div`
   height: 2px;
   background: repeating-linear-gradient(
     90deg,
-    #d9d9d9 0,
-    #d9d9d9 10px,
+    var(--c-header-border) 0,
+    var(--c-header-border) 10px,
     transparent 10px,
     transparent 20px
   );
@@ -185,14 +185,14 @@ const SectionDivider = styled.div`
     transform: translate(-50%, -50%);
     width: 8px;
     height: 8px;
-    background: #1890ff;
+    background: var(--c-header-accent);
     border: 2px solid #ffffff;
-    box-shadow: 0 0 0 2px #d9d9d9;
+    box-shadow: 0 0 0 2px var(--c-header-border);
   }
 `;
 
 const FieldLabel = styled.div`
-  color: #595959;
+  color: var(--c-text-secondary);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.8px;
@@ -215,9 +215,9 @@ const FormSection = styled.div`
 `;
 
 const IndustrialButton = styled.button`
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  color: #1890ff;
+  background: var(--c-bg);
+  border: 1px solid var(--c-header-border);
+  color: var(--c-header-accent);
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
   font-size: 10px;
@@ -236,28 +236,28 @@ const IndustrialButton = styled.button`
   }
 
   &:hover:not(:disabled) {
-    background: #f0f5ff;
-    border-color: #1890ff;
-    color: #1890ff;
+    background: var(--c-header-accent-soft);
+    border-color: var(--c-header-accent);
+    color: var(--c-header-accent);
     box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
   }
 
   &.primary {
-    background: #1890ff;
-    border-color: #1890ff;
+    background: var(--c-header-accent);
+    border-color: var(--c-header-accent);
     color: #ffffff;
 
     &:hover:not(:disabled) {
-      background: #40a9ff;
-      border-color: #40a9ff;
+      background: var(--c-header-accent);
+      border-color: var(--c-header-accent);
       box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
     }
   }
 
   &:disabled {
-    background: #f5f5f5;
-    border-color: #d9d9d9;
-    color: #bfbfbf;
+    background: var(--c-bg-subtle);
+    border-color: var(--c-header-border);
+    color: var(--c-text-muted);
     cursor: not-allowed;
   }
 `;
@@ -265,7 +265,7 @@ const IndustrialButton = styled.button`
 const StyledSelect = styled(Select)`
   .ant-select-selector {
     border-radius: 0 !important;
-    border: 1px solid #d9d9d9 !important;
+    border: 1px solid var(--c-header-border) !important;
     font-family: "Roboto Mono", monospace;
     min-height: 36px !important;
 
@@ -274,12 +274,12 @@ const StyledSelect = styled(Select)`
     }
 
     &:hover {
-      border-color: #1890ff !important;
+      border-color: var(--c-header-accent) !important;
     }
   }
 
   &.ant-select-focused .ant-select-selector {
-    border-color: #1890ff !important;
+    border-color: var(--c-header-accent) !important;
     box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1) !important;
   }
 `;
@@ -306,14 +306,14 @@ const ResponsiveFooter = styled(Flex)`
 const VariableHint = styled.div<{ $error?: boolean }>`
   font-family: "Roboto Mono", monospace;
   font-size: 12px;
-  color: ${({ $error }) => ($error ? "#ff4d4f" : "#8c8c8c")};
+  color: ${({ $error }) => ($error ? "var(--c-danger)" : "var(--c-text-muted)")};
 `;
 
 const VariableName = styled.span`
   font-family: "Roboto Mono", monospace;
   font-size: 12px;
   font-weight: 600;
-  color: #262626;
+  color: var(--c-text);
 `;
 
 const QueueMirTaskModal = () => {

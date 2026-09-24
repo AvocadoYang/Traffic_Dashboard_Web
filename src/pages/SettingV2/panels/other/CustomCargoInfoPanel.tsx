@@ -433,7 +433,7 @@ const CustomCargoInfoPanel: FC = () => {
                     </Form.Item>
                     <MinusCircleOutlined
                       onClick={() => remove(name)}
-                      style={{ alignSelf: "center", color: "#c0341d" }}
+                      style={{ alignSelf: "center", color: c.danger }}
                     />
                   </div>
                 ))}

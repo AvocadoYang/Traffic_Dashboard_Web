@@ -2,6 +2,7 @@ import { FC, memo } from "react";
 import { FormInstance } from "antd";
 import type { DraggableAttributes } from "@dnd-kit/core";
 import LocationEditPanel from "./panels/location/LocationEditPanel";
+import QuickLocationPanel from "./panels/location/QuickLocationPanel";
 import RoadEditPanel from "./panels/road/RoadEditPanel";
 import RoadQuickPanel from "./panels/road/RoadQuickPanel";
 import RoadListPanel from "./panels/road/RoadListPanel";
@@ -22,6 +23,7 @@ import AbortCargoMissionPanel from "./panels/mission/AbortCargoMissionPanel";
 import BlindLocationPanel from "./panels/mission/BlindLocationPanel";
 import PeripheralNamePanel from "./panels/peripheral/PeripheralNamePanel";
 import PeripheralGroupPanel from "./panels/peripheral/PeripheralGroupPanel";
+import StackBatchPanel from "./panels/peripheral/StackBatchPanel";
 import ChargeDockPanel from "./panels/peripheral/ChargeDockPanel";
 import PeripheralStylePanel from "./panels/peripheral/PeripheralStylePanel";
 import TagPanel from "./panels/other/TagPanel";
@@ -37,7 +39,8 @@ import MarkerTypePanel from "./panels/mir/MarkerTypePanel";
 import SyncDataPanel from "./panels/mir/SyncDataPanel";
 import MirMissionPanel from "./panels/mir/MirMissionPanel";
 import EditMissionPanel from "./panels/mission/edit/EditMissionPanel";
-import type { ToolBarItemType } from "@/pages/Setting/components/siderElement";
+import AppearancePanel from "./panels/appearance/AppearancePanel";
+import type { SettingV2PanelKey } from "./panelKeys";
 import { BackupPanel } from "@/pages/Setting/formComponent/forms/file/backup";
 
 // v1 的面板都吃 dnd-kit 的 attributes/listeners,但它們只被展開到面板標題上當拖曳
@@ -47,7 +50,7 @@ const noopAttributes = {} as DraggableAttributes;
 const noopListeners = undefined;
 
 type Props = {
-  activeKey: ToolBarItemType | null;
+  activeKey: SettingV2PanelKey | null;
   locationPanelForm: FormInstance<unknown>;
   roadPanelForm: FormInstance<unknown>;
   zonePanelForm: FormInstance<unknown>;
@@ -65,6 +68,8 @@ const PanelRenderer: FC<Props> = ({
     // ✅ 已改用 v2 重新設計的版本(灰黑白 + RWD)
     case "location_panel":
       return <LocationEditPanel locationPanelForm={locationPanelForm} />;
+    case "quick_location_panel":
+      return <QuickLocationPanel />;
     case "location_list":
       return <LocationListPanel />;
     // ✅ 已改用 v2 重新設計的版本(灰黑白 + RWD)
@@ -108,6 +113,8 @@ const PanelRenderer: FC<Props> = ({
       return <PeripheralNamePanel />;
     case "peripheral_group_table":
       return <PeripheralGroupPanel />;
+    case "stack_batch_edit":
+      return <StackBatchPanel />;
     case "peripheral_charge_dock_config":
       return <ChargeDockPanel />;
     case "edit_tag":
@@ -144,6 +151,8 @@ const PanelRenderer: FC<Props> = ({
       return <SyncDataPanel />;
     case "mir_mission":
       return <MirMissionPanel />;
+    case "appearance":
+      return <AppearancePanel />;
     default:
       return null;
   }

@@ -62,6 +62,7 @@ import {
   CountNote,
   Hint,
 } from "../../ui/primitives";
+import { c } from "../../ui/tokens";
 
 type EditPayload = {
   shelfId: React.Key[];
@@ -568,7 +569,7 @@ const ShelfEditPanel: FC = () => {
                     </Form.Item>
                     <MinusCircleOutlined
                       onClick={() => remove(name)}
-                      style={{ alignSelf: "center", color: "#c0341d" }}
+                      style={{ alignSelf: "center", color: c.danger }}
                     />
                   </div>
                 ))}

@@ -122,7 +122,7 @@ const DispatchButtonFormModal: FC<{
     if (!open) return;
     form.setFieldsValue({
       label: initialValues?.label ?? "",
-      color: initialValues?.color ?? "#1890ff",
+      color: initialValues?.color ?? "var(--c-header-accent)",
       fontColor: initialValues?.fontColor ?? "#ffffff",
       fontSize: initialValues?.fontSize ?? 16,
       fontWeight: initialValues?.fontWeight ?? 600,

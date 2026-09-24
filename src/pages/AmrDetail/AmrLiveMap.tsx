@@ -12,7 +12,7 @@ const MapPanelInner = styled.div`
   height: 480px;
   overflow: hidden;
   background-color: #e6e6e7;
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--c-header-border);
 `;
 
 const MapScrollArea = styled.div`

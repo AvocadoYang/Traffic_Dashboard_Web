@@ -33,6 +33,7 @@ import I18nCancelReason from "@/i18n/I18nCancelReason";
 import { useMutation } from "@tanstack/react-query";
 import { Dayjs } from "dayjs";
 import client from "@/api/axiosClient";
+import { themeAtom } from "@/theme";
 
 const { RangePicker } = DatePicker;
 // Define the Mission interface based on your schema
@@ -76,15 +77,15 @@ enum Send_By {
 // Industrial Styled Components (adapted from MissionTable)
 const IndustrialDrawer = styled(Drawer)<{ $isDark: boolean }>`
   .ant-drawer-content-wrapper {
-    background: ${({ $isDark }) => ($isDark ? "#0f0f0f" : "#ffffff")};
+    background: var(--c-bg);
   }
   .ant-drawer-header {
-    background: ${({ $isDark }) => ($isDark ? "#0a0a0a" : "#fafafa")};
+    background: var(--c-bg-subtle);
     border-bottom: 1px solid
-      ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#d9d9d9")};
+      var(--c-header-border);
   }
   .ant-drawer-title {
-    color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#262626")};
+    color: var(--c-text);
     font-family: "Roboto Mono", monospace;
     font-weight: 600;
     text-transform: uppercase;
@@ -94,36 +95,35 @@ const IndustrialDrawer = styled(Drawer)<{ $isDark: boolean }>`
 
 const IndustrialTableContainer = styled.div<{ $isDark: boolean }>`
   .ant-table {
-    background: ${({ $isDark }) => ($isDark ? "#0f0f0f" : "#ffffff")};
-    border: 1px solid ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#d9d9d9")};
+    background: var(--c-bg);
+    border: 1px solid var(--c-header-border);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
   .ant-table-thead > tr > th {
-    background: ${({ $isDark }) => ($isDark ? "#0a0a0a" : "#fafafa")};
-    color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#262626")};
+    background: var(--c-bg-subtle);
+    color: var(--c-text);
     font-weight: 600;
     text-transform: uppercase;
     font-size: 11px;
     letter-spacing: 1px;
     border-bottom: 2px solid
-      ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#d9d9d9")};
+      var(--c-header-border);
     font-family: "Roboto Mono", monospace;
   }
   .ant-table-tbody > tr {
-    background: ${({ $isDark }) => ($isDark ? "#0f0f0f" : "#ffffff")};
+    background: var(--c-bg);
     transition: all 0.2s ease;
     font-family: "Roboto Mono", monospace;
     &:hover {
-      background: ${({ $isDark }) =>
-        $isDark ? "#1a1a1a" : "#f0f5ff"} !important;
+      background: var(--c-header-accent-soft) !important;
       box-shadow: 0 2px 4px rgba(24, 144, 255, 0.1);
     }
   }
   .ant-table-tbody > tr > td {
     border-bottom: 1px solid
-      ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#f0f0f0")};
+      var(--c-bg-muted);
     font-size: 12px;
-    color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#595959")};
+    color: var(--c-text-secondary);
   }
   .ant-pagination {
     font-family: "Roboto Mono", monospace;
@@ -141,12 +141,12 @@ const IndustrialButton = styled(Button)`
   border-radius: 4px;
   transition: all 0.2s ease;
   &.refresh-btn {
-    background: #e6f7ff;
-    border: 1px solid #1890ff;
-    color: #1890ff;
+    background: var(--c-header-accent-soft);
+    border: 1px solid var(--c-header-accent);
+    color: var(--c-header-accent);
     &:hover:not(:disabled) {
-      background: #1890ff;
-      border-color: #1890ff;
+      background: var(--c-header-accent);
+      border-color: var(--c-header-accent);
       color: #ffffff;
       box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
     }
@@ -179,39 +179,39 @@ const StatusBadge = styled.span<{ $status: number; $isDark: boolean }>`
     > = {
       0: {
         // pending
-        bg: $isDark ? "#0a0a0a" : "#fff7e6",
-        border: "#faad14",
-        text: "#faad14",
+        bg: "var(--c-warning-soft)",
+        border: "var(--c-warning)",
+        text: "var(--c-warning)",
       },
       1: {
         // assigned
-        bg: $isDark ? "#0a0a0a" : "#e6f7ff",
-        border: "#1890ff",
-        text: "#1890ff",
+        bg: "var(--c-header-accent-soft)",
+        border: "var(--c-header-accent)",
+        text: "var(--c-header-accent)",
       },
       2: {
         // executing
-        bg: $isDark ? "#0a0a0a" : "#f6ffed",
-        border: "#52c41a",
-        text: "#52c41a",
+        bg: "var(--c-success-soft)",
+        border: "var(--c-success)",
+        text: "var(--c-success)",
       },
       3: {
         // completed
-        bg: $isDark ? "#0a0a0a" : "#fafafa",
-        border: "#8c8c8c",
-        text: "#8c8c8c",
+        bg: "var(--c-bg-subtle)",
+        border: "var(--c-text-muted)",
+        text: "var(--c-text-muted)",
       },
       4: {
         // aborting
-        bg: $isDark ? "#0a0a0a" : "#fff1f0",
-        border: "#ff4d4f",
-        text: "#ff4d4f",
+        bg: "var(--c-danger-soft)",
+        border: "var(--c-danger)",
+        text: "var(--c-danger)",
       },
       5: {
         // canceled
-        bg: $isDark ? "#0a0a0a" : "#fff1f0",
-        border: "#ff4d4f",
-        text: "#ff4d4f",
+        bg: "var(--c-danger-soft)",
+        border: "var(--c-danger)",
+        text: "var(--c-danger)",
       },
     };
     const color = statusColors[$status] || statusColors[0];
@@ -235,11 +235,11 @@ const ModeTag = styled(Tag)<{ $isDark: boolean }>`
 const ErrorMessage = styled.div<{ $isDark: boolean }>`
   text-align: center;
   padding: 20px;
-  color: ${({ $isDark }) => ($isDark ? "#ff4d4f" : "#ff4d4f")};
+  color: ${({ $isDark }) => ($isDark ? "var(--c-danger)" : "var(--c-danger)")};
   font-family: "Roboto Mono", monospace;
   font-size: 12px;
-  background: ${({ $isDark }) => ($isDark ? "#1a1a1a" : "#fff1f0")};
-  border: 1px solid #ff4d4f;
+  background: var(--c-danger-soft);
+  border: 1px solid var(--c-danger);
   border-radius: 4px;
 `;
 
@@ -303,7 +303,7 @@ const RangePopupGlobalStyle = createGlobalStyle`
 ` as unknown as FC;
 
 const IndustrialTypography = styled(Typography.Title)<{ $isDark: boolean }>`
-  color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#262626")};
+  color: var(--c-text);
   font-family: "Roboto Mono", monospace;
   font-weight: 600;
   text-transform: uppercase;
@@ -343,6 +343,8 @@ const MissionHistory: FC<{
 }> = ({ isOpenMissionHistory, setIsOpenMissionHistory }) => {
   const { t } = useTranslation();
   const isDark = useAtomValue(darkMode);
+  // antd 的 token 不能吃 var(),要餵真實色碼,所以這裡直接拿 palette
+  const { colors } = useAtomValue(themeAtom);
   const rejectMission = useRejectMission();
   const [pagination, setPagination] = useState<{
     page: number;
@@ -440,7 +442,7 @@ const MissionHistory: FC<{
               maxWidth: 260,
               fontFamily: "Roboto Mono",
               fontSize: 11,
-              color: isDark ? "#00ff41" : "#595959",
+              color: "var(--c-text-secondary)",
             }}
           >
             {info.map((entry, idx) => (
@@ -703,7 +705,7 @@ const MissionHistory: FC<{
       theme={{
         components: {
           Table: {
-            rowHoverBg: isDark ? "#1a1a1a" : "#f0f5ff",
+            rowHoverBg: colors.headerAccentSoft,
           },
         },
       }}
