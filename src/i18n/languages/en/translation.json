@@ -897,6 +897,8 @@
       "offload_tooltip": "Select a shelf to offload cargo to",
       "load": "Load",
       "offload": "Offload",
+      "group": "Group",
+      "select_group": "Or select a location group",
       "click_shelves_or_cancel": "Click the shelves in the map or press ESC to cancel",
       "picker_title": "Select a slot",
       "picker_shelf": "Shelf",

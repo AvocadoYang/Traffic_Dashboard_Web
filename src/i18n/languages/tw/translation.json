@@ -896,6 +896,8 @@
       "offload_tooltip": "選擇一個貨架來卸載貨物",
       "load": "裝載",
       "offload": "卸載",
+      "group": "群組",
+      "select_group": "或選擇地點群組",
       "click_shelves_or_cancel": "點擊地圖中的貨架或按 ESC 鍵取消",
       "picker_title": "選擇儲位",
       "picker_shelf": "貨架",
