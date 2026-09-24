@@ -41,6 +41,7 @@ const missionStatusMap = {
   ABORTING: "aborting",
   CANCELED: "canceled",
   COMPLETED: "completed",
+  WAITING: "waiting",
 } as const;
 
 const schema = () =>
@@ -68,6 +69,8 @@ const schema = () =>
         completedAt: date().optional(),
         info: string().optional().nullable(),
         cancelReason: number().optional().nullable(),
+        /** WAITING 任務在等什麼 */
+        message: string().optional().nullable(),
         status: number().required(),
         order: number().required(),
         priority: number().required(),

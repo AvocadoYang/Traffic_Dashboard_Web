@@ -213,6 +213,12 @@ const StatusBadge = styled.span<{ $status: number; $isDark: boolean }>`
         border: "var(--c-danger)",
         text: "var(--c-danger)",
       },
+      6: {
+        // waiting
+        bg: "var(--c-bg-subtle)",
+        border: "var(--c-warning)",
+        text: "var(--c-warning)",
+      },
     };
     const color = statusColors[$status] || statusColors[0];
     return `
@@ -321,6 +327,7 @@ const ViewButton = styled(Button)`
 
 const MISSION_SORT = [
   0, // pending
+  6, // waiting
   1, // assigned
   2, // executing
   3, // completed
@@ -335,6 +342,7 @@ const statusDesc = {
   3: "😎 已完成",
   4: "🥊進行時取消",
   5: "🙅‍♂️ 已取消",
+  6: "⏸ 等待位置",
 };
 
 const MissionHistory: FC<{

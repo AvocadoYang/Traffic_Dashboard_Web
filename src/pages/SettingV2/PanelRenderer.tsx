@@ -24,6 +24,7 @@ import BlindLocationPanel from "./panels/mission/BlindLocationPanel";
 import PeripheralNamePanel from "./panels/peripheral/PeripheralNamePanel";
 import PeripheralGroupPanel from "./panels/peripheral/PeripheralGroupPanel";
 import StackBatchPanel from "./panels/peripheral/StackBatchPanel";
+import ConveyorDispatchPanel from "./panels/peripheral/ConveyorDispatchPanel";
 import ChargeDockPanel from "./panels/peripheral/ChargeDockPanel";
 import PeripheralStylePanel from "./panels/peripheral/PeripheralStylePanel";
 import TagPanel from "./panels/other/TagPanel";
@@ -115,6 +116,8 @@ const PanelRenderer: FC<Props> = ({
       return <PeripheralGroupPanel />;
     case "stack_batch_edit":
       return <StackBatchPanel />;
+    case "conveyor_dispatch":
+      return <ConveyorDispatchPanel />;
     case "peripheral_charge_dock_config":
       return <ChargeDockPanel />;
     case "edit_tag":

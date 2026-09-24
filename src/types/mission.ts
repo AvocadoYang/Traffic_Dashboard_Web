@@ -18,6 +18,8 @@ export enum MissionStatus {
   ABORTING,
   /**已刪除 */
   CANCELED,
+  /**等待位置: 目前沒有可取放貨的位置, 位置空出來後自動建立 (後端 YAML 開啟才會出現) */
+  WAITING,
 }
 
 export type Reject_Mission = {

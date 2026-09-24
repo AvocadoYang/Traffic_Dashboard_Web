@@ -38,6 +38,7 @@ const MISSION_SORT = [
   "executing",
   "assigned",
   "pending",
+  "waiting",
   "completed",
   "aborting",
   "canceled",
@@ -238,6 +239,11 @@ const StatusBadge = styled.span<{ $status: MissionStatus; $isDark: boolean }>`
         border: "var(--c-danger)",
         text: "var(--c-danger)",
       },
+      waiting: {
+        bg: "var(--c-bg-subtle)",
+        border: "var(--c-warning)",
+        text: "var(--c-warning)",
+      },
     };
 
     const color = statusColors[$status.toLowerCase()] || statusColors.pending;
@@ -401,6 +407,16 @@ const MissionTable = () => {
         ) {
           return (
             <Tooltip title={<I18nCancelReason reason={record.cancelReason} />}>
+              <StatusBadge $status={status} $isDark={isDark}>
+                {status}
+              </StatusBadge>
+            </Tooltip>
+          );
+        }
+
+        if (record.status === MissionStatus.WAITING) {
+          return (
+            <Tooltip title={record.message}>
               <StatusBadge $status={status} $isDark={isDark}>
                 {status}
               </StatusBadge>

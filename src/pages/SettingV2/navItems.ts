@@ -145,6 +145,10 @@ export const navCategories: NavCategory[] = [
         labelKey: "toolbar.peripheral.stack_batch_edit",
       },
       {
+        key: "conveyor_dispatch",
+        labelKey: "toolbar.peripheral.conveyor_dispatch",
+      },
+      {
         key: "edit_icon_style",
         labelKey: "toolbar.others.edit_peripheral_style",
       },
