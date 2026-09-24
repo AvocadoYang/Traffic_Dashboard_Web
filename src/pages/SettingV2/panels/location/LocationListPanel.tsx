@@ -205,7 +205,7 @@ const LocationListPanel: FC = () => {
       id: editing.id,
       oldLocationId: editing.locationId,
       newLocationId: values.locationId,
-      map_id: currentMapId,
+      currentMapId,
     });
   };
 
