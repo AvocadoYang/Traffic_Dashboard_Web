@@ -29,8 +29,8 @@ import {
 
 const { RangePicker } = DatePicker;
 
-const ACCENT = "#1890ff";
-const TAG_BG = "#e6f7ff";
+const ACCENT = "var(--c-header-accent)";
+const TAG_BG = "var(--c-header-accent-soft)";
 
 const SystemAlarmTable: FC = () => {
   const [currentPage, setCurrentPage] = useState(1);

@@ -15,7 +15,7 @@ import {
   EditStackConfig,
   IsOpenStackModal,
 } from "@/pages/Setting/formComponent/forms/peripheralModal/jotai";
-import { ESC, ESM } from "@/pages/Setting/utils/settingJotai";
+import { CargoPanelTarget } from "@/components/CargoPanel/state";
 
 const { Title } = Typography;
 
@@ -23,17 +23,14 @@ const CargoInfoAtPeripheral: FC<{ form: FormInstance<unknown> }> = ({
   form,
 }) => {
   const { t } = useTranslation();
-  const setOpenContainerModal = useSetAtom(ESC);
-  const setOpenContainer = useSetAtom(ESM);
+  const openCargoPanel = useSetAtom(CargoPanelTarget);
   const openModal = useAtomValue(EditStackConfig);
   const setOpen = useSetAtom(IsOpenStackModal);
 
+  // 貨物改用跟主畫面同一個面板編輯
   const setOpenEditCargoDetailModal = () => {
-    setOpenContainer({
-      locationId: openModal?.stationId as string,
-      isOpen: true,
-    });
-    setOpenContainerModal(true);
+    if (!openModal?.stationId) return;
+    openCargoPanel({ type: "STACK", locationId: openModal.stationId });
     setOpen(false);
   };
 

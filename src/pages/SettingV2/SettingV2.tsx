@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Layout, Form, Button, ConfigProvider, Drawer, Segmented } from "antd";
+import { Layout, Form, Button, Drawer, Segmented } from "antd";
 import { CloseOutlined, MenuOutlined } from "@ant-design/icons";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
@@ -12,6 +12,7 @@ import {
   EditLocationPanelSwitch,
   EditRoadPanelSwitch,
   EditZoneSwitch,
+  QuickEditLocationPanelSwitch,
 } from "@/utils/siderGloble";
 import MapView from "@/pages/Setting/mapComponents/MapView";
 import { ZoomPad, BKBtn } from "@/pages/Setting/components";
@@ -19,10 +20,11 @@ import { useResetSiderSwitch } from "@/pages/Setting/hooks";
 import "@/pages/Setting/setting.css";
 import { activeSettingPanelAtom } from "./activePanelAtom";
 import { mapViewModeAtom, type MapViewMode } from "./mapViewModeAtom";
+import { navCollapsedAtom } from "./navCollapsedAtom";
 import { navCategories } from "./navItems";
 import SettingV2Nav from "./SettingV2Nav";
 import PanelRenderer from "./PanelRenderer";
-import { settingV2Theme } from "./ui/theme";
+import { ThemedConfigProvider } from "@/theme";
 import useIsNarrow from "./ui/useIsNarrow";
 import { c, font, mqNarrow, space } from "./ui/tokens";
 
@@ -168,6 +170,7 @@ const SettingV2: React.FC = () => {
   const [mapMode, setMapMode] = useAtom(mapViewModeAtom);
   const isNarrow = useIsNarrow();
   const [navOpen, setNavOpen] = useState(false);
+  const [navCollapsed, setNavCollapsed] = useAtom(navCollapsedAtom);
 
   // v1 也是這樣做的:進頁面先把幾顆地圖編輯模式的 atom 歸零。因為 v1/v2 共用同一份
   // atom,誰後進來誰負責重置,不會互相殘留狀態。
@@ -180,15 +183,20 @@ const SettingV2: React.FC = () => {
   const setEditLocationPanelSwitch = useSetAtom(EditLocationPanelSwitch);
   const setEditRoadPanelSwitch = useSetAtom(EditRoadPanelSwitch);
   const setEditZoneSwitch = useSetAtom(EditZoneSwitch);
+  const setQuickEditLocationPanelSwitch = useSetAtom(
+    QuickEditLocationPanelSwitch,
+  );
   useEffect(() => {
     setEditLocationPanelSwitch(activePanel === "location_panel");
     setEditRoadPanelSwitch(activePanel === "road_panel");
     setEditZoneSwitch(activePanel === "edit_zone");
+    setQuickEditLocationPanelSwitch(activePanel === "quick_location_panel");
   }, [
     activePanel,
     setEditLocationPanelSwitch,
     setEditRoadPanelSwitch,
     setEditZoneSwitch,
+    setQuickEditLocationPanelSwitch,
   ]);
 
   const mapScale = currentMapInfo?.data?.scale;
@@ -207,7 +215,7 @@ const SettingV2: React.FC = () => {
   }, [activePanel, t]);
 
   return (
-    <ConfigProvider theme={settingV2Theme}>
+    <ThemedConfigProvider>
       <Layout style={{ height: "var(--app-height)" }}>
         <Header />
         <Content>
@@ -226,7 +234,9 @@ const SettingV2: React.FC = () => {
                     <Segmented
                       size="small"
                       value={mapMode === "full" ? "map" : "panel"}
-                      onChange={(v) => setMapMode(v === "map" ? "full" : "half")}
+                      onChange={(v) =>
+                        setMapMode(v === "map" ? "full" : "half")
+                      }
                       options={[
                         { value: "panel", label: "面板" },
                         { value: "map", label: "地圖" },
@@ -263,6 +273,8 @@ const SettingV2: React.FC = () => {
                 <SettingV2Nav
                   activePanel={activePanel}
                   onSelectPanel={setActivePanel}
+                  collapsed={navCollapsed}
+                  onToggleCollapse={() => setNavCollapsed(!navCollapsed)}
                 />
               )}
 
@@ -314,7 +326,7 @@ const SettingV2: React.FC = () => {
           </Shell>
         </Content>
       </Layout>
-    </ConfigProvider>
+    </ThemedConfigProvider>
   );
 };
 

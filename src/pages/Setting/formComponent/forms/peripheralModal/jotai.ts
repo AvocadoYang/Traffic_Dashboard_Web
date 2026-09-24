@@ -21,8 +21,6 @@ export const IsEditPeripheralModal = atom<{
 
 export const IsOpenPeripheralModal = atom<boolean>(false);
 
-export const IsOpenCargoEditorModal = atom(false);
-
 export const EditStackConfig = atom<{
   stationId: string;
   name: string;

@@ -13,6 +13,7 @@ import {
 import { SettingOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useTranslation } from "react-i18next";
 import { Mir_Action } from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/type";
 import {
@@ -30,6 +31,12 @@ import {
 } from "../../../../ui/primitives";
 import { ACTION_FIELDS, MirField, summarizeAction } from "./mirActionSpec";
 import useMirOptions from "./useMirOptions";
+
+// dayjs(值, "HH:mm:ss") 這種指定格式的解析要靠 customParseFormat,沒有它會
+// 退回瀏覽器的 Date 解析,"00:00:30" 會變成 Invalid Date,TimePicker 就空白。
+// v1 的 EditMirMissionPanel 也 extend 了同一個外掛,但那是別人的模組副作用,
+// 這裡自己來,v1 哪天被移掉或改成延遲載入才不會突然壞掉。
+dayjs.extend(customParseFormat);
 
 const TIME_FORMAT = "HH:mm:ss";
 
@@ -68,11 +75,11 @@ const GearButton = styled.button<{ $active: boolean }>`
   cursor: pointer;
   background: ${({ $active }) => ($active ? c.accent : "transparent")};
   border: 1px solid ${({ $active }) => ($active ? c.accent : c.border)};
-  color: ${({ $active }) => ($active ? "#ffffff" : c.textMuted)};
+  color: ${({ $active }) => ($active ? c.onAccent : c.textMuted)};
 
   &:hover {
     border-color: ${c.borderStrong};
-    color: ${({ $active }) => ($active ? "#ffffff" : c.text)};
+    color: ${({ $active }) => ($active ? c.onAccent : c.text)};
   }
 `;
 
@@ -190,7 +197,8 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
   const operation = slice?.operation ?? null;
   const { t } = useTranslation();
   const [form] = Form.useForm();
-  const { locations, markerTypeOptions, bySource } = useMirOptions();
+  const { locations, markerTypeOptions, bySource, liveStateOf } =
+    useMirOptions();
   const { fields: variableFields, setAllFields } = useMirVariableFields();
   const isCurrentPosition = Form.useWatch("is_current_position", form);
 
@@ -215,9 +223,17 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       y: Number(operation.y ?? 0),
       orientation: Number(operation.orientation ?? 0),
       collision_detection: operation.collision_detection ?? true,
+      option: operation.option ?? "free",
       wait: toTime(operation.wait),
       sound: operation.sound,
       volume: Number(operation.volume ?? 0),
+      mode: operation.mode ?? "full",
+      duration: toTime((operation.duration ?? "").split(".")[0]),
+      light_effect: operation.light_effect ?? "solid",
+      speed: operation.speed ?? "slow",
+      color_1: operation.color_1 ?? "#ffffff",
+      color_2: operation.color_2 ?? "#ffffff",
+      intensity: Number(operation.intensity ?? 100),
       front: operation.front ?? "unmuted",
       rear: operation.rear ?? "unmuted",
       sides: operation.sides ?? "unmuted",
@@ -258,6 +274,8 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
         ? dayjs(v as dayjs.Dayjs).format(TIME_FORMAT)
         : "00:00:00";
     };
+    // MiR 的 duration 帶微秒,跟 timeout / wait 的 "HH:mm:ss" 不同格式
+    const duration = (key: string) => `${time(key)}.000000`;
 
     onSubmit({
       ...operation,
@@ -274,9 +292,17 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       y: num("y", 0),
       orientation: num("orientation", 0),
       collision_detection: (raw.collision_detection as boolean) ?? true,
+      option: (raw.option as string) || "free",
       wait: time("wait"),
       sound: (raw.sound as string) ?? "",
       volume: num("volume", 0),
+      mode: (raw.mode as string) || "full",
+      duration: duration("duration"),
+      light_effect: (raw.light_effect as string) || "solid",
+      speed: (raw.speed as string) || "slow",
+      color_1: (raw.color_1 as string) || "#ffffff",
+      color_2: (raw.color_2 as string) || "#ffffff",
+      intensity: num("intensity", 100),
       front: (raw.front as string) ?? "unmuted",
       rear: (raw.rear as string) ?? "unmuted",
       sides: (raw.sides as string) ?? "unmuted",
@@ -305,9 +331,7 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
                 validator(_, value: string) {
                   if (getFieldValue("is_current_position")) {
                     return value
-                      ? Promise.reject(
-                          new Error("已選「目前位置」,這裡要留空"),
-                        )
+                      ? Promise.reject(new Error("已選「目前位置」,這裡要留空"))
                       : Promise.resolve();
                   }
                   return value
@@ -415,16 +439,33 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
         case "switch":
           return <Switch />;
         case "select":
-          return (
-            <Select options={field.options} style={{ width: "100%" }} />
-          );
-        case "optionSelect":
+          return <Select options={field.options} style={{ width: "100%" }} />;
+        case "optionSelect": {
+          // 音效與 IO module 是即時向車上查的,清單空掉的原因不只一種
+          // (沒車在線 / 還在讀 / 讀失敗),要分別講清楚,不然使用者只會看到
+          // 一個空下拉不知道發生什麼事。
+          const live = liveStateOf(field.source);
+          const notFound = !live
+            ? undefined
+            : live.isFetching
+              ? t("utils.loading")
+              : !live.amrId
+                ? "目前沒有連線中的 MiR 車輛"
+                : live.error
+                  ? "讀取清單失敗"
+                  : undefined;
           return (
             <Select
               options={bySource(field.source)}
               style={{ width: "100%" }}
               allowClear
               placeholder={t("utils.select")}
+              loading={live?.isFetching}
+              notFoundContent={notFound}
+              // react-query v4 的手動 refetch 不管 enabled,沒車在線就別打空的 amrId
+              onOpenChange={(open) => {
+                if (open && live?.amrId) void live.refetch();
+              }}
               showSearch={{
                 filterOption: (input, option) =>
                   (option?.label ?? "")
@@ -433,7 +474,9 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
               }}
             />
           );
+        }
         case "time":
+        case "duration":
           return (
             <TimePicker
               style={{ width: "100%" }}

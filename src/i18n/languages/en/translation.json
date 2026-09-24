@@ -1,6 +1,6 @@
 {
   "header": {
-    "switch_row": "Switch between navigation and tools row"
+    "switch_row": "Switch between navigation and mission row"
   },
   "mission_dispatch_board": {
     "title": "Mission Dispatch Board",
@@ -382,7 +382,8 @@
     "peripheral": {
       "title": "Device",
       "name_table": "Device Name Table",
-      "group_table": "Device Area Table"
+      "group_table": "Device Area Table",
+      "stack_batch_edit": "Stack Batch Edit"
     },
     "others": {
       "others": "Others",
@@ -896,6 +897,8 @@
       "offload_tooltip": "Select a shelf to offload cargo to",
       "load": "Load",
       "offload": "Offload",
+      "group": "Group",
+      "select_group": "Or select a location group",
       "click_shelves_or_cancel": "Click the shelves in the map or press ESC to cancel",
       "picker_title": "Select a slot",
       "picker_shelf": "Shelf",
@@ -1362,6 +1365,42 @@
     "uniqueKey": "unique key",
     "load_height": "Height at pickup time",
     "tray_size": "Stack size"
+  },
+  "cargo_panel": {
+    "type_storage": "Shelf",
+    "type_conveyor": "Conveyor",
+    "type_stack": "Stack",
+    "type_elevator": "Elevator",
+    "cargo_count": "{{count}} cargo",
+    "next_out": "Next out",
+    "top_next_out": "Top · next out",
+    "elevator_manual": "Manual mode",
+    "elevator_running": "Running",
+    "elevator_signal": "Cargo signal",
+    "booked_warning": "Booked by {{booker}}. Changing cargo here may affect the running mission.",
+    "disabled_hint": "This location is disabled. Vehicles won't load or unload here.",
+    "empty": "No cargo here",
+    "add": "Add cargo",
+    "edit_title": "Edit cargo",
+    "full": "Full, no more cargo can be added",
+    "no_formats": "No cargo format yet. Create one in Settings first.",
+    "clear_all": "Clear all",
+    "clear_confirm": "Remove all {{count}} cargo here?",
+    "remove": "Remove",
+    "remove_confirm": "Remove \"{{name}}\"?",
+    "removed": "Removed",
+    "saved": "Saved",
+    "untitled": "Unnamed cargo",
+    "no_format": "No format",
+    "move_up": "Move up",
+    "move_down": "Move down",
+    "cargo_gone": "This cargo is no longer here (a vehicle may have picked it up), so it can't be saved.",
+    "format": "Cargo format",
+    "unique_key": "Unique key",
+    "other_fields": "Other fields (not in the format, kept on save)",
+    "level_disabled": "Disabled",
+    "signal_mismatch": "The elevator cargo signal doesn't match the record (signal: {{signal}}, recorded: {{count}}). Please check and correct it.",
+    "type_amr": "Vehicle"
   },
   "sim": {
     "add_car": "Add car",
@@ -2218,5 +2257,56 @@
     "alarm_code": "Alarm Code",
     "description": "Description",
     "enable": "Enable"
+  },
+  "stack_batch": {
+    "title": "Stack Batch Edit",
+    "hint": "Select stacks in the table, choose which fields to change, then preview and apply. Unchecked fields are left untouched.",
+    "location_id": "Location ID",
+    "name": "Name",
+    "new_name": "New name",
+    "load_mission": "Load mission",
+    "offload_mission": "Offload mission",
+    "load_priority": "Load priority",
+    "offload_priority": "Offload priority",
+    "disable": "Disable",
+    "cargo": "Cargo",
+    "selected": "{{count}} selected",
+    "change": "Change",
+    "clear_mission": "(clear)",
+    "rename": "Auto-generate names",
+    "prefix": "Prefix",
+    "start": "Start number",
+    "digits": "Digits",
+    "order": "Order",
+    "order_location": "By location ID",
+    "order_name": "By current name",
+    "mode_seq": "Prefix + sequence",
+    "mode_loc": "Prefix + location ID",
+    "preview": "Preview: {{first}} … {{last}}",
+    "invalid_prefix": "Prefix may only contain letters, digits and _",
+    "apply": "Apply to selected",
+    "confirm": "Update {{count}} stacks?",
+    "nothing_to_apply": "Select at least one field to change or enable name generation.",
+    "no_selection": "Select at least one stack.",
+    "no_stack": "NO STACKS"
+  },
+  "appearance": {
+    "title": "Appearance",
+    "theme": "Color theme",
+    "hint": "Pick a color theme for the settings page and the top bar. The choice is saved in this browser and applies right away.",
+    "scope_note": "Grayscale is the original look. The other themes only change colors — layout, spacing and font stay the same.",
+    "preview_label": "Preview",
+    "preview_action": "Save",
+    "mode": {
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "themes": {
+      "mono": "Grayscale",
+      "indigo": "Indigo",
+      "teal": "Teal",
+      "sand": "Sand",
+      "midnight": "Midnight"
+    }
   }
 }

@@ -73,8 +73,8 @@ const Card = styled.div<{
   width: ${({ $width }) => $width}px;
   height: ${({ $height }) => $height}px;
   border-radius: 8px;
-  background: #ffffff;
-  border: 1px solid #f0f0f0;
+  background: var(--c-bg);
+  border: 1px solid var(--c-bg-muted);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
@@ -97,8 +97,8 @@ const TitleBar = styled.div`
   padding: 8px 12px;
   font-weight: 600;
   font-size: 13px;
-  border-bottom: 1px solid #f0f0f0;
-  background: #fafafa;
+  border-bottom: 1px solid var(--c-bg-muted);
+  background: var(--c-bg-subtle);
   flex-shrink: 0;
   overflow: hidden;
   white-space: nowrap;
@@ -113,7 +113,7 @@ const TitleText = styled.span`
 const JoystickButton = styled(GamepadOutlined)`
   flex-shrink: 0;
   font-size: 16px;
-  color: #595959;
+  color: var(--c-text-secondary);
   cursor: pointer;
 
   &:hover {
@@ -145,7 +145,7 @@ const Body = styled.div`
   flex-direction: column;
   gap: 4px;
   font-size: 12px;
-  color: #595959;
+  color: var(--c-text-secondary);
 `;
 
 const Row = styled.div<{ $warn?: boolean; $muted?: boolean }>`
@@ -155,8 +155,8 @@ const Row = styled.div<{ $warn?: boolean; $muted?: boolean }>`
 
   span:last-child {
     color: ${({ $warn, $muted }) => {
-      if ($muted) return "#bfbfbf";
-      return $warn ? "#ff4d4f" : "#262626";
+      if ($muted) return "var(--c-text-muted)";
+      return $warn ? "var(--c-danger)" : "var(--c-text)";
     }};
     font-weight: 600;
     overflow: hidden;

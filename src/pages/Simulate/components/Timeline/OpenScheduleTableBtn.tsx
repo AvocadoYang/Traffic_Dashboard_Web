@@ -10,7 +10,7 @@ const SwitchHeight = styled.div`
   top: 82%;
   left: 20px;
   transform: translateY(-50%);
-  background-color: #f5f5f5;
+  background-color: var(--c-bg-subtle);
   border-radius: 20px;
   display: flex;
   flex-direction: column;

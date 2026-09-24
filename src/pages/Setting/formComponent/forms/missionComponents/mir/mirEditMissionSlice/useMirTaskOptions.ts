@@ -1,8 +1,12 @@
+import useAmrName from "@/api/useAmrName";
 import { useFootprint } from "@/api/useFootprint";
 import useMap from "@/api/useMap";
 import { useMarkerType } from "@/api/useMarkerType";
+import useMirIoModules from "@/api/useMirIoModules";
+import useMirSounds from "@/api/useMirSounds";
 import useShelf from "@/api/useShelf";
 import { useSound } from "@/api/useSound";
+import { useAllAmrStatus } from "@/sockets/useAMRInfo";
 import { Form, FormInstance } from "antd";
 
 import { useMemo } from "react";
@@ -76,6 +80,56 @@ const useMirTaskOptions = () => {
     markerTypeOption,
     markerTypeLocationIds,
   };
+};
+
+const useFirstAvailableAmrId = () => {
+  const { data: amrName } = useAmrName();
+  const amrStatus = useAllAmrStatus();
+
+  return useMemo(() => {
+    const wantReal = !amrName?.isSim;
+    const online = new Set(
+      amrStatus.filter((s) => !s.isOverdue).map((s) => s.amrId),
+    );
+    return amrName?.amrs.find(
+      (a) => a.isReal === wantReal && online.has(a.amrId),
+    )?.amrId;
+  }, [amrName, amrStatus]);
+};
+
+export const useMirIoModuleOptions = () => {
+  const amrId = useFirstAvailableAmrId();
+  const { data, isFetching, error, refetch } = useMirIoModules(amrId);
+
+  const ioModuleOption = useMemo(
+    () => data?.map((m) => ({ label: m.name, value: m.guid })) ?? [],
+    [data],
+  );
+
+  return { ioModuleOption, amrId, isFetching, error, refetch };
+};
+
+export const useMirSoundOptions = () => {
+  const amrId = useFirstAvailableAmrId();
+  const { data, isFetching, error, refetch } = useMirSounds(amrId);
+
+  const soundOption = useMemo(() => {
+    const sounds = data ?? [];
+    const nameCount = new Map<string, number>();
+    sounds.forEach((s) => {
+      nameCount.set(s.name, (nameCount.get(s.name) ?? 0) + 1);
+    });
+
+    return sounds.map((s) => ({
+      value: s.guid,
+      label:
+        (nameCount.get(s.name) ?? 0) > 1
+          ? `${s.name} (…${s.guid.slice(-4)})`
+          : s.name,
+    }));
+  }, [data]);
+
+  return { soundOption, amrId, isFetching, error, refetch };
 };
 
 export const useMirDockingMarkerType = (form: FormInstance) => {

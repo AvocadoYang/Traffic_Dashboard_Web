@@ -1,29 +1,16 @@
-// 設定頁 v2 的配色:灰 / 黑 / 白為主,紅色只保留給刪除這種破壞性動作。
-// 所有新面板都從這裡取色,不要再各自寫死 hex,之後要調整配色只改這一份。
-export const c = {
-  /** 面板底色 */
-  bg: "#ffffff",
-  /** 區塊 / 表頭底色 */
-  bgSubtle: "#fafafa",
-  /** 更深一階的底色(hover、被選取) */
-  bgMuted: "#f0f0f0",
-  /** 被選取的強調底色 */
-  bgSelected: "#e8e8e8",
+import { colorKeys, cssVar, type PaletteColors } from "@/theme";
 
-  border: "#e4e4e4",
-  borderStrong: "#c8c8c8",
-
-  text: "#1c1c1c",
-  textSecondary: "#5c5c5c",
-  textMuted: "#949494",
-
-  /** 強調色(選取、focus、主要按鈕)——刻意用黑,不用藍 */
-  accent: "#1c1c1c",
-
-  /** 只給刪除 / 破壞性動作 */
-  danger: "#c0341d",
-  dangerSoft: "#fbf0ed",
-} as const;
+// 設定頁 v2 的配色。
+//
+// 這裡每個值都是 CSS 變數的參照(例如 `var(--c-bg)`),真正的顏色定義在
+// src/theme/palettes.ts。好處是 styled-components 的樣板字串只會被算一次,
+// 但因為算出來的是變數名稱而不是色碼,使用者換主題時只要換 <html> 上的變數值,
+// 畫面就整個跟著換,不需要重新掛載任何元件。
+//
+// 所以:要調色請去 palettes.ts,不要在這裡或各面板寫死 hex。
+export const c = Object.fromEntries(
+  colorKeys.map((key) => [key, cssVar(key)]),
+) as Record<keyof PaletteColors, string>;
 
 export const font = {
   mono: `"Roboto Mono", ui-monospace, monospace`,

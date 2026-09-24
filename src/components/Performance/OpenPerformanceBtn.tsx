@@ -13,7 +13,7 @@ const Btn = styled.div<{ $top: string; $left: string; $centered: boolean }>`
   top: ${({ $top }) => $top};
   left: ${({ $left }) => $left};
   ${({ $centered }) => ($centered ? "transform: translateY(-50%);" : "")}
-  background-color: #f5f5f5;
+  background-color: var(--c-bg-subtle);
   border-radius: 20px;
   display: flex;
   flex-direction: column;

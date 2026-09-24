@@ -46,6 +46,7 @@ import {
   CardFacts,
   Tag,
 } from "../../ui/primitives";
+import { c } from "../../ui/tokens";
 
 const PeripheralGroupPanel: FC = () => {
   const { t } = useTranslation();
@@ -372,7 +373,7 @@ const PeripheralGroupPanel: FC = () => {
             render={(item) => (
               <div>
                 <div style={{ fontWeight: 600 }}>{item.title}</div>
-                <div style={{ fontSize: 11, color: "#949494", marginTop: 2 }}>
+                <div style={{ fontSize: 11, color: c.textMuted, marginTop: 2 }}>
                   {item.description}
                 </div>
               </div>

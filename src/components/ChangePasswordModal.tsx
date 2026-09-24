@@ -10,18 +10,18 @@ import { LockOutlined } from "@ant-design/icons";
 
 const IndustrialModal = styled(Modal)`
   .ant-modal-content {
-    background: #f5f5f5;
+    background: var(--c-bg-subtle);
     font-family: "Roboto Mono", monospace;
   }
 
   .ant-modal-header {
-    background: #ffffff;
-    border-bottom: 2px solid #1890ff;
+    background: var(--c-bg);
+    border-bottom: 2px solid var(--c-header-accent);
     padding: 16px 24px;
   }
 
   .ant-modal-title {
-    color: #1890ff;
+    color: var(--c-header-accent);
     font-family: "Roboto Mono", monospace;
     font-weight: 600;
     font-size: 13px;
@@ -34,7 +34,7 @@ const IndustrialModal = styled(Modal)`
 
   .ant-modal-body {
     padding: 24px;
-    background: #f5f5f5;
+    background: var(--c-bg-subtle);
   }
 
   .ant-form-item-label > label {
@@ -42,7 +42,7 @@ const IndustrialModal = styled(Modal)`
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: #595959;
+    color: var(--c-text-secondary);
     font-weight: 600;
   }
 
@@ -50,37 +50,37 @@ const IndustrialModal = styled(Modal)`
   .ant-select-selector,
   .ant-input-password {
     font-family: "Roboto Mono", monospace;
-    border: 1px solid #d9d9d9;
+    border: 1px solid var(--c-header-border);
 
     &:hover {
-      border-color: #1890ff;
+      border-color: var(--c-header-accent);
     }
 
     &:focus {
-      border-color: #1890ff;
+      border-color: var(--c-header-accent);
       box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
     }
   }
 
   .ant-input-affix-wrapper {
     font-family: "Roboto Mono", monospace;
-    border: 1px solid #d9d9d9;
+    border: 1px solid var(--c-header-border);
 
     &:hover {
-      border-color: #1890ff;
+      border-color: var(--c-header-accent);
     }
 
     &.ant-input-affix-wrapper-focused {
-      border-color: #1890ff;
+      border-color: var(--c-header-accent);
       box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
     }
   }
 `;
 
 const IndustrialButton = styled(Button)`
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  color: #595959;
+  background: var(--c-bg);
+  border: 1px solid var(--c-header-border);
+  color: var(--c-text-secondary);
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
   font-size: 11px;
@@ -89,20 +89,20 @@ const IndustrialButton = styled(Button)`
   font-weight: 600;
 
   &:hover {
-    background: #fafafa;
-    border-color: #8c8c8c;
-    color: #262626;
+    background: var(--c-bg-subtle);
+    border-color: var(--c-text-muted);
+    color: var(--c-text);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
   &.primary {
-    background: #1890ff;
-    border-color: #1890ff;
+    background: var(--c-header-accent);
+    border-color: var(--c-header-accent);
     color: #ffffff;
 
     &:hover {
-      background: #40a9ff;
-      border-color: #40a9ff;
+      background: var(--c-header-accent);
+      border-color: var(--c-header-accent);
       box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
     }
   }

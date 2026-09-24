@@ -71,7 +71,13 @@ const MissionMetaModal: FC<Props> = ({
       if (amrs?.[0]) form.setFieldValue("robot_type_id", amrs[0].id);
       return;
     }
-    if (!mission) return;
+    // 這一筆還沒回來(或快取裡還是上一筆)就先清空,
+    // 不然 Modal 常駐不會卸載,會先閃出前一個任務的名稱。
+    if (!mission || mission.id !== missionId) {
+      form.resetFields();
+      setTags([]);
+      return;
+    }
     const nextTags =
       mission.MissionTitleBridgeCategory?.map((v) => v.Category?.id).filter(
         (v): v is string => !!v,
@@ -89,6 +95,8 @@ const MissionMetaModal: FC<Props> = ({
       queryKey: ["all-mission-title-detail"],
     });
     await queryClient.refetchQueries({ queryKey: ["all-mission-title"] });
+    // 這個 Modal 不會卸載,不主動失效的話再開同一筆會看到改名前的值
+    await queryClient.invalidateQueries({ queryKey: ["mission-title-by-id"] });
   };
 
   const addMutation = useMutation({

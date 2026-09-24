@@ -133,11 +133,11 @@ export const SolidButton = styled.button`
   ${buttonBase}
   background: ${c.accent};
   border: 1px solid ${c.accent};
-  color: #ffffff;
+  color: ${c.onAccent};
 
   &:hover:not(:disabled) {
-    background: #333333;
-    border-color: #333333;
+    background: ${c.accentHover};
+    border-color: ${c.accentHover};
   }
 `;
 

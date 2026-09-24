@@ -21,11 +21,11 @@ import {
   PoweroffOutlined,
   ClockCircleOutlined,
   AppstoreOutlined,
-  ToolOutlined,
+  PlusSquareOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { AmrFilterCarCard, centerMap, darkMode, Scale } from "@/utils/gloable";
+import { AmrFilterCarCard, centerMap, Scale } from "@/utils/gloable";
 import { useMutation } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { errorHandler } from "@/utils/utils";
@@ -46,14 +46,17 @@ import SimTime from "./SimTime";
 import DirectMove from "@/pages/Main/components/missionModal/DirectMove";
 import ZoomPad from "@/pages/Main/components/WebView/components/ZoomPad";
 import useMap from "@/api/useMap";
-import { headerNavItemBase, headerNavItemActive } from "@/styles/headerNavItemStyle";
+import {
+  headerNavItemBase,
+  headerNavItemActive,
+} from "@/styles/headerNavItemStyle";
 
 const { Header: AntdHeader } = Layout;
 
 const IndustrialHeader = styled(AntdHeader)`
   && {
-    background: #ffffff;
-    /* border-bottom: 3px solid #1890ff; */
+    background: var(--c-header-bg);
+    /* border-bottom: 3px solid var(--c-header-accent); */
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -71,7 +74,7 @@ const IndustrialHeader = styled(AntdHeader)`
     left: 0;
     right: 0;
     height: 1px;
-    // background: linear-gradient(90deg, transparent, #1890ff, transparent);
+    // background: linear-gradient(90deg, transparent, var(--c-header-accent), transparent);
   }
 `;
 
@@ -148,9 +151,9 @@ const SimulationStatus = styled.div`
   align-items: center;
   gap: var(--space-md);
   padding: var(--space-sm) var(--space-lg);
-  /* background: #fff1f0; */
-  /* border: 2px solid #ff4d4f; */
-  /* border-left: 4px solid #ff4d4f; */
+  /* background: var(--c-danger-soft); */
+  /* border: 2px solid var(--c-danger); */
+  /* border-left: 4px solid var(--c-danger); */
   font-family: "Roboto Mono", monospace;
   box-shadow: inset 0 0 20px rgba(255, 77, 79, 0.05);
 
@@ -161,16 +164,16 @@ const SimulationStatus = styled.div`
 
 const StatusLabel = styled.span`
   font-size: var(--font-xs);
-  color: #ff4d4f;
+  color: var(--c-danger);
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: 700;
 `;
 
 const ControlButton = styled(Button)`
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  color: #595959;
+  background: var(--c-bg);
+  border: 1px solid var(--c-header-border);
+  color: var(--c-header-text);
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
   font-size: var(--font-xs);
@@ -193,28 +196,26 @@ const ControlButton = styled(Button)`
   }
 
   &:hover {
-    background: #f0f5ff;
-    border-color: #1890ff;
-    color: #1890ff;
-    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+    background: var(--c-header-accent-soft);
+    border-color: var(--c-header-accent);
+    color: var(--c-header-accent);
   }
 
   &.danger {
-    border-color: #ff4d4f;
-    color: #ff4d4f;
+    border-color: var(--c-danger);
+    color: var(--c-danger);
 
     &:hover {
-      background: #fff1f0;
-      border-color: #ff7875;
-      color: #ff7875;
-      box-shadow: 0 2px 8px rgba(255, 77, 79, 0.2);
+      background: var(--c-danger-soft);
+      border-color: var(--c-danger);
+      color: var(--c-danger);
     }
   }
 
   &.simulate-active {
-    background: #fff1f0;
-    border-color: #ff4d4f;
-    color: #ff4d4f;
+    background: var(--c-danger-soft);
+    border-color: var(--c-danger);
+    color: var(--c-danger);
     animation: pulse 2s ease-in-out infinite;
   }
 
@@ -236,45 +237,45 @@ const IndustrialSelect = styled(Select)`
 
     width: var(--select-width);
     height: var(--control-height);
-    background: #ffffff;
-    border: 1px solid #d9d9d9;
+    background: var(--c-bg);
+    border: 1px solid var(--c-header-border);
     border-radius: 0;
-    color: #595959;
+    color: var(--c-header-text);
     font-family: "Roboto Mono", monospace;
     text-transform: uppercase;
     font-size: var(--font-xs);
     letter-spacing: 1px;
 
     &:hover {
-      border-color: #1890ff;
-      background: #f0f5ff;
-      color: #1890ff;
+      border-color: var(--c-header-accent);
+      background: var(--c-header-accent-soft);
+      color: var(--c-header-accent);
     }
 
     &.ant-select-focused {
-      border-color: #1890ff;
-      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+      border-color: var(--c-header-accent);
+      box-shadow: 0 0 0 2px var(--c-header-accent-soft);
     }
   }
 
   && .ant-select-suffix {
-    color: #595959;
+    color: var(--c-header-text);
   }
 `;
 
 const IndustrialDrawer = styled(Drawer)`
   && {
-    background: #fafafa;
+    background: var(--c-bg-subtle);
   }
 
   && .ant-drawer-header {
-    background: #ffffff;
-    border-bottom: 2px solid #d9d9d9;
-    border-left: 4px solid #1890ff;
+    background: var(--c-bg);
+    border-bottom: 2px solid var(--c-header-border);
+    border-left: 4px solid var(--c-header-accent);
   }
 
   && .ant-drawer-title {
-    color: #1890ff;
+    color: var(--c-header-accent);
     font-family: "Roboto Mono", monospace;
     text-transform: uppercase;
     letter-spacing: 1.5px;
@@ -288,7 +289,7 @@ const IndustrialDrawer = styled(Drawer)`
 
 const MobileMenu = styled(Menu)`
   && {
-    background: #fafafa;
+    background: var(--c-bg-subtle);
     border: none;
     font-family: "Roboto Mono", monospace;
   }
@@ -296,29 +297,28 @@ const MobileMenu = styled(Menu)`
   /* vertical 模式下 antd 對 item 的規則為 20（.ant-menu-light .ant-menu-item），
      && = 30 就夠。 */
   && .ant-menu-item {
-    color: #595959;
+    color: var(--c-header-text);
     font-size: var(--font-md);
     text-transform: uppercase;
     letter-spacing: 1px;
     margin: var(--space-xs) var(--space-sm);
     transition: all 0.2s;
-    background: #ffffff;
-    border: 1px solid #d9d9d9;
+    background: var(--c-bg);
+    border: 1px solid var(--c-header-border);
     border-left: 3px solid transparent;
 
     &:hover {
-      color: #1890ff;
-      background: #f0f5ff;
-      border-color: #1890ff;
-      border-left-color: #1890ff;
+      color: var(--c-header-accent);
+      background: var(--c-header-accent-soft);
+      border-color: var(--c-header-accent);
+      border-left-color: var(--c-header-accent);
     }
 
     &.ant-menu-item-selected {
-      color: #1890ff;
-      background: #e6f7ff;
-      border-color: #1890ff;
-      border-left-color: #1890ff;
-      box-shadow: inset 0 0 20px rgba(24, 144, 255, 0.08);
+      color: var(--c-header-accent);
+      background: var(--c-header-accent-soft);
+      border-color: var(--c-header-accent);
+      border-left-color: var(--c-header-accent);
     }
   }
 `;
@@ -349,7 +349,6 @@ const HEADER_ROW_KEY = "headerActiveRow";
 const Header: React.FC = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const [isDark] = useAtom(darkMode);
   const [canSim, setCanSim] = useState(false);
   const [isSimulateOpen, setIsSimulateOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -456,7 +455,8 @@ const Header: React.FC = () => {
         navigate("/cargo-history");
         break;
       case "4":
-        navigate("/setting");
+        // 設定頁已經正式改用 v2;舊版還留在 /setting-v1,/setting 會轉過去
+        navigate("/setting-v2");
         break;
       case "5":
         navigate("/simulate");
@@ -577,7 +577,7 @@ const Header: React.FC = () => {
               onChange={(v) => setHeaderRow(v as HeaderRow)}
               options={[
                 { value: "nav", icon: <AppstoreOutlined /> },
-                { value: "tools", icon: <ToolOutlined /> },
+                { value: "tools", icon: <PlusSquareOutlined /> },
               ]}
             />
           </Tooltip>

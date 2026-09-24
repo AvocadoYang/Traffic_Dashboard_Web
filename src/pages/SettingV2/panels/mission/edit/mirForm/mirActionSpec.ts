@@ -44,9 +44,17 @@ export const buildDefaultOperation = (type: string): Mir_Action => ({
   y: 0,
   orientation: 0,
   collision_detection: true,
+  option: "free",
   wait: "00:00:00",
   sound: "",
   volume: 0,
+  mode: "full",
+  duration: "00:00:01.000000",
+  light_effect: "solid",
+  speed: "slow",
+  color_1: "#ffffff",
+  color_2: "#ffffff",
+  intensity: 100,
   front: "unmuted",
   rear: "unmuted",
   sides: "unmuted",
@@ -63,8 +71,12 @@ export const buildDefaultOperation = (type: string): Mir_Action => ({
 /*  參數欄位                                                           */
 /* ------------------------------------------------------------------ */
 
-/** 選項要從哪個 API 來 */
-export type OptionSource = "locations" | "footprints" | "sounds";
+/**
+ * 選項要從哪個 API 來。
+ * sounds 與 ioModules 是「即時向車上問」的清單(車上隨時會被上傳/刪除音檔、
+ * 插拔 IO 模組),沒有車在線時會是空的,所以下拉要另外給提示,見 MirParamDrawer。
+ */
+export type OptionSource = "locations" | "footprints" | "sounds" | "ioModules";
 
 type Base = {
   name: string;
@@ -83,6 +95,8 @@ export type MirField =
   | (Base & { kind: "select"; options: { label: string; value: string }[] })
   | (Base & { kind: "optionSelect"; source: OptionSource })
   | (Base & { kind: "time" })
+  /** 跟 time 一樣用 TimePicker,但 MiR 的 duration 要帶微秒:"HH:mm:ss.000000" */
+  | (Base & { kind: "duration" })
   /** location_id 和「Current position」開關綁在一起,要跨欄位驗證 */
   | { kind: "location"; name: "location_id"; label: string }
   /** 只有 Current position 開啟時才要填,同樣是跨欄位驗證 */
@@ -98,11 +112,45 @@ const ON_OFF_OPTIONS = [
   { label: "OFF", value: "off" },
 ];
 
-const IO_MODULE_OPTIONS = [
-  {
-    label: "MiR Internal IOs",
-    value: "mirconst-guid-0000-0001-internalIO00",
-  },
+/** check_pose:要求該位置必須是空的還是有東西,檢查才算通過 */
+const POSE_OPTION_OPTIONS = [
+  { label: "FREE", value: "free" },
+  { label: "OCCUPIED", value: "occupied" },
+];
+
+/** sound:Full 播完整個音檔,Custom 只播到下面設定的長度 */
+const SOUND_MODE_OPTIONS = [
+  { label: "FULL", value: "full" },
+  { label: "CUSTOM", value: "custom" },
+];
+
+const LIGHT_EFFECT_OPTIONS = [
+  { label: "BLINK", value: "blink" },
+  { label: "CANCEL", value: "cancel" },
+  { label: "CHASE", value: "chase" },
+  { label: "FADE", value: "fade" },
+  { label: "RAINBOW", value: "rainbow" },
+  { label: "SOLID", value: "solid" },
+  { label: "WAVE", value: "wave" },
+];
+
+const LIGHT_SPEED_OPTIONS = [
+  { label: "FAST", value: "fast" },
+  { label: "SLOW", value: "slow" },
+];
+
+/** MiR 收的是色碼字串,不是色名,所以 value 要維持 hex */
+const LIGHT_COLOR_OPTIONS = [
+  { label: "BLACK", value: "#000000" },
+  { label: "BLUE", value: "#0000ff" },
+  { label: "CYAN", value: "#00ffff" },
+  { label: "GREEN", value: "#008000" },
+  { label: "MAGENTA", value: "#ff00ff" },
+  { label: "ORANGE", value: "#ffa500" },
+  { label: "PINK", value: "#ffc0cb" },
+  { label: "RED", value: "#ff0000" },
+  { label: "WHITE", value: "#ffffff" },
+  { label: "YELLOW", value: "#ffff00" },
 ];
 
 const blockedPathTimeout: MirField = {
@@ -138,8 +186,8 @@ const coordinateFields: MirField[] = [
 ];
 
 /**
- * 動作 -> 參數欄位。沒列到的動作(adjust_localization / stop_sound /
- * show_light)本來就沒有參數可以設。
+ * 動作 -> 參數欄位。沒列到的動作(adjust_localization / sound_stop)
+ * 本來就沒有參數可以設。
  */
 export const ACTION_FIELDS: Record<string, MirField[]> = {
   docking: [
@@ -170,7 +218,11 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
     ...coordinateFields,
     maxLinearSpeed,
     maxAngularSpeed,
-    { kind: "switch", name: "collision_detection", label: "Collision detection" },
+    {
+      kind: "switch",
+      name: "collision_detection",
+      label: "Collision detection",
+    },
     blockedPathTimeout,
   ],
 
@@ -205,15 +257,16 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
     },
   ],
 
-  // v1 把 sound / volume 放在 reduce_protective_fields 底下,play_sound
-  // 反而一個欄位都沒有,等於選不到要播的音效。這裡對調回來。
-  play_sound: [
+  // dev 把動作改名了:play_sound -> sound、stop_sound -> sound_stop、
+  // show_light -> light,而且 sound 多了 mode / duration。
+  // sound_stop 本來就沒有參數,所以不列。
+  sound: [
     {
       kind: "optionSelect",
       name: "sound",
       label: "Sound",
       source: "sounds",
-      hint: "音效清單在「MIR / 聲音」裡維護。",
+      hint: "清單是即時向線上的 MiR 車輛查來的,不是本地資料庫那一份。",
     },
     {
       kind: "number",
@@ -223,9 +276,94 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
       max: 100,
       hint: "100% 大約是 80 dB。",
     },
+    {
+      kind: "select",
+      name: "mode",
+      label: "Mode",
+      options: SOUND_MODE_OPTIONS,
+    },
+    {
+      kind: "duration",
+      name: "duration",
+      label: "Duration",
+      hint: "只有 Mode 選 Custom 時才有作用,最小單位是秒。",
+    },
   ],
 
+  light: [
+    {
+      kind: "select",
+      name: "light_effect",
+      label: "Light effect",
+      options: LIGHT_EFFECT_OPTIONS,
+    },
+    {
+      kind: "select",
+      name: "speed",
+      label: "Speed",
+      options: LIGHT_SPEED_OPTIONS,
+    },
+    {
+      kind: "select",
+      name: "color_1",
+      label: "Color 1",
+      options: LIGHT_COLOR_OPTIONS,
+    },
+    {
+      kind: "select",
+      name: "color_2",
+      label: "Color 2",
+      options: LIGHT_COLOR_OPTIONS,
+    },
+    {
+      kind: "number",
+      name: "intensity",
+      label: "Intensity",
+      min: 0,
+      max: 100,
+      hint: "燈光亮度,0-100。",
+    },
+    { kind: "time", name: "timeout", label: "Timeout" },
+  ],
+
+  check_pose: [
+    // 這裡用單純的點位下拉,不是 docking/move 那個 kind: "location"——
+    // 那顆會連帶帶出「Current position」開關,而開關是跟 marker_type 互斥的,
+    // check_pose 根本沒有 marker_type 這個欄位。
+    {
+      kind: "optionSelect",
+      name: "location_id",
+      label: "Position",
+      source: "locations",
+    },
+    ...coordinateFields,
+    {
+      kind: "select",
+      name: "option",
+      label: "Option",
+      options: POSE_OPTION_OPTIONS,
+      hint: "要求該位置是空的(Free)還是有東西(Occupied),檢查才算通過。",
+    },
+    { kind: "time", name: "timeout", label: "Timeout" },
+  ],
+
+  // 降低防護區時會放警示音,所以 sound / volume 也是這個動作的參數,
+  // 跟 sound 動作自己的那一組是分開的兩份設定。
   [CONTAINER_TYPE]: [
+    {
+      kind: "optionSelect",
+      name: "sound",
+      label: "Sound",
+      source: "sounds",
+      hint: "降低防護區期間要播的警示音。",
+    },
+    {
+      kind: "number",
+      name: "volume",
+      label: "Volume",
+      min: 0,
+      max: 100,
+    },
     { kind: "select", name: "front", label: "Front", options: MUTE_OPTIONS },
     { kind: "select", name: "rear", label: "Rear", options: MUTE_OPTIONS },
     { kind: "select", name: "sides", label: "Sides", options: MUTE_OPTIONS },
@@ -233,10 +371,11 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
 
   set_io: [
     {
-      kind: "select",
+      kind: "optionSelect",
       name: "module",
       label: "Module",
-      options: IO_MODULE_OPTIONS,
+      source: "ioModules",
+      hint: "清單是即時向線上的 MiR 車輛查來的。",
     },
     {
       kind: "number",
@@ -262,10 +401,11 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
 
   wait_for_io: [
     {
-      kind: "select",
+      kind: "optionSelect",
       name: "module",
       label: "Module",
-      options: IO_MODULE_OPTIONS,
+      source: "ioModules",
+      hint: "清單是即時向線上的 MiR 車輛查來的。",
     },
     { kind: "number", name: "port", label: "Port", min: 1, max: 4 },
     {
@@ -303,12 +443,20 @@ export const summarizeAction = (
       return { verb: "Adjust localization" };
     case "wait":
       return { verb: `Wait ${op.wait || "00:00:00"}` };
-    case "play_sound":
+    case "sound":
       return { verb: "Play sound", chip: op.sound || "-" };
-    case "stop_sound":
+    case "sound_stop":
       return { verb: "Stop sound" };
-    case "show_light":
-      return { verb: "Show light" };
+    case "light":
+      return {
+        verb: `Show light ${op.light_effect ?? "solid"}`,
+        chip: op.color_1 || undefined,
+      };
+    case "check_pose":
+      return {
+        verb: `Check pose is ${op.option ?? "free"}`,
+        chip: op.location_id || "-",
+      };
     case CONTAINER_TYPE:
       return { verb: "Mute protective fields" };
     case "set_io":

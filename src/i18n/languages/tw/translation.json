@@ -1,6 +1,6 @@
 {
   "header": {
-    "switch_row": "切換導覽列 / 工具列"
+    "switch_row": "切換導覽列 / 任務列"
   },
   "mission_dispatch_board": {
     "title": "任務派發看板",
@@ -380,7 +380,8 @@
     "peripheral": {
       "title": "設備",
       "name_table": "設備名稱表",
-      "group_table": "設備群組表"
+      "group_table": "設備群組表",
+      "stack_batch_edit": "Stack 批次編輯"
     },
     "others": {
       "others": "其它",
@@ -895,6 +896,8 @@
       "offload_tooltip": "選擇一個貨架來卸載貨物",
       "load": "裝載",
       "offload": "卸載",
+      "group": "群組",
+      "select_group": "或選擇地點群組",
       "click_shelves_or_cancel": "點擊地圖中的貨架或按 ESC 鍵取消",
       "picker_title": "選擇儲位",
       "picker_shelf": "貨架",
@@ -1363,6 +1366,42 @@
     "uniqueKey": "唯一值",
     "load_height": "取貨時高度",
     "tray_size": "棧本尺寸"
+  },
+  "cargo_panel": {
+    "type_storage": "貨架",
+    "type_conveyor": "輸送帶",
+    "type_stack": "堆疊區",
+    "type_elevator": "電梯",
+    "cargo_count": "{{count}} 件貨物",
+    "next_out": "下一個取出",
+    "top_next_out": "最上層・下一個取出",
+    "elevator_manual": "手動模式",
+    "elevator_running": "運行中",
+    "elevator_signal": "有貨訊號",
+    "booked_warning": "已被 {{booker}} 預約，修改貨物可能影響進行中的任務",
+    "disabled_hint": "此點位已停用，車輛不會來這裡取放貨",
+    "empty": "目前沒有貨物",
+    "add": "新增貨物",
+    "edit_title": "編輯貨物",
+    "full": "已達上限，無法再新增",
+    "no_formats": "尚未建立貨物格式，請先到設定頁新增",
+    "clear_all": "清空全部",
+    "clear_confirm": "確定移除這裡的 {{count}} 件貨物？",
+    "remove": "移除",
+    "remove_confirm": "確定移除「{{name}}」？",
+    "removed": "已移除",
+    "saved": "已儲存",
+    "untitled": "未命名貨物",
+    "no_format": "未設定格式",
+    "move_up": "上移",
+    "move_down": "下移",
+    "cargo_gone": "這筆貨已經不在此點位（可能已被車輛取走），無法儲存",
+    "format": "貨物格式",
+    "unique_key": "唯一值",
+    "other_fields": "其他欄位（不在格式內，儲存時會保留）",
+    "level_disabled": "停用",
+    "signal_mismatch": "電梯有貨訊號與系統紀錄不一致（訊號：{{signal}}，紀錄：{{count}} 件），請確認後修正",
+    "type_amr": "車輛"
   },
   "sim": {
     "add_car": "新增車輛",
@@ -2219,5 +2258,56 @@
     "alarm_code": "告警代碼",
     "description": "說明",
     "enable": "啟用"
+  },
+  "stack_batch": {
+    "title": "Stack 批次編輯",
+    "hint": "在表格勾選要改的 stack,勾選要修改的欄位,預覽後套用。沒勾的欄位不會被改動。",
+    "location_id": "地點 ID",
+    "name": "名稱",
+    "new_name": "新名稱",
+    "load_mission": "取貨任務",
+    "offload_mission": "放貨任務",
+    "load_priority": "取貨優先度",
+    "offload_priority": "放貨優先度",
+    "disable": "停用",
+    "cargo": "貨物",
+    "selected": "已選 {{count}} 個",
+    "change": "修改",
+    "clear_mission": "(清除)",
+    "rename": "自動產生名稱",
+    "prefix": "前綴",
+    "start": "起始編號",
+    "digits": "位數",
+    "order": "排序",
+    "order_location": "依地點 ID",
+    "order_name": "依目前名稱",
+    "mode_seq": "前綴 + 流水號",
+    "mode_loc": "前綴 + 地點 ID",
+    "preview": "預覽:{{first}} … {{last}}",
+    "invalid_prefix": "前綴只能包含英數字與 _",
+    "apply": "套用到已選",
+    "confirm": "確定要更新 {{count}} 個 stack?",
+    "nothing_to_apply": "請至少勾選一個要修改的欄位,或開啟自動產生名稱。",
+    "no_selection": "請至少選擇一個 stack。",
+    "no_stack": "沒有 STACK"
+  },
+  "appearance": {
+    "title": "外觀",
+    "theme": "配色主題",
+    "hint": "選一套設定頁與上方工具列要用的配色。選擇會存在這台瀏覽器,切換後立即生效。",
+    "scope_note": "「灰階」就是原本的配色。其他主題只換顏色,版面、間距與字體都不會變。",
+    "preview_label": "預覽",
+    "preview_action": "儲存",
+    "mode": {
+      "light": "淺色",
+      "dark": "深色"
+    },
+    "themes": {
+      "mono": "灰階",
+      "indigo": "靛藍",
+      "teal": "青綠",
+      "sand": "暖砂",
+      "midnight": "深夜"
+    }
   }
 }
