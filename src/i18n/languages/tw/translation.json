@@ -275,14 +275,18 @@
     "kind_direct_move": "直接移動",
     "kind_other": "其他",
     "move_away_title": "移動讓路",
-    "desc_move_away": "交管系統自動派發，讓車輛移到別處讓出路徑，不含取放貨",
+    "desc_move_away": "交管系統派發的移動（讓路或指定路線），顯示起點 → 終點",
     "desc_direct_move": "依指定路線直接移動，不含取放貨",
     "desc_normal": "從點位 {{from}} 出發，最後停在點位 {{to}}",
     "desc_normal_same": "在點位 {{from}} 執行",
     "desc_dynamic": "從 {{from}} 取貨，送到 {{to}}",
     "desc_dynamic_steps": "依序經過 {{count}} 個取放貨點",
     "desc_dynamic_waiting": "等待可用位置，空出後自動派發",
-    "desc_dynamic_candidates": "候選目的地：{{dests}}"
+    "desc_dynamic_candidates": "候選目的地：{{dests}}",
+    "kind_spin": "旋轉",
+    "spin_title": "原地旋轉",
+    "spin_at": "在點位 {{at}} 原地旋轉",
+    "desc_spin": "車輛停在原點轉向，不移動也不取放貨"
   },
   "maintenance": {
     "update": "更新車輛狀態",

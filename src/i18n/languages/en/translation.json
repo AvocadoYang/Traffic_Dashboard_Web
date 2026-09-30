@@ -276,14 +276,18 @@
     "kind_direct_move": "Direct",
     "kind_other": "Other",
     "move_away_title": "Move aside",
-    "desc_move_away": "Dispatched by traffic control to move the AMR out of the way; no load/unload",
+    "desc_move_away": "Move dispatched by traffic control (yield or given route); shows start → end",
     "desc_direct_move": "Moves along a given route; no load/unload",
     "desc_normal": "Starts at location {{from}}, ends at location {{to}}",
     "desc_normal_same": "Runs at location {{from}}",
     "desc_dynamic": "Pick up at {{from}}, deliver to {{to}}",
     "desc_dynamic_steps": "Visits {{count}} load/unload points in order",
     "desc_dynamic_waiting": "Waiting for a free location; dispatches automatically",
-    "desc_dynamic_candidates": "Candidate destinations: {{dests}}"
+    "desc_dynamic_candidates": "Candidate destinations: {{dests}}",
+    "kind_spin": "Spin",
+    "spin_title": "Spin in place",
+    "spin_at": "Spin at location {{at}}",
+    "desc_spin": "Turns in place without moving or loading"
   },
   "maintenance": {
     "update": "update maintenance level",

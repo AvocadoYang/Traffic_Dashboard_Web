@@ -484,7 +484,13 @@ const formatShortTime = (date?: Date | null) => {
 const formatFullTime = (date?: Date | null) =>
   date ? moment(date).format("YYYY-MM-DD HH:mm:ss") : "—";
 
-type MissionKind = "normal" | "dynamic" | "move_away" | "direct_move" | "other";
+type MissionKind =
+  | "normal"
+  | "dynamic"
+  | "move_away"
+  | "spin"
+  | "direct_move"
+  | "other";
 
 type MissionDescription = {
   kind: MissionKind;
@@ -496,6 +502,7 @@ const KIND_LABEL_KEY = {
   normal: "mission_history.kind_normal",
   dynamic: "mission_history.kind_dynamic",
   move_away: "mission_history.kind_move_away",
+  spin: "mission_history.kind_spin",
   direct_move: "mission_history.kind_direct_move",
   other: "mission_history.kind_other",
 } as const satisfies Record<MissionKind, string>;
@@ -504,6 +511,7 @@ const KIND_COLOR: Record<MissionKind, string | undefined> = {
   normal: "blue",
   dynamic: "cyan",
   move_away: "orange",
+  spin: "geekblue",
   direct_move: "purple",
   other: undefined,
 };
@@ -601,7 +609,8 @@ const MissionHistory: FC<{
    * - 一般任務: "起點ID -> 終點ID", full_name 才是設定的任務名稱
    * - 動態任務: "來源名 -> 目的名"
    * - 等待位置的動態任務: "來源 -> 目的1 / 目的2"
-   * - 交管移動: 固定 "move away", 路線沒存進歷史
+   * - 交管移動 / 原地旋轉: full_name 是 "move away" / "spin", sub_name 是
+   *   "起點 -> 終點" (舊資料 sub_name 也是 "move away", 看不到路線)
    * - DIRECT MOVE: 路線點位串
    */
   const describeMission = (record: Mission): MissionDescription => {
@@ -609,11 +618,26 @@ const MissionHistory: FC<{
     const firstName = record.full_name?.[0];
     const route = splitRoute(record.sub_name);
 
+    // 舊資料的 sub_name 就是 "move away" / "spin", 拆出來不是點位
+    const hasRoute = route.length > 0 && record.sub_name !== firstName;
+
     if (firstName === "move away" || record.sub_name === "move away") {
       return {
         kind: "move_away",
-        primary: t("mission_history.move_away_title"),
+        primary: hasRoute
+          ? route.join(" → ")
+          : t("mission_history.move_away_title"),
         desc: t("mission_history.desc_move_away"),
+      };
+    }
+
+    if (firstName === "spin") {
+      return {
+        kind: "spin",
+        primary: hasRoute
+          ? t("mission_history.spin_at", { at: route[0] })
+          : t("mission_history.spin_title"),
+        desc: t("mission_history.desc_spin"),
       };
     }
 
