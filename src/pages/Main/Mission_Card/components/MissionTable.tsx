@@ -29,7 +29,12 @@ import {
   DeleteOutlined,
   FilterOutlined,
   HistoryOutlined,
+  WarningOutlined,
 } from "@ant-design/icons";
+import MissionRejectHint, {
+  needsFix,
+  rejectEntries,
+} from "@/components/MissionRejectHint";
 import { MissionStatus } from "@/types/mission";
 import I18nCancelReason from "@/i18n/I18nCancelReason";
 import { themeAtom } from "@/theme";
@@ -355,8 +360,9 @@ const MissionTable = () => {
       sorter: (a, b) => a.id.localeCompare(b.id),
       width: 150,
       render: (missionId: string) => {
-        const info = rejectMission?.[missionId];
-        if (!info) return <MissionIdTag color="blue">{missionId}</MissionIdTag>;
+        const info = rejectEntries(rejectMission?.[missionId]);
+        if (!info.length)
+          return <MissionIdTag color="blue">{missionId}</MissionIdTag>;
 
         const tooltipContent = (
           <div
@@ -424,6 +430,24 @@ const MissionTable = () => {
           );
         }
 
+        // 派不出去而且要有人處理的任務, 狀態旁邊多一個警示 (手機版看不到任務欄的原因)
+        const reasons = rejectMission?.[record.missionId];
+        if (record.status === MissionStatus.PENDING && needsFix(reasons)) {
+          return (
+            <Tooltip
+              title={<MissionRejectHint entries={reasons} />}
+              color="var(--c-bg)"
+            >
+              <Flex gap={6} align="center">
+                <StatusBadge $status={status} $isDark={isDark}>
+                  {status}
+                </StatusBadge>
+                <WarningOutlined style={{ color: "var(--c-warning)" }} />
+              </Flex>
+            </Tooltip>
+          );
+        }
+
         return (
           <StatusBadge $status={status} $isDark={isDark}>
             {status}
@@ -476,6 +500,15 @@ const MissionTable = () => {
     if (!isMobile) return true;
     return item.key !== "taskInfo";
   });
+
+  // 還沒派出去的任務在下面整列寫出原因, 面板再窄也看得到
+  const blockedKeys = (missions ?? [])
+    .filter(
+      (m) =>
+        m.status === MissionStatus.PENDING &&
+        rejectEntries(rejectMission?.[m.missionId]).length > 0,
+    )
+    .map((m) => m.missionId);
 
   const newColumns = columns.map((item) => ({
     ...item,
@@ -652,6 +685,13 @@ const MissionTable = () => {
               })) as []
           }
           bordered
+          expandable={{
+            showExpandColumn: false,
+            expandedRowKeys: blockedKeys,
+            expandedRowRender: (record: MissionInfo) => (
+              <MissionRejectHint entries={rejectMission?.[record.missionId]} />
+            ),
+          }}
           pagination={{
             pageSize: 20,
             showSizeChanger: true,

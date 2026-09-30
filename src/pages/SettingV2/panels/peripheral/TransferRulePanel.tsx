@@ -38,6 +38,8 @@ import {
   useTransferRuntime,
 } from "@/api/useTransferRules";
 import { ErrorResponse } from "@/utils/globalType";
+import { useRejectMission } from "@/sockets/useRejectMission";
+import MissionRejectHint, { rejectEntries } from "@/components/MissionRejectHint";
 import { errorHandler } from "@/utils/utils";
 import StatusTag from "../../ui/StatusTag";
 import HelpButton from "../../ui/HelpButton";
@@ -146,6 +148,7 @@ const RuntimeSection: FC<{ config: TransferConfig; messageApi: MessageInstance }
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { data: runtime } = useTransferRuntime();
+  const rejectMission = useRejectMission();
   const rows = runtime ?? [];
 
   const act = useMutation({
@@ -224,6 +227,15 @@ const RuntimeSection: FC<{ config: TransferConfig; messageApi: MessageInstance }
                   <dt>{t("transfer_rules.detail")}</dt>
                   <dd>{r.detail || "—"}</dd>
                 </CardFacts>
+                {/* 規則派出去的任務卡在沒車可派時, 直接在這裡說原因 */}
+                {r.missionIds
+                  .filter((id) => rejectEntries(rejectMission?.[id]).length)
+                  .map((id) => (
+                    <div key={id}>
+                      <Hint>{t("transfer_rules.mission_not_dispatched", { id })}</Hint>
+                      <MissionRejectHint entries={rejectMission?.[id]} />
+                    </div>
+                  ))}
                 {(canRun || r.job) && (
                   <Toolbar>
                     {canRun && (

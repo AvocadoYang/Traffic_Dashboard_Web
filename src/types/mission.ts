@@ -26,6 +26,8 @@ export type Reject_Mission = {
   [missionId: string]: {
     amrId: string;
     reason: string;
+    /** FIX = 要有人處理才派得出去, WAIT = 排隊中 */
+    level?: "FIX" | "WAIT";
   }[];
 };
 

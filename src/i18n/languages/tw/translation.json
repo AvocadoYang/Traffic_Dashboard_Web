@@ -2043,6 +2043,8 @@
     "direct": "直接移動到點"
   },
   "mission_reject_reason": {
+    "fix": "需要處理才派得出去",
+    "wait": "排隊中",
     "title": "任務派送被拒原因",
     "cat1": "優先級與任務隊列問題",
     "cat1_1": "任務隊列中有更高優先級的任務",
@@ -2553,6 +2555,7 @@
     }
   },
   "transfer_rules": {
+    "mission_not_dispatched": "任務 {{id}} 還沒派出去：",
     "title": "區域搬運",
     "schema_not_ready": "資料表還沒建立，請在 mission-control 執行 yarn pdp。",
     "mir_not_supported": "MiR 模式不支援區域搬運規則，規則不會自動執行。",

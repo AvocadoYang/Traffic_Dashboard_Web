@@ -2042,6 +2042,8 @@
     "direct": "Direct move to location"
   },
   "mission_reject_reason": {
+    "fix": "Needs action before it can be dispatched",
+    "wait": "Queued",
     "title": "Mission Assignment Rejection Reasons",
     "cat1": "Priority & Queue Issues",
     "cat1_1": "Higher priority mission exists in queue",
@@ -2552,6 +2554,7 @@
     }
   },
   "transfer_rules": {
+    "mission_not_dispatched": "Mission {{id}} has not been dispatched yet:",
     "title": "Area Transfer",
     "schema_not_ready": "Tables are not created yet. Run yarn pdp in mission-control.",
     "mir_not_supported": "Area transfer rules are not supported in MiR mode and will not run.",
