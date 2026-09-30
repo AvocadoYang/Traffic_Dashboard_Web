@@ -1,6 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import client from "./axiosClient";
 
+/**
+ * 取貨順序: 巷道規則先篩掉拿不到的位置, 這裡決定拿得到的位置之間誰先拿。
+ * NEAREST 最近的先拿 / FEWEST_LEVELS 貨最少的 stack 先拿 / OLDEST_FIRST 最上層放最久的先拿
+ */
+export const PICK_ORDERS = ["NEAREST", "FEWEST_LEVELS", "OLDEST_FIRST"] as const;
+export type PickOrder = (typeof PICK_ORDERS)[number];
+
 export type PlacementPolicy = {
   /** 每條巷道是一串 peripheral_name.id, 由內 (最深) 到外 */
   lanes: string[][];
@@ -9,6 +16,7 @@ export type PlacementPolicy = {
   maxHeight: number | null;
   stackMatchKeys: string[];
   preferStacking: boolean;
+  pickOrder: PickOrder;
 };
 
 export type PlacementGroup = {

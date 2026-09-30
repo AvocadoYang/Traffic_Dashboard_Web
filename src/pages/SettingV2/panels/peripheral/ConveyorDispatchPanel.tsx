@@ -37,10 +37,12 @@ import {
   RouteCondition,
   useConveyorDispatchRuntime,
   usePlacementConfig,
+  PICK_ORDERS,
 } from "@/api/usePlacementConfig";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import StatusTag from "../../ui/StatusTag";
+import HelpButton from "./ConveyorDispatchHelp";
 import {
   PanelShell,
   Section,
@@ -117,6 +119,7 @@ const RuntimeSection: FC = () => {
       <SectionTitle>
         <DashboardOutlined />
         {t("conveyor_dispatch.runtime_title")}
+        <HelpButton topic="runtime" />
       </SectionTitle>
 
       {rows.length === 0 ? (
@@ -341,6 +344,7 @@ const RuleSection: FC<{
       <SectionTitle>
         <ShareAltOutlined />
         {t("conveyor_dispatch.rules_title")}
+        <HelpButton topic="rules" />
       </SectionTitle>
       <Hint>{t("conveyor_dispatch.rules_hint")}</Hint>
 
@@ -512,6 +516,7 @@ const defaultPolicy = (maxLevels: number): PlacementPolicy => ({
   maxHeight: null,
   stackMatchKeys: [],
   preferStacking: true,
+  pickOrder: "NEAREST",
 });
 
 const PolicySection: FC<{
@@ -574,6 +579,7 @@ const PolicySection: FC<{
       <SectionTitle>
         <BranchesOutlined />
         {t("conveyor_dispatch.policy_title")}
+        <HelpButton topic="policy" />
       </SectionTitle>
       <Hint>{t("conveyor_dispatch.only_stack_note")}</Hint>
 
@@ -643,9 +649,27 @@ const PolicySection: FC<{
               </Toolbar>
               <Hint>{t("conveyor_dispatch.height_hint")}</Hint>
             </Field>
+            <Field>
+              <FieldLabel>{t("conveyor_dispatch.pick_order")}</FieldLabel>
+              <Select
+                style={{ minWidth: 160 }}
+                value={draft.pickOrder ?? "NEAREST"}
+                onChange={(v) => patch({ pickOrder: v })}
+                options={PICK_ORDERS.map((o) => ({
+                  label: t(`conveyor_dispatch.pick_order_${o}`),
+                  value: o,
+                }))}
+              />
+              <Hint>
+                {t(`conveyor_dispatch.pick_order_hint_${draft.pickOrder ?? "NEAREST"}`)}
+              </Hint>
+            </Field>
           </FieldGrid>
 
-          <FieldLabel>{t("conveyor_dispatch.lanes")}</FieldLabel>
+          <FieldLabel style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            {t("conveyor_dispatch.lanes")}
+            <HelpButton topic="lanes" />
+          </FieldLabel>
           <Hint>{t("conveyor_dispatch.lanes_hint")}</Hint>
           {draft.lanes.map((lane, i) => (
             <Toolbar key={i}>
