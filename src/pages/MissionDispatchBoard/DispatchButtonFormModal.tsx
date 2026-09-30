@@ -4,6 +4,8 @@ import useAmrName from "@/api/useAmrName";
 import useAllMissionTitles from "@/api/useMissionTitle";
 import useConfigFlags from "@/api/useConfigFlags";
 import usePeripheralName from "@/api/usePeripheralName";
+import usePeripheralGroup from "@/api/usePeripheralGroup";
+import { TRIGGERS_WITH_TRIPS, useTransferConfig } from "@/api/useTransferRules";
 import {
   DISPATCH_PAGE_QUERY_KEY,
   DispatchButton,
@@ -39,12 +41,13 @@ interface FormValues {
   fontColor: string;
   fontSize: number;
   fontWeight: number;
-  dispatch_type: "NORMAL" | "DYNAMIC" | "MIR";
+  dispatch_type: "NORMAL" | "DYNAMIC" | "MIR" | "TRANSFER";
   amrId: string;
   missionTitleId?: string;
   ept_s?: string;
   ept_d?: string;
   missionName?: string;
+  transfer_rule_id?: string;
   priority: number;
 }
 
@@ -113,6 +116,8 @@ const DispatchButtonFormModal: FC<{
   const amrIdValue = Form.useWatch("amrId", form);
   const { data: amrData } = useAmrName();
   const { data: peripheralData } = usePeripheralName();
+  const { data: peripheralGroups } = usePeripheralGroup();
+  const { data: transferConfig } = useTransferConfig();
   const { data: configFlags } = useConfigFlags();
   const hasMir = configFlags?.hasMir ?? true;
 
@@ -132,6 +137,7 @@ const DispatchButtonFormModal: FC<{
       ept_s: initialValues?.ept_s ?? undefined,
       ept_d: initialValues?.ept_d ?? undefined,
       missionName: initialValues?.missionName ?? undefined,
+      transfer_rule_id: initialValues?.transfer_rule_id ?? undefined,
       priority: initialValues?.priority ?? MissionPriority.NORMAL,
     });
   }, [open, initialValues, form]);
@@ -166,6 +172,33 @@ const DispatchButtonFormModal: FC<{
     });
     return [...names].map((name) => ({ value: name, label: name }));
   }, [peripheralData]);
+
+  // 取放貨點可以選群組 (例如 PU_G2 -> PU_G1): 系統依群組的擺放規則與取貨順序挑位置。
+  // 群組跟點位同名時只列點位, 避免下拉選單出現重複的值
+  const endpointOptions = useMemo(() => {
+    const locationNames = new Set(peripheralOptions.map((o) => o.value));
+    const groups = (peripheralGroups ?? [])
+      .filter((g): g is NonNullable<typeof g> => !!g && !locationNames.has(g.name))
+      .map((g) => ({ value: g.name, label: g.name }));
+    return [
+      ...(groups.length
+        ? [{ label: t("mission_dispatch_board.group_options"), options: groups }]
+        : []),
+      { label: t("mission_dispatch_board.location_options"), options: peripheralOptions },
+    ];
+  }, [peripheralGroups, peripheralOptions, t]);
+
+  // 區域搬運按鈕只能選手動 / 定時的規則 (自動規則不需要按鈕)
+  const transferRuleOptions = useMemo(() => {
+    const groupName = (id: string) =>
+      transferConfig?.groups.find((g) => g.id === id)?.name ?? id;
+    return (transferConfig?.rules ?? [])
+      .filter((r) => TRIGGERS_WITH_TRIPS.includes(r.triggerType))
+      .map((r) => ({
+        value: r.id,
+        label: `${r.name} (${groupName(r.sourceGroupId)} → ${groupName(r.destGroupId)})`,
+      }));
+  }, [transferConfig]);
 
   const mutation = useMutation({
     mutationFn: (payload: Record<string, unknown>) =>
@@ -205,13 +238,18 @@ const DispatchButtonFormModal: FC<{
       width: initialValues?.width ?? 128,
       height: initialValues?.height ?? 128,
       dispatch_type: values.dispatch_type,
-      amrId: values.amrId === AUTO_ASSIGN ? null : values.amrId,
+      amrId:
+        values.dispatch_type === "TRANSFER" || values.amrId === AUTO_ASSIGN
+          ? null
+          : values.amrId,
       missionTitleId:
         values.dispatch_type === "NORMAL" ? values.missionTitleId : null,
       ept_s: values.dispatch_type === "DYNAMIC" ? values.ept_s ?? null : null,
       ept_d: values.dispatch_type === "DYNAMIC" ? values.ept_d ?? null : null,
       missionName:
         values.dispatch_type === "MIR" ? values.missionName : null,
+      transfer_rule_id:
+        values.dispatch_type === "TRANSFER" ? values.transfer_rule_id : null,
       priority: values.priority,
     });
   };
@@ -296,6 +334,10 @@ const DispatchButtonFormModal: FC<{
                       },
                     ]
                   : []),
+                {
+                  value: "TRANSFER",
+                  label: t("mission_dispatch_board.type_transfer"),
+                },
               ]}
               optionType="button"
               onChange={() =>
@@ -305,22 +347,39 @@ const DispatchButtonFormModal: FC<{
                   "ept_s",
                   "ept_d",
                   "missionName",
+                  "transfer_rule_id",
                 ])
               }
             />
           </Form.Item>
 
-          <Form.Item
-            label={t("mission_dispatch_board.amr")}
-            name="amrId"
-            rules={dispatchType === "MIR" ? [{ required: true }] : undefined}
-          >
-            <Select
-              options={dispatchType === "MIR" ? mirAmrOptions : amrOptions}
-            />
-          </Form.Item>
+          {/* 區域搬運的車輛與優先級都由規則決定 */}
+          {dispatchType !== "TRANSFER" && (
+            <Form.Item
+              label={t("mission_dispatch_board.amr")}
+              name="amrId"
+              rules={dispatchType === "MIR" ? [{ required: true }] : undefined}
+            >
+              <Select
+                options={dispatchType === "MIR" ? mirAmrOptions : amrOptions}
+              />
+            </Form.Item>
+          )}
 
-          {dispatchType === "DYNAMIC" ? (
+          {dispatchType === "TRANSFER" ? (
+            <Form.Item
+              label={t("mission_dispatch_board.transfer_rule")}
+              name="transfer_rule_id"
+              rules={[{ required: true }]}
+              extra={
+                transferRuleOptions.length
+                  ? t("mission_dispatch_board.transfer_rule_hint")
+                  : t("mission_dispatch_board.no_transfer_rule")
+              }
+            >
+              <Select showSearch options={transferRuleOptions} optionFilterProp="label" />
+            </Form.Item>
+          ) : dispatchType === "DYNAMIC" ? (
             <>
               <Form.Item
                 label={t("mission_dispatch_board.pickup_point")}
@@ -329,18 +388,19 @@ const DispatchButtonFormModal: FC<{
                 <Select
                   allowClear
                   showSearch
-                  options={peripheralOptions}
+                  options={endpointOptions}
                   optionFilterProp="label"
                 />
               </Form.Item>
               <Form.Item
                 label={t("mission_dispatch_board.dropoff_point")}
                 name="ept_d"
+                extra={t("mission_dispatch_board.group_hint")}
               >
                 <Select
                   allowClear
                   showSearch
-                  options={peripheralOptions}
+                  options={endpointOptions}
                   optionFilterProp="label"
                 />
               </Form.Item>
@@ -366,6 +426,7 @@ const DispatchButtonFormModal: FC<{
           <Form.Item
             label={t("mission_dispatch_board.priority")}
             name="priority"
+            hidden={dispatchType === "TRANSFER"}
           >
             <Select
               options={[

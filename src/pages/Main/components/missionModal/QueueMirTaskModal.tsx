@@ -25,6 +25,7 @@ import { errorHandler } from "@/utils/utils";
 import { RocketOutlined, SettingOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import MirMissionTableSelect from "./MirMissionTableSelect";
+import useName from "@/api/useAmrName";
 
 enum MissionPriority {
   TRIVIAL,
@@ -327,14 +328,18 @@ const QueueMirTaskModal = () => {
   const variablesQuery = useMirMissionVariables(amrId, missionName);
   const variables = variablesQuery.data ?? [];
   const { data: locs } = useLoc(undefined);
+  const { data: name } = useName();
 
-  const amrOptions = useMemo(() => {
-    const names = new Set<string>();
-    data?.forEach((row) =>
-      Object.keys(row.robots).forEach((name) => names.add(name)),
+  const AmrOption: { value: null | string; label: string }[] = useMemo(() => {
+    return (
+      name?.amrs
+        .filter((a) => a.isReal === true)
+        .map((m) => ({
+          label: `${m.amrId} ${m.isReal ? [] : <Tag>{`${t("simulate")}`}</Tag>}`,
+          value: m.amrId,
+        })) || []
     );
-    return [...names].sort().map((name) => ({ value: name, label: name }));
-  }, [data]);
+  }, [name]);
 
   // bridge 會用 locationId 自己查成 MiR position guid，所以 value 填 locationId
   const locationOptions = useMemo(
@@ -457,7 +462,7 @@ const QueueMirTaskModal = () => {
             ]}
           >
             <StyledSelect
-              options={amrOptions}
+              options={AmrOption}
               loading={isLoading}
               placeholder={t("main.queue_mir_task_modal.select_amr")}
               onChange={() => {

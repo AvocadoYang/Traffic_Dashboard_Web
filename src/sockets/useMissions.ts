@@ -22,7 +22,7 @@ import {
 } from "yup";
 import { InferObservableType } from "@/utils/globalType";
 import { io } from "./socketConnect";
-import { CancelReason } from "@/types/mission";
+import { CancelReason, MissionStatus } from "@/types/mission";
 import { deepEqual } from "@/utils/deepEqual";
 
 const missionTypeMap = {
@@ -41,6 +41,7 @@ const missionStatusMap = {
   ABORTING: "aborting",
   CANCELED: "canceled",
   COMPLETED: "completed",
+  WAITING: "waiting",
 } as const;
 
 const schema = () =>
@@ -68,6 +69,8 @@ const schema = () =>
         completedAt: date().optional(),
         info: string().optional().nullable(),
         cancelReason: number().optional().nullable(),
+        /** WAITING 任務在等什麼 */
+        message: string().optional().nullable(),
         status: number().required(),
         order: number().required(),
         priority: number().required(),
@@ -209,6 +212,8 @@ export type MissionInfo = {
   cancelReason?: CancelReason;
   priority?: number;
   order: number;
+  /** 後端的 MissionStatus 數字; missionStatus 是給畫面顯示的文字 */
+  status?: MissionStatus;
 };
 
 export type Additional_Mission_Info = {

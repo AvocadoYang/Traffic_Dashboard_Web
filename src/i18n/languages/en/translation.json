@@ -31,6 +31,14 @@
     "dropoff_point": "Dropoff Point",
     "priority": "Priority",
     "dynamic_hint": "At least one of pickup/dropoff point is required",
+    "type_transfer": "Area transfer",
+    "transfer_rule": "Transfer rule",
+    "transfer_rule_hint": "Each press moves the number of trips set in the rule (for example 3 trips from PU_G2 to PU_G1). Trips and priority are edited in the rule under Settings > Area Transfer.",
+    "no_transfer_rule": "There are no manual or scheduled area transfer rules yet. Create one under Settings > Area Transfer first.",
+    "group_options": "Groups",
+    "location_options": "Locations",
+    "group_hint": "Groups can be selected, for example pickup PU_G2 and drop-off PU_G1, moving one load per press. With a group, the slot is chosen by the group placement rules and pick order under Settings > Conveyor dispatch.",
+    "fired_waiting": "Mission created, but no slot is free right now. It is kept as Waiting for location and will be sent out once a slot frees up",
     "delete_button_confirm_title": "Delete this button?",
     "add_widget_card": "Add Mission Status List",
     "add_amr_status_card": "Add AMR Status Card",
@@ -192,18 +200,18 @@
     "assigned": "assigned",
     "executing": "executing",
     "completed": "completed",
-    "aborting": "canceled",
+    "aborting": "aborted",
     "canceled": "canceled",
     "failed": "Failed",
     "total_time": "Total Time",
     "min": "min",
     "sec": "sec",
     "refresh": "Refresh",
-    "full_name": "name",
-    "sub_name": "Sub Name",
+    "full_name": "Name",
+    "sub_name": "Route",
     "category": "Category",
     "priority": "Priority",
-    "send_by": "Send By",
+    "send_by": "Source",
     "created_at": "Created At",
     "started_at": "Started At",
     "completed_at": "Completed At",
@@ -230,10 +238,56 @@
     "user": "USER",
     "wcs": "WCS",
     "column_select": "Specifies the task content to display.",
-    "cancel_reason": "cancel reason",
+    "cancel_reason": "Cancel Reason",
     "filter": "column filter",
     "export": "Export",
-    "search_mission_or_id": "Search by mission name or ID"
+    "search_mission_or_id": "Search by mission name or ID",
+    "waiting": "waiting for location",
+    "mission": "Mission",
+    "vehicle": "Vehicle",
+    "duration": "Run Time",
+    "waited": "Waited {{time}}",
+    "in_progress": "In progress",
+    "not_started": "Not started",
+    "flags": "Incidents",
+    "warning_count": "{{count}} warning(s) during mission",
+    "emergency_pressed": "Emergency button pressed",
+    "recovery_pressed": "Recovery button pressed",
+    "timeline": "Timeline",
+    "assigned_at": "Assigned At",
+    "ended_at": "Ended At",
+    "detail": "Mission Info",
+    "battery": "Battery",
+    "battery_detail": "{{start}}% → {{end}}% (used {{cost}}%)",
+    "distance": "Distance",
+    "message": "Message",
+    "warnings": "Warnings",
+    "reject_reasons": "Reject Reasons",
+    "rejected_count": "Rejected by {{count}} AMR(s)",
+    "export_need_range": "Pick a date range to export",
+    "export_success": "Export succeeded",
+    "export_failed": "Export failed",
+    "unit_h": "h",
+    "unit_m": "m",
+    "unit_s": "s",
+    "kind_normal": "Normal",
+    "kind_dynamic": "Dynamic",
+    "kind_move_away": "Traffic",
+    "kind_direct_move": "Direct",
+    "kind_other": "Other",
+    "move_away_title": "Move aside",
+    "desc_move_away": "Move dispatched by traffic control (yield or given route); shows start → end",
+    "desc_direct_move": "Moves along a given route; no load/unload",
+    "desc_normal": "Starts at location {{from}}, ends at location {{to}}",
+    "desc_normal_same": "Runs at location {{from}}",
+    "desc_dynamic": "Pick up at {{from}}, deliver to {{to}}",
+    "desc_dynamic_steps": "Visits {{count}} load/unload points in order",
+    "desc_dynamic_waiting": "Waiting for a free location; dispatches automatically",
+    "desc_dynamic_candidates": "Candidate destinations: {{dests}}",
+    "kind_spin": "Spin",
+    "spin_title": "Spin in place",
+    "spin_at": "Spin at location {{at}}",
+    "desc_spin": "Turns in place without moving or loading"
   },
   "maintenance": {
     "update": "update maintenance level",
@@ -249,6 +303,10 @@
     "delete_current_mission": "Delete mission",
     "force_delete_mission": "FOrce delete mission",
     "charge_reset": "Charge reset",
+    "spin": "Spin in place",
+    "spin_hint": "The vehicle turns to the target yaw at the point it is standing on. It must be idle, and the point must be set as rotatable on the map.",
+    "spin_current_yaw": "Current yaw",
+    "spin_target_yaw": "Target yaw",
     "localization_correction": "Localization Correction",
     "localization_correction_hint": "Drag the ghost to move it, drag the handle to rotate it, then align it with the real map",
     "localization_correction_reset": "Reset",
@@ -384,7 +442,9 @@
       "title": "Device",
       "name_table": "Device Name Table",
       "group_table": "Device Area Table",
-      "stack_batch_edit": "Stack Batch Edit"
+      "stack_batch_edit": "Stack Batch Edit",
+      "conveyor_dispatch": "Conveyor Dispatch",
+      "transfer_rules": "Area Transfer"
     },
     "others": {
       "others": "Others",
@@ -1820,7 +1880,7 @@
       "title": "Performance",
       "last_min": "Last {{count}} min",
       "pending": "Pending",
-      "pending_hint": "Missions created but not yet picked up. Growing steadily means the fleet cannot keep up.",
+      "pending_hint": "Missions created but not yet picked up (excluding missions waiting for a location). Growing steadily means the fleet cannot keep up.",
       "executing": "Running",
       "queue_ratio": "Queue ratio",
       "queue_ratio_hint": "Wait time divided by run time. <1 has headroom, 1-3 busy but coping, >3 saturated (more missions only lengthen the queue).",
@@ -1833,6 +1893,8 @@
       "busy": "Busy",
       "stale": "{{count}} stale missions",
       "stale_hint": "These sit in an unfinished state but fall outside the window, usually left by a restart. They stay in the dispatch queue and are worth clearing.",
+      "waiting_location": "{{count}} waiting for a free location (longest {{sec}}s)",
+      "waiting_location_hint": "These missions are in the Waiting for location state: no slot can take or give the cargo yet, so they have not entered the dispatch queue. They are left out of Pending and wait times; the wait for a vehicle starts once a location is found. The bottleneck is storage space or placement rules, so adding vehicles will not help.",
       "event_loop": "Event loop p99",
       "event_loop_hint": "How long Node was blocked by synchronous work. 0 is healthy; a sustained 100ms+ means the software is the problem, not the fleet size.",
       "lag_max": "Peak lag",
@@ -2031,6 +2093,8 @@
     "direct": "Direct move to location"
   },
   "mission_reject_reason": {
+    "fix": "Needs action before it can be dispatched",
+    "wait": "Queued",
     "title": "Mission Assignment Rejection Reasons",
     "cat1": "Priority & Queue Issues",
     "cat1_1": "Higher priority mission exists in queue",
@@ -2309,6 +2373,378 @@
       "teal": "Teal",
       "sand": "Sand",
       "midnight": "Midnight"
+    }
+  },
+  "conveyor_dispatch": {
+    "title": "Conveyor Dispatch",
+    "waiting_on": "When no location fits, the mission is kept as \"Waiting for location\" and dispatched automatically once a location frees up.",
+    "waiting_off": "ENABLE_MISSION_WAITING_STATUS is off in the backend YAML: no waiting mission is created when nothing fits; the conveyor keeps retrying every few seconds.",
+    "schema_not_ready": "Tables are missing. Run yarn pdp in mission-control.",
+    "runtime_title": "Live Status",
+    "no_runtime": "No conveyor has routing rules yet",
+    "state": {
+      "IDLE": "Empty",
+      "DISABLED": "Disabled",
+      "BUSY": "In use",
+      "NO_RULE": "No matching rule",
+      "DISPATCHED": "Dispatched",
+      "WAITING": "Waiting for location",
+      "BLOCKED": "Cannot dispatch"
+    },
+    "queue_length": "Queue",
+    "head": "Head cargo",
+    "rule": "Matched rule",
+    "dest_groups": "Destination groups",
+    "mission": "Mission",
+    "detail": "Detail",
+    "rules_title": "Routing Rules",
+    "rules_hint": "The head cargo is matched top to bottom and the first matching rule wins; the fallback is always checked last. Destination groups are tried in order.",
+    "no_conveyor": "No conveyor in the current script",
+    "no_rule": "This conveyor has no rules, so cargo is not dispatched automatically",
+    "add_rule": "Add rule",
+    "edit_rule": "Edit rule",
+    "name": "Name",
+    "enabled": "Enabled",
+    "fallback": "Fallback",
+    "fallback_hint": "The fallback has no conditions and is used when no other rule matches. One per conveyor.",
+    "conditions": "Conditions (all must match)",
+    "add_condition": "Add condition",
+    "key": "Cargo field",
+    "value": "Value",
+    "dest_groups_hint": "Tried in the order selected",
+    "priority": "Mission priority",
+    "move_up": "Move up",
+    "move_down": "Move down",
+    "policy_title": "Group Placement Rules",
+    "only_stack_note": "Placement rules apply to STACK members only. Groups without rules accept any free slot as before. Rules also apply when WCS targets the group or one of its locations.",
+    "no_stack_group": "No group contains a STACK",
+    "no_policy": "Not set",
+    "max_levels": "Max levels",
+    "prefer_stacking": "Stack first",
+    "prefer_stacking_hint": "On: stack onto an existing slot when possible, open a new slot only when nothing can be stacked",
+    "stack_match_keys": "Stack only when these fields match",
+    "stack_match_hint": "Leave empty to allow any cargo to stack together",
+    "height_limit": "Height limit",
+    "height_key": "Height field",
+    "max_height": "Max total height",
+    "height_hint": "Total stacked height (same unit as the cargo field) must stay within the limit; cargo without a readable height is not stacked",
+    "pick_order": "Pick order",
+    "pick_order_NEAREST": "Nearest first",
+    "pick_order_FEWEST_LEVELS": "Fewest cargo first",
+    "pick_order_hint_NEAREST": "Lane rules apply first; among reachable slots, take from the one closest to the vehicle or drop-off point",
+    "pick_order_hint_FEWEST_LEVELS": "Lane rules apply first; among reachable slots, take from the stack holding the least cargo so it empties sooner and frees space for drop-offs. Ties go to the closest",
+    "pick_order_OLDEST_FIRST": "Oldest first",
+    "pick_order_hint_OLDEST_FIRST": "Lane rules apply first; among reachable slots, compare when each top cargo was placed on its stack and take the oldest. Only the top of a stack can be taken, so older cargo underneath waits until the cargo above is gone. Cargo placed before this feature has no time and counts as oldest",
+    "lanes": "Lanes",
+    "lanes_hint": "Pick each row from the innermost slot to the aisle. Only one vehicle works in a lane at a time; inner slots are blocked while an outer slot has cargo, and slots are filled from the inside out.",
+    "lane_n": "Lane {{n}}",
+    "lane_placeholder": "Select from inner to outer",
+    "lane_inner": "Inner",
+    "lane_outer": "Aisle",
+    "add_lane": "Add lane",
+    "unassigned": "Slots not in any lane (no lane restrictions)",
+    "unassigned_hint": "These slots are treated as always directly reachable. When placing cargo the system picks the slot closest to the conveyor, and lane slots get no extra priority. If these slots also sit in a row, add the whole row as a lane.",
+    "remove_policy": "Remove placement rules",
+    "remove_policy_warn": "Any free slot in this group will be used after removal. Continue?",
+    "help": {
+      "open": "How to use",
+      "runtime": {
+        "title": "Reading the live status",
+        "sections": [
+          {
+            "title": "What this shows",
+            "items": [
+              "One card per conveyor that has dispatch rules, refreshed every 3 seconds.",
+              "Only the head of the queue (the cargo placed on the conveyor first) is dispatched; the next one waits until it is picked up."
+            ]
+          },
+          {
+            "title": "States",
+            "items": [
+              "No cargo: the conveyor is empty.",
+              "Disabled: the conveyor is disabled in settings and will not dispatch.",
+              "In use: a vehicle is loading or unloading at this conveyor; dispatch resumes when it finishes.",
+              "No matching rule: the head cargo matches no rule and there is no fallback. Add a rule below or a fallback destination.",
+              "Dispatched: a mission was created and is waiting for a vehicle.",
+              "Waiting for location: no destination group has a free slot yet; the mission is kept and sent out automatically once a slot frees up.",
+              "Cannot dispatch: dispatch failed and cannot wait; check the detail text on the card."
+            ]
+          },
+          {
+            "title": "Notes",
+            "items": [
+              "After a user cancels a mission created by the conveyor, the same cargo waits 60 seconds before it is dispatched again, so the cancel sticks.",
+              "Waiting for location needs ENABLE_MISSION_WAITING_STATUS in the backend YAML; without it the conveyor retries on its own every few seconds."
+            ]
+          }
+        ]
+      },
+      "rules": {
+        "title": "Setting up dispatch rules",
+        "sections": [
+          {
+            "title": "How it works",
+            "items": [
+              "Pick the conveyor to configure at the top.",
+              "When cargo reaches the head of the queue, the rules of that conveyor are checked from top to bottom and the first match is used.",
+              "Conditions compare fields in the cargo data, such as trayType or batchNo sent by yfy; every condition of a rule must match.",
+              "Destination groups are tried in the order selected: the next group is used only when the previous one has no free slot."
+            ]
+          },
+          {
+            "title": "Example",
+            "items": [
+              "Rule 1: condition trayType = A, destinations PU_G2 → PU_G1. Tray A cargo goes to PU_G2 first, and to PU_G1 only when PU_G2 is full.",
+              "Rule 2: fallback, destination PU_G1. Everything that does not match rule 1 goes to PU_G1."
+            ]
+          },
+          {
+            "title": "Other settings",
+            "items": [
+              "Fallback: has no conditions and is always checked last; at most one per conveyor. Without a fallback, cargo that matches no rule stays on the conveyor.",
+              "Up and down arrows: change the checking order; higher rules are checked first.",
+              "Mission priority: how urgently missions created by this rule get a vehicle.",
+              "Enabled switch: disabled rules are skipped without deleting them."
+            ]
+          },
+          {
+            "title": "Which slot in the group",
+            "items": [
+              "Dispatch rules only choose the group; the slot inside the group is decided by the group placement rules below."
+            ]
+          }
+        ]
+      },
+      "policy": {
+        "title": "Setting up group placement rules",
+        "sections": [
+          {
+            "title": "Where they apply",
+            "items": [
+              "Only the stacks in a group are covered, with one set of rules per group.",
+              "They apply whenever the pickup or drop-off point is this group or one of its stacks: conveyor dispatch, WCS, fast missions and mission dispatch board buttons alike.",
+              "Groups without rules keep the old behaviour and use the closest slot."
+            ]
+          },
+          {
+            "title": "Placing cargo",
+            "items": [
+              "Max levels: how many cargo each stack may hold.",
+              "Stack first: when on, cargo is stacked onto an existing slot if possible, and a new slot is used only when nothing can be stacked.",
+              "Stack only when these fields match: for example batchNo, so only cargo from the same batch is stacked together; leave empty to allow any cargo.",
+              "Height limit: pick the cargo field that holds the height; the total stacked height must stay within the limit, and cargo without a readable height is not stacked."
+            ]
+          },
+          {
+            "title": "Picking cargo",
+            "items": [
+              "Pick order decides which reachable slot is picked first: nearest first, fewest cargo first, or oldest first.",
+              "Whichever you choose, lane rules apply first, so blocked slots are never picked."
+            ]
+          },
+          {
+            "title": "Lanes",
+            "items": [
+              "A row of stacks that vehicles can only enter from one end must be set up as a lane, so cargo is placed from the inside out and picked from the outside in. See the question mark next to Lanes for details.",
+              "Stacks that are in no lane are treated as always reachable and are listed in a yellow warning."
+            ]
+          },
+          {
+            "title": "Remember to save",
+            "items": [
+              "Changes take effect only after Save; Remove placement rules returns the group to having no rules."
+            ]
+          }
+        ]
+      },
+      "lanes": {
+        "title": "Setting up lanes",
+        "sections": [
+          {
+            "title": "What a lane is",
+            "items": [
+              "A row of stacks that vehicles can only enter from one end (a dead end): reaching an inner slot always means passing the outer ones.",
+              "The picture above shows a three-slot lane entered from the aisle on the right."
+            ]
+          },
+          {
+            "title": "How to set it up",
+            "items": [
+              "Create one lane per row and select its slots from the innermost to the aisle.",
+              "The direction must follow the roads on the map: seen from where vehicles enter, the farthest slot is the innermost. When unsure, check on the map which end of the row connects to the aisle rather than going by how the slots are laid out.",
+              "Set up every row in the group; stacks left out are not restricted and are treated as always reachable."
+            ]
+          },
+          {
+            "title": "What the system does",
+            "items": [
+              "Places from the inside out: the next slot is used only after the inner one holds cargo or is disabled.",
+              "Picks from the outside in: only the occupied slot nearest the aisle can be picked.",
+              "While an outer slot holds cargo, inner slots can be neither picked nor filled.",
+              "Only one vehicle works in a lane at a time, counting both picking and placing, so vehicles do not block each other inside."
+            ]
+          },
+          {
+            "title": "Common problems",
+            "items": [
+              "Path planning errors saying the start and end are not fully connected: the aisle point of this row is not linked to other roads on the map, so vehicles cannot drive in. Add the missing road on the map.",
+              "The system keeps picking stacks outside any lane: some stacks in the group are not in any lane yet."
+            ]
+          }
+        ]
+      },
+      "lane_diagram": {
+        "alt": "Lane diagram: three slots in a row entered from the aisle; cargo is placed from the innermost slot outward and picked from the aisle inward",
+        "inner": "Innermost",
+        "middle": "Middle",
+        "outer": "Aisle side",
+        "aisle": "Aisle (vehicles enter)",
+        "place": "Place order",
+        "pick": "Pick order"
+      }
+    }
+  },
+  "transfer_rules": {
+    "mission_not_dispatched": "Mission {{id}} has not been dispatched yet:",
+    "title": "Area Transfer",
+    "schema_not_ready": "Tables are not created yet. Run yarn pdp in mission-control.",
+    "mir_not_supported": "Area transfer rules are not supported in MiR mode and will not run.",
+    "waiting_on": "When no slot can be used, missions are kept as Waiting for location and sent out once a slot frees up.",
+    "waiting_off": "ENABLE_MISSION_WAITING_STATUS is off in the backend: no mission is created when no slot is free, and the rule retries every 10 seconds.",
+    "runtime_title": "Live status",
+    "no_runtime": "No area transfer rules yet",
+    "rules_title": "Transfer rules",
+    "rules_hint": "Each rule moves cargo from one group to another with one trigger. The exact slots are chosen by the placement rules and pick order of the two groups (set under Conveyor Dispatch).",
+    "no_rule": "No rules yet. Click Add rule to create one",
+    "add_rule": "Add rule",
+    "edit_rule": "Edit rule",
+    "delete_warn": "Deleting stops any transfer in progress (missions already created will finish), and dispatch board buttons pointing to this rule stop working. Delete?",
+    "name": "Name",
+    "name_placeholder": "e.g. Refill PU_G1 from PU_G2",
+    "enabled": "Enabled",
+    "source": "Source group",
+    "dest": "Destination group",
+    "same_group": "Source and destination must be different groups",
+    "route": "Route",
+    "trigger": "Trigger",
+    "trigger_MANUAL": "Manual",
+    "trigger_SOURCE_HAS_CARGO": "When source has cargo",
+    "trigger_FREE_SLOTS": "Refill by free slots",
+    "trigger_SCHEDULE": "Scheduled",
+    "trigger_hint_MANUAL": "Add an Area transfer button pointing to this rule on the mission dispatch board, or click Run now in the live status above.",
+    "trigger_hint_SOURCE_HAS_CARGO": "Keeps moving while the source has cargo and the destination has free slots, and stops by itself when either runs out.",
+    "trigger_hint_FREE_SLOTS": "Starts refilling when the destination has enough free slots, and stops when only a few are left.",
+    "trigger_hint_SCHEDULE": "Runs at fixed times every day, or every few minutes.",
+    "start_at": "Start when free slots ≥",
+    "stop_at": "Stop when free slots ≤",
+    "stop_lt_start": "The stop value must be lower than the start value",
+    "slots": "slots",
+    "schedule_DAILY": "Fixed times every day",
+    "schedule_INTERVAL": "Every few minutes",
+    "minutes": "min",
+    "times_hint": "Type a time and press Enter; several are allowed, in HH:mm (e.g. 08:00, 13:30)",
+    "times_invalid": "Use HH:mm, e.g. 08:00",
+    "trips": "Trips per trigger",
+    "trips_COUNT": "Fixed number",
+    "trips_UNTIL_EMPTY": "Until the source is empty or the destination is full",
+    "trip_unit": "trips",
+    "trips_hint": "One trip is one mission moving one cargo. Click Stop in the live status to end early.",
+    "priority": "Mission priority",
+    "max_concurrent": "Max missions at once",
+    "max_concurrent_hint": "Includes missions waiting for a location; higher moves faster but ties up more vehicles",
+    "run_now": "Run now",
+    "stop": "Stop",
+    "source_stock": "Source cargo",
+    "dest_free": "Destination free",
+    "in_flight": "Missions in progress",
+    "progress": "Progress",
+    "next_run": "Next run",
+    "detail": "Detail",
+    "stock_text": "{{cargo}} ({{pickable}} available)",
+    "free_text": "{{free}} slots",
+    "progress_n": "{{done}} / {{total}} trips",
+    "progress_until": "{{done}} trips sent",
+    "trips_n": "{{n}} trips each time",
+    "trips_until_empty": "until the source is empty or the destination is full",
+    "summary_free_slots": "start at ≥ {{start}} free slots, stop at ≤ {{stop}}",
+    "summary_daily": "daily at {{times}}",
+    "summary_interval": "every {{n}} min",
+    "state": {
+      "DISABLED": "Disabled",
+      "IDLE": "Standby",
+      "RUNNING": "Moving",
+      "WAITING": "Waiting for location",
+      "BLOCKED": "Cannot dispatch"
+    },
+    "help": {
+      "open": "How to use",
+      "runtime": {
+        "title": "Reading the live status",
+        "sections": [
+          {
+            "title": "What this shows",
+            "items": [
+              "One card per rule, refreshed every 3 seconds.",
+              "Source cargo: how much cargo the source group holds; available means not booked by another mission.",
+              "Destination free: how much more the destination group can hold (stacks up to their max levels, shelves up to capacity); disabled slots are not counted.",
+              "Missions in progress: missions created by this rule that have not finished, including those waiting for a location."
+            ]
+          },
+          {
+            "title": "States",
+            "items": [
+              "Standby: the condition is not met yet (for example the scheduled time has not come or there are not enough free slots), or the rule is waiting for a manual trigger.",
+              "Moving: the condition is met and missions are being created or finished.",
+              "Waiting for location: a mission cannot find a usable slot yet and will be sent out once one frees up.",
+              "Cannot dispatch: creating a mission failed; check Detail. The rule retries every 10 seconds.",
+              "Disabled: the rule is switched off."
+            ]
+          },
+          {
+            "title": "Run now and Stop",
+            "items": [
+              "Manual and scheduled rules can be started with Run now, using the trips set in the rule.",
+              "While moving, Stop prevents new missions; missions already created still finish."
+            ]
+          }
+        ]
+      },
+      "rules": {
+        "title": "Setting up transfer rules",
+        "sections": [
+          {
+            "title": "Basics",
+            "items": [
+              "Pick a source group and a destination group, for example PU_G2 → PU_G1.",
+              "Slots are chosen by the placement rules and pick order of both groups, so set up lanes and other rules under Conveyor Dispatch first.",
+              "Max missions at once includes missions waiting for a location. 1 is the safest; raise it to move faster at the cost of tying up more vehicles."
+            ]
+          },
+          {
+            "title": "The four triggers",
+            "items": [
+              "Manual: add an Area transfer button for this rule on the mission dispatch board; each press moves the configured number of trips. Run now in the live status works too.",
+              "When source has cargo: keeps moving while the source has cargo and the destination has room, handy for clearing a buffer into storage.",
+              "Refill by free slots: watches the destination. Refilling starts when free slots reach the start value and stops when they drop to the stop value. With start 5 and stop 1, refilling waits until 5 slots are free and stops with 1 left, instead of sending a vehicle for every single free slot.",
+              "Scheduled: at fixed times every day (several allowed) or every few minutes, moving the configured number of trips. If the previous run is still going, that run is skipped."
+            ]
+          },
+          {
+            "title": "Trips per trigger (manual and scheduled)",
+            "items": [
+              "Fixed number: one trip moves one cargo and the run ends after that many trips, or earlier if the source runs out or the destination fills up.",
+              "Until the source is empty or the destination is full: keeps going until one side cannot continue."
+            ]
+          },
+          {
+            "title": "Notes",
+            "items": [
+              "After a system restart, runs in progress do not resume and missions waiting for a location are canceled; trigger them again.",
+              "Two rules sharing a group compete for cargo or slots, so keep one automatic rule per group."
+            ]
+          }
+        ]
+      }
     }
   }
 }

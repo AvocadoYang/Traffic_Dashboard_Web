@@ -15,7 +15,7 @@ const versionSchema = array(
 
 const getTable = async () => {
   const { data } = await client.get<unknown>("api/setting/warning_list");
-  console.log(data);
+
   const validatedData = await versionSchema.validate(data, {
     stripUnknown: true,
   });

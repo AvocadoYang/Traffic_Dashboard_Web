@@ -31,6 +31,9 @@ export interface PerformanceSnapshot {
     activeSec: number;
     /** 視窗之外還停在未完成狀態的任務, 多半是中途重啟留下的殘留 */
     staleMissions: number;
+    /** 在等可以放的位置的任務 (WAITING), 不算在 pending 和等待時間裡 */
+    waitingForLocation: number;
+    oldestWaitingSec: number | null;
     amrs: AmrBusy[];
     verdict: { level: "ok" | "busy" | "saturated"; reason: string };
   };

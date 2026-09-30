@@ -108,14 +108,14 @@ const MissionBtn = () => {
           {t("main.card_name.new_mission")}
         </NavStyleButton>
 
-        {/* <NavStyleButton
+        <NavStyleButton
           onClick={() => {
             openQueueMirTask(true);
           }}
           icon={<RocketOutlined />}
         >
           {t("main.card_name.queue_mir_task")}
-        </NavStyleButton> */}
+        </NavStyleButton>
       </ButtonGroup>
 
       <DialogMission />
@@ -139,7 +139,7 @@ const MissionBtn = () => {
         setShowEditCycleMission={setShowEditCycleMission}
         setEditCyc={setEditCyc}
       />
-      {/* <QueueMirTaskModal /> */}
+      <QueueMirTaskModal />
     </>
   );
 };
