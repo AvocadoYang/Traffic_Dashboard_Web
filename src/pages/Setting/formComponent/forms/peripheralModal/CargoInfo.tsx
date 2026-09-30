@@ -11,11 +11,8 @@ import { FormInstance } from "antd/es/form/Form";
 import { FC, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import {
-  IsEditPeripheralModal,
-  IsOpenCargoEditorModal,
-  IsOpenPeripheralModal,
-} from "./jotai";
+import { IsEditPeripheralModal, IsOpenPeripheralModal } from "./jotai";
+import { CargoPanelTarget } from "@/components/CargoPanel/state";
 
 const { Title } = Typography;
 
@@ -23,12 +20,14 @@ const CargoInfoAtPeripheral: FC<{ form: FormInstance<unknown> }> = ({
   form,
 }) => {
   const { t } = useTranslation();
-  const setOpenModal = useSetAtom(IsOpenCargoEditorModal);
+  const openCargoPanel = useSetAtom(CargoPanelTarget);
   const openModal = useAtomValue(IsEditPeripheralModal);
   const setOpen = useSetAtom(IsOpenPeripheralModal);
 
+  // 貨物改用跟主畫面同一個面板編輯
   const setOpenEditCargoDetailModal = () => {
-    setOpenModal(true);
+    if (!openModal) return;
+    openCargoPanel({ type: "CONVEYOR", locationId: openModal.stationId });
     setOpen(false);
   };
   console.log("render");

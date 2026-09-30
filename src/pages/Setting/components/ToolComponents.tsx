@@ -48,6 +48,7 @@ import {
   isShowMarketType,
   isShowSyncMirData,
   isShowAllMirMission,
+  isShowEditMirMission,
 } from "@/utils/siderGloble";
 import { useAtomValue } from "jotai";
 import { ToolBarItemType, ToolBarType } from "./siderElement";
@@ -84,6 +85,7 @@ import SoundPanel from "../formComponent/forms/missionComponents/mir/sound/Sound
 import MarkerTypePanel from "../formComponent/forms/missionComponents/mir/markerTypes/MarkerTypePanel";
 import SyncDataPanel from "../formComponent/forms/missionComponents/mir/syncData/SyncDataPanel";
 import MirMissionPanel from "../formComponent/forms/missionComponents/mir/missionTable/MirMissionPanel";
+import EditMirMissionPanel from "../formComponent/forms/missionComponents/mir/editMirMission/MirMissionPanel";
 
 const SortableWrap: FC<{
   sortableId: ToolBarItemType;
@@ -644,6 +646,17 @@ const SortableWrap: FC<{
                 />
               </Card>
             );
+         case "mir_edit_mission":
+            return (
+              <Card style={styles} ref={setNodeRef}>
+                <FormCloseBtn sortableId={sortableId} panelName="mir_edit_mission" />
+                <EditMirMissionPanel
+                  sortableId={sortableId}
+                  attributes={attributes}
+                  listeners={listeners}
+                />
+              </Card>
+            );
 
           default:
             return null;
@@ -708,6 +721,7 @@ const ToolComponents: FC<{
   const openMarkerTypePanel = useAtomValue(isShowMarketType);
   const openSyncMirDataPanel = useAtomValue(isShowSyncMirData);
   const openMirMissionPanel = useAtomValue(isShowAllMirMission);
+  const openMirEditMissionPanel = useAtomValue(isShowEditMirMission);
 
   return dataList.map((form) => {
     const { key: formKey } = form;
@@ -882,6 +896,9 @@ const ToolComponents: FC<{
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     if (formKey === "mir_mission" && openMirMissionPanel) {
+      return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
+    }
+    if (formKey === "mir_edit_mission" && openMirEditMissionPanel) {
       return <SortableWrap sortableId={formKey} key={formKey}></SortableWrap>;
     }
     return [];

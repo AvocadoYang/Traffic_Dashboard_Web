@@ -9,9 +9,9 @@ import MissionSwitch from "./components/MissionSwitch";
 import { Mission_Switch } from "./MissionWrap";
 
 const TitleBar = styled.div<{ $isDark: boolean }>`
-  background: ${({ $isDark }) => ($isDark ? "#0a0a0a" : "#ffffff")};
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#333" : "#d9d9d9")};
-  border-left: 4px solid #1890ff;
+  background: var(--c-bg);
+  border: 1px solid var(--c-header-border);
+  border-left: 4px solid var(--c-header-accent);
   padding: 16px 20px;
   margin-bottom: 20px;
   border-radius: 4px;
@@ -28,7 +28,7 @@ const Title = styled.span<{ $isDark: boolean }>`
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#262626")};
+  color: var(--c-text);
 
   @media (max-width: 1200px) {
     font-size: 12px;
@@ -37,12 +37,12 @@ const Title = styled.span<{ $isDark: boolean }>`
 
 const InfoIcon = styled(QuestionCircleFilled)<{ $isDark: boolean }>`
   font-size: 18px;
-  color: ${({ $isDark }) => ($isDark ? "#1890ff" : "#1890ff")};
+  color: var(--c-header-accent);
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    color: ${({ $isDark }) => ($isDark ? "#40a9ff" : "#40a9ff")};
+    color: var(--c-header-accent);
     transform: scale(1.1);
   }
 
@@ -53,12 +53,12 @@ const InfoIcon = styled(QuestionCircleFilled)<{ $isDark: boolean }>`
 
 const SwitchIcon = styled(MoreOutlined)<{ $isDark: boolean }>`
   font-size: 18px;
-  color: ${({ $isDark }) => ($isDark ? "#1890ff" : "#1890ff")};
+  color: var(--c-header-accent);
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    color: ${({ $isDark }) => ($isDark ? "#40a9ff" : "#40a9ff")};
+    color: var(--c-header-accent);
     transform: scale(1.1);
   }
 

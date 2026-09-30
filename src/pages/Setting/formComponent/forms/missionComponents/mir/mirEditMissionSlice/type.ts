@@ -6,7 +6,13 @@ export type Mir_Action_Slice = {
   disable: boolean;
   process_order: number;
   operation: Mir_Action;
+  // 只有 reduce_protective_fields(Mute protective fields)動作會有值:
+  // 它自己這個「內容群組」的穩定 id,其他動作把 scope_reference_content
+  // 設成這個值,代表被拖進了這個容器裡。
   scope_reference?: string | null;
+  // 只有被拖進某個容器的動作會有值:對應該容器自己的 scope_reference。
+  // null/undefined 代表這是頂層動作。
+  scope_reference_content?: string | null;
 };
 
 export type Mir_Action = {
@@ -34,10 +40,21 @@ export type Mir_Action = {
   orientation?: number;
   collision_detection?: boolean;
 
+  option?: "free" | "occupied" | string;
+
   // 時間與聲音相關
   wait?: string;
   sound?: string;
   volume?: number;
+  mode?: "full" | "custom" | string;
+  duration?: string;
+
+  // light 動作
+  light_effect?: string;
+  speed?: string;
+  color_1?: string;
+  color_2?: string;
+  intensity?: number;
 
   // 安全防護區域
   front?: "muted" | "unmuted" | string;
@@ -51,6 +68,9 @@ export type Mir_Action = {
   value: string;
   operation: string;
   timeout: string;
+
+  // 欄位名稱 -> 變數名稱。有 key 代表該欄位設成「使用變數」，
+  variables?: Record<string, string>;
 };
 
 export type Mir_Task =
@@ -62,7 +82,7 @@ export type Mir_Task =
 
 export const mirMoveActonList = [
   "adjust_localization",
-  // "check_position_status",
+  "check_pose",
   "docking",
   "move",
   "move_to_coordinate",
@@ -72,11 +92,7 @@ export const mirMoveActonList = [
   "switch_map",
 ] as const;
 
-export const mirSoundLight = [
-  "play_sound",
-  "stop_sound",
-  "show_light",
-] as const;
+export const mirSoundLight = ["sound", "sound_stop", "light"] as const;
 
 export const mirErrorHandlingList = ["wait"] as const;
 

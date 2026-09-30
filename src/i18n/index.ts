@@ -32,6 +32,7 @@ export const DICT = [
   ["aborting", "🥊進行時取消"],
   ["canceled", "🙅‍♂️ 已取消"],
   ["pending", "⏱ 等待中"],
+  ["waiting", "⏸ 等待位置"],
   ["assigned", "⏱ 已指派"],
   ["deliver-pallet", "補板"],
   ["shipment", "出貨"],

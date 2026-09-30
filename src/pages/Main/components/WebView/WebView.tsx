@@ -22,13 +22,17 @@ import ElevatorIO from "./components/ElevatorIO";
 import TestBarcode from "./components/TestBarcode";
 import ECS_online from "./components/ECS_online";
 import DirectMove from "../missionModal/DirectMove";
+import CargoPanel from "@/components/CargoPanel/CargoPanel";
 import MissionDispatchPanel from "./components/MissionDispatchPanel";
 import useMap from "@/api/useMap";
 import JoystickPanelWrap from "../../Car_Card/JoystickPanelWrap";
 import MapSelector from "@/components/MapSelector";
+import PerformancePanel from "@/components/Performance/PerformancePanel";
+import OpenPerformanceBtn from "@/components/Performance/OpenPerformanceBtn";
 import styled, { css } from "styled-components";
 import { mq } from "@/styles/responsive";
 import { useTranslation } from "react-i18next";
+import { themeAtom } from "@/theme";
 
 const { Content } = Layout;
 
@@ -85,7 +89,7 @@ const MapPanelInner = styled.div`
   position: relative;
   height: 100%;
   overflow: hidden;
-  background-color: #e6e6e7;
+  background-color: var(--c-bg-muted);
   display: flex;
   flex-direction: column;
 `;
@@ -143,8 +147,8 @@ const BottomPanelSection = styled.div<{ $view: BottomView }>`
 const BottomPanelTabs = styled.div<{ $isDark: boolean }>`
   flex: 0 0 auto;
   padding: var(--space-xs) var(--space-md);
-  background: ${({ $isDark }) => ($isDark ? "#1a1a1a" : "#f5f5f5")};
-  border-top: 1px solid ${({ $isDark }) => ($isDark ? "#333" : "#d9d9d9")};
+  background: var(--c-bg-subtle);
+  border-top: 1px solid var(--c-header-border);
 `;
 
 const BottomPanelBody = styled.div<{ $view: BottomView }>`
@@ -207,6 +211,8 @@ const WebView = () => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapWrapRef = useRef<HTMLDivElement>(null);
   const isDark = useAtomValue(darkMode);
+  // antd 的 token 不能吃 var(),要餵真實色碼,所以這裡直接拿 palette
+  const { colors } = useAtomValue(themeAtom);
   const currentMapInfo = useMap();
   const setScale = useSetAtom(Scale);
   const cm = useAtomValue(centerMap);
@@ -221,21 +227,23 @@ const WebView = () => {
 
   return (
     <WebViewContent>
+      {/* 點地圖上的貨架 / 輸送帶 / stack / 電梯,右側打開貨物面板 */}
+      <CargoPanel />
       <ConfigProvider
         theme={{
           components: {
             Splitter: {
-              colorFill: `${isDark ? "#ff8800" : "rgba(0,0,0,0.15)"}`,
-              controlItemBgActiveHover: `${isDark ? "#ffa00a" : "#bae0ff"}`,
-              controlItemBgHover: `${isDark ? "#262626" : "rgba(0,0,0,0.04)"}`,
+              colorFill: colors.borderStrong,
+              controlItemBgActiveHover: colors.headerAccent,
+              controlItemBgHover: colors.bgMuted,
             },
             Segmented: {
-              trackBg: `${isDark ? "#0a0a0a" : "#ffffff"}`,
-              itemColor: `${isDark ? "#8c8c8c" : "#595959"}`,
-              itemHoverColor: `${isDark ? "#00ff41" : "#262626"}`,
-              itemHoverBg: `${isDark ? "#262626" : "rgba(0,0,0,0.04)"}`,
-              itemSelectedBg: `${isDark ? "#262626" : "#e6f4ff"}`,
-              itemSelectedColor: `${isDark ? "#00ff41" : "#1890ff"}`,
+              trackBg: colors.bg,
+              itemColor: colors.textSecondary,
+              itemHoverColor: colors.text,
+              itemHoverBg: colors.bgMuted,
+              itemSelectedBg: colors.headerAccentSoft,
+              itemSelectedColor: colors.headerAccent,
             },
           },
         }}
@@ -263,6 +271,13 @@ const WebView = () => {
               </MapScrollArea>
               <MapOverlay>
                 <ZoomPad></ZoomPad>
+                <ScalePad></ScalePad>
+
+                {/* 效能監看: 車隊跟不跟得上 + 程式卡不卡。
+                    按鈕排在 ScalePad (top 16px) 下面;
+                    面板讓開右上角的 MapSelectorSlot */}
+                <OpenPerformanceBtn top="72px" left="16px" />
+                <PerformancePanel top="64px" right="16px" />
                 {/* <MissionBtn></MissionBtn> */}
                 <DirectMove></DirectMove>
                 {/* <ECS_online />

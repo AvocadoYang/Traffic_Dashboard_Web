@@ -1,8 +1,10 @@
-import { Button, Flex, Form, message, Modal, Radio, Select } from "antd";
+import { Button, Flex, Form, Input, message, Modal, Radio, Select } from "antd";
 import { useAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import { OpenAssignMission } from "../../global/jotai";
 import useAllMissionTitles from "@/api/useMissionTitle";
+import useTaskMir from "@/api/useTaskMir";
+import useMirTaskOptions from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/useMirTaskOptions";
 import { useEffect, useMemo, useState } from "react";
 import useName from "@/api/useAmrName";
 import { useMutation } from "@tanstack/react-query";
@@ -28,20 +30,37 @@ type MissionFrom = {
   amrId: string | null;
   titleId: string;
   priority: MissionPriority;
+  variableValues?: Record<string, string>;
+};
+
+// 值其實是 MiR 內部 GUID 的欄位名稱 -> 派發時要用哪種下拉選。
+// location_id/entry_position 存的是 QAMS 這邊的 location_id,要在 bridge
+// 那邊另外查表轉成 MiR marker GUID;footprint/marker_type/sound 這幾個欄位
+// 本身存的就已經是 MiR 的原始 GUID(直接來自 useMirTaskOptions 對應的
+// option value),不需要另外轉換,只是派發時一樣要用下拉選,不能讓使用者
+// 自己手打 GUID。其餘欄位(逾時、距離、速度等)MiR 原生介面也只是純文字/
+// 數字輸入,維持 Input 就好。
+type VariableFieldKind = "location" | "footprint" | "marker_type" | "sound";
+const VARIABLE_FIELD_KIND: Record<string, VariableFieldKind> = {
+  location_id: "location",
+  entry_position: "location",
+  footprint: "footprint",
+  marker_type: "marker_type",
+  sound: "sound",
 };
 
 // Industrial Modal Styling with RWD
 const IndustrialModal = styled(Modal)`
   .ant-modal-content {
-    background: #ffffff;
-    border: 2px solid #d9d9d9;
+    background: var(--c-bg);
+    border: 2px solid var(--c-header-border);
     border-radius: 0;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   }
 
   .ant-modal-header {
-    background: #fafafa;
-    border-bottom: 2px solid #d9d9d9;
+    background: var(--c-bg-subtle);
+    border-bottom: 2px solid var(--c-header-border);
     padding: 12px 16px;
     position: relative;
     border-radius: 0;
@@ -53,7 +72,7 @@ const IndustrialModal = styled(Modal)`
       top: 0;
       bottom: 0;
       width: 4px;
-      background: #1890ff;
+      background: var(--c-header-accent);
     }
 
     @media (min-width: 768px) {
@@ -65,7 +84,7 @@ const IndustrialModal = styled(Modal)`
     font-family: "Roboto Mono", monospace;
     font-size: 13px;
     font-weight: 700;
-    color: #1890ff;
+    color: var(--c-header-accent);
     text-transform: uppercase;
     letter-spacing: 1px;
     display: flex;
@@ -81,7 +100,7 @@ const IndustrialModal = styled(Modal)`
 
   .ant-modal-body {
     padding: 16px;
-    background: #ffffff;
+    background: var(--c-bg);
     max-height: calc(100vh - 200px);
     overflow-y: auto;
 
@@ -93,8 +112,8 @@ const IndustrialModal = styled(Modal)`
   }
 
   .ant-modal-footer {
-    background: #fafafa;
-    border-top: 2px solid #d9d9d9;
+    background: var(--c-bg-subtle);
+    border-top: 2px solid var(--c-header-border);
     padding: 12px 16px;
     border-radius: 0;
 
@@ -147,8 +166,8 @@ const SectionDivider = styled.div`
   height: 2px;
   background: repeating-linear-gradient(
     90deg,
-    #d9d9d9 0,
-    #d9d9d9 10px,
+    var(--c-header-border) 0,
+    var(--c-header-border) 10px,
     transparent 10px,
     transparent 20px
   );
@@ -167,14 +186,14 @@ const SectionDivider = styled.div`
     transform: translate(-50%, -50%);
     width: 8px;
     height: 8px;
-    background: #1890ff;
+    background: var(--c-header-accent);
     border: 2px solid #ffffff;
-    box-shadow: 0 0 0 2px #d9d9d9;
+    box-shadow: 0 0 0 2px var(--c-header-border);
   }
 `;
 
 const FieldLabel = styled.div`
-  color: #595959;
+  color: var(--c-text-secondary);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.8px;
@@ -209,8 +228,8 @@ const PriorityRadioGroup = styled(Radio.Group)`
   .ant-radio-button-wrapper {
     height: 38px;
     line-height: 36px;
-    border: 1px solid #d9d9d9;
-    background: #fafafa;
+    border: 1px solid var(--c-header-border);
+    background: var(--c-bg-subtle);
     font-family: "Roboto Mono", monospace;
     font-size: 10px;
     text-transform: uppercase;
@@ -240,19 +259,19 @@ const PriorityRadioGroup = styled(Radio.Group)`
     }
 
     &:hover {
-      background: #f5f5f5;
-      border-color: #bfbfbf;
+      background: var(--c-bg-subtle);
+      border-color: var(--c-text-muted);
     }
 
     &.ant-radio-button-wrapper-checked {
-      background: #e6f7ff;
-      border-color: #1890ff;
-      color: #1890ff;
+      background: var(--c-header-accent-soft);
+      border-color: var(--c-header-accent);
+      color: var(--c-header-accent);
       box-shadow: inset 0 0 20px rgba(24, 144, 255, 0.08);
       position: relative;
 
       &::before {
-        background: #1890ff;
+        background: var(--c-header-accent);
       }
 
       &::after {
@@ -262,16 +281,16 @@ const PriorityRadioGroup = styled(Radio.Group)`
         left: 0;
         right: 0;
         height: 3px;
-        background: #1890ff;
+        background: var(--c-header-accent);
       }
     }
   }
 `;
 
 const IndustrialButton = styled(Button)`
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  color: #1890ff;
+  background: var(--c-bg);
+  border: 1px solid var(--c-header-border);
+  color: var(--c-header-accent);
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
   font-size: 10px;
@@ -289,35 +308,35 @@ const IndustrialButton = styled(Button)`
   }
 
   &:hover {
-    background: #f0f5ff;
-    border-color: #1890ff;
-    color: #1890ff;
+    background: var(--c-header-accent-soft);
+    border-color: var(--c-header-accent);
+    color: var(--c-header-accent);
     box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
   }
 
   &.primary {
-    background: #1890ff;
-    border-color: #1890ff;
+    background: var(--c-header-accent);
+    border-color: var(--c-header-accent);
     color: #ffffff;
 
     &:hover {
-      background: #40a9ff;
-      border-color: #40a9ff;
+      background: var(--c-header-accent);
+      border-color: var(--c-header-accent);
       box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
     }
   }
 
   &:disabled {
-    background: #f5f5f5;
-    border-color: #d9d9d9;
-    color: #bfbfbf;
+    background: var(--c-bg-subtle);
+    border-color: var(--c-header-border);
+    color: var(--c-text-muted);
   }
 `;
 
 const StyledSelect = styled(Select)`
   .ant-select-selector {
     border-radius: 0 !important;
-    border: 1px solid #d9d9d9 !important;
+    border: 1px solid var(--c-header-border) !important;
     font-family: "Roboto Mono", monospace;
     min-height: 36px !important;
 
@@ -326,19 +345,19 @@ const StyledSelect = styled(Select)`
     }
 
     &:hover {
-      border-color: #1890ff !important;
+      border-color: var(--c-header-accent) !important;
     }
   }
 
   &.ant-select-focused .ant-select-selector {
-    border-color: #1890ff !important;
+    border-color: var(--c-header-accent) !important;
     box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1) !important;
   }
 `;
 
 const ActionBar = styled(Flex)`
   padding-top: 12px;
-  border-top: 1px dashed #d9d9d9;
+  border-top: 1px dashed var(--c-header-border);
   margin-top: 16px;
 
   @media (min-width: 768px) {
@@ -375,7 +394,31 @@ const DialogMission = () => {
 
   const [openDialogMission, setOpenDialogMission] = useAtom(OpenAssignMission);
   const [, setAmrGenre] = useState<string | null>(null);
+  const [selectedTitleId, setSelectedTitleId] = useState("");
+  const { data: mirTaskData } = useTaskMir(selectedTitleId);
+  const { locationsOption, footprintOption, markerTypeOption, soundOption } =
+    useMirTaskOptions();
 
+  // 這個任務底下所有 slice 用到的變數名稱,以及每個變數名稱要用哪種下拉選
+  // (綁在 location_id/footprint/marker_type/sound 這類欄位上的變數不能讓
+  // 使用者手打 GUID)。沒有變數的任務(絕大多數情況)這裡都是空的,Modal
+  // 長得跟以前一樣。
+  const { variableNames, variableFieldKinds } = useMemo(() => {
+    const names = new Set<string>();
+    const kinds = new Map<string, VariableFieldKind>();
+    (mirTaskData ?? []).forEach((slice) => {
+      Object.entries(slice.operation?.variables ?? {}).forEach(
+        ([fieldName, varName]) => {
+          names.add(varName);
+          const kind = VARIABLE_FIELD_KIND[fieldName];
+          if (kind) {
+            kinds.set(varName, kind);
+          }
+        }
+      );
+    });
+    return { variableNames: [...names], variableFieldKinds: kinds };
+  }, [mirTaskData]);
   const reload = () => {
     refetchAgv();
     refetchMissions();
@@ -422,9 +465,17 @@ const DialogMission = () => {
 
   const submit = () => {
     const payload = missionForm.getFieldsValue() as MissionFrom;
-    const { titleId, priority } = payload;
+    const { titleId, priority, variableValues } = payload;
     if (!titleId || priority === undefined || priority === null) {
       void messageApi.error("尚未完成選項");
+      return;
+    }
+
+    const missingVariable = variableNames.some(
+      (name) => !variableValues?.[name],
+    );
+    if (missingVariable) {
+      void messageApi.error("這個任務有變數尚未填寫");
       return;
     }
 
@@ -539,12 +590,58 @@ const DialogMission = () => {
             <MissionTableSelect
               onSelect={(record) => {
                 missionForm.setFieldValue("titleId", record.id);
+                missionForm.setFieldValue("variableValues", undefined);
+                setSelectedTitleId(record.id);
                 void messageApi.success(`Selected mission: ${record.name}`);
               }}
               placeholder="Click to choose mission"
             />
           </Form.Item>
         </FormSection>
+
+        {variableNames.length > 0 && (
+          <>
+            <SectionDivider />
+            <FormSection>
+              <FieldLabel>
+                <SettingOutlined style={{ marginRight: 6 }} />
+                [04] {t("main.mission_modal.dialog_mission.variables")}
+              </FieldLabel>
+              {variableNames.map((name) => {
+                const kind = variableFieldKinds.get(name);
+                const selectOptionsByKind: Record<
+                  VariableFieldKind,
+                  { label: string; value: string }[]
+                > = {
+                  location: locationsOption,
+                  footprint: footprintOption,
+                  marker_type: markerTypeOption,
+                  sound: soundOption,
+                };
+
+                return (
+                  <Form.Item
+                    key={name}
+                    label={name}
+                    name={["variableValues", name]}
+                    rules={[{ required: true }]}
+                    style={{ marginBottom: 12 }}
+                  >
+                    {kind ? (
+                      <StyledSelect
+                        options={selectOptionsByKind[kind]}
+                        showSearch
+                        placeholder="Select a value"
+                      />
+                    ) : (
+                      <Input placeholder="Enter a value" />
+                    )}
+                  </Form.Item>
+                );
+              })}
+            </FormSection>
+          </>
+        )}
 
         <ActionBar align="center" justify="center">
           <IndustrialButton icon={<ReloadOutlined />} onClick={() => reload()}>

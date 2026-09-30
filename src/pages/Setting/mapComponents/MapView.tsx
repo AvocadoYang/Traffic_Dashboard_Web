@@ -3,6 +3,7 @@ import "../setting.css";
 import { Form, FormInstance } from "antd";
 import { useAtom, useAtomValue } from "jotai";
 import {
+  batchCargoStyle,
   DragLineInfo,
   sameVersion,
   shelfSelectedStyleLocationId,
@@ -16,7 +17,9 @@ import {
   isShowRoad,
   isShowRoadTooltip,
   QuickEditLocationPanelSwitch,
+  MirStyleLocationPlacerSwitch,
 } from "@/utils/siderGloble";
+import MirStyleLocationPlacer from "../formComponent/forms/MirStyleLocationPlacer";
 import useMap from "@/api/useMap";
 import Cookies from "js-cookie";
 import TempLocations from "./components/TempResources/TempLocations";
@@ -30,6 +33,7 @@ import {
   useZoneFrame,
   useLocationHoverTooltip,
   useRoadHoverTooltip,
+  useWheelZoom,
 } from "../hooks";
 import { getLocationInfoById } from "@/pages/Setting/utils/utils";
 import useVerityVersion from "@/api/useVerityVersion";
@@ -48,33 +52,30 @@ import AllRoads from "./components/AllRoads/AllRoads";
 import RoadHoverCluster from "./components/AllRoads/RoadHoverCluster";
 import AllCargo from "./components/AllCargo/AllCargo";
 import ToolTip from "../components/ToolTip";
-import SudoCargo from "./components/AllCargo/SudoCargo";
+import SudoCargo, { SudoBatchCargo } from "./components/AllCargo/SudoCargo";
 import { AllChargeStation } from "./components/AllChargeStation";
-import CargoDetail from "./components/AllCargo/CargoDetail";
-import { GlobalCargoInfoModal } from "./components/AllCargo/jotaiState";
 import CargoModal from "./components/AllCargo/CargoModal";
 import AllConveyor from "./components/AllConveyor/AllConveyor";
 import {
   IsEditPeripheralModal,
-  IsOpenCargoEditorModal,
   IsOpenPeripheralModal,
 } from "../formComponent/forms/peripheralModal/jotai";
 import EditPeripheralModal from "../formComponent/forms/peripheralModal/EditPeripheralModal";
-import CargoEditor from "../formComponent/forms/peripheralModal/CargoEditor";
+import CargoPanel from "@/components/CargoPanel/CargoPanel";
 import { SudoPeripheral } from "../formComponent/forms/other/editPeripheralIcon";
 import AllElevator from "./components/AllElevator/AllElevator";
-import { EBLM, ECSM, EEC, EEM, ESM } from "../utils/settingJotai";
+import { EBLM, ECSM, EEM, LDM } from "../utils/settingJotai";
 import EditElevatorModal from "./components/AllElevator/EditElevatorModal";
-import CargoEditorElevator from "./components/AllElevator/Form/CargoEditorElevator";
 import EditChargeStationConfigModal from "./components/AllChargeStation/EditChargeStationConfigModal";
 import AllGateWaitPoint from "./components/AllGateWaitPoint/AllGateWaitPoint";
 import AllLiftGate from "./components/AllGate/AllLiftGate";
 import AllStack from "./components/AllStack/AllStack";
 import YfyPackage from "./components/YFYPackage/YfyPackage";
 import EditStackModal from "./components/AllStack/EditStackModal";
-import CargoEditorStack from "./components/AllStack/CargoEditorStack";
 import BlindLocationMissionModal from "../components/BlindLocationMissionModal";
+import LocationDetectModal from "../components/LocationDetectModal";
 import useCenterMap from "@/hooks/useCenterMap";
+import useDragPan from "@/pages/Main/components/WebView/hooks/useDragPan";
 
 const MapView: React.FC<{
   scale: number;
@@ -122,19 +123,18 @@ const MapView: React.FC<{
   const openQuickEditLocationPanelSwitch = useAtomValue(
     QuickEditLocationPanelSwitch,
   );
+  const openMirStyleLocationPlacer = useAtomValue(MirStyleLocationPlacerSwitch);
   const openEditZone = useAtomValue(EditZoneSwitch);
   const shelfSelectedStyleId = useAtomValue(shelfSelectedStyleLocationId);
+  const batchStyle = useAtomValue(batchCargoStyle);
   const showLocationToolTip = useAtomValue(isShowLocationTooltip);
   const showRoad = useAtomValue(isShowRoad);
   const showRoadToolTip = useAtomValue(isShowRoadTooltip);
-  const openCargoInfo = useAtomValue(GlobalCargoInfoModal);
   const openPeripheralModal = useAtomValue(IsOpenPeripheralModal);
-  const openPeripheralCargoEditorModal = useAtomValue(IsOpenCargoEditorModal);
   const openElevatorModal = useAtomValue(EEM);
-  const openModalElevatorCargoEditor = useAtomValue(EEC);
   const openEditChargeStationModal = useAtomValue(ECSM);
-  const openStackContainereditor = useAtomValue(ESM);
   const openBlindMission = useAtomValue(EBLM);
+  const openLocationDetect = useAtomValue(LDM);
 
   if (currentVersion) {
     const defaultCookie = Cookies.get("version");
@@ -192,7 +192,21 @@ const MapView: React.FC<{
   //控制「路徑提示」開啟時，游標移動附近路徑浮出 tooltip
   useRoadHoverTooltip(mapRef, mapImageRef, scale);
 
+  //控制滑鼠滾輪縮放
+  useWheelZoom(mapWrapRef, scale);
+
+  // 控制地圖置中
   useCenterMap(mapWrapRef, mapImageRef);
+
+  // 打點/圈選模式下左鍵要留給地圖操作，只保留中鍵拖曳
+  const isEditingOnMap =
+    openEditLocationPanel ||
+    openQuickEditLocationPanelSwitch ||
+    openEditZone ||
+    openMirStyleLocationPlacer;
+
+  // 控制地圖拖曳
+  useDragPan(mapWrapRef, mapRef, mapImageRef, !isEditingOnMap);
 
   const handleMouseDown = useCallback(
     (startId: string) => {
@@ -256,8 +270,6 @@ const MapView: React.FC<{
 
       {openPeripheralModal ? <EditPeripheralModal /> : []}
 
-      {openPeripheralCargoEditorModal ? <CargoEditor /> : []}
-
       <AllConveyor />
 
       {openQuickEditLocationPanelSwitch ? <TempLocations></TempLocations> : []}
@@ -288,6 +300,14 @@ const MapView: React.FC<{
         <></>
       )}
 
+      {openMirStyleLocationPlacer ? (
+        <MirStyleLocationPlacer
+          mapRef={mapRef}
+          mapImageRef={mapImageRef}
+          scale={scale}
+        />
+      ) : null}
+
       {openElevatorModal?.isOpen ? <EditElevatorModal /> : null}
 
       {openEditChargeStationModal.isOpen ? (
@@ -304,21 +324,21 @@ const MapView: React.FC<{
 
       {shelfSelectedStyleId === "" ? [] : <SudoCargo />}
 
+      {batchStyle ? <SudoBatchCargo /> : []}
+
       <SudoPeripheral />
 
-      {/* 只有for  儲位專用修改貨物資料的 modal */}
-      {openCargoInfo ? <CargoDetail /> : []}
-
-      {openModalElevatorCargoEditor ? <CargoEditorElevator /> : null}
+      {/* 貨架 / 輸送帶 / stack / 電梯的貨物,跟主畫面用同一個面板編輯 */}
+      <CargoPanel />
 
       <CargoModal />
 
       {/* stack編輯資料與貨物*/}
       <EditStackModal />
 
-      {openStackContainereditor.isOpen ? <CargoEditorStack /> : null}
-
       {openBlindMission.isOpen ? <BlindLocationMissionModal /> : null}
+
+      {openLocationDetect.isOpen ? <LocationDetectModal /> : null}
     </div>
   );
 };

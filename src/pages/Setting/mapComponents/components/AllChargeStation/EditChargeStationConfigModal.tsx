@@ -1,5 +1,6 @@
 import client from "@/api/axiosClient";
 import useName from "@/api/useAmrName";
+import useMap from "@/api/useMap";
 import { ECSM } from "@/pages/Setting/utils/settingJotai";
 import { useAllAmrStatus } from "@/sockets/useAMRInfo";
 import useChargeStationSocket from "@/sockets/useChargeStationSocket";
@@ -7,21 +8,15 @@ import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { useMutation } from "@tanstack/react-query";
 import {
-  Alert,
-  Button,
-  Divider,
   Form,
   Input,
-  InputNumber,
   message,
   Modal,
-  Select,
   Skeleton,
   Space,
   Switch,
   Typography,
 } from "antd";
-import { AimOutlined } from "@ant-design/icons";
 import { useAtom, useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -36,6 +31,8 @@ type FormData = {
   ip: string;
   port: number;
   stationId: string;
+  amrIds: string[];
+  nearPointLocationIds: string[];
 };
 
 type DetectFormData = {
@@ -68,6 +65,7 @@ const EditChargeStationConfigModal = () => {
   const [detectResult, setDetectResult] = useState<DetectResponse | null>(null);
   const { data: name } = useName();
   const currentMapId = useAtomValue(currentMapIdAtom);
+  const { data: mapData } = useMap();
 
   const AmrOption: { value: string; label: string }[] | undefined =
     useMemo(() => {
@@ -83,6 +81,16 @@ const EditChargeStationConfigModal = () => {
       }
       return options ? [...options] : undefined;
     }, [name]);
+
+  // 靠近充電站的偵測點位——從所有地點裡選,取代原本寫死的單一 6005
+  const locationOptions = useMemo(
+    () =>
+      mapData?.locations.map((v) => ({
+        label: v.locationId,
+        value: v.locationId,
+      })) ?? [],
+    [mapData],
+  );
 
   const editMutation = useMutation({
     mutationFn: (payload: FormData) =>
@@ -160,6 +168,9 @@ const EditChargeStationConfigModal = () => {
       name: socketConfig[open.locationId].name,
       description: socketConfig[open.locationId].description,
       stationId: socketConfig[open.locationId].stationId,
+      amrIds: socketConfig[open.locationId].amrIds ?? [],
+      nearPointLocationIds:
+        socketConfig[open.locationId].nearPointLocationIds ?? [],
     });
     setIsFormInitialized(true);
   }, [socketConfig, open, form, open.locationId]);
@@ -238,6 +249,27 @@ const EditChargeStationConfigModal = () => {
               >
                 <Input />
               </Form.Item>
+
+              <Form.Item label="允許使用此充電站的 AMR" name="amrIds">
+                <Select
+                  mode="multiple"
+                  options={AmrOption}
+                  placeholder="選擇可以使用這個充電座的 AMR"
+                  allowClear
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="靠近充電站的偵測點位"
+                name="nearPointLocationIds"
+              >
+                <Select
+                  mode="multiple"
+                  options={locationOptions}
+                  placeholder="選擇靠近這個充電座的偵測點位"
+                  allowClear
+                />
+              </Form.Item>
             </Form>
           ) : (
             <Space direction="vertical" style={{ width: "100%" }} size={12}>
@@ -247,60 +279,6 @@ const EditChargeStationConfigModal = () => {
               <Skeleton active title={false} paragraph={{ rows: 1 }} />
             </Space>
           )}
-        </div>
-
-        <Divider style={{ margin: "20px 0" }}>
-          <Space size={6}>
-            <AimOutlined style={{ color: "#1890ff" }} />
-            <Text strong>{"點位偵測"}</Text>
-          </Space>
-        </Divider>
-
-        <div style={CARD_STYLE}>
-          <Form form={formDetect} layout="vertical" size="large">
-            <Form.Item
-              label="AMR"
-              name="amrId"
-              rules={[{ required: true, message: t("utils.required") }]}
-            >
-              <Select
-                placeholder={"please select an amr"}
-                options={AmrOption}
-              />
-            </Form.Item>
-
-            <Form.Item
-              label="Marker Pattern"
-              name="markerPattern"
-              initialValue={20}
-              rules={[{ required: true, message: t("utils.required") }]}
-            >
-              <InputNumber min={0} style={{ width: "100%" }} />
-            </Form.Item>
-
-            <Form.Item style={{ marginBottom: detectResult ? 16 : 0 }}>
-              <Button
-                type="primary"
-                icon={<AimOutlined />}
-                loading={detectMutation.isPending}
-                onClick={handleDetect}
-                block
-              >
-                {"開始偵測點位"}
-              </Button>
-            </Form.Item>
-
-            {detectResult && (
-              <Alert
-                type={detectResult.ok === false ? "error" : "success"}
-                showIcon
-                message={detectResult.ok === false ? "偵測失敗" : "偵測完成"}
-                description={
-                  detectResult.message ?? JSON.stringify(detectResult)
-                }
-              />
-            )}
-          </Form>
         </div>
       </Modal>
     </>

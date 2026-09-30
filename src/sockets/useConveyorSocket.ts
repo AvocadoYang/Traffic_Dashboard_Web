@@ -2,13 +2,14 @@ import { array, string, object, ValidationError, number, boolean } from "yup";
 import {
   from,
   fromEventPattern,
-  share,
+  shareReplay,
   switchMap,
   distinctUntilChanged,
 } from "rxjs";
 import { useEffect, useState } from "react";
 import { io } from "./socketConnect";
 import { Conveyor_Info } from "@/types/peripheral";
+import { deepEqual } from "@/utils/deepEqual";
 
 const strSchema = string().optional().nullable();
 
@@ -54,9 +55,11 @@ const profiles$ = fromEventPattern(
     return from([message]);
   }),
   distinctUntilChanged(
-    (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
+    (prev, curr) => deepEqual(prev, curr),
   ),
-  share(),
+  // 資料沒變時 distinctUntilChanged 不會再發,晚訂閱的元件(例如貨物面板)
+  // 會一直拿不到資料,所以要 replay 最新一筆
+  shareReplay({ bufferSize: 1, refCount: true }),
 );
 
 const useConveyorSocket = () => {
@@ -68,7 +71,7 @@ const useConveyorSocket = () => {
     const subscription = profiles$
       .pipe(
         distinctUntilChanged(
-          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
+          (prev, curr) => deepEqual(prev, curr),
         ), // Avoid state update if data is identical
       )
       .subscribe((filteredData) => {

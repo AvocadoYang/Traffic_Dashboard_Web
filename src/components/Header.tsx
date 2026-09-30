@@ -10,6 +10,7 @@ import {
   Select,
   Avatar,
   Dropdown,
+  Segmented,
 } from "antd";
 import "./component.css";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -19,10 +20,12 @@ import {
   UserOutlined,
   PoweroffOutlined,
   ClockCircleOutlined,
+  AppstoreOutlined,
+  PlusSquareOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { AmrFilterCarCard, centerMap, darkMode, Scale } from "@/utils/gloable";
+import { AmrFilterCarCard, centerMap, Scale } from "@/utils/gloable";
 import { useMutation } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { errorHandler } from "@/utils/utils";
@@ -35,6 +38,7 @@ import { mq } from "@/styles/responsive";
 import { useTimelineSocket } from "@/sockets/useTimelineSocket";
 import dayjs from "dayjs";
 import MissionBtn from "@/pages/Main/components/WebView/components/MissionBtn";
+import HaStatusWidget from "@/pages/Main/components/HaStatusWidget";
 import ChangePasswordModal from "./ChangePasswordModal";
 import CreateUserModel from "./CreateUserModel";
 import { jwtDecode } from "jwt-decode";
@@ -42,13 +46,17 @@ import SimTime from "./SimTime";
 import DirectMove from "@/pages/Main/components/missionModal/DirectMove";
 import ZoomPad from "@/pages/Main/components/WebView/components/ZoomPad";
 import useMap from "@/api/useMap";
+import {
+  headerNavItemBase,
+  headerNavItemActive,
+} from "@/styles/headerNavItemStyle";
 
 const { Header: AntdHeader } = Layout;
 
 const IndustrialHeader = styled(AntdHeader)`
   && {
-    background: #ffffff;
-    /* border-bottom: 3px solid #1890ff; */
+    background: var(--c-header-bg);
+    /* border-bottom: 3px solid var(--c-header-accent); */
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -66,7 +74,7 @@ const IndustrialHeader = styled(AntdHeader)`
     left: 0;
     right: 0;
     height: 1px;
-    // background: linear-gradient(90deg, transparent, #1890ff, transparent);
+    // background: linear-gradient(90deg, transparent, var(--c-header-accent), transparent);
   }
 `;
 
@@ -90,6 +98,32 @@ const DesktopBar = styled.div`
   }
 `;
 
+// HaStatusWidget/MissionBtn/模擬控制/語言切換/頭像這一整排,內容量會隨功能增加
+// (例如 HA 開啟時多出兩個 Tag + 按鈕)超出可視寬度。原本沒有 min-width:0,
+// flex-shrink 對這個 flex item 不生效(預設 min-width:auto 讓它撐開),
+// 於是右側的語言切換/頭像被擠到看不到的地方,中間留一片空白。
+// 這裡讓它可以真的縮小、縮不下的部分改成自己橫向捲動,不去擠壓整條 header。
+const ActionsBar = styled(Flex)`
+  min-width: 0;
+  flex-shrink: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  > * {
+    flex-shrink: 0;
+  }
+`;
+
+// 導覽選單跟 HA/任務工具列不再同時擠在同一排,改成一次只顯示一排,
+// 用這顆切換要看哪一排,兩排都用不到的空間就還給彼此。
+const RowSwitch = styled(Segmented)`
+  flex-shrink: 0;
+`;
+
 const IndustrialMenu = styled(Menu)`
   /* .ant-menu root 的 antd 規則為 10 */
   && {
@@ -104,29 +138,10 @@ const IndustrialMenu = styled(Menu)`
      （.ant-menu-light.ant-menu-horizontal > .ant-menu-item… 設 background-color），
      所以這裡必須 &&&& = 50；&& 只有 30 會被蓋掉。 */
   &&&& .ant-menu-item {
-    color: #595959;
-    font-size: var(--font-sm);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 600;
-    border-bottom: 3px solid transparent;
-    margin: 0 var(--space-xs);
-    padding: 0 var(--space-lg);
-    height: var(--header-height);
-    line-height: var(--header-height);
-    transition: all 0.2s;
-
-    &:hover {
-      color: #1890ff;
-      background: rgba(24, 144, 255, 0.05);
-      border-bottom-color: #1890ff;
-    }
+    ${headerNavItemBase}
 
     &.ant-menu-item-selected {
-      color: #1890ff;
-      background: rgba(24, 144, 255, 0.08);
-      border-bottom-color: #1890ff;
-      box-shadow: inset 0 -3px 0 #1890ff;
+      ${headerNavItemActive}
     }
   }
 `;
@@ -136,9 +151,9 @@ const SimulationStatus = styled.div`
   align-items: center;
   gap: var(--space-md);
   padding: var(--space-sm) var(--space-lg);
-  /* background: #fff1f0; */
-  /* border: 2px solid #ff4d4f; */
-  /* border-left: 4px solid #ff4d4f; */
+  /* background: var(--c-danger-soft); */
+  /* border: 2px solid var(--c-danger); */
+  /* border-left: 4px solid var(--c-danger); */
   font-family: "Roboto Mono", monospace;
   box-shadow: inset 0 0 20px rgba(255, 77, 79, 0.05);
 
@@ -149,16 +164,16 @@ const SimulationStatus = styled.div`
 
 const StatusLabel = styled.span`
   font-size: var(--font-xs);
-  color: #ff4d4f;
+  color: var(--c-danger);
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: 700;
 `;
 
 const ControlButton = styled(Button)`
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  color: #595959;
+  background: var(--c-bg);
+  border: 1px solid var(--c-header-border);
+  color: var(--c-header-text);
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
   font-size: var(--font-xs);
@@ -181,28 +196,26 @@ const ControlButton = styled(Button)`
   }
 
   &:hover {
-    background: #f0f5ff;
-    border-color: #1890ff;
-    color: #1890ff;
-    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+    background: var(--c-header-accent-soft);
+    border-color: var(--c-header-accent);
+    color: var(--c-header-accent);
   }
 
   &.danger {
-    border-color: #ff4d4f;
-    color: #ff4d4f;
+    border-color: var(--c-danger);
+    color: var(--c-danger);
 
     &:hover {
-      background: #fff1f0;
-      border-color: #ff7875;
-      color: #ff7875;
-      box-shadow: 0 2px 8px rgba(255, 77, 79, 0.2);
+      background: var(--c-danger-soft);
+      border-color: var(--c-danger);
+      color: var(--c-danger);
     }
   }
 
   &.simulate-active {
-    background: #fff1f0;
-    border-color: #ff4d4f;
-    color: #ff4d4f;
+    background: var(--c-danger-soft);
+    border-color: var(--c-danger);
+    color: var(--c-danger);
     animation: pulse 2s ease-in-out infinite;
   }
 
@@ -224,45 +237,45 @@ const IndustrialSelect = styled(Select)`
 
     width: var(--select-width);
     height: var(--control-height);
-    background: #ffffff;
-    border: 1px solid #d9d9d9;
+    background: var(--c-bg);
+    border: 1px solid var(--c-header-border);
     border-radius: 0;
-    color: #595959;
+    color: var(--c-header-text);
     font-family: "Roboto Mono", monospace;
     text-transform: uppercase;
     font-size: var(--font-xs);
     letter-spacing: 1px;
 
     &:hover {
-      border-color: #1890ff;
-      background: #f0f5ff;
-      color: #1890ff;
+      border-color: var(--c-header-accent);
+      background: var(--c-header-accent-soft);
+      color: var(--c-header-accent);
     }
 
     &.ant-select-focused {
-      border-color: #1890ff;
-      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+      border-color: var(--c-header-accent);
+      box-shadow: 0 0 0 2px var(--c-header-accent-soft);
     }
   }
 
   && .ant-select-suffix {
-    color: #595959;
+    color: var(--c-header-text);
   }
 `;
 
 const IndustrialDrawer = styled(Drawer)`
   && {
-    background: #fafafa;
+    background: var(--c-bg-subtle);
   }
 
   && .ant-drawer-header {
-    background: #ffffff;
-    border-bottom: 2px solid #d9d9d9;
-    border-left: 4px solid #1890ff;
+    background: var(--c-bg);
+    border-bottom: 2px solid var(--c-header-border);
+    border-left: 4px solid var(--c-header-accent);
   }
 
   && .ant-drawer-title {
-    color: #1890ff;
+    color: var(--c-header-accent);
     font-family: "Roboto Mono", monospace;
     text-transform: uppercase;
     letter-spacing: 1.5px;
@@ -276,7 +289,7 @@ const IndustrialDrawer = styled(Drawer)`
 
 const MobileMenu = styled(Menu)`
   && {
-    background: #fafafa;
+    background: var(--c-bg-subtle);
     border: none;
     font-family: "Roboto Mono", monospace;
   }
@@ -284,29 +297,28 @@ const MobileMenu = styled(Menu)`
   /* vertical 模式下 antd 對 item 的規則為 20（.ant-menu-light .ant-menu-item），
      && = 30 就夠。 */
   && .ant-menu-item {
-    color: #595959;
+    color: var(--c-header-text);
     font-size: var(--font-md);
     text-transform: uppercase;
     letter-spacing: 1px;
     margin: var(--space-xs) var(--space-sm);
     transition: all 0.2s;
-    background: #ffffff;
-    border: 1px solid #d9d9d9;
+    background: var(--c-bg);
+    border: 1px solid var(--c-header-border);
     border-left: 3px solid transparent;
 
     &:hover {
-      color: #1890ff;
-      background: #f0f5ff;
-      border-color: #1890ff;
-      border-left-color: #1890ff;
+      color: var(--c-header-accent);
+      background: var(--c-header-accent-soft);
+      border-color: var(--c-header-accent);
+      border-left-color: var(--c-header-accent);
     }
 
     &.ant-menu-item-selected {
-      color: #1890ff;
-      background: #e6f7ff;
-      border-color: #1890ff;
-      border-left-color: #1890ff;
-      box-shadow: inset 0 0 20px rgba(24, 144, 255, 0.08);
+      color: var(--c-header-accent);
+      background: var(--c-header-accent-soft);
+      border-color: var(--c-header-accent);
+      border-left-color: var(--c-header-accent);
     }
   }
 `;
@@ -331,15 +343,24 @@ const MapOverlay = styled.div`
 const token = localStorage.getItem("token");
 const username = token ? jwtDecode<{ username: string }>(token).username : "";
 
+type HeaderRow = "nav" | "tools";
+const HEADER_ROW_KEY = "headerActiveRow";
+
 const Header: React.FC = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const [isDark] = useAtom(darkMode);
   const [canSim, setCanSim] = useState(false);
   const [isSimulateOpen, setIsSimulateOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [hintAmrId, setHintAmrId] = useAtom(AmrFilterCarCard);
   const script = useMockInfo();
+  const [headerRow, setHeaderRow] = useState<HeaderRow>(
+    () => (localStorage.getItem(HEADER_ROW_KEY) as HeaderRow) || "nav",
+  );
+
+  useEffect(() => {
+    localStorage.setItem(HEADER_ROW_KEY, headerRow);
+  }, [headerRow]);
 
   const { refetch: amrNameRefetch } = useName();
   const [messageApi, contextHolder] = message.useMessage();
@@ -434,7 +455,8 @@ const Header: React.FC = () => {
         navigate("/cargo-history");
         break;
       case "4":
-        navigate("/setting");
+        // 設定頁已經正式改用 v2;舊版還留在 /setting-v1,/setting 會轉過去
+        navigate("/setting-v2");
         break;
       case "5":
         navigate("/simulate");
@@ -548,15 +570,38 @@ const Header: React.FC = () => {
         </IndustrialDrawer>
 
         <DesktopBar>
-          <IndustrialMenu
-            mode="horizontal"
-            items={items}
-            onClick={handleMenuClick}
-          />
+          <Tooltip title={t("header.switch_row")}>
+            <RowSwitch
+              size="small"
+              value={headerRow}
+              onChange={(v) => setHeaderRow(v as HeaderRow)}
+              options={[
+                { value: "nav", icon: <AppstoreOutlined /> },
+                { value: "tools", icon: <PlusSquareOutlined /> },
+              ]}
+            />
+          </Tooltip>
 
-          <Flex gap="middle" align="center">
-            {location.pathname === "/" && <MissionBtn />}
+          {headerRow === "nav" && (
+            <IndustrialMenu
+              mode="horizontal"
+              items={items}
+              onClick={handleMenuClick}
+            />
+          )}
 
+          {headerRow === "tools" && (
+            <ActionsBar gap="middle" align="center">
+              {location.pathname === "/" && <HaStatusWidget />}
+              {location.pathname === "/" && <MissionBtn />}
+            </ActionsBar>
+          )}
+
+          <Flex
+            gap="middle"
+            align="center"
+            style={{ flexShrink: 0, marginLeft: "auto" }}
+          >
             {script?.isSimulate ? (
               <SimulationStatus>
                 <ClockCircleOutlined />

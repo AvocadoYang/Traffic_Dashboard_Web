@@ -35,7 +35,7 @@ const FixedEventTable: React.FC<FixedEventTableProps> = ({
       dataIndex: "time",
       key: "time",
       render: (time: string) => (
-        <Text code style={{ color: "#1890ff" }}>
+        <Text code style={{ color: "var(--c-header-accent)" }}>
           {time}
         </Text>
       ),

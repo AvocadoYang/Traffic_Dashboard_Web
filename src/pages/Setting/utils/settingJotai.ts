@@ -9,8 +9,6 @@ export const EEM = atom<{ locationId: string | null; isOpen: boolean }>({
   locationId: null,
   isOpen: false,
 });
-//Edit elevator carog
-export const EEC = atom<boolean>(false);
 
 // EditChargeStationModal
 export const ECSM = atom<{ locationId: string | null; isOpen: boolean }>({
@@ -18,16 +16,14 @@ export const ECSM = atom<{ locationId: string | null; isOpen: boolean }>({
   isOpen: false,
 });
 
-// Edit Stack Modal
-export const ESM = atom<{ locationId: string | null; isOpen: boolean }>({
+//Edit blind location mission modal
+export const EBLM = atom<{ locationId: string | null; isOpen: boolean }>({
   locationId: null,
   isOpen: false,
 });
-//Edit stack carog
-export const ESC = atom<boolean>(false);
 
-//Edit blind location mission modal
-export const EBLM = atom<{ locationId: string | null; isOpen: boolean }>({
+//Location detect modal (點位偵測)
+export const LDM = atom<{ locationId: string | null; isOpen: boolean }>({
   locationId: null,
   isOpen: false,
 });

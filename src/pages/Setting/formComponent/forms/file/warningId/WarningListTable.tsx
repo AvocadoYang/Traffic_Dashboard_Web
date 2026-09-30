@@ -160,8 +160,12 @@ const WarningListTable: FC = () => {
 
   const save = (key: number) => {
     const data = form.getFieldsValue() as WarningRecord;
+    // 這張表沒有 pack / safety_event 的欄位,從原本那筆帶上,不然會被存成空字串
+    const origin = warningData?.find((w) => w.id === key);
 
     const payload = {
+      pack: origin?.pack ?? "",
+      safety_event: origin?.safety_event ?? "",
       ...data,
       origin_id: key,
     };

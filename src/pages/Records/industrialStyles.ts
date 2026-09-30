@@ -4,7 +4,7 @@ import { Table } from "antd";
 // ── Layout ──────────────────────────────────────────────────────────────────
 
 export const IndustrialContainer = styled.div`
-  background: #f5f5f5;
+  background: var(--c-bg-subtle);
   padding: 20px;
   font-family: "Roboto Mono", "Courier New", monospace;
 
@@ -14,15 +14,15 @@ export const IndustrialContainer = styled.div`
 `;
 
 export const IndustrialCard = styled.div`
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
+  background: var(--c-bg);
+  border: 1px solid var(--c-header-border);
   margin-bottom: 20px;
   padding: 20px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
   overflow-x: auto;
 
   &:hover {
-    border-color: #bfbfbf;
+    border-color: var(--c-text-muted);
   }
 
   @media (max-width: 768px) {
@@ -34,8 +34,8 @@ export const IndustrialCard = styled.div`
 // ── Status Bar ───────────────────────────────────────────────────────────────
 
 export const StatusBar = styled.div<{ $accent: string }>`
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
+  background: var(--c-bg);
+  border: 1px solid var(--c-header-border);
   border-left: 4px solid ${({ $accent }) => $accent};
   padding: 12px 16px;
   margin-bottom: 20px;
@@ -83,8 +83,8 @@ export const MetricsRow = styled.div`
 // ── Section Header ───────────────────────────────────────────────────────────
 
 export const SectionHeader = styled.div<{ $accent: string }>`
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
+  background: var(--c-bg);
+  border: 1px solid var(--c-header-border);
   border-left: 3px solid ${({ $accent }) => $accent};
   padding: 10px 16px;
   margin-bottom: 16px;
@@ -113,8 +113,8 @@ export const MetricDisplay = styled.div<{ $accent: string }>`
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
-  background: #fafafa;
-  border: 1px solid #d9d9d9;
+  background: var(--c-bg-subtle);
+  border: 1px solid var(--c-header-border);
   font-family: "Roboto Mono", monospace;
   font-size: 12px;
   color: ${({ $accent }) => $accent};
@@ -122,7 +122,7 @@ export const MetricDisplay = styled.div<{ $accent: string }>`
   white-space: nowrap;
 
   .label {
-    color: #8c8c8c;
+    color: var(--c-text-muted);
     text-transform: uppercase;
     font-size: 10px;
   }
@@ -179,13 +179,13 @@ export const TimeDisplay = styled.div`
   font-size: 11px;
 
   .date {
-    color: #262626;
+    color: var(--c-text);
     font-weight: 600;
     margin-bottom: 2px;
   }
 
   .time {
-    color: #8c8c8c;
+    color: var(--c-text-muted);
     font-size: 10px;
   }
 `;
@@ -199,9 +199,9 @@ export const StyledTable = styled(Table)<{ $accent: string }>`
   }
 
   .ant-table-thead > tr > th {
-    background: #fafafa;
-    border-bottom: 2px solid #d9d9d9;
-    color: #262626;
+    background: var(--c-bg-subtle);
+    border-bottom: 2px solid var(--c-header-border);
+    color: var(--c-text);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -224,11 +224,11 @@ export const StyledTable = styled(Table)<{ $accent: string }>`
     transition: background 0.2s ease;
 
     &:hover > td {
-      background: #f0f5ff !important;
+      background: var(--c-header-accent-soft) !important;
     }
 
     > td {
-      border-bottom: 1px solid #f0f0f0;
+      border-bottom: 1px solid var(--c-bg-muted);
       padding: 12px 16px;
       font-family: "Roboto Mono", monospace;
 
@@ -240,7 +240,7 @@ export const StyledTable = styled(Table)<{ $accent: string }>`
   }
 
   .ant-table-tbody > tr:nth-child(odd) > td {
-    background: #fafafa;
+    background: var(--c-bg-subtle);
   }
 
   .ant-pagination {
@@ -248,7 +248,7 @@ export const StyledTable = styled(Table)<{ $accent: string }>`
     flex-wrap: wrap;
 
     .ant-pagination-item {
-      border: 1px solid #d9d9d9;
+      border: 1px solid var(--c-header-border);
       font-family: "Roboto Mono", monospace;
 
       &:hover {
@@ -268,7 +268,7 @@ export const StyledTable = styled(Table)<{ $accent: string }>`
     .ant-pagination-prev,
     .ant-pagination-next {
       .ant-pagination-item-link {
-        border: 1px solid #d9d9d9;
+        border: 1px solid var(--c-header-border);
 
         &:hover {
           border-color: ${({ $accent }) => $accent};
@@ -287,13 +287,13 @@ export const EmptyStateContainer = styled.div`
 
   .empty-icon {
     font-size: 48px;
-    color: #d9d9d9;
+    color: var(--c-header-border);
     margin-bottom: 16px;
   }
 
   .empty-text {
     font-family: "Roboto Mono", monospace;
-    color: #8c8c8c;
+    color: var(--c-text-muted);
     text-transform: uppercase;
     letter-spacing: 2px;
     font-size: 12px;
@@ -318,7 +318,7 @@ export const EmptyStateContainer = styled.div`
 export const paginationTotalStyle: React.CSSProperties = {
   fontFamily: '"Roboto Mono", monospace',
   fontSize: 11,
-  color: "#595959",
+  color: "var(--c-text-secondary)",
   textTransform: "uppercase",
   letterSpacing: 1,
 };

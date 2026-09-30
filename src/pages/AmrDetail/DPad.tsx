@@ -18,10 +18,10 @@ import MaintenancePanel from "../Main/Car_Card/components/MaintenancePanel";
 
 const IndustrialContainer = styled(Flex)`
   width: 100%;
-  border: 2px solid #d9d9d9;
-  border-left: 4px solid #1890ff;
+  border: 2px solid var(--c-header-border);
+  border-left: 4px solid var(--c-header-accent);
   padding: 20px;
-  background: #ffffff;
+  background: var(--c-bg);
   box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.02);
   position: relative;
 
@@ -44,13 +44,13 @@ const IndustrialContainer = styled(Flex)`
 `;
 
 const SectionHeader = styled.div`
-  background: #fafafa;
-  border: 1px solid #d9d9d9;
-  border-left: 3px solid #1890ff;
+  background: var(--c-bg-subtle);
+  border: 1px solid var(--c-header-border);
+  border-left: 3px solid var(--c-header-accent);
   padding: 8px 12px;
   margin-bottom: 16px;
   font-family: "Roboto Mono", monospace;
-  color: #1890ff;
+  color: var(--c-header-accent);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -94,53 +94,53 @@ const IndustrialButton = styled(Button)`
   }
 
   &.charge-btn {
-    background: #ffffff;
-    border: 1px solid #52c41a;
-    color: #52c41a;
+    background: var(--c-bg);
+    border: 1px solid var(--c-success);
+    color: var(--c-success);
 
     &:hover {
-      background: #f6ffed;
-      border-color: #73d13d;
-      color: #73d13d;
+      background: var(--c-success-soft);
+      border-color: var(--c-success);
+      color: var(--c-success);
       box-shadow: 0 2px 8px rgba(82, 196, 26, 0.3);
     }
   }
 
   &.delete-btn {
-    background: #ffffff;
-    border: 1px solid #ff4d4f;
-    color: #ff4d4f;
+    background: var(--c-bg);
+    border: 1px solid var(--c-danger);
+    color: var(--c-danger);
 
     &:hover {
-      background: #fff1f0;
-      border-color: #ff7875;
-      color: #ff7875;
+      background: var(--c-danger-soft);
+      border-color: var(--c-danger);
+      color: var(--c-danger);
       box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3);
     }
   }
 
   &.force-delete-btn {
-    background: #ff4d4f;
-    border: 1px solid #ff4d4f;
+    background: var(--c-danger);
+    border: 1px solid var(--c-danger);
     color: #ffffff;
 
     &:hover {
-      background: #ff7875;
-      border-color: #ff7875;
+      background: var(--c-danger);
+      border-color: var(--c-danger);
       box-shadow: 0 2px 8px rgba(255, 77, 79, 0.4);
     }
   }
 
   &.emergency-btn {
-    background: #ff4d4f;
-    border: 2px solid #cf1322;
+    background: var(--c-danger);
+    border: 2px solid var(--c-danger);
     color: #ffffff;
     font-weight: 700;
     animation: pulse 2s ease-in-out infinite;
 
     &:hover {
-      background: #ff7875;
-      border-color: #ff4d4f;
+      background: var(--c-danger);
+      border-color: var(--c-danger);
       box-shadow: 0 0 20px rgba(255, 77, 79, 0.5);
     }
 
@@ -156,25 +156,25 @@ const IndustrialButton = styled(Button)`
   }
 
   &.continue-btn {
-    background: #ffffff;
-    border: 1px solid #1890ff;
-    color: #1890ff;
+    background: var(--c-bg);
+    border: 1px solid var(--c-header-accent);
+    color: var(--c-header-accent);
 
     &:hover {
-      background: #f0f5ff;
-      border-color: #40a9ff;
-      color: #40a9ff;
+      background: var(--c-header-accent-soft);
+      border-color: var(--c-header-accent);
+      color: var(--c-header-accent);
       box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
     }
   }
 
   &.update-btn {
-    background: #ffffff;
-    border: 1px solid #faad14;
-    color: #faad14;
+    background: var(--c-bg);
+    border: 1px solid var(--c-warning);
+    color: var(--c-warning);
 
     &:hover {
-      background: #fffbe6;
+      background: var(--c-warning-soft);
       border-color: #ffc53d;
       color: #ffc53d;
       box-shadow: 0 2px 8px rgba(250, 173, 20, 0.3);
@@ -182,8 +182,8 @@ const IndustrialButton = styled(Button)`
   }
 
   &.reset-btn {
-    background: #faad14;
-    border: 1px solid #faad14;
+    background: var(--c-warning);
+    border: 1px solid var(--c-warning);
     color: #ffffff;
     font-weight: 700;
 
@@ -201,7 +201,7 @@ const IndustrialDropdown = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #ffffff;
+  background: var(--c-bg);
   border: 1px solid #722ed1;
   color: #722ed1;
   font-family: "Roboto Mono", monospace;
@@ -254,7 +254,7 @@ const IndustrialDropdown = styled.div`
 
 const StyledDropdownMenu = styled.div`
   .ant-dropdown-menu {
-    border: 2px solid #d9d9d9;
+    border: 2px solid var(--c-header-border);
     border-radius: 0;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     padding: 0;
@@ -266,7 +266,7 @@ const StyledDropdownMenu = styled.div`
     text-transform: uppercase;
     letter-spacing: 0.5px;
     padding: 10px 16px;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--c-bg-muted);
     transition: all 0.2s;
 
     &:last-child {
@@ -293,8 +293,8 @@ const Divider = styled.div`
   height: 2px;
   background: repeating-linear-gradient(
     90deg,
-    #d9d9d9 0,
-    #d9d9d9 8px,
+    var(--c-header-border) 0,
+    var(--c-header-border) 8px,
     transparent 8px,
     transparent 16px
   );
@@ -309,9 +309,9 @@ const Divider = styled.div`
     transform: translate(-50%, -50%);
     width: 6px;
     height: 6px;
-    background: #ff4d4f;
+    background: var(--c-danger);
     border: 2px solid #ffffff;
-    box-shadow: 0 0 0 2px #d9d9d9;
+    box-shadow: 0 0 0 2px var(--c-header-border);
   }
 `;
 

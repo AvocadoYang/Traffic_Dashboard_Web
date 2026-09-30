@@ -3,7 +3,7 @@ export const formList = [
   // === location ===
   { key: "location_panel" },
   { key: "location_list" },
-  // { key: "quick_location_panel" }, // deprecated
+  { key: "quick_location_panel" },
   // ===================
   // === road ===
   { key: "road_panel" },
@@ -42,6 +42,7 @@ export const formList = [
   { key: "peripheral_name_table" },
   { key: "peripheral_group_table" },
   { key: "peripheral_charge_dock_config" },
+  { key: "stack_batch_edit" },
 
   // === other ===
   { key: "edit_tag" },
@@ -63,6 +64,7 @@ export const formList = [
   { key: "marker_type" },
   { key: "sync_mir" },
   { key: "mir_mission" },
+  { key: "mir_edit_mission" },
 ] as const;
 
 export const toolbarState = formList.map((item) => ({ ...item }));

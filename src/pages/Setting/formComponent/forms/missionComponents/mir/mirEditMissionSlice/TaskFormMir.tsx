@@ -26,6 +26,7 @@ import {
   MirMaximumLinearSpeedInputInput,
   MirModuleInput,
   MirOperationInput,
+  MirOptionInput,
   MirOrientationInput,
   MirPortInput,
   MirRearInput,
@@ -48,6 +49,19 @@ import { useAtomValue } from "jotai";
 import { currentMapIdAtom } from "@/utils/mapSelection";
 import useTaskMir from "@/api/useTaskMir";
 import useTaskMirOne from "@/api/useTaskMirOne";
+import {
+  MirVariableProvider,
+  useMirVariableFields,
+} from "./MirVariableContext";
+import { buildMirOperationFields } from "./mirActionFields";
+import { useMirDockingMarkerType } from "./useMirTaskOptions";
+
+// save-edit-mir-task 實際送出去的形狀:是一個 Mir_Action 加上 missionTitleId,
+// 但不含 scope_reference —— 那是後端自己維護的「內容群組」id,前端不該回寫,
+// 否則會把容器與子任務的關聯打掉
+type MirSaveTaskPayload = Omit<Mir_Action, "scope_reference"> & {
+  missionTitleId: string;
+};
 
 const IndustrialContainer = styled.div`
   background: #f5f5f5;
@@ -305,7 +319,7 @@ const IndustrialSegmented: React.FC<IndustrialSegmentedProps> = ({
   );
 };
 
-const TaskFormMir: FC<{
+const TaskFormMirContent: FC<{
   editTaskKey: string;
   selectedMissionCar: string;
   selectedMissionKey: string;
@@ -319,7 +333,9 @@ const TaskFormMir: FC<{
   const [taskAction, setTaskAction] = useState<Mir_All_Action>();
   const currentMapId = useAtomValue(currentMapIdAtom);
   const { data: taskDataSource } = useTaskMirOne(editTaskKey);
-  const isCurrentPosition = Form.useWatch("is_current_position", form);
+  const { isCurrentPosition, showMarkerType } = useMirDockingMarkerType(form);
+  const { fields: variableFields, setAllFields: setAllVariableFields } =
+    useMirVariableFields();
 
   useEffect(() => {
     if (!taskDataSource) return;
@@ -361,6 +377,7 @@ const TaskFormMir: FC<{
         entry_position: op.entry_position,
         footprint: op.footprint,
         marker_type: op?.marker_type || null,
+        is_current_position: !op.location_id && !!op.marker_type,
 
         blocked_path_timeout: op.blocked_path_timeout ?? 60,
         blocked_docking_timeout: op.blocked_docking_timeout ?? 60,
@@ -371,6 +388,7 @@ const TaskFormMir: FC<{
         y: op.y ?? 0,
         orientation: op.orientation ?? 0,
         collision_detection: op.collision_detection ?? true,
+        option: op.option ?? "free",
         wait: formattedWait,
         sound: op.sound,
         volume: op.volume ?? 0,
@@ -385,7 +403,18 @@ const TaskFormMir: FC<{
         timeout: formattedTimeout,
       });
     }, 0);
-  }, [taskDataSource, form]);
+
+    // 把上次存檔存的「哪些欄位是變數」還原回畫面上
+    const savedVariables: Record<string, string> = op.variables ?? {};
+    setAllVariableFields(
+      Object.fromEntries(
+        Object.entries(savedVariables).map(([fieldName, name]) => [
+          fieldName,
+          { enabled: true, name },
+        ]),
+      ),
+    );
+  }, [taskDataSource, form, setAllVariableFields]);
 
   // 2. 切換大類別的 Handle 函式
   const handleCategoryChange = (newType: Mir_Task) => {
@@ -399,7 +428,7 @@ const TaskFormMir: FC<{
   };
 
   const saveMutation = useMutation({
-    mutationFn: (payload: Mir_Action) => {
+    mutationFn: (payload: MirSaveTaskPayload) => {
       return client.post("api/setting/save-edit-mir-task", payload);
     },
     onSuccess: async () => {
@@ -430,53 +459,23 @@ const TaskFormMir: FC<{
 
   const onFinish = () => {
     const rawPayload = form.getFieldsValue();
+    const actionType = rawPayload.action_type ?? "";
+    // Marker type 欄位隱藏時 getFieldsValue 拿不到它，會沿用舊值，這裡明確清掉
+    if (actionType === "docking" && !showMarkerType) {
+      rawPayload.marker_type = null;
+    }
     const newPayload = {
       missionTitleId: selectedMissionKey,
-      currentMapId: currentMapId,
+      currentMapId: currentMapId || "",
       id: editTaskKey,
-      // 1. 基本動作類型
-      type: rawPayload.action_type ?? "",
+      type: actionType,
+      ...buildMirOperationFields(actionType, rawPayload, taskDataSource),
 
-      // 2. 位置與導航相關
-      location_id: rawPayload.location_id ?? "",
-      entry_position: rawPayload.entry_position ?? "",
-      footprint: rawPayload.footprint ?? "",
-      marker_type: rawPayload.marker_type ?? null,
-
-      // 3. 逾時與限制參數 (預設數值)
-      blocked_path_timeout: rawPayload.blocked_path_timeout ?? 60,
-      blocked_docking_timeout: rawPayload.blocked_docking_timeout ?? 60,
-      maximum_linear_speed: rawPayload.maximum_linear_speed ?? 0.25,
-      maximum_angular_speed: rawPayload.maximum_angular_speed ?? 0.25,
-      distance_threshold: rawPayload.distance_threshold ?? 0.25,
-
-      // 4. 相對位移參數
-      x: rawPayload.x ?? 0,
-      y: rawPayload.y ?? 0,
-      orientation: rawPayload.orientation ?? 0,
-      collision_detection: rawPayload.collision_detection ?? true,
-
-      // 5. 時間與聲音相關
-      wait:
-        rawPayload.wait && dayjs(rawPayload.wait).isValid()
-          ? dayjs(rawPayload.wait).format("HH:mm:ss")
-          : "00:00:00",
-      sound: rawPayload.sound ?? "",
-      volume: rawPayload.volume ?? 0,
-
-      // 6. 安全防護區域 (Mute/Unmute)
-      front: rawPayload.front ?? "unmuted",
-      rear: rawPayload.rear ?? "unmuted",
-      sides: rawPayload.sides ?? "unmuted",
-
-      module: rawPayload.module ?? null,
-      port: rawPayload.port ?? 0,
-      value: rawPayload.value ?? "on",
-      operation: rawPayload.operation ?? "on",
-      timeout:
-        rawPayload.timeout && dayjs(rawPayload.timeout).isValid()
-          ? dayjs(rawPayload.timeout).format("HH:mm:ss")
-          : "00:00:00",
+      variables: Object.fromEntries(
+        Object.entries(variableFields)
+          .filter(([, v]) => v.enabled && v.name)
+          .map(([fieldName, v]) => [fieldName, v.name]),
+      ),
     };
 
     // alert(JSON.stringify(newPayload, null, 2));
@@ -543,13 +542,8 @@ const TaskFormMir: FC<{
             {/* 🎯 將 isCurrentPosition 作為 disabled 傳給 MirLocationInput */}
             <MirLocationInput disabled={isCurrentPosition} />
 
-            {/* 依開關狀態切換顯示的輸入框 */}
-            {isCurrentPosition ? (
-              <MirMarkerTypeInput />
-            ) : (
-              <MirBlockedPathTimeoutInputInput />
-            )}
-
+            {showMarkerType && <MirMarkerTypeInput />}
+            {!isCurrentPosition && <MirBlockedPathTimeoutInputInput />}
             <MirBlockedDockingTimeoutInputInput />
             <MirMaximumLinearSpeedInputInput />
           </>
@@ -572,6 +566,17 @@ const TaskFormMir: FC<{
             <MirMaximumAngularSpeedInputInput />
             <MirCollisionDetectionInput />
             <MirBlockedPathTimeoutInputInput />
+          </>
+        )}
+
+        {taskAction === "check_pose" && (
+          <>
+            <MirLocationInput />
+            <MirXInput />
+            <MirYInput />
+            <MirOrientationInput />
+            <MirOptionInput />
+            <MirTimeoutInput />
           </>
         )}
 
@@ -640,5 +645,16 @@ const TaskFormMir: FC<{
     </IndustrialContainer>
   );
 };
+
+const TaskFormMir: FC<{
+  editTaskKey: string;
+  selectedMissionCar: string;
+  selectedMissionKey: string;
+  form: FormInstance<any>;
+}> = (props) => (
+  <MirVariableProvider>
+    <TaskFormMirContent {...props} />
+  </MirVariableProvider>
+);
 
 export default TaskFormMir;

@@ -28,8 +28,8 @@ import {
 
 const { RangePicker } = DatePicker;
 
-const ACCENT = "#ff4d4f";
-const TAG_BG = "#fff1f0";
+const ACCENT = "var(--c-danger)";
+const TAG_BG = "var(--c-danger-soft)";
 
 interface WarningRecord {
   id: string;

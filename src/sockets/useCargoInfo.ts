@@ -2,13 +2,14 @@ import { array, string, object, ValidationError, boolean, number } from "yup";
 import {
   from,
   fromEventPattern,
-  share,
+  shareReplay,
   switchMap,
   distinctUntilChanged,
 } from "rxjs";
 import { useEffect, useState } from "react";
 import { io } from "./socketConnect";
 import { LayerType } from "@/api/type/useLocation";
+import { deepEqual } from "@/utils/deepEqual";
 
 export const levelSchema = object({
   levelName: string().optional().nullable(),
@@ -72,9 +73,11 @@ const profiles$ = fromEventPattern(
     return from([message]);
   }),
   distinctUntilChanged(
-    (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
+    (prev, curr) => deepEqual(prev, curr),
   ),
-  share(),
+  // 資料沒變時 distinctUntilChanged 不會再發,晚訂閱的元件(例如貨物面板)
+  // 會一直拿不到資料,所以要 replay 最新一筆
+  shareReplay({ bufferSize: 1, refCount: true }),
 );
 
 const useCargoInfo = () => {
@@ -86,7 +89,7 @@ const useCargoInfo = () => {
     const subscription = profiles$
       .pipe(
         distinctUntilChanged(
-          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr),
+          (prev, curr) => deepEqual(prev, curr),
         ),
       )
       .subscribe((filteredData) => {

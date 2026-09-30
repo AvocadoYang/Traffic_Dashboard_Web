@@ -25,6 +25,7 @@ import useMap from "@/api/useMap";
 import {
   useLocationHoverTooltip,
   useRoadHoverTooltip,
+  useWheelZoom,
 } from "@/pages/Setting/hooks";
 import AllConveyor from "../../PadViwe/components/PadMapContent/AllConveyor/AllConveyor";
 import { AllElevator } from "../../PadViwe/components/PadMapContent/AllElevator";
@@ -33,7 +34,6 @@ import { OpenChargeStationModal } from "@/pages/Main/global/jotai";
 import StatusPanel from "../../PadViwe/components/PadMapContent/AllChargeStation/StatusPanel";
 import useDetectLoc from "../hooks/useDetectLoc";
 import useMouseClick from "../hooks/useMouseClick";
-import ScalePad from "./ScalePad";
 import AllGateWaitPoint from "../../PadViwe/components/PadMapContent/AllGateWaitPoint/AllGateWaitPoint";
 import AllLiftGate from "../../PadViwe/components/PadMapContent/AllGate/AllLiftGate";
 import AllStack from "../../PadViwe/components/PadMapContent/AllStack/AllStack";
@@ -67,7 +67,8 @@ const WebMapView: React.FC<{
     const img = mapImageRef.current;
     if (!img) return;
 
-    const read = () => setNatural({ w: img.naturalWidth, h: img.naturalHeight });
+    const read = () =>
+      setNatural({ w: img.naturalWidth, h: img.naturalHeight });
     if (img.complete && img.naturalWidth) {
       read();
       return;
@@ -78,9 +79,17 @@ const WebMapView: React.FC<{
   }, [data?.imageUrl]);
 
   useDetectLoc(mapRef, mapWrapRef, mapImageRef, scale);
+
   useMouseClick(mapWrapRef);
+
+  // 控制地圖拖曳
   useDragPan(mapWrapRef, mapRef, mapImageRef);
+
+  // 控制地圖置中
   useCenterMap(mapWrapRef, mapImageRef);
+
+  //控制滑鼠滾輪縮放
+  useWheelZoom(mapWrapRef, scale);
 
   //控制「地點提示」/「路徑提示」開啟時，游標移動附近點位/路徑浮出 tooltip
   useLocationHoverTooltip(mapRef, mapImageRef, scale);
@@ -137,7 +146,6 @@ const WebMapView: React.FC<{
           <AllZones scale={scale}></AllZones>
           <AllChargeStation></AllChargeStation>
           {showChargeConfig ? <StatusPanel locId={showChargeConfig} /> : null}
-          <ScalePad></ScalePad>
         </>
       )}
     </div>

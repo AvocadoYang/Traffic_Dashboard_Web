@@ -19,6 +19,10 @@ import { SpawnCargoModal } from "./components/Timeline/Modals/SpawnCargoModal";
 import InsertFixMissionModal from "./components/Timeline/Modals/InsertFixMissionModal";
 import InsertRangeGroupSpawnCargoModal from "./components/Timeline/Modals/InsertRangeGroupSpawnCargoModal";
 import InsertRangeGroupShiftCargoModal from "./components/Timeline/Modals/InsertRangeGroupShiftCargoModal";
+import ScenarioDrawer from "./components/Scenario/ScenarioDrawer";
+import OpenScenarioBtn from "./components/Scenario/OpenScenarioBtn";
+import PerformancePanel from "../../components/Performance/PerformancePanel";
+import OpenPerformanceBtn from "../../components/Performance/OpenPerformanceBtn";
 
 const Simulate: FC = () => {
   const { isMobile } = useIsMobile();
@@ -50,6 +54,14 @@ const Simulate: FC = () => {
 
           {/*  各站點設定 可能用不到了 */}
           {/* <WcsPad /> */}
+
+          {/* 情境設定: 貨源 / 派送規則 / 出口 —— 取代手擺時間軸 */}
+          <OpenScenarioBtn />
+          <ScenarioDrawer />
+
+          {/* 效能即時狀態: 車隊跟不跟得上 + 程式卡不卡 */}
+          <OpenPerformanceBtn />
+          <PerformancePanel />
 
           {/**試定區域生成貨物 */}
           <InsertRangeGroupSpawnCargoModal />

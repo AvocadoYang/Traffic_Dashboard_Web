@@ -12,12 +12,8 @@ import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { nanoid } from "nanoid";
 import { useSetAtom } from "jotai";
-import {
-  BaseGlobalCargoInfoModal,
-  GlobalCargoInfo,
-  GlobalCargoInfoModal,
-} from "./jotaiState";
-import { Cargo } from "@/types/peripheral";
+import { BaseGlobalCargoInfoModal } from "./jotaiState";
+import { CargoPanelTarget } from "@/components/CargoPanel/state";
 import { LayerType } from "@/api/type/useLocation";
 
 const prefixLevelName = (word: string | null | undefined) => {
@@ -36,30 +32,12 @@ const LayerForm: FC<{
   setIsEditLayer: Dispatch<SetStateAction<boolean>>;
 }> = ({ form, layer, setIsEditLayer, locId }) => {
   const { t } = useTranslation();
-  const setCargoInfo = useSetAtom(GlobalCargoInfo);
+  const openCargoPanel = useSetAtom(CargoPanelTarget);
   const [isClickBtn, setIsClickBtn] = useState(false);
   const setIsEditModalOpen = useSetAtom(BaseGlobalCargoInfoModal);
 
-  const setOpenCargoInfo = useSetAtom(GlobalCargoInfoModal);
-
   const userHasChangeData = () => {
     setIsEditLayer(true);
-  };
-
-  const setOpenEditCargoDetailModal = (data: {
-    dbId: string | null;
-    level: number;
-    cargo: Cargo[];
-  }) => {
-    // console.log(data.cargo, 'setting');
-    setCargoInfo({
-      locationId: locId,
-      dbId: data.dbId,
-      level: data.level,
-      cargo: data.cargo,
-    });
-    setOpenCargoInfo(true);
-    setIsClickBtn(true);
   };
 
   useEffect(() => {
@@ -77,12 +55,10 @@ const LayerForm: FC<{
     });
   }, [form, layer]);
 
-  const handleEditCargo = (dbId: string, level: number, cargo: any) => {
-    setOpenEditCargoDetailModal({
-      dbId,
-      level,
-      cargo,
-    });
+  // 貨物改用跟主畫面同一個面板編輯
+  const handleEditCargo = (level: number) => {
+    openCargoPanel({ type: "STORAGE", locationId: locId, level });
+    setIsClickBtn(true);
     setIsEditModalOpen(false);
   };
 
@@ -152,13 +128,7 @@ const LayerForm: FC<{
 
                 <Button
                   disabled={isClickBtn}
-                  onClick={() =>
-                    handleEditCargo(
-                      levelValue.dbId,
-                      Number(levelStr),
-                      levelValue.cargo,
-                    )
-                  }
+                  onClick={() => handleEditCargo(Number(levelStr))}
                 >
                   {t("shelf.layer_form.edit_detail")}
                 </Button>

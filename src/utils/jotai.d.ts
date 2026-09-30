@@ -10,6 +10,8 @@ export type LocationType = {
   canRotate: boolean;
   rotate: number;
   map_id?: string;
+  ip?: string | null;
+  currentMapId?: string;
 };
 
 export type ZoneType = {

@@ -33,7 +33,7 @@ const TimelineWrapper = styled.div<{ heightMode: string; isDragging: boolean }>`
   bottom: 20px;
   left: 50%;
   transform: translateX(-48%);
-  background-color: #f5f5f5;
+  background-color: var(--c-bg-subtle);
   border-radius: 20px;
   padding: 10px 15px 23px;
   display: flex;
@@ -99,7 +99,7 @@ const BtnWrapper = styled.div`
 const AddSchedule = styled.div`
   width: auto;
   height: 2em;
-  background-color: #f5f5f5;
+  background-color: var(--c-bg-subtle);
   border-radius: 3%;
   display: flex;
   border-radius: 6px;
@@ -126,7 +126,7 @@ const AddSchedule = styled.div`
 const AddSpawnCargoSchedule = styled.div`
   width: auto;
   height: 2em;
-  background-color: #f5f5f5;
+  background-color: var(--c-bg-subtle);
   border-radius: 3%;
   border-radius: 6px;
   display: flex;
@@ -153,7 +153,7 @@ const AddSpawnCargoSchedule = styled.div`
 const AddShiftCargoSchedule = styled.div`
   width: auto;
   height: 2em;
-  background-color: #f5f5f5;
+  background-color: var(--c-bg-subtle);
   border-radius: 3%;
   display: flex;
   border-radius: 6px;

@@ -117,6 +117,9 @@ export enum Lift_Gate_Status {
   System_Error = "9003",
 }
 
+/** 一個 stack 最多可以堆幾層貨,跟後端 STACK_MAX_LEVEL 一致 */
+export const STACK_MAX_LEVEL = 3;
+
 export type Stack_Info = {
   name: string;
   description: string;

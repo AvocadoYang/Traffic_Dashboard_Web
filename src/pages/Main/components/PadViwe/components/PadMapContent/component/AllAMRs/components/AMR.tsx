@@ -110,7 +110,7 @@ const AMR: FC<{
   const zoneForbidden = useAtomValue(showZoneForbidden);
   const errorMessage = useWarningId()?.get(amrId);
   const MiR_Status_IO = useMiRStatus(amrId);
-   const [mapId, setMapId] = useAtom(currentMapIdAtom);
+  const [mapId, setMapId] = useAtom(currentMapIdAtom);
 
   const isForbidden = useMemo(() => {
     return zoneForbidden.has(amrId);
@@ -133,7 +133,12 @@ const AMR: FC<{
   const { isOverdue } = useIsLogIn(amrId);
 
   if (!pose || !map || !bbox || !bbox.length || isOverdue) return null;
-  if(MiR_Status_IO && amrId.includes("mi") && MiR_Status_IO.active_map_id !== mapId) return null
+  if (
+    MiR_Status_IO &&
+    amrId.includes("mi") &&
+    MiR_Status_IO.active_map_id !== mapId
+  )
+    return null;
   const { x: newX, y: newY } = agvFormate(pose.x, pose.y);
   const [left, top] = rosCoord2DisplayCoord({
     x: amrId.includes("SW15") ? newX + 3.5 : pose.x,
@@ -147,20 +152,18 @@ const AMR: FC<{
   // 會一直被渲染是正常的 不要包memo
   return (
     <>
-      {
-      // showTooltip ? (
-      //   <Tip left={left} top={top}>
-      //     <p>{`${isForbidden ? "🚫 " : ""}${amrId}`}</p>
-      //     {tipText ? <TipDetail>{tipText}</TipDetail> : null}
-      //     {destinationText ? (
-      //       <TipDetail>{`→ ${destinationText}`}</TipDetail>
-      //     ) : null}
-      //     {/* <ArrowDownOutlined className="hint-icon" /> */}
-      //   </Tip>
-      // ) : (
-      //   []
-      // )
-      }
+      {showTooltip ? (
+        <Tip left={left} top={top}>
+          <p>{`${isForbidden ? "🚫 " : ""}${amrId}`}</p>
+          {tipText ? <TipDetail>{tipText}</TipDetail> : null}
+          {destinationText ? (
+            <TipDetail>{`→ ${destinationText}`}</TipDetail>
+          ) : null}
+          {/* <ArrowDownOutlined className="hint-icon" /> */}
+        </Tip>
+      ) : (
+        []
+      )}
 
       <ForkLiftIcon
         amrId={amrId}

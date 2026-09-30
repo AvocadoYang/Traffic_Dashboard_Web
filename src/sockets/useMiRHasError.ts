@@ -9,6 +9,7 @@ import {
 import { useEffect, useState } from "react";
 import { io } from "./socketConnect";
 import { Elevator_Info } from "@/types/peripheral";
+import { deepEqual } from "@/utils/deepEqual";
 
 const schema = object({
   amrId: string().required(),
@@ -36,7 +37,7 @@ const profiles$ = fromEventPattern(
     )
   ),
   distinctUntilChanged(
-    (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
+    (prev, curr) => deepEqual(prev, curr)
   ),
   share()
 );
@@ -47,7 +48,7 @@ const useMiRHasError = () => {
     const subscription = profiles$
       .pipe(
         distinctUntilChanged(
-          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
+          (prev, curr) => deepEqual(prev, curr)
         )
       )
       .subscribe((data) => {

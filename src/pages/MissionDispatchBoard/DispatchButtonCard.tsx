@@ -54,6 +54,18 @@ const DispatchButtonCard: FC<{
 
   const fireMutation = useMutation({
     mutationFn: () => {
+      if (button.dispatch_type === "TRANSFER") {
+        // 執行區域搬運規則: 趟數、優先級都在規則裡, 回應帶「開始搬運…」或不能執行的原因
+        return client.post(`api/transfer/rules/${button.transfer_rule_id}/run`);
+      }
+      if (button.dispatch_type === "MIR") {
+        // MIR 任務走既有的 QueueMirTaskModal 同一支端點
+        return client.post("api/setting/queue-mir-task", {
+          amrId: button.amrId,
+          missionName: button.missionName,
+          priority: button.priority,
+        });
+      }
       const amrId = button.amrId ?? "none";
       if (button.dispatch_type === "NORMAL") {
         return client.post("api/missions/dialog-mission", {
@@ -69,7 +81,17 @@ const DispatchButtonCard: FC<{
         ept_d: button.ept_d,
       });
     },
-    onSuccess: () => void messageApi.success(t("utils.success")),
+    // 挑不到位置時任務會保留成「等待位置」, 跟使用者講清楚不是已經派出去了
+    onSuccess: (res) => {
+      const data = res?.data as { isWaiting?: boolean; message?: string } | undefined;
+      if (data?.isWaiting) {
+        void messageApi.warning(t("mission_dispatch_board.fired_waiting"));
+      } else if (button.dispatch_type === "TRANSFER" && data?.message) {
+        void messageApi.success(data.message);
+      } else {
+        void messageApi.success(t("utils.success"));
+      }
+    },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 

@@ -25,6 +25,7 @@ import DispatchButtonCard from "./DispatchButtonCard";
 import MapViewWidgetCard from "./MapViewWidgetCard";
 import MissionListWidgetCard from "./MissionListWidgetCard";
 import QuickMissionWidgetCard from "./QuickMissionWidgetCard";
+import StatsChartWidgetCard from "./StatsChartWidgetCard";
 import TextWidgetCard from "./TextWidgetCard";
 import { GRID_SIZE, snapToGrid } from "./gridConstants";
 
@@ -109,24 +110,24 @@ const AddButton = styled.div`
   width: 56px;
   height: 56px;
   border-radius: 8px;
-  border: 2px dashed #d9d9d9;
+  border: 2px dashed var(--c-header-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #8c8c8c;
+  color: var(--c-text-muted);
   cursor: pointer;
-  background: #ffffff;
+  background: var(--c-bg);
   z-index: 2;
 
   &:hover {
-    border-color: #1890ff;
-    color: #1890ff;
+    border-color: var(--c-header-accent);
+    color: var(--c-header-accent);
   }
 `;
 
 const EmptyHint = styled.div`
   padding: 32px;
-  color: #8c8c8c;
+  color: var(--c-text-muted);
   text-align: center;
 `;
 
@@ -148,8 +149,8 @@ const PaintToolbar = styled.div`
   gap: 6px;
   padding: 6px 8px;
   border-radius: 8px;
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
+  background: var(--c-bg);
+  border: 1px solid var(--c-header-border);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 `;
 
@@ -161,11 +162,11 @@ const ToolButton = styled.div<{ $active: boolean }>`
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: ${({ $active }) => ($active ? "#ffffff" : "#595959")};
-  background: ${({ $active }) => ($active ? "#1890ff" : "transparent")};
+  color: ${({ $active }) => ($active ? "#ffffff" : "var(--c-text-secondary)")};
+  background: ${({ $active }) => ($active ? "var(--c-header-accent)" : "transparent")};
 
   &:hover {
-    background: ${({ $active }) => ($active ? "#1890ff" : "#f0f0f0")};
+    background: ${({ $active }) => ($active ? "var(--c-header-accent)" : "var(--c-bg-muted)")};
   }
 `;
 
@@ -428,6 +429,10 @@ const DispatchCanvas: FC<{
       key: "QUICK_MISSION",
       label: t("mission_dispatch_board.add_quick_mission_card"),
     },
+    {
+      key: "STATS_CHART",
+      label: t("mission_dispatch_board.add_stats_chart_card"),
+    },
   ];
 
   return (
@@ -535,7 +540,9 @@ const DispatchCanvas: FC<{
                       ? TextWidgetCard
                       : widget.widget_type === "QUICK_MISSION"
                         ? QuickMissionWidgetCard
-                        : MissionListWidgetCard;
+                        : widget.widget_type === "STATS_CHART"
+                          ? StatsChartWidgetCard
+                          : MissionListWidgetCard;
               return (
                 <WidgetCard
                   key={widget.id}

@@ -3,6 +3,7 @@ import { LocationType } from "./jotai";
 import { mouseLocation, RectInfo } from "@/pages/Setting/hooks/hook";
 import { SelectStation } from "@/api/type/useLocation";
 import { SelectProps } from "antd";
+import { themeAtom } from "@/theme";
 
 // record the version of map's points
 export const sameVersion = atom(true);
@@ -34,7 +35,21 @@ export const cargoStyle = atom<{
 
 export const shelfSelectedStyleLocationId = atom<string>("");
 
-export const darkMode = atom<boolean>(false);
+// 多選貨架「批次微調樣式」的即時預覽：每個貨架以自己目前的值加上位移量
+export const batchCargoStyle = atom<{
+  locIds: string[]; // Loc.id
+  dx: number;
+  dy: number;
+  dRotate: number;
+  dScale: number;
+  flex_direction: string | null; // null = 各自維持原本方向
+} | null>(null);
+
+// 首頁那套手寫的深色樣式(dark-mode-* class、$isDark 分支)本來是靠這顆 atom,
+// 但從來沒有任何地方寫入它,等於永遠關著。改成由使用者選的主題推導:選「深夜」
+// 就整片亮起來,不用再為首頁維護第二套明暗開關。
+// 注意這是唯讀的衍生 atom,要讀請用 useAtomValue。
+export const darkMode = atom<boolean>((get) => get(themeAtom).mode === "dark");
 
 export const centerMap = atom<number>(0);
 
@@ -100,3 +115,9 @@ export const localizationCorrection = atom<{
   dy: number;
   dYaw: number;
 } | null>(null);
+
+/** 效能監看面板 (模擬頁與 Main 頁共用) */
+export const OpenPerformancePanel = atom<boolean>(false);
+
+/** 效能統計的回看區間 (分鐘) */
+export const PerformanceWindowMin = atom<number>(10);

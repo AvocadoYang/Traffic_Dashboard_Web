@@ -18,6 +18,10 @@ import {
   Point,
   PointMain,
 } from "@/pages/Setting/mapComponents/components/AllLocation/components/PointAndLine";
+import {
+  MirAreaTypeMarker,
+  isMirAreaType,
+} from "@/pages/Setting/mapComponents/components/AllLocation/components/MirAreaTypeMarker";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   locationHoverInfo,
@@ -103,7 +107,10 @@ const AllLocation: React.FC<{
     <>
       {data.locations
         .filter(
-          ({ areaType }) => areaType === "EXTRA" || areaType === "DISPATCH",
+          ({ areaType }) =>
+            areaType === "EXTRA" ||
+            areaType === "DISPATCH" ||
+            isMirAreaType(areaType),
         )
         .map((loc) => {
           const [displayX, displayY] = rosCoord2DisplayCoord({
@@ -144,29 +151,47 @@ const AllLocation: React.FC<{
 
           return (
             <Fragment key={loc.locationId}>
-              <PointMain
-                id={loc.locationId.toString()}
-                canrotate={`${loc.canRotate}`}
-                isNear={nearbyLocationIds.has(loc.locationId.toString())}
-                $destinationLabel={
-                  destinationAmr ? loc.locationId.toString() : undefined
-                }
-                $amrColor={
-                  destinationAmr
-                    ? amrId2ColorRainbow(destinationAmr)
-                    : undefined
-                }
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleDireMove(loc.locationId.toString());
-                }}
-                onMouseEnter={() => {
-                  handleEnter(loc.locationId, loc.x, loc.y);
-                }}
-                onMouseLeave={() => handleLeave()}
-                left={displayX}
-                top={displayY}
-              ></PointMain>
+              {isMirAreaType(loc.areaType) ? (
+                <MirAreaTypeMarker
+                  id={loc.locationId.toString()}
+                  areaType={loc.areaType}
+                  left={displayX}
+                  top={displayY}
+                  rotation={loc.rotate}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDireMove(loc.locationId.toString());
+                  }}
+                  onMouseEnter={() => {
+                    handleEnter(loc.locationId, loc.x, loc.y);
+                  }}
+                  onMouseLeave={() => handleLeave()}
+                />
+              ) : (
+                <PointMain
+                  id={loc.locationId.toString()}
+                  canrotate={`${loc.canRotate}`}
+                  isNear={nearbyLocationIds.has(loc.locationId.toString())}
+                  $destinationLabel={
+                    destinationAmr ? loc.locationId.toString() : undefined
+                  }
+                  $amrColor={
+                    destinationAmr
+                      ? amrId2ColorRainbow(destinationAmr)
+                      : undefined
+                  }
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDireMove(loc.locationId.toString());
+                  }}
+                  onMouseEnter={() => {
+                    handleEnter(loc.locationId, loc.x, loc.y);
+                  }}
+                  onMouseLeave={() => handleLeave()}
+                  left={displayX}
+                  top={displayY}
+                ></PointMain>
+              )}
               {/* {
               mouseDetectLocArr.has(loc.locationId.toString()) ? 
               <>

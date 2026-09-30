@@ -5,12 +5,12 @@ import styled from "styled-components";
 const TimeDisplay = styled.span`
   font-size: 16px;
   font-weight: 700;
-  color: #ff4d4f;
+  color: var(--c-danger);
   font-family: "Roboto Mono", monospace;
   min-width: 80px;
   text-align: center;
 
-  background: #ffffff;
+  background: var(--c-bg);
 `;
 
 const SimTime: FC<{}> = () => {

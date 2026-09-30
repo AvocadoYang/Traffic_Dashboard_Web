@@ -11,6 +11,7 @@ import {
 import ReactJsonView from "@uiw/react-json-view";
 import {
   Button,
+  Checkbox,
   Flex,
   Popconfirm,
   Table,
@@ -113,9 +114,24 @@ const StatusIndicator = styled.div<{ active: boolean }>`
 const ActionGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(2, auto);
+  grid-template-rows: repeat(3, auto);
   gap: 8px;
   width: 100%;
+`;
+
+const IndustrialCheckbox = styled(Checkbox)`
+  grid-column: 1 / -1;
+  padding-top: 4px;
+  border-top: 1px dashed #f0f0f0;
+
+  .ant-checkbox-label,
+  span:last-child {
+    font-family: "Roboto Mono", monospace;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    color: #1890ff;
+  }
 `;
 
 const IndustrialButton = styled(Button)`
@@ -268,6 +284,20 @@ const ForkTaskTable: FC<{
     onError: (error: Err) => messageApi.error(error.response.data.message),
   });
 
+  const extendNextMissionMutation = useMutation({
+    mutationFn: (payload: {
+      id: string;
+      extend_next_mission: boolean;
+      missionTitleId: string;
+      currentMapId: string;
+    }) => client.post("api/setting/extend-next-mission-task", payload),
+    onSuccess: async () => {
+      messageApi.success(t("utils.success"));
+      await queryClient.refetchQueries({ queryKey: ["all-relate-task-fork"] });
+    },
+    onError: (error: Err) => messageApi.error(error.response.data.message),
+  });
+
   const deleteTask = (key: string) => {
     if (!taskDataSource) return;
     const updatedDataSource = taskDataSource.filter((v) => v?.id !== key);
@@ -302,6 +332,14 @@ const ForkTaskTable: FC<{
     disableMutation.mutate({
       id,
       disable,
+      missionTitleId: selectedMissionKey,
+      currentMapId: currentMapId || "",
+    });
+
+  const toggleExtendNextMission = (id: string, extend_next_mission: boolean) =>
+    extendNextMissionMutation.mutate({
+      id,
+      extend_next_mission,
       missionTitleId: selectedMissionKey,
       currentMapId: currentMapId || "",
     });
@@ -455,6 +493,17 @@ const ForkTaskTable: FC<{
               >
                 {record.disable ? "ENABLE" : "DISABLE"}
               </IndustrialButton>
+            </Tooltip>
+
+            <Tooltip title={t("mission.task_table.extend_next_mission_hint")}>
+              <IndustrialCheckbox
+                checked={record.extend_next_mission}
+                onChange={(e) =>
+                  toggleExtendNextMission(record.id, e.target.checked)
+                }
+              >
+                EXTEND NEXT
+              </IndustrialCheckbox>
             </Tooltip>
           </ActionGrid>
         );

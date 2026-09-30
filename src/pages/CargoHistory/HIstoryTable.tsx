@@ -22,7 +22,7 @@ const { Text } = Typography;
 
 const PageContainer = styled.div`
   padding: 24px;
-  background-color: #f5f5f5;
+  background-color: var(--c-bg-subtle);
 `;
 
 const HeaderContainer = styled.div`
@@ -66,7 +66,6 @@ type CargoData = {
   metadata: string | null;
   createdAt: Date;
   register_robot?: { id: string };
-  script_robot?: { id: string };
   ShelfConfig?: { id: string };
   custom_cargo_metadata?: { custom_name: string };
   history: {

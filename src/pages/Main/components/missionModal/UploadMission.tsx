@@ -21,16 +21,16 @@ const { Dragger } = Upload;
 // Industrial Styled Components
 const StyledModal = styled(Modal)`
   .ant-modal-content {
-    background: #ffffff;
-    border: 2px solid #d9d9d9;
+    background: var(--c-bg);
+    border: 2px solid var(--c-header-border);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     padding: 0;
     overflow: hidden;
   }
 
   .ant-modal-header {
-    background: #fafafa;
-    border-bottom: 2px solid #d9d9d9;
+    background: var(--c-bg-subtle);
+    border-bottom: 2px solid var(--c-header-border);
     padding: 16px 20px;
     margin-bottom: 0;
   }
@@ -41,7 +41,7 @@ const StyledModal = styled(Modal)`
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: #52c41a;
+    color: var(--c-success);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -49,12 +49,12 @@ const StyledModal = styled(Modal)`
 
   .ant-modal-body {
     padding: 24px 20px;
-    background: #ffffff;
+    background: var(--c-bg);
   }
 
   .ant-modal-footer {
-    background: #fafafa;
-    border-top: 2px solid #d9d9d9;
+    background: var(--c-bg-subtle);
+    border-top: 2px solid var(--c-header-border);
     padding: 12px 20px;
     margin-top: 0;
 
@@ -64,66 +64,66 @@ const StyledModal = styled(Modal)`
       font-size: 11px;
       letter-spacing: 1px;
       height: 36px;
-      border: 1px solid #d9d9d9;
+      border: 1px solid var(--c-header-border);
       min-width: 100px;
 
       &.ant-btn-default {
-        background: #ffffff;
-        color: #595959;
+        background: var(--c-bg);
+        color: var(--c-text-secondary);
 
         &:hover {
-          background: #fafafa;
-          border-color: #8c8c8c;
-          color: #262626;
+          background: var(--c-bg-subtle);
+          border-color: var(--c-text-muted);
+          color: var(--c-text);
         }
       }
 
       &.ant-btn-primary {
-        background: #52c41a;
-        border-color: #52c41a;
+        background: var(--c-success);
+        border-color: var(--c-success);
         color: #ffffff;
         font-weight: 600;
 
         &:hover {
-          background: #73d13d;
-          border-color: #73d13d;
+          background: var(--c-success);
+          border-color: var(--c-success);
         }
 
         &:disabled {
-          background: #f5f5f5;
-          border-color: #d9d9d9;
-          color: #bfbfbf;
+          background: var(--c-bg-subtle);
+          border-color: var(--c-header-border);
+          color: var(--c-text-muted);
         }
       }
     }
   }
 
   .ant-modal-close {
-    color: #8c8c8c;
+    color: var(--c-text-muted);
 
     &:hover {
-      color: #ff4d4f;
-      background: #fff1f0;
+      color: var(--c-danger);
+      background: var(--c-danger-soft);
     }
   }
 `;
 
 const InstructionPanel = styled.div`
-  background: #f6ffed;
-  border: 1px solid #b7eb8f;
-  border-left: 3px solid #52c41a;
+  background: var(--c-success-soft);
+  border: 1px solid var(--c-success);
+  border-left: 3px solid var(--c-success);
   padding: 12px 16px;
   margin-bottom: 20px;
   font-family: "Roboto Mono", monospace;
   font-size: 11px;
-  color: #262626;
+  color: var(--c-text);
   line-height: 1.7;
 
   .instruction-title {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: #52c41a;
+    color: var(--c-success);
     margin-bottom: 8px;
     display: flex;
     align-items: center;
@@ -135,12 +135,12 @@ const InstructionPanel = styled.div`
     padding-left: 16px;
 
     li {
-      color: #595959;
+      color: var(--c-text-secondary);
       margin-bottom: 4px;
       position: relative;
 
       &::marker {
-        color: #52c41a;
+        color: var(--c-success);
       }
     }
   }
@@ -148,17 +148,17 @@ const InstructionPanel = styled.div`
   .format-info {
     margin-top: 10px;
     padding: 8px 10px;
-    background: #e6f7ff;
-    border: 1px solid #91d5ff;
-    border-left: 2px solid #1890ff;
-    color: #003a8c;
+    background: var(--c-header-accent-soft);
+    border: 1px solid var(--c-header-accent);
+    border-left: 2px solid var(--c-header-accent);
+    color: var(--c-header-accent);
     font-size: 10px;
     display: flex;
     align-items: flex-start;
     gap: 6px;
 
     .info-icon {
-      color: #1890ff;
+      color: var(--c-header-accent);
       font-size: 12px;
       margin-top: 1px;
     }
@@ -168,14 +168,14 @@ const InstructionPanel = styled.div`
 const StyledDragger = styled(Dragger)`
   &.ant-upload-wrapper {
     .ant-upload-drag {
-      background: #fafafa;
-      border: 2px dashed #d9d9d9;
+      background: var(--c-bg-subtle);
+      border: 2px dashed var(--c-header-border);
       transition: all 0.3s ease;
       padding: 40px 20px;
 
       &:hover {
-        border-color: #52c41a;
-        background: #f6ffed;
+        border-color: var(--c-success);
+        background: var(--c-success-soft);
       }
     }
 
@@ -183,7 +183,7 @@ const StyledDragger = styled(Dragger)`
       margin-bottom: 16px;
 
       .anticon {
-        color: #52c41a;
+        color: var(--c-success);
         font-size: 64px;
       }
     }
@@ -194,30 +194,30 @@ const StyledDragger = styled(Dragger)`
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 1px;
-      color: #262626;
+      color: var(--c-text);
       margin-bottom: 8px;
     }
 
     .ant-upload-hint {
       font-family: "Roboto Mono", monospace;
       font-size: 11px;
-      color: #8c8c8c;
+      color: var(--c-text-muted);
       letter-spacing: 0.5px;
     }
   }
 `;
 
 const FilePreviewCard = styled.div`
-  background: #ffffff;
-  border: 2px solid #d9d9d9;
-  border-left: 3px solid #52c41a;
+  background: var(--c-bg);
+  border: 2px solid var(--c-header-border);
+  border-left: 3px solid var(--c-success);
   padding: 16px;
   margin-top: 20px;
   font-family: "Roboto Mono", monospace;
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: #52c41a;
+    border-color: var(--c-success);
     box-shadow: 0 2px 8px rgba(82, 196, 26, 0.15);
   }
 `;
@@ -237,7 +237,7 @@ const FileInfo = styled.div`
 
   .file-icon {
     font-size: 32px;
-    color: #52c41a;
+    color: var(--c-success);
   }
 
   .file-details {
@@ -246,7 +246,7 @@ const FileInfo = styled.div`
     .file-name {
       font-size: 12px;
       font-weight: 600;
-      color: #262626;
+      color: var(--c-text);
       margin-bottom: 4px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -254,7 +254,7 @@ const FileInfo = styled.div`
 
     .file-size {
       font-size: 10px;
-      color: #8c8c8c;
+      color: var(--c-text-muted);
       letter-spacing: 0.5px;
     }
   }
@@ -262,8 +262,8 @@ const FileInfo = styled.div`
 
 const DeleteButton = styled.button`
   background: transparent;
-  border: 1px solid #ff4d4f;
-  color: #ff4d4f;
+  border: 1px solid var(--c-danger);
+  color: var(--c-danger);
   padding: 6px 12px;
   font-family: "Roboto Mono", monospace;
   font-size: 10px;
@@ -276,9 +276,9 @@ const DeleteButton = styled.button`
   gap: 6px;
 
   &:hover {
-    background: #fff1f0;
-    border-color: #ff7875;
-    color: #ff7875;
+    background: var(--c-danger-soft);
+    border-color: var(--c-danger);
+    color: var(--c-danger);
   }
 
   .anticon {
@@ -290,24 +290,24 @@ const UploadStatus = styled.div<{ status: "uploading" | "success" | "error" }>`
   padding: 12px;
   background: ${({ status }) =>
     status === "success"
-      ? "#f6ffed"
+      ? "var(--c-success-soft)"
       : status === "error"
-        ? "#fff1f0"
-        : "#e6f7ff"};
+        ? "var(--c-danger-soft)"
+        : "var(--c-header-accent-soft)"};
   border: 1px solid
     ${({ status }) =>
       status === "success"
-        ? "#b7eb8f"
+        ? "var(--c-success)"
         : status === "error"
-          ? "#ffa39e"
-          : "#91d5ff"};
+          ? "var(--c-danger)"
+          : "var(--c-header-accent)"};
   border-left: 3px solid
     ${({ status }) =>
       status === "success"
-        ? "#52c41a"
+        ? "var(--c-success)"
         : status === "error"
-          ? "#ff4d4f"
-          : "#1890ff"};
+          ? "var(--c-danger)"
+          : "var(--c-header-accent)"};
   margin-top: 12px;
   font-family: "Roboto Mono", monospace;
   font-size: 11px;
@@ -319,20 +319,20 @@ const UploadStatus = styled.div<{ status: "uploading" | "success" | "error" }>`
     font-size: 16px;
     color: ${({ status }) =>
       status === "success"
-        ? "#52c41a"
+        ? "var(--c-success)"
         : status === "error"
-          ? "#ff4d4f"
-          : "#1890ff"};
+          ? "var(--c-danger)"
+          : "var(--c-header-accent)"};
   }
 
   .status-text {
     flex: 1;
     color: ${({ status }) =>
       status === "success"
-        ? "#389e0d"
+        ? "var(--c-success)"
         : status === "error"
-          ? "#cf1322"
-          : "#096dd9"};
+          ? "var(--c-danger)"
+          : "var(--c-header-accent)"};
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -341,12 +341,12 @@ const UploadStatus = styled.div<{ status: "uploading" | "success" | "error" }>`
 
 const UploadIcon = styled(CloudUploadOutlined)`
   font-size: 18px;
-  color: #52c41a;
+  color: var(--c-success);
 `;
 
 const TutorialContainer = styled.div`
   margin-top: 12px;
-  border: 2px solid #d9d9d9;
+  border: 2px solid var(--c-header-border);
   border-radius: 4px;
   overflow: hidden;
   line-height: 0;
@@ -362,7 +362,7 @@ const TutorialContainer = styled.div`
 `;
 
 const HelpLink = styled.a`
-  color: #1890ff;
+  color: var(--c-header-accent);
   font-size: 10px;
   text-decoration: underline;
   cursor: pointer;
@@ -372,7 +372,7 @@ const HelpLink = styled.a`
   gap: 4px;
 
   &:hover {
-    color: #40a9ff;
+    color: var(--c-header-accent);
   }
 `;
 
@@ -618,7 +618,7 @@ const UploadMission: FC<UploadMissionProps> = ({
                 <Progress
                   percent={100}
                   status="active"
-                  strokeColor="#52c41a"
+                  strokeColor="var(--c-success)"
                   style={{ fontFamily: '"Roboto Mono", monospace' }}
                 />
               </div>

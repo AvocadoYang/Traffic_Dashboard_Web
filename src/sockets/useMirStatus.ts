@@ -3,6 +3,7 @@ import { distinctUntilChanged, filter, from, fromEventPattern, map, share, switc
 import { io } from "./socketConnect";
 import { isDefined } from "ts-extras";
 import { boolean, object, string, ValidationError } from "yup";
+import { deepEqual } from "@/utils/deepEqual";
 
 
 
@@ -64,7 +65,7 @@ export const useMiRStatus = (amrId: string) => {
     const isAccurate$ = mirStatus$
       .pipe(
         filter((info) => info !== undefined),
-        distinctUntilChanged((pre, curr) => JSON.stringify(pre) == JSON.stringify(curr)),
+        distinctUntilChanged((pre, curr) => deepEqual(pre, curr)),
       )
       .subscribe((status_info) => setMiRStatus(status_info));
 

@@ -9,6 +9,7 @@ import {
   toolSheetPanelHost,
   EditLocationPanelSwitch,
   EditLocationListTableSwitch,
+  MirStyleLocationPlacerSwitch,
   isShowLocationTooltip,
   EditRoadPanelSwitch,
   QuickEditLocationPanelSwitch,
@@ -48,6 +49,7 @@ import {
   isShowMarketType,
   isShowSyncMirData,
   isShowAllMirMission,
+  isShowEditMirMission,
 } from "@/utils/siderGloble";
 import {
   AimOutlined,
@@ -73,6 +75,7 @@ import { errorHandler } from "@/utils/utils";
 import ImportMapConfigModal from "./importMap/ImportMapConfigModal";
 import StartPoint from "./StartPoint/StartPoint";
 import useIsWebMediaQuery from "@/hooks/useIsWebMediaQuery";
+import useConfigFlags from "@/api/useConfigFlags";
 
 export type MenuItem = Required<MenuProps>["items"][number];
 
@@ -221,6 +224,9 @@ const Sider: React.FC<{
   const [showAllLocationListTable, setShowAllLocationListTable] = useAtom(
     EditLocationListTableSwitch,
   );
+  const [openMirStyleLocationPlacer, setOpenMirStyleLocationPlacer] = useAtom(
+    MirStyleLocationPlacerSwitch,
+  );
 
   const [openEditRoadPanel, setOpenEditRoadPanel] =
     useAtom(EditRoadPanelSwitch);
@@ -306,6 +312,8 @@ const Sider: React.FC<{
   const [showFootprint, setShowFootprint] = useAtom(isHowFootprint);
   const [showSound, setShowSound] = useAtom(isShowSound);
 
+  const { data: configFlags } = useConfigFlags();
+  const hasMir = configFlags?.hasMir ?? true;
   const [collapsed, setCollapsed] = useState(false);
   const [activeCategoryKey, setActiveCategoryKey] = useState<string | null>(
     null,
@@ -314,6 +322,7 @@ const Sider: React.FC<{
   const [markerType, setShowMarkerType] = useAtom(isShowMarketType);
   const [syncMirData, setSyncMirData] = useAtom(isShowSyncMirData);
   const [mirMission, setMirMission] = useAtom(isShowAllMirMission);
+  const [mirEditMission, setEditMirMission] = useAtom(isShowEditMirMission);
 
   const sheetTabsRef = useRef<HTMLDivElement>(null);
   const setToolSheetPanelHost = useSetAtom(toolSheetPanelHost);
@@ -370,6 +379,7 @@ const Sider: React.FC<{
       markerType,
       syncMirData,
       mirMission,
+      mirEditMission,
     ].some((item) => item);
 
     setHasOpenTool(isOpen);
@@ -412,6 +422,7 @@ const Sider: React.FC<{
     markerType,
     syncMirData,
     mirMission,
+    mirEditMission,
   ]);
 
   const handleShowPanel = async (check: boolean, itemType: ToolBarItemType) => {
@@ -587,6 +598,10 @@ const Sider: React.FC<{
         setMirMission(check);
         break;
 
+      case "mir_edit_mission":
+        setEditMirMission(check)
+        break
+
       //=======
     }
   };
@@ -605,16 +620,24 @@ const Sider: React.FC<{
             checked={openEditLocationPanel}
           />,
         ),
-        // getItem(
-        //   t("toolbar.location.quick_edit_locations"),
-        //   "1-2",
-        //   <Switch
-        //     onChange={(checked) =>
-        //       handleShowPanel(checked, "quick_location_panel")
-        //     }
-        //     checked={quickEditLocationPanel}
-        //   />,
-        // ),
+        getItem(
+          t("toolbar.location.quick_edit_locations"),
+          "1-2",
+          <Switch
+            onChange={(checked) =>
+              handleShowPanel(checked, "quick_location_panel")
+            }
+            checked={quickEditLocationPanel}
+          />,
+        ),
+        getItem(
+          "MiR 風格打點",
+          "1-3",
+          <Switch
+            onChange={(checked) => setOpenMirStyleLocationPlacer(checked)}
+            checked={openMirStyleLocationPlacer}
+          />,
+        ),
         getItem(
           t("toolbar.location.show_locations_table"),
           "1-4",
@@ -950,7 +973,7 @@ const Sider: React.FC<{
       getItem(t("toolbar.restart.restart"), "9-6", <RedoOutlined />),
     ]),
 
-    getItem("MIR", "12", <FileOutlined />, [
+    hasMir && getItem("MIR", "12", <FileOutlined />, [
       getItem(
         "footprint",
         "12-1",
@@ -994,8 +1017,17 @@ const Sider: React.FC<{
           onChange={(checked) => handleShowPanel(checked, "mir_mission")}
         />,
       ),
+
+      getItem(
+        "mir_edit_mission",
+        "12-5",
+        <Switch
+          checked={mirMission}
+          onChange={(checked) => handleShowPanel(checked, "mir_edit_mission")}
+        />,
+      ),
     ]),
-  ];
+  ].filter(Boolean) as MenuItem[];
 
   const [messageApi, contextHolders] = message.useMessage();
   const restartMutate = useMutation({

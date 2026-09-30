@@ -28,10 +28,10 @@ import {
   useIsLogIn,
   useMaintenanceStatus,
 } from "@/sockets/useAMRInfo";
-import { useRecentMission } from "@/sockets/useMissions";
+import { useActiveMission } from "@/sockets/useMissions";
 import { useTranslation } from "react-i18next";
 import DPad from "./DPad";
-import EditCargoCarrier from "../Main/Car_Card/components/EditCargoCarrier";
+import AmrCargoPanel from "@/components/CargoPanel/AmrCargoPanel";
 import MarkPointModal from "./MarkPointModal";
 import AmrLiveMap from "./AmrLiveMap";
 import styled from "styled-components";
@@ -42,8 +42,8 @@ const DetailContainer = styled.div`
   max-width: 900px;
   margin: 40px auto;
   padding: 24px;
-  background: #ffffff;
-  border: 2px solid #d9d9d9;
+  background: var(--c-bg);
+  border: 2px solid var(--c-header-border);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   max-height: 90vh;
   overflow-y: auto;
@@ -67,22 +67,22 @@ const BackButton = styled(Button)`
   margin-bottom: 24px;
 
   &:hover {
-    background: #f0f5ff;
-    border-color: #1890ff;
-    color: #1890ff;
+    background: var(--c-header-accent-soft);
+    border-color: var(--c-header-accent);
+    color: var(--c-header-accent);
   }
 `;
 
 const DetailHeader = styled.div`
-  background: #fafafa;
-  border: 1px solid #d9d9d9;
-  border-left: 4px solid #1890ff;
+  background: var(--c-bg-subtle);
+  border: 1px solid var(--c-header-border);
+  border-left: 4px solid var(--c-header-accent);
   padding: 16px 20px;
   margin-bottom: 24px;
 
   h2 {
     margin: 0 0 12px 0;
-    color: #1890ff;
+    color: var(--c-header-accent);
     font-family: "Roboto Mono", monospace;
     font-weight: 700;
     text-transform: uppercase;
@@ -110,8 +110,8 @@ const IndustrialDescriptions = styled(Descriptions)`
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 600;
-    color: #595959;
-    background: #fafafa !important;
+    color: var(--c-text-secondary);
+    background: var(--c-bg-subtle) !important;
   }
 
   .ant-descriptions-item-content {
@@ -121,7 +121,7 @@ const IndustrialDescriptions = styled(Descriptions)`
 
   .ant-descriptions-bordered .ant-descriptions-item-label,
   .ant-descriptions-bordered .ant-descriptions-item-content {
-    border-color: #d9d9d9;
+    border-color: var(--c-header-border);
   }
 `;
 
@@ -136,11 +136,11 @@ const IndustrialButton = styled(Button)`
   transition: all 0.2s;
 
   &.ant-btn-primary {
-    background: #1890ff;
-    border-color: #1890ff;
+    background: var(--c-header-accent);
+    border-color: var(--c-header-accent);
 
     &:hover {
-      background: #40a9ff;
+      background: var(--c-header-accent);
       box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
     }
   }
@@ -148,15 +148,15 @@ const IndustrialButton = styled(Button)`
 
 const IndustrialTable = styled(Table)`
   .ant-table {
-    border: 1px solid #d9d9d9;
+    border: 1px solid var(--c-header-border);
     border-radius: 0;
     font-family: "Roboto Mono", monospace;
   }
 
   .ant-table-thead > tr > th {
-    background: #fafafa;
-    border-bottom: 2px solid #d9d9d9;
-    color: #595959;
+    background: var(--c-bg-subtle);
+    border-bottom: 2px solid var(--c-header-border);
+    color: var(--c-text-secondary);
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -179,13 +179,13 @@ const SectionTitle = styled(Title)`
     font-size: 14px;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: #262626;
+    color: var(--c-text);
     font-weight: 700;
     display: flex;
     align-items: center;
     gap: 8px;
     padding-bottom: 8px;
-    border-bottom: 2px solid #d9d9d9;
+    border-bottom: 2px solid var(--c-header-border);
   }
 `;
 
@@ -202,7 +202,7 @@ const AmrDetail = () => {
   const currier = useIsCarry(prefixAmrId || "");
   const maintenance = useMaintenanceStatus(prefixAmrId || "");
   const { pose } = useAmrPose(prefixAmrId || "");
-  const { recentMission } = useRecentMission(prefixAmrId || "");
+  const { activeMission } = useActiveMission(prefixAmrId || "");
   const connectionStatus = useIsLogIn(prefixAmrId || "");
   const io = useAMRAllIO(prefixAmrId || "");
   const [showControlPanel, setShowControlPanel] = useState(false);
@@ -219,18 +219,18 @@ const AmrDetail = () => {
     pose.x !== undefined &&
     pose.y !== undefined;
 
-  const missionTasks = recentMission
+  const missionTasks = activeMission
     ? [
         {
-          key: recentMission.missionId,
-          id: recentMission.missionId,
+          key: activeMission.missionId,
+          id: activeMission.missionId,
           desc:
-            recentMission.full_name?.join(" / ") ||
-            recentMission.sub_name ||
+            activeMission.full_name?.join(" / ") ||
+            activeMission.sub_name ||
             "-",
-          status: recentMission.missionStatus,
-          time: recentMission.startedAt
-            ? new Date(recentMission.startedAt).toLocaleTimeString()
+          status: activeMission.missionStatus,
+          time: activeMission.startedAt
+            ? new Date(activeMission.startedAt).toLocaleTimeString()
             : "-",
         },
       ]
@@ -422,7 +422,7 @@ const AmrDetail = () => {
               <Card
                 style={{
                   marginBottom: 24,
-                  border: "2px solid #d9d9d9",
+                  border: "2px solid var(--c-header-border)",
                   borderRadius: 0,
                 }}
                 styles={{ body: { padding: 0 } }}
@@ -441,7 +441,7 @@ const AmrDetail = () => {
               <Card
                 style={{
                   marginBottom: 24,
-                  border: "2px solid #d9d9d9",
+                  border: "2px solid var(--c-header-border)",
                   borderRadius: 0,
                 }}
               >
@@ -516,7 +516,7 @@ const AmrDetail = () => {
         ) : (
           <Card
             style={{
-              border: "2px solid #d9d9d9",
+              border: "2px solid var(--c-header-border)",
               borderRadius: 0,
             }}
           >
@@ -565,10 +565,10 @@ const AmrDetail = () => {
         </pre>
       </Modal>
 
-      <EditCargoCarrier
+      <AmrCargoPanel
         amrId={prefixAmrId}
-        isModalOpen={editCargoModalOpen}
-        setIsModalOpen={setEditCargoModalOpen}
+        open={editCargoModalOpen}
+        onClose={() => setEditCargoModalOpen(false)}
       />
 
       {hasPose && (

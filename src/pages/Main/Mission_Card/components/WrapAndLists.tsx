@@ -6,7 +6,11 @@ export const InfoWrap = styled.div`
   z-index: 2;
   border-radius: 1;
   width: 95%;
-  background-image: linear-gradient(to top, #dfe9f3 0%, white 100%);
+  background-image: linear-gradient(
+    to top,
+    var(--c-bg-muted) 0%,
+    var(--c-bg) 100%
+  );
   box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.3);
   cursor: pointer;
   position: relative;

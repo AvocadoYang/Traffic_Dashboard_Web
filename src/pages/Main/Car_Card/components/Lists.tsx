@@ -64,8 +64,8 @@ const GamepadSvg = () => (
   </svg>
 );
 
-const GamepadOutlined = (props: { amrId: string, className?: string }) => {
-  const setJoystickAmrId = useSetAtom(JoystickAmrId);
+export const GamepadOutlined = (props: { amrId:string, className?: string, title?: string }) => {
+    const setJoystickAmrId = useSetAtom(JoystickAmrId);
   return <Icon onClick={(e) => {
     e.stopPropagation();
     setJoystickAmrId(props.amrId);
@@ -199,14 +199,10 @@ export const CarRow1 = styled.div.attrs<{ is_dark: string }>((props) => {
   width: 100%;
   display: flex;
   overflow: hidden;
-  border-bottom: ${(props) => {
-    return props.is_dark === "true" ? "1px solid #c0c0c0" : "1px solid black";
-  }};
+  border-bottom: 1px solid var(--c-border-strong);
   align-items: center;
   padding: 8px;
-  color: ${(props) => {
-    return props.is_dark === "true" ? "#ffffff" : "#242222";
-  }};
+  color: var(--c-text);
   justify-content: space-around;
 `;
 

@@ -1,47 +1,12 @@
-import { ToolOutlined } from "@ant-design/icons";
 import { Form, Input, InputNumber, Select, Switch, TimePicker } from "antd";
 import React from "react";
 import styled from "styled-components";
-import useMirTaskOptions from "./useMirTaskOptions";
 import dayjs from "dayjs";
-
-const SectionHeader = styled.div`
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  border-left: 3px solid #fa8c16;
-  padding: 10px 16px;
-  margin-bottom: 16px;
-  font-family: "Roboto Mono", monospace;
-  color: #fa8c16;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-`;
-
-const IndustrialCard = styled.div`
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  margin-bottom: 20px;
-  padding: 20px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-
-  &:hover {
-    border-color: #bfbfbf;
-  }
-`;
-
-const FieldLabel = styled.span`
-  color: #595959;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-family: "Roboto Mono", monospace;
-`;
+import useMirTaskOptions, {
+  useMirIoModuleOptions,
+  useMirSoundOptions,
+} from "./useMirTaskOptions";
+import ParameterCard, { FieldLabel } from "./ParameterCard";
 
 const SwitchContainer = styled.div`
   margin-top: 12px;
@@ -57,13 +22,37 @@ interface MirLocationInputProps {
 export const MirLocationInput: React.FC<MirLocationInputProps> = ({
   disabled = false,
 }) => {
-  const { locationsOption } = useMirTaskOptions();
+  const { locationsOption, markerTypeLocationIds } = useMirTaskOptions();
   const form = Form.useFormInstance();
 
+  const handleLocationChange = (value?: string) => {
+    // 換成不是 type_1 貨架 / Shelf position 的位置：Marker type 不再適用，要清空
+    if (!markerTypeLocationIds.has(value ?? "")) {
+      form.setFieldValue("marker_type", null);
+    }
+  };
+
   return (
-    <IndustrialCard>
+    <ParameterCard
+      fieldName="location_id"
+      label="Marker position"
+      variableChildren={
+        <Form.Item
+          name="location_id"
+          label={<FieldLabel>Default marker position</FieldLabel>}
+          rules={[{ required: true, message: "請選擇預設的 Marker position" }]}
+          style={{ marginTop: 12, marginBottom: 0 }}
+        >
+          <Select
+            options={locationsOption}
+            style={{ width: "100%" }}
+            allowClear
+            onChange={handleLocationChange}
+          />
+        </Form.Item>
+      }
+    >
       <Form.Item
-        label={<FieldLabel>Marker position</FieldLabel>}
         name="location_id"
         dependencies={["is_current_position"]}
         rules={[
@@ -96,6 +85,7 @@ export const MirLocationInput: React.FC<MirLocationInputProps> = ({
           style={{ width: "100%" }}
           disabled={disabled}
           allowClear
+          onChange={handleLocationChange}
         />
       </Form.Item>
 
@@ -128,37 +118,39 @@ export const MirLocationInput: React.FC<MirLocationInputProps> = ({
           />
         </Form.Item>
       </SwitchContainer>
-    </IndustrialCard>
+    </ParameterCard>
   );
 };
 
 export const MirMarkerTypeInput = () => {
-  const { markerTypeOption } = useMirTaskOptions();
+  const { markerTypeOption, markerTypeLocationIds } = useMirTaskOptions();
 
   return (
-    <IndustrialCard>
+    <ParameterCard fieldName="marker_type" label="Marker type">
       <Form.Item
-        label={<FieldLabel>Marker type</FieldLabel>}
         name="marker_type"
-        dependencies={["is_current_position"]}
+        dependencies={["is_current_position", "location_id"]}
         rules={[
           ({ getFieldValue }) => ({
             validator(_, value) {
-              const isCurrentPosition = getFieldValue("is_current_position");
-              if (isCurrentPosition && !value) {
-                return Promise.reject(
-                  new Error("Current position 開啟時，請選擇 Marker type"),
-                );
+              const needMarkerType =
+                getFieldValue("is_current_position") ||
+                markerTypeLocationIds.has(getFieldValue("location_id") ?? "");
+              if (needMarkerType && !value) {
+                return Promise.reject(new Error("請選擇 Marker type"));
               }
-              if (!isCurrentPosition && value) {
+              if (!needMarkerType && value) {
                 return Promise.reject(
-                  new Error("Current position 關閉時，Marker type 必須留空"),
+                  new Error(
+                    "只有 Current position、type_1 貨架或 Shelf position 可以設定 Marker type",
+                  ),
                 );
               }
               return Promise.resolve();
             },
           }),
         ]}
+        style={{ marginBottom: 0 }}
       >
         <Select
           options={markerTypeOption}
@@ -166,200 +158,339 @@ export const MirMarkerTypeInput = () => {
           allowClear
         />
       </Form.Item>
-    </IndustrialCard>
+    </ParameterCard>
   );
 };
 
 export const MirBlockedPathTimeoutInputInput = () => {
   return (
-    <IndustrialCard>
+    <ParameterCard
+      fieldName="blocked_path_timeout"
+      label="Blocked path timeout"
+    >
       <Form.Item
-        label={<FieldLabel>Blocked path timeout</FieldLabel>}
         name="blocked_path_timeout"
         initialValue={60}
+        style={{ marginBottom: 0 }}
       >
         <Input />
       </Form.Item>
-    </IndustrialCard>
+    </ParameterCard>
   );
 };
 
 export const MirBlockedDockingTimeoutInputInput = () => {
   return (
-    <IndustrialCard>
+    <ParameterCard
+      fieldName="blocked_docking_timeout"
+      label="Blocked docking timeout"
+    >
       <Form.Item
-        label={<FieldLabel>Blocked docking timeout</FieldLabel>}
         name="blocked_docking_timeout"
         initialValue={60}
+        style={{ marginBottom: 0 }}
       >
         <Input />
       </Form.Item>
-    </IndustrialCard>
+    </ParameterCard>
   );
 };
 
 export const MirMaximumLinearSpeedInputInput = () => {
   return (
-    <IndustrialCard>
+    <ParameterCard
+      fieldName="maximum_linear_speed"
+      label="Maximum linear speed"
+    >
       <Form.Item
-        label={<FieldLabel>Maximum linear speed</FieldLabel>}
         name="maximum_linear_speed"
         initialValue={0.25}
+        style={{ marginBottom: 0 }}
       >
         <Input />
       </Form.Item>
-    </IndustrialCard>
+    </ParameterCard>
   );
 };
 
 export const MirMaximumAngularSpeedInputInput = () => {
   return (
-    <IndustrialCard>
+    <ParameterCard
+      fieldName="maximum_angular_speed"
+      label="Maximum angular speed"
+    >
       <Form.Item
-        label={<FieldLabel>Maximum angular speed</FieldLabel>}
         name="maximum_angular_speed"
         initialValue={0.25}
+        style={{ marginBottom: 0 }}
       >
         <Input />
       </Form.Item>
-    </IndustrialCard>
+    </ParameterCard>
   );
 };
 
 export const MirDistanceThresholdInput = () => {
   return (
-    <IndustrialCard>
+    <ParameterCard fieldName="distance_threshold" label="Distance threshold">
       <Form.Item
-        label={<FieldLabel>Distance threshold</FieldLabel>}
         name="distance_threshold"
         initialValue={0.25}
+        style={{ marginBottom: 0 }}
       >
         <Input />
       </Form.Item>
-    </IndustrialCard>
+    </ParameterCard>
   );
 };
 
 export const MirXInput = () => {
   return (
-    <IndustrialCard>
-      <Form.Item label={<FieldLabel>X</FieldLabel>} name="x" initialValue={0}>
+    <ParameterCard fieldName="x" label="X">
+      <Form.Item name="x" initialValue={0} style={{ marginBottom: 0 }}>
         <Input />
       </Form.Item>
-    </IndustrialCard>
+    </ParameterCard>
   );
 };
 
 export const MirYInput = () => {
   return (
-    <IndustrialCard>
-      <Form.Item label={<FieldLabel>Y</FieldLabel>} name="y" initialValue={0}>
+    <ParameterCard fieldName="y" label="Y">
+      <Form.Item name="y" initialValue={0} style={{ marginBottom: 0 }}>
         <Input />
       </Form.Item>
-    </IndustrialCard>
+    </ParameterCard>
   );
 };
 
 export const MirOrientationInput = () => {
   return (
-    <IndustrialCard>
+    <ParameterCard fieldName="orientation" label="Orientation">
       <Form.Item
-        label={<FieldLabel>Orientation</FieldLabel>}
         name="orientation"
         initialValue={0}
+        style={{ marginBottom: 0 }}
       >
         <Input />
       </Form.Item>
-    </IndustrialCard>
+    </ParameterCard>
   );
 };
 
 export const MirCollisionDetectionInput = () => {
   return (
-    <IndustrialCard>
+    <ParameterCard fieldName="collision_detection" label="Collision detection">
       <Form.Item
-        label={<FieldLabel>Collision detection</FieldLabel>}
         name="collision_detection"
         initialValue={true}
+        style={{ marginBottom: 0 }}
       >
         <Switch />
       </Form.Item>
-    </IndustrialCard>
+    </ParameterCard>
   );
 };
 
-{
-  /* 圖層 */
-}
 export const MirFootprintInput = () => {
   const { footprintOption } = useMirTaskOptions();
 
   return (
-    <IndustrialCard>
-      <Form.Item
-        label={<FieldLabel>Set footprint</FieldLabel>}
-        name="footprint"
-      >
+    <ParameterCard fieldName="footprint" label="Set footprint">
+      <Form.Item name="footprint" style={{ marginBottom: 0 }}>
         <Select options={footprintOption} style={{ width: "100%" }} />
       </Form.Item>
-    </IndustrialCard>
+    </ParameterCard>
   );
 };
 
-{
-  /* 切換地圖 */
-}
 export const MirSwitchMapInput = () => {
   const { locationsOption } = useMirTaskOptions();
   return (
-    <IndustrialCard>
-      <Form.Item
-        label={<FieldLabel>Switch map</FieldLabel>}
-        name="entry_position"
-      >
+    <ParameterCard fieldName="entry_position" label="Switch map">
+      <Form.Item name="entry_position" style={{ marginBottom: 0 }}>
         <Select options={locationsOption} style={{ width: "100%" }} />
       </Form.Item>
-    </IndustrialCard>
+    </ParameterCard>
   );
 };
 
 export const MirWaitInput = () => {
   return (
-    <IndustrialCard>
-      <Form.Item label={<FieldLabel>Wait</FieldLabel>} name="wait">
+    <ParameterCard fieldName="wait" label="Wait">
+      <Form.Item name="wait" style={{ marginBottom: 0 }}>
         <TimePicker defaultOpenValue={dayjs("00:00:00", "HH:mm:ss")} />
       </Form.Item>
       Set an amount of time the robot should wait before moving to next action
       in the mission.
-    </IndustrialCard>
+    </ParameterCard>
   );
 };
 
+// 即時向 MiR 查來的清單(音檔、IO module)共用
+const liveSelectProps = ({
+  amrId,
+  isFetching,
+  error,
+  refetch,
+  what,
+}: {
+  amrId?: string;
+  isFetching: boolean;
+  error: unknown;
+  refetch: () => unknown;
+  what: string;
+}) => ({
+  loading: isFetching,
+  onOpenChange: (visible: boolean) => {
+    // react-query v4 的手動 refetch 不管 enabled，沒車在線就別打空的 amrId
+    if (visible && amrId) void refetch();
+  },
+  notFoundContent: isFetching
+    ? "讀取中…"
+    : !amrId
+      ? "目前沒有連線中的 MiR 車輛"
+      : error
+        ? `讀取${what}失敗`
+        : undefined,
+});
+
 export const MirSoundInput = () => {
-  const { soundOption } = useMirTaskOptions();
+  const { soundOption, ...sounds } = useMirSoundOptions();
 
   return (
-    <IndustrialCard>
-      <Form.Item label={<FieldLabel>Sound</FieldLabel>} name="sound">
-        <Select options={soundOption} />
+    <ParameterCard fieldName="sound" label="Sound">
+      <Form.Item name="sound" style={{ marginBottom: 0 }}>
+        <Select
+          options={soundOption}
+          {...liveSelectProps({ ...sounds, what: "音檔清單" })}
+        />
       </Form.Item>
       <span>
         Select a sound from the list. If you want to hear the sounds before
         selecting one, go to Setup Sounds. You can hear the sounds on your
         computer by selecting Listen.
       </span>
-    </IndustrialCard>
+    </ParameterCard>
   );
 };
 
 export const MirVolumeInput = () => {
   return (
-    <IndustrialCard>
-      <Form.Item label={<FieldLabel>Volume</FieldLabel>} name="volume">
-        <Input defaultValue={0} />
+    <ParameterCard fieldName="volume" label="Volume">
+      <Form.Item name="volume" style={{ marginBottom: 0 }}>
+        <InputNumber min={0} max={100} precision={0} />
       </Form.Item>
       Set the volume of the sound. 100% is approximately 80 dB.
-    </IndustrialCard>
+    </ParameterCard>
+  );
+};
+
+export const MirSoundModeInput = () => {
+  return (
+    <ParameterCard fieldName="mode" label="Mode">
+      <Form.Item name="mode" style={{ marginBottom: 0 }}>
+        <Select
+          options={[
+            { value: "full", label: "Full" },
+            { value: "custom", label: "Custom" },
+          ]}
+        />
+      </Form.Item>
+      Full plays the whole sound file. Custom truncates it to the duration
+      below.
+    </ParameterCard>
+  );
+};
+
+export const MirDurationInput = () => {
+  return (
+    <ParameterCard fieldName="duration" label="Duration">
+      <Form.Item name="duration" style={{ marginBottom: 0 }}>
+        <TimePicker defaultOpenValue={dayjs("00:00:00", "HH:mm:ss")} />
+      </Form.Item>
+      Only used when Mode is Custom. Seconds is the smallest unit here.
+    </ParameterCard>
+  );
+};
+
+const lightEffectOption = [
+  { value: "blink", label: "Blink" },
+  { value: "cancel", label: "Cancel" },
+  { value: "chase", label: "Chase" },
+  { value: "fade", label: "Fade" },
+  { value: "rainbow", label: "Rainbow" },
+  { value: "solid", label: "Solid" },
+  { value: "wave", label: "Wave" },
+];
+
+const lightSpeedOption = [
+  { value: "fast", label: "Fast" },
+  { value: "slow", label: "Slow" },
+];
+
+export const MirLightEffectInput = () => {
+  return (
+    <ParameterCard fieldName="light_effect" label="Light effect">
+      <Form.Item name="light_effect" style={{ marginBottom: 0 }}>
+        <Select options={lightEffectOption} />
+      </Form.Item>
+    </ParameterCard>
+  );
+};
+
+export const MirLightSpeedInput = () => {
+  return (
+    <ParameterCard fieldName="speed" label="Speed">
+      <Form.Item name="speed" style={{ marginBottom: 0 }}>
+        <Select options={lightSpeedOption} />
+      </Form.Item>
+    </ParameterCard>
+  );
+};
+
+const colorOption = [
+  { value: "#000000", label: "Black" },
+  { value: "#0000ff", label: "Blue" }, // 確認過
+  { value: "#00ffff", label: "Cyan" }, // 確認過
+  { value: "#008000", label: "Green" },
+  { value: "#ff00ff", label: "Magenta" },
+  { value: "#ffa500", label: "Orange" },
+  { value: "#ffc0cb", label: "Pink" },
+  { value: "#ff0000", label: "Red" },
+  { value: "#ffffff", label: "White" },
+  { value: "#ffff00", label: "Yellow" },
+];
+
+const MirColorInput: React.FC<{
+  fieldName: "color_1" | "color_2";
+  label: string;
+}> = ({ fieldName, label }) => {
+  return (
+    <ParameterCard fieldName={fieldName} label={label}>
+      <Form.Item name={fieldName} style={{ marginBottom: 0 }}>
+        <Select options={colorOption} />
+      </Form.Item>
+    </ParameterCard>
+  );
+};
+
+export const MirColor1Input = () => (
+  <MirColorInput fieldName="color_1" label="Color 1" />
+);
+
+export const MirColor2Input = () => (
+  <MirColorInput fieldName="color_2" label="Color 2" />
+);
+
+export const MirIntensityInput = () => {
+  return (
+    <ParameterCard fieldName="intensity" label="Intensity">
+      <Form.Item name="intensity" style={{ marginBottom: 0 }}>
+        <InputNumber min={0} max={100} precision={0} />
+      </Form.Item>
+      Brightness of the light, 0-100.
+    </ParameterCard>
   );
 };
 
@@ -370,66 +501,76 @@ const muteOption = [
 
 export const MirFrontInput = () => {
   return (
-    <IndustrialCard>
-      <Form.Item label={<FieldLabel>Front</FieldLabel>} name="front">
+    <ParameterCard fieldName="front" label="Front">
+      <Form.Item name="front" style={{ marginBottom: 0 }}>
         <Select options={muteOption} />
       </Form.Item>
-    </IndustrialCard>
+    </ParameterCard>
   );
 };
 
 export const MirRearInput = () => {
   return (
-    <IndustrialCard>
-      <Form.Item label={<FieldLabel>Rear</FieldLabel>} name="rear">
+    <ParameterCard fieldName="rear" label="Rear">
+      <Form.Item name="rear" style={{ marginBottom: 0 }}>
         <Select options={muteOption} />
       </Form.Item>
-    </IndustrialCard>
+    </ParameterCard>
   );
 };
 
 export const MirSideInput = () => {
   return (
-    <IndustrialCard>
-      <Form.Item label={<FieldLabel>Side</FieldLabel>} name="sides">
+    <ParameterCard fieldName="sides" label="Side">
+      <Form.Item name="sides" style={{ marginBottom: 0 }}>
         <Select options={muteOption} />
       </Form.Item>
-    </IndustrialCard>
+    </ParameterCard>
   );
 };
 
 export const MirModuleInput = () => {
+  const { ioModuleOption, amrId, isFetching, error, refetch } =
+    useMirIoModuleOptions();
+
+  const notFoundContent = () => {
+    if (isFetching) return "讀取中…";
+    if (!amrId) return "目前沒有連線中的 MiR 車輛";
+    if (error) return "讀取 IO module 失敗";
+    return undefined;
+  };
+
   return (
-    <IndustrialCard>
-      <Form.Item label={<FieldLabel>Module</FieldLabel>} name="module">
+    <ParameterCard fieldName="module" label="Module">
+      <Form.Item name="module" style={{ marginBottom: 0 }}>
         <Select
-          options={[
-            {
-              value: "mirconst-guid-0000-0001-internalIO00",
-              label: "MiR Internal IOs",
-            },
-          ]}
+          options={ioModuleOption}
+          loading={isFetching}
+          onOpenChange={(visible) => {
+            if (visible && amrId) void refetch();
+          }}
+          notFoundContent={notFoundContent()}
         />
       </Form.Item>
-    </IndustrialCard>
+    </ParameterCard>
   );
 };
 
 export const MirPortInput = () => {
   return (
-    <IndustrialCard>
-      <Form.Item label={<FieldLabel>Port</FieldLabel>} name="port">
-        <InputNumber defaultValue={0} />
+    <ParameterCard fieldName="port" label="Port">
+      <Form.Item name="port" style={{ marginBottom: 0 }}>
+        <InputNumber min={0} max={3} precision={0} />
       </Form.Item>
-      Enter which output port relay should be activated (1-4).
-    </IndustrialCard>
+      Enter which output port relay should be activated (0-3).
+    </ParameterCard>
   );
 };
 
 export const MirOperationInput = () => {
   return (
-    <IndustrialCard>
-      <Form.Item label={<FieldLabel>Operation</FieldLabel>} name="operation">
+    <ParameterCard fieldName="operation" label="Operation">
+      <Form.Item name="operation" style={{ marginBottom: 0 }}>
         <Select
           options={[
             {
@@ -443,25 +584,48 @@ export const MirOperationInput = () => {
           ]}
         />
       </Form.Item>
-    </IndustrialCard>
+    </ParameterCard>
   );
 };
 
 export const MirTimeoutInput = () => {
   return (
-    <IndustrialCard>
-      <Form.Item label={<FieldLabel>Timeout</FieldLabel>} name="timeout">
+    <ParameterCard fieldName="timeout" label="Timeout">
+      <Form.Item name="timeout" style={{ marginBottom: 0 }}>
         <TimePicker defaultOpenValue={dayjs("00:00:00", "HH:mm:ss")} />
       </Form.Item>
       Set an amount of time the relay should stay on.
-    </IndustrialCard>
+    </ParameterCard>
+  );
+};
+
+export const MirOptionInput = () => {
+  return (
+    <ParameterCard fieldName="option" label="Option">
+      <Form.Item name="option" style={{ marginBottom: 0 }}>
+        <Select
+          options={[
+            {
+              value: "free",
+              label: "Free",
+            },
+            {
+              value: "occupied",
+              label: "Occupied",
+            },
+          ]}
+        />
+      </Form.Item>
+      Choose whether the position has to be free or occupied for the check to
+      pass.
+    </ParameterCard>
   );
 };
 
 export const MirValueInput = () => {
   return (
-    <IndustrialCard>
-      <Form.Item label={<FieldLabel>Value</FieldLabel>} name="value">
+    <ParameterCard fieldName="value" label="Value">
+      <Form.Item name="value" style={{ marginBottom: 0 }}>
         <Select
           options={[
             {
@@ -475,6 +639,6 @@ export const MirValueInput = () => {
           ]}
         />
       </Form.Item>
-    </IndustrialCard>
+    </ParameterCard>
   );
 };
