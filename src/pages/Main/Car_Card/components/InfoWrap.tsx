@@ -1,33 +1,38 @@
 import styled from "styled-components";
-import { mq } from "@/styles/responsive";
 
-export const InfoWrap = styled.div.attrs<{
-  randomcolor: string;
-  is_dark: string;
-  is_warn: string;
-}>((props) => {
-  return {
-    randomcolor: props.randomcolor,
-    is_dark: props.is_dark,
-    is_warn: props.is_warn,
-  };
-})<{ randomcolor: string; is_warn: string }>`
-  margin-top: 1%;
-  z-index: 2;
-  border-radius: 5px;
+// 外框跟首頁的 TitleBar 同一套:1px 邊框 + 左側 4px 色條 + 淡陰影。
+// 左側色條用的是車輛自己的識別色(跟地圖上那台車同色),屬於資料,不跟主題走。
+export const InfoWrap = styled.div<{ $color: string; $warn: boolean }>`
   position: relative;
-  border: ${(props) => `0.2em solid ${props.randomcolor}`};
-  box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.3);
-  min-width: 320px;
-  max-width: 360px;
-  border-top: ${(props) => `0.4em solid ${props.randomcolor}`};
-  background-color: ${(props) =>
-    `${props.is_dark === "true" ? "#3a3939" : "#ffffff"}`};
-  box-shadow: ${(props) =>
-    `${props.is_warn == "true" ? "0 0 7px rgba(255, 0, 0, 0.8)" : ""}`};
+  box-sizing: border-box;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--c-bg);
+  color: var(--c-text);
+  border: 1px solid
+    ${({ $warn }) => ($warn ? "var(--c-danger)" : "var(--c-header-border)")};
+  border-left: 4px solid ${({ $color }) => $color};
+  border-radius: 4px;
+  box-shadow: ${({ $warn }) =>
+    $warn
+      ? "0 0 0 1px var(--c-danger), 0 2px 8px rgba(0, 0, 0, 0.08)"
+      : "0 2px 8px rgba(0, 0, 0, 0.08)"};
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 
-  ${mq.web} {
-    min-width: 200px;
-    max-width: 220px;
+  &:hover {
+    border-top-color: ${({ $warn }) =>
+      $warn ? "var(--c-danger)" : "var(--c-header-accent)"};
+    border-right-color: ${({ $warn }) =>
+      $warn ? "var(--c-danger)" : "var(--c-header-accent)"};
+    border-bottom-color: ${({ $warn }) =>
+      $warn ? "var(--c-danger)" : "var(--c-header-accent)"};
+    box-shadow: ${({ $warn }) =>
+      $warn
+        ? "0 0 0 1px var(--c-danger), 0 4px 12px rgba(0, 0, 0, 0.14)"
+        : "0 4px 12px rgba(0, 0, 0, 0.14)"};
   }
 `;

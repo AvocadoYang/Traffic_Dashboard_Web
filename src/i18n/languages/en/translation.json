@@ -320,7 +320,21 @@
     "metadata_desc": "This data has not been defined and cannot be edited in the traffic control system",
     "add_cargo": "Add cargo information",
     "add_desc": "Added means this vehicle carries more than one cargo at the same time. After releasing the cargo, all cargo information will be transferred to the release point.",
-    "cargo_item": "cargo Items"
+    "cargo_item": "cargo Items",
+    "density": "Card layout",
+    "density_compact": "Compact",
+    "density_normal": "Normal",
+    "density_detailed": "Detailed",
+    "density_compact_hint": "Compact: one line per vehicle",
+    "density_normal_hint": "Normal size",
+    "density_detailed_hint": "Detailed: show everything",
+    "expand_detail": "Show details",
+    "collapse_detail": "Hide details",
+    "coordinate": "Coordinate",
+    "section_charge": "Charging",
+    "section_mission": "Mission",
+    "section_motion": "Motion",
+    "section_system": "Vehicle maintenance"
   },
   "scale_pad": {
     "title": "Change simulate speed"

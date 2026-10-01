@@ -1,5 +1,12 @@
 import { memo, useCallback, useEffect, useState } from "react";
-import { DownOutlined, UpOutlined, CloseOutlined } from "@ant-design/icons";
+import {
+  DownOutlined,
+  UpOutlined,
+  CloseOutlined,
+  BarsOutlined,
+  AppstoreOutlined,
+  ProfileOutlined,
+} from "@ant-design/icons";
 import { ConfigProvider, Select, SelectProps, Flex } from "antd"; // Added Flex
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
@@ -11,6 +18,13 @@ import useName from "@/api/useAmrName";
 import { DefaultOptionType } from "antd/es/select";
 import { themeAtom } from "@/theme";
 import styled from "styled-components"; // Added styled-components
+import { mq } from "@/styles/responsive";
+import { useTranslation } from "react-i18next";
+import {
+  CAR_CARD_DENSITIES,
+  carCardDensityAtom,
+  type CarCardDensity,
+} from "./cardDensity";
 
 // --- Reusing the Styled Components from the Missions component ---
 const TitleBar = styled.div<{ $isDark: boolean }>`
@@ -41,6 +55,109 @@ const Title = styled.span<{ $isDark: boolean }>`
   }
 `;
 // ----------------------------------------------------------------
+
+const TitleIcon = styled.div`
+  color: var(--c-header-accent);
+`;
+
+// 卡片排列方式的切換鈕。TitleBar 在 1500px 以下會整條收掉,
+// 所以這排獨立出來,任何寬度都切得到。
+const DensityBar = styled.div`
+  display: flex;
+  width: 100%;
+  margin-bottom: 12px;
+  border: 1px solid var(--c-header-border);
+  border-radius: 4px;
+  background: var(--c-bg);
+  overflow: hidden;
+
+  /* 底部面板的卡片是橫向捲動的,切換鈕固定在左邊不跟著捲走 */
+  position: sticky;
+  left: 0;
+  max-width: 360px;
+
+  ${mq.web} {
+    position: static;
+    max-width: none;
+  }
+`;
+
+const DensityBtn = styled.button<{ $active: boolean }>`
+  all: unset;
+  box-sizing: border-box;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 28px;
+  font-family: "Roboto Mono", monospace;
+  font-size: 12px;
+  font-weight: ${({ $active }) => ($active ? 600 : 400)};
+  color: ${({ $active }) =>
+    $active ? "var(--c-header-accent)" : "var(--c-text-secondary)"};
+  background: ${({ $active }) =>
+    $active ? "var(--c-header-accent-soft)" : "transparent"};
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+
+  & + & {
+    border-left: 1px solid var(--c-header-border);
+  }
+
+  &:hover {
+    color: var(--c-header-accent);
+    background: ${({ $active }) =>
+      $active ? "var(--c-header-accent-soft)" : "var(--c-bg-muted)"};
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--c-header-accent);
+    outline-offset: -2px;
+  }
+
+  > span:last-child {
+    white-space: nowrap;
+  }
+
+  /* 桌機側欄很窄,三顆按鈕放不下文字,只留圖示,文字用 title 提示 */
+  ${mq.web} {
+    > span:last-child {
+      display: none;
+    }
+  }
+`;
+
+const DENSITY_ICON: Record<CarCardDensity, React.ReactNode> = {
+  compact: <BarsOutlined />,
+  normal: <AppstoreOutlined />,
+  detailed: <ProfileOutlined />,
+};
+
+const DensitySwitch: React.FC = memo(() => {
+  const { t } = useTranslation();
+  const [density, setDensity] = useAtom(carCardDensityAtom);
+  return (
+    <DensityBar role="group" aria-label={t("amr_card.density") as string}>
+      {CAR_CARD_DENSITIES.map((item) => (
+        <DensityBtn
+          key={item}
+          type="button"
+          $active={density === item}
+          aria-pressed={density === item}
+          title={t(`amr_card.density_${item}_hint`) as string}
+          onClick={() => setDensity(item)}
+        >
+          {DENSITY_ICON[item]}
+          <span>{t(`amr_card.density_${item}`)}</span>
+        </DensityBtn>
+      ))}
+    </DensityBar>
+  );
+});
 
 const UpDownIcon: React.FC<{
   isDrop: boolean;
@@ -129,12 +246,12 @@ const TittleTools: React.FC<{}> = () => {
                 });
                 setIsDrop(false);
               }}
-              style={{ color: isDark ? "#00ff41" : "#1890ff" }}
+              style={{ color: "var(--c-header-accent)" }}
             />
           ) : (
-            <div style={{ color: isDark ? "#00ff41" : "#1890ff" }}>
+            <TitleIcon>
               <UpDownIcon isDrop={isDrop} setIsDrop={setIsDrop}></UpDownIcon>
-            </div>
+            </TitleIcon>
           )}
         </Flex>
       </TitleBar>
@@ -170,6 +287,8 @@ const TittleTools: React.FC<{}> = () => {
           </ConfigProvider>
         </div>
       )}
+
+      <DensitySwitch />
     </>
   );
 };

@@ -8,50 +8,34 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 
 const IndustrialDropdown = styled.div`
+  box-sizing: border-box;
   width: 100%;
-  height: 44px;
+  min-height: 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #ffffff;
-  border: 1px solid #722ed1;
-  color: #722ed1;
+  background: var(--c-bg);
+  border: 1px solid var(--c-border-strong);
+  border-radius: 4px;
+  color: var(--c-text);
   font-family: "Roboto Mono", monospace;
-  text-transform: uppercase;
-  font-size: 11px;
-  letter-spacing: 1px;
+  font-size: 12px;
   font-weight: 600;
-  padding: 0 16px;
+  padding: 6px 10px;
   cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: #722ed1;
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
 
   &:hover {
-    background: #f9f0ff;
-    border-color: #9254de;
-    color: #9254de;
-    box-shadow: 0 2px 8px rgba(114, 46, 209, 0.3);
-
-    &::before {
-      opacity: 1;
-    }
+    background: var(--c-header-accent-soft);
+    border-color: var(--c-header-accent);
+    color: var(--c-header-accent);
   }
 
   .icon {
-    font-size: 14px;
+    font-size: 15px;
   }
 
   .arrow {
@@ -66,28 +50,33 @@ const IndustrialDropdown = styled.div`
 
 const StyledDropdownMenu = styled.div`
   .ant-dropdown-menu {
-    border: 2px solid #d9d9d9;
-    border-radius: 0;
+    background: var(--c-bg);
+    border: 1px solid var(--c-border-strong);
+    border-radius: 4px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     padding: 0;
+    overflow: hidden;
   }
 
   .ant-dropdown-menu-item {
     font-family: "Roboto Mono", monospace;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 10px 16px;
-    border-bottom: 1px solid #f0f0f0;
-    transition: all 0.2s;
+    font-size: 12px;
+    color: var(--c-text);
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--c-border);
+    border-radius: 0;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
 
     &:last-child {
       border-bottom: none;
     }
 
     &:hover {
-      background: #f9f0ff;
-      color: #722ed1;
+      background: var(--c-header-accent-soft);
+      color: var(--c-header-accent);
     }
   }
 `;

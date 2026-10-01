@@ -319,7 +319,21 @@
     "metadata_desc": "此資料尚未定義型態於交管系統不可編輯",
     "add_cargo": "新增貨物資訊",
     "add_desc": "新增代表此車輛同時攜帶1個以上的貨物, 放貨後會將所有貨物資訊轉移到放貨點",
-    "cargo_item": "貨物資訊"
+    "cargo_item": "貨物資訊",
+    "density": "卡片排列方式",
+    "density_compact": "最小化",
+    "density_normal": "正常",
+    "density_detailed": "最大化",
+    "density_compact_hint": "最小化：一台車一行",
+    "density_normal_hint": "正常大小",
+    "density_detailed_hint": "最大化：顯示詳細內容",
+    "expand_detail": "展開詳細內容",
+    "collapse_detail": "收合詳細內容",
+    "coordinate": "座標",
+    "section_charge": "充電",
+    "section_mission": "任務",
+    "section_motion": "行駛",
+    "section_system": "車輛維護"
   },
   "scale_pad": {
     "title": "模擬速度調整"

@@ -133,6 +133,8 @@ const BottomPanelSection = styled.div<{ $view: BottomView }>`
     $view === "car"
       ? css`
           flex: 0 0 auto;
+          /* 詳細模式的車輛卡片很高,不設上限會把地圖整個擠掉 */
+          max-height: 60%;
         `
       : css`
           flex: 0 1 auto;
@@ -155,7 +157,7 @@ const BottomPanelBody = styled.div<{ $view: BottomView }>`
   flex: 1 1 auto;
   min-height: 0;
   overflow-x: ${({ $view }) => ($view === "car" ? "auto" : "hidden")};
-  overflow-y: ${({ $view }) => ($view === "car" ? "hidden" : "auto")};
+  overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.28) transparent;
 
@@ -185,7 +187,7 @@ const BottomPanelBody = styled.div<{ $view: BottomView }>`
   ${({ $view }) =>
     $view === "car" &&
     css`
-      && > * > .ant-flex {
+      && > * > .car-card-grid {
         flex-wrap: nowrap;
         justify-content: flex-start;
       }
