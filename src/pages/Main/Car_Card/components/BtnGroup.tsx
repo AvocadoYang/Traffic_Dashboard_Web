@@ -21,8 +21,11 @@ import {
   FireOutlined,
   CloudSyncOutlined,
   AimOutlined,
+  RotateRightOutlined,
 } from "@ant-design/icons";
+import { isFork } from "@/utils/globalFunction";
 import MaintenancePanel from "./MaintenancePanel";
+import SpinModal from "./SpinModal";
 
 // Industrial Styled Components
 const IndustrialContainer = styled(Flex)`
@@ -230,6 +233,21 @@ const IndustrialButton = styled(Button)`
     }
   }
 
+  &.spin-btn {
+    background: #e6fffb;
+    border: 1px solid #13c2c2;
+    border-left: 4px solid #13c2c2;
+    color: #006d75;
+
+    &:hover {
+      background: #b5f5ec;
+      border-color: #36cfc9;
+      border-left-color: #36cfc9;
+      color: #00474f;
+      box-shadow: 0 2px 8px rgba(19, 194, 194, 0.3);
+    }
+  }
+
   &.localization-btn {
     background: #f9f0ff;
     border: 1px solid #722ed1;
@@ -295,6 +313,7 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
   const { t } = useTranslation();
   const [messageApi, contextHolder] = message.useMessage();
   const [isCarrierModalOpen, setIsCarrierModalOpen] = useState(false);
+  const [isSpinModalOpen, setIsSpinModalOpen] = useState(false);
   const setLocalizationCorrection = useSetAtom(localizationCorrection);
 
   const manualChargeMutation = useMutation({
@@ -430,6 +449,16 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
             {t("amr_card.force_delete_mission")}
           </IndustrialButton>
 
+          {isFork(amrId) && (
+            <IndustrialButton
+              className="spin-btn"
+              onClick={() => setIsSpinModalOpen(true)}
+              icon={<RotateRightOutlined />}
+            >
+              {t("amr_card.spin")}
+            </IndustrialButton>
+          )}
+
           <Divider />
 
           {/* Maintenance Level */}
@@ -516,6 +545,12 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
         amrId={amrId}
         open={isCarrierModalOpen}
         onClose={() => setIsCarrierModalOpen(false)}
+      />
+
+      <SpinModal
+        amrId={amrId}
+        open={isSpinModalOpen}
+        onClose={() => setIsSpinModalOpen(false)}
       />
     </>
   );

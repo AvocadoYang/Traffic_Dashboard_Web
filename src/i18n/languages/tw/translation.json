@@ -31,6 +31,14 @@
     "dropoff_point": "放貨點",
     "priority": "優先權",
     "dynamic_hint": "取貨點與放貨點至少要設定一個",
+    "type_transfer": "區域搬運",
+    "transfer_rule": "搬運規則",
+    "transfer_rule_hint": "按一次照規則設定的趟數搬（例如 PU_G2 → PU_G1 搬 3 趟）。趟數、優先級都在設定頁「區域搬運」的規則裡改。",
+    "no_transfer_rule": "還沒有「手動」或「定時」的區域搬運規則，請先到設定頁「區域搬運」建立。",
+    "group_options": "群組",
+    "location_options": "點位",
+    "group_hint": "可以選群組，例如取貨點 PU_G2、放貨點 PU_G1，按一次搬一趟。選群組時，系統依設定頁「輸送帶派送」裡的群組擺放規則和取貨順序挑位置。",
+    "fired_waiting": "任務已建立，但目前沒有可以取放的位置，已保留成「等待位置」，位置空出來會自動派出",
     "delete_button_confirm_title": "確定刪除此按鈕？",
     "add_widget_card": "新增任務派發狀態列表",
     "add_amr_status_card": "新增車輛狀態卡片",
@@ -199,10 +207,10 @@
     "sec": "秒",
     "refresh": "重新整理",
     "full_name": "任務名稱",
-    "sub_name": "子任務名",
+    "sub_name": "路線",
     "category": "任務標籤",
     "priority": "優先權",
-    "send_by": "發送者",
+    "send_by": "派發來源",
     "created_at": "建立時間",
     "started_at": "開始時間",
     "completed_at": "完成時間",
@@ -229,10 +237,56 @@
     "user": "使用者",
     "wcs": "第三方",
     "column_select": "指定顯示任務內容",
-    "cancel_reason": "刪除原因",
+    "cancel_reason": "取消原因",
     "filter": "選擇任務顯示內容",
     "export": "匯出",
-    "search_mission_or_id": "搜尋任務名稱或ID"
+    "search_mission_or_id": "搜尋任務名稱或ID",
+    "waiting": "等待位置",
+    "mission": "任務",
+    "vehicle": "車輛",
+    "duration": "執行耗時",
+    "waited": "等待 {{time}}",
+    "in_progress": "執行中",
+    "not_started": "未執行",
+    "flags": "異常紀錄",
+    "warning_count": "期間發生 {{count}} 筆警告",
+    "emergency_pressed": "期間按下緊急按鈕",
+    "recovery_pressed": "期間按下復原按鈕",
+    "timeline": "時間軸",
+    "assigned_at": "指派時間",
+    "ended_at": "結束時間",
+    "detail": "任務資訊",
+    "battery": "電量",
+    "battery_detail": "{{start}}% → {{end}}%（耗 {{cost}}%）",
+    "distance": "移動距離",
+    "message": "訊息",
+    "warnings": "期間警告",
+    "reject_reasons": "被拒原因",
+    "rejected_count": "{{count}} 台車拒絕",
+    "export_need_range": "請先選擇日期區間再匯出",
+    "export_success": "匯出成功",
+    "export_failed": "匯出失敗",
+    "unit_h": "時",
+    "unit_m": "分",
+    "unit_s": "秒",
+    "kind_normal": "一般",
+    "kind_dynamic": "動態",
+    "kind_move_away": "交管",
+    "kind_direct_move": "直接移動",
+    "kind_other": "其他",
+    "move_away_title": "移動讓路",
+    "desc_move_away": "交管系統派發的移動（讓路或指定路線），顯示起點 → 終點",
+    "desc_direct_move": "依指定路線直接移動，不含取放貨",
+    "desc_normal": "從點位 {{from}} 出發，最後停在點位 {{to}}",
+    "desc_normal_same": "在點位 {{from}} 執行",
+    "desc_dynamic": "從 {{from}} 取貨，送到 {{to}}",
+    "desc_dynamic_steps": "依序經過 {{count}} 個取放貨點",
+    "desc_dynamic_waiting": "等待可用位置，空出後自動派發",
+    "desc_dynamic_candidates": "候選目的地：{{dests}}",
+    "kind_spin": "旋轉",
+    "spin_title": "原地旋轉",
+    "spin_at": "在點位 {{at}} 原地旋轉",
+    "desc_spin": "車輛停在原點轉向，不移動也不取放貨"
   },
   "maintenance": {
     "update": "更新車輛狀態",
@@ -248,6 +302,10 @@
     "delete_current_mission": "刪除任務",
     "force_delete_mission": "強制刪除任務",
     "charge_reset": "校正充電",
+    "spin": "原地旋轉",
+    "spin_hint": "車子會在目前站的點轉到目標角度。車子要閒置，而且那個點要在地圖上設定成可旋轉。",
+    "spin_current_yaw": "目前角度",
+    "spin_target_yaw": "目標角度",
     "localization_correction": "定位校正",
     "localization_correction_hint": "拖曳幽靈車身移動位置，拖曳把手旋轉方向，對齊實際地圖後按確認",
     "localization_correction_reset": "重設",
@@ -381,7 +439,9 @@
       "title": "設備",
       "name_table": "設備名稱表",
       "group_table": "設備群組表",
-      "stack_batch_edit": "Stack 批次編輯"
+      "stack_batch_edit": "Stack 批次編輯",
+      "conveyor_dispatch": "輸送帶派送",
+      "transfer_rules": "區域搬運"
     },
     "others": {
       "others": "其它",
@@ -1819,7 +1879,7 @@
       "title": "效能監看",
       "last_min": "近 {{count}} 分",
       "pending": "待派",
-      "pending_hint": "已建立但還沒有車接手的任務數。持續成長代表車隊跟不上。",
+      "pending_hint": "已建立但還沒有車接手的任務數（不含等待位置的任務）。持續成長代表車隊跟不上。",
       "executing": "執行中",
       "queue_ratio": "佇列比",
       "queue_ratio_hint": "等待時間 ÷ 執行時間。<1 有餘裕、1–3 忙但跟得上、>3 飽和（加任務只會加長佇列）。",
@@ -1832,6 +1892,8 @@
       "busy": "忙碌",
       "stale": "有 {{count}} 筆殘留任務",
       "stale_hint": "這些任務停在未完成狀態但已經超出統計區間，多半是程式中途重啟留下的。它們會留在派工佇列裡，建議清掉。",
+      "waiting_location": "有 {{count}} 張在等可以放的位置（最久 {{sec}} 秒）",
+      "waiting_location_hint": "這些是「等待位置」狀態的任務：還挑不到能取放的位置，所以沒進派工佇列。它們不算在待派和等待時間裡，挑到位置後才開始計算等車時間。瓶頸是儲位或擺放規則，加車沒有用。",
       "event_loop": "事件迴圈 p99",
       "event_loop_hint": "Node 被同步工作卡住的時間。0 = 健康；持續 >100ms 代表程式本身有問題，不是車不夠。",
       "lag_max": "延遲峰值",
@@ -2030,6 +2092,8 @@
     "direct": "直接移動到點"
   },
   "mission_reject_reason": {
+    "fix": "需要處理才派得出去",
+    "wait": "排隊中",
     "title": "任務派送被拒原因",
     "cat1": "優先級與任務隊列問題",
     "cat1_1": "任務隊列中有更高優先級的任務",
@@ -2308,6 +2372,378 @@
       "teal": "青綠",
       "sand": "暖砂",
       "midnight": "深夜"
+    }
+  },
+  "conveyor_dispatch": {
+    "title": "輸送帶派送",
+    "waiting_on": "找不到可放的位置時，任務會保留成「等待位置」，位置空出來後自動派送。",
+    "waiting_off": "後端 YAML 沒有開啟 ENABLE_MISSION_WAITING_STATUS：找不到位置時不會建立「等待位置」任務，輸送帶會自己每幾秒重試。",
+    "schema_not_ready": "資料表還沒建立，請在 mission-control 執行 yarn pdp。",
+    "runtime_title": "即時狀態",
+    "no_runtime": "還沒有設定派送規則的輸送帶",
+    "state": {
+      "IDLE": "沒有貨",
+      "DISABLED": "已停用",
+      "BUSY": "使用中",
+      "NO_RULE": "沒有符合的規則",
+      "DISPATCHED": "已派送",
+      "WAITING": "等待位置",
+      "BLOCKED": "無法派送"
+    },
+    "queue_length": "排隊數量",
+    "head": "隊首貨物",
+    "rule": "符合規則",
+    "dest_groups": "目的群組",
+    "mission": "任務",
+    "detail": "說明",
+    "rules_title": "派送規則",
+    "rules_hint": "隊首的貨由上往下比對，第一條符合的生效；預設去處永遠最後比對。目的群組依順序嘗試，前一個放不下才換下一個。",
+    "no_conveyor": "目前場景沒有輸送帶",
+    "no_rule": "這條輸送帶還沒有派送規則，貨物不會自動派送",
+    "add_rule": "新增規則",
+    "edit_rule": "編輯規則",
+    "name": "名稱",
+    "enabled": "啟用",
+    "fallback": "預設去處",
+    "fallback_hint": "預設去處不比對條件，所有規則都不符合時使用，每條輸送帶最多一條。",
+    "conditions": "條件（全部符合）",
+    "add_condition": "新增條件",
+    "key": "貨物欄位",
+    "value": "值",
+    "dest_groups_hint": "依選取的順序嘗試",
+    "priority": "任務優先級",
+    "move_up": "上移",
+    "move_down": "下移",
+    "policy_title": "群組擺放規則",
+    "only_stack_note": "擺放規則只套用在群組裡的 STACK；沒有設定規則的群組照舊，任何空位都能放。WCS 指定這個群組或其中的點位時也會套用。",
+    "no_stack_group": "沒有包含 STACK 的群組",
+    "no_policy": "尚未設定",
+    "max_levels": "最多疊幾層",
+    "prefer_stacking": "能疊先疊",
+    "prefer_stacking_hint": "開啟：有能疊的位置時先疊，都疊不下才開新的位置",
+    "stack_match_keys": "這些欄位相同才能疊",
+    "stack_match_hint": "留空表示任何貨都能疊在一起",
+    "height_limit": "高度上限",
+    "height_key": "高度欄位",
+    "max_height": "總高度上限",
+    "height_hint": "疊起來的總高度（跟貨物欄位同單位）不能超過上限；讀不到高度的貨不會被疊",
+    "pick_order": "取貨順序",
+    "pick_order_NEAREST": "最近的先拿",
+    "pick_order_FEWEST_LEVELS": "貨最少的先拿",
+    "pick_order_hint_NEAREST": "巷道規則先套用；在拿得到的位置裡，挑離車或放貨點最近的",
+    "pick_order_hint_FEWEST_LEVELS": "巷道規則先套用；在拿得到的位置裡，先拿貨最少的 stack，早點清空讓放貨有位置。一樣少時挑最近的",
+    "pick_order_OLDEST_FIRST": "放最久的先拿",
+    "pick_order_hint_OLDEST_FIRST": "巷道規則先套用；在拿得到的位置裡，比最上層那筆貨放上 stack 的時間，放最久的先拿。stack 只能拿最上層，被壓在下面的舊貨要等上面拿走；這個功能上線前就放著的貨沒有時間，當成最舊",
+    "lanes": "巷道",
+    "lanes_hint": "同一排從最裡面依序選到走道邊。同一條巷道一次只派一台車；外側有貨時裡面不能取也不能放，放貨一律由內往外。",
+    "lane_n": "巷道 {{n}}",
+    "lane_placeholder": "由內到外依序選擇",
+    "lane_inner": "最內",
+    "lane_outer": "走道",
+    "add_lane": "新增巷道",
+    "unassigned": "不在巷道裡的點位（不受巷道限制）",
+    "unassigned_hint": "這些點位會被當成隨時都能直接取放，放貨時系統會優先挑離輸送帶最近的位置，巷道裡的點位不會比較優先。如果它們其實也在某一排裡，請把整排加進巷道。",
+    "remove_policy": "移除擺放規則",
+    "remove_policy_warn": "移除後這個群組任何空位都能放，確定嗎？",
+    "help": {
+      "open": "使用說明",
+      "runtime": {
+        "title": "即時狀態怎麼看",
+        "sections": [
+          {
+            "title": "這裡在看什麼",
+            "items": [
+              "每一條有設派送規則的輸送帶一張卡片，每 3 秒更新。",
+              "系統只看隊首那一筆貨（最早放上輸送帶的），決定要派去哪裡；這筆被取走後才輪到下一筆。"
+            ]
+          },
+          {
+            "title": "狀態說明",
+            "items": [
+              "沒有貨：輸送帶上目前沒有貨。",
+              "已停用：輸送帶在設定裡被停用，不會派送。",
+              "使用中：有車正在這條輸送帶取放貨，等它做完再派。",
+              "沒有符合的規則：隊首的貨不符合任何派送規則，也沒有設預設去處。請在下面新增規則，或加一條預設去處。",
+              "已派送：任務已經建立，等車子來取。",
+              "等待位置：目的群組目前都沒有能放的位置，任務先保留著，位置空出來會自動派出去。",
+              "無法派送：派送失敗且不能等待，看卡片上的說明找原因。"
+            ]
+          },
+          {
+            "title": "小提醒",
+            "items": [
+              "使用者取消輸送帶建立的任務後，同一筆貨會等 60 秒才重新派送，避免取消了馬上又派出來。",
+              "「等待位置」需要後端 YAML 開啟 ENABLE_MISSION_WAITING_STATUS；沒開時輸送帶會自己每幾秒重試。"
+            ]
+          }
+        ]
+      },
+      "rules": {
+        "title": "派送規則怎麼設定",
+        "sections": [
+          {
+            "title": "運作方式",
+            "items": [
+              "先在上方選要設定的輸送帶。",
+              "隊首的貨出現時，系統由上往下檢查這條輸送帶的規則，用第一條符合的規則派送。",
+              "「條件」比對的是貨物資料裡的欄位，例如 yfy 送來的 trayType、batchNo；一條規則的條件要全部符合才算符合。",
+              "目的群組會依選取的順序嘗試：第一個群組放不下，才換下一個。"
+            ]
+          },
+          {
+            "title": "例子",
+            "items": [
+              "規則 1：條件 trayType = A，目的群組 PU_G2 → PU_G1。托盤 A 的貨先放 PU_G2，PU_G2 放不下才放 PU_G1。",
+              "規則 2：預設去處，目的群組 PU_G1。其他不符合規則 1 的貨都送到 PU_G1。"
+            ]
+          },
+          {
+            "title": "其他設定",
+            "items": [
+              "預設去處：不比對條件，永遠最後才檢查；每條輸送帶最多一條。沒有預設去處時，不符合任何規則的貨會停在輸送帶上。",
+              "上下箭頭：調整檢查順序，越上面越先檢查。",
+              "任務優先級：這條規則建立的任務要多優先被派車。",
+              "啟用開關：關掉的規則會被略過，不用刪除。"
+            ]
+          },
+          {
+            "title": "放到群組的哪一格",
+            "items": [
+              "派送規則只決定送去哪個群組；群組裡要放哪一格，由下方的「群組擺放規則」決定。"
+            ]
+          }
+        ]
+      },
+      "policy": {
+        "title": "群組擺放規則怎麼設定",
+        "sections": [
+          {
+            "title": "會套用在哪裡",
+            "items": [
+              "只管群組裡的 stack，一個群組一份設定。",
+              "只要取貨點或放貨點是這個群組（或群組裡的 stack），都會套用：輸送帶派送、WCS、fast-mission、任務派發看板的按鈕都一樣。",
+              "沒有設定的群組照原本的方式，挑最近的位置。"
+            ]
+          },
+          {
+            "title": "放貨",
+            "items": [
+              "最多疊幾層：每個 stack 最多疊幾筆貨。",
+              "能疊先疊：開啟時，有能疊上去的位置就先疊，都疊不下才用新的位置。",
+              "這些欄位相同才能疊：例如選 batchNo，批號相同的貨才會疊在一起；留空表示任何貨都能疊。",
+              "高度上限：選貨物資料裡代表高度的欄位，疊起來的總高度不能超過上限；讀不到高度的貨不會被疊。"
+            ]
+          },
+          {
+            "title": "取貨",
+            "items": [
+              "取貨順序決定「拿得到的位置」之間誰先拿：最近的先拿、貨最少的先拿、放最久的先拿。",
+              "不管選哪一種，巷道規則都會先套用，被擋住的位置不會被選到。"
+            ]
+          },
+          {
+            "title": "巷道",
+            "items": [
+              "車子只能從一頭進出的一排 stack，要設成巷道，系統才會由內往外放、由外往內拿。詳細請看「巷道」旁邊的問號。",
+              "沒有放進巷道的 stack 被當成隨時都能直接取放，畫面上會用黃色警告列出來。"
+            ]
+          },
+          {
+            "title": "記得按儲存",
+            "items": [
+              "改完要按「儲存」才會生效；「移除擺放規則」會讓這個群組回到沒有規則的狀態。"
+            ]
+          }
+        ]
+      },
+      "lanes": {
+        "title": "巷道怎麼設定",
+        "sections": [
+          {
+            "title": "什麼是巷道",
+            "items": [
+              "一排車子只能從一頭進出的 stack（死巷）：要到裡面的位置，一定會經過外面的位置。",
+              "上圖是一條三格的巷道，車子從右邊的走道進出。"
+            ]
+          },
+          {
+            "title": "怎麼設定",
+            "items": [
+              "一排設一條巷道，從最裡面依序選到走道邊。",
+              "方向要跟地圖上的路一致：從車子進來的那一頭看，最遠的那格是「最內」。不確定時，到地圖上看這一排的路是從哪一頭接到走道的，不要只看位置排列。",
+              "群組裡每一排都要設；漏掉的 stack 不受巷道限制，會被當成隨時都能取放。"
+            ]
+          },
+          {
+            "title": "設好之後系統會怎麼做",
+            "items": [
+              "放貨由內往外：最內的位置放了貨（或停用）才會放下一格。",
+              "取貨由外往內：只能拿走道邊那個有貨的位置。",
+              "外面有貨時，裡面的位置不能取也不能放。",
+              "同一條巷道一次只派一台車，取貨和放貨都算，避免車子在巷道裡互卡。"
+            ]
+          },
+          {
+            "title": "常見問題",
+            "items": [
+              "一直出現「未被完整連接」的路徑規劃錯誤：地圖上這一排的走道點沒有接到其他路，車子開不進去，請到地圖補上路線。",
+              "系統一直挑沒設巷道的 stack：同一個群組裡還有 stack 沒放進任何巷道。"
+            ]
+          }
+        ]
+      },
+      "lane_diagram": {
+        "alt": "巷道示意圖：三格一排，車子從走道邊進出；放貨由最內往外，取貨由走道邊往內",
+        "inner": "最內",
+        "middle": "中間",
+        "outer": "走道邊",
+        "aisle": "走道（車子進出）",
+        "place": "放貨順序",
+        "pick": "取貨順序"
+      }
+    }
+  },
+  "transfer_rules": {
+    "mission_not_dispatched": "任務 {{id}} 還沒派出去：",
+    "title": "區域搬運",
+    "schema_not_ready": "資料表還沒建立，請在 mission-control 執行 yarn pdp。",
+    "mir_not_supported": "MiR 模式不支援區域搬運規則，規則不會自動執行。",
+    "waiting_on": "找不到可以取放的位置時，任務會保留成「等待位置」，位置空出來後自動派出。",
+    "waiting_off": "後端沒有開啟 ENABLE_MISSION_WAITING_STATUS：找不到位置時不會建立任務，規則會每 10 秒重試。",
+    "runtime_title": "即時狀態",
+    "no_runtime": "還沒有區域搬運規則",
+    "rules_title": "搬運規則",
+    "rules_hint": "每條規則從一個群組搬到另一個群組，選一種觸發方式。取放貨的位置由兩個群組的擺放規則和取貨順序決定（設定在「輸送帶派送」）。",
+    "no_rule": "還沒有規則，按「新增規則」建立第一條",
+    "add_rule": "新增規則",
+    "edit_rule": "編輯規則",
+    "delete_warn": "刪除後，正在進行的搬運會停止（已經建立的任務會做完）；看板上指向這條規則的按鈕會失效。確定刪除？",
+    "name": "名稱",
+    "name_placeholder": "例如：PU_G2 補貨到 PU_G1",
+    "enabled": "啟用",
+    "source": "來源群組",
+    "dest": "目的群組",
+    "same_group": "來源和目的不能是同一個群組",
+    "route": "搬運路線",
+    "trigger": "觸發方式",
+    "trigger_MANUAL": "手動",
+    "trigger_SOURCE_HAS_CARGO": "來源有貨就搬",
+    "trigger_FREE_SLOTS": "依空位數補貨",
+    "trigger_SCHEDULE": "定時",
+    "trigger_hint_MANUAL": "在任務派發看板新增「區域搬運」按鈕指向這條規則，或在上方即時狀態按「立即執行」。",
+    "trigger_hint_SOURCE_HAS_CARGO": "來源群組有貨、目的群組有空位時就一直搬，搬完或放滿自動停。",
+    "trigger_hint_FREE_SLOTS": "目的群組的空位變多時開始補貨，補到空位剩很少時停止。",
+    "trigger_hint_SCHEDULE": "每天固定時間，或每隔幾分鐘自動執行一次。",
+    "start_at": "空位 ≥ 幾格時開始補",
+    "stop_at": "空位 ≤ 幾格時停止",
+    "stop_lt_start": "停止的空位數要小於開始的空位數",
+    "slots": "格",
+    "schedule_DAILY": "每天固定時間",
+    "schedule_INTERVAL": "每隔幾分鐘",
+    "minutes": "分鐘",
+    "times_hint": "輸入時間後按 Enter，可以設多個，格式 HH:mm（例如 08:00、13:30）",
+    "times_invalid": "時間格式要是 HH:mm，例如 08:00",
+    "trips": "每次觸發搬幾趟",
+    "trips_COUNT": "固定趟數",
+    "trips_UNTIL_EMPTY": "搬到來源沒貨或目的放滿",
+    "trip_unit": "趟",
+    "trips_hint": "一趟是一個任務、搬一筆貨。搬到一半可以在上方即時狀態按「停止」。",
+    "priority": "任務優先級",
+    "max_concurrent": "同時最多幾個任務",
+    "max_concurrent_hint": "包含正在等位置的任務；數字越大搬得越快，但會佔用更多車",
+    "run_now": "立即執行",
+    "stop": "停止",
+    "source_stock": "來源貨物",
+    "dest_free": "目的空位",
+    "in_flight": "進行中任務",
+    "progress": "這次進度",
+    "next_run": "下次定時",
+    "detail": "說明",
+    "stock_text": "{{cargo}} 筆（可以拿的 {{pickable}} 筆）",
+    "free_text": "{{free}} 格",
+    "progress_n": "{{done}} / {{total}} 趟",
+    "progress_until": "已派出 {{done}} 趟",
+    "trips_n": "每次 {{n}} 趟",
+    "trips_until_empty": "搬到來源沒貨或目的放滿",
+    "summary_free_slots": "空位 ≥ {{start}} 格開始補，≤ {{stop}} 格停止",
+    "summary_daily": "每天 {{times}}",
+    "summary_interval": "每 {{n}} 分鐘",
+    "state": {
+      "DISABLED": "已停用",
+      "IDLE": "待命",
+      "RUNNING": "搬運中",
+      "WAITING": "等待位置",
+      "BLOCKED": "無法派送"
+    },
+    "help": {
+      "open": "使用說明",
+      "runtime": {
+        "title": "即時狀態怎麼看",
+        "sections": [
+          {
+            "title": "這裡在看什麼",
+            "items": [
+              "每條規則一張卡片，每 3 秒更新。",
+              "來源貨物：來源群組裡有幾筆貨；「可以拿的」是沒有被其他任務預約的。",
+              "目的空位：目的群組還能放幾筆（stack 算到最多層數，儲位算到容量），停用的位置不算。",
+              "進行中任務：這條規則建立、還沒完成的任務，包含正在等位置的。"
+            ]
+          },
+          {
+            "title": "狀態說明",
+            "items": [
+              "待命：條件還沒成立（例如還沒到定時時間、空位還不夠多），或是在等手動觸發。",
+              "搬運中：條件成立，正在建立任務或等任務完成。",
+              "等待位置：有任務暫時找不到能取放的位置，位置空出來會自動派出。",
+              "無法派送：建立任務失敗，看「說明」找原因，系統會每 10 秒重試。",
+              "已停用：規則被關掉了。"
+            ]
+          },
+          {
+            "title": "立即執行和停止",
+            "items": [
+              "手動和定時的規則可以按「立即執行」，會照規則設定的趟數搬。",
+              "搬運中可以按「停止」：不會再建新的任務，已經建立的任務會做完。"
+            ]
+          }
+        ]
+      },
+      "rules": {
+        "title": "搬運規則怎麼設定",
+        "sections": [
+          {
+            "title": "基本設定",
+            "items": [
+              "選來源群組和目的群組，例如 PU_G2 → PU_G1。",
+              "取放貨的位置由兩個群組的擺放規則和取貨順序決定，要先到「輸送帶派送」把群組的巷道等規則設好。",
+              "同時最多幾個任務：包含正在等位置的任務。設 1 最穩；想搬快一點再調高，但會同時佔用多台車。"
+            ]
+          },
+          {
+            "title": "四種觸發方式",
+            "items": [
+              "手動：在任務派發看板新增「區域搬運」按鈕選這條規則，按一次就照設定的趟數搬；也可以在即時狀態按「立即執行」。",
+              "來源有貨就搬：來源有貨、目的有空位就一直搬，適合把暫存區清到正式儲區。",
+              "依空位數補貨：看目的群組的空位。空位 ≥「開始」的格數時開始補，補到空位 ≤「停止」的格數時停。例如開始 5、停止 1：空到 5 格才補，補到只剩 1 格空位就停，不會一有空位就派車。",
+              "定時：每天固定時間（可以設多個），或每隔幾分鐘。時間到就照設定的趟數搬；上一次還沒搬完時，這一次會略過。"
+            ]
+          },
+          {
+            "title": "每次搬幾趟（手動、定時）",
+            "items": [
+              "固定趟數：一趟搬一筆貨，派出指定的趟數就結束；來源先沒貨或目的先放滿也會提早結束。",
+              "搬到來源沒貨或目的放滿：一直搬到其中一邊做不下去為止。"
+            ]
+          },
+          {
+            "title": "注意",
+            "items": [
+              "系統重啟後，正在進行的搬運不會接續，正在等位置的任務會被取消，需要重新觸發。",
+              "兩條規則搬同一個群組時會互相搶貨或搶位置，建議一個群組只設一條自動規則。"
+            ]
+          }
+        ]
+      }
     }
   }
 }
