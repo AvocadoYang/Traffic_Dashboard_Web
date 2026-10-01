@@ -471,6 +471,12 @@
       "switch_map": "變更地圖",
       "map_group": "地圖群組"
     },
+    "category": {
+      "charge": "充電",
+      "dispatch": "調度規則",
+      "cargo": "貨物",
+      "alarm": "告警"
+    },
     "restart": {
       "restart": "重起系統"
     }

@@ -473,6 +473,12 @@
       "switch_map": "Switch Map",
       "map_group": "Map Group"
     },
+    "category": {
+      "charge": "Charging",
+      "dispatch": "Dispatch Rules",
+      "cargo": "Cargo",
+      "alarm": "Alarms"
+    },
     "restart": {
       "restart": "restart system"
     }
