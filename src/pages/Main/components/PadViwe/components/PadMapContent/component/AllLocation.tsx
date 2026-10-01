@@ -1,57 +1,104 @@
 import useMap from "@/api/useMap";
 import { amrId2ColorRainbow, rosCoord2DisplayCoord } from "@/utils/utils";
-import {
-  Fragment,
-  memo,
-  RefObject,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import { nanoid } from "nanoid";
-import {
-  Label,
-  LabelTooltip,
-  LabelWrapper,
-  Line,
-  Point,
-  PointMain,
-} from "@/pages/Setting/mapComponents/components/AllLocation/components/PointAndLine";
+import { memo, RefObject, useCallback, useMemo } from "react";
+import { PointMain } from "@/pages/Setting/mapComponents/components/AllLocation/components/PointAndLine";
 import {
   MirAreaTypeMarker,
   isMirAreaType,
 } from "@/pages/Setting/mapComponents/components/AllLocation/components/MirAreaTypeMarker";
 import { useAtomValue, useSetAtom } from "jotai";
-import {
-  locationHoverInfo,
-  mouseDetectLoc,
-  tooltipProp,
-} from "@/utils/gloable";
+import { nearbyLocationIdSet, tooltipProp } from "@/utils/gloable";
 import { OpenDirect } from "@/pages/Main/global/jotai";
-import useMouseMove from "@/pages/Main/components/WebView/hooks/useMoseMove";
-import { mousePosition } from "@/utils/siderGloble";
 import { useAllAmrDestinations } from "@/sockets/useAMRInfo";
+
+// 單一個點位。props 全部是基本型別或穩定的 callback,所以游標靠近 / 離開時
+// 只有 isNear 真的變了的那幾個點會重繪,其他點位被 memo 擋掉。
+const LocationPoint: React.FC<{
+  locationId: string;
+  areaType: string;
+  x: number;
+  y: number;
+  displayX: number;
+  displayY: number;
+  rotate: number | undefined;
+  canRotate: boolean | undefined;
+  isNear: boolean;
+  destinationAmr: string | undefined;
+  onEnter: (locationId: string, x: number, y: number) => void;
+  onLeave: () => void;
+  onDirectMove: (locationId: string) => void;
+}> = memo(
+  ({
+    locationId,
+    areaType,
+    x,
+    y,
+    displayX,
+    displayY,
+    rotate,
+    canRotate,
+    isNear,
+    destinationAmr,
+    onEnter,
+    onLeave,
+    onDirectMove,
+  }) => {
+    const handleClick = useCallback(
+      (e: React.MouseEvent) => {
+        e.preventDefault();
+        onDirectMove(locationId);
+      },
+      [locationId, onDirectMove],
+    );
+    const handleMouseEnter = useCallback(() => {
+      onEnter(locationId, x, y);
+    }, [locationId, x, y, onEnter]);
+
+    if (isMirAreaType(areaType)) {
+      return (
+        <MirAreaTypeMarker
+          id={locationId}
+          areaType={areaType}
+          left={displayX}
+          top={displayY}
+          rotation={rotate}
+          onClick={handleClick}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={onLeave}
+        />
+      );
+    }
+
+    return (
+      <PointMain
+        id={locationId}
+        canrotate={`${canRotate}`}
+        isNear={isNear}
+        $destinationLabel={destinationAmr ? locationId : undefined}
+        $amrColor={
+          destinationAmr ? amrId2ColorRainbow(destinationAmr) : undefined
+        }
+        onClick={handleClick}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={onLeave}
+        left={displayX}
+        top={displayY}
+      ></PointMain>
+    );
+  },
+);
 
 const AllLocation: React.FC<{
   mapRef: RefObject<HTMLDivElement>;
-}> = ({ mapRef }) => {
+}> = () => {
   const { data } = useMap();
   const setTooltip = useSetAtom(tooltipProp);
   const setOpen = useSetAtom(OpenDirect);
-  const [roadInfo, setRoadInfo] =
-    useState<{ spot1Id: string; spot2Id: string; roadId: string }[]>();
-  const mouseDetectLocArr = useAtomValue(mouseDetectLoc);
-  const { clientX, clientY } = useAtomValue(mousePosition);
-  const hoverLocationInfo = useAtomValue(locationHoverInfo);
+  // 游標附近(偵測半徑內)的點位 id 集合，用來讓這些點稍微放大，方便使用者辨識與點擊。
+  // 只在名單變動時才會換新,游標在同一群點位附近移動不會觸發重繪。
+  const nearbyLocationIds = useAtomValue(nearbyLocationIdSet);
 
   const destinations = useAllAmrDestinations();
-
-  // 游標附近(偵測半徑內)的點位 id 集合，用來讓這些點稍微放大，方便使用者辨識與點擊。
-  const nearbyLocationIds = useMemo(
-    () => new Set(hoverLocationInfo?.locationIds ?? []),
-    [hoverLocationInfo],
-  );
 
   const amrByDestination = useMemo(() => {
     const index = new Map<string, string>();
@@ -68,6 +115,29 @@ const AllLocation: React.FC<{
     return index;
   }, [destinations]);
 
+  // 座標換算只跟地圖資料有關,不用每次重繪都對每個點位重算一次
+  const points = useMemo(() => {
+    if (!data) return [];
+    return data.locations
+      .filter(
+        ({ areaType }) =>
+          areaType === "EXTRA" ||
+          areaType === "DISPATCH" ||
+          isMirAreaType(areaType),
+      )
+      .map((loc) => {
+        const [displayX, displayY] = rosCoord2DisplayCoord({
+          x: loc.x,
+          y: loc.y,
+          mapHeight: data.mapHeight,
+          mapOriginX: data.mapOriginX,
+          mapOriginY: data.mapOriginY,
+          mapResolution: data.mapResolution,
+        });
+        return { loc, id: loc.locationId.toString(), displayX, displayY };
+      });
+  }, [data]);
+
   const handleEnter = useCallback(
     (locationId: string, x: number, y: number) => {
       setTooltip({
@@ -79,147 +149,36 @@ const AllLocation: React.FC<{
     [],
   );
 
-  useEffect(() => {
-    const roads = data?.roads.map((road) => {
-      return {
-        spot1Id: road.spot1Id,
-        spot2Id: road.spot2Id,
-        roadId: road.roadId,
-      };
-    });
-    setRoadInfo(roads);
-  }, [data]);
-
   const handleLeave = useCallback(() => {
     setTooltip(null);
   }, []);
 
-  const handleDireMove = (locationId: string) => {
-    // console.log("???");
+  const handleDireMove = useCallback((locationId: string) => {
     setOpen({ open: true, locationId });
-  };
-
-  // useMouseMove(mapRef);
+  }, []);
 
   if (!data) return;
 
   return (
     <>
-      {data.locations
-        .filter(
-          ({ areaType }) =>
-            areaType === "EXTRA" ||
-            areaType === "DISPATCH" ||
-            isMirAreaType(areaType),
-        )
-        .map((loc) => {
-          const [displayX, displayY] = rosCoord2DisplayCoord({
-            x: loc.x,
-            y: loc.y,
-            mapHeight: data?.mapHeight,
-            mapOriginX: data?.mapOriginX,
-            mapOriginY: data.mapOriginY,
-            mapResolution: data.mapResolution,
-          });
-
-          let angleDeg = 0;
-          let labelX = displayX;
-          let labelY = displayY;
-
-          const index = [...mouseDetectLocArr].indexOf(
-            loc.locationId.toString(),
-          );
-          const total = mouseDetectLocArr.size;
-
-          const dx = clientX - displayX;
-          const dy = clientY - displayY;
-
-          const baseRad = Math.atan2(dy, dx);
-          const FAN_ANGLE = total > 6 ? 360 : 240;
-
-          // 平均分配角度
-          const spreadRad = (FAN_ANGLE * (Math.PI / 180)) / total;
-          const rad = baseRad + spreadRad * (index - total / 2);
-
-          labelX = displayX + Math.cos(rad) * 70;
-          labelY = displayY + Math.sin(rad) * 70;
-          angleDeg = (rad * 180) / Math.PI;
-
-          const destinationAmr = amrByDestination.get(
-            loc.locationId.toString(),
-          );
-
-          return (
-            <Fragment key={loc.locationId}>
-              {isMirAreaType(loc.areaType) ? (
-                <MirAreaTypeMarker
-                  id={loc.locationId.toString()}
-                  areaType={loc.areaType}
-                  left={displayX}
-                  top={displayY}
-                  rotation={loc.rotate}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleDireMove(loc.locationId.toString());
-                  }}
-                  onMouseEnter={() => {
-                    handleEnter(loc.locationId, loc.x, loc.y);
-                  }}
-                  onMouseLeave={() => handleLeave()}
-                />
-              ) : (
-                <PointMain
-                  id={loc.locationId.toString()}
-                  canrotate={`${loc.canRotate}`}
-                  isNear={nearbyLocationIds.has(loc.locationId.toString())}
-                  $destinationLabel={
-                    destinationAmr ? loc.locationId.toString() : undefined
-                  }
-                  $amrColor={
-                    destinationAmr
-                      ? amrId2ColorRainbow(destinationAmr)
-                      : undefined
-                  }
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleDireMove(loc.locationId.toString());
-                  }}
-                  onMouseEnter={() => {
-                    handleEnter(loc.locationId, loc.x, loc.y);
-                  }}
-                  onMouseLeave={() => handleLeave()}
-                  left={displayX}
-                  top={displayY}
-                ></PointMain>
-              )}
-              {/* {
-              mouseDetectLocArr.has(loc.locationId.toString()) ? 
-              <>
-              <Line
-                id={loc.locationId}
-                x={displayX}
-                y={displayY}
-                progress={mouseDetectLocArr.has(loc.locationId.toString()) ? 1 : 0}
-                angle={angleDeg}
-              />
-              <LabelWrapper x={labelX} y={labelY} id={loc.locationId}>
-                <Label>{loc.locationId}</Label>
-                <LabelTooltip className="tooltip">
-                  {
-                    roadInfo?.filter(({ spot1Id, spot2Id}) => {
-                      return spot1Id == loc.locationId || spot2Id == loc.locationId
-                    }).map((road) =>{
-                      return  <p key={nanoid()} style={{ whiteSpace: "nowrap", zIndex: "999999999"}}>{`${road.roadId}`}</p> 
-                    })
-                  }
-                </LabelTooltip>
-              </LabelWrapper>
-            </>
-              :<></>
-            } */}
-            </Fragment>
-          );
-        })}
+      {points.map(({ loc, id, displayX, displayY }) => (
+        <LocationPoint
+          key={loc.locationId}
+          locationId={id}
+          areaType={loc.areaType}
+          x={loc.x}
+          y={loc.y}
+          displayX={displayX}
+          displayY={displayY}
+          rotate={loc.rotate}
+          canRotate={loc.canRotate}
+          isNear={nearbyLocationIds.has(id)}
+          destinationAmr={amrByDestination.get(id)}
+          onEnter={handleEnter}
+          onLeave={handleLeave}
+          onDirectMove={handleDireMove}
+        />
+      ))}
     </>
   );
 };
