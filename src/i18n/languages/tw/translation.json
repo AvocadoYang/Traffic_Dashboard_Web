@@ -2385,7 +2385,16 @@
       "indigo": "靛藍",
       "teal": "青綠",
       "sand": "暖砂",
-      "midnight": "深夜"
+      "midnight": "深夜",
+      "sakura": "櫻花",
+      "matcha": "抹茶",
+      "lavender": "薰衣草",
+      "ocean": "深海",
+      "ember": "餘燼",
+      "terminal": "終端機",
+      "neon": "霓虹",
+      "blueprint": "藍圖",
+      "contrast": "高對比"
     }
   },
   "conveyor_dispatch": {

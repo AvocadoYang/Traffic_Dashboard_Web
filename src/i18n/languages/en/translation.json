@@ -2384,7 +2384,16 @@
       "indigo": "Indigo",
       "teal": "Teal",
       "sand": "Sand",
-      "midnight": "Midnight"
+      "midnight": "Midnight",
+      "sakura": "Sakura",
+      "matcha": "Matcha",
+      "lavender": "Lavender",
+      "ocean": "Deep sea",
+      "ember": "Ember",
+      "terminal": "Terminal",
+      "neon": "Neon",
+      "blueprint": "Blueprint",
+      "contrast": "High contrast"
     }
   },
   "conveyor_dispatch": {
