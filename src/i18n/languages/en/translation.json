@@ -443,7 +443,8 @@
       "group_table": "Device Area Table",
       "stack_batch_edit": "Stack Batch Edit",
       "conveyor_dispatch": "Conveyor Dispatch",
-      "transfer_rules": "Area Transfer"
+      "transfer_rules": "Area Transfer",
+      "work_areas": "Work Areas"
     },
     "others": {
       "others": "Others",
@@ -528,6 +529,13 @@
     "GATE_WAIT_POINT": "Gate wait point",
     "ip": "Elevator IP (optional)",
     "invalid_ip_address": "Invalid IP address format",
+    "wait_point": "Wait point",
+    "wait_area": "Wait point (work area)",
+    "wait_area_placeholder": "Not a wait point",
+    "wait_area_none": "No work area yet. Add one under Device → Work Areas first.",
+    "wait_area_not_allowed": "Only path points and standby points can be wait points.",
+    "wait_order": "Queue order",
+    "wait_order_hint": "Lower numbers queue first. Use 1 for the point closest to the work area entrance.",
     "save_pose_notify": {
       "empty_value": "X/Y is required",
       "fill_in_value": "Please fill in the X/Y value",
@@ -2601,6 +2609,27 @@
         "pick": "Pick order"
       }
     }
+  },
+  "work_areas": {
+    "title": "Work Areas",
+    "schema_not_ready": "Tables are not created yet. Run yarn pdp in mission-control.",
+    "hint": "Put groups that share one aisle into the same work area and set how many vehicles may work inside at once. Vehicles that cannot enter queue at the wait points first.",
+    "not_enforced_yet": "Settings are only stored for now: dispatching does not limit vehicles by work area yet, and does not send vehicles to wait points yet.",
+    "wait_point_hint": "Wait points are set per location under Edit Locations or the location table: pick the work area and the queue order.",
+    "no_area": "No work area yet. Click \"Add work area\" to create the first one",
+    "add_area": "Add work area",
+    "edit_area": "Edit work area",
+    "delete_warn": "After deleting, its groups no longer belong to any work area and its wait points are cleared. Delete?",
+    "name": "Name",
+    "name_placeholder": "e.g. PU work area",
+    "capacity": "Max vehicles inside",
+    "capacity_n": "{{n}} vehicles",
+    "capacity_hint": "Vehicles in the aisle plus in the lanes, at the same time",
+    "groups": "Groups",
+    "groups_hint": "A group can belong to only one work area",
+    "group_in_other_area": "{{name}} (in {{area}})",
+    "wait_points": "Wait points",
+    "no_wait_point": "No wait point yet"
   },
   "transfer_rules": {
     "mission_not_dispatched": "Mission {{id}} has not been dispatched yet:",

@@ -11,6 +11,9 @@ export const locationSchema = object({
   rotate: number().required(),
   areaType: string().required(),
   ip: string().nullable().optional(),
+  // 等待點: 屬於哪個作業區、排第幾個; 不是等待點時 wait_area_id 是 null
+  wait_area_id: string().nullable().optional(),
+  wait_order: number().optional(),
 }).required();
 
 export const roadSchema = object({

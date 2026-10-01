@@ -153,6 +153,10 @@ export const navCategories: NavCategory[] = [
         labelKey: "toolbar.peripheral.transfer_rules",
       },
       {
+        key: "work_areas",
+        labelKey: "toolbar.peripheral.work_areas",
+      },
+      {
         key: "edit_icon_style",
         labelKey: "toolbar.others.edit_peripheral_style",
       },

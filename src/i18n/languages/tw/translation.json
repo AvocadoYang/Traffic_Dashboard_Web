@@ -441,7 +441,8 @@
       "group_table": "設備群組表",
       "stack_batch_edit": "Stack 批次編輯",
       "conveyor_dispatch": "輸送帶派送",
-      "transfer_rules": "區域搬運"
+      "transfer_rules": "區域搬運",
+      "work_areas": "作業區"
     },
     "others": {
       "others": "其它",
@@ -526,6 +527,13 @@
     "GATE_WAIT_POINT": "門前等待點",
     "ip": "電梯 IP (選填)",
     "invalid_ip_address": "IP 格式錯誤",
+    "wait_point": "等待點",
+    "wait_area": "等待點（所屬作業區）",
+    "wait_area_placeholder": "不是等待點",
+    "wait_area_none": "還沒有作業區，先到「設備 → 作業區」新增。",
+    "wait_area_not_allowed": "只有路徑點、待命區可以當等待點。",
+    "wait_order": "排隊順序",
+    "wait_order_hint": "數字小的排前面，最靠近作業區入口的填 1。",
     "save_pose_notify": {
       "empty_value": "X/Y 為必填值",
       "fill_in_value": "請填入 X/Y 值",
@@ -2602,6 +2610,27 @@
         "pick": "取貨順序"
       }
     }
+  },
+  "work_areas": {
+    "title": "作業區",
+    "schema_not_ready": "資料表還沒建立，請在 mission-control 執行 yarn pdp。",
+    "hint": "共用同一條走道的群組放進同一個作業區，設定區內同時最多幾台車。進不去的車會先到等待點排隊。",
+    "not_enforced_yet": "目前只儲存設定：派車還不會依作業區限制車數，也還不會把車派到等待點。",
+    "wait_point_hint": "等待點在「編輯點位」或「點位列表」裡，對每個點位個別設定所屬作業區和排隊順序。",
+    "no_area": "還沒有作業區，按「新增作業區」建立第一個",
+    "add_area": "新增作業區",
+    "edit_area": "編輯作業區",
+    "delete_warn": "刪除後，群組不再屬於任何作業區，這一區的等待點也會取消。確定刪除？",
+    "name": "名稱",
+    "name_placeholder": "例如：PU 作業區",
+    "capacity": "區內車數上限",
+    "capacity_n": "{{n}} 台",
+    "capacity_hint": "走道上加巷道裡，同時最多幾台車",
+    "groups": "群組",
+    "groups_hint": "一個群組只能屬於一個作業區",
+    "group_in_other_area": "{{name}}（已在 {{area}}）",
+    "wait_points": "等待點",
+    "no_wait_point": "還沒有等待點"
   },
   "transfer_rules": {
     "mission_not_dispatched": "任務 {{id}} 還沒派出去：",

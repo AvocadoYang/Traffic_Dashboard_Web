@@ -26,6 +26,7 @@ import PeripheralGroupPanel from "./panels/peripheral/PeripheralGroupPanel";
 import StackBatchPanel from "./panels/peripheral/StackBatchPanel";
 import ConveyorDispatchPanel from "./panels/peripheral/ConveyorDispatchPanel";
 import TransferRulePanel from "./panels/peripheral/TransferRulePanel";
+import WorkAreaPanel from "./panels/peripheral/WorkAreaPanel";
 import ChargeDockPanel from "./panels/peripheral/ChargeDockPanel";
 import PeripheralStylePanel from "./panels/peripheral/PeripheralStylePanel";
 import TagPanel from "./panels/other/TagPanel";
@@ -121,6 +122,8 @@ const PanelRenderer: FC<Props> = ({
       return <ConveyorDispatchPanel />;
     case "transfer_rules":
       return <TransferRulePanel />;
+    case "work_areas":
+      return <WorkAreaPanel />;
     case "peripheral_charge_dock_config":
       return <ChargeDockPanel />;
     case "edit_tag":

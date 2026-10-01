@@ -24,6 +24,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import useAllGroupsResources from "@/api/useAllGroupsResources";
 import useAllAreaTypes from "@/api/useAllAreaTypes";
+import { WORK_AREA_CONFIG_KEY, useWorkAreaConfig } from "@/api/useWorkAreas";
 import client from "@/api/axiosClient";
 import { locationOption } from "@/pages/Setting/utils/func";
 import { currentMapIdAtom } from "@/utils/mapSelection";
@@ -50,6 +51,7 @@ import {
   FieldLabel,
   FieldGrid,
 } from "../../ui/primitives";
+import WaitPointFields, { waitPointPayload } from "../../ui/waitPointFields";
 
 type LocationRow = {
   id: string;
@@ -62,6 +64,8 @@ type LocationRow = {
   canRotate?: boolean;
   areaType: string;
   ip?: string | null;
+  wait_area_id?: string | null;
+  wait_order?: number;
   mapFileName: string;
   groupName: string;
   isActiveGroup: boolean;
@@ -76,8 +80,16 @@ const LocationListPanel: FC = () => {
 
   const { data: resources, refetch, isFetching } = useAllGroupsResources();
   const { data: areaTypes } = useAllAreaTypes();
+  const { data: workAreaConfig } = useWorkAreaConfig();
   const currentMapId = useAtomValue(currentMapIdAtom);
   const setTooltip = useSetAtom(tooltipProp);
+
+  /** 等待點顯示成「作業區名稱 #順序」; 不是等待點回 null */
+  const waitPointText = (row: LocationRow) => {
+    if (!row.wait_area_id) return null;
+    const area = workAreaConfig?.areas.find((a) => a.id === row.wait_area_id);
+    return `${area?.name ?? row.wait_area_id} #${row.wait_order ?? 0}`;
+  };
 
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -101,6 +113,7 @@ const LocationListPanel: FC = () => {
     queryClient.refetchQueries({ queryKey: ["map"] });
     queryClient.refetchQueries({ queryKey: ["active-group-resources"] });
     queryClient.refetchQueries({ queryKey: ["all-groups-resources"] });
+    void queryClient.invalidateQueries({ queryKey: WORK_AREA_CONFIG_KEY });
   };
 
   const editMutation = useMutation({
@@ -193,6 +206,8 @@ const LocationListPanel: FC = () => {
       canRotate: row.canRotate ?? false,
       areaType: row.areaType,
       ip: row.ip ?? "",
+      wait_area_id: row.wait_area_id ?? undefined,
+      wait_order: row.wait_order ?? 0,
     });
     setEditing(row);
   };
@@ -206,6 +221,8 @@ const LocationListPanel: FC = () => {
       oldLocationId: editing.locationId,
       newLocationId: values.locationId,
       currentMapId,
+      // 點位類型存檔後改不了, 能不能當等待點看的是原本的類型
+      ...waitPointPayload(editing.areaType, values),
     });
   };
 
@@ -241,6 +258,12 @@ const LocationListPanel: FC = () => {
       key: "areaType",
       width: 120,
       render: (v: string) => <Tag>{locationOption(v)}</Tag>,
+    },
+    {
+      title: t("edit_location_panel.wait_point"),
+      key: "waitPoint",
+      width: 150,
+      render: (_, row) => waitPointText(row) ?? "—",
     },
     { title: "IP", dataIndex: "ip", key: "ip", width: 130, render: (v) => v || "—" },
     {
@@ -361,6 +384,12 @@ const LocationListPanel: FC = () => {
                   <dd>{row.rotate ?? 0}</dd>
                   <dt>{t("map_manager.map_group")}</dt>
                   <dd>{row.mapFileName}</dd>
+                  {row.wait_area_id ? (
+                    <>
+                      <dt>{t("edit_location_panel.wait_point")}</dt>
+                      <dd>{waitPointText(row)}</dd>
+                    </>
+                  ) : null}
                   {row.ip ? (
                     <>
                       <dt>IP</dt>
@@ -492,6 +521,9 @@ const LocationListPanel: FC = () => {
                 <Input />
               </Form.Item>
             </Field>
+          </FieldGrid>
+          <FieldGrid $cols={2} style={{ marginTop: 16 }}>
+            <WaitPointFields areaType={editing?.areaType} />
           </FieldGrid>
         </Form>
       </Modal>

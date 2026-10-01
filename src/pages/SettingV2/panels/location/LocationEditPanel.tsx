@@ -6,6 +6,7 @@ import { useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";
 import useAllAreaTypes from "@/api/useAllAreaTypes";
+import { WORK_AREA_CONFIG_KEY } from "@/api/useWorkAreas";
 import { locationOption } from "@/pages/Setting/utils/func";
 import { currentMapIdAtom } from "@/utils/mapSelection";
 import { LocationType } from "@/utils/jotai";
@@ -23,6 +24,7 @@ import {
   GhostButton,
   Hint,
 } from "../../ui/primitives";
+import WaitPointFields, { waitPointPayload } from "../../ui/waitPointFields";
 
 type Props = {
   /** 與地圖共用的 form:在地圖上點一下,座標會直接寫進這份 form */
@@ -35,6 +37,7 @@ const LocationEditPanel: FC<Props> = ({ locationPanelForm }) => {
   const [messageApi, contextHolder] = message.useMessage();
   const { data: areaTypes } = useAllAreaTypes();
   const currentMapId = useAtomValue(currentMapIdAtom);
+  const areaType = Form.useWatch("areaType", locationPanelForm) as string | undefined;
 
   const saveMutation = useMutation({
     mutationFn: (payload: LocationType) =>
@@ -45,6 +48,7 @@ const LocationEditPanel: FC<Props> = ({ locationPanelForm }) => {
       queryClient.refetchQueries({ queryKey: ["active-group-resources"] });
       queryClient.refetchQueries({ queryKey: ["all-groups-resources"] });
       queryClient.refetchQueries({ queryKey: ["loc-only"] });
+      void queryClient.invalidateQueries({ queryKey: WORK_AREA_CONFIG_KEY });
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
@@ -83,6 +87,7 @@ const LocationEditPanel: FC<Props> = ({ locationPanelForm }) => {
       y: Number(y),
       rotation: Number(values.rotation ?? 0),
       map_id: currentMapId,
+      ...waitPointPayload(values.areaType, values),
     });
   }, [currentMapId, locationPanelForm, messageApi, saveMutation, t]);
 
@@ -170,6 +175,8 @@ const LocationEditPanel: FC<Props> = ({ locationPanelForm }) => {
                 <Switch size="small" />
               </Form.Item>
             </Field>
+
+            <WaitPointFields areaType={areaType} />
           </FieldGrid>
         </Form>
 
