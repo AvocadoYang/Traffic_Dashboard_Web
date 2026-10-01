@@ -287,7 +287,11 @@
     "kind_spin": "Spin",
     "spin_title": "Spin in place",
     "spin_at": "Spin at location {{at}}",
-    "desc_spin": "Turns in place without moving or loading"
+    "desc_spin": "Turns in place without moving or loading",
+    "kind_wait_point": "Queue",
+    "wait_point_at": "To wait point {{at}}",
+    "wait_point_title": "To wait point",
+    "desc_wait_point": "The work area is full, so the vehicle is sent to a wait point to queue"
   },
   "maintenance": {
     "update": "update maintenance level",
@@ -2614,7 +2618,8 @@
     "title": "Work Areas",
     "schema_not_ready": "Tables are not created yet. Run yarn pdp in mission-control.",
     "hint": "Put groups that share one aisle into the same work area and set how many vehicles may work inside at once. Vehicles that cannot enter queue at the wait points first.",
-    "not_enforced_yet": "Settings are only stored for now: dispatching does not limit vehicles by work area yet, and does not send vehicles to wait points yet.",
+    "who_queues": "Only transfer-rule missions queue for a work area: the mission waits, and slots are picked once a vehicle is at a wait point and the area has room. WCS, manual and conveyor missions pick slots when they are created as before; they do not queue but they count toward the vehicles inside.",
+    "waiting_off": "ENABLE_MISSION_WAITING_STATUS is off on the backend, so missions cannot be held in a queue and work areas have no effect.",
     "wait_point_hint": "Wait points are set per location under Edit Locations or the location table: pick the work area and the queue order.",
     "no_area": "No work area yet. Click \"Add work area\" to create the first one",
     "add_area": "Add work area",
@@ -2629,7 +2634,22 @@
     "groups_hint": "A group can belong to only one work area",
     "group_in_other_area": "{{name}} (in {{area}})",
     "wait_points": "Wait points",
-    "no_wait_point": "No wait point yet"
+    "no_wait_point": "No wait point yet",
+    "inside": "Inside now",
+    "inside_n": "{{n}} / {{max}}",
+    "inside_mission": "{{amr}}: mission {{mission}}",
+    "inside_idle": "{{amr}}: finished, still parked inside",
+    "no_car_yet": "no vehicle yet",
+    "line": "Wait points now",
+    "point_state": {
+      "FREE": "{{point}}: free",
+      "STANDBY": "{{point}}: {{amr}} standing by",
+      "COMING": "{{point}}: {{amr}} on the way",
+      "BLOCKED": "{{point}}: {{amr}} parked here, cannot be dispatched now",
+      "TOO_CLOSE": "{{point}}: too close to an occupied wait point"
+    },
+    "waiting_missions": "Waiting to enter",
+    "too_close": "These wait points are less than {{gap}} m apart and will not hold vehicles at the same time: {{pairs}}."
   },
   "transfer_rules": {
     "mission_not_dispatched": "Mission {{id}} has not been dispatched yet:",

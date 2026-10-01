@@ -286,7 +286,11 @@
     "kind_spin": "旋轉",
     "spin_title": "原地旋轉",
     "spin_at": "在點位 {{at}} 原地旋轉",
-    "desc_spin": "車輛停在原點轉向，不移動也不取放貨"
+    "desc_spin": "車輛停在原點轉向，不移動也不取放貨",
+    "kind_wait_point": "排隊",
+    "wait_point_at": "前往等待點 {{at}}",
+    "wait_point_title": "前往等待點",
+    "desc_wait_point": "作業區還進不去，先把車派到等待點排隊"
   },
   "maintenance": {
     "update": "更新車輛狀態",
@@ -2615,7 +2619,8 @@
     "title": "作業區",
     "schema_not_ready": "資料表還沒建立，請在 mission-control 執行 yarn pdp。",
     "hint": "共用同一條走道的群組放進同一個作業區，設定區內同時最多幾台車。進不去的車會先到等待點排隊。",
-    "not_enforced_yet": "目前只儲存設定：派車還不會依作業區限制車數，也還不會把車派到等待點。",
+    "who_queues": "只有「區域搬運」的任務會排隊進場：任務先等著，車到了等待點、區內有空位才挑點位。WCS、手動、輸送帶的任務照舊一建立就挑點位，不排隊，但會算進區內車數。",
+    "waiting_off": "後端沒有開啟 ENABLE_MISSION_WAITING_STATUS，任務沒辦法留著排隊，作業區的設定不會生效。",
     "wait_point_hint": "等待點在「編輯點位」或「點位列表」裡，對每個點位個別設定所屬作業區和排隊順序。",
     "no_area": "還沒有作業區，按「新增作業區」建立第一個",
     "add_area": "新增作業區",
@@ -2630,7 +2635,22 @@
     "groups_hint": "一個群組只能屬於一個作業區",
     "group_in_other_area": "{{name}}（已在 {{area}}）",
     "wait_points": "等待點",
-    "no_wait_point": "還沒有等待點"
+    "no_wait_point": "還沒有等待點",
+    "inside": "目前區內",
+    "inside_n": "{{n}} / {{max}} 台",
+    "inside_mission": "{{amr}}：任務 {{mission}}",
+    "inside_idle": "{{amr}}：做完任務還停在區內",
+    "no_car_yet": "還沒派到車",
+    "line": "等待點現況",
+    "point_state": {
+      "FREE": "{{point}}：空的",
+      "STANDBY": "{{point}}：{{amr}} 待命中",
+      "COMING": "{{point}}：{{amr}} 正在開過來",
+      "BLOCKED": "{{point}}：{{amr}} 停在上面，現在不能派",
+      "TOO_CLOSE": "{{point}}：離旁邊有車的等待點太近，停不下"
+    },
+    "waiting_missions": "等進場的任務",
+    "too_close": "這些等待點相距不到 {{gap}} 公尺，不會同時停車：{{pairs}}。"
   },
   "transfer_rules": {
     "mission_not_dispatched": "任務 {{id}} 還沒派出去：",
