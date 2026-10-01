@@ -2758,5 +2758,24 @@
         ]
       }
     }
+  },
+  "records": {
+    "system_alarm": "System alarms",
+    "warning": "Warnings",
+    "alarm": "Alarms",
+    "level": "Level",
+    "message": "Message",
+    "warning_id": "Warning ID",
+    "alarm_id": "Alarm ID",
+    "description": "Description",
+    "time": "Time",
+    "unit": "records",
+    "export_excel": "Export Excel",
+    "delete_all": "Delete all",
+    "delete_all_confirm": "Delete all records? This cannot be undone.",
+    "select_range_first": "Select a date range first",
+    "export_success": "Exported",
+    "export_failed": "Export failed",
+    "empty": "No records"
   }
 }

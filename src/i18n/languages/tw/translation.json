@@ -2759,5 +2759,24 @@
         ]
       }
     }
+  },
+  "records": {
+    "system_alarm": "系統告警",
+    "warning": "警告紀錄",
+    "alarm": "異常紀錄",
+    "level": "等級",
+    "message": "訊息",
+    "warning_id": "警告編號",
+    "alarm_id": "異常編號",
+    "description": "說明",
+    "time": "時間",
+    "unit": "筆",
+    "export_excel": "匯出 Excel",
+    "delete_all": "全部刪除",
+    "delete_all_confirm": "確定刪除全部紀錄？刪除後無法復原",
+    "select_range_first": "請先選擇時間區間",
+    "export_success": "匯出成功",
+    "export_failed": "匯出失敗",
+    "empty": "沒有紀錄"
   }
 }
