@@ -29,12 +29,17 @@ const TYPE_OPTIONS: {
   { value: "MIR_STRIPE_MARKER", label: "Stripe marker" },
 ];
 
-// VL marker 目前只能設給電梯用,之後若有其他裝置類型可以在這裡擴充選項。
-type VlMarkerFor = "ELEVATOR";
+// VL marker、Stripe marker 目前只能設給電梯用,之後若有其他裝置類型可以在這裡擴充選項。
+type MarkerFor = "ELEVATOR";
 
-const VL_MARKER_FOR_OPTIONS: { value: VlMarkerFor; label: string }[] = [
+const MARKER_FOR_OPTIONS: { value: MarkerFor; label: string }[] = [
   { value: "ELEVATOR", label: "Elevator" },
 ];
+
+const MARKER_FOR_CAPABLE_TYPES = new Set<MirAreaType>([
+  "MIR_VL_MARKER",
+  "MIR_STRIPE_MARKER",
+]);
 
 const IP_REGEX =
   /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
@@ -45,7 +50,7 @@ type Pending = {
   y: number;
   orientation: number;
   name: string;
-  markerFor?: VlMarkerFor;
+  markerFor?: MarkerFor;
   ip?: string;
 };
 
@@ -63,10 +68,10 @@ const Toolbar = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const Panel = styled.div`
+const Panel = styled.div<{ $left: number; $top: number }>`
   position: fixed;
-  top: 16px;
-  left: 220px;
+  top: ${(p) => p.$top}px;
+  left: ${(p) => p.$left}px;
   z-index: 30;
   width: 260px;
   background: #ffffff;
@@ -82,7 +87,11 @@ const Panel = styled.div`
 const PanelTitle = styled.div`
   font-weight: 600;
   font-size: 13px;
+  cursor: move;
+  user-select: none;
 `;
+
+const DEFAULT_PANEL_POS = { left: 220, top: 16 };
 
 const FieldLabel = styled.div`
   font-size: 12px;
@@ -163,6 +172,46 @@ const MirStyleLocationPlacer: React.FC<{
   const [pending, setPending] = useState<Pending | null>(null);
   const draggingRef = useRef<"move" | "rotate" | null>(null);
 
+  // 面板(Panel)可能會擋住底下想點擊的地圖點位,所以讓它可以用標題列拖曳移動。
+  const [panelPos, setPanelPos] = useState(DEFAULT_PANEL_POS);
+  const panelDragRef = useRef<{
+    startX: number;
+    startY: number;
+    originLeft: number;
+    originTop: number;
+  } | null>(null);
+
+  const handlePanelTitleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    panelDragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      originLeft: panelPos.left,
+      originTop: panelPos.top,
+    };
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!panelDragRef.current) return;
+      const { startX, startY, originLeft, originTop } = panelDragRef.current;
+      setPanelPos({
+        left: originLeft + (e.clientX - startX),
+        top: originTop + (e.clientY - startY),
+      });
+    };
+    const handleMouseUp = () => {
+      panelDragRef.current = null;
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []);
+
   const saveMutation = useMutation({
     mutationFn: (payload: {
       locationId: string;
@@ -231,6 +280,7 @@ const MirStyleLocationPlacer: React.FC<{
         orientation: 0,
         name: TYPE_OPTIONS.find((t) => t.value === type)?.label ?? "",
       });
+      setPanelPos(DEFAULT_PANEL_POS);
       pendingTypeRef.current = null;
     };
 
@@ -326,7 +376,7 @@ const MirStyleLocationPlacer: React.FC<{
       void messageApi.warning("請輸入名稱");
       return;
     }
-    if (pending.areaType === "MIR_VL_MARKER") {
+    if (MARKER_FOR_CAPABLE_TYPES.has(pending.areaType)) {
       if (!pending.markerFor) {
         void messageApi.warning("請選擇 Marker 用途");
         return;
@@ -354,7 +404,7 @@ const MirStyleLocationPlacer: React.FC<{
       canRotate: true,
       rotation: pending.orientation,
       map_id: currentMapId,
-      ...(pending.areaType === "MIR_VL_MARKER" &&
+      ...(MARKER_FOR_CAPABLE_TYPES.has(pending.areaType) &&
       pending.markerFor === "ELEVATOR"
         ? { ip: pending.ip?.trim() }
         : {}),
@@ -388,8 +438,10 @@ const MirStyleLocationPlacer: React.FC<{
       ) : null}
 
       {pending && activeType ? (
-        <Panel>
-          <PanelTitle>{activeType.label}</PanelTitle>
+        <Panel $left={panelPos.left} $top={panelPos.top}>
+          <PanelTitle onMouseDown={handlePanelTitleMouseDown}>
+            {activeType.label}
+          </PanelTitle>
           <div>
             <FieldLabel>Name</FieldLabel>
             <Input
@@ -425,15 +477,15 @@ const MirStyleLocationPlacer: React.FC<{
               }
             />
           </div>
-          {pending.areaType === "MIR_VL_MARKER" ? (
+          {MARKER_FOR_CAPABLE_TYPES.has(pending.areaType) ? (
             <div>
               <FieldLabel>For</FieldLabel>
               <Select
                 style={{ width: "100%" }}
                 placeholder="Select a device type"
                 value={pending.markerFor}
-                options={VL_MARKER_FOR_OPTIONS}
-                onChange={(v: VlMarkerFor) =>
+                options={MARKER_FOR_OPTIONS}
+                onChange={(v: MarkerFor) =>
                   setPending((prev) =>
                     prev ? { ...prev, markerFor: v } : prev,
                   )
@@ -442,7 +494,7 @@ const MirStyleLocationPlacer: React.FC<{
             </div>
           ) : null}
 
-          {pending.areaType === "MIR_VL_MARKER" &&
+          {MARKER_FOR_CAPABLE_TYPES.has(pending.areaType) &&
           pending.markerFor === "ELEVATOR" ? (
             <div>
               <FieldLabel>IP *</FieldLabel>

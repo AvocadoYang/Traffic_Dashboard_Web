@@ -205,7 +205,8 @@ const LocationListPanel: FC = () => {
       id: editing.id,
       oldLocationId: editing.locationId,
       newLocationId: values.locationId,
-      currentMapId,
+      map_id: currentMapId,
+      currentMapId: currentMapId,
     });
   };
 
@@ -242,7 +243,13 @@ const LocationListPanel: FC = () => {
       width: 120,
       render: (v: string) => <Tag>{locationOption(v)}</Tag>,
     },
-    { title: "IP", dataIndex: "ip", key: "ip", width: 130, render: (v) => v || "—" },
+    {
+      title: "IP",
+      dataIndex: "ip",
+      key: "ip",
+      width: 130,
+      render: (v) => v || "—",
+    },
     {
       title: t("map_manager.map_group"),
       dataIndex: "mapFileName",
