@@ -5,7 +5,6 @@ import {
   MiR_StatusColor,
 } from "@/pages/Main/Car_Card/components/Lists";
 import {
-  MaintenanceLevel,
   useAmrDestination,
   useAmrStatus,
   useBattery,
@@ -205,7 +204,7 @@ const AmrStatusWidgetCard: FC<{
   const { isCharge } = useIsCharging(amrId);
   const { isPause } = useIsPause(amrId);
   const { isPosAccurate } = usePosIsAccurate(amrId);
-  const { status: maintenanceText, level: maintenanceLevel } =
+  const { status: maintenanceText, blocking: maintenanceWarn } =
     useMaintenanceStatus(amrId);
   const [controlOpen, setControlOpen] = useState(false);
 
@@ -261,10 +260,6 @@ const AmrStatusWidgetCard: FC<{
 
   const posAccurate = isMiR ? undefined : isPosAccurate;
   const showJoystick = Boolean(amrId) && isMiR && !editMode;
-  const maintenanceWarn =
-    maintenanceLevel !== undefined &&
-    maintenanceLevel !== MaintenanceLevel.UNKNOWN &&
-    maintenanceLevel !== MaintenanceLevel.NORMAL;
 
   return (
     <>

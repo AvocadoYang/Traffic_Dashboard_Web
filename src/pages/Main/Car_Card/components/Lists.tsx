@@ -22,6 +22,7 @@ import {
   useXY,
   useMaintenanceStatus,
   useSpeed,
+  MaintenanceLevel,
 } from "@/sockets/useAMRInfo";
 import { useTranslation } from "react-i18next";
 import {
@@ -40,6 +41,7 @@ import { useMiRStatus } from "@/sockets/useMirStatus";
 import { useSetAtom } from "jotai";
 import { JoystickAmrId } from "../../global/jotai";
 import MapSwitchModal from "./MapSwitchModal";
+import { MaintenanceBadge } from "./MaintenancePanel";
 import { mq } from "@/styles/responsive";
 
 const GamepadSvg = () => (
@@ -333,6 +335,7 @@ export const CardHeader: React.FC<{
           </AmrNum>
           {compact && <CompactStats amrId={amrId} isOffline={isOverdue} />}
           <HeadActions $compact={compact}>
+            {compact && <MaintenanceBadge amrId={amrId} />}
             {warnCount > 0 && (
               <WarnBtn
                 type="button"
@@ -606,12 +609,18 @@ const RoadRow: React.FC<RowProps> = memo(({ amrId, isOffline }) => {
 });
 
 const MaintenanceRow: React.FC<RowProps> = memo(({ amrId, isOffline }) => {
-  const { status } = useMaintenanceStatus(amrId);
+  const { status, level, blocking } = useMaintenanceStatus(amrId);
   const { t } = useTranslation();
+  const color = !blocking
+    ? undefined
+    : level === MaintenanceLevel.BROKEN
+      ? "var(--c-danger)"
+      : "var(--c-warning)";
   return (
     <TextRow
       label={t("utils.maintenance_level")}
       value={isOffline || !status ? NO_DATA : status}
+      color={color}
     />
   );
 });

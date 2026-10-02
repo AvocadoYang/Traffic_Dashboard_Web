@@ -297,7 +297,10 @@
     "forbidden_wcs_mission": "Cannot accept WCS mission",
     "forbidden_rcs_mission": "Cannot accept traffic control mission",
     "forbidden_user_mission": "Cannot accept user missions",
-    "broken": "The vehicle is damaged"
+    "broken": "The vehicle is damaged",
+    "restore_normal": "Restore to normal",
+    "restore_confirm": "Set the maintenance level back to normal? The vehicle will start accepting missions.",
+    "blocking_hint": "Maintenance level is not normal, so some missions will not be assigned to this vehicle"
   },
   "amr_card": {
     "delete_current_mission": "Delete mission",

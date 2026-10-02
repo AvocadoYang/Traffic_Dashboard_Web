@@ -9,6 +9,7 @@ import "./car_info.css";
 import { useCallback, useMemo, useState } from "react";
 import { Popover, Modal } from "antd";
 import BtnGroup from "./components/BtnGroup";
+import { MaintenanceAlert } from "./components/MaintenancePanel";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   AmrCarSelectFilter,
@@ -181,6 +182,7 @@ const Card: React.FC<{ id: string }> = ({ id }) => {
           />
           {view !== "compact" && (
             <>
+              <MaintenanceAlert amrId={id} />
               <Metrics amrId={id} />
               <InfoRows amrId={id} detailed={view === "detailed"} />
               <CarTag amrId={id} />

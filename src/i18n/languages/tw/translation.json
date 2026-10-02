@@ -296,7 +296,10 @@
     "forbidden_wcs_mission": "不可接WCS任務",
     "forbidden_rcs_mission": "不可接交管任務",
     "forbidden_user_mission": "不可接使用者任務",
-    "broken": "車輛毀損"
+    "broken": "車輛毀損",
+    "restore_normal": "恢復正常",
+    "restore_confirm": "確定把車況改回「正常」嗎？改完這台車就會開始接任務。",
+    "blocking_hint": "車況不是「正常」，這台車有任務接不到"
   },
   "amr_card": {
     "delete_current_mission": "刪除任務",
