@@ -119,6 +119,23 @@ const ForkStepList: FC<Props> = ({ missionId, robotValue, onEditStep }) => {
       <Blank>—</Blank>
     );
 
+  /**
+   * 地點由系統在派任務時才挑的步驟,存下來的 locationId 沒有意義,
+   * 顯示它是怎麼挑的;其他的顯示點位編號。
+   */
+  const locationText = (step: ForkStep): string | number | null => {
+    switch (step.operation?.is_define_id) {
+      case "available_charge_station":
+        return t("mission.task_table.location_charge_station");
+      case "available_standby_point":
+        return t("mission.task_table.location_standby_point");
+      default: {
+        const id = step.operation?.locationId;
+        return id || id === 0 ? id : null;
+      }
+    }
+  };
+
   const columns: TableColumnsType<ForkStep> = [
     { title: "", key: "sort", width: 44, render: () => <DragHandle /> },
     {
@@ -149,11 +166,12 @@ const ForkStepList: FC<Props> = ({ missionId, robotValue, onEditStep }) => {
     },
     {
       title: t("mission.task_table.location"),
-      dataIndex: ["operation", "locationId"],
       key: "locationId",
-      width: 100,
-      render: (id: number) =>
-        id || id === 0 ? <ActionTag>{id}</ActionTag> : <Blank>—</Blank>,
+      width: 170,
+      render: (_, step) => {
+        const text = locationText(step);
+        return text === null ? <Blank>—</Blank> : <ActionTag>{text}</ActionTag>;
+      },
     },
     {
       title: "EXTEND",
@@ -212,11 +230,10 @@ const ForkStepList: FC<Props> = ({ missionId, robotValue, onEditStep }) => {
                       onMove={moveStep}
                     />
                     <span style={{ flex: 1 }} />
-                    {step.operation?.locationId ||
-                    step.operation?.locationId === 0 ? (
+                    {locationText(step) !== null ? (
                       <>
                         <CountNote>{t("mission.task_table.location")}</CountNote>
-                        <ActionTag>{step.operation.locationId}</ActionTag>
+                        <ActionTag>{locationText(step)}</ActionTag>
                       </>
                     ) : null}
                   </IconBar>
