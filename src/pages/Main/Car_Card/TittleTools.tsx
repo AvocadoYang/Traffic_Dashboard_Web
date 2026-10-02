@@ -181,6 +181,7 @@ const UpDownIcon: React.FC<{
 });
 
 const TittleTools: React.FC<{}> = () => {
+  const { t } = useTranslation();
   const isDark = useAtomValue(darkMode);
   // antd 的 token 不能吃 var(),要餵真實色碼,所以這裡直接拿 palette
   const { colors } = useAtomValue(themeAtom);
@@ -234,7 +235,7 @@ const TittleTools: React.FC<{}> = () => {
         }}
       >
         <Flex justify="space-between" align="center">
-          <Title $isDark={isDark}>AMRs</Title>
+          <Title $isDark={isDark}>{t("main.amrs")}</Title>
 
           {hintAmrId.size ? (
             <CloseOutlined
@@ -274,7 +275,7 @@ const TittleTools: React.FC<{}> = () => {
           >
             <Select
               mode="multiple"
-              placeholder="AMR category"
+              placeholder={t("main.amr_category")}
               onChange={handleChange}
               style={{ width: "100%", marginBottom: "20px" }}
               options={selectOption}

@@ -43,11 +43,6 @@ const format = "HH:mm";
 
 const weekArr = Array.from({ length: 7 }, (_v, i) => i + 1);
 
-const weekOptions = weekArr.map((v) => ({
-  label: `星期${v}`,
-  value: v,
-}));
-
 function convertCommaSeparatedToString(commaSeparated: string): string {
   return commaSeparated.split(",").join("");
 }
@@ -60,6 +55,10 @@ const ScheduleForm: FC<{
   setSelectId: Dispatch<SetStateAction<string | null>>;
 }> = ({ form, isModalOpen, setIsModalOpen, selectId, setSelectId }) => {
   const { t } = useTranslation();
+  const weekOptions = weekArr.map((v) => ({
+    label: t("mission.schedule_mission.week_n", { n: v }),
+    value: v,
+  }));
   const [messageApi, contextHolder] = message.useMessage();
   const { data: missionTitle } = useAllMissionTitles();
   const queryClient = useQueryClient();

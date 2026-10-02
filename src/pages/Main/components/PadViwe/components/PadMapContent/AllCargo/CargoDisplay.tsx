@@ -10,6 +10,7 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { FC } from "react";
 import styled, { css } from "styled-components";
 import { Button } from "antd";
+import { useTranslation } from "react-i18next";
 
 const InfoBlock = styled.div`
   position: absolute;
@@ -196,6 +197,7 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
   rotate,
   handleMouseDown,
 }) => {
+  const { t } = useTranslation();
   const [selectMode, setQuickSettingMode] = useAtom(QuickMissionSettingMode);
   const [isStartSelecting, setStartQuickSetting] = useAtom(
     StartQuickMissionSetting,
@@ -270,12 +272,12 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
       </Block>
       <InfoBlock>
         <div>
-          <span className="label">Booker:</span>
-          <span className="value">{booker || "None"}</span>
+          <span className="label">{t("cargo_panel.booker")}</span>
+          <span className="value">{booker || t("utils.none")}</span>
         </div>
         <div>
-          <span className="label">Disable:</span>
-          <span className="value">{isDisable ? "yes" : "none"}</span>
+          <span className="label">{t("cargo_panel.disable_label")}</span>
+          <span className="value">{isDisable ? t("utils.yes") : t("utils.no")}</span>
         </div>
       </InfoBlock>
     </BlockContainer>

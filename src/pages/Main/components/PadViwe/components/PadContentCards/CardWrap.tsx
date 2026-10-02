@@ -127,7 +127,7 @@ const CardWrap: React.FC<{
         }
       >
         {id === "map_3D_view" ? (
-          <p style={{ color: "red" }}>{"開發中...."}</p>
+          <p style={{ color: "red" }}>{t("main.pad_view.developing")}</p>
         ) : (
           []
         )}

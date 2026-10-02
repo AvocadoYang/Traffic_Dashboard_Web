@@ -3,6 +3,7 @@ import { Carousel, Row, Col } from 'antd';
 import styled from 'styled-components';
 import { FireOutlined } from '@ant-design/icons';
 import AnimatedNumber from "react-animated-numbers";
+import { useTranslation } from "react-i18next";
 
 // 假設這是你定義的 Gauge 元件 props
 interface GaugeProps {
@@ -40,12 +41,13 @@ const StyledCarousel = styled(Carousel)`
 `;
 
 const GaugeCarousel: FC = () => {
+  const { t } = useTranslation();
   const groupedGauges = groupBy<GaugeProps>(gaugeItems, 3);
 
   return (
     <Row gutter={[24, 24]}>
       <Col span={18}>
-        <GlassCard title="氣體感測儀表">
+        <GlassCard title={t("sw_monitor.gas_gauges")}>
           <StyledCarousel dots={false}>
             {groupedGauges.map((group, idx) => (
               <Row gutter={[24, 24]} key={`page-${idx}`}>
@@ -60,7 +62,7 @@ const GaugeCarousel: FC = () => {
         </GlassCard>
       </Col>
       <Col span={6}>
-        <GlassCard title="熱源警告次數">
+        <GlassCard title={t("sw_monitor.heat_warning_count")}>
           <div style={{ textAlign: "center" }}>
             <AnimatedNumber
               includeComma

@@ -152,7 +152,7 @@ const InsertFixMissionModal: FC = () => {
           data.end_timestamp &&
           dayjs(data.end_timestamp).isBefore(dayjs(data.timestamp))
         ) {
-          message.warning("End time must be later than start time");
+          message.warning(t("sim.insert_modal.end_after_start"));
           return;
         }
 

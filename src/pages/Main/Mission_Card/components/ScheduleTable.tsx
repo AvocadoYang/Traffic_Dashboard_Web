@@ -280,7 +280,7 @@ const ScheduleTable: FC<{}> = () => {
 
   const columns: TableColumnsType<ScheduleDataType> = [
     {
-      title: "AMR ID",
+      title: t("utils.amr_id"),
       dataIndex: "agv_id",
       key: "agv_id",
       width: 150,
@@ -304,7 +304,7 @@ const ScheduleTable: FC<{}> = () => {
       ),
     },
     {
-      title: "Route",
+      title: t("main.schedule.route"),
       key: "route",
       render: (_value, record: ScheduleDataType) => (
         <RouteInfo $isDark={isDark}>
@@ -316,7 +316,7 @@ const ScheduleTable: FC<{}> = () => {
       ),
     },
     {
-      title: "Start Time",
+      title: t("main.schedule.start_time"),
       dataIndex: "start_time",
       key: "start_time",
       width: 180,
@@ -349,7 +349,7 @@ const ScheduleTable: FC<{}> = () => {
     >
       {contextHolder}
       <StatusHeader $isDark={isDark} $status={scheduleStatus.status}>
-        <StatusText $isDark={isDark}>Schedule System Status</StatusText>
+        <StatusText $isDark={isDark}>{t("main.schedule.system_status")}</StatusText>
         <Badge
           status={scheduleStatus.status === "1" ? "processing" : "error"}
           text={
@@ -363,11 +363,11 @@ const ScheduleTable: FC<{}> = () => {
             >
               {scheduleStatus.status === "1" ? (
                 <>
-                  <CheckCircleOutlined /> ACTIVE
+                  <CheckCircleOutlined /> {t("main.schedule.active")}
                 </>
               ) : (
                 <>
-                  <CloseCircleOutlined /> INACTIVE
+                  <CloseCircleOutlined /> {t("main.schedule.inactive")}
                 </>
               )}
             </span>
@@ -427,7 +427,7 @@ const ScheduleTable: FC<{}> = () => {
           pagination={{
             pageSize: 20,
             showSizeChanger: true,
-            showTotal: (total) => `TOTAL: ${total} SCHEDULES`,
+            showTotal: (total) => t("utils.total", { total }),
           }}
         />
       </IndustrialTableContainer>

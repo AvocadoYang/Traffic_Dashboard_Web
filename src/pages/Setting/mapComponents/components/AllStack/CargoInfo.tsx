@@ -94,7 +94,10 @@ const CargoInfoAtPeripheral: FC<{ form: FormInstance<unknown> }> = ({
               name={`disable`}
               valuePropName="checked"
             >
-              <Switch checkedChildren="On" unCheckedChildren="Off" />
+              <Switch
+                checkedChildren={t("utils.on")}
+                unCheckedChildren={t("utils.off")}
+              />
             </Form.Item>
             <Flex align="center" gap="middle">
               <Button onClick={() => setOpenEditCargoDetailModal()}>

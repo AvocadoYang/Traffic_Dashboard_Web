@@ -71,7 +71,7 @@ const EditStackModal: FC = () => {
 
   const handleSubmit = async () => {
     if (!editStack) {
-      messageApi.warning("the station not found");
+      messageApi.warning(t("utils.station_not_found"));
       return;
     }
 

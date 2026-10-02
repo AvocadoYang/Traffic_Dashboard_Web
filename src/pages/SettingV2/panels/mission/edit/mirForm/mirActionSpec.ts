@@ -81,7 +81,8 @@ export type OptionSource = "locations" | "footprints" | "sounds" | "ioModules";
 type Base = {
   name: string;
   label: string;
-  hint?: string;
+  /** 欄位下方的補充說明,i18n key */
+  hintKey?: string;
   /**
    * docking 的欄位會看「Current position」開關決定顯示哪些。
    * 沒寫就是一直顯示。
@@ -253,7 +254,7 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
       kind: "time",
       name: "wait",
       label: "Wait",
-      hint: "車輛在這裡等多久才繼續下一個動作。",
+      hintKey: "setting_v2.mir.hint.wait",
     },
   ],
 
@@ -266,7 +267,7 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
       name: "sound",
       label: "Sound",
       source: "sounds",
-      hint: "清單是即時向線上的 MiR 車輛查來的,不是本地資料庫那一份。",
+      hintKey: "setting_v2.mir.hint.live_list_not_db",
     },
     {
       kind: "number",
@@ -274,7 +275,7 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
       label: "Volume",
       min: 0,
       max: 100,
-      hint: "100% 大約是 80 dB。",
+      hintKey: "setting_v2.mir.hint.volume",
     },
     {
       kind: "select",
@@ -286,7 +287,7 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
       kind: "duration",
       name: "duration",
       label: "Duration",
-      hint: "只有 Mode 選 Custom 時才有作用,最小單位是秒。",
+      hintKey: "setting_v2.mir.hint.duration",
     },
   ],
 
@@ -321,7 +322,7 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
       label: "Intensity",
       min: 0,
       max: 100,
-      hint: "燈光亮度,0-100。",
+      hintKey: "setting_v2.mir.hint.intensity",
     },
     { kind: "time", name: "timeout", label: "Timeout" },
   ],
@@ -342,7 +343,7 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
       name: "option",
       label: "Option",
       options: POSE_OPTION_OPTIONS,
-      hint: "要求該位置是空的(Free)還是有東西(Occupied),檢查才算通過。",
+      hintKey: "setting_v2.mir.hint.pose_option",
     },
     { kind: "time", name: "timeout", label: "Timeout" },
   ],
@@ -355,7 +356,7 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
       name: "sound",
       label: "Sound",
       source: "sounds",
-      hint: "降低防護區期間要播的警示音。",
+      hintKey: "setting_v2.mir.hint.protective_sound",
     },
     {
       kind: "number",
@@ -375,7 +376,7 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
       name: "module",
       label: "Module",
       source: "ioModules",
-      hint: "清單是即時向線上的 MiR 車輛查來的。",
+      hintKey: "setting_v2.mir.hint.live_list",
     },
     {
       kind: "number",
@@ -383,7 +384,7 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
       label: "Port",
       min: 1,
       max: 4,
-      hint: "要啟動哪一個輸出埠的繼電器(1-4)。",
+      hintKey: "setting_v2.mir.hint.relay_port",
     },
     {
       kind: "select",
@@ -395,7 +396,7 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
       kind: "time",
       name: "timeout",
       label: "Timeout",
-      hint: "繼電器要維持多久。",
+      hintKey: "setting_v2.mir.hint.relay_timeout",
     },
   ],
 
@@ -405,7 +406,7 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
       name: "module",
       label: "Module",
       source: "ioModules",
-      hint: "清單是即時向線上的 MiR 車輛查來的。",
+      hintKey: "setting_v2.mir.hint.live_list",
     },
     { kind: "number", name: "port", label: "Port", min: 1, max: 4 },
     {

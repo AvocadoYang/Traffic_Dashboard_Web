@@ -559,7 +559,10 @@ const UploadMission: FC<UploadMissionProps> = ({
           >
             <TutorialContainer>
               {/* Assumes tutorial.gif is in your /public folder */}
-              <img src="/tutorial_import_misssion.gif" alt="How to upload" />
+              <img
+                src="/tutorial_import_misssion.gif"
+                alt={t("upload.how_to_upload")}
+              />
             </TutorialContainer>
           </Modal>
 

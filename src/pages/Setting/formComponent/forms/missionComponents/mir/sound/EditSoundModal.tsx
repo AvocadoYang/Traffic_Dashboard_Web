@@ -8,6 +8,7 @@ import {
   resolveSoundUrl,
   type SoundRow,
 } from "../../../../../../../api/useSound";
+import { useTranslation } from "react-i18next";
 
 const IntroText = styled.p`
   color: #475467;
@@ -63,6 +64,7 @@ export const EditSoundModal: FC<EditSoundModalProps> = ({
   sound,
   onClose,
 }) => {
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [note, setNote] = useState("");
   const [volume, setVolume] = useState(100);
@@ -95,24 +97,24 @@ export const EditSoundModal: FC<EditSoundModalProps> = ({
       volume: number;
     }) => client.post("api/setting/edit-sound", payload),
     onSuccess: () => {
-      message.success("已儲存");
+      message.success(t("sim.scenario.saved"));
       queryClient.invalidateQueries({ queryKey: ["all-sound"] });
       onClose();
     },
     onError: (err: any) => {
-      message.error(err?.response?.data?.message ?? "儲存失敗");
+      message.error(err?.response?.data?.message ?? t("sim.scenario.save_failed"));
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => client.post("api/setting/delete-sound", { id }),
     onSuccess: () => {
-      message.success("已刪除");
+      message.success(t("sim.scenario.deleted"));
       queryClient.invalidateQueries({ queryKey: ["all-sound"] });
       onClose();
     },
     onError: (err: any) => {
-      message.error(err?.response?.data?.message ?? "刪除失敗");
+      message.error(err?.response?.data?.message ?? t("sim.scenario.delete_failed"));
     },
   });
 
@@ -123,7 +125,7 @@ export const EditSoundModal: FC<EditSoundModalProps> = ({
     mutationFn: (id: string) =>
       client.post("api/setting/play-sound-on-robot", { id }),
     onError: (err: any) => {
-      message.error(err?.response?.data?.message ?? "無法在機器人上播放");
+      message.error(err?.response?.data?.message ?? t("mir.sound.play_on_robot_failed"));
     },
   });
 
@@ -141,7 +143,7 @@ export const EditSoundModal: FC<EditSoundModalProps> = ({
     audioRef.current = audio;
     audio.play().catch((err) => {
       console.error("播放聲音失敗", audio.src, err);
-      message.error("無法播放這個聲音，請打開瀏覽器 Console 看實際錯誤");
+      message.error(t("mir.sound.play_failed"));
       setIsPlaying(false);
     });
     setIsPlaying(true);
@@ -232,7 +234,7 @@ export const EditSoundModal: FC<EditSoundModalProps> = ({
         </Button>
         {!readOnly && (
           <Popconfirm
-            title="確定要刪除這個聲音嗎？"
+            title={t("mir.sound.delete_confirm")}
             onConfirm={() => deleteMutation.mutate(sound.id)}
           >
             <Button danger loading={deleteMutation.isPending}>

@@ -238,8 +238,8 @@ const SettingV2: React.FC = () => {
                         setMapMode(v === "map" ? "full" : "half")
                       }
                       options={[
-                        { value: "panel", label: "面板" },
-                        { value: "map", label: "地圖" },
+                        { value: "panel", label: t("setting_v2.view_panel") },
+                        { value: "map", label: t("setting_v2.view_map") },
                       ]}
                     />
                     {/* 窄螢幕的面板沒有自己的標題列,關閉鈕要放在這裡 */}

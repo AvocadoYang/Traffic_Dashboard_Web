@@ -138,7 +138,10 @@ const LayerForm: FC<{
                   name={`disable${index}`}
                   valuePropName="checked"
                 >
-                  <Switch checkedChildren="On" unCheckedChildren="Off" />
+                  <Switch
+                    checkedChildren={t("utils.on")}
+                    unCheckedChildren={t("utils.off")}
+                  />
                 </Form.Item>
 
                 <Form.Item

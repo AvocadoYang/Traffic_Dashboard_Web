@@ -258,7 +258,7 @@ const BeforeLeftChargeStationPanel: FC = () => {
         </SectionTitle>
 
         {rows.length === 0 ? (
-          <EmptyState>NO CONFIGURATIONS</EmptyState>
+          <EmptyState>{t("setting_v2.empty.configurations")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (
@@ -311,7 +311,7 @@ const BeforeLeftChargeStationPanel: FC = () => {
               scroll={{ x: "max-content" }}
               pagination={{
                 pageSize: 12,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>

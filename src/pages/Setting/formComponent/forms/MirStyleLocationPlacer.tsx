@@ -10,6 +10,7 @@ import { currentMapIdAtom } from "@/utils/mapSelection";
 import { rosCoord2DisplayCoord, rvizCoord } from "@/utils/utils";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
+import { useTranslation } from "react-i18next";
 
 type MirAreaType =
   | "MIR_ROBOT_POSITION"
@@ -165,6 +166,7 @@ const MirStyleLocationPlacer: React.FC<{
   mapImageRef: RefObject<HTMLImageElement>;
   scale: number;
 }> = ({ mapRef, mapImageRef, scale }) => {
+  const { t } = useTranslation();
   const { data: mapData } = useMap();
   const currentMapId = useAtomValue(currentMapIdAtom);
   const queryClient = useQueryClient();
@@ -224,7 +226,7 @@ const MirStyleLocationPlacer: React.FC<{
       ip?: string;
     }) => client.post("api/setting/save-edit-loc", payload),
     onSuccess: () => {
-      void messageApi.success("建立成功");
+      void messageApi.success(t("mir_placer.created"));
       queryClient.refetchQueries({ queryKey: ["map"] });
       queryClient.refetchQueries({ queryKey: ["loc-only"] });
       setPending(null);
@@ -373,27 +375,27 @@ const MirStyleLocationPlacer: React.FC<{
   const create = () => {
     if (!pending) return;
     if (!pending.name.trim()) {
-      void messageApi.warning("請輸入名稱");
+      void messageApi.warning(t("mir_placer.name_required"));
       return;
     }
     if (MARKER_FOR_CAPABLE_TYPES.has(pending.areaType)) {
       if (!pending.markerFor) {
-        void messageApi.warning("請選擇 Marker 用途");
+        void messageApi.warning(t("mir_placer.marker_for_required"));
         return;
       }
       if (pending.markerFor === "ELEVATOR") {
         if (!pending.ip?.trim()) {
-          void messageApi.warning("請輸入 IP");
+          void messageApi.warning(t("mir_placer.ip_required"));
           return;
         }
         if (!IP_REGEX.test(pending.ip.trim())) {
-          void messageApi.warning("IP 格式不正確");
+          void messageApi.warning(t("mir_placer.ip_invalid"));
           return;
         }
       }
     }
     if (!currentMapId) {
-      void messageApi.error("尚未選擇地圖");
+      void messageApi.error(t("mir_placer.no_map"));
       return;
     }
     saveMutation.mutate({
@@ -443,7 +445,7 @@ const MirStyleLocationPlacer: React.FC<{
             {activeType.label}
           </PanelTitle>
           <div>
-            <FieldLabel>Name</FieldLabel>
+            <FieldLabel>{t("utils.name")}</FieldLabel>
             <Input
               value={pending.name}
               onChange={(e) =>
@@ -454,7 +456,7 @@ const MirStyleLocationPlacer: React.FC<{
             />
           </div>
           <div>
-            <FieldLabel>X-coordinate in meters</FieldLabel>
+            <FieldLabel>{t("mir_placer.x_meters")}</FieldLabel>
             <InputNumber
               style={{ width: "100%" }}
               value={pending.x}
@@ -466,7 +468,7 @@ const MirStyleLocationPlacer: React.FC<{
             />
           </div>
           <div>
-            <FieldLabel>Y-coordinate in meters</FieldLabel>
+            <FieldLabel>{t("mir_placer.y_meters")}</FieldLabel>
             <InputNumber
               style={{ width: "100%" }}
               value={pending.y}
@@ -479,10 +481,10 @@ const MirStyleLocationPlacer: React.FC<{
           </div>
           {MARKER_FOR_CAPABLE_TYPES.has(pending.areaType) ? (
             <div>
-              <FieldLabel>For</FieldLabel>
+              <FieldLabel>{t("mir_placer.marker_for")}</FieldLabel>
               <Select
                 style={{ width: "100%" }}
-                placeholder="Select a device type"
+                placeholder={t("mir_placer.select_device_type")}
                 value={pending.markerFor}
                 options={MARKER_FOR_OPTIONS}
                 onChange={(v: MarkerFor) =>
@@ -511,7 +513,7 @@ const MirStyleLocationPlacer: React.FC<{
           ) : null}
 
           <div>
-            <FieldLabel>Orientation from X-axis (deg)</FieldLabel>
+            <FieldLabel>{t("mir_placer.orientation")}</FieldLabel>
             <InputNumber
               style={{ width: "100%" }}
               value={pending.orientation}
@@ -523,13 +525,13 @@ const MirStyleLocationPlacer: React.FC<{
             />
           </div>
           <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <Button onClick={cancel}>Cancel</Button>
+            <Button onClick={cancel}>{t("utils.cancel")}</Button>
             <Button
               type="primary"
               loading={saveMutation.isPending}
               onClick={create}
             >
-              Create
+              {t("utils.create")}
             </Button>
           </div>
         </Panel>

@@ -329,7 +329,7 @@ const RoadListPanel: FC = () => {
         </Toolbar>
 
         {rows.length === 0 ? (
-          <EmptyState>NO ROADS</EmptyState>
+          <EmptyState>{t("setting_v2.empty.roads")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (
@@ -414,7 +414,7 @@ const RoadListPanel: FC = () => {
               pagination={{
                 pageSize: 15,
                 showSizeChanger: true,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
               onRow={(row) => ({
                 onMouseEnter: () => setHoverRoad(row.roadId),

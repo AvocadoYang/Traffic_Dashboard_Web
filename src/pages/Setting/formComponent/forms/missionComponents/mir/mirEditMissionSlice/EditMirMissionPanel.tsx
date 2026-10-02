@@ -93,6 +93,7 @@ import {
 } from "./MirVariableContext";
 import { MIR_ACTION_FIELDS, buildMirOperationFields } from "./mirActionFields";
 import { useMirDockingMarkerType } from "./useMirTaskOptions";
+import { useTranslation } from "react-i18next";
 
 dayjs.extend(customParseFormat);
 
@@ -806,6 +807,7 @@ const ParameterDrawer: FC<{
 const EditMirMissionPanelContent: FC<{
   selectedMissionKey: string;
 }> = ({ selectedMissionKey }) => {
+  const { t } = useTranslation();
   const { data: taskDataSource } = useTaskMir(selectedMissionKey);
   const currentMapId = useAtomValue(currentMapIdAtom);
   const [messageApi, contextHolder] = message.useMessage();
@@ -938,7 +940,7 @@ const EditMirMissionPanelContent: FC<{
       isContainerOperation(target.operation) &&
       slices.some((s) => s.parentClientId === clientId)
     ) {
-      messageApi.warning("這個區塊裡還有任務，請先把裡面的任務拖出來再刪除");
+      messageApi.warning(t("mir.container_not_empty_drag"));
       return;
     }
     setSlices((prev) => prev.filter((s) => s.clientId !== clientId));
@@ -1053,7 +1055,7 @@ const EditMirMissionPanelContent: FC<{
         })),
       }),
     onSuccess: async () => {
-      void messageApi.success("儲存成功");
+      void messageApi.success(t("mir.save_success"));
       await queryClient.refetchQueries({
         queryKey: ["all-relate-task-mir", selectedMissionKey],
       });
@@ -1089,7 +1091,7 @@ const EditMirMissionPanelContent: FC<{
       </Toolbar>
 
       {topLevelSlices.length === 0 ? (
-        <Empty description="還沒有任何動作，從上面選一個分類開始新增" />
+        <Empty description={t("setting_v2.mir.no_actions")} />
       ) : (
         <DndContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
           <SortableContext

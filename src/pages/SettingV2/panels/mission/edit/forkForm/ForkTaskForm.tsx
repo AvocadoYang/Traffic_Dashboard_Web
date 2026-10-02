@@ -62,12 +62,12 @@ const NO_LOCATION_ACTIONS = [
 ];
 
 const PERIPHERAL_ACTIONS = [
-  { label: "使用者確認", value: USER_CONFIRM },
-  { label: "開啟捲門", value: "OPEN_ROLLING_DOOR" },
-  { label: "關閉捲門", value: "CLOSE_ROLLING_DOOR" },
-  { label: "檢查門是否開啟(維修開啟)", value: "READ_ROLLING_DOOR_OPEN" },
-  { label: "檢查門是否關閉(維修關閉)", value: "READ_ROLLING_DOOR_CLOSE" },
-];
+  { labelKey: "user_confirm", value: USER_CONFIRM },
+  { labelKey: "open_rolling_door", value: "OPEN_ROLLING_DOOR" },
+  { labelKey: "close_rolling_door", value: "CLOSE_ROLLING_DOOR" },
+  { labelKey: "read_rolling_door_open", value: "READ_ROLLING_DOOR_OPEN" },
+  { labelKey: "read_rolling_door_close", value: "READ_ROLLING_DOOR_CLOSE" },
+] as const;
 
 /**
  * 設定完不完整的提示。灰黑白之下用「實心深底 = 可以送出、灰底虛線 = 還缺東西」
@@ -364,9 +364,11 @@ const ForkTaskForm: FC<Props> = ({
               </GhostButton>
             </Tooltip>
             <Hint style={{ margin: 0 }}>
-              目前是{showSpecial
-                ? t("mission.task_form_fork.special")
-                : t("mission.task_form_fork.normal")}
+              {t("setting_v2.mission.current_mode", {
+                mode: showSpecial
+                  ? t("mission.task_form_fork.special")
+                  : t("mission.task_form_fork.normal"),
+              })}
             </Hint>
           </Toolbar>
         </Section>
@@ -408,14 +410,19 @@ const ForkTaskForm: FC<Props> = ({
           <Section>
             <SectionTitle>
               <SettingOutlined />
-              設備控制
+              {t("setting_v2.mission.peripheral_control")}
             </SectionTitle>
 
             <Field>
-              <FieldLabel>選擇類別</FieldLabel>
+              <FieldLabel>{t("setting_v2.mission.select_category")}</FieldLabel>
               <Form.Item name="peripheral_action_type" noStyle>
                 <Select
-                  options={PERIPHERAL_ACTIONS}
+                  options={PERIPHERAL_ACTIONS.map(({ labelKey, value }) => ({
+                    label: t(
+                      `mission.task_form_fork.peripheral_action.${labelKey}`,
+                    ),
+                    value,
+                  }))}
                   onChange={setPeripheral}
                   style={{ width: "100%" }}
                 />
@@ -424,7 +431,7 @@ const ForkTaskForm: FC<Props> = ({
 
             {peripheral === USER_CONFIRM && (
               <Field>
-                <FieldLabel>要顯示給操作者的內容</FieldLabel>
+                <FieldLabel>{t("setting_v2.mission.confirm_message")}</FieldLabel>
                 <Form.Item name="peripheral_action_message" noStyle>
                   <Input />
                 </Form.Item>

@@ -158,7 +158,7 @@ const LocationEditPanel: FC<Props> = ({ locationPanelForm }) => {
             </Field>
 
             <Field>
-              <FieldLabel>θ (rotation)</FieldLabel>
+              <FieldLabel>{t("setting_v2.location.rotation")}</FieldLabel>
               <Form.Item name="rotation" noStyle>
                 <InputNumber min={-360} max={360} style={{ width: "100%" }} />
               </Form.Item>
@@ -184,7 +184,7 @@ const LocationEditPanel: FC<Props> = ({ locationPanelForm }) => {
         </Toolbar>
 
         <Hint>
-          在地圖上點一下可直接帶入 X / Y。快捷鍵:Q = ID +1、W = ID -1、E = 儲存。
+          {t("setting_v2.location.edit_hint")}
         </Hint>
       </Section>
     </PanelShell>

@@ -89,7 +89,7 @@ const useScheduleData = (scheduleData: Mission_Schedule[]) => {
         return `${task.timelineMission.amrId} | ${task.timelineMission.normalMissionName || ""}`;
 
       default:
-        return "Unknown mission type";
+        return t("sim.timeline.unknown");
     }
   };
 

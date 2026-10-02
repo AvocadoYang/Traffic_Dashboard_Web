@@ -85,7 +85,7 @@ const SchedulePanel: FC = () => {
   const rows = (data ?? []) as ScheduleRow[];
 
   const weekOptions = Array.from({ length: 7 }, (_v, i) => i + 1).map((v) => ({
-    label: `${t("mission.schedule_mission.week")}${v}`,
+    label: t("mission.schedule_mission.week_n", { n: v }),
     value: v,
   }));
 
@@ -282,11 +282,11 @@ const SchedulePanel: FC = () => {
         </Toolbar>
 
         <Hint>
-          新增會先建立一筆空白排程,再按編輯填入車輛、任務、星期與時間。
+          {t("setting_v2.mission.schedule_hint")}
         </Hint>
 
         {rows.length === 0 ? (
-          <EmptyState>NO SCHEDULES</EmptyState>
+          <EmptyState>{t("setting_v2.empty.schedules")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (
@@ -343,7 +343,7 @@ const SchedulePanel: FC = () => {
               scroll={{ x: "max-content" }}
               pagination={{
                 pageSize: 12,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>

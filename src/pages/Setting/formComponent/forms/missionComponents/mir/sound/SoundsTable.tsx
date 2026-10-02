@@ -12,6 +12,7 @@ import {
   DoubleRightOutlined,
 } from "@ant-design/icons";
 import { useSound, type SoundRow } from "../../../../../../../api/useSound";
+import { useTranslation } from "react-i18next";
 
 /* ------------------------------------------------------------------ */
 /*  Styled components                                                  */
@@ -113,6 +114,7 @@ const PAGE_SIZE = 8;
 export const SoundsTable: FC<{ onSelect: (row: SoundRow) => void }> = ({
   onSelect,
 }) => {
+  const { t } = useTranslation();
   const { data = [], isLoading } = useSound();
   const [search, setSearch] = useState("");
   const [current, setCurrent] = useState(1);
@@ -161,7 +163,7 @@ export const SoundsTable: FC<{ onSelect: (row: SoundRow) => void }> = ({
       dataIndex: "actions",
       align: "right",
       render: (_: unknown, row) => (
-        <Tooltip title={row.created_by === "MiR" ? "檢視" : "編輯"}>
+        <Tooltip title={row.created_by === "MiR" ? t("mir.view") : t("utils.edit")}>
           <ActionButton
             icon={row.created_by === "MiR" ? <EyeOutlined /> : <EditOutlined />}
             onClick={() => onSelect(row)}

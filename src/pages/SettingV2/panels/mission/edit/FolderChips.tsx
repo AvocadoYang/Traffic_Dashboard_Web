@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { FolderOpenOutlined, FolderOutlined } from "@ant-design/icons";
 import useMissionFolder from "@/api/useMissionFolder";
 import { c, font, space, mqNarrow } from "../../../ui/tokens";
+import { useTranslation } from "react-i18next";
 
 const Row = styled.div`
   display: flex;
@@ -59,13 +60,14 @@ type Props = {
 };
 
 const FolderChips: FC<Props> = ({ selected, onSelect }) => {
+  const { t } = useTranslation();
   const { data: folders } = useMissionFolder();
 
   return (
     <Row>
       <Chip type="button" $active={selected === ""} onClick={() => onSelect("")}>
         {selected === "" ? <FolderOpenOutlined /> : <FolderOutlined />}
-        ALL
+        {t("setting_v2.all")}
       </Chip>
 
       {folders?.map((folder) => {

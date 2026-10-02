@@ -147,7 +147,7 @@ const LockByMissionPanel: FC<{
       {contextHolder}
       <div>
         <h3 className="drop_button_style" {...listeners} {...attributes}>
-          任務卡住設定
+          {t("corning.lock_by_mission_title")}
         </h3>
         <FormHr />
 
@@ -234,7 +234,9 @@ const LockByMissionPanel: FC<{
                             style={{ margin: 0 }}
                           >
                             <Checkbox>
-                              <span style={{ fontSize: "14px" }}>卡住鎖定</span>
+                              <span style={{ fontSize: "14px" }}>
+                                {t("corning.lock")}
+                              </span>
                             </Checkbox>
                           </Form.Item>
                         </Flex>
@@ -252,7 +254,7 @@ const LockByMissionPanel: FC<{
                   onClick={onSaveValue}
                   disabled={isLoading}
                 >
-                  儲存設定
+                  {t("corning.save_settings")}
                 </IndustrialButton>
               </Form.Item>
             </Form>

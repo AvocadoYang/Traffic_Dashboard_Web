@@ -219,7 +219,9 @@ const FrameInfo: FC<{ info: ZoneInfo }> = ({ info }) => {
                   new Set(info.tagSetting.forbidden_car as string[]),
                 );
               }}
-            >{`- 查看限制車輛 `}</p>
+            >
+              {t("edit_zone_panel.view_forbidden_amr")}
+            </p>
           )}
         </div>
       ) : (

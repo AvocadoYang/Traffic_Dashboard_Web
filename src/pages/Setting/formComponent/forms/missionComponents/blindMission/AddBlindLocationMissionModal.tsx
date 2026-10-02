@@ -103,7 +103,7 @@ const AddBlindLocationMissionModal: FC<{
     <>
       {contextHolder}
       <Modal
-        title="新增綁定地點"
+        title={t("blind_location.add_title")}
         open={open}
         onOk={handleOk}
         onCancel={handleCancel}
@@ -114,18 +114,18 @@ const AddBlindLocationMissionModal: FC<{
           <IndustrialCard>
             <SectionHeader>
               <SettingOutlined />
-              新增綁定地點
+              {t("blind_location.add_title")}
             </SectionHeader>
 
             <Form.Item
-              label={<FieldLabel>地點</FieldLabel>}
+              label={<FieldLabel>{t("utils.location")}</FieldLabel>}
               name="locationId"
               rules={[{ required: true, message: t("utils.required") }]}
             >
               <Select
                 options={unboundLocationOptions}
                 showSearch
-                placeholder="選擇一個尚未綁定的地點"
+                placeholder={t("blind_location.select_unbound")}
               />
             </Form.Item>
 
@@ -154,7 +154,11 @@ const AddBlindLocationMissionModal: FC<{
                 onSelect={(record) => {
                   form.setFieldValue("missionTitleId", record.id);
                   setPlaceholder(record.name);
-                  void messageApi.success(`Selected mission: ${record.name}`);
+                  void messageApi.success(
+                    t("main.mission_modal.selected_mission", {
+                      name: record.name,
+                    }),
+                  );
                 }}
                 placeholder={placeholder}
               />

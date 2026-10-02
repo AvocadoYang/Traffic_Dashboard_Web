@@ -3,8 +3,10 @@ import { memo } from "react";
 import useMap from "@/api/useMap";
 import { Spin } from "antd";
 import { LoadingOutlined, RobotOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
 
 const MapImage = forwardRef<HTMLImageElement>((_, ref) => {
+  const { t } = useTranslation();
   const { data, isLoading, isError } = useMap();
 
   if (isLoading)
@@ -56,12 +58,9 @@ const MapImage = forwardRef<HTMLImageElement>((_, ref) => {
             className="robot-icon"
             style={{ marginBottom: "20px" }}
           />
-          <h1 className="error-text">Internal Server Error</h1>
-          <h3 className="error-text">Oops! Something went wrong</h3>
-          <h4 className="error-text">
-            The server encountered an internal error or misconfiguration and was
-            unable to complete your request
-          </h4>
+          <h1 className="error-text">{t("utils.server_error.title")}</h1>
+          <h3 className="error-text">{t("utils.server_error.subtitle")}</h3>
+          <h4 className="error-text">{t("utils.server_error.desc")}</h4>
         </div>
       </div>
     );

@@ -4,6 +4,7 @@ import { Mission_Switch } from "../MissionWrap";
 import styled from "styled-components";
 import { useAtomValue } from "jotai";
 import { darkMode } from "@/utils/gloable";
+import { useTranslation } from "react-i18next";
 
 const StyledButton = styled(Button)<{ $isActive: boolean; $isDark: boolean }>`
   font-family: "Roboto Mono", monospace;
@@ -47,6 +48,7 @@ const MissionSwitch: FC<{
   setViewSwitch: Dispatch<SetStateAction<Mission_Switch>>;
   currentView: Mission_Switch;
 }> = ({ setViewSwitch, currentView }) => {
+  const { t } = useTranslation();
   const isDark = useAtomValue(darkMode);
 
   const hSelect = (s: Mission_Switch) => {
@@ -60,14 +62,14 @@ const MissionSwitch: FC<{
         $isDark={isDark}
         onClick={() => hSelect("mission")}
       >
-        Missions
+        {t("utils.missions")}
       </StyledButton>
       <StyledButton
         $isActive={currentView === "schedule"}
         $isDark={isDark}
         onClick={() => hSelect("schedule")}
       >
-        Schedule
+        {t("main.schedule.tab")}
       </StyledButton>
     </Flex>
   );

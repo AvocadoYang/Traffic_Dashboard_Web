@@ -598,7 +598,7 @@ const CycleMissionViewer: FC<{
                   </Tooltip>
                   <Tooltip title={t("mission.cycle_mission.delete_cycle")}>
                     <Popconfirm
-                      title="Sure to delete?"
+                      title={t("utils.delete_warn")}
                       onConfirm={() => handleRemove(cycle.Id)}
                     >
                       <IndustrialButton

@@ -360,7 +360,7 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
               {t("amr_card.update_cargo")}
             </ActionButton>
 
-            <Tooltip title="當編輯完點位路徑時記得按" placement="bottom">
+            <Tooltip title={t("amr_card.update_position_hint")} placement="bottom">
               <ActionButton
                 type="button"
                 onClick={() => updatePositionMutation.mutate()}

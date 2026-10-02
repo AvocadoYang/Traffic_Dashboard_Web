@@ -2,6 +2,7 @@ import { MessageInstance } from "antd/es/message/interface";
 import { ErrorResponse } from "./globalType";
 import { MD5 } from "crypto-js";
 import convert from "color-convert";
+import i18next from "i18next";
 
 export const rosCoord2DisplayCoord = ({
   x,
@@ -100,7 +101,9 @@ export const errorHandler = (e: ErrorResponse, messageApi: MessageInstance) => {
   const errorMessage =
     e?.response?.data?.message ||
     e?.response?.data?.error.message ||
-    "An unknown error occurred";
+    // 這裡不在元件裡,拿不到 useTranslation 的 t;全域 i18next.t 的 key 型別
+    // 又跟 hook 的不一樣,所以收斂成 string
+    (i18next.t as (key: string) => string)("utils.unknown_error");
 
   void messageApi.error(errorMessage, 5);
 };
