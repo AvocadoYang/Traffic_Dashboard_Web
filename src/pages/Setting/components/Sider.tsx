@@ -631,7 +631,7 @@ const Sider: React.FC<{
           />,
         ),
         getItem(
-          "MiR 風格打點",
+          t("setting_v2.nav.mir_placer"),
           "1-3",
           <Switch
             onChange={(checked) => setOpenMirStyleLocationPlacer(checked)}

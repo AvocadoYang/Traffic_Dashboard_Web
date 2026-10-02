@@ -238,12 +238,11 @@ const TagPanel: FC = () => {
         </Toolbar>
 
         <Hint>
-          新增會先建立一筆預設標籤,再按編輯改名稱與顏色。
-          系統預設的四個標籤不能修改或刪除。
+          {t("setting_v2.other.tag_hint")}
         </Hint>
 
         {rows.length === 0 ? (
-          <EmptyState>NO TAGS</EmptyState>
+          <EmptyState>{t("setting_v2.empty.tags")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (
@@ -292,7 +291,7 @@ const TagPanel: FC = () => {
               scroll={{ x: "max-content" }}
               pagination={{
                 pageSize: 15,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>

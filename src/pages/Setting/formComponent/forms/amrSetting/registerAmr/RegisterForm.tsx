@@ -192,7 +192,7 @@ const RegisterForm: FC<{
 
     if (isEdit) {
       if (!editData?.id) {
-        messageApi.error("ID IS MISSING");
+        messageApi.error(t("utils.id_missing"));
         return;
       }
 
@@ -264,12 +264,12 @@ const RegisterForm: FC<{
         <Form.Item
           name="robot_type"
           label={t("setting_amr.register_amr.type")}
-          rules={[{ required: true, message: "REQUIRED FIELD" }]}
+          rules={[{ required: true, message: t("utils.required") }]}
         >
           <Select
             style={{ width: "100%" }}
             options={robotTypeOptions}
-            placeholder="SELECT ROBOT TYPE"
+            placeholder={t("setting_amr.select_robot_type")}
             // 當切換 robot_type 且新值不等於 anfa-mi15-10 時，自動清空表單內的 IP 欄位殘留值
             onChange={(val) => {
               if (val !== "anfa-mi15-10") {
@@ -282,7 +282,7 @@ const RegisterForm: FC<{
         <Form.Item
           name="full_name"
           label={t("setting_amr.register_amr.amr_name")}
-          rules={[{ required: true, message: "REQUIRED FIELD" }]}
+          rules={[{ required: true, message: t("utils.required") }]}
         >
           <InputNumber
             placeholder="002"

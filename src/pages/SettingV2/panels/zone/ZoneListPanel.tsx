@@ -342,7 +342,7 @@ const ZoneListPanel: FC = () => {
         </Toolbar>
 
         {rows.length === 0 ? (
-          <EmptyState>NO ZONES</EmptyState>
+          <EmptyState>{t("setting_v2.empty.zones")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (
@@ -408,7 +408,7 @@ const ZoneListPanel: FC = () => {
               pagination={{
                 pageSize: 15,
                 showSizeChanger: true,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>
@@ -428,25 +428,25 @@ const ZoneListPanel: FC = () => {
         <Form form={editForm} layout="vertical">
           <FieldGrid $cols={2}>
             <Field>
-              <FieldLabel>START X</FieldLabel>
+              <FieldLabel>{t("edit_zone_panel.start_x")}</FieldLabel>
               <Form.Item name="startX" noStyle>
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>
             </Field>
             <Field>
-              <FieldLabel>START Y</FieldLabel>
+              <FieldLabel>{t("edit_zone_panel.start_y")}</FieldLabel>
               <Form.Item name="startY" noStyle>
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>
             </Field>
             <Field>
-              <FieldLabel>END X</FieldLabel>
+              <FieldLabel>{t("edit_zone_panel.end_x")}</FieldLabel>
               <Form.Item name="endX" noStyle>
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>
             </Field>
             <Field>
-              <FieldLabel>END Y</FieldLabel>
+              <FieldLabel>{t("edit_zone_panel.end_y")}</FieldLabel>
               <Form.Item name="endY" noStyle>
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>

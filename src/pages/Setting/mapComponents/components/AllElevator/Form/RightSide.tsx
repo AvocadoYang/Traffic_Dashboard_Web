@@ -82,7 +82,10 @@ const RightSide: FC<{
           name={`disable`}
           valuePropName="checked"
         >
-          <Switch checkedChildren="On" unCheckedChildren="Off" />
+          <Switch
+            checkedChildren={t("utils.on")}
+            unCheckedChildren={t("utils.off")}
+          />
         </Form.Item>
 
         <Form.Item label={t("shelf.load_priority")} name={`loadPriority`}>

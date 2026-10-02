@@ -220,6 +220,7 @@ const LocationListPanel: FC = () => {
       id: editing.id,
       oldLocationId: editing.locationId,
       newLocationId: values.locationId,
+      map_id: currentMapId,
       currentMapId,
       // 點位類型存檔後改不了, 能不能當等待點看的是原本的類型
       ...waitPointPayload(editing.areaType, values),
@@ -346,7 +347,7 @@ const LocationListPanel: FC = () => {
         </Toolbar>
 
         {rows.length === 0 ? (
-          <EmptyState>NO LOCATIONS</EmptyState>
+          <EmptyState>{t("setting_v2.empty.locations")}</EmptyState>
         ) : isNarrow ? (
           // 小螢幕:寬表格改成一列一張卡片,不用左右捲
           <CardList>
@@ -439,7 +440,7 @@ const LocationListPanel: FC = () => {
               pagination={{
                 pageSize: 15,
                 showSizeChanger: true,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
               onRow={(row) => ({
                 onMouseEnter: () => hover(row),
@@ -492,13 +493,13 @@ const LocationListPanel: FC = () => {
               </Form.Item>
             </Field>
             <Field>
-              <FieldLabel>offset X</FieldLabel>
+              <FieldLabel>{t("setting_v2.location.offset_x")}</FieldLabel>
               <Form.Item name="offset_x" noStyle>
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>
             </Field>
             <Field>
-              <FieldLabel>offset Y</FieldLabel>
+              <FieldLabel>{t("setting_v2.location.offset_y")}</FieldLabel>
               <Form.Item name="offset_y" noStyle>
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>

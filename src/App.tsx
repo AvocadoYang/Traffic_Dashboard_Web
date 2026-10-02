@@ -19,6 +19,7 @@ import { SystemAlarmOverlay } from "./pages/Main/components/SystemAlarm";
 import { UserConformOverlay } from "./pages/Main/components/UserConformTaskStep";
 import MissionDispatchBoard from "./pages/MissionDispatchBoard/MissionDispatchBoard";
 import { ThemeVarsProvider, ThemedAppConfigProvider } from "./theme";
+import { useTranslation } from "react-i18next";
 
 const client = new QueryClient({
   defaultOptions: {
@@ -29,6 +30,7 @@ const client = new QueryClient({
 });
 
 function App() {
+  const { t } = useTranslation();
   // const esc = useEcsTransaction();
   // const ecsResp = useEcsTransactionResp();
   // const bar = useBarcodeSignal();
@@ -84,7 +86,7 @@ function App() {
                 ></Route>
                 <Route path="/amr" element={<AmrList />} />
                 <Route path="/amr/:amrId" element={<AmrDetail />} />
-                <Route path="*" element={<h1>Not Found</h1>} />
+                <Route path="*" element={<h1>{t("utils.not_found")}</h1>} />
               </Route>
             </Routes>
           </BrowserRouter>

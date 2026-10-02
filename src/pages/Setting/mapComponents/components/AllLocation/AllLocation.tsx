@@ -1,8 +1,8 @@
 import useMap from "@/api/useMap";
 import { nanoid } from "nanoid";
-import { FC, memo, useCallback, useMemo } from "react";
+import { FC, memo, useCallback } from "react";
 import { useAtomValue, useSetAtom } from "jotai";
-import { locationHoverInfo, tooltipProp } from "@/utils/gloable";
+import { nearbyLocationIdSet, tooltipProp } from "@/utils/gloable";
 import { draggableLineInitialPoint } from "@/pages/Setting/hooks/hook";
 import { Point, DraggableLine } from "./components/PointAndLine";
 import {
@@ -34,13 +34,8 @@ const AllLocation: FC<{
   const quickRoad = useAtomValue(IsEditingQuickRoads);
   const setQuickRoadArr = useSetAtom(QuickRoadsArray);
   const setOpenLDM = useSetAtom(LDM);
-  const hoverInfo = useAtomValue(locationHoverInfo);
-
   // 游標附近(偵測半徑內)的點位 id 集合，用來讓這些點稍微放大，方便使用者辨識與點擊。
-  const nearbyLocationIds = useMemo(
-    () => new Set(hoverInfo?.locationIds ?? []),
-    [hoverInfo],
-  );
+  const nearbyLocationIds = useAtomValue(nearbyLocationIdSet);
 
   const handleQuickRoad = (locationId: string) => {
     if (!quickRoad) return;

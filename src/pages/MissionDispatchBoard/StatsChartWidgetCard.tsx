@@ -156,7 +156,10 @@ const StatsChartWidgetCard: FC<{
     }
 
     if (result.chartType === "pie") {
-      const series = toPieSeries(result.data);
+      const series = toPieSeries(
+        result.data,
+        t("mission_dispatch_board.stats_other"),
+      );
       return (
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>

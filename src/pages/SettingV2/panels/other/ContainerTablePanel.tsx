@@ -151,10 +151,10 @@ const ContainerTablePanel: FC = () => {
           </GhostButton>
         </Toolbar>
 
-        <Hint>滑過清單上的點位,地圖會標出它的位置。展開可看完整貨物資訊。</Hint>
+        <Hint>{t("setting_v2.other.container_hint")}</Hint>
 
         {rows.length === 0 ? (
-          <EmptyState>NO LOCATIONS</EmptyState>
+          <EmptyState>{t("setting_v2.empty.locations")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => {
@@ -222,7 +222,7 @@ const ContainerTablePanel: FC = () => {
               pagination={{
                 pageSize: 15,
                 showSizeChanger: true,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>

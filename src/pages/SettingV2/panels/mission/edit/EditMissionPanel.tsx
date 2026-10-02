@@ -264,7 +264,7 @@ const EditMissionPanel: FC = () => {
         </Toolbar>
 
         {rows.length === 0 ? (
-          <EmptyState>NO MISSIONS</EmptyState>
+          <EmptyState>{t("setting_v2.empty.missions")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (
@@ -317,7 +317,7 @@ const EditMissionPanel: FC = () => {
               pagination={{
                 pageSize: 15,
                 showSizeChanger: true,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>

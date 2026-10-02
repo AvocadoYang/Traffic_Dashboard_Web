@@ -695,7 +695,8 @@ const MissionTable = () => {
           pagination={{
             pageSize: 20,
             showSizeChanger: true,
-            showTotal: (total) => `TOTAL: ${total} MISSIONS`,
+            showTotal: (total) =>
+              t("main.mission_modal.total_missions", { count: total }),
           }}
         />
       </IndustrialTableContainer>

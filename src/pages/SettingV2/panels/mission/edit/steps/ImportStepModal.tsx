@@ -89,7 +89,9 @@ const ImportStepModal: FC<Props> = ({
       destroyOnHidden
     >
       <Hint style={{ marginBottom: 12 }}>
-        {`會把選到的任務的所有步驟,整串插在第 ${target?.afterOrder ?? 0} 個位置。只列得出同車型的任務。`}
+        {t("setting_v2.mission.import_hint", {
+          order: target?.afterOrder ?? 0,
+        })}
       </Hint>
 
       <Field>
@@ -104,7 +106,7 @@ const ImportStepModal: FC<Props> = ({
             filterOption: (input, option) =>
               (option?.label ?? "").toLowerCase().includes(input.toLowerCase()),
           }}
-          notFoundContent={<Hint>沒有同車型的任務可以引入</Hint>}
+          notFoundContent={<Hint>{t("setting_v2.mission.import_empty")}</Hint>}
         />
       </Field>
     </Modal>

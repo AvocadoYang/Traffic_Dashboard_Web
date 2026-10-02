@@ -317,7 +317,7 @@ const IdleMissionTable: FC = () => {
       key: "idleMin",
       width: 120,
       render: (_v: unknown, record: DataType) => {
-        return <TimeValue>{record.idleMin} min</TimeValue>;
+        return <TimeValue>{record.idleMin} {t("charge.unit_min")}</TimeValue>;
       },
     },
     {
@@ -364,7 +364,7 @@ const IdleMissionTable: FC = () => {
       },
     },
     {
-      title: "Actions",
+      title: t("utils.action"),
       width: 280,
       dataIndex: "operation",
       key: "operation",
@@ -378,7 +378,7 @@ const IdleMissionTable: FC = () => {
                 icon={<CloseCircleOutlined />}
                 size="small"
               >
-                Stop
+                {t("utils.stop")}
               </IndustrialButton>
             ) : (
               <IndustrialButton
@@ -387,23 +387,23 @@ const IdleMissionTable: FC = () => {
                 icon={<PlayCircleOutlined />}
                 size="small"
               >
-                Start
+                {t("utils.start")}
               </IndustrialButton>
             )}
 
             <Popconfirm
-              title="Delete idle mission?"
-              description="Are you sure you want to delete this idle mission?"
+              title={t("confirm.delete_idle_mission")}
+              description={t("confirm.delete_idle_mission_desc")}
               onConfirm={() => handleDelete(record.id)}
-              okText="Yes"
-              cancelText="No"
+              okText={t("utils.yes")}
+              cancelText={t("utils.no")}
             >
               <IndustrialButton
                 className="delete-btn"
                 icon={<DeleteOutlined />}
                 size="small"
               >
-                Delete
+                {t("utils.delete")}
               </IndustrialButton>
             </Popconfirm>
           </Flex>
@@ -428,7 +428,7 @@ const IdleMissionTable: FC = () => {
           pageSize: 10,
           showTotal: (total, range) => (
             <span style={{ fontFamily: "Roboto Mono, monospace" }}>
-              {range[0]}-{range[1]} of {total}
+              {range[0]}-{range[1]} {t("utils.of")} {total}
             </span>
           ),
         }}

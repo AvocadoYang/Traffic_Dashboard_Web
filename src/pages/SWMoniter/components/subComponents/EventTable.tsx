@@ -1,6 +1,7 @@
 import { AlertOutlined, SafetyOutlined, ExperimentOutlined, HeatMapOutlined } from "@ant-design/icons";
 import { Button, Card, Space, Table } from "antd";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 
 const GlassCard = styled(Card)`
@@ -58,24 +59,25 @@ const allRecords = [
   ];
 
 
-const columns = [
-    { title: "時間", dataIndex: "time", key: "time", width: 150   },
-    { title: "地點", dataIndex: "location", key: "location",width: 150 },
-    { title: "事件", dataIndex: "event", key: "event" },
-  ];
   
 
 const EventTable = () => {
+    const { t } = useTranslation();
     const [filterType, setFilterType] = useState("全部");
+    const columns = [
+      { title: t("sw_monitor.col_time"), dataIndex: "time", key: "time", width: 150 },
+      { title: t("sw_monitor.col_location"), dataIndex: "location", key: "location", width: 150 },
+      { title: t("sw_monitor.col_event"), dataIndex: "event", key: "event" },
+    ];
     const filteredData = filterType === "全部" ? allRecords : allRecords.filter(item => item.type === filterType);
     return (
       <div style={{ width: "100%", height: "75%", padding: "10px"}}>
 
         <Space wrap size={"small"}>
-            <Button icon={<AlertOutlined />} onClick={() => setFilterType("全部")}>全部</Button>
-            <Button icon={<SafetyOutlined />} onClick={() => setFilterType("安全帽")}>安全帽</Button>
-            <Button icon={<ExperimentOutlined />} onClick={() => setFilterType("氣體")}>氣體</Button>
-            <Button icon={<HeatMapOutlined />} onClick={() => setFilterType("熱源")}>熱源</Button>
+            <Button icon={<AlertOutlined />} onClick={() => setFilterType("全部")}>{t("sw_monitor.filter_all")}</Button>
+            <Button icon={<SafetyOutlined />} onClick={() => setFilterType("安全帽")}>{t("sw_monitor.type_helmet")}</Button>
+            <Button icon={<ExperimentOutlined />} onClick={() => setFilterType("氣體")}>{t("sw_monitor.type_gas")}</Button>
+            <Button icon={<HeatMapOutlined />} onClick={() => setFilterType("熱源")}>{t("sw_monitor.type_heat")}</Button>
         </Space>
           <ScrollableTableWrapper>
             <Table

@@ -3,6 +3,7 @@ import { Input, Popover, Switch } from "antd";
 import React, { FC, ReactNode, useState } from "react";
 import styled from "styled-components";
 import { useMirVariableField } from "./MirVariableContext";
+import { useTranslation } from "react-i18next";
 
 const IndustrialCard = styled.div`
   background: #ffffff;
@@ -107,6 +108,7 @@ const ParameterCard: FC<{
   // 設成變數時顯示在變數 chip 下面，例如變數的預設值
   variableChildren?: ReactNode;
 }> = ({ fieldName, label, children, variableChildren }) => {
+  const { t } = useTranslation();
   const { enabled, name, setVariable } = useMirVariableField(fieldName);
   const [popoverOpen, setPopoverOpen] = useState(false);
 
@@ -138,7 +140,7 @@ const ParameterCard: FC<{
         <>
           <VariableChip onClick={() => setPopoverOpen(true)}>
             <SettingOutlined />
-            {name || "(未命名變數)"}
+            {name || t("setting_v2.mir.unnamed_variable")}
           </VariableChip>
           {variableChildren}
         </>

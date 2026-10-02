@@ -332,7 +332,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                 }
                 name={[...fieldName, "tilt"]}
                 rules={[
-                  { required: true, message: "REQUIRED FIELD" },
+                  { required: true, message: t("utils.required") },
                   {
                     type: "number",
                     min: -6,
@@ -373,7 +373,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                   </FieldLabel>
                 }
                 name={[...fieldName, "pallet_detection", "modify_dis"]}
-                rules={[{ required: true, message: "REQUIRED FIELD" }]}
+                rules={[{ required: true, message: t("utils.required") }]}
               >
                 <InputNumber
                   step={0.1}
@@ -399,7 +399,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                   <FieldLabel className="required">Goal Height (mm)</FieldLabel>
                 }
                 name={[...fieldName, "pallet_detection", "goal"]}
-                rules={[{ required: true, message: "REQUIRED FIELD" }]}
+                rules={[{ required: true, message: t("utils.required") }]}
               >
                 <InputNumber
                   min={0}
@@ -425,7 +425,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                   <FieldLabel className="required">TX Value (mm)</FieldLabel>
                 }
                 name={[...fieldName, "shelf_detection", "tx"]}
-                rules={[{ required: true, message: "REQUIRED FIELD" }]}
+                rules={[{ required: true, message: t("utils.required") }]}
               >
                 <InputNumber
                   min={0}
@@ -443,7 +443,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                   </FieldLabel>
                 }
                 name={[...fieldName, "shelf_detection", "X_VALID_RANGE"]}
-                rules={[{ required: true, message: "REQUIRED FIELD" }]}
+                rules={[{ required: true, message: t("utils.required") }]}
               >
                 <InputNumber
                   min={0}
@@ -460,7 +460,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                   </FieldLabel>
                 }
                 name={[...fieldName, "shelf_detection", "Y_VALID_RANGE"]}
-                rules={[{ required: true, message: "REQUIRED FIELD" }]}
+                rules={[{ required: true, message: t("utils.required") }]}
               >
                 <InputNumber
                   min={0}
@@ -486,7 +486,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                   <FieldLabel className="required">Height Mode</FieldLabel>
                 }
                 name={[...fieldName, "fork_height", "is_define_height"]}
-                rules={[{ required: true, message: "REQUIRED FIELD" }]}
+                rules={[{ required: true, message: t("utils.required") }]}
               >
                 <IndustrialSegmented
                   options={[
@@ -519,7 +519,9 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                           </FieldLabel>
                         }
                         name={[...fieldName, "fork_height", "height"]}
-                        rules={[{ required: true, message: "REQUIRED FIELD" }]}
+                        rules={[
+                          { required: true, message: t("utils.required") },
+                        ]}
                         extra={t("mission.task_form_fork.custom_extra")}
                       >
                         <InputNumber
@@ -544,7 +546,9 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                           </FieldLabel>
                         }
                         name={[...fieldName, "fork_height", "add_height"]}
-                        rules={[{ required: true, message: "REQUIRED FIELD" }]}
+                        rules={[
+                          { required: true, message: t("utils.required") },
+                        ]}
                         extra={t("mission.task_form_fork.stack_add_extra")}
                       >
                         <InputNumber
@@ -696,7 +700,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
               <Form.Item
                 label={<FieldLabel className="required">Clamp Mode</FieldLabel>}
                 name={[...fieldName, "clamp", "is_define_clamp"]}
-                rules={[{ required: true, message: "REQUIRED FIELD" }]}
+                rules={[{ required: true, message: t("utils.required") }]}
               >
                 <IndustrialSegmented
                   options={[
@@ -726,7 +730,9 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                           </FieldLabel>
                         }
                         name={[...fieldName, "clamp", "height"]}
-                        rules={[{ required: true, message: "REQUIRED FIELD" }]}
+                        rules={[
+                          { required: true, message: t("utils.required") },
+                        ]}
                       >
                         <InputNumber
                           min={0}
@@ -749,7 +755,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                           }
                           name={[...fieldName, "clamp"]}
                           rules={[
-                            { required: true, message: "REQUIRED FIELD" },
+                            { required: true, message: t("utils.required") },
                           ]}
                         >
                           <InputNumber
@@ -790,7 +796,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                   </FieldLabel>
                 }
                 name={[...fieldName, "baffle"]}
-                rules={[{ required: true, message: "REQUIRED FIELD" }]}
+                rules={[{ required: true, message: t("utils.required") }]}
               >
                 <InputNumber
                   min={1}
@@ -816,7 +822,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                   <FieldLabel className="required">fork shift (mm)</FieldLabel>
                 }
                 name={[...fieldName, "fork_shift"]}
-                rules={[{ required: true, message: "REQUIRED FIELD" }]}
+                rules={[{ required: true, message: t("utils.required") }]}
               >
                 <InputNumber
                   min={1}
@@ -844,7 +850,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                   </FieldLabel>
                 }
                 name={[...fieldName, "straight_backward"]}
-                rules={[{ required: true, message: "REQUIRED FIELD" }]}
+                rules={[{ required: true, message: t("utils.required") }]}
               >
                 <Select
                   showSearch={{
@@ -873,7 +879,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
               <Form.Item
                 label={<FieldLabel className="required">rotate</FieldLabel>}
                 name={[...fieldName, "rotate"]}
-                rules={[{ required: true, message: "REQUIRED FIELD" }]}
+                rules={[{ required: true, message: t("utils.required") }]}
               >
                 <InputNumber
                   placeholder="Enter number"
@@ -899,7 +905,7 @@ const DynamicControlFields: FC<DynamicControlFieldsProps> = ({
                   </FieldLabel>
                 }
                 name={[...fieldName, "check_cargo_height"]}
-                rules={[{ required: true, message: "REQUIRED FIELD" }]}
+                rules={[{ required: true, message: t("utils.required") }]}
               >
                 <InputNumber
                   placeholder="Enter number"

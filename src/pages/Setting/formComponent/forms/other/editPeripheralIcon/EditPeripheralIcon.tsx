@@ -411,7 +411,7 @@ const EditPeripheralIcon: FC<{
             onClick={() => handleEdit(record.locationId)}
             size="small"
           >
-            Edit
+            {t("utils.edit")}
           </IndustrialButton>
         );
       },
@@ -425,7 +425,7 @@ const EditPeripheralIcon: FC<{
       render: (value: number) => <LocationBadge>{value}</LocationBadge>,
     },
     {
-      title: "Name",
+      title: t("utils.name"),
       dataIndex: "name",
       key: "name",
       ellipsis: true,
@@ -526,7 +526,7 @@ const EditPeripheralIcon: FC<{
           <ToolbarSection>
             <IndustrialInput
               prefix={<SearchOutlined />}
-              placeholder="Search location ID or name"
+              placeholder={t("other.edit_peripheral_style.search_placeholder")}
               allowClear
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -543,7 +543,7 @@ const EditPeripheralIcon: FC<{
 
             <IndustrialSelect
               allowClear
-              placeholder="Filter by type"
+              placeholder={t("other.edit_peripheral_style.filter_type")}
               onChange={(value) => onChangeAreaType(value)}
               options={uniqueAreaTypes.map((type) => ({
                 label: type,
@@ -569,7 +569,7 @@ const EditPeripheralIcon: FC<{
               pageSize: 20,
               showTotal: (total, range) => (
                 <span style={{ fontFamily: "Roboto Mono, monospace" }}>
-                  {range[0]}-{range[1]} of {total}
+                  {range[0]}-{range[1]} {t("utils.of")} {total}
                 </span>
               ),
               showSizeChanger: true,
@@ -582,7 +582,7 @@ const EditPeripheralIcon: FC<{
 
       {openDrawer && (
         <IndustrialDrawer
-          title="Bulk Edit Peripheral Styles"
+          title={t("other.edit_peripheral_style.bulk_title")}
           placement="right"
           onClose={onclose}
           open={openDrawer}

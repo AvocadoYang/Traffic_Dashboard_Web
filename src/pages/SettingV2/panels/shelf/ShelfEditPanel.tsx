@@ -262,7 +262,7 @@ const ShelfEditPanel: FC = () => {
             <FormatPainterOutlined />
             {t("edit_shelf_panel.edit_position")}
           </SectionTitle>
-          <Hint>調整會即時反映在地圖上,按儲存才會寫回後端。</Hint>
+          <Hint>{t("setting_v2.shelf.edit_hint")}</Hint>
           <SettingCargoStyleForm
             selectId={styleLocId}
             cancelEditStyle={() => setStyleLocId(null)}
@@ -349,7 +349,7 @@ const ShelfEditPanel: FC = () => {
         </Toolbar>
 
         {rows.length === 0 ? (
-          <EmptyState>NO SHELVES</EmptyState>
+          <EmptyState>{t("setting_v2.empty.shelves")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => {
@@ -418,7 +418,7 @@ const ShelfEditPanel: FC = () => {
               pagination={{
                 pageSize: 12,
                 showSizeChanger: true,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>

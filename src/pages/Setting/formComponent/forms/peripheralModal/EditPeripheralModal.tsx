@@ -76,7 +76,7 @@ const EditPeripheralModal: FC = () => {
 
   const handleSubmit = async () => {
     if (!openModal) {
-      messageApi.warning("the station not found");
+      messageApi.warning(t("utils.station_not_found"));
       return;
     }
 

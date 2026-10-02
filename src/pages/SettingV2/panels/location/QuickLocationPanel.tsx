@@ -323,7 +323,7 @@ const QuickLocationPanel: FC = () => {
           </SolidButton>
         </Toolbar>
 
-        <Hint>在地圖上點一下可帶入起點 X / Y,系統會依格數與間距自動展開成多個點位。</Hint>
+        <Hint>{t("setting_v2.location.quick_hint")}</Hint>
       </Section>
     </PanelShell>
   );

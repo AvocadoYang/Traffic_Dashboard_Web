@@ -219,7 +219,10 @@ const EditChargeStationConfigModal = () => {
                 name="disable"
                 valuePropName="checked"
               >
-                <Switch checkedChildren="On" unCheckedChildren="Off" />
+                <Switch
+                  checkedChildren={t("utils.on")}
+                  unCheckedChildren={t("utils.off")}
+                />
               </Form.Item>
 
               <Form.Item label={t("charge.model.station_id")} name="stationId">
@@ -250,23 +253,30 @@ const EditChargeStationConfigModal = () => {
                 <Input />
               </Form.Item>
 
-              <Form.Item label="允許使用此充電站的 AMR" name="amrIds">
+              <Form.Item
+                label={t("charge.station_config.allowed_amr")}
+                name="amrIds"
+              >
                 <Select
                   mode="multiple"
                   options={AmrOption}
-                  placeholder="選擇可以使用這個充電座的 AMR"
+                  placeholder={t(
+                    "charge.station_config.allowed_amr_placeholder",
+                  )}
                   allowClear
                 />
               </Form.Item>
 
               <Form.Item
-                label="靠近充電站的偵測點位"
+                label={t("charge.station_config.near_points")}
                 name="nearPointLocationIds"
               >
                 <Select
                   mode="multiple"
                   options={locationOptions}
-                  placeholder="選擇靠近這個充電座的偵測點位"
+                  placeholder={t(
+                    "charge.station_config.near_points_placeholder",
+                  )}
                   allowClear
                 />
               </Form.Item>

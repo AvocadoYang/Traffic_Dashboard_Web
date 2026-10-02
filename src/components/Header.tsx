@@ -560,7 +560,7 @@ const Header: React.FC = () => {
         </CompactBar>
 
         <IndustrialDrawer
-          title="Navigation"
+          title={t("header.navigation")}
           placement="left"
           onClose={() => setDrawerOpen(false)}
           open={drawerOpen}
@@ -605,7 +605,7 @@ const Header: React.FC = () => {
             {script?.isSimulate ? (
               <SimulationStatus>
                 <ClockCircleOutlined />
-                <StatusLabel>SIM TIME</StatusLabel>
+                <StatusLabel>{t("header.sim_time")}</StatusLabel>
                 <SimTime></SimTime>
               </SimulationStatus>
             ) : null}
@@ -617,7 +617,7 @@ const Header: React.FC = () => {
                   onClick={handleAbortSim}
                   icon={<PoweroffOutlined />}
                 >
-                  STOP SIM
+                  {t("header.stop_sim")}
                 </ControlButton>
               </Tooltip>
             ) : (
@@ -630,7 +630,7 @@ const Header: React.FC = () => {
                     </svg>
                   }
                 >
-                  SIMULATE
+                  {t("header.simulate")}
                 </ControlButton>
               </Tooltip>
             )}

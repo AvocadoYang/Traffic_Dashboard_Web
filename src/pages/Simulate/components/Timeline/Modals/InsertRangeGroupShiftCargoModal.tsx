@@ -66,12 +66,12 @@ const InsertRangeGroupShiftCargoModal: FC = () => {
         payload
       ),
     onSuccess: () => {
-      messageApi.success("Shift cargo group added successfully!");
+      messageApi.success(t("sim.shift_cargo_group.success_shift"));
       handleClose();
     },
     onError: (err: any) => {
       console.error(err);
-      messageApi.error("Failed to add shift cargo group.");
+      messageApi.error(t("sim.shift_cargo_group.failed_shift"));
     },
   });
 
@@ -80,7 +80,7 @@ const InsertRangeGroupShiftCargoModal: FC = () => {
       .validateFields()
       .then((values) => {
         if (dayjs(values.end_timestamp).isBefore(dayjs(values.timestamp))) {
-          messageApi.warning("End time must be after start time.");
+          messageApi.warning(t("sim.insert_modal.end_after_start"));
           return;
         }
         const { isShiftAll, ...otherValues } = values;
@@ -92,7 +92,7 @@ const InsertRangeGroupShiftCargoModal: FC = () => {
           end_timestamp: values.end_timestamp.format("HH:mm"),
         });
       })
-      .catch(() => messageApi.error("Please fix validation errors."));
+      .catch(() => messageApi.error(t("sim.insert_modal.validation_error")));
   };
 
   return (
@@ -168,7 +168,7 @@ const InsertRangeGroupShiftCargoModal: FC = () => {
 
           <Form.Item>
             <Button type="primary" onClick={save}>
-              Submit
+              {t("utils.submit")}
             </Button>
           </Form.Item>
         </Form>

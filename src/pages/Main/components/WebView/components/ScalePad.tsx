@@ -148,11 +148,11 @@ const ScalePad = () => {
       if (res.status === "success") {
         setScale(res.response.scale);
       } else {
-        void messageApi.error("無法排除 聯絡FAE工程師");
+        void messageApi.error(t("utils.contact_fae"));
       }
     },
     onError: () => {
-      void messageApi.error("無法排除 聯絡FAE工程師");
+      void messageApi.error(t("utils.contact_fae"));
     },
   });
 
@@ -199,7 +199,7 @@ const ScalePad = () => {
             <MinimizeButton
               icon={<CloseOutlined />}
               onClick={() => set$isMinimized(true)}
-              title="Minimize Scale Controls"
+              title={t("scale_pad.minimize")}
             />
           </ContentWrapper>
         </ScalePadWrap>

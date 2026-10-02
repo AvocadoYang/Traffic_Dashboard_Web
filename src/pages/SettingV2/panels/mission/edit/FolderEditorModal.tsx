@@ -213,7 +213,9 @@ const FolderEditorModal: FC<Props> = ({ open, onClose }) => {
       <FieldLabel>{t("folder_editor.existing_folders")}</FieldLabel>
 
       {rows.length === 0 ? (
-        <EmptyState style={{ marginTop: 8 }}>NO FOLDERS</EmptyState>
+        <EmptyState style={{ marginTop: 8 }}>
+          {t("setting_v2.empty.folders")}
+        </EmptyState>
       ) : (
         <TableWrap style={{ marginTop: 8 }}>
           <Table<FolderRow>

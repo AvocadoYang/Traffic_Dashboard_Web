@@ -179,14 +179,14 @@ const ForkStepList: FC<Props> = ({ missionId, robotValue, onEditStep }) => {
 
       {steps.length === 0 ? (
         <EmptyState>
-          還沒有任何步驟。按上面的「新增步驟」開始,或用「引入任務」把別的任務整串複製過來。
+          {t("setting_v2.mission.no_steps")}
         </EmptyState>
       ) : (
         <>
           <Toolbar>
             <CountNote>{`${steps.length} STEPS`}</CountNote>
             <Hint style={{ margin: 0 }}>
-              {isNarrow ? "用上下箭頭調整順序" : "拖左側把手調整順序"}
+              {isNarrow ? t("setting_v2.mission.reorder_arrows") : t("setting_v2.mission.reorder_drag")}
             </Hint>
           </Toolbar>
 

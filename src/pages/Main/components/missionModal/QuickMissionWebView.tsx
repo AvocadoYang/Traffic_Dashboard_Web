@@ -649,19 +649,19 @@ const QuickMissionWebView: React.FC<{
               {getStatus() === "ready" && (
                 <>
                   <CheckCircleOutlined />
-                  [OK] LOCATIONS CONFIGURED
+                  {t("main.quick_mission.status_ok")}
                 </>
               )}
               {getStatus() === "selecting" && (
                 <>
                   <WarningOutlined />
-                  [ACTIVE] SELECTING LOCATION
+                  {t("main.quick_mission.status_selecting")}
                 </>
               )}
               {getStatus() === "idle" && (
                 <>
                   <WarningOutlined />
-                  [STANDBY] AWAITING CONFIGURATION
+                  {t("main.quick_mission.status_standby")}
                 </>
               )}
             </StatusIndicator>
@@ -744,7 +744,7 @@ const QuickMissionWebView: React.FC<{
                           textTransform: "uppercase",
                         }}
                       >
-                        Click to select
+                        {t("main.quick_mission.click_to_select")}
                       </div>
                     )}
                     {!loadValue && (
@@ -791,7 +791,7 @@ const QuickMissionWebView: React.FC<{
                           textTransform: "uppercase",
                         }}
                       >
-                        Click to select
+                        {t("main.quick_mission.click_to_select")}
                       </div>
                     )}
                     {!offloadValue && (

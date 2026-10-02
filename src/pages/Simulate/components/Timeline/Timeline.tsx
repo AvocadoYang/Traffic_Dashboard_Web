@@ -444,7 +444,7 @@ const Timeline: FC = () => {
     }
     const target = scheduleData.find((v) => v.time === selectTime);
     if (!target) {
-      message.error("can not found mission data!!");
+      message.error(t("sim.timeline.mission_not_found"));
       return;
     }
     setEditTask(target);
@@ -543,21 +543,21 @@ const Timeline: FC = () => {
       >
         <FixItemWrapper scrollLeft={scrollLeft}>
           <BtnWrapper>
-            <Tooltip title="add mission event">
+            <Tooltip title={t("sim.timeline.tip_add_mission")}>
               <AddSchedule onClick={directAddSchedule}>
                 <PlusOutlined />
                 {t("sim.timeline.add_mission")}
               </AddSchedule>
             </Tooltip>
 
-            <Tooltip title="add shift cargo event">
+            <Tooltip title={t("sim.timeline.tip_add_shift_cargo")}>
               <AddShiftCargoSchedule onClick={directShiftSchedule}>
                 <PlusOutlined />
                 {t("sim.timeline.add_shift_cargo")}
               </AddShiftCargoSchedule>
             </Tooltip>
 
-            <Tooltip title="add spawn cargo event">
+            <Tooltip title={t("sim.timeline.tip_add_spawn_cargo")}>
               <AddSpawnCargoSchedule onClick={directSpawnCargoSchedule}>
                 <PlusOutlined />
                 {t("sim.timeline.add_spawn_cargo")}
