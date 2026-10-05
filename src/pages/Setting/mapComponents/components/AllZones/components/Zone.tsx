@@ -79,6 +79,11 @@ const FrameName = styled.div.attrs<{
   font-size: 1em;
   box-sizing: border-box;
   position: absolute;
+
+  /* 深色主題配原圖(白底)時,主題的淺色字在白底上看不到 */
+  [data-theme-mode="dark"][data-map-canvas="light"] & {
+    color: #1c1c1c;
+  }
 `;
 
 const Zone: FC<{ id: string; info: ZoneInfo; scale: number }> = ({

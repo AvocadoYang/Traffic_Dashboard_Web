@@ -2630,6 +2630,15 @@
       "neon": "Neon",
       "blueprint": "Blueprint",
       "contrast": "High contrast"
+    },
+    "map_image": {
+      "title": "Map image",
+      "hint": "Whether the map image (the scanned map or floor plan) follows the colour theme. This only changes how it is displayed; the uploaded file is not modified and you can switch back at any time.",
+      "themed": "Follow theme",
+      "themed_desc": "Blank areas take the theme's background colour; walls and obstacles take its line colour. Dark themes show a dark map with light lines.",
+      "original": "Original",
+      "original_desc": "Shows the uploaded image as it is: white background, black lines.",
+      "mono_note": "The Mono theme already uses the original image colours, so both options look the same right now."
     }
   },
   "conveyor_dispatch": {

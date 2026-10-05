@@ -51,6 +51,11 @@ const CargoOverflow = styled.span`
   line-height: 1;
   font-weight: 600;
   color: #7a6800;
+
+  /* 底圖跟著深色主題變深時,暗黃的字看不到 */
+  [data-map-canvas="dark"] & {
+    color: #ffe73c;
+  }
 `;
 
 const SvgStyle = styled.svg<{

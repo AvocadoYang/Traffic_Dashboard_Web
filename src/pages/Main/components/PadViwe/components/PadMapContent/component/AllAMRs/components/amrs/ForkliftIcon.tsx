@@ -54,6 +54,12 @@ const SquareBody = styled.div.attrs<{
   border: "1px solid gray";
   border: ${(p) => `1px solid ${p.color}`};
   cursor: pointer;
+
+  /* 車子的代表色有深有淺,底圖跟著深色主題變深時,深色的車會跟底圖糊在一起,
+     所以補一圈淺色的外框 */
+  [data-map-canvas="dark"] & {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.7);
+  }
 `;
 
 const ForkliftBody = styled.div.attrs<{
@@ -79,6 +85,12 @@ const ForkliftBody = styled.div.attrs<{
   border: "1px solid gray";
   border: ${(p) => `1px solid ${p.color}`};
   cursor: pointer;
+
+  /* 車子的代表色有深有淺,底圖跟著深色主題變深時,深色的車會跟底圖糊在一起,
+     所以補一圈淺色的外框 */
+  [data-map-canvas="dark"] & {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.7);
+  }
 `;
 
 const Cargo = styled.div`
@@ -151,6 +163,10 @@ const ForkArm = styled.div`
   position: absolute;
   bottom: -11px; // 與車身接點
   border-radius: 1px;
+
+  [data-map-canvas="dark"] & {
+    background: #d9d9d9;
+  }
 `;
 
 const LeftFork = styled(ForkArm)`

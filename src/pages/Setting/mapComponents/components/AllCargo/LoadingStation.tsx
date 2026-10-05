@@ -16,6 +16,26 @@ export const LoadingStation = styled.div`
   background-repeat: no-repeat;
   animation: l23 1s infinite steps(12);
 
+  /* 底圖跟著深色主題變深時改成白的 */
+  [data-map-canvas="dark"] & {
+    background:
+      linear-gradient(
+          0deg,
+          rgb(255 255 255/50%) 30%,
+          #0000 0 70%,
+          rgb(255 255 255/100%) 0
+        )
+        50%/8% 100%,
+      linear-gradient(
+          90deg,
+          rgb(255 255 255/25%) 30%,
+          #0000 0 70%,
+          rgb(255 255 255/75%) 0
+        )
+        50%/100% 8%;
+    background-repeat: no-repeat;
+  }
+
   ::before,
   ::after {
     content: "";

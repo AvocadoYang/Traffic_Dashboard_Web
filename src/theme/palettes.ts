@@ -61,9 +61,10 @@ export type PaletteColors = {
   /**
    * 地圖圖層:畫在地圖底圖上面的東西(路線、點位、電梯 / 堆疊 / 貨架…)。
    *
-   * 底圖是客戶給的平面圖,不管選哪一套主題都是白底,所以這一組跟上面的面板色
-   * 不一樣——就算是深色主題,這裡也要挑「畫在白底上看得清楚」的顏色,只帶主題的
-   * 色相,不能直接拿深色主題那些很亮的強調色來用(亮黃、亮青在白底上幾乎看不到)。
+   * 這一組是給「底圖顯示原圖」用的。原圖(掃出來的 PNG / 客戶的平面圖)是白底,
+   * 所以就算是深色主題,這裡也要挑「畫在白底上看得清楚」的顏色,只帶主題的色相,
+   * 不能直接拿深色主題那些很亮的強調色來用(亮黃、亮青在白底上幾乎看不到)。
+   * 底圖選「跟著主題」時,深色主題的底圖會變深,要換用的那一組寫在 Theme.mapCanvas.colors。
    *
    * 有貨的黃、被預約的綠、手動的紅這些狀態色不在這裡,它們不跟主題走。
    */
@@ -105,12 +106,49 @@ export type ThemeId =
   | "blueprint"
   | "contrast";
 
+/** PaletteColors 裡畫在地圖底圖上的那一組 */
+export type MapColors = Pick<
+  PaletteColors,
+  | "mapRoad"
+  | "mapRoadPriority"
+  | "mapRoadArrow"
+  | "mapPoint"
+  | "mapPointRotate"
+  | "mapDevice"
+  | "mapDeviceBorder"
+  | "mapCell"
+  | "mapCellHover"
+  | "mapCellText"
+>;
+
+/**
+ * 底圖的顯示方式(使用者在外觀面板選):
+ *   themed   —— 把底圖重新上色,跟著主題走(預設)
+ *   original —— 原圖,一個像素都不動
+ */
+export type MapImageMode = "themed" | "original";
+
+/** 底圖選「跟著主題」時,這套主題要把底圖變成什麼樣子 */
+export type MapCanvas = {
+  /** 底圖上的白(掃完圖那一大片空白)要變成的顏色 */
+  paper: string;
+  /** 底圖上的黑(牆、障礙物)要變成的顏色。中間的灰階會落在 paper 跟 ink 之間 */
+  ink: string;
+  /**
+   * 底圖重新上色之後,畫在上面的地圖色要換掉哪些。
+   * 淺色主題的底圖還是淺的,不用換;深色主題的底圖變深了,colors 裡那組
+   * 給白底用的顏色會看不到,所以要另外給一整組。
+   */
+  colors?: MapColors;
+};
+
 export type Theme = {
   id: ThemeId;
   /** i18n key,見 translation.json 的 appearance.themes */
   labelKey: string;
   mode: ThemeMode;
   colors: PaletteColors;
+  mapCanvas: MapCanvas;
 };
 
 /**
@@ -735,22 +773,217 @@ const contrast: PaletteColors = {
   mapCellText: "#000000",
 };
 
+// ── 底圖跟著主題時,深色主題畫在(變深的)底圖上的地圖色 ──
+// 底圖深了,所以這裡可以直接用主題那些亮的強調色;點位、外框、字都要是淺色。
+
+const midnightOnDarkMap: MapColors = {
+  mapRoad: "#5b8cf0",
+  mapRoadPriority: "#f0a04b",
+  mapRoadArrow: "#f5c98f",
+  mapPoint: "#dfe6f5",
+  mapPointRotate: "#f06fe6",
+  mapDevice: "#6b7483",
+  mapDeviceBorder: "#9aa6bd",
+  mapCell: "rgba(91, 140, 240, 0.1)",
+  mapCellHover: "rgba(91, 140, 240, 0.28)",
+  mapCellText: "#e6e9ee",
+};
+
+const oceanOnDarkMap: MapColors = {
+  mapRoad: "#2ec4b6",
+  mapRoadPriority: "#f59e5b",
+  mapRoadArrow: "#f8c79d",
+  mapPoint: "#d9f1f5",
+  mapPointRotate: "#f07ad8",
+  mapDevice: "#5f8797",
+  mapDeviceBorder: "#8fb8c6",
+  mapCell: "rgba(46, 196, 182, 0.1)",
+  mapCellHover: "rgba(46, 196, 182, 0.28)",
+  mapCellText: "#e3f2f7",
+};
+
+const emberOnDarkMap: MapColors = {
+  mapRoad: "#f08a3c",
+  mapRoadPriority: "#4fb3f0",
+  mapRoadArrow: "#a5d6f5",
+  mapPoint: "#f5e6da",
+  mapPointRotate: "#e87ae0",
+  mapDevice: "#8c786b",
+  mapDeviceBorder: "#c2a999",
+  mapCell: "rgba(240, 138, 60, 0.1)",
+  mapCellHover: "rgba(240, 138, 60, 0.28)",
+  mapCellText: "#f3e9e2",
+};
+
+const terminalOnDarkMap: MapColors = {
+  mapRoad: "#33d17a",
+  mapRoadPriority: "#e6c229",
+  mapRoadArrow: "#f0db7e",
+  mapPoint: "#c8f7d0",
+  mapPointRotate: "#f07ad8",
+  mapDevice: "#4f8a5e",
+  mapDeviceBorder: "#86c995",
+  mapCell: "rgba(51, 209, 122, 0.1)",
+  mapCellHover: "rgba(51, 209, 122, 0.26)",
+  mapCellText: "#c8f7d0",
+};
+
+const neonOnDarkMap: MapColors = {
+  mapRoad: "#ff4fa3",
+  mapRoadPriority: "#22d3ee",
+  mapRoadArrow: "#8be8f5",
+  mapPoint: "#f0e9ff",
+  mapPointRotate: "#b18cff",
+  mapDevice: "#7d6aa8",
+  mapDeviceBorder: "#b9a9dc",
+  mapCell: "rgba(255, 79, 163, 0.1)",
+  mapCellHover: "rgba(255, 79, 163, 0.28)",
+  mapCellText: "#f0e9ff",
+};
+
+const blueprintOnDarkMap: MapColors = {
+  mapRoad: "#a8cdf2",
+  mapRoadPriority: "#ffd166",
+  mapRoadArrow: "#ffe3a1",
+  mapPoint: "#f2f7fc",
+  mapPointRotate: "#ff9bd6",
+  mapDevice: "#5f8fc0",
+  mapDeviceBorder: "#9dbcda",
+  mapCell: "rgba(255, 255, 255, 0.08)",
+  mapCellHover: "rgba(255, 255, 255, 0.22)",
+  mapCellText: "#f2f7fc",
+};
+
+const contrastOnDarkMap: MapColors = {
+  mapRoad: "#00b7ff",
+  mapRoadPriority: "#ff8c1a",
+  mapRoadArrow: "#ff8c1a",
+  mapPoint: "#ffffff",
+  mapPointRotate: "#ff5cff",
+  mapDevice: "#8c8c8c",
+  mapDeviceBorder: "#ffffff",
+  mapCell: "rgba(255, 255, 255, 0.08)",
+  mapCellHover: "rgba(255, 212, 0, 0.35)",
+  mapCellText: "#ffffff",
+};
+
 // 排列順序就是外觀面板上卡片的順序:先淺色、再深色,越後面越特別。
 export const themes: Theme[] = [
-  { id: "mono", labelKey: "appearance.themes.mono", mode: "light", colors: mono },
-  { id: "indigo", labelKey: "appearance.themes.indigo", mode: "light", colors: indigo },
-  { id: "teal", labelKey: "appearance.themes.teal", mode: "light", colors: teal },
-  { id: "sand", labelKey: "appearance.themes.sand", mode: "light", colors: sand },
-  { id: "sakura", labelKey: "appearance.themes.sakura", mode: "light", colors: sakura },
-  { id: "matcha", labelKey: "appearance.themes.matcha", mode: "light", colors: matcha },
-  { id: "lavender", labelKey: "appearance.themes.lavender", mode: "light", colors: lavender },
-  { id: "midnight", labelKey: "appearance.themes.midnight", mode: "dark", colors: midnight },
-  { id: "ocean", labelKey: "appearance.themes.ocean", mode: "dark", colors: ocean },
-  { id: "ember", labelKey: "appearance.themes.ember", mode: "dark", colors: ember },
-  { id: "terminal", labelKey: "appearance.themes.terminal", mode: "dark", colors: terminal },
-  { id: "neon", labelKey: "appearance.themes.neon", mode: "dark", colors: neon },
-  { id: "blueprint", labelKey: "appearance.themes.blueprint", mode: "dark", colors: blueprint },
-  { id: "contrast", labelKey: "appearance.themes.contrast", mode: "dark", colors: contrast },
+  {
+    id: "mono",
+    labelKey: "appearance.themes.mono",
+    mode: "light",
+    colors: mono,
+    // 灰階不動底圖:白還是白、黑還是黑
+    mapCanvas: { paper: "#ffffff", ink: "#000000" },
+  },
+  {
+    id: "indigo",
+    labelKey: "appearance.themes.indigo",
+    mode: "light",
+    colors: indigo,
+    mapCanvas: { paper: indigo.bgSubtle, ink: indigo.text },
+  },
+  {
+    id: "teal",
+    labelKey: "appearance.themes.teal",
+    mode: "light",
+    colors: teal,
+    mapCanvas: { paper: teal.bgSubtle, ink: teal.text },
+  },
+  {
+    id: "sand",
+    labelKey: "appearance.themes.sand",
+    mode: "light",
+    colors: sand,
+    mapCanvas: { paper: sand.bgSubtle, ink: sand.text },
+  },
+  {
+    id: "sakura",
+    labelKey: "appearance.themes.sakura",
+    mode: "light",
+    colors: sakura,
+    mapCanvas: { paper: sakura.bgSubtle, ink: sakura.text },
+  },
+  {
+    id: "matcha",
+    labelKey: "appearance.themes.matcha",
+    mode: "light",
+    colors: matcha,
+    mapCanvas: { paper: matcha.bgSubtle, ink: matcha.text },
+  },
+  {
+    id: "lavender",
+    labelKey: "appearance.themes.lavender",
+    mode: "light",
+    colors: lavender,
+    mapCanvas: { paper: lavender.bgSubtle, ink: lavender.text },
+  },
+  {
+    id: "midnight",
+    labelKey: "appearance.themes.midnight",
+    mode: "dark",
+    colors: midnight,
+    mapCanvas: {
+      paper: midnight.bg,
+      ink: midnight.text,
+      colors: midnightOnDarkMap,
+    },
+  },
+  {
+    id: "ocean",
+    labelKey: "appearance.themes.ocean",
+    mode: "dark",
+    colors: ocean,
+    mapCanvas: { paper: ocean.bg, ink: ocean.text, colors: oceanOnDarkMap },
+  },
+  {
+    id: "ember",
+    labelKey: "appearance.themes.ember",
+    mode: "dark",
+    colors: ember,
+    mapCanvas: { paper: ember.bg, ink: ember.text, colors: emberOnDarkMap },
+  },
+  {
+    id: "terminal",
+    labelKey: "appearance.themes.terminal",
+    mode: "dark",
+    colors: terminal,
+    mapCanvas: {
+      paper: terminal.bg,
+      ink: terminal.text,
+      colors: terminalOnDarkMap,
+    },
+  },
+  {
+    id: "neon",
+    labelKey: "appearance.themes.neon",
+    mode: "dark",
+    colors: neon,
+    mapCanvas: { paper: neon.bg, ink: neon.text, colors: neonOnDarkMap },
+  },
+  {
+    id: "blueprint",
+    labelKey: "appearance.themes.blueprint",
+    mode: "dark",
+    colors: blueprint,
+    mapCanvas: {
+      paper: blueprint.bg,
+      ink: blueprint.text,
+      colors: blueprintOnDarkMap,
+    },
+  },
+  {
+    id: "contrast",
+    labelKey: "appearance.themes.contrast",
+    mode: "dark",
+    colors: contrast,
+    mapCanvas: {
+      paper: contrast.bg,
+      ink: contrast.text,
+      colors: contrastOnDarkMap,
+    },
+  },
 ];
 
 export const DEFAULT_THEME_ID: ThemeId = "mono";
@@ -760,6 +993,27 @@ export const getTheme = (id: string | null | undefined): Theme =>
   themes.find((theme) => theme.id === DEFAULT_THEME_ID)!;
 
 export const colorKeys = Object.keys(mono) as (keyof PaletteColors)[];
+
+export const DEFAULT_MAP_IMAGE_MODE: MapImageMode = "themed";
+
+/** 原圖:白就是白、黑就是黑 */
+const ORIGINAL_MAP_CANVAS = { paper: "#ffffff", ink: "#000000" };
+
+/** 目前底圖的白 / 黑實際上是什麼顏色 */
+export const getMapCanvas = (
+  theme: Theme,
+  mapImage: MapImageMode,
+): { paper: string; ink: string } =>
+  mapImage === "themed" ? theme.mapCanvas : ORIGINAL_MAP_CANVAS;
+
+/** 這套主題在目前的底圖顯示方式下,實際要用的顏色 */
+export const resolveColors = (
+  theme: Theme,
+  mapImage: MapImageMode,
+): PaletteColors =>
+  mapImage === "themed" && theme.mapCanvas.colors
+    ? { ...theme.colors, ...theme.mapCanvas.colors }
+    : theme.colors;
 
 /** bgSubtle -> --c-bg-subtle */
 export const cssVarName = (key: keyof PaletteColors): string =>

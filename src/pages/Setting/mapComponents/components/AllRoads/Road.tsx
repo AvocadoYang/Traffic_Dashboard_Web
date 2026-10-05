@@ -76,6 +76,21 @@ const Line = styled.div.attrs<{
 
   cursor: pointer;
 
+  /* 被車佔用的路線用的是那台車的代表色,有深有淺。底圖跟著深色主題變深時,
+     深色的會看不到,所以補一點淺色的光暈。
+     (「祖先 &」的區塊裡不能直接寫跟 props 有關的值,先存成變數再取。) */
+  --claimed-glow: ${({ $isClaimed }) =>
+    $isClaimed ? "0 0 2px rgba(255, 255, 255, 0.85)" : "none"};
+
+  [data-map-canvas="dark"] & {
+    box-shadow: var(--claimed-glow);
+  }
+
+  /* 深色主題配原圖(白底)時,❶ 這種標記不能用主題的淺色字 */
+  [data-theme-mode="dark"][data-map-canvas="light"] & {
+    color: #1c1c1c;
+  }
+
   :hover {
     height: 6px;
   }
