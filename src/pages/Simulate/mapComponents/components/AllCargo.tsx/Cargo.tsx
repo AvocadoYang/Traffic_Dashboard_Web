@@ -19,7 +19,7 @@ const Wrapper = styled.div<WrapperType>`
   gap: 0.35px;
   border-radius: 1px;
   transform: ${(props) =>
-    `translate(${props.translatex}em, ${props.translatey}em) scale(${props.scale}) rotate(${props.rotate}deg)`};
+    `translate(${props.translatex}em, ${props.translatey}em) scale(${props.scale}) rotate(${-props.rotate}deg)`};
 `;
 
 const MemoizedCargo = memo(CargoDisplay, (prevProps, nextProps) => {
