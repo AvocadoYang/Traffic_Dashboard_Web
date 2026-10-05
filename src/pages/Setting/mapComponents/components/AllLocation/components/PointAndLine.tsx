@@ -118,7 +118,9 @@ const PointDiv = styled.div.attrs<{
   height: ${(p) => (p.isNear ? "6px" : "4px")};
   border-radius: 50%;
   background: ${(props) =>
-    props.canrotate === "true" ? "#ff15fb" : "#0d0d12"};
+    props.canrotate === "true"
+      ? "var(--c-map-point-rotate)"
+      : "var(--c-map-point)"};
   position: absolute;
   cursor: pointer;
   left: ${(p) => p.left}px;
@@ -164,7 +166,9 @@ const PointMainDiv = styled.div.attrs<{
   height: ${(p) => (p.isNear ? "5px" : "3px")};
   border-radius: 50%;
   background: ${(props) =>
-    props.canrotate === "true" ? "#ff15fb" : "#0d0d12"};
+    props.canrotate === "true"
+      ? "var(--c-map-point-rotate)"
+      : "var(--c-map-point)"};
   position: absolute;
   cursor: pointer;
   left: ${(p) => p.left}px;

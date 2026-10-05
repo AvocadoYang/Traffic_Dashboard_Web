@@ -20,7 +20,7 @@ const SvgStyle = styled.svg<{}>`
   transition: all 0.2s ease;
 
   fill: #076aff;
-  border: 1px dashed #727272;
+  border: 1px dashed var(--c-map-device-border);
   box-shadow: none;
 
   &:hover {

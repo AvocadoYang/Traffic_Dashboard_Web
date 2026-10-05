@@ -57,6 +57,36 @@ export type PaletteColors = {
   headerAccent: string;
   /** Header 導覽項目 hover / active 的淡底 */
   headerAccentSoft: string;
+
+  /**
+   * 地圖圖層:畫在地圖底圖上面的東西(路線、點位、電梯 / 堆疊 / 貨架…)。
+   *
+   * 底圖是客戶給的平面圖,不管選哪一套主題都是白底,所以這一組跟上面的面板色
+   * 不一樣——就算是深色主題,這裡也要挑「畫在白底上看得清楚」的顏色,只帶主題的
+   * 色相,不能直接拿深色主題那些很亮的強調色來用(亮黃、亮青在白底上幾乎看不到)。
+   *
+   * 有貨的黃、被預約的綠、手動的紅這些狀態色不在這裡,它們不跟主題走。
+   */
+  /** 一般路線 */
+  mapRoad: string;
+  /** 優先路線(priority 1),也是滑到路線上時的顏色。要跟 mapRoad 一眼分得開 */
+  mapRoadPriority: string;
+  /** 單行道中間的箭頭 */
+  mapRoadArrow: string;
+  /** 一般點位 */
+  mapPoint: string;
+  /** 可以原地旋轉的點位 */
+  mapPointRotate: string;
+  /** 設備沒貨 / 沒動作時的本體色(電梯、輸送帶的圖示,堆疊的底色) */
+  mapDevice: string;
+  /** 設備與貨架格子的外框 */
+  mapDeviceBorder: string;
+  /** 貨架空格的底色。半透明,底下的平面圖要透得出來 */
+  mapCell: string;
+  /** 滑到貨架空格 / 設備上的底色 */
+  mapCellHover: string;
+  /** 貨架空格上的字 */
+  mapCellText: string;
 };
 
 export type ThemeId =
@@ -117,6 +147,17 @@ const mono: PaletteColors = {
   headerBorder: "#d9d9d9",
   headerAccent: "#1890ff",
   headerAccentSoft: "rgba(24, 144, 255, 0.08)",
+
+  mapRoad: "#02ddff",
+  mapRoadPriority: "#ff9646",
+  mapRoadArrow: "#f0c381",
+  mapPoint: "#0d0d12",
+  mapPointRotate: "#ff15fb",
+  mapDevice: "#999999",
+  mapDeviceBorder: "#727272",
+  mapCell: "#f5f5f580",
+  mapCellHover: "#e8e8e8b3",
+  mapCellText: "#333333",
 };
 
 /** 靛藍:最接近一般後台的觀感,底色帶一點冷灰,強調色是藍。 */
@@ -150,6 +191,17 @@ const indigo: PaletteColors = {
   headerBorder: "#c6d2e8",
   headerAccent: "#2f5bd0",
   headerAccentSoft: "rgba(47, 91, 208, 0.10)",
+
+  mapRoad: "#4a78e6",
+  mapRoadPriority: "#f2913d",
+  mapRoadArrow: "#f4bd7c",
+  mapPoint: "#1f3fa8",
+  mapPointRotate: "#d43fd9",
+  mapDevice: "#8f9db9",
+  mapDeviceBorder: "#4f6cb8",
+  mapCell: "rgba(220, 229, 248, 0.55)",
+  mapCellHover: "rgba(196, 211, 244, 0.8)",
+  mapCellText: "#1b2536",
 };
 
 /** 青綠:低彩度的冷色,長時間盯著比藍色不刺眼。 */
@@ -183,6 +235,17 @@ const teal: PaletteColors = {
   headerBorder: "#bedcd4",
   headerAccent: "#11776a",
   headerAccentSoft: "rgba(17, 119, 106, 0.10)",
+
+  mapRoad: "#17a392",
+  mapRoadPriority: "#ef8a3c",
+  mapRoadArrow: "#f3bb82",
+  mapPoint: "#0c5c52",
+  mapPointRotate: "#c64bd6",
+  mapDevice: "#8caaa2",
+  mapDeviceBorder: "#3d8a7c",
+  mapCell: "rgba(215, 238, 232, 0.55)",
+  mapCellHover: "rgba(187, 226, 216, 0.8)",
+  mapCellText: "#16302a",
 };
 
 /** 暖砂:米白底 + 棕橘強調色,整體最「不像黑白」的一套。 */
@@ -216,6 +279,17 @@ const sand: PaletteColors = {
   headerBorder: "#dcccb0",
   headerAccent: "#a0571c",
   headerAccentSoft: "rgba(160, 87, 28, 0.10)",
+
+  mapRoad: "#c27a2c",
+  mapRoadPriority: "#2491ab",
+  mapRoadArrow: "#8cc7d6",
+  mapPoint: "#83450f",
+  mapPointRotate: "#b545c9",
+  mapDevice: "#ab9c84",
+  mapDeviceBorder: "#9a7340",
+  mapCell: "rgba(242, 229, 208, 0.55)",
+  mapCellHover: "rgba(234, 213, 181, 0.8)",
+  mapCellText: "#322a1e",
 };
 
 /**
@@ -252,6 +326,17 @@ const midnight: PaletteColors = {
   headerBorder: "#3a414b",
   headerAccent: "#5b8cf0",
   headerAccentSoft: "rgba(91, 140, 240, 0.16)",
+
+  mapRoad: "#4f82ee",
+  mapRoadPriority: "#e58b2f",
+  mapRoadArrow: "#f0bb7e",
+  mapPoint: "#2449ac",
+  mapPointRotate: "#cf4be0",
+  mapDevice: "#7c8594",
+  mapDeviceBorder: "#48608f",
+  mapCell: "rgba(214, 223, 240, 0.55)",
+  mapCellHover: "rgba(186, 201, 230, 0.8)",
+  mapCellText: "#17191d",
 };
 
 /** 櫻花:帶粉的白底 + 玫瑰紅強調色,淺色主題裡最柔的一套。 */
@@ -285,6 +370,17 @@ const sakura: PaletteColors = {
   headerBorder: "#e9bfcc",
   headerAccent: "#c8386b",
   headerAccentSoft: "rgba(200, 56, 107, 0.10)",
+
+  mapRoad: "#e0558a",
+  mapRoadPriority: "#1fa59b",
+  mapRoadArrow: "#86d1cb",
+  mapPoint: "#a62a56",
+  mapPointRotate: "#6b62f0",
+  mapDevice: "#b998a5",
+  mapDeviceBorder: "#b8607f",
+  mapCell: "rgba(250, 220, 229, 0.55)",
+  mapCellHover: "rgba(245, 196, 212, 0.8)",
+  mapCellText: "#3b1f29",
 };
 
 /** 抹茶:米白底 + 橄欖綠,比青綠更暖、更沉。 */
@@ -318,6 +414,17 @@ const matcha: PaletteColors = {
   headerBorder: "#c5d3a2",
   headerAccent: "#56781c",
   headerAccentSoft: "rgba(86, 120, 28, 0.12)",
+
+  mapRoad: "#79a323",
+  mapRoadPriority: "#e07b39",
+  mapRoadArrow: "#efb68e",
+  mapPoint: "#435f14",
+  mapPointRotate: "#b948d1",
+  mapDevice: "#a0ab83",
+  mapDeviceBorder: "#6f8a35",
+  mapCell: "rgba(228, 238, 203, 0.55)",
+  mapCellHover: "rgba(210, 226, 173, 0.8)",
+  mapCellText: "#262e17",
 };
 
 /** 薰衣草:淡紫底 + 紫色強調色。 */
@@ -351,6 +458,17 @@ const lavender: PaletteColors = {
   headerBorder: "#cfc3ec",
   headerAccent: "#6b46c1",
   headerAccentSoft: "rgba(107, 70, 193, 0.10)",
+
+  mapRoad: "#8a63e0",
+  mapRoadPriority: "#ea8a3a",
+  mapRoadArrow: "#f2bd8a",
+  mapPoint: "#5535a3",
+  mapPointRotate: "#e0409a",
+  mapDevice: "#a59ac6",
+  mapDeviceBorder: "#7a62b8",
+  mapCell: "rgba(233, 225, 250, 0.55)",
+  mapCellHover: "rgba(216, 203, 246, 0.8)",
+  mapCellText: "#261f3a",
 };
 
 /** 深海:深藍綠的底 + 青綠強調色,比「深夜」更有顏色。 */
@@ -384,6 +502,17 @@ const ocean: PaletteColors = {
   headerBorder: "#2b566f",
   headerAccent: "#2ec4b6",
   headerAccentSoft: "rgba(46, 196, 182, 0.16)",
+
+  mapRoad: "#14a89a",
+  mapRoadPriority: "#f0823c",
+  mapRoadArrow: "#f4b98c",
+  mapPoint: "#0c6b62",
+  mapPointRotate: "#d14fd6",
+  mapDevice: "#6f97a7",
+  mapDeviceBorder: "#2f7f8f",
+  mapCell: "rgba(203, 233, 238, 0.55)",
+  mapCellHover: "rgba(168, 216, 225, 0.8)",
+  mapCellText: "#0b1a26",
 };
 
 /** 餘燼:暖色的炭黑底 + 橘色強調色,長時間看比冷色深色主題不刺眼。 */
@@ -417,6 +546,17 @@ const ember: PaletteColors = {
   headerBorder: "#54423a",
   headerAccent: "#f08a3c",
   headerAccentSoft: "rgba(240, 138, 60, 0.16)",
+
+  mapRoad: "#e2711d",
+  mapRoadPriority: "#2b93cf",
+  mapRoadArrow: "#8ec6e8",
+  mapPoint: "#a3470b",
+  mapPointRotate: "#c549c9",
+  mapDevice: "#9a8476",
+  mapDeviceBorder: "#a8643a",
+  mapCell: "rgba(246, 226, 210, 0.55)",
+  mapCellHover: "rgba(239, 204, 178, 0.8)",
+  mapCellText: "#1c1613",
 };
 
 /** 終端機:黑底綠字,老式 CRT 螢幕的感覺。連一般文字都帶綠。 */
@@ -450,6 +590,17 @@ const terminal: PaletteColors = {
   headerBorder: "#27502f",
   headerAccent: "#33d17a",
   headerAccentSoft: "rgba(51, 209, 122, 0.14)",
+
+  mapRoad: "#1aa85b",
+  mapRoadPriority: "#d4a514",
+  mapRoadArrow: "#e6cc74",
+  mapPoint: "#0c6b35",
+  mapPointRotate: "#d24bd0",
+  mapDevice: "#6f9a7b",
+  mapDeviceBorder: "#2f8a4a",
+  mapCell: "rgba(205, 240, 214, 0.55)",
+  mapCellHover: "rgba(168, 227, 184, 0.8)",
+  mapCellText: "#0a2a12",
 };
 
 /** 霓虹:紫黑底,設定頁是桃紅、上方工具列與首頁是青色,兩個強調色刻意撞色。 */
@@ -483,6 +634,17 @@ const neon: PaletteColors = {
   headerBorder: "#4a2d7a",
   headerAccent: "#22d3ee",
   headerAccentSoft: "rgba(34, 211, 238, 0.14)",
+
+  mapRoad: "#f0409a",
+  mapRoadPriority: "#10b4cf",
+  mapRoadArrow: "#7fdcea",
+  mapPoint: "#b01868",
+  mapPointRotate: "#8b5cf6",
+  mapDevice: "#8d7bb5",
+  mapDeviceBorder: "#8a4fc8",
+  mapCell: "rgba(236, 222, 255, 0.55)",
+  mapCellHover: "rgba(218, 194, 252, 0.8)",
+  mapCellText: "#2a1650",
 };
 
 /** 藍圖:工程藍圖的藍底白線,強調色是鉛筆黃。 */
@@ -516,6 +678,17 @@ const blueprint: PaletteColors = {
   headerBorder: "#3a78b8",
   headerAccent: "#ffd166",
   headerAccentSoft: "rgba(255, 209, 102, 0.16)",
+
+  mapRoad: "#2f6aa6",
+  mapRoadPriority: "#d99a00",
+  mapRoadArrow: "#ecc766",
+  mapPoint: "#12355b",
+  mapPointRotate: "#c94fd0",
+  mapDevice: "#7f9dbd",
+  mapDeviceBorder: "#2f6aa6",
+  mapCell: "rgba(210, 228, 246, 0.55)",
+  mapCellHover: "rgba(178, 207, 238, 0.8)",
+  mapCellText: "#12355b",
 };
 
 /** 高對比:純黑底、純白字、黃色強調色。給現場光線很亮或螢幕品質不好的地方用。 */
@@ -549,6 +722,17 @@ const contrast: PaletteColors = {
   headerBorder: "#7a7a7a",
   headerAccent: "#ffd400",
   headerAccentSoft: "rgba(255, 212, 0, 0.18)",
+
+  mapRoad: "#0050ff",
+  mapRoadPriority: "#e65100",
+  mapRoadArrow: "#e65100",
+  mapPoint: "#000000",
+  mapPointRotate: "#c400c4",
+  mapDevice: "#5c5c5c",
+  mapDeviceBorder: "#000000",
+  mapCell: "rgba(255, 255, 255, 0.75)",
+  mapCellHover: "rgba(255, 212, 0, 0.5)",
+  mapCellText: "#000000",
 };
 
 // 排列順序就是外觀面板上卡片的順序:先淺色、再深色,越後面越特別。

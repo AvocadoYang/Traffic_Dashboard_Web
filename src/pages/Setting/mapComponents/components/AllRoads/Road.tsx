@@ -30,7 +30,8 @@ const HoverLabelWrapper = styled.div.attrs<{
   pointer-events: none;
 `;
 
-//#9cb4c8 #02ddff
+// 路線的顏色跟著主題走(theme/palettes.ts 的 map* 那一組)。
+// 被車佔用時的顏色是那台車自己的代表色,不是主題色。
 const Line = styled.div.attrs<{
   length: number;
   angle: number;
@@ -59,7 +60,7 @@ const Line = styled.div.attrs<{
       border:
         $isClaimed || $isOnHover
           ? `0.5px solid ${color}`
-          : `${priority === 1 ? "0.5px solid #ff9646" : "0.5px solid #02ddff"}`,
+          : `${priority === 1 ? "0.5px solid var(--c-map-road-priority)" : "0.5px solid var(--c-map-road)"}`,
     },
   }),
 )<{
@@ -91,7 +92,7 @@ const Line = styled.div.attrs<{
       ::before {
         border-style: solid;
         border-width: 2px 2px 0 0;
-        border-color: #f0c381;
+        border-color: var(--c-map-road-arrow);
         height: 5px;
         margin-top: -3.2px;
         margin-left: 50%;
@@ -129,7 +130,9 @@ const Road: FC<{
 }) => {
   const ref = useRef(null);
 
-  const [simulateColor, setSimulateColor] = useState("#ff9646");
+  const [simulateColor, setSimulateColor] = useState(
+    "var(--c-map-road-priority)",
+  );
   const length = Math.hypot(x1 - x2, y1 - y2);
   const angle = rad2Deg(Math.atan2(y2 - y1, x2 - x1));
   const script = useMockInfo();
@@ -139,9 +142,9 @@ const Road: FC<{
   useEffect(() => {
     if (!script) return;
     if (script.isSimulate) {
-      setSimulateColor("#ff9646");
+      setSimulateColor("var(--c-map-road-priority)");
     } else {
-      setSimulateColor("#ff9646");
+      setSimulateColor("var(--c-map-road-priority)");
     }
   }, [script]);
 

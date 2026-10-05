@@ -32,7 +32,7 @@ const SvgStyle = styled.svg<{
       case Lift_Gate_Status.CLOSING:
         return "#faad14"; // orange
       case Lift_Gate_Status.CLOSED:
-        return "#999"; // gray
+        return "var(--c-map-device)"; // 關著:跟著主題
       case Lift_Gate_Status.E_STOP:
       case Lift_Gate_Status.VFD_Alarm:
       case Lift_Gate_Status.System_Error:
@@ -53,7 +53,7 @@ const SvgStyle = styled.svg<{
       case Lift_Gate_Status.CLOSING:
         return "2px dashed #1890ff";
       default:
-        return "1px dashed #727272";
+        return "1px dashed var(--c-map-device-border)";
     }
   }};
 
@@ -69,7 +69,7 @@ const SvgStyle = styled.svg<{
 
   &:hover {
     transform: scale(1.05);
-    background-color: rgba(200, 200, 200, 0.3);
+    background-color: var(--c-map-cell-hover);
   }
 `;
 
