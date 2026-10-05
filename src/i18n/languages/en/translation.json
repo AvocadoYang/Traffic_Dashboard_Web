@@ -2236,6 +2236,7 @@
     "name": "Name",
     "description": "Description",
     "group": "Group",
+    "no_group": "Not in any group",
     "operation": "Operation",
     "edit": "Edit",
     "save": "Save",

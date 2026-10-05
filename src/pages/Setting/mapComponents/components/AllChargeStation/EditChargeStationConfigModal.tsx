@@ -22,6 +22,11 @@ import { useAtom, useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { currentMapIdAtom } from "@/utils/mapSelection";
+import {
+  editModalBodyStyle,
+  editPanelStyle,
+  EDIT_TITLE_COLOR,
+} from "../editModalStyle";
 
 const { Title, Text } = Typography;
 
@@ -46,13 +51,6 @@ type DetectFormData = {
 type DetectResponse = {
   ok?: boolean;
   message?: string;
-};
-
-const CARD_STYLE: React.CSSProperties = {
-  background: "#fff",
-  padding: "24px",
-  borderRadius: 8,
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
 };
 
 const EditChargeStationConfigModal = () => {
@@ -191,9 +189,7 @@ const EditChargeStationConfigModal = () => {
       <Modal
         title={null}
         width={560}
-        styles={{
-          body: { padding: "24px", background: "#fafafa" },
-        }}
+        styles={{ body: editModalBodyStyle }}
         open={open.isOpen}
         onCancel={handleCancel}
         onOk={handleOk}
@@ -201,7 +197,7 @@ const EditChargeStationConfigModal = () => {
         okText={t("utils.save")}
         cancelText={t("utils.cancel")}
       >
-        <div style={CARD_STYLE}>
+        <div style={editPanelStyle}>
           {open && open.locationId && socketConfig[open.locationId] ? (
             <Form form={form} layout="vertical" size="large">
               <Title
@@ -209,7 +205,7 @@ const EditChargeStationConfigModal = () => {
                 style={{
                   textAlign: "center",
                   marginBottom: "24px",
-                  color: "#1890ff",
+                  color: EDIT_TITLE_COLOR,
                 }}
               >
                 {t("charge.model.edit_charge_station_config")}

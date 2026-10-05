@@ -15,6 +15,11 @@ import { useSetAtom } from "jotai";
 import { BaseGlobalCargoInfoModal } from "./jotaiState";
 import { CargoPanelTarget } from "@/components/CargoPanel/state";
 import { LayerType } from "@/api/type/useLocation";
+import {
+  editHalfPanelStyle,
+  editSubPanelStyle,
+  EDIT_TITLE_COLOR,
+} from "../editModalStyle";
 
 const prefixLevelName = (word: string | null | undefined) => {
   if (!word) return null;
@@ -64,17 +69,7 @@ const LayerForm: FC<{
 
   return (
     <>
-      <div
-        style={{
-          width: "50%",
-          background: "#fff",
-          padding: "24px",
-          borderRadius: 8,
-          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-          maxHeight: "70vh",
-          overflowY: "auto",
-        }}
-      >
+      <div style={editHalfPanelStyle}>
         <Form
           form={form}
           layout="vertical"
@@ -82,22 +77,17 @@ const LayerForm: FC<{
           onValuesChange={userHasChangeData}
           initialValues={{ isEdit: false }}
         >
-          <Title level={3} style={{ marginBottom: "24px", color: "#1890ff" }}>
+          <Title
+            level={3}
+            style={{ marginBottom: "24px", color: EDIT_TITLE_COLOR }}
+          >
             {t("shelf.layer_form.layers")}
           </Title>
           {Object.entries(layer).map(([levelStr, levelValue]) => {
             const index = Number(levelStr);
             //  console.log(levelValue.cargo, 'level value');
             return (
-              <div
-                key={levelStr}
-                style={{
-                  marginBottom: "24px",
-                  padding: "16px",
-                  background: "#f5f5f5",
-                  borderRadius: 6,
-                }}
-              >
+              <div key={levelStr} style={editSubPanelStyle}>
                 <Title
                   level={4}
                   style={{ marginBottom: "16px" }}

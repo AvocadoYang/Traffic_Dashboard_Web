@@ -11,6 +11,7 @@ import Config from "./Config";
 import CargoInfoAtPeripheral from "./CargoInfo";
 import { IsEditPeripheralModal, IsOpenPeripheralModal } from "./jotai";
 import { PeripheralTypes } from "@/types/peripheral";
+import PeripheralIdentity from "@/pages/Setting/mapComponents/components/PeripheralIdentity";
 
 const EditPeripheralModal: FC = () => {
   const [openModal, setOpenModal] = useAtom(IsEditPeripheralModal);
@@ -95,7 +96,11 @@ const EditPeripheralModal: FC = () => {
     <>
       {contextHolder}
       <Modal
-        title={null}
+        title={
+          openModal ? (
+            <PeripheralIdentity locationId={openModal.stationId} />
+          ) : null
+        }
         open={open}
         onCancel={handleCancel}
         centered
@@ -110,7 +115,7 @@ const EditPeripheralModal: FC = () => {
           </Button>
         }
       >
-        <Flex>
+        <Flex gap={16}>
           <Config formConfig={formConfig} />
           <CargoInfoAtPeripheral form={formCargo} />
         </Flex>

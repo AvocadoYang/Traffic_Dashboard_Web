@@ -16,6 +16,11 @@ import {
   IsOpenStackModal,
 } from "@/pages/Setting/formComponent/forms/peripheralModal/jotai";
 import { CargoPanelTarget } from "@/components/CargoPanel/state";
+import {
+  editHalfPanelStyle,
+  editSubPanelStyle,
+  EDIT_TITLE_COLOR,
+} from "../editModalStyle";
 
 const { Title } = Typography;
 
@@ -46,34 +51,20 @@ const CargoInfoAtPeripheral: FC<{ form: FormInstance<unknown> }> = ({
 
   return (
     <>
-      <div
-        style={{
-          width: "50%",
-          background: "#fff",
-          padding: "24px",
-          borderRadius: 8,
-          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-          maxHeight: "70vh",
-          overflowY: "auto",
-        }}
-      >
+      <div style={editHalfPanelStyle}>
         <Form
           form={form}
           layout="vertical"
           size="large"
           initialValues={{ isEdit: false }}
         >
-          <Title level={3} style={{ marginBottom: "24px", color: "#1890ff" }}>
+          <Title
+            level={3}
+            style={{ marginBottom: "24px", color: EDIT_TITLE_COLOR }}
+          >
             {t("shelf.layer_form.layers")}
           </Title>
-          <div
-            style={{
-              marginBottom: "24px",
-              padding: "16px",
-              background: "#f5f5f5",
-              borderRadius: 6,
-            }}
-          >
+          <div style={editSubPanelStyle}>
             <Title
               level={4}
               style={{ marginBottom: "16px" }}

@@ -17,6 +17,7 @@ import {
 import { useAtomValue, useSetAtom } from "jotai";
 import { FC } from "react";
 import { useTranslation } from "react-i18next";
+import { editHalfPanelStyle, EDIT_TITLE_COLOR } from "../../editModalStyle";
 
 const { Title } = Typography;
 
@@ -45,24 +46,14 @@ const RightSide: FC<{
   };
 
   return (
-    <div
-      style={{
-        width: "50%",
-        background: "#fff",
-        padding: "24px",
-        borderRadius: 8,
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-        maxHeight: "70vh",
-        overflowY: "auto",
-      }}
-    >
+    <div style={editHalfPanelStyle}>
       <Form form={form} layout="vertical" size="large">
         <Title
           level={3}
           style={{
             textAlign: "center",
             marginBottom: "24px",
-            color: "#1890ff",
+            color: EDIT_TITLE_COLOR,
           }}
         >
           {t("elevator.other_config")}

@@ -21,6 +21,7 @@ import {
   PlusOutlined,
   QuestionCircleOutlined,
 } from "@ant-design/icons";
+import { editHalfPanelStyle, EDIT_TITLE_COLOR } from "../editModalStyle";
 
 const { Title } = Typography;
 
@@ -119,17 +120,7 @@ const CargoMissionForm: FC<{
   if (!shelf || !loc) return <Skeleton active paragraph={{ rows: 5 }} />;
 
   return (
-    <div
-      style={{
-        width: "50%",
-        background: "#fff",
-        padding: "24px",
-        borderRadius: 8,
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-        maxHeight: "70vh",
-        overflowY: "auto",
-      }}
-    >
+    <div style={editHalfPanelStyle}>
       <Form
         form={form}
         layout="vertical"
@@ -141,7 +132,7 @@ const CargoMissionForm: FC<{
           style={{
             textAlign: "center",
             marginBottom: "24px",
-            color: "#1890ff",
+            color: EDIT_TITLE_COLOR,
           }}
         >
           {t("shelf.cargo_mission.default_title")}

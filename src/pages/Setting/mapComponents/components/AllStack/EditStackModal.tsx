@@ -14,6 +14,7 @@ import {
 } from "@/pages/Setting/formComponent/forms/peripheralModal/jotai";
 import Config from "./Config";
 import CargoInfoAtPeripheral from "./CargoInfo";
+import PeripheralIdentity from "../PeripheralIdentity";
 
 const EditStackModal: FC = () => {
   const [editStack, setEditStack] = useAtom(EditStackConfig);
@@ -90,7 +91,11 @@ const EditStackModal: FC = () => {
     <>
       {contextHolder}
       <Modal
-        title={null}
+        title={
+          editStack ? (
+            <PeripheralIdentity locationId={editStack.stationId} />
+          ) : null
+        }
         open={open}
         onCancel={handleCancel}
         centered
@@ -105,7 +110,7 @@ const EditStackModal: FC = () => {
           </Button>
         }
       >
-        <Flex>
+        <Flex gap={16}>
           <Config formConfig={formConfig} />
           <CargoInfoAtPeripheral form={formCargo} />
         </Flex>
