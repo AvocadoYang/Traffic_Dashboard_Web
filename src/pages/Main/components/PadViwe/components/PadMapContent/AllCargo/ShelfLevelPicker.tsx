@@ -14,8 +14,9 @@ export type PickLevel = {
 };
 
 const MODE_COLOR: Record<PickMode, { main: string; bg: string }> = {
-  load: { main: "#1890ff", bg: "#e6f7ff" },
-  offload: { main: "#52c41a", bg: "#f6ffed" },
+  // bg 是滑到那一層時的淡底,用半透明才能同時疊在淺色跟深色的面板上
+  load: { main: "#1890ff", bg: "#1890ff1f" },
+  offload: { main: "#52c41a", bg: "#52c41a1f" },
 };
 
 export const getModeColor = (mode: PickMode) => MODE_COLOR[mode];
@@ -45,7 +46,7 @@ const Header = styled.div<{ $color: string }>`
   border-bottom: 2px solid ${({ $color }) => $color};
   font-size: 13px;
   font-weight: 700;
-  color: #262626;
+  color: var(--c-text);
 `;
 
 const ModeTag = styled.span<{ $color: string }>`
@@ -76,8 +77,10 @@ const Row = styled.button<{
   padding: 6px 10px;
   text-align: left;
   font-family: inherit;
-  background: ${({ $selectable, $bg }) => ($selectable ? "#fff" : "#fafafa")};
-  border: 2px solid ${({ $selectable, $color }) => ($selectable ? $color : "#e8e8e8")};
+  background: ${({ $selectable }) =>
+    $selectable ? "var(--c-bg)" : "var(--c-bg-subtle)"};
+  border: 2px solid
+    ${({ $selectable, $color }) => ($selectable ? $color : "var(--c-border)")};
   border-radius: 4px;
   cursor: ${({ $selectable }) => ($selectable ? "pointer" : "not-allowed")};
   opacity: ${({ $selectable }) => ($selectable ? 1 : 0.55)};
@@ -86,7 +89,8 @@ const Row = styled.button<{
     box-shadow 0.15s;
 
   &:hover {
-    background: ${({ $selectable, $bg }) => ($selectable ? $bg : "#fafafa")};
+    background: ${({ $selectable, $bg }) =>
+      $selectable ? $bg : "var(--c-bg-subtle)"};
     box-shadow: ${({ $selectable, $color }) =>
       $selectable ? `0 0 0 3px ${$color}33` : "none"};
   }
@@ -105,7 +109,7 @@ const LevelBadge = styled.span<{ $color: string; $active: boolean }>`
   align-items: center;
   justify-content: center;
   border-radius: 4px;
-  background: ${({ $active, $color }) => ($active ? $color : "#d9d9d9")};
+  background: ${({ $active, $color }) => ($active ? $color : "var(--c-border-strong)")};
   color: #fff;
   font-size: 13px;
   font-weight: 700;
@@ -121,7 +125,7 @@ const Body = styled.span`
 const Name = styled.span`
   font-size: 13px;
   font-weight: 600;
-  color: #262626;
+  color: var(--c-text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -129,7 +133,7 @@ const Name = styled.span`
 
 const Sub = styled.span<{ $warn?: boolean }>`
   font-size: 11px;
-  color: ${({ $warn }) => ($warn ? "#cf1322" : "#8c8c8c")};
+  color: ${({ $warn }) => ($warn ? "var(--c-danger)" : "var(--c-text-muted)")};
 `;
 
 const CargoTag = styled.span<{ $hasCargo: boolean }>`
@@ -138,15 +142,28 @@ const CargoTag = styled.span<{ $hasCargo: boolean }>`
   border-radius: 2px;
   font-size: 11px;
   font-weight: 600;
-  color: ${({ $hasCargo }) => ($hasCargo ? "#ad6800" : "#595959")};
-  background: ${({ $hasCargo }) => ($hasCargo ? "#ffe73c80" : "#f0f0f0")};
-  border: 1px solid ${({ $hasCargo }) => ($hasCargo ? "#faad14" : "#d9d9d9")};
+  color: ${({ $hasCargo }) =>
+    $hasCargo ? "#ad6800" : "var(--c-text-secondary)"};
+  background: ${({ $hasCargo }) =>
+    $hasCargo ? "#ffe73c80" : "var(--c-bg-muted)"};
+  border: 1px solid
+    ${({ $hasCargo }) => ($hasCargo ? "#faad14" : "var(--c-border-strong)")};
+
+  /* 深色面板上半透明的黃會變成暗橄欖色,原本的棕字看不到,有貨時改用亮黃。
+     「祖先 &」這種選擇器 styled-components 會套在元件共用的 class 上,
+     裡面直接寫跟 props 有關的值,每個標籤都會拿到同一個,所以先存成變數再取。 */
+  --tag-color-on-dark: ${({ $hasCargo }) =>
+    $hasCargo ? "#ffe73c" : "var(--c-text-secondary)"};
+
+  [data-theme-mode="dark"] & {
+    color: var(--tag-color-on-dark);
+  }
 `;
 
 const Hint = styled.div`
   margin-top: 8px;
   font-size: 11px;
-  color: #8c8c8c;
+  color: var(--c-text-muted);
 `;
 
 const ShelfLevelPicker: FC<{
