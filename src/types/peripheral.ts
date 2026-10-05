@@ -120,6 +120,51 @@ export enum Lift_Gate_Status {
 /** 一個 stack 最多可以堆幾層貨,跟後端 STACK_MAX_LEVEL 一致 */
 export const STACK_MAX_LEVEL = 3;
 
+/** 包膜線上一顆燈接的訊號: 哪個模組的第幾個通道, invert = 訊號 off 才算有貨 */
+export type Package_Signal = {
+  module: string;
+  channel: number;
+  invert: boolean;
+};
+
+/**
+ * 包膜線的一個點位。一條線有入口和出口兩個點位:
+ * 入口(點位屬性 PACKAGE_IN)只能放貨、出口(PACKAGE_OUT)只能取貨,
+ * 兩端的 cargo 是同一份(整條線上登記的貨,先進先出)。
+ */
+export type Package_Info = {
+  name: string;
+  description: string;
+  group: string | null;
+  disable: boolean;
+  locationId: string;
+  booker?: Booker;
+  occupier?: string | null;
+  forkHeight: number;
+
+  role: "ENTRY" | "EXIT";
+  packageDBId: string;
+  lineDBId: string;
+  /** null = 這個出口還沒被哪個入口指定 */
+  entryLocationId: string | null;
+  /** null = 這個入口還沒指定出口 */
+  exitLocationId: string | null;
+  peripheralNameDBId: string;
+  cargo: Cargo[];
+
+  /** 整條線最多登記幾筆貨,0 = 不限 */
+  capacity: number;
+  slotCount: number;
+  signals: (Package_Signal | null)[];
+  /** 每顆燈現在的狀態; null = 這顆燈沒接訊號,或訊號來源斷線 */
+  lamps: (boolean | null)[];
+
+  loadMissionId: string | null;
+  offloadMissionId: string | null;
+  loadPriority: number;
+  offloadPriority: number;
+};
+
 export type Stack_Info = {
   name: string;
   description: string;

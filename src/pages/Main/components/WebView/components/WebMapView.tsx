@@ -37,6 +37,7 @@ import useMouseClick from "../hooks/useMouseClick";
 import AllGateWaitPoint from "../../PadViwe/components/PadMapContent/AllGateWaitPoint/AllGateWaitPoint";
 import AllLiftGate from "../../PadViwe/components/PadMapContent/AllGate/AllLiftGate";
 import AllStack from "../../PadViwe/components/PadMapContent/AllStack/AllStack";
+import YfyPackage from "../../PadViwe/components/PadMapContent/YFYPackage/YfyPackage";
 import AllPointCloud from "../../PadViwe/components/PadMapContent/component/AllPointCloud/AllPointCloud";
 import LocalizationCorrectionGhost from "../../PadViwe/components/PadMapContent/component/LocalizationCorrection/LocalizationCorrectionGhost";
 import useDragPan from "@/pages/Main/components/WebView/hooks/useDragPan";
@@ -134,6 +135,7 @@ const WebMapView: React.FC<{
           {showPointCloud ? <AllPointCloud></AllPointCloud> : null}
           <AllCargo></AllCargo>
           <AllStack></AllStack>
+          <YfyPackage></YfyPackage>
           <AllElevator></AllElevator>
           <AllConveyor></AllConveyor>
           <AllGateWaitPoint></AllGateWaitPoint>

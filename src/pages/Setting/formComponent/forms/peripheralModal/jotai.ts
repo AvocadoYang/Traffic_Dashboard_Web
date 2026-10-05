@@ -36,3 +36,6 @@ export const EditStackConfig = atom<{
 } | null>(null);
 
 export const IsOpenStackModal = atom<boolean>(false);
+
+/** 正在編輯哪個包膜線點位的設定;null 代表對話框關著 */
+export const EditPackageLocationId = atom<string | null>(null);
