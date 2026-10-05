@@ -10,6 +10,7 @@ import {
   FormInstance,
   InputNumber,
   Select,
+  Spin,
   Switch,
   Tooltip,
   Typography,
@@ -33,7 +34,7 @@ const Config: FC<{
   const { data: misTitle } = useAllMissionTitles();
   // const { data: yaw } = useYaw();
   const openModal = useAtomValue(IsEditPeripheralModal);
-  const { data: loc } = useLoc(undefined);
+  const { data: loc, isLoading: isLocLoading } = useLoc(undefined);
   const taskOption = misTitle
     ?.filter((g) =>
       g.MissionTitleBridgeCategory.some(
@@ -53,7 +54,8 @@ const Config: FC<{
   ];
 
   const relationOption = useMemo(() => {
-    const info = loc as LocWithoutArr[];
+    // 點位資料還沒載完時 loc 是 undefined,先當成沒有選項,不要讓整頁壞掉
+    const info = (loc ?? []) as LocWithoutArr[];
     const mixData = info
       .filter((v) => v.areaType === "STORAGE" && v.id !== openModal?.stationId)
       .sort((a, b) => Number(a.locationId) - Number(b.locationId))
@@ -238,6 +240,10 @@ const Config: FC<{
                       >
                         <Select
                           options={relationOption}
+                          loading={isLocLoading}
+                          notFoundContent={
+                            isLocLoading ? <Spin size="small" /> : undefined
+                          }
                           placeholder={t("shelf.cargo_mission.select_location")}
                           showSearch={{
                             filterOption: (input, option) =>

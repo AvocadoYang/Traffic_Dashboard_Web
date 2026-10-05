@@ -36,8 +36,10 @@ const CargoMissionForm: FC<{
   const { data: shelf } = useSpecificShelf(locId);
   const { t } = useTranslation();
 
+  // 這兩份選單是在下面的載入檢查「之前」算的:點位資料還沒載完時 loc 是 undefined,
+  // 先當成空清單,不然還沒走到載入畫面整頁就先壞了。
   const locationOption = useMemo(() => {
-    const info = loc as LocWithoutArr[];
+    const info = (loc ?? []) as LocWithoutArr[];
     const mixData = info
       .filter((v) => v.areaType === "Dispatch" && v.id !== locId)
       .sort((a, b) => Number(a.locationId) - Number(b.locationId))
@@ -50,7 +52,7 @@ const CargoMissionForm: FC<{
   }, [loc, locId, t]);
 
   const relationOption = useMemo(() => {
-    const info = loc as LocWithoutArr[];
+    const info = (loc ?? []) as LocWithoutArr[];
     const mixData = info
       .filter(
         (v) =>
@@ -117,7 +119,14 @@ const CargoMissionForm: FC<{
     });
   }, [form, shelf, loc, locId]);
 
-  if (!shelf || !loc) return <Skeleton active paragraph={{ rows: 5 }} />;
+  // 載入中也維持跟表單同一張卡片,右邊的樓層設定才不會被擠到變形
+  if (!shelf || !loc) {
+    return (
+      <div style={editHalfPanelStyle}>
+        <Skeleton active paragraph={{ rows: 5 }} />
+      </div>
+    );
+  }
 
   return (
     <div style={editHalfPanelStyle}>
