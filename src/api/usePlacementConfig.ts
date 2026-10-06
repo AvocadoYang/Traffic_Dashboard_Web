@@ -43,6 +43,8 @@ export type ConveyorRouteRule = {
 export type PlacementConveyor = {
   id: string;
   name: string;
+  /** 規則掛在輸送帶上,還是包膜線的出口上。舊版後端不會送,當成輸送帶 */
+  type?: "CONVEYOR" | "PACKAGE";
   rules: ConveyorRouteRule[];
 };
 
