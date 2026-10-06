@@ -2537,7 +2537,32 @@
     "live_off": "無",
     "live_unknown": "沒有訊號",
     "no_signal_source": "目前沒有收到任何設備訊號（訊號程式沒連上）。可以先填模組名稱和通道，訊號進來後燈就會跟著亮。",
-    "edit_at_entry": "登記上限、燈數、燈號對照是整條線的設定，請到入口點位 {{id}} 編輯。",
+    "edit_at_entry": "登記上限、燈數、燈號對照、兩端的感測是整條線的設定，請到入口點位 {{id}} 編輯。",
+    "sensors": "入口／出口感測",
+    "sensors_hint": "不填就不檢查，只看登記的貨。有填的話：入口感測到有東西時不能放貨；出口感測到貨才能取貨，出口有設派送規則時也是這時候才派車。訊號讀不到時兩端都先不能用，並發系統警報。",
+    "entry_sensors": "入口感測",
+    "entry_sensors_hint": "任何一個有訊號，就當成入口有東西",
+    "exit_sensors": "出口感測",
+    "exit_sensors_hint": "全部有訊號，才當成貨到出口",
+    "sensor_add": "新增訊號",
+    "sensor_remove": "移除",
+    "use_first_lamp": "帶入第一顆燈",
+    "use_last_lamp": "帶入最後一顆燈",
+    "sensor_now": "現在：{{state}}",
+    "entry_state": {
+      "NONE": "沒有設定，不檢查",
+      "CLEAR": "入口是空的，可以放",
+      "OCCUPIED": "入口有東西，先不能放",
+      "UNKNOWN": "訊號讀不到，先不能放"
+    },
+    "exit_state": {
+      "NONE": "沒有設定，不檢查",
+      "READY": "貨到出口了，可以取",
+      "EMPTY": "出口還沒有貨",
+      "UNKNOWN": "訊號讀不到，先不能取"
+    },
+    "sim_travel_sec": "模擬：入口到出口的秒數",
+    "sim_travel_sec_hint": "只有開模擬時會用到。模擬時沒有真的訊號，系統會假裝貨放上入口後照這個秒數流到出口，並產生對應的燈號和感測訊號（照模擬倍率加速）。",
     "go_entry": "前往入口點位",
     "edit_cargo": "編輯登記的貨",
     "registered_cargo": "系統登記的貨：{{n}} 筆（最右邊的先被取走）"
@@ -2654,6 +2679,7 @@
       "DISABLED": "已停用",
       "BUSY": "使用中",
       "NO_RULE": "沒有符合的規則",
+      "NOT_READY": "貨還沒到出口",
       "DISPATCHED": "已派送",
       "WAITING": "等待位置",
       "BLOCKED": "無法派送"

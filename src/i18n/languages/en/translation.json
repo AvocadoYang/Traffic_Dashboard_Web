@@ -2536,7 +2536,32 @@
     "live_off": "Off",
     "live_unknown": "No signal",
     "no_signal_source": "No equipment signal has been received (the signal program is not connected). You can still fill in modules and channels; lamps will follow once signals arrive.",
-    "edit_at_entry": "Cargo limit, lamp count and lamp signals belong to the whole line. Edit them at the entry point {{id}}.",
+    "edit_at_entry": "Cargo limit, lamp count, lamp signals and the entry / exit sensors belong to the whole line. Edit them at the entry point {{id}}.",
+    "sensors": "Entry / exit sensors",
+    "sensors_hint": "Leave empty to skip the check and go by registered cargo only. When set: nothing can be offloaded while the entry sensor sees something; cargo can be picked up only once the exit sensor sees it, and a routing rule on the exit dispatches a vehicle only then. If a signal cannot be read, both ends are held and a system alarm is raised.",
+    "entry_sensors": "Entry sensor",
+    "entry_sensors_hint": "Any signal on means something is at the entry",
+    "exit_sensors": "Exit sensor",
+    "exit_sensors_hint": "All signals on means cargo has reached the exit",
+    "sensor_add": "Add signal",
+    "sensor_remove": "Remove",
+    "use_first_lamp": "Use first lamp",
+    "use_last_lamp": "Use last lamp",
+    "sensor_now": "Now: {{state}}",
+    "entry_state": {
+      "NONE": "Not set, no check",
+      "CLEAR": "Entry is clear, offload allowed",
+      "OCCUPIED": "Something is at the entry, offload held",
+      "UNKNOWN": "Signal cannot be read, offload held"
+    },
+    "exit_state": {
+      "NONE": "Not set, no check",
+      "READY": "Cargo is at the exit, pickup allowed",
+      "EMPTY": "No cargo at the exit yet",
+      "UNKNOWN": "Signal cannot be read, pickup held"
+    },
+    "sim_travel_sec": "Simulation: seconds from entry to exit",
+    "sim_travel_sec_hint": "Used in simulation only. There are no real signals then, so the system pretends cargo placed on the entry reaches the exit after this many seconds and produces the matching lamp and sensor signals (sped up by the simulation scale).",
     "go_entry": "Go to entry point",
     "edit_cargo": "Edit registered cargo",
     "registered_cargo": "Registered cargo: {{n}} (rightmost is picked first)"
@@ -2653,6 +2678,7 @@
       "DISABLED": "Disabled",
       "BUSY": "In use",
       "NO_RULE": "No matching rule",
+      "NOT_READY": "Cargo not at the exit yet",
       "DISPATCHED": "Dispatched",
       "WAITING": "Waiting for location",
       "BLOCKED": "Cannot dispatch"

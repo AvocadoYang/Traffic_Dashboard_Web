@@ -64,6 +64,7 @@ export type ConveyorDispatchState =
   | "DISABLED"
   | "BUSY"
   | "NO_RULE"
+  | "NOT_READY"
   | "DISPATCHED"
   | "WAITING"
   | "BLOCKED";

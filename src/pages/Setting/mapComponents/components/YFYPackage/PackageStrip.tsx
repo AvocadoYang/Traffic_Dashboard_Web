@@ -1,7 +1,11 @@
 import { FC, MouseEvent } from "react";
 import styled, { css } from "styled-components";
 import { LoginOutlined, LogoutOutlined } from "@ant-design/icons";
-import { Cargo } from "@/types/peripheral";
+import {
+  Cargo,
+  PackageEntrySensor,
+  PackageExitSensor,
+} from "@/types/peripheral";
 
 /** 入口 / 出口在畫面上的狀態 */
 export type PackagePortView = {
@@ -88,6 +92,7 @@ const Port = styled.button<{
   $booked: boolean;
   $missing?: boolean;
 }>`
+  position: relative;
   flex: 0 0 34px;
   display: flex;
   align-items: center;
@@ -191,8 +196,58 @@ const CargoCount = styled.span`
   white-space: nowrap;
 `;
 
+// 兩端的感測,疊在入口 / 出口按鈕角落的一顆小燈。沒有綁感測的線不畫。
+// ok = 現在可以放 / 有貨可以取, hold = 入口有東西先不能放, idle = 出口還沒有貨, unknown = 訊號讀不到
+type SensorTone = "ok" | "hold" | "idle" | "unknown";
+
+const SensorDot = styled.span<{ $tone: SensorTone }>`
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--c-bg);
+
+  ${({ $tone }) =>
+    $tone === "ok"
+      ? css`
+          background: var(--c-success);
+        `
+      : $tone === "hold"
+        ? css`
+            background: var(--c-warning);
+          `
+        : $tone === "idle"
+          ? css`
+              background: var(--c-border-strong);
+            `
+          : css`
+              background: var(--c-bg);
+              border: 1px dashed var(--c-text-muted);
+            `}
+`;
+
+const ENTRY_TONE: Record<PackageEntrySensor, SensorTone | null> = {
+  NONE: null,
+  CLEAR: "ok",
+  OCCUPIED: "hold",
+  UNKNOWN: "unknown",
+};
+
+const EXIT_TONE: Record<PackageExitSensor, SensorTone | null> = {
+  NONE: null,
+  READY: "ok",
+  EMPTY: "idle",
+  UNKNOWN: "unknown",
+};
+
 const lampState = (value: boolean | null) =>
   value === null ? "unknown" : value ? "on" : "off";
+
+/** 按鈕的提示: 原本的說明下面多一行感測現在的狀態 */
+const withSensor = (title: string, sensorTitle?: string) =>
+  sensorTitle ? `${title}\n${sensorTitle}` : title;
 
 /**
  * 包膜線在地圖上的樣子:左邊是入口(放貨),右邊是出口(取貨),中間一排燈是感測訊號,
@@ -209,6 +264,11 @@ const PackageStrip: FC<{
   exit: PackagePortView | null;
   missingExitTitle: string;
   cargoTitle: string;
+  /** 兩端感測現在的狀態和說明; 沒有綁感測 (NONE) 或舊版後端沒送就不畫 */
+  entrySensor?: PackageEntrySensor;
+  exitSensor?: PackageExitSensor;
+  entrySensorTitle?: string;
+  exitSensorTitle?: string;
 }> = ({
   lamps,
   cargo,
@@ -217,7 +277,13 @@ const PackageStrip: FC<{
   exit,
   missingExitTitle,
   cargoTitle,
+  entrySensor,
+  exitSensor,
+  entrySensorTitle,
+  exitSensorTitle,
 }) => {
+  const entryTone = entrySensor ? ENTRY_TONE[entrySensor] : null;
+  const exitTone = exitSensor ? EXIT_TONE[exitSensor] : null;
   const showNumber = lamps.length <= MAX_NUMBERED_LAMPS;
   const visible = cargo.slice(0, MAX_VISIBLE_CARGO);
   const hidden = cargo.length - visible.length;
@@ -242,13 +308,17 @@ const PackageStrip: FC<{
 
       <Port
         type="button"
-        title={entry.title}
+        title={withSensor(
+          entry.title,
+          entryTone ? entrySensorTitle : undefined,
+        )}
         $state={entry.state}
         $disabled={entry.disabled}
         $booked={entry.booked}
         onClick={entry.onClick}
       >
         <LoginOutlined />
+        {entryTone && <SensorDot $tone={entryTone} />}
       </Port>
 
       <Lamps>
@@ -262,13 +332,14 @@ const PackageStrip: FC<{
       {exit ? (
         <Port
           type="button"
-          title={exit.title}
+          title={withSensor(exit.title, exitTone ? exitSensorTitle : undefined)}
           $state={exit.state}
           $disabled={exit.disabled}
           $booked={exit.booked}
           onClick={exit.onClick}
         >
           <LogoutOutlined />
+          {exitTone && <SensorDot $tone={exitTone} />}
         </Port>
       ) : (
         <Port

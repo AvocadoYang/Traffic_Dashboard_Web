@@ -127,6 +127,11 @@ export type Package_Signal = {
   invert: boolean;
 };
 
+/** 入口感測的狀態。NONE = 沒有綁感測,不檢查;UNKNOWN = 有綁但讀不到 */
+export type PackageEntrySensor = "NONE" | "CLEAR" | "OCCUPIED" | "UNKNOWN";
+/** 出口感測的狀態。NONE = 沒有綁感測,不檢查;UNKNOWN = 有綁但讀不到 */
+export type PackageExitSensor = "NONE" | "READY" | "EMPTY" | "UNKNOWN";
+
 /**
  * 包膜線的一個點位。一條線有入口和出口兩個點位:
  * 入口(點位屬性 PACKAGE_IN)只能放貨、出口(PACKAGE_OUT)只能取貨,
@@ -158,6 +163,16 @@ export type Package_Info = {
   signals: (Package_Signal | null)[];
   /** 每顆燈現在的狀態; null = 這顆燈沒接訊號,或訊號來源斷線 */
   lamps: (boolean | null)[];
+
+  // 以下是兩端的感測。舊版後端不會送這幾個欄位,所以都是可省略的。
+  /** 入口感測接哪些訊號:任何一個有訊號就算入口有東西,不能放。空的 = 不檢查 */
+  entrySensors?: Package_Signal[];
+  /** 出口感測接哪些訊號:全部有訊號才算貨到出口,才能取。空的 = 不檢查 */
+  exitSensors?: Package_Signal[];
+  entrySensor?: PackageEntrySensor;
+  exitSensor?: PackageExitSensor;
+  /** 模擬時貨從入口流到出口要幾秒 */
+  simTravelSec?: number;
 
   loadMissionId: string | null;
   offloadMissionId: string | null;

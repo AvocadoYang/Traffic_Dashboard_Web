@@ -16,6 +16,7 @@ import {
   Tag,
   Typography,
 } from "antd";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
@@ -38,6 +39,9 @@ const { Title, Text } = Typography;
 
 /** 跟後端 packageRouter 的上限一致 */
 const MAX_SLOT_COUNT = 64;
+const MAX_SENSOR_COUNT = 8;
+/** 後端沒送這個欄位(舊版)時表單先填的值,跟資料表的預設一樣 */
+const DEFAULT_SIM_TRAVEL_SEC = 30;
 
 type SignalRow = Partial<Package_Signal> | undefined;
 
@@ -54,7 +58,12 @@ type FormValues = {
   capacity: number;
   slotCount: number;
   signals: SignalRow[];
+  entrySensors: SignalRow[];
+  exitSensors: SignalRow[];
+  simTravelSec: number;
 };
+
+type SensorField = "entrySensors" | "exitSensors";
 
 // 燈號對照表:一顆燈一列(編號 / 模組 / 通道 / 反相 / 現在的值)
 const SignalGrid = styled.div`
@@ -66,6 +75,27 @@ const SignalGrid = styled.div`
   .ant-form-item {
     margin-bottom: 0;
   }
+`;
+
+// 兩端的感測:一列一個訊號(模組 / 通道 / 反相 / 現在的值 / 移除)
+const SensorGrid = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 76px 52px 76px 28px;
+  align-items: center;
+  gap: 6px 8px;
+  margin-bottom: 8px;
+
+  .ant-form-item {
+    margin-bottom: 0;
+  }
+`;
+
+const SensorHead = styled.div`
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 12px 0 6px;
 `;
 
 const HeadCell = styled.div`
@@ -127,6 +157,8 @@ const EditPackageModal: FC = () => {
 
   const slotCount = Form.useWatch("slotCount", form) ?? 0;
   const signalRows = Form.useWatch("signals", form) ?? [];
+  const entrySensorRows = Form.useWatch("entrySensors", form) ?? [];
+  const exitSensorRows = Form.useWatch("exitSensors", form) ?? [];
 
   // 開啟(或換到另一個點位)時把目前的設定填進表單。
   // socket 每秒都會送新資料,不能跟著重填,不然使用者改到一半的值會被蓋掉。
@@ -149,6 +181,9 @@ const EditPackageModal: FC = () => {
         { length: info.slotCount },
         (_, i) => info.signals[i] ?? undefined,
       ),
+      entrySensors: info.entrySensors ?? [],
+      exitSensors: info.exitSensors ?? [],
+      simTravelSec: info.simTravelSec ?? DEFAULT_SIM_TRAVEL_SEC,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locationId, hasInfo]);
@@ -191,6 +226,141 @@ const EditPackageModal: FC = () => {
     const value = m?.alive ? m.states[row.channel ?? 0] : undefined;
     if (typeof value !== "boolean") return "unknown";
     return (row.invert ? !value : value) ? "on" : "off";
+  };
+
+  // 入口感測通常就是第一顆燈、出口感測是最後一顆燈,直接把那顆燈的設定帶過來
+  const lampFor = (field: SensorField): SignalRow =>
+    field === "entrySensors" ? signalRows[0] : signalRows[slotCount - 1];
+
+  const fillFromLamp = (field: SensorField) => {
+    const lamp = lampFor(field);
+    if (!lamp?.module) return;
+    form.setFieldValue(field, [
+      {
+        module: lamp.module,
+        channel: lamp.channel ?? 0,
+        invert: !!lamp.invert,
+      },
+    ]);
+  };
+
+  const sensorPayload = (rows: SignalRow[] | undefined) =>
+    (rows ?? [])
+      .filter((row) => !!row?.module)
+      .map((row) => ({
+        module: row!.module,
+        channel: row!.channel ?? 0,
+        invert: !!row!.invert,
+      }));
+
+  /** stateLabel: 這一端感測現在的狀態(已存檔的設定算出來的),還沒有資料就不顯示 */
+  const sensorList = (
+    field: SensorField,
+    rows: SignalRow[],
+    stateLabel: string | undefined,
+  ) => {
+    const isEntrySide = field === "entrySensors";
+    const prefix = isEntrySide ? "package.entry" : "package.exit";
+    return (
+      <Form.List name={field}>
+        {(fields, { add, remove }) => (
+          <>
+            <SensorHead>
+              <Text strong>{t(`${prefix}_sensors`)}</Text>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                {t(`${prefix}_sensors_hint`)}
+              </Text>
+              {stateLabel && (
+                <Tag style={{ marginInlineEnd: 0 }}>
+                  {t("package.sensor_now", { state: stateLabel })}
+                </Tag>
+              )}
+            </SensorHead>
+
+            {fields.length > 0 && (
+              <SensorGrid>
+                <HeadCell>{t("package.module")}</HeadCell>
+                <HeadCell>{t("package.channel")}</HeadCell>
+                <HeadCell title={t("package.invert_hint")}>
+                  {t("package.invert")}
+                </HeadCell>
+                <HeadCell>{t("package.live")}</HeadCell>
+                <HeadCell />
+
+                {fields.map((f) => {
+                  const live = liveOf(rows[f.name]);
+                  return [
+                    <Form.Item
+                      key={`module-${f.key}`}
+                      name={[f.name, "module"]}
+                      rules={[{ required: true, message: "" }]}
+                    >
+                      <AutoComplete
+                        allowClear
+                        options={moduleOptions}
+                        placeholder="wise_31"
+                      />
+                    </Form.Item>,
+                    <Form.Item
+                      key={`channel-${f.key}`}
+                      name={[f.name, "channel"]}
+                    >
+                      <InputNumber
+                        min={0}
+                        max={63}
+                        precision={0}
+                        placeholder="0"
+                        style={{ width: "100%" }}
+                      />
+                    </Form.Item>,
+                    <Form.Item
+                      key={`invert-${f.key}`}
+                      name={[f.name, "invert"]}
+                      valuePropName="checked"
+                    >
+                      <Checkbox />
+                    </Form.Item>,
+                    <Live key={`live-${f.key}`} $state={live}>
+                      {t(`package.live_${live}`)}
+                    </Live>,
+                    <Button
+                      key={`remove-${f.key}`}
+                      type="text"
+                      size="small"
+                      icon={<DeleteOutlined />}
+                      title={t("package.sensor_remove")}
+                      onClick={() => remove(f.name)}
+                    />,
+                  ];
+                })}
+              </SensorGrid>
+            )}
+
+            <Flex gap={8} wrap="wrap">
+              <Button
+                size="small"
+                icon={<PlusOutlined />}
+                disabled={fields.length >= MAX_SENSOR_COUNT}
+                onClick={() => add({ channel: 0, invert: false })}
+              >
+                {t("package.sensor_add")}
+              </Button>
+              <Button
+                size="small"
+                disabled={!lampFor(field)?.module}
+                onClick={() => fillFromLamp(field)}
+              >
+                {t(
+                  isEntrySide
+                    ? "package.use_first_lamp"
+                    : "package.use_last_lamp",
+                )}
+              </Button>
+            </Flex>
+          </>
+        )}
+      </Form.List>
+    );
   };
 
   const updateMutation = useMutation({
@@ -238,6 +408,9 @@ const EditPackageModal: FC = () => {
                   }
                 : null;
             }),
+            entrySensors: sensorPayload(values.entrySensors),
+            exitSensors: sensorPayload(values.exitSensors),
+            simTravelSec: values.simTravelSec ?? DEFAULT_SIM_TRAVEL_SEC,
           }
         : {}),
     });
@@ -410,6 +583,39 @@ const EditPackageModal: FC = () => {
                       <InputNumber min={1} max={MAX_SLOT_COUNT} precision={0} />
                     </Form.Item>
                   </Flex>
+
+                  <div style={editSubPanelStyle}>
+                    <Title level={5} style={{ marginBottom: 4 }}>
+                      {t("package.sensors")}
+                    </Title>
+                    <Text type="secondary" style={{ display: "block" }}>
+                      {t("package.sensors_hint")}
+                    </Text>
+
+                    {sensorList(
+                      "entrySensors",
+                      entrySensorRows,
+                      info?.entrySensor
+                        ? t(`package.entry_state.${info.entrySensor}`)
+                        : undefined,
+                    )}
+                    {sensorList(
+                      "exitSensors",
+                      exitSensorRows,
+                      info?.exitSensor
+                        ? t(`package.exit_state.${info.exitSensor}`)
+                        : undefined,
+                    )}
+
+                    <Form.Item
+                      label={t("package.sim_travel_sec")}
+                      tooltip={t("package.sim_travel_sec_hint")}
+                      name="simTravelSec"
+                      style={{ margin: "16px 0 0" }}
+                    >
+                      <InputNumber min={1} max={3600} precision={0} />
+                    </Form.Item>
+                  </div>
 
                   <div style={editSubPanelStyle}>
                     <Title level={5} style={{ marginBottom: 4 }}>

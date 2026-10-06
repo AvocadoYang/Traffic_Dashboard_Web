@@ -154,6 +154,18 @@ const PackageLayer: FC<{
                       cargoTitle={t("package.registered_cargo", {
                         n: info?.cargo.length ?? 0,
                       })}
+                      entrySensor={info?.entrySensor}
+                      exitSensor={exitInfo ? info?.exitSensor : undefined}
+                      entrySensorTitle={
+                        info?.entrySensor
+                          ? t(`package.entry_state.${info.entrySensor}`)
+                          : undefined
+                      }
+                      exitSensorTitle={
+                        info?.exitSensor
+                          ? t(`package.exit_state.${info.exitSensor}`)
+                          : undefined
+                      }
                     />
                   </div>
                 )}
