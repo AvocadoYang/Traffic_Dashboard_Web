@@ -33,6 +33,7 @@ import styled, { css } from "styled-components";
 import { mq } from "@/styles/responsive";
 import { useTranslation } from "react-i18next";
 import { themeAtom } from "@/theme";
+import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 
 const { Content } = Layout;
 
@@ -209,6 +210,13 @@ const MapSelectorSlot = styled.div`
   z-index: 20;
 `;
 
+const ToggleSidebarBtn = styled(Button)`
+  position: absolute;
+  top: var(--space-sm);
+  right: 7rem;
+  z-index: 20;
+`;
+
 const WebView = () => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapWrapRef = useRef<HTMLDivElement>(null);
@@ -220,6 +228,7 @@ const WebView = () => {
   const cm = useAtomValue(centerMap);
   const { t } = useTranslation();
   const [bottomView, setBottomView] = useState<BottomView>("car");
+  const [showSidebars, setShowSidebars] = useState(true);
 
   const mapScale = currentMapInfo?.data?.scale;
   useEffect(() => {
@@ -251,15 +260,17 @@ const WebView = () => {
         }}
       >
         <MapSplitter>
-          <Splitter.Panel
-            defaultSize="13%"
-            collapsible={true}
-            className={`${isDark ? "dark-mode-side" : ""}`}
-          >
-            <SidePanelInner>
-              <CarCardWrap></CarCardWrap>
-            </SidePanelInner>
-          </Splitter.Panel>
+          {showSidebars && (
+            <Splitter.Panel
+              defaultSize="13%"
+              collapsible={true}
+              className={`${isDark ? "dark-mode-side" : ""}`}
+            >
+              <SidePanelInner>
+                <CarCardWrap></CarCardWrap>
+              </SidePanelInner>
+            </Splitter.Panel>
+          )}
           <Splitter.Panel
             defaultSize="67%"
             className={`${isDark ? "dark-mode-map" : ""}`}
@@ -280,6 +291,11 @@ const WebView = () => {
                     面板讓開右上角的 MapSelectorSlot */}
                 <OpenPerformanceBtn top="72px" left="16px" />
                 <PerformancePanel top="64px" right="16px" />
+                <ToggleSidebarBtn
+                  type="primary"
+                  icon={showSidebars ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
+                  onClick={() => setShowSidebars(!showSidebars)}
+                />
                 {/* <MissionBtn></MissionBtn> */}
                 <DirectMove></DirectMove>
                 {/* <ECS_online />
@@ -321,15 +337,17 @@ const WebView = () => {
               </MapSelectorSlot>
             </MapPanelInner>
           </Splitter.Panel>
-          <Splitter.Panel
-            defaultSize="20%"
-            collapsible={true}
-            className={`${isDark ? "dark-mode-side" : ""}`}
-          >
-            <SidePanelInner>
-              <MissionWrap></MissionWrap>
-            </SidePanelInner>
-          </Splitter.Panel>
+          {showSidebars && (
+            <Splitter.Panel
+              defaultSize="20%"
+              collapsible={true}
+              className={`${isDark ? "dark-mode-side" : ""}`}
+            >
+              <SidePanelInner>
+                <MissionWrap></MissionWrap>
+              </SidePanelInner>
+            </Splitter.Panel>
+          )}
         </MapSplitter>
         <JoystickPanelWrap />
       </ConfigProvider>
