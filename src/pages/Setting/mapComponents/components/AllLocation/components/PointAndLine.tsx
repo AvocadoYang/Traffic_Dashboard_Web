@@ -97,6 +97,23 @@ const LineDiv = styled.div.attrs<{
 
 export const Line = memo(LineDiv);
 
+const pointColor = (props: { canrotate: string }) =>
+  props.canrotate === "true"
+    ? "var(--c-map-point-rotate)"
+    : "var(--c-map-point)";
+
+// 待命區的點位外面多畫一圈,跟一般路徑點分得出來。
+// 用 outline 而不是 border / box-shadow:不佔位置(點的大小和中心不變)、
+// 圈和點之間是透明的,底下的路線不會被蓋掉。顏色跟點一樣,hover 時一起變紅。
+const standbyRing = css<{ canrotate: string }>`
+  outline: 1px solid ${pointColor};
+  outline-offset: 2px;
+
+  &:hover {
+    outline-color: red;
+  }
+`;
+
 const PointDiv = styled.div.attrs<{
   left: number;
   top: number;
@@ -113,14 +130,13 @@ const PointDiv = styled.div.attrs<{
   canrotate: string;
   hoverLoc?: boolean;
   isNear?: boolean;
+  $standby?: boolean;
 }>`
   width: ${(p) => (p.isNear ? "6px" : "4px")};
   height: ${(p) => (p.isNear ? "6px" : "4px")};
   border-radius: 50%;
-  background: ${(props) =>
-    props.canrotate === "true"
-      ? "var(--c-map-point-rotate)"
-      : "var(--c-map-point)"};
+  background: ${pointColor};
+  ${(p) => (p.$standby ? standbyRing : "")}
   position: absolute;
   cursor: pointer;
   left: ${(p) => p.left}px;
@@ -161,14 +177,13 @@ const PointMainDiv = styled.div.attrs<{
   isNear?: boolean;
   $destinationLabel?: string;
   $amrColor?: string;
+  $standby?: boolean;
 }>`
   width: ${(p) => (p.isNear ? "5px" : "3px")};
   height: ${(p) => (p.isNear ? "5px" : "3px")};
   border-radius: 50%;
-  background: ${(props) =>
-    props.canrotate === "true"
-      ? "var(--c-map-point-rotate)"
-      : "var(--c-map-point)"};
+  background: ${pointColor};
+  ${(p) => (p.$standby ? standbyRing : "")}
   position: absolute;
   cursor: pointer;
   left: ${(p) => p.left}px;

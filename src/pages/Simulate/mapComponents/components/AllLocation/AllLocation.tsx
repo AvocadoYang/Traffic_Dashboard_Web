@@ -8,6 +8,10 @@ import {
   MirAreaTypeMarker,
   isMirAreaType,
 } from "@/pages/Setting/mapComponents/components/AllLocation/components/MirAreaTypeMarker";
+import {
+  isPointAreaType,
+  isStandbyAreaType,
+} from "@/pages/Setting/mapComponents/components/AllLocation/pointAreaTypes";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
 import { isShowLocation } from "@/utils/siderGloble";
 
@@ -35,12 +39,7 @@ const AllLocation: FC = () => {
   return (
     <>
       {data.locations
-        .filter(
-          ({ areaType }) =>
-            areaType === "EXTRA" ||
-            areaType === "Dispatch" ||
-            isMirAreaType(areaType),
-        )
+        .filter(({ areaType }) => isPointAreaType(areaType))
         .map((loc) => {
           const [displayX, displayY] = rosCoord2DisplayCoord({
             x: loc.x,
@@ -74,6 +73,7 @@ const AllLocation: FC = () => {
                   left={displayX}
                   top={displayY}
                   key={nanoid()}
+                  $standby={isStandbyAreaType(loc.areaType)}
                   onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
                   onMouseLeave={() => handleLeave()}
                 ></Point>

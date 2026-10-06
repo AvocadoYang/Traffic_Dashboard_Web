@@ -6,6 +6,10 @@ import {
   MirAreaTypeMarker,
   isMirAreaType,
 } from "@/pages/Setting/mapComponents/components/AllLocation/components/MirAreaTypeMarker";
+import {
+  isPointAreaType,
+  isStandbyAreaType,
+} from "@/pages/Setting/mapComponents/components/AllLocation/pointAreaTypes";
 import { useAtomValue, useSetAtom } from "jotai";
 import { nearbyLocationIdSet, tooltipProp } from "@/utils/gloable";
 import { OpenDirect } from "@/pages/Main/global/jotai";
@@ -74,6 +78,7 @@ const LocationPoint: React.FC<{
         id={locationId}
         canrotate={`${canRotate}`}
         isNear={isNear}
+        $standby={isStandbyAreaType(areaType)}
         $destinationLabel={destinationAmr ? locationId : undefined}
         $amrColor={
           destinationAmr ? amrId2ColorRainbow(destinationAmr) : undefined
@@ -119,12 +124,7 @@ const AllLocation: React.FC<{
   const points = useMemo(() => {
     if (!data) return [];
     return data.locations
-      .filter(
-        ({ areaType }) =>
-          areaType === "EXTRA" ||
-          areaType === "DISPATCH" ||
-          isMirAreaType(areaType),
-      )
+      .filter(({ areaType }) => isPointAreaType(areaType))
       .map((loc) => {
         const [displayX, displayY] = rosCoord2DisplayCoord({
           x: loc.x,

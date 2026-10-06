@@ -10,6 +10,7 @@ import {
   isDetectableAreaType,
   isMirAreaType,
 } from "./components/MirAreaTypeMarker";
+import { isPointAreaType, isStandbyAreaType } from "./pointAreaTypes";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
 import {
   EditRoadPanelSwitch,
@@ -80,12 +81,7 @@ const AllLocation: FC<{
   return (
     <>
       {data.locations
-        .filter(
-          ({ areaType }) =>
-            areaType === "EXTRA" ||
-            areaType === "Dispatch" ||
-            isMirAreaType(areaType),
-        )
+        .filter(({ areaType }) => isPointAreaType(areaType))
         .map((loc) => {
           const [displayX, displayY] = rosCoord2DisplayCoord({
             x: loc.x,
@@ -145,6 +141,7 @@ const AllLocation: FC<{
                 top={displayY}
                 key={nanoid()}
                 isNear={nearbyLocationIds.has(loc.locationId.toString())}
+                $standby={isStandbyAreaType(loc.areaType)}
                 onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
                 onMouseLeave={() => handleLeave()}
                 onMouseDown={(e) =>
