@@ -98,7 +98,7 @@ const BlindLocationMissionModal: FC<{}> = () => {
       name: string;
     };
     if (open.locationId === null) {
-      messageApi.error("location error");
+      messageApi.error(t("blind_location.location_error"));
       return;
     }
     saveMutation.mutate({
@@ -146,7 +146,7 @@ const BlindLocationMissionModal: FC<{}> = () => {
                 { required: true, message: t("utils.required") },
                 {
                   pattern: /^\S+$/,
-                  message: "肏你媽不可以空白健 懂沒?",
+                  message: t("blind_location.no_whitespace"),
                 },
               ]}
             >
@@ -161,7 +161,11 @@ const BlindLocationMissionModal: FC<{}> = () => {
               <MissionTableSelect
                 onSelect={(record) => {
                   form.setFieldValue("missionTitleId", record.id);
-                  void messageApi.success(`Selected mission: ${record.name}`);
+                  void messageApi.success(
+                    t("main.mission_modal.selected_mission", {
+                      name: record.name,
+                    }),
+                  );
                 }}
                 placeholder={placeholder}
               />

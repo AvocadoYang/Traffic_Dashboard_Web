@@ -2,29 +2,42 @@ import {
   Drawer,
   Table,
   Tag,
-  Space,
   Typography,
   Button,
   Tooltip,
   ConfigProvider,
   Flex,
-  RadioChangeEvent,
   Input,
   DatePicker,
+  Badge,
+  message,
 } from "antd";
-import { Dispatch, FC, SetStateAction, useState, memo, useEffect } from "react";
+import {
+  Dispatch,
+  FC,
+  SetStateAction,
+  useState,
+  memo,
+  useEffect,
+  useMemo,
+} from "react";
 import { ColumnsType } from "antd/es/table";
 import moment from "moment";
 import {
   SyncOutlined,
   ExclamationCircleOutlined,
   DownloadOutlined,
+  SearchOutlined,
+  WarningOutlined,
+  AlertOutlined,
+  RollbackOutlined,
+  ToolOutlined,
 } from "@ant-design/icons";
 import useAllMissionHistory from "@/api/useMissionHistory";
+import useWarningTable from "@/api/useWarningTable";
 import { useTranslation } from "react-i18next";
 import styled, { createGlobalStyle } from "styled-components";
 import { mq } from "@/styles/responsive";
-import { translate } from "@/i18n";
 import { darkMode } from "@/utils/gloable";
 import { useAtomValue } from "jotai";
 import { useRejectMission } from "@/sockets/useRejectMission";
@@ -81,8 +94,7 @@ const IndustrialDrawer = styled(Drawer)<{ $isDark: boolean }>`
   }
   .ant-drawer-header {
     background: var(--c-bg-subtle);
-    border-bottom: 1px solid
-      var(--c-header-border);
+    border-bottom: 1px solid var(--c-header-border);
   }
   .ant-drawer-title {
     color: var(--c-text);
@@ -106,8 +118,7 @@ const IndustrialTableContainer = styled.div<{ $isDark: boolean }>`
     text-transform: uppercase;
     font-size: 11px;
     letter-spacing: 1px;
-    border-bottom: 2px solid
-      var(--c-header-border);
+    border-bottom: 2px solid var(--c-header-border);
     font-family: "Roboto Mono", monospace;
   }
   .ant-table-tbody > tr {
@@ -120,10 +131,13 @@ const IndustrialTableContainer = styled.div<{ $isDark: boolean }>`
     }
   }
   .ant-table-tbody > tr > td {
-    border-bottom: 1px solid
-      var(--c-bg-muted);
+    border-bottom: 1px solid var(--c-bg-muted);
     font-size: 12px;
     color: var(--c-text-secondary);
+    vertical-align: top;
+  }
+  .ant-table-expanded-row > td {
+    background: var(--c-bg-subtle) !important;
   }
   .ant-pagination {
     font-family: "Roboto Mono", monospace;
@@ -151,16 +165,6 @@ const IndustrialButton = styled(Button)`
       box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
     }
   }
-`;
-
-const MissionIdTag = styled(Tag)`
-  font-family: "Roboto Mono", monospace;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 2px 8px;
-  cursor: pointer;
 `;
 
 const StatusBadge = styled.span<{ $status: number; $isDark: boolean }>`
@@ -213,6 +217,12 @@ const StatusBadge = styled.span<{ $status: number; $isDark: boolean }>`
         border: "var(--c-danger)",
         text: "var(--c-danger)",
       },
+      6: {
+        // waiting
+        bg: "var(--c-bg-subtle)",
+        border: "var(--c-warning)",
+        text: "var(--c-warning)",
+      },
     };
     const color = statusColors[$status] || statusColors[0];
     return `
@@ -221,15 +231,6 @@ const StatusBadge = styled.span<{ $status: number; $isDark: boolean }>`
       color: ${color.text};
     `;
   }}
-`;
-
-const ModeTag = styled(Tag)<{ $isDark: boolean }>`
-  font-family: "Roboto Mono", monospace;
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 2px 6px;
 `;
 
 const ErrorMessage = styled.div<{ $isDark: boolean }>`
@@ -311,41 +312,234 @@ const IndustrialTypography = styled(Typography.Title)<{ $isDark: boolean }>`
   margin: 0 !important;
 `;
 
-const ViewButton = styled(Button)`
-  font-family: "Roboto Mono", monospace;
-  text-transform: uppercase;
-  font-size: 10px;
-  letter-spacing: 0.5px;
-  font-weight: 600;
+const CellStack = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 `;
 
-const MISSION_SORT = [
-  0, // pending
-  1, // assigned
-  2, // executing
-  3, // completed
-  4, // aborting
-  5, // canceled
-];
+const PrimaryText = styled.span`
+  color: var(--c-text);
+  font-weight: 600;
+  font-size: 13px;
+  word-break: break-word;
+`;
 
-const statusDesc = {
-  0: "⏱ 等待中",
-  1: "⏱ 已指派",
-  2: "🤖 進行中",
-  3: "😎 已完成",
-  4: "🥊進行時取消",
-  5: "🙅‍♂️ 已取消",
+const KindTag = styled(Tag)`
+  && {
+    margin: 1px 0 0;
+    padding: 0 6px;
+    font-size: 10px;
+    line-height: 18px;
+    flex-shrink: 0;
+  }
+`;
+
+const MutedText = styled.span<{ $tone?: "danger" | "warning" }>`
+  font-size: 11px;
+  color: ${({ $tone }) =>
+    $tone === "danger"
+      ? "var(--c-danger)"
+      : $tone === "warning"
+        ? "var(--c-warning)"
+        : "var(--c-text-muted)"};
+  word-break: break-word;
+`;
+
+const DetailGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-xs);
+
+  ${mq.pad} {
+    grid-template-columns: 1fr 1fr;
+  }
+`;
+
+const DetailSection = styled.section<{ $wide?: boolean }>`
+  ${({ $wide }) => ($wide ? "grid-column: 1 / -1;" : "")}
+  min-width: 0;
+
+  h5 {
+    margin: 0 0 var(--space-xs);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--c-text-muted);
+  }
+`;
+
+const DetailRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: 4px 0;
+  border-bottom: 1px dashed var(--c-bg-muted);
+  font-size: 12px;
+
+  & > span:first-child {
+    color: var(--c-text-muted);
+    flex-shrink: 0;
+  }
+  & > span:last-child {
+    color: var(--c-text);
+    text-align: right;
+    word-break: break-word;
+  }
+`;
+
+const Timeline = styled.ol`
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm) var(--space-xs);
+
+  ${mq.pad} {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+`;
+
+const TimelineStep = styled.li<{ $done: boolean; $tone?: "danger" }>`
+  position: relative;
+  padding-top: 14px;
+  font-size: 11px;
+  color: ${({ $done }) => ($done ? "var(--c-text)" : "var(--c-text-muted)")};
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: ${({ $done, $tone }) =>
+      !$done
+        ? "var(--c-bg-muted)"
+        : $tone === "danger"
+          ? "var(--c-danger)"
+          : "var(--c-header-accent)"};
+  }
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: ${({ $done, $tone }) =>
+      !$done
+        ? "var(--c-bg-muted)"
+        : $tone === "danger"
+          ? "var(--c-danger)"
+          : "var(--c-header-accent)"};
+  }
+
+  strong {
+    display: block;
+    font-weight: 600;
+  }
+`;
+
+const STATUS_LABEL_KEY = {
+  [MissionStatus.PENDING]: "mission_history.pending",
+  [MissionStatus.ASSIGNED]: "mission_history.assigned",
+  [MissionStatus.EXECUTING]: "mission_history.executing",
+  [MissionStatus.COMPLETED]: "mission_history.completed",
+  [MissionStatus.ABORTING]: "mission_history.aborting",
+  [MissionStatus.CANCELED]: "mission_history.canceled",
+  [MissionStatus.WAITING]: "mission_history.waiting",
+} as const;
+
+const PRIORITY_LABEL_KEY = [
+  "main.mission_modal.dialog_mission.priority.TRIVIAL",
+  "main.mission_modal.dialog_mission.priority.NORMAL",
+  "main.mission_modal.dialog_mission.priority.PIVOTAL",
+  "main.mission_modal.dialog_mission.priority.CRITICAL",
+] as const;
+
+const isCanceled = (status: number) =>
+  status === MissionStatus.CANCELED || status === MissionStatus.ABORTING;
+
+const diffMs = (from?: Date | null, to?: Date | null) => {
+  if (!from || !to) return null;
+  const ms = moment(to).diff(moment(from));
+  return ms >= 0 ? ms : null;
 };
+
+/** 同一年就不顯示年份，欄位才塞得下 */
+const formatShortTime = (date?: Date | null) => {
+  if (!date) return "—";
+  const m = moment(date);
+  return m.format(
+    m.isSame(moment(), "year") ? "MM/DD HH:mm:ss" : "YYYY/MM/DD HH:mm",
+  );
+};
+
+const formatFullTime = (date?: Date | null) =>
+  date ? moment(date).format("YYYY-MM-DD HH:mm:ss") : "—";
+
+type MissionKind =
+  | "normal"
+  | "dynamic"
+  | "move_away"
+  | "spin"
+  | "wait_point"
+  | "standby"
+  | "direct_move"
+  | "other";
+
+type MissionDescription = {
+  kind: MissionKind;
+  primary: string;
+  desc?: string;
+};
+
+const KIND_LABEL_KEY = {
+  normal: "mission_history.kind_normal",
+  dynamic: "mission_history.kind_dynamic",
+  move_away: "mission_history.kind_move_away",
+  spin: "mission_history.kind_spin",
+  wait_point: "mission_history.kind_wait_point",
+  standby: "mission_history.kind_standby",
+  direct_move: "mission_history.kind_direct_move",
+  other: "mission_history.kind_other",
+} as const satisfies Record<MissionKind, string>;
+
+const KIND_COLOR: Record<MissionKind, string | undefined> = {
+  normal: "blue",
+  dynamic: "cyan",
+  move_away: "orange",
+  spin: "geekblue",
+  wait_point: "gold",
+  standby: "green",
+  direct_move: "purple",
+  other: undefined,
+};
+
+/** "A -> B -> C" 拆成 ["A", "B", "C"] */
+const splitRoute = (subName?: string | null) =>
+  (subName ?? "")
+    .split("->")
+    .map((p) => p.trim())
+    .filter(Boolean);
 
 const MissionHistory: FC<{
   isOpenMissionHistory: boolean;
   setIsOpenMissionHistory: Dispatch<SetStateAction<boolean>>;
 }> = ({ isOpenMissionHistory, setIsOpenMissionHistory }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isDark = useAtomValue(darkMode);
   // antd 的 token 不能吃 var(),要餵真實色碼,所以這裡直接拿 palette
   const { colors } = useAtomValue(themeAtom);
   const rejectMission = useRejectMission();
+  const { data: warningTable } = useWarningTable();
+  const [messageApi, contextHolder] = message.useMessage();
   const [pagination, setPagination] = useState<{
     page: number;
     pageSize: number;
@@ -365,6 +559,7 @@ const MissionHistory: FC<{
     isLoading,
     error,
     refetch,
+    isFetching,
   } = useAllMissionHistory({
     ...pagination,
     search: debouncedSearch,
@@ -376,10 +571,168 @@ const MissionHistory: FC<{
   };
   const [size, setSize] = useState(980);
 
+  const warningInfo = useMemo(() => {
+    const map = new Map<number, string>();
+    warningTable?.forEach((w) => {
+      if (!w) return;
+      map.set(w.id, i18n.language === "en" ? w.info_en : w.info_ch);
+    });
+    return map;
+  }, [warningTable, i18n.language]);
+
+  const formatDuration = (ms: number | null) => {
+    if (ms === null) return null;
+    const totalSec = Math.round(ms / 1000);
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    const pad = (n: number) => String(n).padStart(2, "0");
+    if (h > 0)
+      return `${h}${t("mission_history.unit_h")} ${pad(m)}${t("mission_history.unit_m")}`;
+    if (m > 0)
+      return `${m}${t("mission_history.unit_m")} ${pad(s)}${t("mission_history.unit_s")}`;
+    return `${s}${t("mission_history.unit_s")}`;
+  };
+
+  const sendByLabel = (value: Send_By) => {
+    switch (value) {
+      case Send_By.RCS:
+        return t("mission_history.rcs");
+      case Send_By.WCS:
+        return t("mission_history.wcs");
+      case Send_By.USER:
+        return t("mission_history.user");
+      default:
+        return t("mission_history.unknown");
+    }
+  };
+
+  const missionTitle = (record: Mission) =>
+    record.full_name?.filter(Boolean).join(" → ") || record.sub_name || "—";
+
+  /**
+   * 後端 sub_name 依任務種類格式不同 (見 mission-control MissionTable.ts):
+   * - 一般任務: "起點ID -> 終點ID", full_name 才是設定的任務名稱
+   * - 動態任務: "來源名 -> 目的名"
+   * - 等待位置的動態任務: "來源 -> 目的1 / 目的2"
+   * - 交管移動 / 原地旋轉: full_name 是 "move away" / "spin", sub_name 是
+   *   "起點 -> 終點" (舊資料 sub_name 也是 "move away", 看不到路線)
+   * - 前往作業區等待點排隊: full_name 是 "wait point", sub_name 是等待點編號
+   * - 閒置規則派車回待命點: full_name 是 "standby", sub_name 是待命點編號
+   * - DIRECT MOVE: 路線點位串
+   */
+  const describeMission = (record: Mission): MissionDescription => {
+    const name = missionTitle(record);
+    const firstName = record.full_name?.[0];
+    const route = splitRoute(record.sub_name);
+
+    // 舊資料的 sub_name 就是 "move away" / "spin", 拆出來不是點位
+    const hasRoute = route.length > 0 && record.sub_name !== firstName;
+
+    if (firstName === "move away" || record.sub_name === "move away") {
+      return {
+        kind: "move_away",
+        primary: hasRoute
+          ? route.join(" → ")
+          : t("mission_history.move_away_title"),
+        desc: t("mission_history.desc_move_away"),
+      };
+    }
+
+    if (firstName === "spin") {
+      return {
+        kind: "spin",
+        primary: hasRoute
+          ? t("mission_history.spin_at", { at: route[0] })
+          : t("mission_history.spin_title"),
+        desc: t("mission_history.desc_spin"),
+      };
+    }
+
+    if (firstName === "wait point") {
+      return {
+        kind: "wait_point",
+        primary: hasRoute
+          ? t("mission_history.wait_point_at", { at: route[route.length - 1] })
+          : t("mission_history.wait_point_title"),
+        desc: t("mission_history.desc_wait_point"),
+      };
+    }
+
+    if (firstName === "standby") {
+      return {
+        kind: "standby",
+        primary: hasRoute
+          ? t("mission_history.standby_at", { at: route[route.length - 1] })
+          : t("mission_history.standby_title"),
+        desc: t("mission_history.desc_standby"),
+      };
+    }
+
+    if (firstName === "DIRECT MOVE") {
+      return {
+        kind: "direct_move",
+        primary: route.join(" → ") || "—",
+        desc: t("mission_history.desc_direct_move"),
+      };
+    }
+
+    if (firstName === "DYNAMIC MISSION") {
+      const dests = (route[1] ?? "").split("/").map((d) => d.trim());
+      return {
+        kind: "dynamic",
+        primary: record.sub_name ? route.join(" → ") : "—",
+        desc:
+          dests.length > 1
+            ? t("mission_history.desc_dynamic_candidates", {
+                dests: dests.join("、"),
+              })
+            : t("mission_history.desc_dynamic_waiting"),
+      };
+    }
+
+    if (record.category?.includes("normal-mission") && route.length) {
+      const from = route[0];
+      const to = route[route.length - 1];
+      return {
+        kind: "normal",
+        primary: name,
+        desc:
+          from === to
+            ? t("mission_history.desc_normal_same", { from })
+            : t("mission_history.desc_normal", { from, to }),
+      };
+    }
+
+    if (record.category?.includes("dynamic-mission") && route.length) {
+      return {
+        kind: "dynamic",
+        primary: route.join(" → "),
+        desc:
+          route.length === 2
+            ? t("mission_history.desc_dynamic", {
+                from: route[0],
+                to: route[1],
+              })
+            : t("mission_history.desc_dynamic_steps", {
+                count: route.length,
+              }),
+      };
+    }
+
+    // 其他 (例如 MiR 自訂任務): sub_name 就是任務名稱
+    const primary = record.sub_name || name;
+    return {
+      kind: "other",
+      primary,
+      desc: name !== primary ? name : undefined,
+    };
+  };
+
   const exportMutation = useMutation({
     mutationFn: async () => {
       if (!dateRange) {
-        throw new Error("請先選擇時間區間");
+        throw new Error(t("mission_history.export_need_range"));
       }
       const [start, end] = dateRange;
       const res = await client.get("/api/records/export-mission", {
@@ -403,10 +756,10 @@ const MissionHistory: FC<{
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-      alert("匯出成功");
+      messageApi.success(t("mission_history.export_success"));
     },
-    onError: (err: any) => {
-      alert("匯出失敗");
+    onError: () => {
+      messageApi.error(t("mission_history.export_failed"));
     },
   });
 
@@ -425,280 +778,373 @@ const MissionHistory: FC<{
     refetch();
   }, [isOpenMissionHistory]);
 
-  // Define table columns
+  // 後端分頁，前端排序只會排當頁、容易誤導，所以欄位不提供 sorter
   const columns: ColumnsType<Mission> = [
     {
-      title: t("mission_history.mission_id"),
-      dataIndex: "id",
-      key: "id",
-      sorter: (a, b) => a.id.localeCompare(b.id),
-      width: 150,
-      render: (missionId: string) => {
-        const info = rejectMission?.[missionId];
-        if (!info) return <MissionIdTag color="blue">{missionId}</MissionIdTag>;
-        const tooltipContent = (
-          <div
-            style={{
-              maxWidth: 260,
-              fontFamily: "Roboto Mono",
-              fontSize: 11,
-              color: "var(--c-text-secondary)",
-            }}
-          >
-            {info.map((entry, idx) => (
-              <div key={idx} style={{ marginBottom: 4 }}>
-                <strong>{entry.amrId}</strong>: {entry.reason}
-              </div>
-            ))}
-          </div>
-        );
+      title: t("mission_history.mission"),
+      key: "mission",
+      width: 240,
+      render: (_, record) => {
+        const { kind, primary, desc } = describeMission(record);
         return (
-          <Tooltip title={tooltipContent} color="blue" placement="right">
-            <MissionIdTag color="blue">{missionId}</MissionIdTag>
-          </Tooltip>
+          <CellStack>
+            <Flex gap={6} align="flex-start">
+              <KindTag bordered={false} color={KIND_COLOR[kind]}>
+                {t(KIND_LABEL_KEY[kind])}
+              </KindTag>
+              <PrimaryText>{primary}</PrimaryText>
+            </Flex>
+            {desc && <MutedText>{desc}</MutedText>}
+            <MutedText style={{ fontFamily: "Roboto Mono, monospace" }}>
+              #{record.id}
+            </MutedText>
+          </CellStack>
         );
       },
-    },
-    {
-      title: t("mission_history.amr_id"),
-      dataIndex: "amrId",
-      key: "amrId",
-      sorter: (a, b) => a.amrId.localeCompare(b.amrId),
-      width: 120,
     },
     {
       title: t("mission_history.status"),
       dataIndex: "status",
       key: "status",
+      width: 160,
       render: (status: number, record) => {
-        if (
-          status === MissionStatus.CANCELED ||
-          status === MissionStatus.ABORTING
-        ) {
-          return (
-            <Tooltip title={<I18nCancelReason reason={record.cancel_reason} />}>
-              <StatusBadge $status={status} $isDark={isDark}>
-                {statusDesc[status]}
-              </StatusBadge>
-            </Tooltip>
-          );
-        }
+        const rejects = rejectMission?.[record.id];
         return (
-          <StatusBadge $status={status} $isDark={isDark}>
-            {statusDesc[status]}
-          </StatusBadge>
+          <CellStack>
+            <span>
+              <StatusBadge $status={status} $isDark={isDark}>
+                {t(
+                  STATUS_LABEL_KEY[status as MissionStatus] ??
+                    "mission_history.unknown",
+                )}
+              </StatusBadge>
+            </span>
+            {isCanceled(status) && (
+              <MutedText $tone="danger">
+                <I18nCancelReason reason={record.cancel_reason} />
+              </MutedText>
+            )}
+            {status === MissionStatus.WAITING && record.message && (
+              <MutedText $tone="warning">{record.message}</MutedText>
+            )}
+            {status === MissionStatus.PENDING && rejects?.length ? (
+              <MutedText $tone="warning">
+                <WarningOutlined />{" "}
+                {t("mission_history.rejected_count", { count: rejects.length })}
+              </MutedText>
+            ) : null}
+          </CellStack>
         );
       },
-      sorter: (a, b) =>
-        MISSION_SORT.indexOf(a.status) - MISSION_SORT.indexOf(b.status),
-      width: 150,
     },
     {
-      title: t("mission_history.cancel_reason"),
-      dataIndex: "cancel_reason",
-      key: "cancel_reason",
-      sorter: (a, b) => a.amrId.localeCompare(b.amrId),
-      width: 120,
-      render(value, record, index) {
-        if (
-          record.status === MissionStatus.CANCELED ||
-          record.status === MissionStatus.ABORTING
-        ) {
-          return <I18nCancelReason reason={record.cancel_reason} />;
-        } else {
-          return <>-</>;
-        }
-      },
-    },
-
-    {
-      title: t("mission_history.full_name"),
-      dataIndex: "full_name",
-      key: "full_name",
-      sorter: (a, b) => (a.sub_name || "").localeCompare(b.sub_name || ""),
-      render: (full_name: string[]) => full_name?.join(", ") || "N/A",
-      width: 150,
-    },
-    {
-      title: t("mission_history.sub_name"),
-      dataIndex: "sub_name",
-      key: "sub_name",
-      sorter: (a, b) => (a.sub_name || "").localeCompare(b.sub_name || ""),
-      render: (text) => text || "N/A",
-      width: 150,
-    },
-    {
-      title: t("mission_history.category"),
-      dataIndex: "category",
-      key: "category",
-      sorter: (a, b) => (a.sub_name || "").localeCompare(b.sub_name || ""),
-      render: (category: string[]) => category?.join(", ") || "N/A",
-      width: 150,
-    },
-    {
-      title: t("mission_history.priority"),
-      dataIndex: "priority",
-      key: "priority",
-      sorter: (a, b) => (a.priority || 0) - (b.priority || 0),
-      render: (priority) => priority || "N/A",
-      width: 100,
-    },
-    {
-      title: t("mission_history.send_by"),
-      dataIndex: "send_by",
-      key: "send_by",
-      sorter: (a, b) => a.send_by - b.send_by,
-      render(value: Send_By) {
-        switch (value) {
-          case Send_By.UNKNOWN:
-            return t("mission_history.unknown");
-          case Send_By.RCS:
-            return t("mission_history.rcs");
-          case Send_By.WCS:
-            return t("mission_history.wcs");
-          case Send_By.USER:
-            return t("mission_history.user");
-          default:
-            return t("mission_history.unknown");
-        }
-      },
-      width: 100,
+      title: t("mission_history.vehicle"),
+      dataIndex: "amrId",
+      key: "amrId",
+      width: 140,
+      render: (amrId: string, record) => (
+        <CellStack>
+          <PrimaryText style={{ fontWeight: 500, fontSize: 12 }}>
+            {amrId || "—"}
+          </PrimaryText>
+          <MutedText>{sendByLabel(record.send_by)}</MutedText>
+        </CellStack>
+      ),
     },
     {
       title: t("mission_history.created_at"),
       dataIndex: "createdAt",
       key: "createdAt",
-      sorter: (a, b) => moment(a.createdAt).unix() - moment(b.createdAt).unix(),
-      render: (date) =>
-        date ? moment(date).format("YYYY-MM-DD HH:mm:ss") : "N/A",
-      width: 180,
-    },
-    {
-      title: t("mission_history.started_at"),
-      dataIndex: "startedAt",
-      key: "startedAt",
-      sorter: (a, b) => moment(a.startedAt).unix() - moment(b.startedAt).unix(),
-      render: (date) =>
-        date ? moment(date).format("YYYY-MM-DD HH:mm:ss") : "N/A",
-      width: 180,
-    },
-    {
-      title: t("mission_history.completed_at"),
-      dataIndex: "completedAt",
-      key: "completedAt",
-      sorter: (a, b) =>
-        moment(a.completedAt).unix() - moment(b.completedAt).unix(),
-      render: (date) =>
-        date ? moment(date).format("YYYY-MM-DD HH:mm:ss") : "N/A",
-      width: 180,
-    },
-    {
-      title: t("mission_history.total_time"),
-      key: "totalTime",
-      render: (_, record) => {
-        if (record.startedAt && record.completedAt) {
-          const duration = moment.duration(
-            moment(record.completedAt).diff(moment(record.startedAt)),
-          );
-          const minutes = Math.floor(duration.asMinutes());
-          const seconds = duration.seconds();
-          return duration.asMilliseconds() >= 0
-            ? `${minutes} ${t("mission_history.min")} ${seconds} ${t("mission_history.sec")}`
-            : "N/A";
-        }
-        return "N/A";
-      },
-      sorter: (a, b) => {
-        if (!a.startedAt || !a.completedAt || !b.startedAt || !b.completedAt)
-          return 0;
-        const durationA = moment(a.completedAt).diff(moment(a.startedAt));
-        const durationB = moment(b.completedAt).diff(moment(b.startedAt));
-        return durationA - durationB;
-      },
       width: 140,
-    },
-    {
-      title: t("mission_history.battery_cost"),
-      dataIndex: "batteryCost",
-      key: "batteryCost",
-      sorter: (a, b) => a.batteryCost - b.batteryCost,
-      render: (cost) => `${cost}%`,
-      width: 120,
-    },
-    {
-      title: t("mission_history.distance_traveled"),
-      dataIndex: "totalDistanceTraveled",
-      key: "totalDistanceTraveled",
-      sorter: (a, b) => a.totalDistanceTraveled - b.totalDistanceTraveled,
-      render: (distance) =>
-        `${distance.toFixed(2)} ${t("mission_history.distance_traveled").split("（")[1]?.replace("）", "") || "m"}`,
-      width: 150,
-    },
-    {
-      title: t("mission_history.manual_mode"),
-      dataIndex: "manualMode",
-      key: "manualMode",
-      render: (manual) => (
-        <ModeTag $isDark={isDark} color={manual ? "purple" : "blue"}>
-          {manual ? t("mission_history.manual") : t("mission_history.auto")}
-        </ModeTag>
+      render: (date: Date | undefined) => (
+        <Tooltip title={formatFullTime(date)}>
+          <span style={{ fontFamily: "Roboto Mono, monospace" }}>
+            {formatShortTime(date)}
+          </span>
+        </Tooltip>
       ),
-      width: 120,
     },
     {
-      title: t("mission_history.emergency_btn"),
-      dataIndex: "emergencyBtn",
-      key: "emergencyBtn",
-      render: (emergency) => (
-        <ModeTag $isDark={isDark} color={emergency ? "red" : "green"}>
-          {emergency
-            ? t("mission_history.pressed")
-            : t("mission_history.not_pressed")}
-        </ModeTag>
-      ),
-      width: 120,
+      title: t("mission_history.duration"),
+      key: "duration",
+      width: 130,
+      render: (_, record) => {
+        const exec = formatDuration(
+          diffMs(record.startedAt, record.completedAt),
+        );
+        const wait = formatDuration(diffMs(record.createdAt, record.startedAt));
+        const running =
+          record.status === MissionStatus.EXECUTING ||
+          record.status === MissionStatus.ASSIGNED;
+        return (
+          <CellStack>
+            <PrimaryText style={{ fontFamily: "Roboto Mono, monospace" }}>
+              {exec ??
+                (running
+                  ? t("mission_history.in_progress")
+                  : record.startedAt
+                    ? "—"
+                    : t("mission_history.not_started"))}
+            </PrimaryText>
+            {wait && (
+              <MutedText>
+                {t("mission_history.waited", { time: wait })}
+              </MutedText>
+            )}
+          </CellStack>
+        );
+      },
     },
     {
-      title: t("mission_history.recovery_btn"),
-      dataIndex: "recoveryBtn",
-      key: "recoveryBtn",
-      render: (recovery) => (
-        <ModeTag $isDark={isDark} color={recovery ? "orange" : "green"}>
-          {recovery
-            ? t("mission_history.pressed")
-            : t("mission_history.not_pressed")}
-        </ModeTag>
-      ),
-      width: 120,
-    },
-    {
-      title: t("mission_history.warning_id_list"),
-      dataIndex: "warningIdList",
-      key: "warningIdList",
-      render: (warningIdList: number[] | null) =>
-        warningIdList && warningIdList.length > 0
-          ? warningIdList.join(", ")
-          : t("mission_history.none"),
-      width: 150,
-    },
-    {
-      title: t("mission_history.actions"),
-      key: "actions",
-      render: (_, record) => (
-        <Space size="middle">
-          <ViewButton
-            type="link"
-            onClick={() => {
-              console.log(t("mission_history.view"), record.id);
-            }}
-          >
-            {t("mission_history.view")}
-          </ViewButton>
-        </Space>
-      ),
+      title: t("mission_history.flags"),
+      key: "flags",
       width: 100,
+      render: (_, record) => {
+        const warnings = record.warningIdList?.length ?? 0;
+        const flags = [
+          warnings > 0 && (
+            <Tooltip
+              key="warn"
+              title={t("mission_history.warning_count", { count: warnings })}
+            >
+              <Badge count={warnings} size="small" color="var(--c-warning)">
+                <WarningOutlined
+                  style={{ color: "var(--c-warning)", fontSize: 16 }}
+                />
+              </Badge>
+            </Tooltip>
+          ),
+          record.emergencyBtn && (
+            <Tooltip key="ems" title={t("mission_history.emergency_pressed")}>
+              <AlertOutlined
+                style={{ color: "var(--c-danger)", fontSize: 16 }}
+              />
+            </Tooltip>
+          ),
+          record.recoveryBtn && (
+            <Tooltip key="rec" title={t("mission_history.recovery_pressed")}>
+              <RollbackOutlined
+                style={{ color: "var(--c-warning)", fontSize: 16 }}
+              />
+            </Tooltip>
+          ),
+          record.manualMode && (
+            <Tooltip key="manual" title={t("mission_history.manual_mode")}>
+              <ToolOutlined
+                style={{ color: "var(--c-text-secondary)", fontSize: 16 }}
+              />
+            </Tooltip>
+          ),
+        ].filter(Boolean);
+        return flags.length ? (
+          <Flex gap={10} align="center" wrap>
+            {flags}
+          </Flex>
+        ) : (
+          <MutedText>—</MutedText>
+        );
+      },
     },
   ];
+
+  const renderDetail = (record: Mission) => {
+    const ended = isCanceled(record.status);
+    const steps: { label: string; at?: Date | null; prev?: Date | null }[] = [
+      { label: t("mission_history.created_at"), at: record.createdAt },
+      {
+        label: t("mission_history.assigned_at"),
+        at: record.assignedAt,
+        prev: record.createdAt,
+      },
+      {
+        label: t("mission_history.started_at"),
+        at: record.startedAt,
+        prev: record.assignedAt ?? record.createdAt,
+      },
+      {
+        label: ended
+          ? t("mission_history.ended_at")
+          : t("mission_history.completed_at"),
+        at: record.completedAt,
+        prev: record.startedAt ?? record.assignedAt ?? record.createdAt,
+      },
+    ];
+    const batteryEnd = record.batteryRateWhenStarted - record.batteryCost;
+    const rejects = rejectMission?.[record.id];
+    // 後端的 category 會有重複值 (例如兩個 dynamic-mission)
+    const categories = [
+      ...new Set(record.category?.filter((c): c is string => !!c)),
+    ];
+
+    return (
+      <DetailGrid>
+        <DetailSection $wide>
+          <h5>{t("mission_history.timeline")}</h5>
+          <Timeline>
+            {steps.map((step, idx) => {
+              const delta = formatDuration(diffMs(step.prev, step.at));
+              return (
+                <TimelineStep
+                  key={idx}
+                  $done={!!step.at}
+                  $tone={
+                    ended && idx === steps.length - 1 ? "danger" : undefined
+                  }
+                >
+                  <strong>{step.label}</strong>
+                  <span style={{ fontFamily: "Roboto Mono, monospace" }}>
+                    {formatFullTime(step.at)}
+                  </span>
+                  {delta && idx > 0 && <MutedText> (+{delta})</MutedText>}
+                </TimelineStep>
+              );
+            })}
+          </Timeline>
+        </DetailSection>
+
+        <DetailSection>
+          <h5>{t("mission_history.detail")}</h5>
+          <DetailRow>
+            <span>{t("mission_history.mission_id")}</span>
+            <Typography.Text
+              copyable
+              style={{ fontFamily: "Roboto Mono, monospace", fontSize: 12 }}
+            >
+              {record.id}
+            </Typography.Text>
+          </DetailRow>
+          <DetailRow>
+            <span>{t("mission_history.full_name")}</span>
+            <span>{missionTitle(record)}</span>
+          </DetailRow>
+          {record.sub_name && (
+            <DetailRow>
+              <span>{t("mission_history.sub_name")}</span>
+              <span>{splitRoute(record.sub_name).join(" → ") || "—"}</span>
+            </DetailRow>
+          )}
+          <DetailRow>
+            <span>{t("mission_history.priority")}</span>
+            <span>
+              {record.priority !== undefined && record.priority !== null
+                ? t(
+                    PRIORITY_LABEL_KEY[record.priority] ??
+                      "mission_history.unknown",
+                  )
+                : "—"}
+            </span>
+          </DetailRow>
+          <DetailRow>
+            <span>{t("mission_history.send_by")}</span>
+            <span>{sendByLabel(record.send_by)}</span>
+          </DetailRow>
+          <DetailRow>
+            <span>{t("mission_history.category")}</span>
+            <span>
+              {categories.length
+                ? categories.map((c) => (
+                    <Tag key={c} style={{ marginInlineEnd: 4 }}>
+                      {c}
+                    </Tag>
+                  ))
+                : "—"}
+            </span>
+          </DetailRow>
+          {isCanceled(record.status) && (
+            <DetailRow>
+              <span>{t("mission_history.cancel_reason")}</span>
+              <span style={{ color: "var(--c-danger)" }}>
+                <I18nCancelReason reason={record.cancel_reason} />
+              </span>
+            </DetailRow>
+          )}
+          {record.message && (
+            <DetailRow>
+              <span>{t("mission_history.message")}</span>
+              <span>{record.message}</span>
+            </DetailRow>
+          )}
+        </DetailSection>
+
+        <DetailSection>
+          <h5>{t("mission_history.vehicle")}</h5>
+          <DetailRow>
+            <span>{t("mission_history.amr_id")}</span>
+            <span>{record.amrId || "—"}</span>
+          </DetailRow>
+          <DetailRow>
+            <span>{t("mission_history.battery")}</span>
+            <span>
+              {record.startedAt
+                ? t("mission_history.battery_detail", {
+                    start: record.batteryRateWhenStarted,
+                    end: batteryEnd,
+                    cost: record.batteryCost,
+                  })
+                : "—"}
+            </span>
+          </DetailRow>
+          <DetailRow>
+            <span>{t("mission_history.distance")}</span>
+            <span>{`${record.totalDistanceTraveled.toFixed(1)} m`}</span>
+          </DetailRow>
+          <DetailRow>
+            <span>{t("mission_history.manual_mode")}</span>
+            <span>{record.manualMode ? t("utils.yes") : t("utils.no")}</span>
+          </DetailRow>
+          <DetailRow>
+            <span>{t("mission_history.emergency_btn")}</span>
+            <span
+              style={
+                record.emergencyBtn ? { color: "var(--c-danger)" } : undefined
+              }
+            >
+              {record.emergencyBtn
+                ? t("mission_history.pressed")
+                : t("mission_history.not_pressed")}
+            </span>
+          </DetailRow>
+          <DetailRow>
+            <span>{t("mission_history.recovery_btn")}</span>
+            <span
+              style={
+                record.recoveryBtn ? { color: "var(--c-warning)" } : undefined
+              }
+            >
+              {record.recoveryBtn
+                ? t("mission_history.pressed")
+                : t("mission_history.not_pressed")}
+            </span>
+          </DetailRow>
+        </DetailSection>
+
+        {!!record.warningIdList?.length && (
+          <DetailSection $wide>
+            <h5>{t("mission_history.warnings")}</h5>
+            <Flex gap={6} wrap>
+              {record.warningIdList.map((id, idx) => (
+                <Tag key={`${id}-${idx}`} color="warning">
+                  #{id} {warningInfo.get(id) ?? ""}
+                </Tag>
+              ))}
+            </Flex>
+          </DetailSection>
+        )}
+
+        {!!rejects?.length && (
+          <DetailSection $wide>
+            <h5>{t("mission_history.reject_reasons")}</h5>
+            {rejects.map((entry, idx) => (
+              <DetailRow key={idx}>
+                <span>{entry.amrId}</span>
+                <span>{entry.reason}</span>
+              </DetailRow>
+            ))}
+          </DetailSection>
+        )}
+      </DetailGrid>
+    );
+  };
 
   return (
     <ConfigProvider
@@ -710,6 +1156,7 @@ const MissionHistory: FC<{
         },
       }}
     >
+      {contextHolder}
       <RangePopupGlobalStyle />
       <IndustrialDrawer
         $isDark={isDark}
@@ -722,6 +1169,7 @@ const MissionHistory: FC<{
             <DrawerTitleActions>
               <Input
                 placeholder={t("mission_history.search_mission_or_id")}
+                prefix={<SearchOutlined />}
                 allowClear
                 style={{ flex: "1 1 200px", minWidth: 180, maxWidth: 260 }}
                 value={searchText}
@@ -737,19 +1185,25 @@ const MissionHistory: FC<{
                 styles={{ popup: { container: { marginInlineStart: 0 } } }}
               />
 
-              <Button
-                icon={<DownloadOutlined />}
-                disabled={!dateRange}
-                loading={exportMutation.isPending}
-                onClick={() => exportMutation.mutate()}
+              <Tooltip
+                title={
+                  dateRange ? undefined : t("mission_history.export_need_range")
+                }
               >
-                {t("mission_history.export") || "匯出 Excel"}
-              </Button>
+                <Button
+                  icon={<DownloadOutlined />}
+                  disabled={!dateRange}
+                  loading={exportMutation.isLoading}
+                  onClick={() => exportMutation.mutate()}
+                >
+                  {t("mission_history.export")}
+                </Button>
+              </Tooltip>
 
               <IndustrialButton
                 className="refresh-btn"
                 type="primary"
-                icon={<SyncOutlined />}
+                icon={<SyncOutlined spin={isFetching} />}
                 onClick={() => refetch()}
                 size="small"
               >
@@ -776,23 +1230,27 @@ const MissionHistory: FC<{
         ) : (
           <IndustrialTableContainer $isDark={isDark}>
             <Table
-              columns={columns as []}
-              dataSource={missions?.data}
+              columns={columns}
+              dataSource={missions?.data as Mission[] | undefined}
               loading={isLoading}
               rowKey="id"
+              expandable={{
+                expandedRowRender: renderDetail,
+                expandRowByClick: true,
+              }}
               pagination={{
                 current: pagination.page,
                 pageSize: pagination.pageSize,
                 total: missions?.pagination.total,
                 showSizeChanger: true,
                 pageSizeOptions: ["10", "20", "50"],
-                showTotal: (total) => `TOTAL: ${total} MISSIONS`,
+                showTotal: (total) =>
+                  t("mission_history.total_missions", { count: total }),
                 onChange: (page, pageSize) => {
                   setPagination({ page, pageSize });
                 },
               }}
-              scroll={{ x: 1400 }}
-              bordered
+              scroll={{ x: 910 }}
             />
           </IndustrialTableContainer>
         )}

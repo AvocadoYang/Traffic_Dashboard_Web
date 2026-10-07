@@ -2,6 +2,7 @@ import { MessageInstance } from "antd/es/message/interface";
 import { ErrorResponse } from "./globalType";
 import { MD5 } from "crypto-js";
 import convert from "color-convert";
+import i18next from "i18next";
 
 export const rosCoord2DisplayCoord = ({
   x,
@@ -100,9 +101,34 @@ export const errorHandler = (e: ErrorResponse, messageApi: MessageInstance) => {
   const errorMessage =
     e?.response?.data?.message ||
     e?.response?.data?.error.message ||
-    "An unknown error occurred";
+    // 這裡不在元件裡,拿不到 useTranslation 的 t;全域 i18next.t 的 key 型別
+    // 又跟 hook 的不一樣,所以收斂成 string
+    (i18next.t as (key: string) => string)("utils.unknown_error");
 
   void messageApi.error(errorMessage, 5);
+};
+
+/**
+ * 編輯 (整筆寫回去的那種) 失敗時用這個.
+ *
+ * 後端回 409 表示這筆資料在打開編輯之後被別人改過或刪掉了:表單上是舊資料,
+ * 再按一次儲存也不會過,要重讀。onConflict 負責重讀資料、關掉編輯視窗。
+ * 其他錯誤照 errorHandler 顯示。
+ */
+export const editErrorHandler = (
+  e: ErrorResponse,
+  messageApi: MessageInstance,
+  onConflict: () => void,
+) => {
+  if (e?.response?.status !== 409) {
+    errorHandler(e, messageApi);
+    return;
+  }
+  void messageApi.warning(
+    (i18next.t as (key: string) => string)("utils.edit_conflict"),
+    6,
+  );
+  onConflict();
 };
 
 export const amrId2Color = (amrId: string) => {

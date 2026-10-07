@@ -392,7 +392,7 @@ const AmrConfigPanel: FC<{
     const replace_id = formDelete.getFieldValue("change_id");
 
     if (!replace_id || !deleteRobotId) {
-      messageApi.error("PLEASE SELECT ROBOT TYPE");
+      messageApi.error(t("setting_amr.select_robot_type_required"));
       return;
     }
 
@@ -537,15 +537,15 @@ const AmrConfigPanel: FC<{
             <Form.Item
               name="name"
               label={t("toolbar.amr_setting.amr_name")}
-              rules={[{ required: true, message: "REQUIRED FIELD" }]}
+              rules={[{ required: true, message: t("utils.required") }]}
             >
-              <Input placeholder="平衡式" />
+              <Input placeholder={t("setting_v2.amr.name_placeholder")} />
             </Form.Item>
 
             <Form.Item
               name="value"
               label={t("toolbar.amr_setting.serial_name")}
-              rules={[{ required: true, message: "REQUIRED FIELD" }]}
+              rules={[{ required: true, message: t("utils.required") }]}
             >
               <Input placeholder="anfa-ps14-16" />
             </Form.Item>
@@ -644,12 +644,12 @@ const AmrConfigPanel: FC<{
       <IndustrialModal
         onCancel={closeDeleteModel}
         open={openDeleteWarn.length > 0}
-        title="REPLACE ROBOT TYPE REQUIRED"
+        title={t("setting_amr.replace_required")}
         onOk={handleDeleteAndChangeRobotTypes}
         okText="CONFIRM"
         cancelText="CANCEL"
       >
-        <WarningCard title="⚠️ WARNING: RELATED MISSIONS FOUND">
+        <WarningCard title={t("setting_amr.related_missions")}>
           <p
             style={{
               fontFamily: "Roboto Mono",
@@ -657,7 +657,7 @@ const AmrConfigPanel: FC<{
               marginBottom: 16,
             }}
           >
-            This robot type is used in the following missions:
+            {t("setting_amr.used_in_missions")}
           </p>
           <ul
             style={{
@@ -679,14 +679,14 @@ const AmrConfigPanel: FC<{
         <StyledForm form={formDelete} layout="vertical">
           <Form.Item
             name="change_id"
-            label="SELECT REPLACEMENT ROBOT TYPE"
-            rules={[{ required: true, message: "REQUIRED FIELD" }]}
+            label={t("setting_amr.select_replacement")}
+            rules={[{ required: true, message: t("utils.required") }]}
           >
             <Select
               style={{ width: "100%" }}
               size="large"
               options={rOption}
-              placeholder="SELECT ROBOT TYPE"
+              placeholder={t("setting_amr.select_robot_type")}
             />
           </Form.Item>
         </StyledForm>

@@ -1,9 +1,17 @@
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import { applyTheme, readStoredThemeId, THEME_STORAGE_KEY } from "./applyTheme";
 import {
+  applyTheme,
+  MAP_IMAGE_STORAGE_KEY,
+  readStoredMapImageMode,
+  readStoredThemeId,
+  THEME_STORAGE_KEY,
+} from "./applyTheme";
+import {
+  DEFAULT_MAP_IMAGE_MODE,
   DEFAULT_THEME_ID,
   getTheme,
+  type MapImageMode,
   type Theme,
   type ThemeId,
 } from "./palettes";
@@ -65,8 +73,52 @@ export const currentThemeIdAtom = atom<ThemeId>((get) => {
 /** 唯讀的衍生 atom:要拿真實顏色值(例如餵給 antd)的地方取這顆。 */
 export const themeAtom = atom<Theme>((get) => getTheme(get(currentThemeIdAtom)));
 
-/** 切主題:寫進 storage 的同時立刻把 <html> 上的 CSS 變數換掉。 */
-export const setThemeAtom = atom(null, (_get, set, id: ThemeId) => {
-  set(themeIdAtom, id);
-  applyTheme(getTheme(id));
+/** 跟 themeStorage 同一個道理:存純字串,讀不到 / 存不進去都不要 throw。 */
+const mapImageStorage = {
+  getItem: (_key: string, _initialValue: MapImageMode): MapImageMode =>
+    readStoredMapImageMode(),
+  setItem: (key: string, value: MapImageMode): void => {
+    try {
+      localStorage.setItem(key, value);
+    } catch {
+      /* 存不進去就算了,當次 session 仍然可以正常切換 */
+    }
+  },
+  removeItem: (key: string): void => {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      /* 同上 */
+    }
+  },
+};
+
+const storedMapImageModeAtom = atomWithStorage<MapImageMode>(
+  MAP_IMAGE_STORAGE_KEY,
+  readStoredMapImageMode(),
+  mapImageStorage,
+  { getOnInit: true },
+);
+
+/** 地圖底圖的顯示方式:跟著主題重新上色,或是原圖。 */
+export const mapImageModeAtom = atom<MapImageMode>((get) => {
+  const mode = get(storedMapImageModeAtom);
+  return mode === "themed" || mode === "original"
+    ? mode
+    : DEFAULT_MAP_IMAGE_MODE;
 });
+
+/** 切主題:寫進 storage 的同時立刻把 <html> 上的 CSS 變數換掉。 */
+export const setThemeAtom = atom(null, (get, set, id: ThemeId) => {
+  set(themeIdAtom, id);
+  applyTheme(getTheme(id), get(mapImageModeAtom));
+});
+
+/** 切底圖的顯示方式。地圖上的顏色會跟著底圖的深淺換一組,所以也要重套一次。 */
+export const setMapImageModeAtom = atom(
+  null,
+  (get, set, mode: MapImageMode) => {
+    set(storedMapImageModeAtom, mode);
+    applyTheme(get(themeAtom), mode);
+  },
+);

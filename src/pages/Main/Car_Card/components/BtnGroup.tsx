@@ -1,11 +1,11 @@
 /* eslint-disable no-void */
 
-import { Flex, Button, message, Tooltip } from "antd";
+import { message, Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
 import { FC, useState } from "react";
 import client from "@/api/axiosClient";
 import { useMutation } from "@tanstack/react-query";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { useSetAtom } from "jotai";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
@@ -21,280 +21,154 @@ import {
   FireOutlined,
   CloudSyncOutlined,
   AimOutlined,
+  RotateRightOutlined,
 } from "@ant-design/icons";
+import { isFork } from "@/utils/globalFunction";
 import MaintenancePanel from "./MaintenancePanel";
+import SpinModal from "./SpinModal";
 
-// Industrial Styled Components
-const IndustrialContainer = styled(Flex)`
-  width: 100%;
-  border: 2px solid #d9d9d9;
-  border-left: 4px solid #1890ff;
-  padding: 12px;
-  background: #ffffff;
-  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.02);
-  position: relative;
+// 選單外觀跟著全站主題走:一般動作是中性的描邊按鈕,
+// 只有「會出事」的動作才上狀態色,而且顏色只分三種:
+// danger(刪除 / 暫停 / 關機)、warning(重置)、primary(解除暫停)。
+type ActionTone = "default" | "primary" | "warning" | "danger" | "dangerSolid";
 
-  @media (max-width: 1600px) {
-    padding: 8px;
-  }
-`;
+const TONE_STYLE: Record<ActionTone, ReturnType<typeof css>> = {
+  default: css`
+    background: var(--c-bg);
+    border-color: var(--c-border-strong);
+    color: var(--c-text);
 
-const IndustrialButton = styled(Button)`
-  width: 100%;
-  height: 56px;
-  font-family:
-    "Inter",
-    "PingFang TC",
-    "Microsoft JhengHei",
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
-  text-transform: none;
-  font-size: 12px;
-  letter-spacing: 0.2px;
-  font-weight: 700;
-  border-radius: 0;
-  transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
+    &:hover {
+      background: var(--c-header-accent-soft);
+      border-color: var(--c-header-accent);
+      color: var(--c-header-accent);
+    }
+  `,
+  primary: css`
+    background: var(--c-header-accent-soft);
+    border-color: var(--c-header-accent);
+    color: var(--c-header-accent);
+
+    &:hover {
+      background: var(--c-header-accent);
+      color: var(--c-bg);
+    }
+  `,
+  warning: css`
+    background: var(--c-warning-soft);
+    border-color: var(--c-warning);
+    color: var(--c-text);
+
+    &:hover {
+      box-shadow: inset 0 0 0 1px var(--c-warning);
+    }
+  `,
+  danger: css`
+    background: var(--c-bg);
+    border-color: var(--c-danger);
+    color: var(--c-danger);
+
+    &:hover {
+      background: var(--c-danger-soft);
+    }
+  `,
+  dangerSolid: css`
+    background: var(--c-danger);
+    border-color: var(--c-danger);
+    color: var(--c-bg);
+
+    &:hover {
+      filter: brightness(1.1);
+    }
+  `,
+};
+
+const MenuContainer = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  /* 在 Popover 裡沒有外框可以撐寬度,自己給一個;放進 Modal 時則跟著 Modal 走 */
+  min-width: min(400px, calc(100vw - 80px));
+  font-family: "Roboto Mono", monospace;
+`;
+
+const Section = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+const SectionLabel = styled.div`
+  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  white-space: normal;
-  line-height: 1.3;
-  text-align: center;
-  padding: 6px 4px;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--c-text-muted);
 
-  .anticon,
-  svg {
-    font-size: 18px;
-  }
-
-  @media (max-width: 900px) {
-    height: 50px;
-    font-size: 11px;
-
-    .anticon,
-    svg {
-      font-size: 16px;
-    }
-  }
-
-  &::before {
+  &::after {
     content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 0;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2));
-    transition: width 0.3s;
-  }
-
-  &:hover::before {
-    width: 100%;
-  }
-
-  &.charge-btn {
-    background: #f6ffed;
-    border: 1px solid #52c41a;
-    border-left: 4px solid #52c41a;
-    color: #237804;
-
-    &:hover {
-      background: #d9f7be;
-      border-color: #73d13d;
-      border-left-color: #73d13d;
-      color: #135200;
-      box-shadow: 0 2px 8px rgba(82, 196, 26, 0.3);
-    }
-  }
-
-  &.delete-btn {
-    background: #fff1f0;
-    border: 1px solid #ff4d4f;
-    border-left: 4px solid #ff4d4f;
-    color: #a8071a;
-
-    &:hover {
-      background: #ffccc7;
-      border-color: #ff7875;
-      border-left-color: #ff7875;
-      color: #820014;
-      box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3);
-    }
-  }
-
-  &.force-delete-btn {
-    background: #ff4d4f;
-    border: 1px solid #ff4d4f;
-    border-left: 4px solid #cf1322;
-    color: #ffffff;
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
-
-    &:hover {
-      background: #ff7875;
-      border-color: #ff7875;
-      border-left-color: #cf1322;
-      box-shadow: 0 2px 8px rgba(255, 77, 79, 0.4);
-    }
-  }
-
-  &.emergency-btn {
-    background: #ff4d4f;
-    border: 2px solid #cf1322;
-    border-left: 4px solid #820014;
-    color: #ffffff;
-    font-weight: 800;
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
-    animation: pulse 2s ease-in-out infinite;
-
-    &:hover {
-      background: #ff7875;
-      border-color: #ff4d4f;
-      border-left-color: #820014;
-      box-shadow: 0 0 20px rgba(255, 77, 79, 0.5);
-    }
-
-    @keyframes pulse {
-      0%,
-      100% {
-        box-shadow: 0 0 0 0 rgba(255, 77, 79, 0.4);
-      }
-      50% {
-        box-shadow: 0 0 0 8px rgba(255, 77, 79, 0);
-      }
-    }
-  }
-
-  &.continue-btn {
-    background: #f0f5ff;
-    border: 1px solid #1890ff;
-    border-left: 4px solid #1890ff;
-    color: #0050b3;
-
-    &:hover {
-      background: #d6e4ff;
-      border-color: #40a9ff;
-      border-left-color: #40a9ff;
-      color: #003a8c;
-      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
-    }
-  }
-
-  &.update-btn {
-    background: #fffbe6;
-    border: 1px solid #faad14;
-    border-left: 4px solid #faad14;
-    color: #613400;
-
-    &:hover {
-      background: #fff1b8;
-      border-color: #ffc53d;
-      border-left-color: #ffc53d;
-      color: #613400;
-      box-shadow: 0 2px 8px rgba(250, 173, 20, 0.3);
-    }
-  }
-
-  &.reset-btn {
-    background: #faad14;
-    border: 1px solid #faad14;
-    border-left: 4px solid #ad6800;
-    color: #ffffff;
-    font-weight: 800;
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-
-    &:hover {
-      background: #ffc53d;
-      border-color: #ffc53d;
-      border-left-color: #ad6800;
-      box-shadow: 0 2px 8px rgba(250, 173, 20, 0.4);
-    }
-  }
-
-  &.update-position-btn {
-    background: #fffbe6;
-    border: 1px solid #faad14;
-    border-left: 4px solid #faad14;
-    color: #613400;
-
-    &:hover {
-      background: #fff1b8;
-      border-color: #ffc53d;
-      border-left-color: #ffc53d;
-      color: #613400;
-      box-shadow: 0 2px 8px rgba(250, 173, 20, 0.3);
-    }
-  }
-
-  &.localization-btn {
-    background: #f9f0ff;
-    border: 1px solid #722ed1;
-    border-left: 4px solid #722ed1;
-    color: #391085;
-
-    &:hover {
-      background: #efdbff;
-      border-color: #9254de;
-      border-left-color: #9254de;
-      color: #22075e;
-      box-shadow: 0 2px 8px rgba(114, 46, 209, 0.3);
-    }
-  }
-
-  &.shutdown-btn {
-    background: #f5f5f5;
-    border: 1px solid #595959;
-    border-left: 4px solid #262626;
-    color: #262626;
-
-    &:hover {
-      background: #e8e8e8;
-      border-color: #8c8c8c;
-      border-left-color: #262626;
-      color: #000000;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    }
+    flex: 1;
+    height: 1px;
+    background: var(--c-border);
   }
 `;
 
 const ButtonGroup = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  width: 100%;
-  position: relative;
-  z-index: 1;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 6px;
+`;
 
-  @media (max-width: 900px) {
-    gap: 6px;
+const ActionButton = styled.button<{ $tone?: ActionTone }>`
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1px solid;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease,
+    filter 0.15s ease;
+
+  ${({ $tone = "default" }) => TONE_STYLE[$tone]}
+
+  .anticon,
+  svg {
+    flex-shrink: 0;
+    font-size: 15px;
+    fill: currentColor;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--c-header-accent);
+    outline-offset: 1px;
+  }
+
+  &:active {
+    transform: translateY(1px);
   }
 `;
-
-const Divider = styled.div`
-  grid-column: 1 / -1; /* 永遠跨滿 4 欄整行 */
-  height: 2px;
-  background: repeating-linear-gradient(
-    90deg,
-    #d9d9d9 0,
-    #d9d9d9 8px,
-    transparent 8px,
-    transparent 16px
-  );
-  margin: 6px 0;
-`;
-
-// If MaintenancePanel is a custom component, you might need to wrap it
-// in the JSX to ensure it spans 2 columns in the grid:
-// <div style={{ gridColumn: 'span 2' }}><MaintenancePanel ... /></div>
 
 const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
   const { t } = useTranslation();
   const [messageApi, contextHolder] = message.useMessage();
   const [isCarrierModalOpen, setIsCarrierModalOpen] = useState(false);
+  const [isSpinModalOpen, setIsSpinModalOpen] = useState(false);
   const setLocalizationCorrection = useSetAtom(localizationCorrection);
 
   const manualChargeMutation = useMutation({
@@ -392,130 +266,159 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
   return (
     <>
       {contextHolder}
-      <IndustrialContainer justify="center" align="center" vertical gap="none">
-        <ButtonGroup>
-          {/* Charge Section */}
-          <IndustrialButton
-            className="charge-btn"
-            onClick={() => manualChargeMutation.mutate()}
-            icon={<ThunderboltOutlined />}
-          >
-            {t("charge.charge")}
-          </IndustrialButton>
-
-          <IndustrialButton
-            className="charge-btn"
-            onClick={() => resetChargeMutation.mutate()}
-            icon={<ThunderboltOutlined />}
-          >
-            {t("amr_card.charge_reset")}
-          </IndustrialButton>
-
-          <Divider />
-
-          {/* Mission Management */}
-          <IndustrialButton
-            className="delete-btn"
-            onClick={() => handleDelMis()}
-            icon={<DeleteOutlined />}
-          >
-            {t("amr_card.delete_current_mission")}
-          </IndustrialButton>
-
-          <IndustrialButton
-            className="force-delete-btn"
-            onClick={() => handleForceDelMis()}
-            icon={<FireOutlined />}
-          >
-            {t("amr_card.force_delete_mission")}
-          </IndustrialButton>
-
-          <Divider />
-
-          {/* Maintenance Level */}
-          <MaintenancePanel amrId={amrId} />
-
-          <Divider />
-
-          {/* Emergency Controls */}
-          <IndustrialButton
-            className="emergency-btn"
-            onClick={() => handleEmergencyStop(true)}
-            icon={<WarningOutlined />}
-          >
-            {t("amr_card.emergency_stop")}
-          </IndustrialButton>
-
-          <IndustrialButton
-            className="continue-btn"
-            onClick={() => handleEmergencyStop(false)}
-            icon={<PlayCircleOutlined />}
-          >
-            {t("amr_card.continue_move")}
-          </IndustrialButton>
-
-          <Divider />
-
-          {/* Update Actions */}
-          <IndustrialButton
-            className="update-btn"
-            onClick={() => setIsCarrierModalOpen(true)}
-            icon={<EditOutlined />}
-          >
-            {t("amr_card.update_cargo")}
-          </IndustrialButton>
-
-          <IndustrialButton
-            className="reset-btn"
-            onClick={() => resetMutation.mutate()}
-            icon={<RedoOutlined />}
-          >
-            {t("amr_detail.reset")}
-          </IndustrialButton>
-
-          <Tooltip title="當編輯完點位路徑時記得按" placement="bottom">
-            <IndustrialButton
-              className="update-position-btn"
-              onClick={() => updatePositionMutation.mutate()}
-              icon={<CloudSyncOutlined />}
+      <MenuContainer>
+        <Section>
+          <SectionLabel>{t("amr_card.section_charge")}</SectionLabel>
+          <ButtonGroup>
+            <ActionButton
+              type="button"
+              onClick={() => manualChargeMutation.mutate()}
             >
-              {t("amr_detail.update_position")}
-            </IndustrialButton>
-          </Tooltip>
+              <ThunderboltOutlined />
+              {t("charge.charge")}
+            </ActionButton>
 
-          <IndustrialButton
-            className="localization-btn"
-            onClick={() =>
-              setLocalizationCorrection({ amrId, dx: 0, dy: 0, dYaw: 0 })
-            }
-            icon={<AimOutlined />}
-          >
-            {t("amr_card.localization_correction")}
-          </IndustrialButton>
+            <ActionButton
+              type="button"
+              onClick={() => resetChargeMutation.mutate()}
+            >
+              <ThunderboltOutlined />
+              {t("amr_card.charge_reset")}
+            </ActionButton>
+          </ButtonGroup>
+        </Section>
 
-          <IndustrialButton
-            className="shutdown-btn"
-            onClick={() => shutdownMutation.mutate()}
-            icon={
+        <Section>
+          <SectionLabel>{t("amr_card.section_mission")}</SectionLabel>
+          <ButtonGroup>
+            <ActionButton
+              type="button"
+              $tone="danger"
+              onClick={() => handleDelMis()}
+            >
+              <DeleteOutlined />
+              {t("amr_card.delete_current_mission")}
+            </ActionButton>
+
+            <ActionButton
+              type="button"
+              $tone="dangerSolid"
+              onClick={() => handleForceDelMis()}
+            >
+              <FireOutlined />
+              {t("amr_card.force_delete_mission")}
+            </ActionButton>
+
+            {isFork(amrId) && (
+              <ActionButton
+                type="button"
+                onClick={() => setIsSpinModalOpen(true)}
+              >
+                <RotateRightOutlined />
+                {t("amr_card.spin")}
+              </ActionButton>
+            )}
+          </ButtonGroup>
+        </Section>
+
+        <Section>
+          <SectionLabel>{t("amr_card.section_motion")}</SectionLabel>
+          <ButtonGroup>
+            <ActionButton
+              type="button"
+              $tone="dangerSolid"
+              onClick={() => handleEmergencyStop(true)}
+            >
+              <WarningOutlined />
+              {t("amr_card.emergency_stop")}
+            </ActionButton>
+
+            <ActionButton
+              type="button"
+              $tone="primary"
+              onClick={() => handleEmergencyStop(false)}
+            >
+              <PlayCircleOutlined />
+              {t("amr_card.continue_move")}
+            </ActionButton>
+          </ButtonGroup>
+        </Section>
+
+        <Section>
+          <SectionLabel>{t("utils.maintenance_level")}</SectionLabel>
+          <MaintenancePanel amrId={amrId} />
+        </Section>
+
+        <Section>
+          <SectionLabel>{t("amr_card.section_system")}</SectionLabel>
+          <ButtonGroup>
+            <ActionButton
+              type="button"
+              onClick={() => setIsCarrierModalOpen(true)}
+            >
+              <EditOutlined />
+              {t("amr_card.update_cargo")}
+            </ActionButton>
+
+            <Tooltip title={t("amr_card.update_position_hint")} placement="bottom">
+              <ActionButton
+                type="button"
+                onClick={() => updatePositionMutation.mutate()}
+              >
+                <CloudSyncOutlined />
+                {t("amr_detail.update_position")}
+              </ActionButton>
+            </Tooltip>
+
+            <ActionButton
+              type="button"
+              onClick={() =>
+                setLocalizationCorrection({ amrId, dx: 0, dy: 0, dYaw: 0 })
+              }
+            >
+              <AimOutlined />
+              {t("amr_card.localization_correction")}
+            </ActionButton>
+
+            <ActionButton
+              type="button"
+              $tone="warning"
+              onClick={() => resetMutation.mutate()}
+            >
+              <RedoOutlined />
+              {t("amr_detail.reset")}
+            </ActionButton>
+
+            <ActionButton
+              type="button"
+              $tone="danger"
+              onClick={() => shutdownMutation.mutate()}
+            >
               <svg
                 width={15}
+                height={15}
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
               >
                 <title>power</title>
                 <path d="M16.56,5.44L15.11,6.89C16.84,7.94 18,9.83 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12C6,9.83 7.16,7.94 8.88,6.88L7.44,5.44C5.36,6.88 4,9.28 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12C20,9.28 18.64,6.88 16.56,5.44M13,3H11V13H13" />
               </svg>
-            }
-          >
-            {t("amr_detail.force_shutdown")}
-          </IndustrialButton>
-        </ButtonGroup>
-      </IndustrialContainer>
+              {t("amr_detail.force_shutdown")}
+            </ActionButton>
+          </ButtonGroup>
+        </Section>
+      </MenuContainer>
 
       <AmrCargoPanel
         amrId={amrId}
         open={isCarrierModalOpen}
         onClose={() => setIsCarrierModalOpen(false)}
+      />
+
+      <SpinModal
+        amrId={amrId}
+        open={isSpinModalOpen}
+        onClose={() => setIsSpinModalOpen(false)}
       />
     </>
   );

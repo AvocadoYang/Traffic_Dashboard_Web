@@ -102,6 +102,7 @@ const ControlParamFields: FC<Props> = ({
     key: string,
   ) => {
     if (field.kind === "exclusive-locations") {
+      const note = t(field.noteKey as Parameters<typeof t>[0]) as string;
       // 兩個欄位互斥,任一邊有值就把另一邊鎖起來,兩邊都空則兩邊都報錯
       return (
         <Form.Item key={key} noStyle shouldUpdate>
@@ -114,7 +115,7 @@ const ControlParamFields: FC<Props> = ({
             const rules = [
               {
                 validator: () =>
-                  bothEmpty ? Promise.reject(field.note) : Promise.resolve(),
+                  bothEmpty ? Promise.reject(note) : Promise.resolve(),
               },
             ];
 
@@ -146,7 +147,7 @@ const ControlParamFields: FC<Props> = ({
                     />
                   </Form.Item>
                 ))}
-                <Hint>{field.note}</Hint>
+                <Hint>{note}</Hint>
               </>
             );
           }}

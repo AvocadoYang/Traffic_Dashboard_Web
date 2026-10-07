@@ -43,7 +43,7 @@ const PeripheralGroupTable: React.FC = () => {
 
   const edit = (record: PeripheralGroupName) => {
     if (!record.id) {
-      messageApi.error("id is not found");
+      messageApi.error(t("utils.id_not_found"));
       return;
     }
     setIsOpenModal(true);
@@ -100,7 +100,7 @@ const PeripheralGroupTable: React.FC = () => {
               </Button>
 
               <Popconfirm
-                title="are you sure?"
+                title={t("utils.delete_warn")}
                 onConfirm={() => deleteData(record.id)}
               >
                 <Button

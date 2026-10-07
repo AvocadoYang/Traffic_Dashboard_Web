@@ -54,7 +54,7 @@ const StackSvg = styled.svg<{
 
   /* Dynamic background based on cargo count */
   background: ${({ $cargoCount }) => {
-    if ($cargoCount === 0) return "#999"; // Gray - empty
+    if ($cargoCount === 0) return "var(--c-map-device)"; // 空的:跟著主題
     if ($cargoCount === 1) return "#52c41a"; // Full green - 1 cargo
     if ($cargoCount === 2)
       return "linear-gradient(90deg, #52c41a 50%, #1890ff 50%)"; // Green + Blue
@@ -62,11 +62,13 @@ const StackSvg = styled.svg<{
       return "linear-gradient(90deg, #52c41a 33.33%, #1890ff 33.33%, #faad14 66.66%)"; // Green + Blue + Orange
     if ($cargoCount >= 4)
       return "linear-gradient(90deg, #52c41a 25%, #1890ff 25%, #faad14 50%, #722ed1 75%)"; // Green + Blue + Orange + Purple
-    return "#999";
+    return "var(--c-map-device)";
   }};
 
   border: ${({ $isSelecting, $canBeClick }) =>
-    $isSelecting && $canBeClick ? "2px solid #1890ff" : "1px solid #727272"};
+    $isSelecting && $canBeClick
+      ? "2px solid #1890ff"
+      : "1px solid var(--c-map-device-border)"};
 
   box-shadow: ${({ $isSelecting, $canBeClick }) =>
     $isSelecting && $canBeClick ? "0 0 8px rgba(24, 144, 255, 0.3)" : "none"};
@@ -84,7 +86,8 @@ const StackSvg = styled.svg<{
   }
 
   /* Icon color - white for visibility on colored backgrounds */
-  fill: ${({ $cargoCount }) => ($cargoCount > 0 ? "#ffffff" : "#666666")};
+  fill: ${({ $cargoCount }) =>
+    $cargoCount > 0 ? "#ffffff" : "var(--c-map-device-border)"};
 `;
 
 const CargoCountBadge = styled.div<{ $count: number }>`

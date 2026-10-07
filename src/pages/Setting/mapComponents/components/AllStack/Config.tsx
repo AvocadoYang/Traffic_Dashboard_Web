@@ -15,6 +15,7 @@ import {
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import useAllMissionTitles from "@/api/useMissionTitle";
+import { editHalfPanelStyle } from "../editModalStyle";
 
 const Config: FC<{
   formConfig: FormInstance<unknown>;
@@ -32,17 +33,7 @@ const Config: FC<{
 
   return (
     <>
-      <div
-        style={{
-          background: "#fff",
-          padding: "24px",
-          borderRadius: 8,
-          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-          maxHeight: "70vh",
-          overflowY: "auto",
-          width: "50%",
-        }}
-      >
+      <div style={editHalfPanelStyle}>
         <StyledForm form={formConfig} layout="vertical" size="large">
           <StyledTitle level={3}>{t("stack.edit_config_title")}</StyledTitle>
 

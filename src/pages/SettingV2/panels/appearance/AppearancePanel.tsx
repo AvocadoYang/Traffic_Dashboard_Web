@@ -2,7 +2,7 @@ import { FC } from "react";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import { CheckOutlined } from "@ant-design/icons";
+import { CheckOutlined, PictureOutlined } from "@ant-design/icons";
 import {
   PanelShell,
   Section,
@@ -14,7 +14,12 @@ import {
   themes,
   currentThemeIdAtom,
   setThemeAtom,
+  themeAtom,
+  mapImageModeAtom,
+  setMapImageModeAtom,
+  getMapCanvas,
   type Theme,
+  type MapImageMode,
 } from "@/theme";
 
 const ThemeGrid = styled.div`
@@ -125,6 +130,48 @@ const Swatch = styled.span<{ $color: string; $border: string }>`
   border: 1px solid ${({ $border }) => $border};
 `;
 
+const CardDesc = styled.span`
+  font-size: ${font.xs};
+  line-height: 1.6;
+  color: ${c.textSecondary};
+`;
+
+/**
+ * 底圖的小預覽:一張「紙」上面畫幾道牆。跟主題預覽一樣直接用真實色碼,
+ * 兩個選項才看得出差別(吃 CSS 變數的話兩張會長得一樣)。
+ */
+const MapPreview = styled.div<{ $paper: string; $ink: string }>`
+  position: relative;
+  height: 56px;
+  border: 1px solid ${c.border};
+  background: ${({ $paper }) => $paper};
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    background: ${({ $ink }) => $ink};
+  }
+
+  /* 外牆 */
+  &::before {
+    inset: 10px 14px;
+    background: transparent;
+    border: 2px solid ${({ $ink }) => $ink};
+    border-bottom-width: 4px;
+  }
+
+  /* 裡面的一道隔間 */
+  &::after {
+    left: 38%;
+    top: 10px;
+    width: 2px;
+    height: 22px;
+  }
+`;
+
+const MAP_IMAGE_MODES: MapImageMode[] = ["themed", "original"];
+
 /**
  * 外觀設定:讓使用者自己挑一套配色。
  *
@@ -135,6 +182,9 @@ const AppearancePanel: FC = () => {
   const { t } = useTranslation();
   const currentId = useAtomValue(currentThemeIdAtom);
   const setTheme = useSetAtom(setThemeAtom);
+  const currentTheme = useAtomValue(themeAtom);
+  const mapImage = useAtomValue(mapImageModeAtom);
+  const setMapImage = useSetAtom(setMapImageModeAtom);
 
   return (
     <PanelShell>
@@ -204,6 +254,42 @@ const AppearancePanel: FC = () => {
         </ThemeGrid>
 
         <Hint>{t("appearance.scope_note")}</Hint>
+      </Section>
+
+      <Section>
+        <SectionTitle>
+          <PictureOutlined />
+          {t("appearance.map_image.title")}
+        </SectionTitle>
+
+        <Hint>{t("appearance.map_image.hint")}</Hint>
+
+        <ThemeGrid>
+          {MAP_IMAGE_MODES.map((mode) => {
+            const selected = mode === mapImage;
+            const canvas = getMapCanvas(currentTheme, mode);
+            return (
+              <ThemeCard
+                key={mode}
+                type="button"
+                $selected={selected}
+                aria-pressed={selected}
+                onClick={() => setMapImage(mode)}
+              >
+                <CardHead>
+                  <span>{t(`appearance.map_image.${mode}`)}</span>
+                  {selected ? <CheckOutlined /> : null}
+                </CardHead>
+                <MapPreview $paper={canvas.paper} $ink={canvas.ink} />
+                <CardDesc>{t(`appearance.map_image.${mode}_desc`)}</CardDesc>
+              </ThemeCard>
+            );
+          })}
+        </ThemeGrid>
+
+        {currentId === "mono" ? (
+          <Hint>{t("appearance.map_image.mono_note")}</Hint>
+        ) : null}
       </Section>
     </PanelShell>
   );

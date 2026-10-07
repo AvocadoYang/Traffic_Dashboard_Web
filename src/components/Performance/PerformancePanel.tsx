@@ -213,6 +213,23 @@ const PerformancePanel: FC<{ top?: string; right?: string }> = ({
             />
           )}
 
+          {/* 等位置跟等車是不同的瓶頸 (儲位 vs 車輛數), 所以不併進待派 */}
+          {!!fleet?.waitingForLocation && (
+            <Alert
+              type="warning"
+              showIcon
+              message={t("sim.perf.waiting_location", {
+                count: fleet.waitingForLocation,
+                sec: fleet.oldestWaitingSec ?? 0,
+              })}
+              description={
+                <span style={{ fontSize: 12 }}>
+                  {t("sim.perf.waiting_location_hint")}
+                </span>
+              }
+            />
+          )}
+
           {!!fleet?.staleMissions && (
             <Alert
               type="warning"

@@ -40,6 +40,7 @@ const TYPE_LABEL_KEY: Record<CargoPanelTarget["type"], string> = {
   CONVEYOR: "cargo_panel.type_conveyor",
   STACK: "cargo_panel.type_stack",
   ELEVATOR: "cargo_panel.type_elevator",
+  PACKAGE: "cargo_panel.type_package",
 };
 
 const ORDER: Record<CargoPanelTarget["type"], CargoOrder> = {
@@ -47,6 +48,7 @@ const ORDER: Record<CargoPanelTarget["type"], CargoOrder> = {
   CONVEYOR: "fifo",
   STACK: "lifo",
   ELEVATOR: "none",
+  PACKAGE: "fifo",
 };
 
 /** 點位(貨架 / 輸送帶 / stack / 電梯)的貨物面板,由 CargoPanelTarget 決定顯示哪一個 */

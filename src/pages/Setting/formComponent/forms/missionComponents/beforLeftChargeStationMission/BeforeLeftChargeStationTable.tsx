@@ -236,7 +236,7 @@ export const BeforeLeftChargeStationTable: FC = () => {
       },
     },
     {
-      title: "Actions",
+      title: t("utils.action"),
       dataIndex: "option",
       key: "option",
       width: 280,
@@ -250,7 +250,7 @@ export const BeforeLeftChargeStationTable: FC = () => {
                 icon={<CloseCircleOutlined />}
                 size="small"
               >
-                Stop
+                {t("utils.stop")}
               </IndustrialButton>
             ) : (
               <IndustrialButton
@@ -259,22 +259,22 @@ export const BeforeLeftChargeStationTable: FC = () => {
                 icon={<PlayCircleOutlined />}
                 size="small"
               >
-                Start
+                {t("utils.start")}
               </IndustrialButton>
             )}
             <Popconfirm
-              title="Delete configuration?"
-              description="Are you sure you want to delete this configuration?"
+              title={t("confirm.delete_configuration")}
+              description={t("confirm.delete_configuration_desc")}
               onConfirm={() => handleDelete(record.id)}
-              okText="Yes"
-              cancelText="No"
+              okText={t("utils.yes")}
+              cancelText={t("utils.no")}
             >
               <IndustrialButton
                 className="delete-btn"
                 icon={<DeleteOutlined />}
                 size="small"
               >
-                Delete
+                {t("utils.delete")}
               </IndustrialButton>
             </Popconfirm>
           </Flex>
@@ -295,7 +295,7 @@ export const BeforeLeftChargeStationTable: FC = () => {
           pageSize: 10,
           showTotal: (total, range) => (
             <span style={{ fontFamily: "Roboto Mono, monospace" }}>
-              {range[0]}-{range[1]} of {total}
+              {range[0]}-{range[1]} {t("utils.of")} {total}
             </span>
           ),
         }}

@@ -6,6 +6,7 @@ import { useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";
 import useAllAreaTypes from "@/api/useAllAreaTypes";
+import { WORK_AREA_CONFIG_KEY } from "@/api/useWorkAreas";
 import { locationOption } from "@/pages/Setting/utils/func";
 import { currentMapIdAtom } from "@/utils/mapSelection";
 import { LocationType } from "@/utils/jotai";
@@ -23,6 +24,7 @@ import {
   GhostButton,
   Hint,
 } from "../../ui/primitives";
+import WaitPointFields, { waitPointPayload } from "../../ui/waitPointFields";
 
 type Props = {
   /** 與地圖共用的 form:在地圖上點一下,座標會直接寫進這份 form */
@@ -35,6 +37,7 @@ const LocationEditPanel: FC<Props> = ({ locationPanelForm }) => {
   const [messageApi, contextHolder] = message.useMessage();
   const { data: areaTypes } = useAllAreaTypes();
   const currentMapId = useAtomValue(currentMapIdAtom);
+  const areaType = Form.useWatch("areaType", locationPanelForm) as string | undefined;
 
   const saveMutation = useMutation({
     mutationFn: (payload: LocationType) =>
@@ -45,11 +48,14 @@ const LocationEditPanel: FC<Props> = ({ locationPanelForm }) => {
       queryClient.refetchQueries({ queryKey: ["active-group-resources"] });
       queryClient.refetchQueries({ queryKey: ["all-groups-resources"] });
       queryClient.refetchQueries({ queryKey: ["loc-only"] });
+      void queryClient.invalidateQueries({ queryKey: WORK_AREA_CONFIG_KEY });
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
   const save = useCallback(() => {
+    // 上一筆還在存就不再送:連按會送出好幾筆同一個編號
+    if (saveMutation.isLoading) return;
     const values = locationPanelForm.getFieldsValue() as LocationType;
     const { locationId, x, y } = values;
 
@@ -83,6 +89,7 @@ const LocationEditPanel: FC<Props> = ({ locationPanelForm }) => {
       y: Number(y),
       rotation: Number(values.rotation ?? 0),
       map_id: currentMapId,
+      ...waitPointPayload(values.areaType, values),
     });
   }, [currentMapId, locationPanelForm, messageApi, saveMutation, t]);
 
@@ -91,6 +98,8 @@ const LocationEditPanel: FC<Props> = ({ locationPanelForm }) => {
     const onKeyDown = (e: KeyboardEvent) => {
       const tag = document.activeElement?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
+      // 按住不放時鍵盤會連發;E (儲存) 連發會把同一個點位送出很多次
+      if (e.repeat && e.key.toLowerCase() === "e") return;
 
       const current = Number(locationPanelForm.getFieldValue("locationId")) || 0;
       const key = e.key.toLowerCase();
@@ -158,7 +167,7 @@ const LocationEditPanel: FC<Props> = ({ locationPanelForm }) => {
             </Field>
 
             <Field>
-              <FieldLabel>θ (rotation)</FieldLabel>
+              <FieldLabel>{t("setting_v2.location.rotation")}</FieldLabel>
               <Form.Item name="rotation" noStyle>
                 <InputNumber min={-360} max={360} style={{ width: "100%" }} />
               </Form.Item>
@@ -170,6 +179,8 @@ const LocationEditPanel: FC<Props> = ({ locationPanelForm }) => {
                 <Switch size="small" />
               </Form.Item>
             </Field>
+
+            <WaitPointFields areaType={areaType} />
           </FieldGrid>
         </Form>
 
@@ -184,7 +195,7 @@ const LocationEditPanel: FC<Props> = ({ locationPanelForm }) => {
         </Toolbar>
 
         <Hint>
-          在地圖上點一下可直接帶入 X / Y。快捷鍵:Q = ID +1、W = ID -1、E = 儲存。
+          {t("setting_v2.location.edit_hint")}
         </Hint>
       </Section>
     </PanelShell>

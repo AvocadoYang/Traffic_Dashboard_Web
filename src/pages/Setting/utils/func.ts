@@ -23,6 +23,12 @@ export const locationOption = (value) => {
       return t("edit_location_panel.GATE_WAIT_POINT");
     case "STACK":
       return t("edit_location_panel.STACK");
+    case "PACKAGE":
+      return t("edit_location_panel.PACKAGE");
+    case "PACKAGE_IN":
+      return t("edit_location_panel.PACKAGE_IN");
+    case "PACKAGE_OUT":
+      return t("edit_location_panel.PACKAGE_OUT");
     case "MIR_ROBOT_POSITION":
       return "Robot position";
     case "MIR_CHARGING_STATION":

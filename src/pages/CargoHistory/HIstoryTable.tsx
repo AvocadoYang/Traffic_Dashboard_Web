@@ -174,7 +174,7 @@ const HistoryTable: FC = () => {
             </pre>
           );
         } catch (e) {
-          return <Text type="secondary">Invalid JSON</Text>;
+          return <Text type="secondary">{t("cargo_history.invalid_json")}</Text>;
         }
       },
     },

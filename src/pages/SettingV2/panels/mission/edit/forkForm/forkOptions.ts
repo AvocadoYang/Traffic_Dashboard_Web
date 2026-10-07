@@ -84,14 +84,16 @@ const useForkOptions = (action: Action_Type) => {
     [t],
   );
 
-  /** 充電站與預派點只在「移動」時才有意義 */
+  /** 充電站、待命區與預派點只在「移動」時才有意義 */
   const locationTypeOptions = useMemo(
     () =>
       selectLocationOption
         .filter(
           (type) =>
             action === "move" ||
-            (type !== "available_charge_station" && type !== "prepare_point"),
+            (type !== "available_charge_station" &&
+              type !== "available_standby_point" &&
+              type !== "prepare_point"),
         )
         .map((type) => {
           switch (type) {
@@ -102,6 +104,11 @@ const useForkOptions = (action: Action_Type) => {
             case "available_charge_station":
               return {
                 label: t("mission.task_table.location_charge_station"),
+                value: type,
+              };
+            case "available_standby_point":
+              return {
+                label: t("mission.task_table.location_standby_point"),
                 value: type,
               };
             case "prepare_point":

@@ -22,6 +22,7 @@ export const MAX_PIE_SLICES = 8;
 
 export const toPieSeries = <T extends { label: string; value: number }>(
   data: T[],
+  otherLabel: string,
 ): { label: string; value: number }[] => {
   if (data.length <= MAX_PIE_SLICES) return data;
 
@@ -31,5 +32,5 @@ export const toPieSeries = <T extends { label: string; value: number }>(
     .slice(MAX_PIE_SLICES - 1)
     .reduce((sum, d) => sum + d.value, 0);
 
-  return [...head, { label: "其他", value: restSum }];
+  return [...head, { label: otherLabel, value: restSum }];
 };

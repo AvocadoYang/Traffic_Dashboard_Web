@@ -3,7 +3,7 @@ import { useAtomValue } from "jotai";
 import { ConfigProvider } from "antd";
 import { applyTheme } from "./applyTheme";
 import { buildAntdTheme, buildAppAntdTheme } from "./antdTheme";
-import { themeAtom } from "./themeAtom";
+import { mapImageModeAtom, themeAtom } from "./themeAtom";
 
 /**
  * 掛在 App 最外層。只負責把選到的主題灌成 <html> 上的 CSS 變數,
@@ -13,11 +13,12 @@ import { themeAtom } from "./themeAtom";
  */
 export const ThemeVarsProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const theme = useAtomValue(themeAtom);
+  const mapImage = useAtomValue(mapImageModeAtom);
 
   // useLayoutEffect:在瀏覽器畫下這一幀之前就把變數換掉,避免切主題時閃一下舊色。
   useLayoutEffect(() => {
-    applyTheme(theme);
-  }, [theme]);
+    applyTheme(theme, mapImage);
+  }, [theme, mapImage]);
 
   return <>{children}</>;
 };

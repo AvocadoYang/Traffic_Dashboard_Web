@@ -54,7 +54,7 @@ export const ShiftCargoModal: FC = () => {
     mutationFn: (payload: any) =>
       client.post("/api/simulate/insert-timeline-cargo-shift", payload),
     onSuccess: () => {
-      void messageApi.success("Saved");
+      void messageApi.success(t("sim.scenario.saved"));
       handleClose();
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
@@ -64,7 +64,7 @@ export const ShiftCargoModal: FC = () => {
     mutationFn: (payload: any) =>
       client.post("/api/simulate/edit-timeline-cargo-shift", payload),
     onSuccess: () => {
-      void messageApi.success("Updated");
+      void messageApi.success(t("sim.spawn_cargo_modal.updated"));
       handleClose();
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),

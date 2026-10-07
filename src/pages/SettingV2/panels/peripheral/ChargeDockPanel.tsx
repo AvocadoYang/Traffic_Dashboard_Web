@@ -213,8 +213,7 @@ const ChargeDockPanel: FC = () => {
         </SectionTitle>
 
         <Hint>
-          請將車輛以手動或自動模式對接至充電站,確認充電金屬片完全接觸後,
-          讀取當下的車輛座標填入目標精準座標;容忍誤差則依充電樁彈片寬度設定。
+          {t("setting_v2.charge_dock.hint")}
         </Hint>
 
         <Toolbar>
@@ -225,7 +224,7 @@ const ChargeDockPanel: FC = () => {
         </Toolbar>
 
         {stations.length === 0 ? (
-          <EmptyState>NO CHARGE STATIONS</EmptyState>
+          <EmptyState>{t("setting_v2.empty.charge_stations")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {stations.map((row) => (
@@ -265,7 +264,7 @@ const ChargeDockPanel: FC = () => {
               columns={columns}
               loading={isFetching}
               scroll={{ x: "max-content" }}
-              pagination={{ pageSize: 12, showTotal: (n) => `TOTAL ${n}` }}
+              pagination={{ pageSize: 12, showTotal: (n) => t("utils.total", { total: n }) }}
             />
           </TableWrap>
         )}
@@ -284,14 +283,13 @@ const ChargeDockPanel: FC = () => {
       >
         <Form form={form} layout="vertical" autoComplete="off">
           <Hint style={{ marginBottom: 12 }}>
-            X 軸為車頭前進方向(對接深度)、Y 軸為車身橫向偏移(彈片對齊)、
-            Yaw 為車頭偏轉角度(姿態平行度)。
+            {t("setting_v2.charge_dock.axis_hint")}
           </Hint>
 
-          <FieldLabel>目標精準座標</FieldLabel>
+          <FieldLabel>{t("setting_v2.charge_dock.target_title")}</FieldLabel>
           <FieldGrid $cols={3} style={{ marginTop: 8 }}>
             <Field>
-              {tipLabel("TARGET X", "車輛停好在充電站時,標準的 X 軸位置")}
+              {tipLabel("TARGET X", t("setting_v2.charge_dock.tip_target_x"))}
               <Form.Item
                 name="precise_x"
                 rules={[{ required: true, message: t("utils.required") }]}
@@ -307,7 +305,7 @@ const ChargeDockPanel: FC = () => {
             </Field>
 
             <Field>
-              {tipLabel("TARGET Y", "車輛停好在充電站時,標準的 Y 軸位置")}
+              {tipLabel("TARGET Y", t("setting_v2.charge_dock.tip_target_y"))}
               <Form.Item
                 name="precise_y"
                 rules={[{ required: true, message: t("utils.required") }]}
@@ -323,7 +321,7 @@ const ChargeDockPanel: FC = () => {
             </Field>
 
             <Field>
-              {tipLabel("TARGET YAW", "車輛停好在充電站時,標準的車頭角度")}
+              {tipLabel("TARGET YAW", t("setting_v2.charge_dock.tip_target_yaw"))}
               <Form.Item
                 name="precise_yaw"
                 rules={[{ required: true, message: t("utils.required") }]}
@@ -339,22 +337,22 @@ const ChargeDockPanel: FC = () => {
             </Field>
           </FieldGrid>
 
-          <FieldLabel>容許誤差門檻</FieldLabel>
+          <FieldLabel>{t("setting_v2.charge_dock.tolerance_title")}</FieldLabel>
           <Toolbar style={{ margin: "8px 0 12px" }}>
             <GhostButton onClick={() => applyPreset("strict")}>
-              高精度彈片 ±5mm / ±1°
+              {t("setting_v2.charge_dock.preset_strict")}
             </GhostButton>
             <GhostButton onClick={() => applyPreset("standard")}>
-              標準極板 ±10mm / ±2°
+              {t("setting_v2.charge_dock.preset_standard")}
             </GhostButton>
             <GhostButton onClick={() => applyPreset("loose")}>
-              無線感應 ±30mm / ±5°
+              {t("setting_v2.charge_dock.preset_loose")}
             </GhostButton>
           </Toolbar>
 
           <FieldGrid $cols={3}>
             <Field>
-              {tipLabel("TOL X", "允許前後距離偏差的最大值,超過視為未停好")}
+              {tipLabel("TOL X", t("setting_v2.charge_dock.tip_tol_x"))}
               <Form.Item
                 name="tolerance_x"
                 rules={[{ required: true, message: t("utils.required") }]}
@@ -371,7 +369,7 @@ const ChargeDockPanel: FC = () => {
             </Field>
 
             <Field>
-              {tipLabel("TOL Y", "允許左右偏離的最大值,建議小於彈片寬度的一半")}
+              {tipLabel("TOL Y", t("setting_v2.charge_dock.tip_tol_y"))}
               <Form.Item
                 name="tolerance_y"
                 rules={[{ required: true, message: t("utils.required") }]}
@@ -388,7 +386,7 @@ const ChargeDockPanel: FC = () => {
             </Field>
 
             <Field>
-              {tipLabel("TOL YAW", "允許車頭偏轉角度的最大值,過大會單邊接觸不良")}
+              {tipLabel("TOL YAW", t("setting_v2.charge_dock.tip_tol_yaw"))}
               <Form.Item
                 name="tolerance_yaw"
                 rules={[{ required: true, message: t("utils.required") }]}
@@ -407,9 +405,10 @@ const ChargeDockPanel: FC = () => {
 
           {isLoose && (
             <WarnNote>
-              目前容忍誤差偏寬鬆(Y 軸 ±{mToMm(values?.tolerance_y ?? 0)} mm、
-              角度 ±{radToDeg(values?.tolerance_yaw ?? 0)}°)。
-              請確認充電樁觸點面積足夠,否則可能造成接觸不良或磨損。
+              {t("setting_v2.charge_dock.loose_warn", {
+                y: mToMm(values?.tolerance_y ?? 0),
+                yaw: radToDeg(values?.tolerance_yaw ?? 0),
+              })}
             </WarnNote>
           )}
         </Form>

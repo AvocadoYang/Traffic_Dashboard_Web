@@ -155,9 +155,7 @@ const MirMissionEditorContent: FC<Props> = ({ missionId }) => {
 
   const remove = (clientId: string) => {
     if ((childrenByParent.get(clientId)?.length ?? 0) > 0) {
-      void messageApi.warning(
-        "這個區塊裡還有動作。請先把裡面的動作移回頂層,再刪除區塊。",
-      );
+      void messageApi.warning(t("setting_v2.mir.container_not_empty"));
       return;
     }
     edit((prev) => prev.filter((s) => s.clientId !== clientId));
@@ -267,11 +265,7 @@ const MirMissionEditorContent: FC<Props> = ({ missionId }) => {
   const containerBody = (slice: EditorSlice) => {
     const children = childrenByParent.get(slice.clientId) ?? [];
     if (children.length === 0) {
-      return (
-        <NestedEmpty>
-          目前是空的。在其他動作上把「所屬區塊」改成這一個,就會移進來。
-        </NestedEmpty>
-      );
+      return <NestedEmpty>{t("setting_v2.mir.nested_empty")}</NestedEmpty>;
     }
     return <NestedList>{children.map((child) => card(child))}</NestedList>;
   };
@@ -307,17 +301,17 @@ const MirMissionEditorContent: FC<Props> = ({ missionId }) => {
           {saveMutation.isLoading ? t("utils.loading") : t("utils.save")}
         </SolidButton>
         <CountNote>{`${topLevel.length} ACTIONS`}</CountNote>
-        {dirty ? <CountNote>· 有尚未儲存的修改</CountNote> : null}
+        {dirty ? <CountNote>{t("setting_v2.mir.unsaved")}</CountNote> : null}
       </Toolbar>
 
       <Hint>
         {isNarrow
-          ? "動作的增刪、排序、參數都只改本地暫存,按「儲存」才會一次寫進後端。用上下箭頭調整順序。"
-          : "動作的增刪、排序、參數都只改本地暫存,按「儲存」才會一次寫進後端。拖左側把手調整順序。"}
+          ? t("setting_v2.mir.editor_hint_narrow")
+          : t("setting_v2.mir.editor_hint_wide")}
       </Hint>
 
       {topLevel.length === 0 ? (
-        <EmptyState>還沒有任何動作。從上面選一個分類開始新增。</EmptyState>
+        <EmptyState>{t("setting_v2.mir.no_actions")}</EmptyState>
       ) : (
         <DndContext onDragEnd={onDragEnd}>
           <SortableContext

@@ -307,7 +307,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
         <Form.Item
           name={dataIndex}
           style={{ margin: 0 }}
-          rules={[{ required: true, message: "REQUIRED!" }]}
+          rules={[{ required: true, message: t("utils.required") }]}
         >
           {inputNode}
         </Form.Item>
@@ -484,7 +484,7 @@ const AllContainerTable: React.FC<{
     },
   ];
 
-  if (!mapData) return <>loading...</>;
+  if (!mapData) return <>{t("utils.loading")}</>;
 
   return (
     <IndustrialContainer onMouseLeave={handleMouseLeave}>

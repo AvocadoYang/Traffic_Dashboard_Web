@@ -8,8 +8,10 @@ import client from "@/api/axiosClient";
 import { Err } from "@/utils/responseErr";
 import { errorHandler } from "@/utils/utils";
 import { ErrorResponse } from "@/utils/globalType";
+import { useTranslation } from "react-i18next";
 
 export const useCargoMutations = (messageApi: MessageInstance) => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const editMutation = useMutation({
     mutationFn: (editValue: CargoMissionEdit) =>
@@ -29,7 +31,7 @@ export const useCargoMutations = (messageApi: MessageInstance) => {
     mutationFn: ({ locationId, level, id }: EditColumn) =>
       client.post("api/setting/edit-column", { locationId, level, id }),
     onSuccess: async () => {
-      void messageApi.success("Edit success");
+      void messageApi.success(t("utils.edit_success"));
       await Promise.all([
         queryClient.refetchQueries({ queryKey: ["cargoLoc-mission"] }),
         queryClient.refetchQueries({ queryKey: ["locations"] }),
@@ -38,7 +40,7 @@ export const useCargoMutations = (messageApi: MessageInstance) => {
     },
     onError: (error: Err) => {
       void messageApi.error(
-        error.response?.data?.message || "Edit column failed",
+        error.response?.data?.message || t("utils.edit_failed"),
       );
     },
   });
