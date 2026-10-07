@@ -136,6 +136,22 @@ const LocationListPanel: FC = () => {
     }
   }, [activeGroupId]);
 
+  // 列表會跟著別人的修改更新;被別人刪掉的點位不能留在勾選裡
+  // (刪除鈕上的數字會多算,送出去的也是已經不存在的 id)
+  useEffect(() => {
+    if (!resources) return;
+    const existing = new Set(
+      resources.groups.flatMap((g) =>
+        g.maps.flatMap((m) => m.locations.map((loc) => loc.id)),
+      ),
+    );
+    setSelectedIds((prev) =>
+      prev.every((id) => existing.has(id))
+        ? prev
+        : prev.filter((id) => existing.has(id)),
+    );
+  }, [resources]);
+
   const invalidate = () => {
     queryClient.refetchQueries({ queryKey: ["map"] });
     queryClient.refetchQueries({ queryKey: ["active-group-resources"] });
