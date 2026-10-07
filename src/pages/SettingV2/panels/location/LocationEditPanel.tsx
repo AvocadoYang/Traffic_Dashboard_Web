@@ -54,6 +54,8 @@ const LocationEditPanel: FC<Props> = ({ locationPanelForm }) => {
   });
 
   const save = useCallback(() => {
+    // 上一筆還在存就不再送:連按會送出好幾筆同一個編號
+    if (saveMutation.isLoading) return;
     const values = locationPanelForm.getFieldsValue() as LocationType;
     const { locationId, x, y } = values;
 
@@ -96,6 +98,8 @@ const LocationEditPanel: FC<Props> = ({ locationPanelForm }) => {
     const onKeyDown = (e: KeyboardEvent) => {
       const tag = document.activeElement?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
+      // 按住不放時鍵盤會連發;E (儲存) 連發會把同一個點位送出很多次
+      if (e.repeat && e.key.toLowerCase() === "e") return;
 
       const current = Number(locationPanelForm.getFieldValue("locationId")) || 0;
       const key = e.key.toLowerCase();
