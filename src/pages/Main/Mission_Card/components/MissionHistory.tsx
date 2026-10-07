@@ -490,6 +490,7 @@ type MissionKind =
   | "move_away"
   | "spin"
   | "wait_point"
+  | "standby"
   | "direct_move"
   | "other";
 
@@ -505,6 +506,7 @@ const KIND_LABEL_KEY = {
   move_away: "mission_history.kind_move_away",
   spin: "mission_history.kind_spin",
   wait_point: "mission_history.kind_wait_point",
+  standby: "mission_history.kind_standby",
   direct_move: "mission_history.kind_direct_move",
   other: "mission_history.kind_other",
 } as const satisfies Record<MissionKind, string>;
@@ -515,6 +517,7 @@ const KIND_COLOR: Record<MissionKind, string | undefined> = {
   move_away: "orange",
   spin: "geekblue",
   wait_point: "gold",
+  standby: "green",
   direct_move: "purple",
   other: undefined,
 };
@@ -615,6 +618,7 @@ const MissionHistory: FC<{
    * - 交管移動 / 原地旋轉: full_name 是 "move away" / "spin", sub_name 是
    *   "起點 -> 終點" (舊資料 sub_name 也是 "move away", 看不到路線)
    * - 前往作業區等待點排隊: full_name 是 "wait point", sub_name 是等待點編號
+   * - 閒置規則派車回待命點: full_name 是 "standby", sub_name 是待命點編號
    * - DIRECT MOVE: 路線點位串
    */
   const describeMission = (record: Mission): MissionDescription => {
@@ -652,6 +656,16 @@ const MissionHistory: FC<{
           ? t("mission_history.wait_point_at", { at: route[route.length - 1] })
           : t("mission_history.wait_point_title"),
         desc: t("mission_history.desc_wait_point"),
+      };
+    }
+
+    if (firstName === "standby") {
+      return {
+        kind: "standby",
+        primary: hasRoute
+          ? t("mission_history.standby_at", { at: route[route.length - 1] })
+          : t("mission_history.standby_title"),
+        desc: t("mission_history.desc_standby"),
       };
     }
 

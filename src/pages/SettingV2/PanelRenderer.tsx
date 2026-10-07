@@ -17,7 +17,7 @@ import AmrConfigPanel from "./panels/amr/AmrConfigPanel";
 import ChargePanel from "./panels/mission/ChargePanel";
 import BeforeLeftChargeStationPanel from "./panels/mission/BeforeLeftChargeStationPanel";
 import SchedulePanel from "./panels/mission/SchedulePanel";
-import IdleMissionPanel from "./panels/mission/IdleMissionPanel";
+import IdleRulePanel from "./panels/mission/IdleRulePanel";
 import TopicMissionPanel from "./panels/mission/TopicMissionPanel";
 import AbortCargoMissionPanel from "./panels/mission/AbortCargoMissionPanel";
 import BlindLocationPanel from "./panels/mission/BlindLocationPanel";
@@ -105,7 +105,7 @@ const PanelRenderer: FC<Props> = ({
     case "schedule_mission":
       return <SchedulePanel />;
     case "idle_mission":
-      return <IdleMissionPanel />;
+      return <IdleRulePanel />;
     case "topic_mission":
       return <TopicMissionPanel />;
     case "abort_cargo_mission":
