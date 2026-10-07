@@ -1,61 +1,4 @@
-export const DICT = [
-  ["OBSTACLE", "路障"],
-  ["LOW_MATCH_RATIO", "E1 點雲匹配過低"],
-  ["PALLET_TIMEOUT", "C1 棧板輸送逾時"],
-  ["CONVEYOR_NO_RESPONSE", "C2 輸送帶無反應"],
-  ["PALLET_STATUS_WRONG", "C3 棧板錯帳"],
-  ["CONVEYOR_NOT_FOUND", "C4 定位特徵缺失"],
-  ["POSITION_NOT_CONVERGED", "C5 定位異常"],
-  ["BUMPER_HIT", "H1 防撞邊條觸發"],
-  ["MOTOR_ERROR", "H2 馬達異常"],
-  ["CLAW_ERROR", "H3 擋板升降異常"],
-  ["MAINBOARD_NO_RESPONSE", "H4 主板無回應"],
-  ["LIDAR_DISCONNECTED", "H5 光達斷線異常"],
-  ["AMR_DISCONNECTED", "H6 車輛離線"],
-  ["CHARGING_MOVE_ERROR", "R1 充電中偵測移動"],
-  ["CHARGE_FLAG_NOT_CLEANED", "A1 充電鎖動狀態"],
-  ["LOAD_FLAG_NOT_CLEANED", "A1 上板鎖動狀態"],
-  ["UNLOAD_FLAG_NOT_CLEANED", "A1 下板鎖動狀態"],
-  ["POSITION_JUMPED", "E2 跳位錯誤"],
-  ["FINE_POSITIONING", "⏳對接中"],
-  ["PALLET_UNLOADING", "⏳卸板中"],
-  ["PALLET_LOADING", "⏳上板中"],
-  ["READY_TO_CHARGE", "準備充電"],
-  ["MID_OFFSET_STOP", "🚶修正路徑中"],
-  ["PALLET_RESCUE", "🤖自動救位中"],
-  ["PALLET_MOVEBASE_REALIGN", "⏳初步定位中"],
-  ["PALLET_ACTION_DONE", "🎉傳板完成"],
-  ["MANUAL", "維修模式"],
-  ["TURNING_OFF_CHARGE", "關閉充電"],
-  ["completed", "😎 已完成"],
-  ["executing", "🤖 進行中"],
-  ["aborting", "🥊進行時取消"],
-  ["canceled", "🙅‍♂️ 已取消"],
-  ["pending", "⏱ 等待中"],
-  ["waiting", "⏸ 等待位置"],
-  ["assigned", "⏱ 已指派"],
-  ["deliver-pallet", "補板"],
-  ["shipment", "出貨"],
-  ["sprinkle", "灑貨"],
-  ["plain-move", "移動"],
-  ["CREATE_MISSION", "任務建立"],
-  ["UPDATE_TASK_STEP", "下一步"],
-  ["ASSIGNED", "任務派發"],
-  ["STARTED", "開始任務"],
-  ["MOVED_TO", "移動"],
-  ["FINISHED", "任務完成"],
-  ["PALLET_TRANSFER_ERROR", "等待人工指令"],
-  ["BEGIN_TRANSFERRING", "開始送板"],
-  ["充電中", "⚡充電"],
-  ["ERROR", "錯誤"],
-  ["TASK/ENSURE_PALLET", "載空板"],
-  ["TASK/MOVE_TO_LOCATION", "移動至標的"],
-  ["TASK/OFFLOAD_PALLET", "卸板"],
-  ["EMS_BTN_PRESSED", "急停鈕觸發"],
-  ["TASK/LOAD_PALLET", "上板"],
-  ["MODBUS_SEQ_ERROR", "主板通訊異常(CRC)"],
-  ["MODBUS_CRC_ERROR", "主板通訊異常(序列)"],
-];
+import i18next from "i18next";
 
 export const DICT_AMR_IO = [
   ["connect_status", "與韌體板連線狀況"],
@@ -178,15 +121,22 @@ type Option =
   | "action_fork"
   | "action_camera";
 
+// "normal" 這張表(任務狀態、車輛狀態)已搬進 translation.json 的 status_dict,
+// 會跟著語言切換;查不到就原樣回傳 key。
+const translateStatus = (key: string): string => {
+  const i18nKey = `status_dict.${key}`;
+  return i18next.exists(i18nKey)
+    ? (i18next.t as (k: string) => string)(i18nKey)
+    : key;
+};
+
 export const translate = (option: Option, key?: string) => {
   if (!key) return "";
+  if (option === "normal") return translateStatus(key);
 
-  let dictionary;
+  let dictionary: string[][];
 
   switch (option) {
-    case "normal":
-      dictionary = DICT;
-      break;
     case "io":
       dictionary = DICT_AMR_IO;
       break;
@@ -209,7 +159,7 @@ export const translate = (option: Option, key?: string) => {
       dictionary = DICT_AMR_ACTION_CAMERA;
       break;
     default:
-      dictionary = DICT;
+      dictionary = [];
   }
 
   const translated = dictionary.filter((item) => item[0] === key);

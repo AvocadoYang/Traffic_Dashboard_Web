@@ -5,6 +5,7 @@ import Dragger from "antd/es/upload/Dragger";
 import { memo } from "react";
 import { useAtom } from "jotai";
 import { isOpenUploadWarningIDModal } from "@/utils/siderGloble";
+import { useTranslation } from "react-i18next";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,6 +22,7 @@ const text = {
 };
 
 const UploadWarningModal = () => {
+  const { t } = useTranslation();
   const [OpenUploadWarningIDModal, setOpenUploadWarningIDModal] = useAtom(
     isOpenUploadWarningIDModal,
   );
@@ -58,7 +60,7 @@ const UploadWarningModal = () => {
 
   return (
     <Modal
-      title="上傳錯誤表"
+      title={t("toolbar.file_setting.upload_warning_file")}
       open={OpenUploadWarningIDModal}
       onCancel={handleCancel}
       footer={(_, { CancelBtn }) => (

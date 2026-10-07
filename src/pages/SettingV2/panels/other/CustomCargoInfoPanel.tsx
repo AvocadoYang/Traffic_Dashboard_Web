@@ -354,7 +354,7 @@ const CustomCargoInfoPanel: FC = () => {
               expandable={{ expandedRowRender: jsonView }}
               pagination={{
                 pageSize: 12,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>
@@ -470,7 +470,7 @@ const CustomCargoInfoPanel: FC = () => {
 
           {editing && (
             <Hint>
-              {t("customCargo.uniqueKey")}:{editing.unique_key}(建立後不可更改)
+              {t("customCargo.uniqueKey")}:{editing.unique_key}{t("setting_v2.other.immutable_after_create")}
             </Hint>
           )}
         </Form>

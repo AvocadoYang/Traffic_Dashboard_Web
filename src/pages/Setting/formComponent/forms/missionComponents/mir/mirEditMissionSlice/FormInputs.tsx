@@ -7,6 +7,8 @@ import useMirTaskOptions, {
   useMirSoundOptions,
 } from "./useMirTaskOptions";
 import ParameterCard, { FieldLabel } from "./ParameterCard";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
 const SwitchContainer = styled.div`
   margin-top: 12px;
@@ -22,6 +24,7 @@ interface MirLocationInputProps {
 export const MirLocationInput: React.FC<MirLocationInputProps> = ({
   disabled = false,
 }) => {
+  const { t } = useTranslation();
   const { locationsOption, markerTypeLocationIds } = useMirTaskOptions();
   const form = Form.useFormInstance();
 
@@ -40,7 +43,12 @@ export const MirLocationInput: React.FC<MirLocationInputProps> = ({
         <Form.Item
           name="location_id"
           label={<FieldLabel>Default marker position</FieldLabel>}
-          rules={[{ required: true, message: "請選擇預設的 Marker position" }]}
+          rules={[
+            {
+              required: true,
+              message: t("mir.form.default_marker_position_required"),
+            },
+          ]}
           style={{ marginTop: 12, marginBottom: 0 }}
         >
           <Select
@@ -63,16 +71,16 @@ export const MirLocationInput: React.FC<MirLocationInputProps> = ({
                 // Current position 開啟時，marker position 必須留空
                 if (value) {
                   return Promise.reject(
-                    new Error(
-                      "Current position 開啟時，Marker position 必須留空",
-                    ),
+                    new Error(t("mir.form.marker_position_must_be_empty")),
                   );
                 }
                 return Promise.resolve();
               }
               // Current position 關閉時，marker position 必須有值
               if (!value) {
-                return Promise.reject(new Error("請選擇 Marker position"));
+                return Promise.reject(
+                  new Error(t("mir.form.marker_position_required")),
+                );
               }
               return Promise.resolve();
             },
@@ -123,6 +131,7 @@ export const MirLocationInput: React.FC<MirLocationInputProps> = ({
 };
 
 export const MirMarkerTypeInput = () => {
+  const { t } = useTranslation();
   const { markerTypeOption, markerTypeLocationIds } = useMirTaskOptions();
 
   return (
@@ -137,13 +146,13 @@ export const MirMarkerTypeInput = () => {
                 getFieldValue("is_current_position") ||
                 markerTypeLocationIds.has(getFieldValue("location_id") ?? "");
               if (needMarkerType && !value) {
-                return Promise.reject(new Error("請選擇 Marker type"));
+                return Promise.reject(
+                  new Error(t("mir.form.marker_type_required")),
+                );
               }
               if (!needMarkerType && value) {
                 return Promise.reject(
-                  new Error(
-                    "只有 Current position、type_1 貨架或 Shelf position 可以設定 Marker type",
-                  ),
+                  new Error(t("mir.form.marker_type_not_allowed")),
                 );
               }
               return Promise.resolve();
@@ -334,12 +343,14 @@ const liveSelectProps = ({
   error,
   refetch,
   what,
+  t,
 }: {
   amrId?: string;
   isFetching: boolean;
   error: unknown;
   refetch: () => unknown;
   what: string;
+  t: TFunction;
 }) => ({
   loading: isFetching,
   onOpenChange: (visible: boolean) => {
@@ -347,15 +358,16 @@ const liveSelectProps = ({
     if (visible && amrId) void refetch();
   },
   notFoundContent: isFetching
-    ? "讀取中…"
+    ? t("utils.loading")
     : !amrId
-      ? "目前沒有連線中的 MiR 車輛"
+      ? t("setting_v2.mir.no_online_mir")
       : error
-        ? `讀取${what}失敗`
+        ? t("mir.form.load_failed", { what })
         : undefined,
 });
 
 export const MirSoundInput = () => {
+  const { t } = useTranslation();
   const { soundOption, ...sounds } = useMirSoundOptions();
 
   return (
@@ -363,7 +375,11 @@ export const MirSoundInput = () => {
       <Form.Item name="sound" style={{ marginBottom: 0 }}>
         <Select
           options={soundOption}
-          {...liveSelectProps({ ...sounds, what: "音檔清單" })}
+          {...liveSelectProps({
+            ...sounds,
+            what: t("mir.form.sound_list"),
+            t,
+          })}
         />
       </Form.Item>
       <span>
@@ -530,13 +546,14 @@ export const MirSideInput = () => {
 };
 
 export const MirModuleInput = () => {
+  const { t } = useTranslation();
   const { ioModuleOption, amrId, isFetching, error, refetch } =
     useMirIoModuleOptions();
 
   const notFoundContent = () => {
-    if (isFetching) return "讀取中…";
-    if (!amrId) return "目前沒有連線中的 MiR 車輛";
-    if (error) return "讀取 IO module 失敗";
+    if (isFetching) return t("utils.loading");
+    if (!amrId) return t("setting_v2.mir.no_online_mir");
+    if (error) return t("mir.form.load_io_failed");
     return undefined;
   };
 

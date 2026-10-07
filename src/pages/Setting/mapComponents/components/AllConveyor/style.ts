@@ -7,7 +7,7 @@ export const StyledForm = styled(Form)`
 
   .ant-form-item-label > label {
     font-weight: 500;
-    color: #4b5563;
+    color: var(--c-text-secondary);
   }
 
   .ant-form-item {
@@ -21,6 +21,6 @@ export const StyledForm = styled(Form)`
 
 export const StyledTitle = styled(Title)`
   margin-bottom: 24px !important;
-  color: #1677ff !important;
+  color: var(--c-header-accent) !important;
   text-align: center;
 `;

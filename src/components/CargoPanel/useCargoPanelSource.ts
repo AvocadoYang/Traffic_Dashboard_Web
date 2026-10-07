@@ -5,6 +5,7 @@ import useCargoInfo from "@/sockets/useCargoInfo";
 import useConveyorSocket from "@/sockets/useConveyorSocket";
 import useStackSocket from "@/sockets/useStackSocket";
 import useElevatorSocket from "@/sockets/useElevatorSocket";
+import usePackageSocket from "@/sockets/usePackageSocket";
 import { Cargo, STACK_MAX_LEVEL } from "@/types/peripheral";
 import { prefixLevelName } from "@/utils/globalFunction";
 import { CargoPanelTarget } from "./state";
@@ -46,6 +47,7 @@ export const useCargoPanelSource = (
   const conveyor = useConveyorSocket();
   const stack = useStackSocket();
   const elevator = useElevatorSocket();
+  const packages = usePackageSocket();
 
   return useMemo(() => {
     if (!target) return null;
@@ -97,6 +99,20 @@ export const useCargoPanelSource = (
       };
     }
 
+    if (type === "PACKAGE") {
+      // 貨登記在整條線上,從入口或出口打開看到的是同一份
+      const info = packages?.[locationId];
+      if (!info) return null;
+      return {
+        name: info.name,
+        cargo: sortCargo(info.cargo),
+        booker: toBooker(info.booker),
+        disabled: info.disable,
+        capacity: info.capacity > 0 ? info.capacity : null,
+        levels: [],
+      };
+    }
+
     const info = elevator?.[locationId];
     if (!info) return null;
     return {
@@ -112,7 +128,7 @@ export const useCargoPanelSource = (
         cargoSignal: info.hasCargoSignal,
       },
     };
-  }, [target, storage, conveyor, stack, elevator]);
+  }, [target, storage, conveyor, stack, elevator, packages]);
 };
 
 /**

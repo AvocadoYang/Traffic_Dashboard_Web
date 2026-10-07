@@ -309,7 +309,7 @@ const EditZoneTable: FC<{
               // value={oldData.name}
               type="string"
               style={{ width: 150 }}
-              placeholder="請輸入區域名稱"
+              placeholder={t("edit_zone_panel.placeholder.zone_name")}
             />
           </Form.Item>
           <Space
@@ -391,13 +391,19 @@ const EditZoneTable: FC<{
                 label={t("edit_zone_panel.lidar_front")}
                 name="lidar_front"
               >
-                <Switch checkedChildren="On" unCheckedChildren="Off" />
+                <Switch
+                  checkedChildren={t("utils.on")}
+                  unCheckedChildren={t("utils.off")}
+                />
               </Form.Item>
               <Form.Item
                 label={t("edit_zone_panel.lidar_back")}
                 name="lidar_back"
               >
-                <Switch checkedChildren="On" unCheckedChildren="Off" />
+                <Switch
+                  checkedChildren={t("utils.on")}
+                  unCheckedChildren={t("utils.off")}
+                />
               </Form.Item>
             </Flex>
           </div>
@@ -408,7 +414,7 @@ const EditZoneTable: FC<{
           >
             <Select
               // value={oldData.category}
-              placeholder={"請選擇區域屬性"}
+              placeholder={t("edit_zone_panel.placeholder.zone_category")}
               mode="multiple"
               tagRender={tagRender}
               style={{ width: "100%" }}
@@ -485,7 +491,7 @@ const EditZoneTable: FC<{
                   <InputNumber
                     addonAfter="m"
                     type="number"
-                    placeholder="請輸入高度限制"
+                    placeholder={t("edit_zone_panel.placeholder.hight_limit")}
                     style={{ width: "50%" }}
                   />
                 </Form.Item>
@@ -510,7 +516,7 @@ const EditZoneTable: FC<{
                   ]}
                 >
                   <InputNumber
-                    addonAfter="car (s)"
+                    addonAfter={t("edit_zone_panel.cars_unit")}
                     type="number"
                     step={1}
                     placeholder={t("edit_zone_panel.placeholder.limit")}
@@ -573,7 +579,7 @@ const EditZoneTable: FC<{
                     ]}
                   >
                     <Select
-                      placeholder={"請選擇限制進入車輛"}
+                      placeholder={t("edit_zone_panel.placeholder.forbidden")}
                       disabled={allVehicleForbidden}
                       mode={"multiple"}
                       tagRender={tagRender}

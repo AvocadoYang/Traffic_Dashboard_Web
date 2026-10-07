@@ -374,7 +374,7 @@ const RegisterAmrPanel: FC = () => {
                   name="ip"
                   rules={[
                     { required: true, message: t("utils.required") },
-                    { pattern: ipv4Rule, message: "INVALID IP ADDRESS" },
+                    { pattern: ipv4Rule, message: t("setting_v2.amr.invalid_ip") },
                   ]}
                 >
                   <Input placeholder="192.168.1.1" />
@@ -398,7 +398,7 @@ const RegisterAmrPanel: FC = () => {
         </Toolbar>
 
         <Hint>
-          車輛全名會自動組成「機種-編號」,編號不足三位會補零(例如 2 → 002)。
+          {t("setting_v2.amr.full_name_hint")}
         </Hint>
       </Section>
 
@@ -424,7 +424,7 @@ const RegisterAmrPanel: FC = () => {
         </Toolbar>
 
         {rows.length === 0 ? (
-          <EmptyState>NO ROBOTS</EmptyState>
+          <EmptyState>{t("setting_v2.empty.robots")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (
@@ -483,7 +483,7 @@ const RegisterAmrPanel: FC = () => {
               pagination={{
                 pageSize: 12,
                 showSizeChanger: true,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>

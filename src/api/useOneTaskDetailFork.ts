@@ -11,7 +11,8 @@ const getOneTask = async (key: string) => {
     }
   );
 
-  return data as Fork_Action;
+  // rev 是版本碼: 存檔時原樣帶回後端, 後端用它發現這個步驟被別人改過
+  return data as Fork_Action & { rev?: string };
 };
 
 const useOneTaskDetailFork = (key: string) => {

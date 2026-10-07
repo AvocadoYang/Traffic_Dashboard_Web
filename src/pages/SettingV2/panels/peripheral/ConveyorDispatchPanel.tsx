@@ -354,10 +354,16 @@ const RuleSection: FC<{
         <>
           <Toolbar>
             <Select
-              style={{ minWidth: 160 }}
+              style={{ minWidth: 260 }}
               value={conveyorId}
               onChange={setConveyorId}
-              options={config.conveyors.map((c) => ({ label: c.name, value: c.id }))}
+              options={config.conveyors.map((c) => ({
+                label:
+                  c.type === "PACKAGE"
+                    ? t("conveyor_dispatch.package_exit", { name: c.name })
+                    : c.name,
+                value: c.id,
+              }))}
             />
             <SolidButton onClick={() => openEdit(null)}>
               <PlusOutlined />

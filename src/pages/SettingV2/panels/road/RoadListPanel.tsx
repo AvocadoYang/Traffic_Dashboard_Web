@@ -15,7 +15,7 @@ import useAllGroupsResources from "@/api/useAllGroupsResources";
 import client from "@/api/axiosClient";
 import { hoverRoad } from "@/utils/gloable";
 import { ErrorResponse } from "@/utils/globalType";
-import { errorHandler } from "@/utils/utils";
+import { editErrorHandler, errorHandler } from "@/utils/utils";
 import useIsNarrow from "../../ui/useIsNarrow";
 import GroupMapFilter from "../../ui/GroupMapFilter";
 import RoadCommonFields from "../../ui/roadFields";
@@ -45,6 +45,7 @@ type RoadRow = {
   limit: boolean;
   priority: number;
   validYawList: number[] | string;
+  rev?: string;
   mapFileName: string;
   groupName: string;
   isActiveGroup: boolean;
@@ -84,6 +85,21 @@ const RoadListPanel: FC = () => {
     }
   }, [activeGroupId]);
 
+  // 列表會跟著別人的修改更新;被別人刪掉 (或改方向換了編號) 的路徑不能留在勾選裡
+  useEffect(() => {
+    if (!resources) return;
+    const existing = new Set(
+      resources.groups.flatMap((g) =>
+        g.maps.flatMap((m) => m.roads.map((road) => road.roadId)),
+      ),
+    );
+    setSelectedIds((prev) =>
+      prev.every((id) => existing.has(id))
+        ? prev
+        : prev.filter((id) => existing.has(id)),
+    );
+  }, [resources]);
+
   const invalidate = () => {
     queryClient.refetchQueries({ queryKey: ["map"] });
     queryClient.refetchQueries({ queryKey: ["active-group-resources"] });
@@ -98,7 +114,11 @@ const RoadListPanel: FC = () => {
       invalidate();
       setEditing(null);
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+    onError: (e: ErrorResponse) =>
+      editErrorHandler(e, messageApi, () => {
+        invalidate();
+        setEditing(null);
+      }),
   });
 
   const deleteMutation = useMutation({
@@ -189,6 +209,7 @@ const RoadListPanel: FC = () => {
     editMutation.mutate({
       ...v,
       id: editing.id,
+      rev: editing.rev,
       spot1Id: Number(editing.spot1Id),
       spot2Id: Number(editing.spot2Id),
     });
@@ -329,7 +350,7 @@ const RoadListPanel: FC = () => {
         </Toolbar>
 
         {rows.length === 0 ? (
-          <EmptyState>NO ROADS</EmptyState>
+          <EmptyState>{t("setting_v2.empty.roads")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (
@@ -414,7 +435,7 @@ const RoadListPanel: FC = () => {
               pagination={{
                 pageSize: 15,
                 showSizeChanger: true,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
               onRow={(row) => ({
                 onMouseEnter: () => setHoverRoad(row.roadId),

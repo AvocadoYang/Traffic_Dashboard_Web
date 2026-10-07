@@ -159,13 +159,13 @@ const EditLocationPanel: React.FC<{
         <FormHr /> {/* Visually strong separator */}
         {/* Keyboard shortcut section */}
         <Space className="keyboard-shortcuts-info" size="middle">
-          <Tooltip title="Q: Increase ID">
+          <Tooltip title={t("edit_location_panel.key_increase")}>
             <PlusOutlined />
           </Tooltip>
-          <Tooltip title="W: Decrease ID">
+          <Tooltip title={t("edit_location_panel.key_decrease")}>
             <MinusOutlined />
           </Tooltip>
-          <Tooltip title="E: Save Location">
+          <Tooltip title={t("edit_location_panel.key_save")}>
             <SaveOutlined />
           </Tooltip>
         </Space>
@@ -188,7 +188,7 @@ const EditLocationPanel: React.FC<{
             label="ID"
             name="locationId"
             className="industrial-item"
-            rules={[{ required: true, message: "必填" }]}
+            rules={[{ required: true, message: t("utils.required") }]}
           >
             <Input type="number" min={1} />
           </Form.Item>

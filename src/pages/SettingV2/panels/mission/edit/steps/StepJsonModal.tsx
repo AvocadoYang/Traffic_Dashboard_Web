@@ -31,7 +31,7 @@ const StepJsonModal: FC<Props> = ({ value, title, onClose }) => {
       destroyOnHidden
     >
       <Hint style={{ marginBottom: 12 }}>
-        這是這個步驟存在後端的原始設定,只能檢視。要修改請用「編輯」。
+        {t("setting_v2.mission.step_json_hint")}
       </Hint>
       {value ? (
         <ReactJsonView

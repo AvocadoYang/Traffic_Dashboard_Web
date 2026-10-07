@@ -216,11 +216,11 @@ const BlindLocationPanel: FC = () => {
         </Toolbar>
 
         <Hint>
-          新增只能選還沒綁過任務的地點,已綁定的請用清單上的編輯修改。
+          {t("setting_v2.mission.blind_hint")}
         </Hint>
 
         {rows.length === 0 ? (
-          <EmptyState>NO BLIND LOCATIONS</EmptyState>
+          <EmptyState>{t("setting_v2.empty.blind_locations")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (
@@ -275,7 +275,7 @@ const BlindLocationPanel: FC = () => {
               pagination={{
                 pageSize: 12,
                 showSizeChanger: true,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>

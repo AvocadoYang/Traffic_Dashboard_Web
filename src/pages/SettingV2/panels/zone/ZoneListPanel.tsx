@@ -24,7 +24,7 @@ import useAllGroupsResources from "@/api/useAllGroupsResources";
 import client from "@/api/axiosClient";
 import { currentMapIdAtom } from "@/utils/mapSelection";
 import { ErrorResponse } from "@/utils/globalType";
-import { errorHandler } from "@/utils/utils";
+import { editErrorHandler, errorHandler } from "@/utils/utils";
 import useIsNarrow from "../../ui/useIsNarrow";
 import GroupMapFilter from "../../ui/GroupMapFilter";
 import ZoneFields from "../../ui/zoneFields";
@@ -65,6 +65,7 @@ type ZoneRow = {
   };
   startPoint: { startX: number; startY: number };
   endPoint: { endX: number; endY: number };
+  rev?: string;
   mapFileName: string;
   groupName: string;
 };
@@ -110,12 +111,17 @@ const ZoneListPanel: FC = () => {
       invalidate();
       setEditing(null);
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+    onError: (e: ErrorResponse) =>
+      editErrorHandler(e, messageApi, () => {
+        invalidate();
+        setEditing(null);
+      }),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) =>
-      client.post("api/setting/delete-edit-zone", { id, map_id: currentMapId }),
+      // 後端收的是 zoneIds 陣列;送 { id } 的話它拿不到要刪哪一筆,每次都失敗
+      client.post("api/setting/delete-edit-zone", { zoneIds: [id] }),
     onSuccess: () => {
       void messageApi.success(t("utils.success"));
       invalidate();
@@ -202,6 +208,7 @@ const ZoneListPanel: FC = () => {
     editMutation.mutate({
       ...v,
       id: editing.id,
+      rev: editing.rev,
       layer: v.layer ? v.layer : "none",
       lidar_back: v.layer ? v.lidar_back : false,
       lidar_front: v.layer ? v.lidar_front : false,
@@ -342,7 +349,7 @@ const ZoneListPanel: FC = () => {
         </Toolbar>
 
         {rows.length === 0 ? (
-          <EmptyState>NO ZONES</EmptyState>
+          <EmptyState>{t("setting_v2.empty.zones")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (
@@ -408,7 +415,7 @@ const ZoneListPanel: FC = () => {
               pagination={{
                 pageSize: 15,
                 showSizeChanger: true,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>
@@ -428,25 +435,25 @@ const ZoneListPanel: FC = () => {
         <Form form={editForm} layout="vertical">
           <FieldGrid $cols={2}>
             <Field>
-              <FieldLabel>START X</FieldLabel>
+              <FieldLabel>{t("edit_zone_panel.start_x")}</FieldLabel>
               <Form.Item name="startX" noStyle>
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>
             </Field>
             <Field>
-              <FieldLabel>START Y</FieldLabel>
+              <FieldLabel>{t("edit_zone_panel.start_y")}</FieldLabel>
               <Form.Item name="startY" noStyle>
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>
             </Field>
             <Field>
-              <FieldLabel>END X</FieldLabel>
+              <FieldLabel>{t("edit_zone_panel.end_x")}</FieldLabel>
               <Form.Item name="endX" noStyle>
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>
             </Field>
             <Field>
-              <FieldLabel>END Y</FieldLabel>
+              <FieldLabel>{t("edit_zone_panel.end_y")}</FieldLabel>
               <Form.Item name="endY" noStyle>
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>

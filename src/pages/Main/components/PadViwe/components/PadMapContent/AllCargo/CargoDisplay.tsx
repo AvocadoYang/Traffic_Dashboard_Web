@@ -10,6 +10,7 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { FC } from "react";
 import styled, { css } from "styled-components";
 import { Button } from "antd";
+import { useTranslation } from "react-i18next";
 
 const InfoBlock = styled.div`
   position: absolute;
@@ -22,8 +23,8 @@ const InfoBlock = styled.div`
   white-space: nowrap;
   min-height: 120px;
   padding: 12px 8px;
-  background-color: rgba(255, 255, 255, 0.98);
-  border: 1px solid #e8e8e8;
+  background-color: var(--c-bg);
+  border: 1px solid var(--c-border);
   border-radius: 6px;
   box-shadow:
     0 3px 6px -4px rgba(0, 0, 0, 0.12),
@@ -32,7 +33,7 @@ const InfoBlock = styled.div`
   display: none;
   pointer-events: none;
   font-size: 12px;
-  color: #595959;
+  color: var(--c-text-secondary);
 
   &::before {
     content: "";
@@ -42,19 +43,19 @@ const InfoBlock = styled.div`
     transform: translateY(-50%) rotate(45deg);
     width: 10px;
     height: 10px;
-    background-color: white;
-    border-left: 1px solid #e8e8e8;
-    border-bottom: 1px solid #e8e8e8;
+    background-color: var(--c-bg);
+    border-left: 1px solid var(--c-border);
+    border-bottom: 1px solid var(--c-border);
   }
 
   .label {
-    color: #8c8c8c;
+    color: var(--c-text-muted);
     margin-right: 8px;
   }
 
   .value {
     font-weight: 500;
-    color: #262626;
+    color: var(--c-text);
   }
 `;
 
@@ -70,9 +71,9 @@ const Block = styled(Button)<{
   align-items: center;
   justify-content: center;
   background-color: ${({ $hasCargo }) =>
-    $hasCargo ? "#ffe73c80" : "#f5f5f580"};
+    $hasCargo ? "#ffe73c80" : "var(--c-map-cell)"};
   border: ${({ $isSelecting, $canBeClick }) =>
-    $isSelecting && $canBeClick ? "2px solid #1890ff" : "1px dashed #727272"};
+    $isSelecting && $canBeClick ? "2px solid #1890ff" : "1px dashed var(--c-map-device-border)"};
   border-radius: 3px;
   min-height: 15px;
   max-width: 15px;
@@ -146,7 +147,7 @@ const Block = styled(Button)<{
         `
       : css`
           &:hover {
-            background-color: ${$hasCargo ? "#ffe73cb3" : "#e8e8e8b3"};
+            background-color: ${$hasCargo ? "#ffe73cb3" : "var(--c-map-cell-hover)"};
             transform: scale(1.05);
           }
         `}
@@ -155,7 +156,7 @@ const Block = styled(Button)<{
 const BlockSpan = styled.span<{ rotate: number; $hasCargo: boolean }>`
   font-size: 12px;
   font-weight: 500;
-  color: ${({ $hasCargo }) => ($hasCargo ? "#000" : "#333")};
+  color: ${({ $hasCargo }) => ($hasCargo ? "#000" : "var(--c-map-cell-text)")};
   transform: ${({ rotate }) => `rotate(${-rotate}deg)`};
   writing-mode: vertical-rl;
   text-orientation: sideways;
@@ -196,6 +197,7 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
   rotate,
   handleMouseDown,
 }) => {
+  const { t } = useTranslation();
   const [selectMode, setQuickSettingMode] = useAtom(QuickMissionSettingMode);
   const [isStartSelecting, setStartQuickSetting] = useAtom(
     StartQuickMissionSetting,
@@ -270,12 +272,12 @@ const CargoDisplay: FC<CargoDisplayProps> = ({
       </Block>
       <InfoBlock>
         <div>
-          <span className="label">Booker:</span>
-          <span className="value">{booker || "None"}</span>
+          <span className="label">{t("cargo_panel.booker")}</span>
+          <span className="value">{booker || t("utils.none")}</span>
         </div>
         <div>
-          <span className="label">Disable:</span>
-          <span className="value">{isDisable ? "yes" : "none"}</span>
+          <span className="label">{t("cargo_panel.disable_label")}</span>
+          <span className="value">{isDisable ? t("utils.yes") : t("utils.no")}</span>
         </div>
       </InfoBlock>
     </BlockContainer>

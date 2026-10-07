@@ -45,7 +45,8 @@ export type SegmentField = Common & {
 export type ExclusiveLocationsField = {
   kind: "exclusive-locations";
   label: string;
-  note: string;
+  /** i18n key */
+  noteKey: string;
   first: { path: Path; label: string };
   second: { path: Path; label: string };
 };
@@ -214,7 +215,7 @@ export const CONTROL_FIELDS: Record<string, ControlField[]> = {
     {
       kind: "exclusive-locations",
       label: "BLIND FORK",
-      note: "前點位與後點位只能選一個。",
+      noteKey: "setting_v2.mission.blind_fork_note",
       first: { path: ["blind_fork", "backward_location_id"], label: "BACKWARD" },
       second: { path: ["blind_fork", "forward_location_id"], label: "FORWARD" },
     },

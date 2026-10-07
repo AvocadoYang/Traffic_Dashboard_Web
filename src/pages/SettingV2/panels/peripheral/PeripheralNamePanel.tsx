@@ -249,13 +249,13 @@ const PeripheralNamePanel: FC = () => {
           >
             <GhostButton disabled={syncMutation.isLoading}>
               <CloudSyncOutlined />
-              SYNC WITH CORNING
+              {t("setting_v2.peripheral.sync_corning")}
             </GhostButton>
           </Popconfirm>
         </Toolbar>
 
         {rows.length === 0 ? (
-          <EmptyState>NO PERIPHERALS</EmptyState>
+          <EmptyState>{t("setting_v2.empty.peripherals")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (
@@ -297,7 +297,7 @@ const PeripheralNamePanel: FC = () => {
               pagination={{
                 pageSize: 15,
                 showSizeChanger: true,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>

@@ -49,6 +49,11 @@ const Line = styled.div.attrs<{
 
   position: absolute;
   z-index: 149;
+
+  /* 深色的車配深色底圖時,虛線框會看不到,補一點淺色的光暈 */
+  [data-map-canvas="dark"] & {
+    box-shadow: 0 0 1px rgba(255, 255, 255, 0.8);
+  }
 `;
 
 

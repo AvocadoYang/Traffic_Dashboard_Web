@@ -938,7 +938,7 @@ const CycleMissionV2: FC<{
                     <MissionContent>
                       <div className="mission-type">{mission.missionType}</div>
                       <div className="mission-details">
-                        AMR: {mission.amrId} | Priority:{" "}
+                        AMR: {mission.amrId} | {t("mission_dispatch_board.priority")}:{" "}
                         {getPriorityLabel(mission.priority)} |{" "}
                         {getMissionDisplay(mission)}
                       </div>

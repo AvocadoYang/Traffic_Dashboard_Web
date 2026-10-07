@@ -143,7 +143,7 @@ const GroupMapFilter: FC<Props> = ({
             $active={selectedMapId === null}
             onClick={() => onSelectMap(null)}
           >
-            ALL
+            {t("setting_v2.all")}
           </Chip>
           {maps.map((m) => {
             const active = m.mapId === selectedMapId;

@@ -13,6 +13,7 @@ import {
 import "react-circular-progressbar/dist/styles.css";
 import { TabOne } from "./components";
 import { useIsMobile } from "@/hooks/useIsMoblie";
+import { useTranslation } from "react-i18next";
 const { Content } = Layout;
 const { TabPane } = Tabs;
 
@@ -31,6 +32,7 @@ const Section = styled.div`
 
 
 const MonitorCenter: React.FC = () => {
+  const { t } = useTranslation();
 
   return (
       <PageWrapper>
@@ -38,11 +40,11 @@ const MonitorCenter: React.FC = () => {
       <Content style={{ padding: '0px 24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
         
           <Tabs defaultActiveKey="1">
-            <TabPane tab={<span><VideoCameraOutlined /> 即時資訊</span>} key="1" style={{ }}>
+            <TabPane tab={<span><VideoCameraOutlined /> {t("sw_monitor.realtime")}</span>} key="1" style={{ }}>
                 <TabOne></TabOne>
             </TabPane>
             
-            <TabPane tab={<span><VideoCameraOutlined /> 歷史紀錄</span>} key="2">
+            <TabPane tab={<span><VideoCameraOutlined /> {t("sw_monitor.history")}</span>} key="2">
                <div>123</div>
             </TabPane>
           </Tabs>

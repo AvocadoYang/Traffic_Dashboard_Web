@@ -427,13 +427,19 @@ const EditZonePanel: React.FC<{
                 label={t("edit_zone_panel.lidar_front")}
                 name="lidar_front"
               >
-                <Switch checkedChildren="On" unCheckedChildren="Off" />
+                <Switch
+                  checkedChildren={t("utils.on")}
+                  unCheckedChildren={t("utils.off")}
+                />
               </Form.Item>
               <Form.Item
                 label={t("edit_zone_panel.lidar_back")}
                 name="lidar_back"
               >
-                <Switch checkedChildren="On" unCheckedChildren="Off" />
+                <Switch
+                  checkedChildren={t("utils.on")}
+                  unCheckedChildren={t("utils.off")}
+                />
               </Form.Item>
             </Flex>
             {layerIsHint ? (
@@ -553,7 +559,7 @@ const EditZonePanel: React.FC<{
                   ]}
                 >
                   <Input
-                    addonAfter="car (s)"
+                    addonAfter={t("edit_zone_panel.cars_unit")}
                     type="number"
                     min={0}
                     step={1}

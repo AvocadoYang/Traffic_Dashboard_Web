@@ -35,7 +35,7 @@ const SvgStyle = styled.svg<{
   cursor: ${({ $isSelecting, $canBeClick }) =>
     $isSelecting && !$canBeClick ? "not-allowed" : "pointer"};
   opacity: ${({ $isDisable }) => ($isDisable ? 0.6 : 1)};
-  fill: ${({ $hasCargo }) => ($hasCargo ? "#ffe73c" : "#999")};
+  fill: ${({ $hasCargo }) => ($hasCargo ? "#ffe73c" : "var(--c-map-device)")};
 
   border: ${({ $isSelecting, $canBeClick, $isManual, $isRunning }) =>
     $isManual
@@ -44,7 +44,7 @@ const SvgStyle = styled.svg<{
         ? "2px solid #1890ff"
         : $isSelecting && $canBeClick
           ? "2px solid #1890ff"
-          : "1px dashed #727272"};
+          : "1px dashed var(--c-map-device-border)"};
 
   box-shadow: ${({ $isManual, $isRunning }) =>
     $isManual

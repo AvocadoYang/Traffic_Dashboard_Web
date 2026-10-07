@@ -8,6 +8,7 @@ import {
     FireOutlined,
   } from "@ant-design/icons";
 import { Children, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const CardWrap: React.FC<{ title: string, children: React.ReactNode }> = ({ title, children }) => {
   return <Card size="small" title={<p style={{ color: 'white', textAlign: 'center'}}>{title}</p>}> {children}</Card>
@@ -15,6 +16,7 @@ const CardWrap: React.FC<{ title: string, children: React.ReactNode }> = ({ titl
 
 
 const EventCount: React.FC = () => {
+    const { t } = useTranslation();
     const [prevValue, setPrevValue] = useState(0);
 
 
@@ -30,7 +32,7 @@ const EventCount: React.FC = () => {
       >
         <Row gutter={16} style={{ marginBottom: '20px'}}>
             <Col span={6} > 
-                    <CardWrap title="熱源警告次數">
+                    <CardWrap title={t("sw_monitor.heat_warning_count")}>
                         <div style={{ textAlign: "center" }}>
                         <AnimatedNumber
                             useThousandsSeparator
@@ -54,7 +56,7 @@ const EventCount: React.FC = () => {
                     </CardWrap>
             </Col>
             <Col span={6}>
-                <CardWrap title="熱源警告次數">
+                <CardWrap title={t("sw_monitor.heat_warning_count")}>
                             <div style={{ textAlign: "center" }}>
                             <AnimatedNumber
                             useThousandsSeparator
@@ -78,7 +80,7 @@ const EventCount: React.FC = () => {
                   </CardWrap>
             </Col>
             <Col span={6}>
-                  <CardWrap title="熱源警告次數">
+                  <CardWrap title={t("sw_monitor.heat_warning_count")}>
                             <div style={{ textAlign: "center" }}>
                             <AnimatedNumber
                             useThousandsSeparator
@@ -102,7 +104,7 @@ const EventCount: React.FC = () => {
                   </CardWrap>
             </Col>
             <Col span={6}>
-                  <CardWrap title="熱源警告次數">
+                  <CardWrap title={t("sw_monitor.heat_warning_count")}>
                         <div style={{ textAlign: "center" }}>
                         <AnimatedNumber
                             useThousandsSeparator

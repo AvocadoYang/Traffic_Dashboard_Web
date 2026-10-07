@@ -135,7 +135,7 @@ const AmrIcon: FC<{
 
   const handlePlacement = (locationId: string | null) => {
     if (!locationId) {
-      messageApi.warning("invalid location");
+      messageApi.warning(t("sim.invalid_location"));
       return;
     }
     editPlacementMutation.mutate(locationId);
@@ -164,7 +164,7 @@ const AmrIcon: FC<{
     const closestLocationId = findClosestLocation(rx, ry, map);
 
     if (!closestLocationId) {
-      messageApi.warning("edit location first");
+      messageApi.warning(t("sim.edit_location_first"));
       return;
     }
 

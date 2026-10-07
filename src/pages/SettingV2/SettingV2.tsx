@@ -7,6 +7,7 @@ import styled from "styled-components";
 import Header from "@/components/Header";
 import MapSelector from "@/components/MapSelector";
 import useMap from "@/api/useMap";
+import useEditRevisionSync from "@/api/useEditRevisionSync";
 import { centerMap, Scale } from "@/utils/gloable";
 import {
   EditLocationPanelSwitch,
@@ -165,6 +166,8 @@ const SettingV2: React.FC = () => {
   const [zonePanelForm] = Form.useForm();
   const [scale, setScale] = useAtom(Scale);
   const currentMapInfo = useMap();
+  // 別人改了地圖或任務,這邊的地圖和列表幾秒內跟著更新
+  useEditRevisionSync();
   const cm = useAtomValue(centerMap);
   const [activePanel, setActivePanel] = useAtom(activeSettingPanelAtom);
   const [mapMode, setMapMode] = useAtom(mapViewModeAtom);
@@ -238,8 +241,8 @@ const SettingV2: React.FC = () => {
                         setMapMode(v === "map" ? "full" : "half")
                       }
                       options={[
-                        { value: "panel", label: "面板" },
-                        { value: "map", label: "地圖" },
+                        { value: "panel", label: t("setting_v2.view_panel") },
+                        { value: "map", label: t("setting_v2.view_map") },
                       ]}
                     />
                     {/* 窄螢幕的面板沒有自己的標題列,關閉鈕要放在這裡 */}

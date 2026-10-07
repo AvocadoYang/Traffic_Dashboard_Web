@@ -7,6 +7,8 @@ import LayerForm from "./LayerForm";
 import { useAtom, useAtomValue } from "jotai";
 import { BaseGlobalCargoInfoModal, GlobalCargoData } from "./jotaiState";
 import { useCargoMutations } from "@/api/useCargoMutations";
+import { editModalBodyStyle } from "../editModalStyle";
+import PeripheralIdentity from "../PeripheralIdentity";
 
 const CargoModal: FC = () => {
   const [settingForm] = Form.useForm();
@@ -68,21 +70,24 @@ const CargoModal: FC = () => {
       {isEditModalOpen ? (
         <Modal
           title={
-            <span
-              style={{ fontSize: "1.5em", fontWeight: "bold" }}
-            >{`${t("shelf.shelf")} ${locId}`}</span>
+            <>
+              <span
+                style={{ fontSize: "1.5em", fontWeight: "bold" }}
+              >{`${t("shelf.shelf")} ${locId}`}</span>
+              <div style={{ marginTop: 8 }}>
+                <PeripheralIdentity locationId={locId} besideClose={false} />
+              </div>
+            </>
           }
           open={isEditModalOpen}
           onOk={handleEditOk}
           onCancel={handleEditCancel}
           width={1530}
-          styles={{
-            body: { padding: "24px", background: "#fafafa" },
-          }}
+          styles={{ body: editModalBodyStyle }}
           okButtonProps={{
             size: "large",
             type: "primary",
-            style: { background: "#1890ff", borderRadius: 6 },
+            style: { borderRadius: 6 },
           }}
           cancelButtonProps={{ size: "large", style: { borderRadius: 6 } }}
           style={{ top: 20 }}
@@ -96,7 +101,7 @@ const CargoModal: FC = () => {
             {shelfInfo === undefined ? (
               <div
                 style={{
-                  color: "#ff4d4f",
+                  color: "var(--c-danger)",
                   fontWeight: "bold",
                   padding: "16px",
                 }}

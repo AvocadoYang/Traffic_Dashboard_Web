@@ -8,6 +8,7 @@ import { CreateSoundModal } from "./CreateSoundModal";
 
 import type { SoundRow } from "../../../../../../../api/useSound";
 import { EditSoundModal } from "./EditSoundModal";
+import { useTranslation } from "react-i18next";
 
 const IndustrialContainer = styled.div`
   font-family: "Roboto Mono", monospace;
@@ -88,6 +89,7 @@ const SoundPanel: FC<{
     | import("@dnd-kit/core/dist/hooks/utilities").SyntheticListenerMap
     | undefined;
 }> = ({ attributes, listeners }) => {
+  const { t } = useTranslation();
   const [createOpen, setCreateOpen] = useState(false);
   const [editingSound, setEditingSound] = useState<SoundRow | null>(null);
 
@@ -109,7 +111,7 @@ const SoundPanel: FC<{
           <SoundsHeaderRow>
             <TitleGroup>
               <Title>Sounds</Title>
-              <Tooltip title="管理可以在任務中播放的聲音檔">
+              <Tooltip title={t("mir.sound.title_hint")}>
                 <HelpIcon />
               </Tooltip>
             </TitleGroup>

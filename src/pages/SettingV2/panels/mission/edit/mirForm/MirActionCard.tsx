@@ -176,7 +176,7 @@ const MirActionCard: FC<Props> = ({
             value={slice.parentClientId ?? TOP_LEVEL}
             onChange={(v) => onSetParent(v === TOP_LEVEL ? null : v)}
             options={[
-              { value: TOP_LEVEL, label: "頂層" },
+              { value: TOP_LEVEL, label: t("setting_v2.mir.top_level") },
               ...containers.map((cont) => ({
                 value: cont.clientId,
                 label: summarizeAction(cont.operation).verb,
@@ -191,7 +191,7 @@ const MirActionCard: FC<Props> = ({
               <EditOutlined />
             </IconButton>
           </Tooltip>
-          <Tooltip title="複製這個動作">
+          <Tooltip title={t("setting_v2.mir.duplicate_action")}>
             <IconButton type="button" onClick={onDuplicate}>
               <CopyOutlined />
             </IconButton>

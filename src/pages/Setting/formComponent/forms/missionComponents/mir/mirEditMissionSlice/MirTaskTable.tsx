@@ -543,7 +543,7 @@ const MirTaskTable: FC<{
       !!target?.scope_reference &&
       (childrenByScope.get(target.scope_reference)?.length ?? 0) > 0;
     if (hasChildren) {
-      messageApi.warning("這個區塊裡還有任務，請先把裡面的任務拖出來再刪除");
+      messageApi.warning(t("mir.container_not_empty_drag"));
       return;
     }
     const updatedDataSource = taskDataSource.filter((v) => v?.id !== key);
@@ -584,7 +584,7 @@ const MirTaskTable: FC<{
     // a reduce_protective_fields row is a container itself and can't be
     // nested inside another one
     if (isContainerTask(activeTaskData) && overContentId) {
-      messageApi.warning("Mute protective fields 本身不能被拖進另一個區塊");
+      messageApi.warning(t("mir.container_no_nest"));
       return;
     }
 
@@ -843,7 +843,7 @@ const MirTaskTable: FC<{
                     <ScopePanel>
                       <ScopePanelHeader>Content</ScopePanelHeader>
                       <ScopeEmptyHint>
-                        請先儲存一次這個任務，才能開始拖曳任務進來
+                        {t("mir.save_before_drag")}
                       </ScopeEmptyHint>
                     </ScopePanel>
                   );

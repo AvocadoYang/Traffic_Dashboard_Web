@@ -17,14 +17,14 @@ import {
   WarningOutlined,
 } from "@ant-design/icons";
 import styled from "styled-components";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";
 import useOneTaskDetailFork from "@/api/useOneTaskDetailFork";
 import { currentMapIdAtom } from "@/utils/mapSelection";
 import { ErrorResponse } from "@/utils/globalType";
-import { errorHandler } from "@/utils/utils";
+import { editErrorHandler } from "@/utils/utils";
 import { controlList } from "@/pages/Setting/formComponent/forms/missionComponents/editMission/forkEditMissionSlice/params";
 import {
   Action_Type,
@@ -62,12 +62,12 @@ const NO_LOCATION_ACTIONS = [
 ];
 
 const PERIPHERAL_ACTIONS = [
-  { label: "使用者確認", value: USER_CONFIRM },
-  { label: "開啟捲門", value: "OPEN_ROLLING_DOOR" },
-  { label: "關閉捲門", value: "CLOSE_ROLLING_DOOR" },
-  { label: "檢查門是否開啟(維修開啟)", value: "READ_ROLLING_DOOR_OPEN" },
-  { label: "檢查門是否關閉(維修關閉)", value: "READ_ROLLING_DOOR_CLOSE" },
-];
+  { labelKey: "user_confirm", value: USER_CONFIRM },
+  { labelKey: "open_rolling_door", value: "OPEN_ROLLING_DOOR" },
+  { labelKey: "close_rolling_door", value: "CLOSE_ROLLING_DOOR" },
+  { labelKey: "read_rolling_door_open", value: "READ_ROLLING_DOOR_OPEN" },
+  { labelKey: "read_rolling_door_close", value: "READ_ROLLING_DOOR_CLOSE" },
+] as const;
 
 /**
  * 設定完不完整的提示。灰黑白之下用「實心深底 = 可以送出、灰底虛線 = 還缺東西」
@@ -121,7 +121,12 @@ const ForkTaskForm: FC<Props> = ({
   const [messageApi, contextHolder] = message.useMessage();
   const currentMapId = useAtomValue(currentMapIdAtom);
 
-  const { data: origin, isLoading } = useOneTaskDetailFork(editTaskKey);
+  const queryClient = useQueryClient();
+  const {
+    data: origin,
+    isLoading,
+    isFetching,
+  } = useOneTaskDetailFork(editTaskKey);
 
   const [action, setAction] = useState<Action_Type>("move");
   const [showSpecial, setShowSpecial] = useState(false);
@@ -287,11 +292,22 @@ const ForkTaskForm: FC<Props> = ({
 
   /* -------------------------------- 送出 -------------------------------- */
 
+  const reloadOrigin = () =>
+    queryClient.invalidateQueries({
+      queryKey: ["one-task-detail-fork", editTaskKey],
+    });
+
   const saveMutation = useMutation({
     mutationFn: (payload: Record<string, unknown>) =>
       client.post("api/setting/update-task-fork", payload),
-    onSuccess: () => void messageApi.success(t("utils.success")),
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+    onSuccess: () => {
+      void messageApi.success(t("utils.success"));
+      // 存完版本碼就變了,要重讀才能接著再存一次
+      void reloadOrigin();
+    },
+    // 別人改過這個步驟:重讀,表單會換成最新的內容
+    onError: (e: ErrorResponse) =>
+      editErrorHandler(e, messageApi, () => void reloadOrigin()),
   });
 
   const onFinish = () => {
@@ -306,6 +322,7 @@ const ForkTaskForm: FC<Props> = ({
       action_type: action,
       control: sequence,
       id: editTaskKey,
+      rev: origin?.rev,
       is_define_yaw: yawType,
       missionTitleId: selectedMissionKey,
     });
@@ -364,9 +381,11 @@ const ForkTaskForm: FC<Props> = ({
               </GhostButton>
             </Tooltip>
             <Hint style={{ margin: 0 }}>
-              目前是{showSpecial
-                ? t("mission.task_form_fork.special")
-                : t("mission.task_form_fork.normal")}
+              {t("setting_v2.mission.current_mode", {
+                mode: showSpecial
+                  ? t("mission.task_form_fork.special")
+                  : t("mission.task_form_fork.normal"),
+              })}
             </Hint>
           </Toolbar>
         </Section>
@@ -408,14 +427,19 @@ const ForkTaskForm: FC<Props> = ({
           <Section>
             <SectionTitle>
               <SettingOutlined />
-              設備控制
+              {t("setting_v2.mission.peripheral_control")}
             </SectionTitle>
 
             <Field>
-              <FieldLabel>選擇類別</FieldLabel>
+              <FieldLabel>{t("setting_v2.mission.select_category")}</FieldLabel>
               <Form.Item name="peripheral_action_type" noStyle>
                 <Select
-                  options={PERIPHERAL_ACTIONS}
+                  options={PERIPHERAL_ACTIONS.map(({ labelKey, value }) => ({
+                    label: t(
+                      `mission.task_form_fork.peripheral_action.${labelKey}`,
+                    ),
+                    value,
+                  }))}
                   onChange={setPeripheral}
                   style={{ width: "100%" }}
                 />
@@ -424,7 +448,7 @@ const ForkTaskForm: FC<Props> = ({
 
             {peripheral === USER_CONFIRM && (
               <Field>
-                <FieldLabel>要顯示給操作者的內容</FieldLabel>
+                <FieldLabel>{t("setting_v2.mission.confirm_message")}</FieldLabel>
                 <Form.Item name="peripheral_action_message" noStyle>
                   <Input />
                 </Form.Item>
@@ -633,7 +657,10 @@ const ForkTaskForm: FC<Props> = ({
           {/* v1 這顆按鈕吃的是 editMutation.isPending,但這個專案的
               react-query 是 v4,沒有 isPending,永遠是 undefined,
               所以存檔中完全沒有提示也擋不住重複按。 */}
-          <SolidButton type="submit" disabled={saveMutation.isLoading}>
+          <SolidButton
+            type="submit"
+            disabled={saveMutation.isLoading || isFetching}
+          >
             {saveMutation.isLoading
               ? t("mission.task_form_fork.saving")
               : t("mission.task_form_fork.deploy")}

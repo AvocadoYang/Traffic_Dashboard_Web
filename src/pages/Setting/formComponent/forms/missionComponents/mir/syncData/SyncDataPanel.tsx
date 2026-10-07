@@ -278,7 +278,7 @@ const SyncDataPanel: FC<{
 
   const handleSubmit = () => {
     if (!amrId || !syncType) {
-      void messageApi.warning("請先選擇車輛與同步項目");
+      void messageApi.warning(t("mir.sync.select_first"));
       return;
     }
 
@@ -314,7 +314,7 @@ const SyncDataPanel: FC<{
 
         <Body>
           <Section>
-            <SectionLabel>選擇車輛</SectionLabel>
+            <SectionLabel>{t("main.queue_mir_task_modal.select_amr")}</SectionLabel>
             <AmrSelect
               options={AmrOption}
               value={amrId}
@@ -325,7 +325,7 @@ const SyncDataPanel: FC<{
           </Section>
 
           <Section>
-            <SectionLabel>選擇同步項目</SectionLabel>
+            <SectionLabel>{t("mir.sync.select_type")}</SectionLabel>
             <SyncTypeGrid>
               {SYNC_TYPE_OPTIONS.map((opt) => {
                 const active = syncType === opt.value;
@@ -364,7 +364,7 @@ const SyncDataPanel: FC<{
             onClick={handleSubmit}
             block
           >
-            送出
+            {t("utils.submit")}
           </SubmitButton>
         </Body>
       </div>

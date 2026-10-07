@@ -192,13 +192,21 @@ const SettingV2Nav: FC<Props> = ({
       {onToggleCollapse && (
         <CollapseRow $collapsed={collapsed}>
           <Tooltip
-            title={collapsed ? "展開選單" : "收起選單"}
+            title={
+              collapsed
+                ? t("setting_v2.nav.expand")
+                : t("setting_v2.nav.collapse")
+            }
             placement="right"
           >
             <Button
               type="text"
               size="small"
-              aria-label={collapsed ? "展開選單" : "收起選單"}
+              aria-label={
+                collapsed
+                  ? t("setting_v2.nav.expand")
+                  : t("setting_v2.nav.collapse")
+              }
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={onToggleCollapse}
             />
@@ -207,7 +215,7 @@ const SettingV2Nav: FC<Props> = ({
       )}
 
       <ExtraRow $collapsed={collapsed}>
-        {!collapsed && <span>地圖</span>}
+        {!collapsed && <span>{t("setting_v2.view_map")}</span>}
         <Segmented
           size="small"
           /* 收起來只有 56px,三顆並排放不下,改成直的 */
@@ -218,7 +226,7 @@ const SettingV2Nav: FC<Props> = ({
             {
               value: "hidden",
               label: (
-                <Tooltip title="全隱藏">
+                <Tooltip title={t("setting_v2.nav.map_hidden")}>
                   <EyeInvisibleOutlined />
                 </Tooltip>
               ),
@@ -226,7 +234,7 @@ const SettingV2Nav: FC<Props> = ({
             {
               value: "half",
               label: (
-                <Tooltip title="半開">
+                <Tooltip title={t("setting_v2.nav.map_half")}>
                   <BorderHorizontalOutlined />
                 </Tooltip>
               ),
@@ -234,7 +242,7 @@ const SettingV2Nav: FC<Props> = ({
             {
               value: "full",
               label: (
-                <Tooltip title="全開">
+                <Tooltip title={t("setting_v2.nav.map_full")}>
                   <ExpandOutlined />
                 </Tooltip>
               ),
@@ -245,8 +253,11 @@ const SettingV2Nav: FC<Props> = ({
 
       {hasMir && (
         <ExtraRow $collapsed={collapsed}>
-          {!collapsed && <span>MiR 風格打點</span>}
-          <Tooltip title={collapsed ? "MiR 風格打點" : ""} placement="right">
+          {!collapsed && <span>{t("setting_v2.nav.mir_placer")}</span>}
+          <Tooltip
+            title={collapsed ? t("setting_v2.nav.mir_placer") : ""}
+            placement="right"
+          >
             <Switch
               size="small"
               checked={mirStylePlacer}

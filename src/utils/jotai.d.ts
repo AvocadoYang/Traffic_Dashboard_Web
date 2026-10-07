@@ -11,6 +11,8 @@ export type LocationType = {
   rotate: number;
   map_id?: string;
   ip?: string | null;
+  wait_area_id?: string | null;
+  wait_order?: number;
   currentMapId?: string;
 };
 

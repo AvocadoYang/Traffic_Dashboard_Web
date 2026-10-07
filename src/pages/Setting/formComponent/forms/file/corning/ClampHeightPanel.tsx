@@ -117,7 +117,7 @@ const ClampHeightPanel: FC<{
       {contextHolder}
       <div>
         <h3 className="drop_button_style" {...listeners} {...attributes}>
-          夾具線高
+          {t("corning.clamp_height_title")}
         </h3>
         <FormHr />
 
