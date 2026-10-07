@@ -124,6 +124,7 @@ const ParamField: FC<{
   hint?: string;
   children: ReactNode;
 }> = ({ fieldName, label, hint, children }) => {
+  const { t } = useTranslation();
   const { enabled, name, setVariable } = useMirVariableField(fieldName);
   const [open, setOpen] = useState(false);
 
@@ -139,7 +140,7 @@ const ParamField: FC<{
           content={
             <PopBody>
               <PopRow>
-                <FieldLabel>使用變數</FieldLabel>
+                <FieldLabel>{t("setting_v2.mir.use_variable")}</FieldLabel>
                 <Switch
                   checked={enabled}
                   onChange={(checked) => {
@@ -149,12 +150,12 @@ const ParamField: FC<{
                 />
               </PopRow>
               <PopRow>
-                <FieldLabel>變數名稱</FieldLabel>
+                <FieldLabel>{t("setting_v2.mir.variable_name")}</FieldLabel>
                 <Input
                   size="small"
                   disabled={!enabled}
                   value={name}
-                  placeholder="variable name"
+                  placeholder={t("setting_v2.mir.variable_name")}
                   onChange={(e) => setVariable(enabled, e.target.value)}
                 />
               </PopRow>
@@ -170,7 +171,7 @@ const ParamField: FC<{
       {enabled ? (
         <VariableChip type="button" onClick={() => setOpen(true)}>
           <SettingOutlined />
-          {name || "(未命名變數)"}
+          {name || t("setting_v2.mir.unnamed_variable")}
         </VariableChip>
       ) : (
         <>
@@ -331,12 +332,18 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
                 validator(_, value: string) {
                   if (getFieldValue("is_current_position")) {
                     return value
-                      ? Promise.reject(new Error("已選「目前位置」,這裡要留空"))
+                      ? Promise.reject(
+                          new Error(
+                            t("setting_v2.mir.current_position_must_be_empty"),
+                          ),
+                        )
                       : Promise.resolve();
                   }
                   return value
                     ? Promise.resolve()
-                    : Promise.reject(new Error("請選一個點位"));
+                    : Promise.reject(
+                        new Error(t("setting_v2.mir.select_location")),
+                      );
                 },
               }),
             ]}
@@ -357,7 +364,7 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
           </Form.Item>
 
           <PopRow>
-            <FieldLabel>Current position</FieldLabel>
+            <FieldLabel>{t("setting_v2.mir.current_position")}</FieldLabel>
             <Form.Item
               name="is_current_position"
               valuePropName="checked"
@@ -378,7 +385,7 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
               />
             </Form.Item>
           </PopRow>
-          <Hint>開啟「Current position」代表在車輛目前的位置對接。</Hint>
+          <Hint>{t("setting_v2.mir.current_position_hint")}</Hint>
         </ParamField>
       );
     }
@@ -394,11 +401,13 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
                 validator(_, value: string) {
                   const current = getFieldValue("is_current_position");
                   if (current && !value) {
-                    return Promise.reject(new Error("請選一個 marker type"));
+                    return Promise.reject(
+                      new Error(t("setting_v2.mir.select_marker_type")),
+                    );
                   }
                   if (!current && value) {
                     return Promise.reject(
-                      new Error("沒有開「目前位置」,這裡要留空"),
+                      new Error(t("setting_v2.mir.marker_type_must_be_empty")),
                     );
                   }
                   return Promise.resolve();
@@ -450,9 +459,9 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
             : live.isFetching
               ? t("utils.loading")
               : !live.amrId
-                ? "目前沒有連線中的 MiR 車輛"
+                ? t("setting_v2.mir.no_online_mir")
                 : live.error
-                  ? "讀取清單失敗"
+                  ? t("setting_v2.mir.load_list_failed")
                   : undefined;
           return (
             <Select
@@ -491,7 +500,11 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
         key={field.name}
         fieldName={field.name}
         label={field.label}
-        hint={field.hint}
+        hint={
+          field.hintKey
+            ? (t(field.hintKey as Parameters<typeof t>[0]) as string)
+            : undefined
+        }
       >
         <Form.Item
           name={field.name}
@@ -516,7 +529,7 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       {operation ? (
         <Stack>
           {fields.length === 0 ? (
-            <Hint>這個動作沒有參數可以設定,直接儲存即可。</Hint>
+            <Hint>{t("setting_v2.mir.no_params")}</Hint>
           ) : (
             <Form form={form} layout="vertical">
               <Stack>{fields.map(renderField)}</Stack>
@@ -541,9 +554,7 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
             </Popconfirm>
           </Toolbar>
 
-          <Hint>
-            這裡只改本地暫存,要按上面工具列的「儲存」才會真的寫進後端。
-          </Hint>
+          <Hint>{t("setting_v2.mir.drawer_hint")}</Hint>
         </Stack>
       ) : null}
     </Drawer>

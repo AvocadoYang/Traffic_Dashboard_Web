@@ -111,7 +111,7 @@ const RangeEventTable: React.FC<RangeEventTableProps> = ({
             )}
 
             <Popconfirm
-              title="are you sure?"
+              title={t("utils.delete_warn")}
               onConfirm={() => onRemove(record.id, record.time)}
             >
               <Button size="small" danger>

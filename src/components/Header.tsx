@@ -10,7 +10,6 @@ import {
   Select,
   Avatar,
   Dropdown,
-  Segmented,
 } from "antd";
 import "./component.css";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -21,7 +20,7 @@ import {
   PoweroffOutlined,
   ClockCircleOutlined,
   AppstoreOutlined,
-  PlusSquareOutlined,
+  SendOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
@@ -119,9 +118,76 @@ const ActionsBar = styled(Flex)`
 `;
 
 // 導覽選單跟 HA/任務工具列不再同時擠在同一排,改成一次只顯示一排,
-// 用這顆切換要看哪一排,兩排都用不到的空間就還給彼此。
-const RowSwitch = styled(Segmented)`
+// 用這組分頁切換要看哪一排,兩排都用不到的空間就還給彼此。
+//
+// 原本是一顆只有兩個小圖示的 Segmented:目標太小不好點,也看不出哪個圖示是什麼。
+// 改成兩個有字的分頁,而且整條 header 的高度都點得到(見 RowTab 的 ::before)。
+const RowTabs = styled.div`
+  display: inline-flex;
   flex-shrink: 0;
+  align-items: stretch;
+  height: var(--control-height);
+  background: var(--c-bg-subtle);
+  border: 1px solid var(--c-header-border);
+  border-radius: 4px;
+`;
+
+const RowTab = styled.button<{ $active: boolean }>`
+  all: unset;
+  box-sizing: border-box;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 var(--space-md);
+  font-family: "Roboto Mono", monospace;
+  font-size: var(--font-sm);
+  font-weight: 600;
+  /* header 本身的 line-height 是整條的高度,不重設的話字會被撐到框外 */
+  line-height: 1;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  color: ${({ $active }) =>
+    $active ? "var(--c-header-accent)" : "var(--c-header-text)"};
+  background: ${({ $active }) =>
+    $active ? "var(--c-header-accent-soft)" : "transparent"};
+  /* 跟導覽項目選中時一樣,底下一條強調色 */
+  box-shadow: ${({ $active }) =>
+    $active ? "inset 0 -2px 0 var(--c-header-accent)" : "none"};
+  transition:
+    color 0.2s,
+    background 0.2s;
+
+  & + & {
+    border-left: 1px solid var(--c-header-border);
+  }
+
+  .anticon {
+    font-size: var(--icon-size);
+  }
+
+  /* 看起來只有一般控制項那麼高,但可以點的範圍往上下延伸到整條 header,
+     滑鼠甩到畫面最上緣也點得到 */
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc((var(--control-height) - var(--header-height)) / 2);
+    bottom: calc((var(--control-height) - var(--header-height)) / 2);
+  }
+
+  &:hover {
+    color: var(--c-header-accent);
+    background: var(--c-header-accent-soft);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--c-header-accent);
+    outline-offset: 2px;
+  }
 `;
 
 const IndustrialMenu = styled(Menu)`
@@ -365,6 +431,10 @@ const Header: React.FC = () => {
   const { refetch: amrNameRefetch } = useName();
   const [messageApi, contextHolder] = message.useMessage();
   const location = useLocation();
+  // 任務列(HA 狀態 / 任務派發)只有首頁才有內容。其他頁面一律顯示導覽、也不給切換,
+  // 不然上次停在任務列的人換到別頁會看到一排空白,連導覽都不見。
+  const hasToolsRow = location.pathname === "/";
+  const activeRow: HeaderRow = hasToolsRow ? headerRow : "nav";
   const [openChangePassword, setOpenChangePassword] = useState(false);
   const [openCreateUser, setOpenCreateUser] = useState(false);
   const currentMapInfo = useMap();
@@ -564,7 +634,7 @@ const Header: React.FC = () => {
         </CompactBar>
 
         <IndustrialDrawer
-          title="Navigation"
+          title={t("header.navigation")}
           placement="left"
           onClose={() => setDrawerOpen(false)}
           open={drawerOpen}
@@ -574,19 +644,32 @@ const Header: React.FC = () => {
         </IndustrialDrawer>
 
         <DesktopBar>
-          <Tooltip title={t("header.switch_row")}>
-            <RowSwitch
-              size="small"
-              value={headerRow}
-              onChange={(v) => setHeaderRow(v as HeaderRow)}
-              options={[
-                { value: "nav", icon: <AppstoreOutlined /> },
-                { value: "tools", icon: <PlusSquareOutlined /> },
-              ]}
-            />
-          </Tooltip>
+          {hasToolsRow && (
+            <RowTabs role="tablist" aria-label={t("header.switch_row")}>
+              <RowTab
+                type="button"
+                role="tab"
+                aria-selected={activeRow === "nav"}
+                $active={activeRow === "nav"}
+                onClick={() => setHeaderRow("nav")}
+              >
+                <AppstoreOutlined />
+                {t("header.navigation")}
+              </RowTab>
+              <RowTab
+                type="button"
+                role="tab"
+                aria-selected={activeRow === "tools"}
+                $active={activeRow === "tools"}
+                onClick={() => setHeaderRow("tools")}
+              >
+                <SendOutlined />
+                {t("main.card_name.mission")}
+              </RowTab>
+            </RowTabs>
+          )}
 
-          {headerRow === "nav" && (
+          {activeRow === "nav" && (
             <IndustrialMenu
               mode="horizontal"
               items={items}
@@ -594,10 +677,10 @@ const Header: React.FC = () => {
             />
           )}
 
-          {headerRow === "tools" && (
+          {activeRow === "tools" && (
             <ActionsBar gap="middle" align="center">
-              {location.pathname === "/" && <HaStatusWidget />}
-              {location.pathname === "/" && <MissionBtn />}
+              <HaStatusWidget />
+              <MissionBtn />
             </ActionsBar>
           )}
 
@@ -609,7 +692,7 @@ const Header: React.FC = () => {
             {script?.isSimulate ? (
               <SimulationStatus>
                 <ClockCircleOutlined />
-                <StatusLabel>SIM TIME</StatusLabel>
+                <StatusLabel>{t("header.sim_time")}</StatusLabel>
                 <SimTime></SimTime>
               </SimulationStatus>
             ) : null}
@@ -621,7 +704,7 @@ const Header: React.FC = () => {
                   onClick={handleAbortSim}
                   icon={<PoweroffOutlined />}
                 >
-                  STOP SIM
+                  {t("header.stop_sim")}
                 </ControlButton>
               </Tooltip>
             ) : (
@@ -634,7 +717,7 @@ const Header: React.FC = () => {
                     </svg>
                   }
                 >
-                  SIMULATE
+                  {t("header.simulate")}
                 </ControlButton>
               </Tooltip>
             )}

@@ -18,10 +18,10 @@ const SvgStyle = styled.svg<{
   border-radius: 4px;
   transition: all 0.2s ease;
   opacity: ${({ $isDisable }) => ($isDisable ? 0.6 : 1)};
-  fill: ${({ $hasCargo }) => ($hasCargo ? "#ffe73c" : "#999")};
+  fill: ${({ $hasCargo }) => ($hasCargo ? "#ffe73c" : "var(--c-map-device)")};
 
   border: ${({ $isDisable }) =>
-    $isDisable ? "2px solid #1890ff" : "1px dashed #727272"};
+    $isDisable ? "2px solid #1890ff" : "1px dashed var(--c-map-device-border)"};
 
   box-shadow: ${({ $isDisable }) =>
     $isDisable ? "0 0 8px rgba(24, 144, 255, 0.3)" : "none"};
@@ -29,7 +29,7 @@ const SvgStyle = styled.svg<{
   &:hover {
     transform: scale(1.05);
     background-color: ${({ $hasCargo }) =>
-      $hasCargo ? "rgba(255, 231, 60, 0.5)" : "rgba(200,200,200,0.3)"};
+      $hasCargo ? "rgba(255, 231, 60, 0.5)" : "var(--c-map-cell-hover)"};
   }
 `;
 

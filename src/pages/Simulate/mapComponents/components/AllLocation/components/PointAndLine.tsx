@@ -16,6 +16,7 @@ const PointDiv = styled.div.attrs<{
   top: number;
   canrotate: string;
   hoverLoc?: boolean;
+  $standby?: boolean;
 }>`
   position: absolute;
   width: ${(props) => (props.canrotate === "true" ? "6.5px" : "5px")};
@@ -27,8 +28,15 @@ const PointDiv = styled.div.attrs<{
   transition-duration: 200ms;
 
   border: ${(props) => (props.hoverLoc ? "5px solid #ff0000" : "none")};
+  /* 待命區:外面多一圈,跟一般路徑點分得出來(同首頁 / 設定頁的畫法) */
+  ${(props) =>
+    props.$standby
+      ? `outline: 1px solid ${props.canrotate === "true" ? "#f27ef4" : "#1b00ce"};
+  outline-offset: 2px;`
+      : ""}
   &:hover {
     background: red;
+    outline-color: red;
     scale: 1.8;
   }
 `;

@@ -177,7 +177,7 @@ const SystemAlarmPanel: FC = () => {
         />
 
         {rows.length === 0 ? (
-          <EmptyState>WAITING FOR CONFIG…</EmptyState>
+          <EmptyState>{t("setting_v2.waiting_config")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (

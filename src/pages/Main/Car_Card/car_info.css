@@ -44,17 +44,6 @@
   font-size: 1.3rem;
 }
 
-.full-tag-wrap {
-  padding: 3px;
-  min-height: 10px;
-  border-top: 1px dashed gray;
-}
-
-.hide-tag-wrap {
-  height: 0;
-  overflow: hidden;
-}
-
 .dark-mode-title {
   color: var(--c-text);
 }
@@ -70,11 +59,6 @@
   width: 90%;
 }
 
-.amr-title-category {
-  font-size: 10px;
-  color: var(--c-text-muted);
-}
-
 .amr-is-registerd {
   font-size: 10px;
   margin-top: 4px;
@@ -86,126 +70,18 @@
   color: var(--c-text-muted);
 }
 
-.amr-title-category-dark-mode {
-  font-size: 10px;
-  color: var(--c-text-muted);
-}
-
 .value {
   text-align: center;
   font-size: 0.85em;
-}
-
-.login-text {
-  font-size: 0.85em;
-  font-weight: 600;
-}
-
-.offline-text {
-  color: var(--c-border-strong);
-}
-
-.warning-text {
-  color: #ff9646;
-}
-
-.second-row-wrap {
-  color: white;
 }
 
 .icon {
   font-size: 0.8em;
 }
 
-.dark-icon {
-  font-size: 0.9em;
-}
-
-.location-icon svg {
-  fill: rgb(13, 102, 218);
-  color: rgb(13, 102, 218);
-}
-
-.joystick-icon {
-  font-size: 1.8em;
-}
-
-.location-icon-dark svg {
-  fill: rgb(1, 255, 255);
-  color: rgb(1, 255, 255);
-}
-
-.joystick-icon svg {
-  fill: none;
-}
-
 .symbol {
   color: gray;
   font-size: 0.85em;
-}
-
-.symbol-dark {
-  font-size: 0.85em;
-  color: white;
-}
-
-.power-icon svg {
-  fill: rgb(240, 132, 9);
-}
-
-.power-icon-dark svg {
-  fill: rgb(253, 228, 5);
-}
-
-@keyframes blink {
-  0% {
-    fill: rgb(240, 132, 9); /* 橘色 */
-  }
-  50% {
-    fill: red; /* 紅色 */
-  }
-  100% {
-    fill: rgb(240, 132, 9); /* 橘色 */
-  }
-}
-
-@keyframes blink-dark {
-  0% {
-    fill: rgb(253, 228, 5); /* 橘色 */
-  }
-  50% {
-    fill: red; /* 紅色 */
-  }
-  100% {
-    fill: rgb(253, 228, 5); /* 橘色 */
-  }
-}
-
-/* 低電量時 (電量 < 20%)，啟動動畫 */
-.low-battery svg {
-  animation: blink 1s infinite;
-}
-
-.low-battery .power-icon-dark svg {
-  animation: blink-dark 1s infinite;
-}
-
-.yaw-icon svg {
-  fill: rgb(4, 110, 4);
-}
-.yaw-icon-dark svg {
-  fill: rgb(1, 233, 1);
-}
-
-.third-row-span {
-  color: var(--c-text-muted);
-  text-align: center;
-  width: 20%;
-  font-size: 65%;
-}
-
-.third-row-span-dark {
-  color: var(--c-text-muted);
 }
 
 @media screen and (max-width: 1000px) {

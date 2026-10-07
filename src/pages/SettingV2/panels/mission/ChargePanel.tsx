@@ -422,7 +422,7 @@ const ChargePanel: FC = () => {
         </Hint>
 
         {rows.length === 0 ? (
-          <EmptyState>NO CHARGE MISSIONS</EmptyState>
+          <EmptyState>{t("setting_v2.empty.charge_missions")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (
@@ -513,7 +513,7 @@ const ChargePanel: FC = () => {
               }
               pagination={{
                 pageSize: 12,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>

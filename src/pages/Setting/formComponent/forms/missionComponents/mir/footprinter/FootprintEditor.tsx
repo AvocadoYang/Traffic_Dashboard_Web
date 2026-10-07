@@ -36,6 +36,7 @@ import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { MessageInstance } from "antd/es/message/interface";
+import { useTranslation } from "react-i18next";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -397,6 +398,7 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
   messageApi,
   readOnly = false,
 }) => {
+  const { t } = useTranslation();
   const initialPoints = useMemo(
     () => parsePoints(data.footprint_points),
     [data.footprint_points],
@@ -522,7 +524,7 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
 
   const handleSave = useCallback(async () => {
     if (!data.id) {
-      messageApi.error("這筆 footprint 還沒有 ID，請先確認建立成功後再編輯");
+      messageApi.error(t("mir.footprint.no_id_edit"));
       return;
     }
     const next: FootprintRecord = {
@@ -669,19 +671,19 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
   const menuItems: MenuProps["items"] = [
     {
       key: "duplicate",
-      label: "複製",
+      label: t("mir.duplicate"),
       onClick: handleDuplicate,
     },
     {
       key: "export",
-      label: "匯出 JSON",
+      label: t("mir.export_json"),
       onClick: () => {
         console.log("Export JSON");
       },
     },
     {
       key: "delete",
-      label: "刪除",
+      label: t("utils.delete"),
       danger: true,
       disabled: readOnly,
       onClick: handleDelete,
@@ -704,7 +706,7 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
               size={Math.max(name.length, data.config_id.length, 6)}
             />
           )}
-          <Tooltip title="拖曳頂點可調整外框形狀">
+          <Tooltip title={t("mir.footprint.drag_hint")}>
             <HelpIcon />
           </Tooltip>
         </TitleGroup>
@@ -727,22 +729,22 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
       </HeaderRow>
 
       <Toolbar>
-        <Tooltip title="移動畫布">
+        <Tooltip title={t("mir.footprint.tool_pan")}>
           <ToolButton>
             <DragOutlined />
           </ToolButton>
         </Tooltip>
-        <Tooltip title="對齊">
+        <Tooltip title={t("mir.footprint.tool_snap")}>
           <ToolButton>
             <ColumnHeightOutlined />
           </ToolButton>
         </Tooltip>
-        <Tooltip title="頂點編輯">
+        <Tooltip title={t("mir.footprint.tool_vertex")}>
           <ToolButton $active>
             <ApartmentOutlined />
           </ToolButton>
         </Tooltip>
-        <Tooltip title="重設外框">
+        <Tooltip title={t("mir.footprint.tool_reset")}>
           <ToolButton onClick={handleReset}>
             <UndoOutlined />
           </ToolButton>
@@ -992,8 +994,8 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
         ) : (
           <EmptyHint>
             {readOnly
-              ? "MiR 內建 footprint 不可修改。請從右上角選單「複製」，再編輯複製出來的那筆。"
-              : "點選或拖曳任一頂點以編輯座標"}
+              ? t("mir.footprint.readonly_hint")
+              : t("mir.footprint.vertex_hint")}
           </EmptyHint>
         )}
 
@@ -1013,7 +1015,7 @@ export const FootprintEditor: React.FC<FootprintEditorProps> = ({
                 strokeDasharray="4 3"
               />
             </svg>
-            {data.config_id} 車身尺寸（參考，不可編輯）
+            {data.config_id} {t("mir.footprint.body_size_legend")}
           </LegendBadge>
         )}
       </CanvasCard>

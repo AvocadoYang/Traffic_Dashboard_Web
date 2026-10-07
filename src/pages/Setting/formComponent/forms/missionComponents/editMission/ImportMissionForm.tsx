@@ -111,7 +111,7 @@ const ImportMissionForm: FC<{
       {contextHolder}
 
       <Modal
-        title="引入任務"
+        title={t("mission.task_table.import_mission")}
         open={showImportMission}
         onOk={handleImportMissionOk}
         onCancel={handleImportMissionCancel}
@@ -128,7 +128,7 @@ const ImportMissionForm: FC<{
             rules={[
               { required: true, message: t("mission.add_mission.name_warn") },
             ]}
-            label="任務"
+            label={t("toolbar.mission.mission")}
             name="importTaskId"
           >
             <Select

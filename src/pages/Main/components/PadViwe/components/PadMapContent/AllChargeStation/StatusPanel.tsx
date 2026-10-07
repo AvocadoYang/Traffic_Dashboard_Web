@@ -202,9 +202,9 @@ const StatusPanel: FC<{ locId: string | null }> = ({ locId }) => {
       client.post("api/test/charge-station-bar", payload),
     onSuccess: (_, variables) => {
       if (variables.cmd === "start") {
-        messageApi.success("CHARGING STARTED");
+        messageApi.success(t("charge.station_panel.charging_started"));
       } else {
-        messageApi.info("CHARGING STOPPED");
+        messageApi.info(t("charge.station_panel.charging_stopped"));
       }
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
@@ -213,7 +213,7 @@ const StatusPanel: FC<{ locId: string | null }> = ({ locId }) => {
 
   const handleBar = (cmd: string) => {
     if (!locId) {
-      messageApi.error("LOCATION NOT FOUND");
+      messageApi.error(t("charge.station_panel.location_not_found"));
       return;
     }
     testMutation.mutate({ locationId: locId, cmd });
@@ -231,7 +231,7 @@ const StatusPanel: FC<{ locId: string | null }> = ({ locId }) => {
         title={
           <Flex align="center" gap="small">
             <ThunderboltOutlined style={{ color: "#faad14" }} />
-            CHARGE STATION CONTROL
+            {t("charge.station_panel.control_title")}
           </Flex>
         }
       >
@@ -239,17 +239,17 @@ const StatusPanel: FC<{ locId: string | null }> = ({ locId }) => {
           <StatusHeader>
             <PoweroffOutlined style={{ fontSize: 20, color: "#faad14" }} />
             <div style={{ flex: 1 }}>
-              <StatusText>CHARGE STATION STATUS</StatusText>
+              <StatusText>{t("charge.station_panel.status_title")}</StatusText>
             </div>
           </StatusHeader>
 
           <InfoSection>
             <InfoRow>
-              <InfoLabel>Location ID:</InfoLabel>
+              <InfoLabel>{t("charge.station_panel.location_id")}</InfoLabel>
               <LocationBadge>{locId || "N/A"}</LocationBadge>
             </InfoRow>
             <InfoRow>
-              <InfoLabel>Last Heartbeat:</InfoLabel>
+              <InfoLabel>{t("charge.station_panel.last_heartbeat")}</InfoLabel>
               <InfoValue style={{ color: "#52c41a" }}>
                 {station?.leastHeartbeatTime
                   ? dayjs(station.leastHeartbeatTime).format(
@@ -259,7 +259,7 @@ const StatusPanel: FC<{ locId: string | null }> = ({ locId }) => {
               </InfoValue>
             </InfoRow>
             <InfoRow>
-              <InfoLabel>Heartbeat:</InfoLabel>
+              <InfoLabel>{t("charge.station_panel.heartbeat")}</InfoLabel>
               <InfoValue
                 style={{
                   color: station?.isStationCodeAlive ? "#52c41a" : "#c41a1a",
@@ -269,7 +269,7 @@ const StatusPanel: FC<{ locId: string | null }> = ({ locId }) => {
               </InfoValue>
             </InfoRow>
             <InfoRow>
-              <InfoLabel>MQTT Connection:</InfoLabel>
+              <InfoLabel>{t("charge.station_panel.mqtt")}</InfoLabel>
               <InfoValue
                 style={{
                   color: station?.isMQTTConnect ? "#52c41a" : "#c41a1a",
@@ -279,7 +279,7 @@ const StatusPanel: FC<{ locId: string | null }> = ({ locId }) => {
               </InfoValue>
             </InfoRow>
             <InfoRow>
-              <InfoLabel>TCP Connection:</InfoLabel>
+              <InfoLabel>{t("charge.station_panel.tcp")}</InfoLabel>
               <InfoValue
                 style={{ color: station?.isTCPConnect ? "#52c41a" : "#c41a1a" }}
               >
@@ -288,7 +288,7 @@ const StatusPanel: FC<{ locId: string | null }> = ({ locId }) => {
             </InfoRow>
 
             <InfoRow>
-              <InfoLabel>Charge Bar:</InfoLabel>
+              <InfoLabel>{t("charge.station_panel.charge_bar")}</InfoLabel>
               <InfoValue
                 style={{
                   color: station?.barOut === "1" ? "#1a1dc4" : "#a8a8a8",
@@ -306,7 +306,7 @@ const StatusPanel: FC<{ locId: string | null }> = ({ locId }) => {
               loading={testMutation.isPending}
               icon={<ThunderboltOutlined />}
             >
-              Start Charging
+              {t("charge.station_panel.start")}
             </ControlButton>
 
             <ControlButton
@@ -315,7 +315,7 @@ const StatusPanel: FC<{ locId: string | null }> = ({ locId }) => {
               loading={testMutation.isPending}
               icon={<StopOutlined />}
             >
-              Stop Charging
+              {t("charge.station_panel.stop")}
             </ControlButton>
           </Flex>
         </ControlPanel>

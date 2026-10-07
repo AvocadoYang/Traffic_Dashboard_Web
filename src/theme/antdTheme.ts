@@ -53,10 +53,15 @@ export const buildAntdTheme = (theme: Theme): ThemeConfig => {
         itemMarginBlock: 0,
       },
       Button: {
+        // 深色主題的強調色都是亮色,實心按鈕上的字要跟著換成深色,不能寫死白字。
+        // antd v6 的實心按鈕直接讀 colorTextLightSolid(元件自己的 primaryColor 沒作用),
+        // 所以只在 Button / Checkbox 這層覆寫,不動全域(Tooltip 也用這顆,它的底是深色)。
+        colorTextLightSolid: c.onAccent,
         primaryShadow: "none",
         defaultShadow: "none",
         dangerShadow: "none",
       },
+      Checkbox: { colorWhite: c.onAccent },
       Input: { activeShadow: "none" },
       Select: { optionSelectedBg: c.bgSelected },
       Switch: { colorPrimary: c.accent, colorPrimaryHover: c.accentHover },
@@ -105,6 +110,11 @@ export const buildAppAntdTheme = (theme: Theme): ThemeConfig => {
       colorBgContainer: c.bg,
       colorBgElevated: c.bg,
       colorBgLayout: c.bgSubtle,
+    },
+    components: {
+      // 同 buildAntdTheme:亮色強調色上面放白字 / 白勾會看不清楚(終端機綠、藍圖黃…)
+      Button: { colorTextLightSolid: c.onAccent },
+      Checkbox: { colorWhite: c.onAccent },
     },
   };
 };

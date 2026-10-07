@@ -21,6 +21,7 @@ import {
   PlusOutlined,
   QuestionCircleOutlined,
 } from "@ant-design/icons";
+import { editHalfPanelStyle, EDIT_TITLE_COLOR } from "../editModalStyle";
 
 const { Title } = Typography;
 
@@ -35,8 +36,10 @@ const CargoMissionForm: FC<{
   const { data: shelf } = useSpecificShelf(locId);
   const { t } = useTranslation();
 
+  // 這兩份選單是在下面的載入檢查「之前」算的:點位資料還沒載完時 loc 是 undefined,
+  // 先當成空清單,不然還沒走到載入畫面整頁就先壞了。
   const locationOption = useMemo(() => {
-    const info = loc as LocWithoutArr[];
+    const info = (loc ?? []) as LocWithoutArr[];
     const mixData = info
       .filter((v) => v.areaType === "Dispatch" && v.id !== locId)
       .sort((a, b) => Number(a.locationId) - Number(b.locationId))
@@ -49,7 +52,7 @@ const CargoMissionForm: FC<{
   }, [loc, locId, t]);
 
   const relationOption = useMemo(() => {
-    const info = loc as LocWithoutArr[];
+    const info = (loc ?? []) as LocWithoutArr[];
     const mixData = info
       .filter(
         (v) =>
@@ -116,20 +119,17 @@ const CargoMissionForm: FC<{
     });
   }, [form, shelf, loc, locId]);
 
-  if (!shelf || !loc) return <Skeleton active paragraph={{ rows: 5 }} />;
+  // 載入中也維持跟表單同一張卡片,右邊的樓層設定才不會被擠到變形
+  if (!shelf || !loc) {
+    return (
+      <div style={editHalfPanelStyle}>
+        <Skeleton active paragraph={{ rows: 5 }} />
+      </div>
+    );
+  }
 
   return (
-    <div
-      style={{
-        width: "50%",
-        background: "#fff",
-        padding: "24px",
-        borderRadius: 8,
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-        maxHeight: "70vh",
-        overflowY: "auto",
-      }}
-    >
+    <div style={editHalfPanelStyle}>
       <Form
         form={form}
         layout="vertical"
@@ -141,7 +141,7 @@ const CargoMissionForm: FC<{
           style={{
             textAlign: "center",
             marginBottom: "24px",
-            color: "#1890ff",
+            color: EDIT_TITLE_COLOR,
           }}
         >
           {t("shelf.cargo_mission.default_title")}

@@ -35,7 +35,7 @@ const Wrapper = styled.div<
   gap: 0.35px;
   border-radius: 1px;
   transform: ${(props) =>
-    `translate(${props.translatex}em, ${props.translatey}em) scale(${props.scale}) rotate(${props.rotate}deg)`};
+    `translate(${props.translatex}em, ${props.translatey}em) scale(${props.scale}) rotate(${-props.rotate}deg)`};
   transition: opacity 0.2s;
 
   /* 選取儲位時，沒有可選層的貨架壓暗並且不吃點擊，避免擋到旁邊重疊的貨架 */

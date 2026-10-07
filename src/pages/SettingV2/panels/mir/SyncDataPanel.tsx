@@ -151,7 +151,7 @@ const SyncDataPanel: FC = () => {
           SYNC DATA
         </SectionTitle>
 
-        <Hint>把伺服器上的設定推送到指定車輛,或從車輛取回任務與點位。</Hint>
+        <Hint>{t("setting_v2.mir.sync_hint")}</Hint>
 
         <Field>
           <FieldLabel>{t("utils.amr_id")}</FieldLabel>

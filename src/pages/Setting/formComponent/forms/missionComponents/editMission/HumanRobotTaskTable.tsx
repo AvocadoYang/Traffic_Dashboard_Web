@@ -350,7 +350,7 @@ const HumanRobotTaskTable: FC<{
         return (
           <Flex gap="small">
             <Popconfirm
-              title="Sure to delete?"
+              title={t("utils.delete_warn")}
               onConfirm={() => deleteTask(record.id)}
             >
               <Button

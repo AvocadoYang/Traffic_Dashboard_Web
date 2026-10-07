@@ -24,7 +24,7 @@ const AmrForm: FC<{
 
   const robotTypeOption = allRobotType?.map((y) => {
     return {
-      label: `robot name: ${y.name}, prefix: ${y.value}`,
+      label: t("sim.robot_option", { name: y.name, prefix: y.value }),
       value: y.id,
     };
   });

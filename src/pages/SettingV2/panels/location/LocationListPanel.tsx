@@ -24,12 +24,13 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import useAllGroupsResources from "@/api/useAllGroupsResources";
 import useAllAreaTypes from "@/api/useAllAreaTypes";
+import { WORK_AREA_CONFIG_KEY, useWorkAreaConfig } from "@/api/useWorkAreas";
 import client from "@/api/axiosClient";
 import { locationOption } from "@/pages/Setting/utils/func";
 import { currentMapIdAtom } from "@/utils/mapSelection";
 import { tooltipProp } from "@/utils/gloable";
 import { ErrorResponse } from "@/utils/globalType";
-import { errorHandler } from "@/utils/utils";
+import { editErrorHandler, errorHandler } from "@/utils/utils";
 import useIsNarrow from "../../ui/useIsNarrow";
 import GroupMapFilter from "../../ui/GroupMapFilter";
 import {
@@ -49,7 +50,23 @@ import {
   Field,
   FieldLabel,
   FieldGrid,
+  Hint,
 } from "../../ui/primitives";
+import WaitPointFields, { waitPointPayload } from "../../ui/waitPointFields";
+
+/** 有設備設定 (名稱、群組、規則…) 的點位類型; 從這些類型換走, 設定會被清掉 */
+const DEVICE_AREA_TYPES = [
+  "STORAGE",
+  "CONVEYOR",
+  "STACK",
+  "ELEVATOR",
+  "CHARGING",
+  "LIFT_GATE",
+  "GATE_WAIT_POINT",
+  "PACKAGE",
+  "PACKAGE_IN",
+  "PACKAGE_OUT",
+];
 
 type LocationRow = {
   id: string;
@@ -62,6 +79,9 @@ type LocationRow = {
   canRotate?: boolean;
   areaType: string;
   ip?: string | null;
+  wait_area_id?: string | null;
+  wait_order?: number;
+  rev?: string;
   mapFileName: string;
   groupName: string;
   isActiveGroup: boolean;
@@ -72,16 +92,35 @@ const LocationListPanel: FC = () => {
   const isNarrow = useIsNarrow();
   const queryClient = useQueryClient();
   const [messageApi, contextHolder] = message.useMessage();
+  // 用 hook 版的 confirm, 確認視窗才會跟著設定頁的主題
+  const [modal, modalHolder] = Modal.useModal();
   const [editForm] = Form.useForm();
 
   const { data: resources, refetch, isFetching } = useAllGroupsResources();
   const { data: areaTypes } = useAllAreaTypes();
+  const { data: workAreaConfig } = useWorkAreaConfig();
   const currentMapId = useAtomValue(currentMapIdAtom);
   const setTooltip = useSetAtom(tooltipProp);
+
+  /** 等待點顯示成「作業區名稱 #順序」; 不是等待點回 null */
+  const waitPointText = (row: LocationRow) => {
+    if (!row.wait_area_id) return null;
+    const area = workAreaConfig?.areas.find((a) => a.id === row.wait_area_id);
+    return `${area?.name ?? row.wait_area_id} #${row.wait_order ?? 0}`;
+  };
 
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editing, setEditing] = useState<LocationRow | null>(null);
+  // 編輯視窗裡現在選的類型; 跟原本不一樣就是要換類型
+  const pickedAreaType = Form.useWatch("areaType", editForm) as
+    | string
+    | undefined;
+  const editingAreaType = pickedAreaType ?? editing?.areaType;
+  const losesDeviceSetting =
+    !!editing &&
+    editingAreaType !== editing.areaType &&
+    DEVICE_AREA_TYPES.includes(editing.areaType);
 
   const activeGroupId = useMemo(
     () => resources?.groups.find((g) => g.isUsing)?.groupId ?? null,
@@ -97,10 +136,27 @@ const LocationListPanel: FC = () => {
     }
   }, [activeGroupId]);
 
+  // 列表會跟著別人的修改更新;被別人刪掉的點位不能留在勾選裡
+  // (刪除鈕上的數字會多算,送出去的也是已經不存在的 id)
+  useEffect(() => {
+    if (!resources) return;
+    const existing = new Set(
+      resources.groups.flatMap((g) =>
+        g.maps.flatMap((m) => m.locations.map((loc) => loc.id)),
+      ),
+    );
+    setSelectedIds((prev) =>
+      prev.every((id) => existing.has(id))
+        ? prev
+        : prev.filter((id) => existing.has(id)),
+    );
+  }, [resources]);
+
   const invalidate = () => {
     queryClient.refetchQueries({ queryKey: ["map"] });
     queryClient.refetchQueries({ queryKey: ["active-group-resources"] });
     queryClient.refetchQueries({ queryKey: ["all-groups-resources"] });
+    void queryClient.invalidateQueries({ queryKey: WORK_AREA_CONFIG_KEY });
   };
 
   const editMutation = useMutation({
@@ -111,7 +167,11 @@ const LocationListPanel: FC = () => {
       invalidate();
       setEditing(null);
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+    onError: (e: ErrorResponse) =>
+      editErrorHandler(e, messageApi, () => {
+        invalidate();
+        setEditing(null);
+      }),
   });
 
   const deleteMutation = useMutation({
@@ -193,6 +253,8 @@ const LocationListPanel: FC = () => {
       canRotate: row.canRotate ?? false,
       areaType: row.areaType,
       ip: row.ip ?? "",
+      wait_area_id: row.wait_area_id ?? undefined,
+      wait_order: row.wait_order ?? 0,
     });
     setEditing(row);
   };
@@ -200,13 +262,36 @@ const LocationListPanel: FC = () => {
   const submitEdit = () => {
     if (!editing) return;
     const values = editForm.getFieldsValue() as Record<string, unknown>;
-    editMutation.mutate({
-      ...values,
-      id: editing.id,
-      oldLocationId: editing.locationId,
-      newLocationId: values.locationId,
-      map_id: currentMapId,
-      currentMapId: currentMapId,
+    const areaType = (values.areaType as string | undefined) ?? editing.areaType;
+    const save = () =>
+      editMutation.mutate({
+        ...values,
+        areaType,
+        id: editing.id,
+        rev: editing.rev,
+        oldLocationId: editing.locationId,
+        newLocationId: values.locationId,
+        map_id: currentMapId,
+        currentMapId,
+        // 能不能當等待點看的是換完之後的類型
+        ...waitPointPayload(areaType, values),
+      });
+
+    // 原本的類型沒有設備設定 (路徑點、待命區…), 換類型不會丟東西, 直接存
+    if (!losesDeviceSetting) {
+      save();
+      return;
+    }
+    modal.confirm({
+      title: t("edit_location_panel.change_type.title", {
+        id: editing.locationId,
+        from: locationOption(editing.areaType),
+        to: locationOption(areaType),
+      }),
+      content: t("edit_location_panel.change_type.content"),
+      okText: t("utils.confirm"),
+      cancelText: t("utils.cancel"),
+      onOk: save,
     });
   };
 
@@ -244,12 +329,12 @@ const LocationListPanel: FC = () => {
       render: (v: string) => <Tag>{locationOption(v)}</Tag>,
     },
     {
-      title: "IP",
-      dataIndex: "ip",
-      key: "ip",
-      width: 130,
-      render: (v) => v || "—",
+      title: t("edit_location_panel.wait_point"),
+      key: "waitPoint",
+      width: 150,
+      render: (_, row) => waitPointText(row) ?? "—",
     },
+    { title: "IP", dataIndex: "ip", key: "ip", width: 130, render: (v) => v || "—" },
     {
       title: t("map_manager.map_group"),
       dataIndex: "mapFileName",
@@ -286,6 +371,7 @@ const LocationListPanel: FC = () => {
   return (
     <PanelShell>
       {contextHolder}
+      {modalHolder}
 
       <Section>
         <SectionTitle>
@@ -330,7 +416,7 @@ const LocationListPanel: FC = () => {
         </Toolbar>
 
         {rows.length === 0 ? (
-          <EmptyState>NO LOCATIONS</EmptyState>
+          <EmptyState>{t("setting_v2.empty.locations")}</EmptyState>
         ) : isNarrow ? (
           // 小螢幕:寬表格改成一列一張卡片,不用左右捲
           <CardList>
@@ -368,6 +454,12 @@ const LocationListPanel: FC = () => {
                   <dd>{row.rotate ?? 0}</dd>
                   <dt>{t("map_manager.map_group")}</dt>
                   <dd>{row.mapFileName}</dd>
+                  {row.wait_area_id ? (
+                    <>
+                      <dt>{t("edit_location_panel.wait_point")}</dt>
+                      <dd>{waitPointText(row)}</dd>
+                    </>
+                  ) : null}
                   {row.ip ? (
                     <>
                       <dt>IP</dt>
@@ -417,7 +509,7 @@ const LocationListPanel: FC = () => {
               pagination={{
                 pageSize: 15,
                 showSizeChanger: true,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
               onRow={(row) => ({
                 onMouseEnter: () => hover(row),
@@ -456,6 +548,9 @@ const LocationListPanel: FC = () => {
                   }))}
                 />
               </Form.Item>
+              {losesDeviceSetting ? (
+                <Hint>{t("edit_location_panel.change_type.hint")}</Hint>
+              ) : null}
             </Field>
             <Field>
               <FieldLabel>X</FieldLabel>
@@ -470,13 +565,13 @@ const LocationListPanel: FC = () => {
               </Form.Item>
             </Field>
             <Field>
-              <FieldLabel>offset X</FieldLabel>
+              <FieldLabel>{t("setting_v2.location.offset_x")}</FieldLabel>
               <Form.Item name="offset_x" noStyle>
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>
             </Field>
             <Field>
-              <FieldLabel>offset Y</FieldLabel>
+              <FieldLabel>{t("setting_v2.location.offset_y")}</FieldLabel>
               <Form.Item name="offset_y" noStyle>
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>
@@ -499,6 +594,9 @@ const LocationListPanel: FC = () => {
                 <Input />
               </Form.Item>
             </Field>
+          </FieldGrid>
+          <FieldGrid $cols={2} style={{ marginTop: 16 }}>
+            <WaitPointFields areaType={editingAreaType} />
           </FieldGrid>
         </Form>
       </Modal>

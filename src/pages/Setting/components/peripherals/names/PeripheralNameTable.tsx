@@ -84,6 +84,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   children,
   ...restProps
 }) => {
+  const { t } = useTranslation();
   const { data: peripheralGroups } = usePeripheralGroup();
   const peripheralOptions = useMemo(
     () =>
@@ -98,10 +99,10 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
 
   if (dataIndex === "group") {
     inputNode = (
-      <Select options={peripheralOptions} placeholder="Select group"></Select>
+      <Select options={peripheralOptions} placeholder={t("peripheral_name_table.select_group")}></Select>
     );
   } else if (dataIndex === "status") {
-    inputNode = <Select options={options} placeholder="Select status"></Select>;
+    inputNode = <Select options={options} placeholder={t("peripheral_name_table.select_status")}></Select>;
   } else if (dataIndex === "quantity") {
     inputNode = <Input type="number" placeholder={`Enter ${title}`} />;
   } else {
@@ -117,7 +118,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
           rules={[
             {
               required: false,
-              message: `Please input ${title}!`,
+              message: t("utils.please_input", { field: title }),
             },
           ]}
         >
@@ -146,7 +147,7 @@ const PeripheralNameTable: React.FC = () => {
       return client.post("/api/setting/update-peripheral-name", payload);
     },
     onSuccess: () => {
-      messageApi.success("Name updated successfully");
+      messageApi.success(t("peripheral_name_table.updatedSuccess"));
       queryClient.invalidateQueries({ queryKey: ["peripheral-name"] });
       refetch();
       setEditingKey("");
@@ -159,7 +160,7 @@ const PeripheralNameTable: React.FC = () => {
       return client.post("/api/wcs/sync-with-corning");
     },
     onSuccess: () => {
-      messageApi.success("sync successfully");
+      messageApi.success(t("peripheral_name_table.sync_success"));
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
@@ -224,7 +225,7 @@ const PeripheralNameTable: React.FC = () => {
       });
     } catch (errInfo) {
       console.log("Validate Failed:", errInfo);
-      messageApi.error("Failed to save changes");
+      messageApi.error(t("peripheral_name_table.updateFail"));
     }
   };
 
@@ -320,7 +321,7 @@ const PeripheralNameTable: React.FC = () => {
   );
 
   if (error) {
-    return <div>Error loading data: {error.message}</div>;
+    return <div>{t("utils.load_error")} {error.message}</div>;
   }
 
   return (
@@ -332,13 +333,13 @@ const PeripheralNameTable: React.FC = () => {
           {t("peripheral_name_table.reload")}
         </Button>
 
-        <Popconfirm title="are u sure" onConfirm={handleSync}>
-          <Button style={{ marginBottom: 16 }}>SYNC WITH CORNING</Button>
+        <Popconfirm title={t("utils.are_you_sure")} onConfirm={handleSync}>
+          <Button style={{ marginBottom: 16 }}>{t("setting_v2.peripheral.sync_corning")}</Button>
         </Popconfirm>
 
         <Input.Search
           allowClear
-          placeholder="Search Name or ID"
+          placeholder={t("peripheral_name_table.search_placeholder")}
           style={{ width: 260, marginBottom: 16 }}
           onChange={(e) => setSearchTerm(e.target.value)}
         />

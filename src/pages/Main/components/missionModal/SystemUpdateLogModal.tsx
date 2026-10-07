@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Modal, Flex } from "antd";
 import styled from "styled-components";
 import { BulbOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
 
 
 type LogType = "feature" | "fix" | "improvement";
@@ -198,7 +199,9 @@ const StatusText = styled.span`
 `;
 
 
-const ModalTitle = () => (
+const ModalTitle = () => {
+  const { t } = useTranslation();
+  return (
   <Flex align="center" gap={10}>
     <div style={{ width: 10, height: 10, background: "var(--c-header-accent)" }} />
     <span
@@ -211,7 +214,7 @@ const ModalTitle = () => (
         textTransform: "uppercase",
       }}
     >
-      System Update Log
+      {t("update_log.title")}
     </span>
     <span
       style={{
@@ -229,11 +232,13 @@ const ModalTitle = () => (
     </span>
   </Flex>
 );
+};
 
 
 type FilterType = "all" | LogType;
 
 const SystemUpdateLogModal = () => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<FilterType>("all");
 
@@ -241,10 +246,10 @@ const SystemUpdateLogModal = () => {
     filter === "all" ? LOG_DATA : LOG_DATA.filter((e) => e.type === filter);
 
   const filters: { label: string; value: FilterType }[] = [
-    { label: "All", value: "all" },
-    { label: "Feature", value: "feature" },
-    { label: "Fix", value: "fix" },
-    { label: "Improvement", value: "improvement" },
+    { label: t("update_log.filter_all"), value: "all" },
+    { label: t("update_log.feature"), value: "feature" },
+    { label: t("update_log.fix"), value: "fix" },
+    { label: t("update_log.improvement"), value: "improvement" },
   ];
 
   return (
@@ -265,7 +270,7 @@ const SystemUpdateLogModal = () => {
         }}
       >
         <BulbOutlined style={{ marginRight: 6 }} />
-        Update Log
+        {t("update_log.button")}
       </button>
 
       <Modal
@@ -283,7 +288,7 @@ const SystemUpdateLogModal = () => {
       >
     
         <FilterBar>
-          <FilterLabel>Filter:</FilterLabel>
+          <FilterLabel>{t("update_log.filter")}</FilterLabel>
           {filters.map(({ label, value }) => (
             <FilterButton
               key={value}
@@ -314,11 +319,16 @@ const SystemUpdateLogModal = () => {
  
         <Footer>
           <EntryCount>
-            {filtered.length} entr{filtered.length === 1 ? "y" : "ies"}
+            {t(
+              filtered.length === 1
+                ? "update_log.entry_single"
+                : "update_log.entry_multiple",
+              { count: filtered.length },
+            )}
           </EntryCount>
           <Flex align="center" gap={8}>
             <StatusDot />
-            <StatusText>System nominal</StatusText>
+            <StatusText>{t("update_log.system_nominal")}</StatusText>
           </Flex>
         </Footer>
       </Modal>

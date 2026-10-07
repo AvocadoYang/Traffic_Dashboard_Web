@@ -208,7 +208,7 @@ const MirMissionPanel: FC = () => {
         />
 
         {rows.length === 0 ? (
-          <EmptyState>NO MIR MISSIONS</EmptyState>
+          <EmptyState>{t("setting_v2.empty.mir_missions")}</EmptyState>
         ) : (
           <TableWrap>
             <Table<MirMissionRow>
@@ -220,7 +220,7 @@ const MirMissionPanel: FC = () => {
               scroll={{ x: "max-content" }}
               pagination={{
                 pageSize: 12,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>

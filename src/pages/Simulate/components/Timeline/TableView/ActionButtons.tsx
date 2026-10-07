@@ -40,21 +40,21 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
       <Flex vertical gap="middle">
         {selectTab === "1" ? (
           <Flex gap="middle">
-            <Tooltip title="add mission fix event">
+            <Tooltip title={t("sim.timeline.tip_add_fix_mission")}>
               <Button onClick={onAddFixedSchedule}>
                 <PlusOutlined />
                 {t("sim.table_schedule.add_range_event")}
               </Button>
             </Tooltip>
 
-            <Tooltip title="add spawn event">
+            <Tooltip title={t("sim.timeline.tip_add_spawn")}>
               <Button onClick={onAddRangeGroupSpawnSchedule}>
                 <PlusOutlined />
                 {t("sim.spawn_cargo_group.add")}
               </Button>
             </Tooltip>
 
-            <Tooltip title="add shift cargo event">
+            <Tooltip title={t("sim.timeline.tip_add_shift_cargo")}>
               <Button onClick={onAddRangeGroupShiftSchedule}>
                 <PlusOutlined />
                 {t("sim.shift_cargo_group.add")}
@@ -63,21 +63,21 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
           </Flex>
         ) : (
           <Flex gap="middle">
-            <Tooltip title="add mission event">
+            <Tooltip title={t("sim.timeline.tip_add_mission")}>
               <Button onClick={onAddSchedule}>
                 <PlusOutlined />
                 {t("sim.timeline.add_mission")}
               </Button>
             </Tooltip>
 
-            <Tooltip title="add shift cargo event">
+            <Tooltip title={t("sim.timeline.tip_add_shift_cargo")}>
               <Button onClick={onAddShiftSchedule}>
                 <PlusOutlined />
                 {t("sim.timeline.add_shift_cargo")}
               </Button>
             </Tooltip>
 
-            <Tooltip title="add spawn cargo event">
+            <Tooltip title={t("sim.timeline.tip_add_spawn_cargo")}>
               <Button onClick={onAddSpawnCargoSchedule}>
                 <PlusOutlined />
                 {t("sim.timeline.add_spawn_cargo")}

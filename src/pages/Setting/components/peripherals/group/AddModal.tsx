@@ -113,7 +113,7 @@ const AddModal: React.FC<AddModalProps> = ({
       return client.post("/api/setting/edit-peripheral-group", payload);
     },
     onSuccess: () => {
-      messageApi.success("Updated successfully");
+      messageApi.success(t("utils.update_success"));
       queryClient.invalidateQueries({ queryKey: ["peripheral-group"] });
       queryClient.invalidateQueries({ queryKey: ["peripheral-corning"] });
       form.resetFields();
@@ -127,13 +127,13 @@ const AddModal: React.FC<AddModalProps> = ({
   const handleSubmit = async () => {
     try {
       if (!targetKeys || targetKeys.length == 0) {
-        messageApi.error("peripheral is require !");
+        messageApi.error(t("peripheral_group_table.peripheral_required"));
         return;
       }
       const values = await form.validateFields();
 
       if (!values.name) {
-        messageApi.error("name is require !");
+        messageApi.error(t("peripheral_group_table.name_required"));
         return;
       }
       const safeTargetKeys = targetKeys.filter(
@@ -155,7 +155,7 @@ const AddModal: React.FC<AddModalProps> = ({
       }
     } catch (errInfo) {
       console.log("Submit Failed:", errInfo);
-      messageApi.error("field has miss data");
+      messageApi.error(t("utils.field_missing"));
     }
   };
 

@@ -457,7 +457,7 @@ const DialogMission = () => {
       }
       const splitErrorMessage = errorMessage.split(" ");
       if (splitErrorMessage[0] === "[CustomError]") {
-        void messageApi.error("無法排除 聯絡FAE工程師");
+        void messageApi.error(t("utils.contact_fae"));
       }
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
@@ -467,7 +467,7 @@ const DialogMission = () => {
     const payload = missionForm.getFieldsValue() as MissionFrom;
     const { titleId, priority, variableValues } = payload;
     if (!titleId || priority === undefined || priority === null) {
-      void messageApi.error("尚未完成選項");
+      void messageApi.error(t("main.mission_modal.options_incomplete"));
       return;
     }
 
@@ -475,7 +475,7 @@ const DialogMission = () => {
       (name) => !variableValues?.[name],
     );
     if (missingVariable) {
-      void messageApi.error("這個任務有變數尚未填寫");
+      void messageApi.error(t("main.mission_modal.variable_missing"));
       return;
     }
 
@@ -536,7 +536,7 @@ const DialogMission = () => {
             <StyledSelect
               options={AmrOption}
               onChange={(v: string) => setAmrGenre(v)}
-              placeholder="Select an AMR"
+              placeholder={t("main.queue_mir_task_modal.select_amr")}
               onMouseDown={(e) => e.preventDefault()}
               onPopupScroll={(e) => {
                 e.stopPropagation();
@@ -592,9 +592,11 @@ const DialogMission = () => {
                 missionForm.setFieldValue("titleId", record.id);
                 missionForm.setFieldValue("variableValues", undefined);
                 setSelectedTitleId(record.id);
-                void messageApi.success(`Selected mission: ${record.name}`);
+                void messageApi.success(
+                  t("main.mission_modal.selected_mission", { name: record.name }),
+                );
               }}
-              placeholder="Click to choose mission"
+              placeholder={t("main.mission_modal.click_to_choose")}
             />
           </Form.Item>
         </FormSection>
@@ -631,10 +633,10 @@ const DialogMission = () => {
                       <StyledSelect
                         options={selectOptionsByKind[kind]}
                         showSearch
-                        placeholder="Select a value"
+                        placeholder={t("main.mission_modal.select_value")}
                       />
                     ) : (
-                      <Input placeholder="Enter a value" />
+                      <Input placeholder={t("main.mission_modal.enter_value")} />
                     )}
                   </Form.Item>
                 );

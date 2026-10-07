@@ -10,6 +10,7 @@ import {
   FormInstance,
   InputNumber,
   Select,
+  Spin,
   Switch,
   Tooltip,
   Typography,
@@ -24,6 +25,7 @@ import useAllMissionTitles from "@/api/useMissionTitle";
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import { useAtomValue } from "jotai";
 import { IsEditPeripheralModal } from "./jotai";
+import { editHalfPanelStyle } from "@/pages/Setting/mapComponents/components/editModalStyle";
 
 const Config: FC<{
   formConfig: FormInstance<unknown>;
@@ -32,7 +34,7 @@ const Config: FC<{
   const { data: misTitle } = useAllMissionTitles();
   // const { data: yaw } = useYaw();
   const openModal = useAtomValue(IsEditPeripheralModal);
-  const { data: loc } = useLoc(undefined);
+  const { data: loc, isLoading: isLocLoading } = useLoc(undefined);
   const taskOption = misTitle
     ?.filter((g) =>
       g.MissionTitleBridgeCategory.some(
@@ -52,7 +54,8 @@ const Config: FC<{
   ];
 
   const relationOption = useMemo(() => {
-    const info = loc as LocWithoutArr[];
+    // 點位資料還沒載完時 loc 是 undefined,先當成沒有選項,不要讓整頁壞掉
+    const info = (loc ?? []) as LocWithoutArr[];
     const mixData = info
       .filter((v) => v.areaType === "STORAGE" && v.id !== openModal?.stationId)
       .sort((a, b) => Number(a.locationId) - Number(b.locationId))
@@ -65,17 +68,7 @@ const Config: FC<{
 
   return (
     <>
-      <div
-        style={{
-          background: "#fff",
-          padding: "24px",
-          borderRadius: 8,
-          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-          maxHeight: "70vh",
-          overflowY: "auto",
-          width: "50%",
-        }}
-      >
+      <div style={editHalfPanelStyle}>
         <StyledForm form={formConfig} layout="vertical" size="large">
           <StyledTitle level={3}>{t("stack.edit_config_title")}</StyledTitle>
 
@@ -247,6 +240,10 @@ const Config: FC<{
                       >
                         <Select
                           options={relationOption}
+                          loading={isLocLoading}
+                          notFoundContent={
+                            isLocLoading ? <Spin size="small" /> : undefined
+                          }
                           placeholder={t("shelf.cargo_mission.select_location")}
                           showSearch={{
                             filterOption: (input, option) =>

@@ -88,7 +88,7 @@ const DirectMove = () => {
           <Form.Item label={`${t("mission.cycle_mission.car")}`} name="amrId">
             <Select
               options={AmrOption}
-              placeholder={"Select an AMR"}
+              placeholder={t("main.queue_mir_task_modal.select_amr")}
               onMouseDown={(e) => e.preventDefault()}
               onPopupScroll={(e) => {
                 e.stopPropagation();

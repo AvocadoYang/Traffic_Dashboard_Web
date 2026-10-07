@@ -72,6 +72,7 @@ import AllLiftGate from "./components/AllGate/AllLiftGate";
 import AllStack from "./components/AllStack/AllStack";
 import YfyPackage from "./components/YFYPackage/YfyPackage";
 import EditStackModal from "./components/AllStack/EditStackModal";
+import EditPackageModal from "./components/YFYPackage/EditPackageModal";
 import BlindLocationMissionModal from "../components/BlindLocationMissionModal";
 import LocationDetectModal from "../components/LocationDetectModal";
 import useCenterMap from "@/hooks/useCenterMap";
@@ -335,6 +336,7 @@ const MapView: React.FC<{
 
       {/* stack編輯資料與貨物*/}
       <EditStackModal />
+      <EditPackageModal />
 
       {openBlindMission.isOpen ? <BlindLocationMissionModal /> : null}
 

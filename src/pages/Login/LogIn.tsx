@@ -293,26 +293,26 @@ const Login: React.FC = () => {
       <BackgroundContainer>
         <LoginCard>
           <LoginHeader>
-            <LoginTitle>LOGIN</LoginTitle>
-            <SystemLabel>Warehouse Management System</SystemLabel>
+            <LoginTitle>{t("login.title")}</LoginTitle>
+            <SystemLabel>{t("login.system_label")}</SystemLabel>
           </LoginHeader>
 
           <StyledForm layout="vertical" onFinish={handleSubmit}>
             <Form.Item
-              label="USERNAME"
+              label={t("login.username")}
               name="username"
-              rules={[{ required: true, message: "User ID required" }]}
+              rules={[{ required: true, message: t("login.username_required") }]}
             >
-              <Input placeholder="Enter user ID" prefix={<UserOutlined />} />
+              <Input placeholder={t("login.username_placeholder")} prefix={<UserOutlined />} />
             </Form.Item>
 
             <Form.Item
-              label="PASSWORD"
+              label={t("login.password")}
               name="password"
-              rules={[{ required: true, message: "Password required" }]}
+              rules={[{ required: true, message: t("login.password_required") }]}
             >
               <Input.Password
-                placeholder="Enter password"
+                placeholder={t("login.password_placeholder")}
                 prefix={<LockOutlined />}
                 iconRender={(visible) =>
                   visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
@@ -321,11 +321,11 @@ const Login: React.FC = () => {
             </Form.Item>
 
             <Tooltip
-              title="Sorry, you cannot recover your account. This function is still in beta 😣"
+              title={t("login.forgot_tooltip")}
               trigger="click"
             >
               <ForgotLink>
-                <a>Forgot password?</a>
+                <a>{t("login.forgot_password")}</a>
               </ForgotLink>
             </Tooltip>
 
@@ -336,7 +336,7 @@ const Login: React.FC = () => {
                 block
                 loading={editMutation.isPending}
               >
-                {editMutation.isPending ? "AUTHENTICATING..." : "LOGIN"}
+                {editMutation.isPending ? t("login.authenticating") : t("login.title")}
               </IndustrialButton>
             </Form.Item>
           </StyledForm>
@@ -344,7 +344,7 @@ const Login: React.FC = () => {
           <StatusBar>
             <Space align="center" size="small">
               <StatusDot $active />
-              <StatusText>System Online</StatusText>
+              <StatusText>{t("login.system_online")}</StatusText>
             </Space>
             <StatusText>v2.0.1</StatusText>
           </StatusBar>

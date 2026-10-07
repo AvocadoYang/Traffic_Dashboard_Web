@@ -3,6 +3,8 @@ import { FC, memo } from "react";
 import { Table } from "antd";
 import type { TableProps } from "antd";
 import { nanoid } from "nanoid";
+import type { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import useWarningTable from "@/api/useWarningTable";
 
 interface DataType {
@@ -13,26 +15,26 @@ interface DataType {
   debug: string;
 }
 
-const columns: TableProps<DataType>["columns"] = [
+const getColumns = (t: TFunction): TableProps<DataType>["columns"] => [
   {
-    title: "錯誤編號",
+    title: t("file.warning_list.error_code"),
     dataIndex: "key",
     key: "errorNum",
     render: (key) => `#${key}`,
   },
   {
-    title: "警報鈴",
+    title: t("file.warning_list.buzzer"),
     dataIndex: "Alarm_music",
     key: "ring",
-    render: (ring) => (ring ? "是" : "否"),
+    render: (ring) => (ring ? t("utils.yes") : t("utils.no")),
   },
   {
-    title: "錯誤原因",
+    title: t("file.warning_list.info"),
     dataIndex: "info",
     key: "error",
   },
   {
-    title: "排除方法",
+    title: t("file.warning_list.solution"),
     dataIndex: "debug",
     key: "solution",
     render: (sol) => (
@@ -50,6 +52,7 @@ const columns: TableProps<DataType>["columns"] = [
 
 const WarningTable: FC = () => {
   const { data } = useWarningTable();
+  const { t } = useTranslation();
 
   // console.log(data);
 
@@ -65,7 +68,7 @@ const WarningTable: FC = () => {
     <>
       <Table
         rowKey={() => nanoid()}
-        columns={columns}
+        columns={getColumns(t)}
         dataSource={[]}
         size="small"
         pagination={{ pageSize: 8 }}

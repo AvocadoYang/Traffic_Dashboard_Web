@@ -25,10 +25,10 @@ const SvgStyle = styled.svg<{
   border-radius: 4px;
   transition: all 0.2s ease;
   opacity: ${({ $isDisable }) => ($isDisable ? 0.6 : 1)};
-  fill: ${({ $isAlive }) => ($isAlive ? "#3c8aff" : "#999")};
+  fill: ${({ $isAlive }) => ($isAlive ? "#3c8aff" : "var(--c-map-device)")};
 
   border: ${({ $isDisable }) =>
-    $isDisable ? "2px solid #1890ff" : "1px dashed #727272"};
+    $isDisable ? "2px solid #1890ff" : "1px dashed var(--c-map-device-border)"};
 
   box-shadow: ${({ $isDisable }) =>
     $isDisable ? "0 0 8px rgba(24, 144, 255, 0.3)" : "none"};

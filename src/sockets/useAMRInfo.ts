@@ -880,6 +880,13 @@ export const useAmrStatus = (amrId: string) => {
   return { status };
 };
 
+/**
+ * 車況只要不是「正常」,派車時就會有任務被擋掉(後端 isMaintenancePass)。
+ * 還沒收到資料(undefined)不算,免得剛連線時整排卡片閃警示。
+ */
+export const isMaintenanceBlocking = (level: MaintenanceLevel | undefined) =>
+  level !== undefined && level !== MaintenanceLevel.NORMAL;
+
 export const useMaintenanceStatus = (amrId: string) => {
   const [level, setLevel] = useState<MaintenanceLevel | undefined>(undefined);
   const { t } = useTranslation();
@@ -902,6 +909,9 @@ export const useMaintenanceStatus = (amrId: string) => {
         return t("maintenance.forbidden_user_mission");
       case MaintenanceLevel.BROKEN:
         return t("maintenance.broken");
+      default:
+        // 資料庫預設值不在列舉裡,後端一樣當成不能接任務
+        return t("maintenance.unknown");
     }
   };
 
@@ -925,7 +935,11 @@ export const useMaintenanceStatus = (amrId: string) => {
     };
   }, [amrId]);
 
-  return { status: translateMaintenance(level), level };
+  return {
+    status: translateMaintenance(level),
+    level,
+    blocking: isMaintenanceBlocking(level),
+  };
 };
 
 export const useIsWorking = (amrId: string) => {

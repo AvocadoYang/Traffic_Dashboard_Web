@@ -226,7 +226,7 @@ const MissionList: FC<{
               onClick={() => setSelectedMissionKey("")}
               icon={<LeftOutlined />}
             >
-              BACK
+              {t("utils.go_back")}
             </IndustrialButton>
           </Tooltip>
 
@@ -239,7 +239,7 @@ const MissionList: FC<{
           </IndustrialButton>
 
           <Popconfirm
-            title="are your sure copy mission?"
+            title={t("mission.mission_list.copy_confirm")}
             onConfirm={() => copyMission()}
           >
             <IndustrialButton icon={<CopyOutlined />}>
@@ -272,7 +272,7 @@ const MissionList: FC<{
             items={[
               {
                 key: "legacy",
-                label: "表格檢視 (Legacy)",
+                label: t("mission.mission_list.view_legacy"),
                 children: (
                   <MirTaskTable
                     showModal={showModal}
@@ -283,7 +283,7 @@ const MissionList: FC<{
               },
               {
                 key: "mir-style",
-                label: "MiR 風格編輯",
+                label: t("mission.mission_list.view_mir_style"),
                 children: (
                   <EditMirMissionPanel selectedMissionKey={selectedMissionKey} />
                 ),

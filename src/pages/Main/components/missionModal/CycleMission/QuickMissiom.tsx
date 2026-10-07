@@ -106,7 +106,7 @@ const QuickMission = () => {
   const submit = () => {
     const { load, offload, amrId, priority } = form.getFieldsValue();
     if (!load || !offload || !amrId || !priority) {
-      void messageApi.warning("欄位尚未填寫完整");
+      void messageApi.warning(t("main.mission_modal.fields_incomplete"));
       return;
     }
     const loadInfo = (load as string).split("-");
@@ -158,7 +158,7 @@ const QuickMission = () => {
             <Select
               options={AmrOption}
               onChange={(v: string) => setAmrGenre(v)}
-              placeholder={"Select an AMR"}
+              placeholder={t("main.queue_mir_task_modal.select_amr")}
               onMouseDown={(e) => e.preventDefault()}
               onPopupScroll={(e) => {
                 e.stopPropagation();
@@ -195,7 +195,7 @@ const QuickMission = () => {
 
           <Form.Item label={t("car_control_translate.load")} name={"load"}>
             <Select
-              placeholder={"Select a load shelf"}
+              placeholder={t("main.quick_mission.select_load_shelf")}
               style={{ width: "100%" }}
               options={loadShelf}
               onMouseDown={(e) => e.preventDefault()}
@@ -217,7 +217,7 @@ const QuickMission = () => {
             name={"offload"}
           >
             <Select
-              placeholder={"Select a offload shelf"}
+              placeholder={t("main.quick_mission.select_offload_shelf")}
               style={{ width: "100%" }}
               options={offLoadShelf}
               onMouseDown={(e) => e.preventDefault()}

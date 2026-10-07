@@ -504,7 +504,9 @@ const QueueMirTaskModal = () => {
               onSelect={(name) => {
                 form.setFieldValue("missionName", name);
                 resetVariables();
-                void messageApi.success(`Selected mission: ${name}`);
+                void messageApi.success(
+                  t("main.mission_modal.selected_mission", { name }),
+                );
               }}
             />
           </Form.Item>
