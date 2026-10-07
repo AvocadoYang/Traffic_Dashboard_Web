@@ -50,8 +50,23 @@ import {
   Field,
   FieldLabel,
   FieldGrid,
+  Hint,
 } from "../../ui/primitives";
 import WaitPointFields, { waitPointPayload } from "../../ui/waitPointFields";
+
+/** 有設備設定 (名稱、群組、規則…) 的點位類型; 從這些類型換走, 設定會被清掉 */
+const DEVICE_AREA_TYPES = [
+  "STORAGE",
+  "CONVEYOR",
+  "STACK",
+  "ELEVATOR",
+  "CHARGING",
+  "LIFT_GATE",
+  "GATE_WAIT_POINT",
+  "PACKAGE",
+  "PACKAGE_IN",
+  "PACKAGE_OUT",
+];
 
 type LocationRow = {
   id: string;
@@ -76,6 +91,8 @@ const LocationListPanel: FC = () => {
   const isNarrow = useIsNarrow();
   const queryClient = useQueryClient();
   const [messageApi, contextHolder] = message.useMessage();
+  // 用 hook 版的 confirm, 確認視窗才會跟著設定頁的主題
+  const [modal, modalHolder] = Modal.useModal();
   const [editForm] = Form.useForm();
 
   const { data: resources, refetch, isFetching } = useAllGroupsResources();
@@ -94,6 +111,15 @@ const LocationListPanel: FC = () => {
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editing, setEditing] = useState<LocationRow | null>(null);
+  // 編輯視窗裡現在選的類型; 跟原本不一樣就是要換類型
+  const pickedAreaType = Form.useWatch("areaType", editForm) as
+    | string
+    | undefined;
+  const editingAreaType = pickedAreaType ?? editing?.areaType;
+  const losesDeviceSetting =
+    !!editing &&
+    editingAreaType !== editing.areaType &&
+    DEVICE_AREA_TYPES.includes(editing.areaType);
 
   const activeGroupId = useMemo(
     () => resources?.groups.find((g) => g.isUsing)?.groupId ?? null,
@@ -215,15 +241,35 @@ const LocationListPanel: FC = () => {
   const submitEdit = () => {
     if (!editing) return;
     const values = editForm.getFieldsValue() as Record<string, unknown>;
-    editMutation.mutate({
-      ...values,
-      id: editing.id,
-      oldLocationId: editing.locationId,
-      newLocationId: values.locationId,
-      map_id: currentMapId,
-      currentMapId,
-      // 點位類型存檔後改不了, 能不能當等待點看的是原本的類型
-      ...waitPointPayload(editing.areaType, values),
+    const areaType = (values.areaType as string | undefined) ?? editing.areaType;
+    const save = () =>
+      editMutation.mutate({
+        ...values,
+        areaType,
+        id: editing.id,
+        oldLocationId: editing.locationId,
+        newLocationId: values.locationId,
+        map_id: currentMapId,
+        currentMapId,
+        // 能不能當等待點看的是換完之後的類型
+        ...waitPointPayload(areaType, values),
+      });
+
+    // 原本的類型沒有設備設定 (路徑點、待命區…), 換類型不會丟東西, 直接存
+    if (!losesDeviceSetting) {
+      save();
+      return;
+    }
+    modal.confirm({
+      title: t("edit_location_panel.change_type.title", {
+        id: editing.locationId,
+        from: locationOption(editing.areaType),
+        to: locationOption(areaType),
+      }),
+      content: t("edit_location_panel.change_type.content"),
+      okText: t("utils.confirm"),
+      cancelText: t("utils.cancel"),
+      onOk: save,
     });
   };
 
@@ -303,6 +349,7 @@ const LocationListPanel: FC = () => {
   return (
     <PanelShell>
       {contextHolder}
+      {modalHolder}
 
       <Section>
         <SectionTitle>
@@ -479,6 +526,9 @@ const LocationListPanel: FC = () => {
                   }))}
                 />
               </Form.Item>
+              {losesDeviceSetting ? (
+                <Hint>{t("edit_location_panel.change_type.hint")}</Hint>
+              ) : null}
             </Field>
             <Field>
               <FieldLabel>X</FieldLabel>
@@ -524,7 +574,7 @@ const LocationListPanel: FC = () => {
             </Field>
           </FieldGrid>
           <FieldGrid $cols={2} style={{ marginTop: 16 }}>
-            <WaitPointFields areaType={editing?.areaType} />
+            <WaitPointFields areaType={editingAreaType} />
           </FieldGrid>
         </Form>
       </Modal>

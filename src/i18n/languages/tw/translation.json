@@ -610,6 +610,11 @@
     "wait_area_not_allowed": "只有路徑點、待命區可以當等待點。",
     "wait_order": "排隊順序",
     "wait_order_hint": "數字小的排前面，最靠近作業區入口的填 1。",
+    "change_type": {
+      "title": "把點位 {{id}} 從「{{from}}」換成「{{to}}」？",
+      "content": "點位的編號、座標、角度和路線都不變。原本的設備設定（名稱、群組，以及指到它的派送規則、模擬設定）會被清掉，新類型從預設值開始。",
+      "hint": "換類型後，原本的設備設定會被清掉。"
+    },
     "save_pose_notify": {
       "empty_value": "X/Y 為必填值",
       "fill_in_value": "請填入 X/Y 值",
