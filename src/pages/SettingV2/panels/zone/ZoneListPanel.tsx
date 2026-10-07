@@ -120,7 +120,8 @@ const ZoneListPanel: FC = () => {
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) =>
-      client.post("api/setting/delete-edit-zone", { id, map_id: currentMapId }),
+      // 後端收的是 zoneIds 陣列;送 { id } 的話它拿不到要刪哪一筆,每次都失敗
+      client.post("api/setting/delete-edit-zone", { zoneIds: [id] }),
     onSuccess: () => {
       void messageApi.success(t("utils.success"));
       invalidate();
