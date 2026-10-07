@@ -15,7 +15,7 @@ import useAllGroupsResources from "@/api/useAllGroupsResources";
 import client from "@/api/axiosClient";
 import { hoverRoad } from "@/utils/gloable";
 import { ErrorResponse } from "@/utils/globalType";
-import { errorHandler } from "@/utils/utils";
+import { editErrorHandler, errorHandler } from "@/utils/utils";
 import useIsNarrow from "../../ui/useIsNarrow";
 import GroupMapFilter from "../../ui/GroupMapFilter";
 import RoadCommonFields from "../../ui/roadFields";
@@ -45,6 +45,7 @@ type RoadRow = {
   limit: boolean;
   priority: number;
   validYawList: number[] | string;
+  rev?: string;
   mapFileName: string;
   groupName: string;
   isActiveGroup: boolean;
@@ -98,7 +99,11 @@ const RoadListPanel: FC = () => {
       invalidate();
       setEditing(null);
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+    onError: (e: ErrorResponse) =>
+      editErrorHandler(e, messageApi, () => {
+        invalidate();
+        setEditing(null);
+      }),
   });
 
   const deleteMutation = useMutation({
@@ -189,6 +194,7 @@ const RoadListPanel: FC = () => {
     editMutation.mutate({
       ...v,
       id: editing.id,
+      rev: editing.rev,
       spot1Id: Number(editing.spot1Id),
       spot2Id: Number(editing.spot2Id),
     });

@@ -17,14 +17,14 @@ import {
   WarningOutlined,
 } from "@ant-design/icons";
 import styled from "styled-components";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";
 import useOneTaskDetailFork from "@/api/useOneTaskDetailFork";
 import { currentMapIdAtom } from "@/utils/mapSelection";
 import { ErrorResponse } from "@/utils/globalType";
-import { errorHandler } from "@/utils/utils";
+import { editErrorHandler } from "@/utils/utils";
 import { controlList } from "@/pages/Setting/formComponent/forms/missionComponents/editMission/forkEditMissionSlice/params";
 import {
   Action_Type,
@@ -121,7 +121,12 @@ const ForkTaskForm: FC<Props> = ({
   const [messageApi, contextHolder] = message.useMessage();
   const currentMapId = useAtomValue(currentMapIdAtom);
 
-  const { data: origin, isLoading } = useOneTaskDetailFork(editTaskKey);
+  const queryClient = useQueryClient();
+  const {
+    data: origin,
+    isLoading,
+    isFetching,
+  } = useOneTaskDetailFork(editTaskKey);
 
   const [action, setAction] = useState<Action_Type>("move");
   const [showSpecial, setShowSpecial] = useState(false);
@@ -287,11 +292,22 @@ const ForkTaskForm: FC<Props> = ({
 
   /* -------------------------------- 送出 -------------------------------- */
 
+  const reloadOrigin = () =>
+    queryClient.invalidateQueries({
+      queryKey: ["one-task-detail-fork", editTaskKey],
+    });
+
   const saveMutation = useMutation({
     mutationFn: (payload: Record<string, unknown>) =>
       client.post("api/setting/update-task-fork", payload),
-    onSuccess: () => void messageApi.success(t("utils.success")),
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+    onSuccess: () => {
+      void messageApi.success(t("utils.success"));
+      // 存完版本碼就變了,要重讀才能接著再存一次
+      void reloadOrigin();
+    },
+    // 別人改過這個步驟:重讀,表單會換成最新的內容
+    onError: (e: ErrorResponse) =>
+      editErrorHandler(e, messageApi, () => void reloadOrigin()),
   });
 
   const onFinish = () => {
@@ -306,6 +322,7 @@ const ForkTaskForm: FC<Props> = ({
       action_type: action,
       control: sequence,
       id: editTaskKey,
+      rev: origin?.rev,
       is_define_yaw: yawType,
       missionTitleId: selectedMissionKey,
     });
@@ -640,7 +657,10 @@ const ForkTaskForm: FC<Props> = ({
           {/* v1 這顆按鈕吃的是 editMutation.isPending,但這個專案的
               react-query 是 v4,沒有 isPending,永遠是 undefined,
               所以存檔中完全沒有提示也擋不住重複按。 */}
-          <SolidButton type="submit" disabled={saveMutation.isLoading}>
+          <SolidButton
+            type="submit"
+            disabled={saveMutation.isLoading || isFetching}
+          >
             {saveMutation.isLoading
               ? t("mission.task_form_fork.saving")
               : t("mission.task_form_fork.deploy")}

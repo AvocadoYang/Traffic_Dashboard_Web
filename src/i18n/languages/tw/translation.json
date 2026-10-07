@@ -210,6 +210,7 @@
     "please_input": "請輸入{{field}}！",
     "edit_failed": "編輯失敗",
     "unknown_error": "發生未知錯誤",
+    "edit_conflict": "這筆資料已經被其他人修改或刪除，已載入最新內容，請重新編輯",
     "total": "共 {{total}} 筆",
     "of": "/"
   },

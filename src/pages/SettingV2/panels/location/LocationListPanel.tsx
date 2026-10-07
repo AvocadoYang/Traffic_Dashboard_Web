@@ -30,7 +30,7 @@ import { locationOption } from "@/pages/Setting/utils/func";
 import { currentMapIdAtom } from "@/utils/mapSelection";
 import { tooltipProp } from "@/utils/gloable";
 import { ErrorResponse } from "@/utils/globalType";
-import { errorHandler } from "@/utils/utils";
+import { editErrorHandler, errorHandler } from "@/utils/utils";
 import useIsNarrow from "../../ui/useIsNarrow";
 import GroupMapFilter from "../../ui/GroupMapFilter";
 import {
@@ -81,6 +81,7 @@ type LocationRow = {
   ip?: string | null;
   wait_area_id?: string | null;
   wait_order?: number;
+  rev?: string;
   mapFileName: string;
   groupName: string;
   isActiveGroup: boolean;
@@ -150,7 +151,11 @@ const LocationListPanel: FC = () => {
       invalidate();
       setEditing(null);
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+    onError: (e: ErrorResponse) =>
+      editErrorHandler(e, messageApi, () => {
+        invalidate();
+        setEditing(null);
+      }),
   });
 
   const deleteMutation = useMutation({
@@ -247,6 +252,7 @@ const LocationListPanel: FC = () => {
         ...values,
         areaType,
         id: editing.id,
+        rev: editing.rev,
         oldLocationId: editing.locationId,
         newLocationId: values.locationId,
         map_id: currentMapId,

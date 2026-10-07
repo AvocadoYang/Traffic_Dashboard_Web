@@ -24,7 +24,7 @@ import useAllGroupsResources from "@/api/useAllGroupsResources";
 import client from "@/api/axiosClient";
 import { currentMapIdAtom } from "@/utils/mapSelection";
 import { ErrorResponse } from "@/utils/globalType";
-import { errorHandler } from "@/utils/utils";
+import { editErrorHandler, errorHandler } from "@/utils/utils";
 import useIsNarrow from "../../ui/useIsNarrow";
 import GroupMapFilter from "../../ui/GroupMapFilter";
 import ZoneFields from "../../ui/zoneFields";
@@ -65,6 +65,7 @@ type ZoneRow = {
   };
   startPoint: { startX: number; startY: number };
   endPoint: { endX: number; endY: number };
+  rev?: string;
   mapFileName: string;
   groupName: string;
 };
@@ -110,7 +111,11 @@ const ZoneListPanel: FC = () => {
       invalidate();
       setEditing(null);
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+    onError: (e: ErrorResponse) =>
+      editErrorHandler(e, messageApi, () => {
+        invalidate();
+        setEditing(null);
+      }),
   });
 
   const deleteMutation = useMutation({
@@ -202,6 +207,7 @@ const ZoneListPanel: FC = () => {
     editMutation.mutate({
       ...v,
       id: editing.id,
+      rev: editing.rev,
       layer: v.layer ? v.layer : "none",
       lidar_back: v.layer ? v.lidar_back : false,
       lidar_front: v.layer ? v.lidar_front : false,

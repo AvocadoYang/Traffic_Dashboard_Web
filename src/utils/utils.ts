@@ -108,6 +108,29 @@ export const errorHandler = (e: ErrorResponse, messageApi: MessageInstance) => {
   void messageApi.error(errorMessage, 5);
 };
 
+/**
+ * 編輯 (整筆寫回去的那種) 失敗時用這個.
+ *
+ * 後端回 409 表示這筆資料在打開編輯之後被別人改過或刪掉了:表單上是舊資料,
+ * 再按一次儲存也不會過,要重讀。onConflict 負責重讀資料、關掉編輯視窗。
+ * 其他錯誤照 errorHandler 顯示。
+ */
+export const editErrorHandler = (
+  e: ErrorResponse,
+  messageApi: MessageInstance,
+  onConflict: () => void,
+) => {
+  if (e?.response?.status !== 409) {
+    errorHandler(e, messageApi);
+    return;
+  }
+  void messageApi.warning(
+    (i18next.t as (key: string) => string)("utils.edit_conflict"),
+    6,
+  );
+  onConflict();
+};
+
 export const amrId2Color = (amrId: string) => {
   const seed = parseInt(`0x${MD5(amrId).toString()}`, 16);
   const h = (seed % 60) + 200;
