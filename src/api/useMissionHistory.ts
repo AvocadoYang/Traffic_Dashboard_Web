@@ -27,6 +27,13 @@ const missionSchema = object({
       send_by: number().required(),
       send_source: actionSourceSchema,
       cancel_source: actionSourceSchema,
+      // 能重新派發的紀錄才有: 要派的任務名稱跟預設的車
+      redispatch: object({
+        titleName: string().required(),
+        amrId: string().required(),
+      })
+        .nullable()
+        .default(null),
       amrId: string().required(),
       status: number().required(),
       full_name: array(string().optional()).required().nullable(),

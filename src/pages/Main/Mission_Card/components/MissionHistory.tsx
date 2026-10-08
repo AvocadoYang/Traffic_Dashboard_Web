@@ -32,6 +32,7 @@ import {
   AlertOutlined,
   RollbackOutlined,
   ToolOutlined,
+  RedoOutlined,
 } from "@ant-design/icons";
 import useAllMissionHistory from "@/api/useMissionHistory";
 import useWarningTable from "@/api/useWarningTable";
@@ -47,6 +48,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Dayjs } from "dayjs";
 import client from "@/api/axiosClient";
 import { themeAtom } from "@/theme";
+import RedispatchModal, { RedispatchTarget } from "./RedispatchModal";
 
 const { RangePicker } = DatePicker;
 // Define the Mission interface based on your schema
@@ -64,6 +66,7 @@ interface Mission {
   send_by: number;
   send_source?: ActionSource | null;
   cancel_source?: ActionSource | null;
+  redispatch?: { titleName: string; amrId: string } | null;
   amrId: string;
   status: number;
   sub_name?: string;
@@ -556,6 +559,8 @@ const MissionHistory: FC<{
     page: 1,
     pageSize: 10,
   });
+  const [redispatchTarget, setRedispatchTarget] =
+    useState<RedispatchTarget | null>(null);
   const [searchText, setSearchText] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
@@ -627,6 +632,11 @@ const MissionHistory: FC<{
     return [source.account, computer, withIp ? source.ip : ""]
       .filter(Boolean)
       .join(" · ");
+  };
+
+  const openRedispatch = (record: Mission) => {
+    if (!record.redispatch) return;
+    setRedispatchTarget({ missionId: record.id, ...record.redispatch });
   };
 
   const missionTitle = (record: Mission) =>
@@ -972,6 +982,28 @@ const MissionHistory: FC<{
         );
       },
     },
+    {
+      title: "",
+      key: "redispatch",
+      width: 56,
+      align: "center",
+      // 只有從畫面派的設定任務、而且任務還在, 後端才會給 redispatch
+      render: (_, record) =>
+        record.redispatch ? (
+          <Tooltip title={t("mission_history.redispatch")}>
+            <Button
+              type="text"
+              size="small"
+              icon={<RedoOutlined />}
+              aria-label={t("mission_history.redispatch")}
+              onClick={(e) => {
+                e.stopPropagation();
+                openRedispatch(record);
+              }}
+            />
+          </Tooltip>
+        ) : null,
+    },
   ];
 
   const renderDetail = (record: Mission) => {
@@ -1104,6 +1136,17 @@ const MissionHistory: FC<{
               <span>{record.message}</span>
             </DetailRow>
           )}
+          {record.redispatch && (
+            <Flex justify="flex-end" style={{ marginTop: 8 }}>
+              <Button
+                size="small"
+                icon={<RedoOutlined />}
+                onClick={() => openRedispatch(record)}
+              >
+                {t("mission_history.redispatch")}
+              </Button>
+            </Flex>
+          )}
         </DetailSection>
 
         <DetailSection>
@@ -1197,6 +1240,11 @@ const MissionHistory: FC<{
       }}
     >
       {contextHolder}
+      <RedispatchModal
+        target={redispatchTarget}
+        onClose={() => setRedispatchTarget(null)}
+        onDone={() => void refetch()}
+      />
       <RangePopupGlobalStyle />
       <IndustrialDrawer
         $isDark={isDark}
@@ -1290,7 +1338,7 @@ const MissionHistory: FC<{
                   setPagination({ page, pageSize });
                 },
               }}
-              scroll={{ x: 910 }}
+              scroll={{ x: 966 }}
             />
           </IndustrialTableContainer>
         )}
