@@ -3380,7 +3380,12 @@
       "tip_tol_x": "Maximum allowed forward/backward deviation. Beyond this the vehicle is considered not docked",
       "tip_tol_y": "Maximum allowed lateral deviation. Keep it under half the contact width",
       "tip_tol_yaw": "Maximum allowed heading deviation. Too large causes poor contact on one side",
-      "loose_warn": "The current tolerances are loose (Y ±{{y}} mm, heading ±{{yaw}}°). Make sure the charger contact area is large enough, otherwise poor contact or wear may occur."
+      "loose_warn": "The current tolerances are loose (Y ±{{y}} mm, heading ±{{yaw}}°). Make sure the charger contact area is large enough, otherwise poor contact or wear may occur.",
+      "col_amr": "Bound vehicle",
+      "inherit_tag": "Uses the station's",
+      "inherit_value": "Uses the station's: {{value}}",
+      "inherit_all": "Clear, use the station's for all",
+      "amr_hint": "This vehicle's own docking pose at this station. An empty field uses the station's value; a vehicle appears here after it is bound in the edit charge station dialog."
     }
   },
   "confirm": {
