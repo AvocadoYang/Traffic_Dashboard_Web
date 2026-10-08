@@ -5,6 +5,7 @@ import type { ToolBarItemType } from "@/pages/Setting/components/siderElement";
 // 工具列資料來源,加進去 v1 會多出一個點不開的項目。
 export type SettingV2OnlyKey =
   | "appearance"
+  | "before_enter_charge_station_task"
   | "conveyor_dispatch"
   | "transfer_rules"
   | "work_areas";

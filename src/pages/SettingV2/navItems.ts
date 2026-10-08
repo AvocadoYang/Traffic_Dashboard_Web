@@ -120,6 +120,10 @@ export const navCategories: NavCategory[] = [
     children: [
       { key: "charge_mission", labelKey: "toolbar.mission.charge_mission" },
       {
+        key: "before_enter_charge_station_task",
+        labelKey: "toolbar.mission.before_enter_charge_station_mission",
+      },
+      {
         key: "before_left_charge_station_task",
         labelKey: "toolbar.mission.before_left_charge_station_mission",
       },

@@ -490,8 +490,9 @@
     "mission": {
       "mission": "Mission",
       "edit_mission": "Edit mission",
-      "charge_mission": "Charge mission",
+      "charge_mission": "Charge management per vehicle",
       "cycle_mission": "Cycle mission",
+      "before_enter_charge_station_mission": "Enter charge station mission",
       "before_left_charge_station_mission": "Before left charge station mission",
       "schedule_mission": "Schedule mission",
       "idle_mission": "Idle mission",
@@ -949,11 +950,11 @@
     "section_basic": "[01] Basic Configuration",
     "section_threshold": "[02] Threshold Settings",
     "threshold_note_title": "Note:",
-    "threshold_note_desc": "Configure battery thresholds to manage charging behavior. Aggressive threshold triggers immediate charging, while full threshold indicates when charging is complete.",
-    "tooltip_aggressive": "Battery level to trigger immediate charging",
-    "tooltip_passive": "Battery level for passive charging mode",
-    "tooltip_full": "Battery level considered fully charged",
-    "tooltip_available_get_task": "Minimum battery level to accept new tasks",
+    "threshold_note_desc": "A vehicle with no mission is sent to charge when its battery is at or below \"passive\" (for the whole delay) or \"aggressive\"; a running mission is never interrupted. While charging it leaves once the battery is above \"available for tasks\" and a mission is waiting, and charging ends at \"full\".",
+    "tooltip_aggressive": "Battery at or below this value and no mission: sent to charge. Usually lower than passive with delay 0, as the last line of defence.",
+    "tooltip_passive": "Battery at or below this value for the whole delay and no mission: sent to charge.",
+    "tooltip_full": "While charging, the charge mission ends at this value and the vehicle stays in the station.",
+    "tooltip_available_get_task": "While charging, above this value and with a mission waiting for this vehicle: charging ends and the vehicle goes to work.",
     "section_trigger_delay": "[03] Trigger Delay Settings",
     "aggressiveTriggerDelayMin": "Aggressive trigger delay",
     "aggressiveTriggerDelayMin_min": "Aggressive trigger delay must be at least 0 minutes",
@@ -1377,7 +1378,8 @@
       "upper_control": "Upper Control"
     },
     "charge_mission": {
-      "charge_mission": "Charge mission",
+      "charge_mission": "Charge management per vehicle",
+      "mission_moved_hint": "This page only sets when each vehicle goes to charge. Which mission it runs is set under Enter charge station mission.",
       "executing": "Execution",
       "stale": "Stale",
       "amr_warn": "amr is required",
@@ -1387,7 +1389,8 @@
       "full_less_than_aggressive": "full rate can not less than aggressive",
       "available_warn": "some field is not insert yet, please check again",
       "available_less_than_aggressive": "available get mission can not less than aggressive",
-      "haventSetChargeMission": "haven't set charge mission"
+      "haventSetChargeMission": "haven't set charge mission",
+      "idle_rule_hint": "This page is the battery safety net. To let vehicles top up whenever they are free, add an idle rule with the action \"Go and charge\"; how the two work together: click the question mark next to the title."
     },
     "blind_mission": {
       "title": "Blind location mission"
@@ -1448,8 +1451,19 @@
         "TRIVIAL": "TRIVIAL"
       }
     },
+    "station_mission": {
+      "station": "Charge station",
+      "all_stations": "All charge stations",
+      "station_placeholder": "None selected = all charge stations",
+      "priority_hint": "For the same vehicle, an entry that names a charge station wins over an entry for all charge stations. A new entry starts stopped; press Running to turn it on."
+    },
+    "before_enter_charge_station_mission": {
+      "before_enter_charge_station_mission": "Enter charge station mission",
+      "hint": "The mission dispatched when a vehicle goes to charge (a complete charge mission, tagged charge). On a battery threshold, the idle rule action \"Go and charge\" or a manual charge, the nearest station that has an entry for the vehicle and is free is picked."
+    },
     "before_left_charge_station_mission": {
       "before_left_charge_station_mission": "Before left charge station mission",
+      "hint": "When a vehicle leaves a charge station, this mission runs first, then the mission it was given.",
       "field_required": "field data missed, please double check",
       "car": "Car",
       "mission": "Mission",
@@ -2357,6 +2371,33 @@
     "no_backups": "No backup files found.",
     "note": "Note: Backups ensure system data safety. Use the download link to secure the file locally."
   },
+  "mission_transfer": {
+    "export": "Export missions",
+    "import": "Import from file",
+    "export_title": "Export missions",
+    "import_title": "Import missions from file",
+    "format_xlsx": "Excel (.xlsx), locations can be edited in Excel",
+    "format_json": "JSON (.json)",
+    "export_hint": "Only forklift missions are listed. Schedules, idle rules and charge station settings are not exported.",
+    "download": "Download ({{count}})",
+    "pick_file": "Choose file",
+    "import_hint": "Choose a .xlsx or .json exported from another site",
+    "step_count": "Steps",
+    "action": "Action",
+    "action_create": "Import",
+    "action_rename": "Save under a new name",
+    "action_overwrite": "Overwrite existing mission",
+    "action_skip": "Skip",
+    "import_as": "Name after import",
+    "name_taken": "Name already used",
+    "pick_robot_type": "No vehicle type {{type}}, choose one",
+    "warnings": "To fix",
+    "warning_hint": "Some steps use locations or vehicles this site does not have. You can still import and fix them in the mission editor; expand a row to see which steps.",
+    "new_folders": "Folders to be created: {{names}}.",
+    "new_tags": "Tags to be created: {{names}}.",
+    "import_confirm": "Import ({{count}})",
+    "import_done": "Import finished: {{created}} created, {{overwritten}} overwritten"
+  },
   "folder_editor": {
     "title": "Folder Management",
     "create_new_folder": "Create New Folder",
@@ -2910,7 +2951,7 @@
   "idle_rules": {
     "title": "Idle rules",
     "hint": "What a vehicle does when it is idle. Rules are checked from the top; a vehicle follows the first one that matches, and stays where it is when none does.",
-    "order_hint": "When several rules match the same vehicle only the top one runs. If that one cannot be dispatched for now (for example no free standby point), the next matching rule is tried.",
+    "order_hint": "A vehicle that matches several rules only does the topmost one. When that one cannot be dispatched for now (for example no free standby point or no free charging station), the ones below are tried first.",
     "add": "Add rule",
     "edit": "Edit rule",
     "empty": "No idle rules yet. Vehicles stay where they finish.",
@@ -2951,7 +2992,7 @@
     "only_when_fleet_idle": "Only when no vehicle has a mission",
     "only_when_fleet_idle_hint": "On: skipped while any vehicle has a mission. Off: only this vehicle's own missions count.",
     "retry": "If it cannot be dispatched",
-    "retry_hint": "For example no free standby point, or no path.",
+    "retry_hint": "For example no free standby point, no free charging station, or no path.",
     "retry_after": "Retry after {{sec}} s",
     "seconds": "s",
     "retry_label": "Retry interval when it cannot be dispatched",
@@ -2973,7 +3014,15 @@
       "GATE_WAIT_POINT": "Gate wait point",
       "PALLETIZER": "Palletizer",
       "ROTATE_TABLE": "Rotate table"
-    }
+    },
+    "charge_hint": "To send idle vehicles to charge, use the action \"Go and charge\". How it works together with the thresholds in Charge management per vehicle: click the question mark next to the title.",
+    "action_CHARGE": "Go and charge",
+    "action_CHARGE_hint": "Picks the nearest free charging station that has an enter charge station mission for this vehicle and runs that station's mission. A vehicle already in a charging station does not move; when no station is free this rule is skipped.",
+    "action_MISSION_hint": "To send a vehicle to charge choose \"Go and charge\" instead. A charge mission chosen here only goes to the station that mission names and does not switch when it is occupied.",
+    "battery_below": "Battery below",
+    "battery_below_hint": "Only charge when the battery is below this percentage; leave empty to ignore the battery. Fill it in when there are more vehicles than stations, or the first idle vehicles take every station.",
+    "battery_below_placeholder": "Any",
+    "battery_below_fact": "Battery below {{pct}}%"
   },
   "work_areas": {
     "title": "Work Areas",
@@ -3380,7 +3429,12 @@
       "tip_tol_x": "Maximum allowed forward/backward deviation. Beyond this the vehicle is considered not docked",
       "tip_tol_y": "Maximum allowed lateral deviation. Keep it under half the contact width",
       "tip_tol_yaw": "Maximum allowed heading deviation. Too large causes poor contact on one side",
-      "loose_warn": "The current tolerances are loose (Y ±{{y}} mm, heading ±{{yaw}}°). Make sure the charger contact area is large enough, otherwise poor contact or wear may occur."
+      "loose_warn": "The current tolerances are loose (Y ±{{y}} mm, heading ±{{yaw}}°). Make sure the charger contact area is large enough, otherwise poor contact or wear may occur.",
+      "col_amr": "Bound vehicle",
+      "inherit_tag": "Uses the station's",
+      "inherit_value": "Uses the station's: {{value}}",
+      "inherit_all": "Clear, use the station's for all",
+      "amr_hint": "This vehicle's own docking pose at this station. An empty field uses the station's value; a vehicle appears here after it is bound in the edit charge station dialog."
     }
   },
   "confirm": {
@@ -3582,5 +3636,53 @@
     "TASK/LOAD_PALLET": "Load pallet",
     "MODBUS_SEQ_ERROR": "Mainboard communication error (CRC)",
     "MODBUS_CRC_ERROR": "Mainboard communication error (sequence)"
+  },
+  "charge_help": {
+    "open": "How charging works",
+    "title": "How charging works",
+    "sections": [
+      {
+        "title": "What each setting is for",
+        "items": [
+          "Enter charge station mission: which mission a vehicle runs to charge at each station. Every charge trip is dispatched from here; a vehicle with no entry is never sent to charge.",
+          "Charge management per vehicle: looks at the battery. When the battery reaches a threshold and the vehicle has no mission it is sent to charge. It also sets how much charge lets the vehicle leave for work and what counts as full.",
+          "Idle rule action \"Go and charge\" (set on the idle mission page): looks at idle time. A vehicle with nothing to do tops up without waiting for a threshold. Optional."
+        ]
+      },
+      {
+        "title": "Which station",
+        "items": [
+          "Battery thresholds, the idle rule action \"Go and charge\" and the manual charge button all pick the same way: among the stations that have an enter mission for this vehicle, that the vehicle may use (it must be on the list when a station names its vehicles) and that are not occupied or disabled, the nearest one, with that station's mission.",
+          "To send an idle vehicle to charge, choose the action \"Go and charge\", not \"Run a mission\" with a charge mission: that only goes to the station the mission names and does not switch to another one when it is occupied."
+        ]
+      },
+      {
+        "title": "When a threshold and an idle rule both apply",
+        "items": [
+          "Nothing is dispatched twice: when the vehicle already has a charge mission the other side does not create another one.",
+          "A charge mission from a battery threshold has the highest priority, one from an idle rule the lowest.",
+          "The idle rule action \"Go and charge\" leaves a vehicle that is already in a charging station alone; charging again in place is decided by the battery thresholds.",
+          "Neither interrupts a mission the vehicle is running."
+        ]
+      },
+      {
+        "title": "When a charging vehicle leaves",
+        "items": [
+          "Battery reaches \"full\": the charge mission ends and the vehicle stays in the station.",
+          "Battery is above \"available for tasks\" and a mission is waiting for this vehicle: charging ends and the vehicle goes to work.",
+          "A full vehicle does not leave by itself. To free the station add an idle rule: vehicle in \"Charging station\", idle for some minutes → go to a standby point.",
+          "A vehicle needs a leave charge station mission to get out. Without one its missions cannot be dispatched: it stays in the station, an alarm is raised and the station stays occupied."
+        ]
+      },
+      {
+        "title": "More vehicles than stations",
+        "items": [
+          "Idle rules from top to bottom: (1) in a charging station, idle 5 minutes → go to a standby point  (2) idle 10 minutes, battery below 70% → go and charge  (3) not in a standby area or charging station → go to a standby point.",
+          "Fill in \"Battery below\" on the charge rule. Without it the first vehicles to go idle take every station and a low vehicle has nowhere to go.",
+          "When every station is taken the charge rule is skipped, the rules below are tried, and it is retried after the retry time. A charging vehicle is never pushed out.",
+          "Keep the thresholds in Charge management per vehicle as the safety net: a vehicle whose battery still reaches a threshold is sent to charge all the same."
+        ]
+      }
+    ]
   }
 }

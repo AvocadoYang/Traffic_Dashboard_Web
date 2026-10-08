@@ -490,8 +490,9 @@
     "mission": {
       "mission": "任務",
       "edit_mission": "編輯任務",
-      "charge_mission": "充電任務",
+      "charge_mission": "每台車充電管理",
       "cycle_mission": "循環任務",
+      "before_enter_charge_station_mission": "進入充電站強制任務",
       "before_left_charge_station_mission": "離開充電站強制任務",
       "schedule_mission": "定時任務",
       "idle_mission": "閒置任務",
@@ -949,11 +950,11 @@
     "section_basic": "[01] 基本設定",
     "section_threshold": "[02] 閾值設定",
     "threshold_note_title": "說明：",
-    "threshold_note_desc": "設定電池閾值以管理充電行為。激進門檻會觸發立即充電，滿電閾值表示充電完成。",
-    "tooltip_aggressive": "觸發立即充電的電量百分比",
-    "tooltip_passive": "被動充電模式的電量百分比",
-    "tooltip_full": "視為已充滿的電量百分比",
-    "tooltip_available_get_task": "接受新任務的最低電量百分比",
+    "threshold_note_desc": "車沒有任務時，電量低於或等於「被動充電」（要持續滿延遲時間）或「強制充電」就派去充電，不會打斷正在做的任務。充電中電量超過「可接任務」而且有任務在等就離站，到「滿電」結束充電。",
+    "tooltip_aggressive": "電量低於或等於這個值、車沒有任務時派去充電。通常設得比被動充電低、延遲填 0，當作最後一道防線。",
+    "tooltip_passive": "電量低於或等於這個值、持續滿延遲時間、車沒有任務時派去充電。",
+    "tooltip_full": "充電中電量到這個值，充電任務結束，車留在充電站裡。",
+    "tooltip_available_get_task": "充電中電量超過這個值、而且有任務在等這台車時，結束充電去做任務。",
     "section_trigger_delay": "[03] 觸發延遲設定",
     "aggressiveTriggerDelayMin": "激進觸發延遲",
     "aggressiveTriggerDelayMin_min": "激進觸發延遲至少為 0 分鐘",
@@ -1378,7 +1379,8 @@
       "upper_control": "上肢控制"
     },
     "charge_mission": {
-      "charge_mission": "充電任務",
+      "charge_mission": "每台車充電管理",
+      "mission_moved_hint": "這裡只設定每台車什麼時候去充電。充電時要跑哪個任務，在「進入充電站強制任務」設定。",
       "executing": "運行中",
       "stale": "停止",
       "amr_warn": "車輛為必填",
@@ -1388,7 +1390,8 @@
       "full_less_than_aggressive": "滿電不可小於強制充電",
       "available_warn": "可接任務為必填",
       "available_less_than_aggressive": "可接任務不可小於強制充電",
-      "haventSetChargeMission": "尚未設定充電任務"
+      "haventSetChargeMission": "尚未設定充電任務",
+      "idle_rule_hint": "這一頁是看電量的保底。想讓車有空就去補電，到「閒置任務」頁加一條動作是「去充電」的閒置規則；兩邊怎麼配合，點標題旁的問號。"
     },
     "cycle_mission": {
       "config": "任務配置",
@@ -1446,8 +1449,19 @@
         "TRIVIAL": "次要"
       }
     },
+    "station_mission": {
+      "station": "充電站",
+      "all_stations": "所有充電站",
+      "station_placeholder": "不選 = 所有充電站",
+      "priority_hint": "同一台車有指定充電站的那一筆，優先於「所有充電站」的那一筆。新增後是停止的，要按「運行中」才會生效。"
+    },
+    "before_enter_charge_station_mission": {
+      "before_enter_charge_station_mission": "進入充電站強制任務",
+      "hint": "車要去充電時派這裡設定的任務（完整的充電任務，分類要有 charge）。電量到門檻、閒置規則的「去充電」或手動按充電時，會挑這台車有設定、現在也能去的充電站裡最近的一座。"
+    },
     "before_left_charge_station_mission": {
       "before_left_charge_station_mission": "離開充電站強制任務",
+      "hint": "車從充電站出站時，先跑這裡設定的任務，再做原本的任務。",
       "field_required": "輸入資料有缺少",
       "car": "車輛",
       "mission": "任務",
@@ -2358,6 +2372,33 @@
     "no_backups": "未找到備份檔案。",
     "note": "注意：備份確保了系統資料的安全。請使用下載連結將檔案本地保存。"
   },
+  "mission_transfer": {
+    "export": "匯出任務",
+    "import": "從檔案匯入",
+    "export_title": "匯出任務",
+    "import_title": "從檔案匯入任務",
+    "format_xlsx": "Excel (.xlsx), 可以在 Excel 裡改點位",
+    "format_json": "JSON (.json)",
+    "export_hint": "只列出牙叉任務。排程、閒置規則、充電站設定等不會一起匯出。",
+    "download": "下載 ({{count}})",
+    "pick_file": "選擇檔案",
+    "import_hint": "選擇從其他案場匯出的 .xlsx 或 .json",
+    "step_count": "步驟",
+    "action": "處理方式",
+    "action_create": "匯入",
+    "action_rename": "另存新名稱",
+    "action_overwrite": "覆蓋現有任務",
+    "action_skip": "略過",
+    "import_as": "匯入後的名稱",
+    "name_taken": "已有同名任務",
+    "pick_robot_type": "沒有車種 {{type}}, 請選",
+    "warnings": "要調整",
+    "warning_hint": "有些步驟用到這個案場沒有的點位或車號。可以照樣匯入, 匯入後到任務編輯裡改; 展開每一列可以看是哪幾步。",
+    "new_folders": "會新建資料夾: {{names}}。",
+    "new_tags": "會新建標籤: {{names}}。",
+    "import_confirm": "匯入 ({{count}})",
+    "import_done": "匯入完成: 新增 {{created}} 個, 覆蓋 {{overwritten}} 個"
+  },
   "folder_editor": {
     "title": "資料夾管理",
     "create_new_folder": "建立新資料夾",
@@ -2911,7 +2952,7 @@
   "idle_rules": {
     "title": "閒置規則",
     "hint": "車閒置時要做什麼。清單由上往下比對，一台車做第一條符合的規則；都不符合就留在原地。",
-    "order_hint": "同一台車符合好幾條時只做最上面那一條。上面那條暫時派不出去（例如沒有空的待命點）時，會先試下面的。",
+    "order_hint": "同一台車符合好幾條時只做最上面那一條。上面那條暫時派不出去（例如沒有空的待命點、沒有空的充電站）時，會先試下面的。",
     "add": "新增規則",
     "edit": "編輯規則",
     "empty": "還沒有閒置規則。車做完任務會留在原地。",
@@ -2952,7 +2993,7 @@
     "only_when_fleet_idle": "全場沒有任務才做",
     "only_when_fleet_idle_hint": "打開：只要有任何一台車有任務就不做。關閉：只看這台車自己有沒有任務。",
     "retry": "派不出去時",
-    "retry_hint": "例如沒有空的待命點、路徑走不到。",
+    "retry_hint": "例如沒有空的待命點、沒有空的充電站、路徑走不到。",
     "retry_after": "{{sec}} 秒後再試",
     "seconds": "秒",
     "retry_label": "派不出去時，隔多久再試",
@@ -2974,7 +3015,15 @@
       "GATE_WAIT_POINT": "門前等待點",
       "PALLETIZER": "棧板機",
       "ROTATE_TABLE": "旋轉台"
-    }
+    },
+    "charge_hint": "要讓閒置的車去充電，動作選「去充電」。它和「每台車充電管理」的電量門檻怎麼配合，點標題旁的問號。",
+    "action_CHARGE": "去充電",
+    "action_CHARGE_hint": "自動挑這台車有「進入充電站強制任務」、現在空著的充電站裡最近的一座，跑那一座的任務。車已經在充電站裡就不會再動；充電站都沒空時先跳過這一條。",
+    "action_MISSION_hint": "要讓車去充電請改選「去充電」。在這裡選充電任務只會去那個任務指定的充電站，那座被佔用時不會改去別座。",
+    "battery_below": "電量低於",
+    "battery_below_hint": "電量低於這個百分比才去充電；不填就不看電量。車比充電站多的時候建議要填，不然先閒置的車會把充電站佔滿。",
+    "battery_below_placeholder": "不限",
+    "battery_below_fact": "電量低於 {{pct}}%"
   },
   "work_areas": {
     "title": "作業區",
@@ -3381,7 +3430,12 @@
       "tip_tol_x": "允許前後距離偏差的最大值,超過視為未停好",
       "tip_tol_y": "允許左右偏離的最大值,建議小於彈片寬度的一半",
       "tip_tol_yaw": "允許車頭偏轉角度的最大值,過大會單邊接觸不良",
-      "loose_warn": "目前容忍誤差偏寬鬆(Y 軸 ±{{y}} mm、角度 ±{{yaw}}°)。請確認充電樁觸點面積足夠,否則可能造成接觸不良或磨損。"
+      "loose_warn": "目前容忍誤差偏寬鬆(Y 軸 ±{{y}} mm、角度 ±{{yaw}}°)。請確認充電樁觸點面積足夠,否則可能造成接觸不良或磨損。",
+      "col_amr": "綁定的車輛",
+      "inherit_tag": "沿用充電站",
+      "inherit_value": "沿用充電站: {{value}}",
+      "inherit_all": "清空，全部沿用充電站",
+      "amr_hint": "這台車停在這座站時自己的停準座標。空白的欄位沿用充電站那一組；車輛要先在編輯充電站的視窗裡綁定才會出現在這裡。"
     }
   },
   "confirm": {
@@ -3583,5 +3637,53 @@
     "TASK/LOAD_PALLET": "上板",
     "MODBUS_SEQ_ERROR": "主板通訊異常(CRC)",
     "MODBUS_CRC_ERROR": "主板通訊異常(序列)"
+  },
+  "charge_help": {
+    "open": "充電怎麼運作",
+    "title": "充電是怎麼運作的",
+    "sections": [
+      {
+        "title": "三個設定各管什麼",
+        "items": [
+          "進入充電站強制任務：每台車去每座充電站要跑哪個任務。車去充電一律照這裡派；沒有設定的車不會被派去充電。",
+          "每台車充電管理：看電量。電量掉到門檻、車又沒有任務時派去充電，也決定充到多少可以離站接任務、充到多少算充飽。",
+          "閒置規則的「去充電」（在「閒置任務」頁設定）：看閒置時間。車沒事做的時候順便補電，不用等電量掉到門檻。可以不設。"
+        ]
+      },
+      {
+        "title": "去哪一座充電站",
+        "items": [
+          "電量門檻、閒置規則的「去充電」、手動按充電，三種都用同一個方式挑：這台車有進入充電站強制任務、可以用（充電站有指定車輛時要在名單內）、現在沒被佔用也沒停用的充電站裡，最近的一座，跑那一座的任務。",
+          "閒置規則要讓車去充電，動作請選「去充電」，不要用「執行任務」選充電任務：那樣只會去那個任務指定的充電站，那座被佔用時不會改去別座。"
+        ]
+      },
+      {
+        "title": "電量門檻和閒置規則同時成立時",
+        "items": [
+          "不會重複派：車已經有充電任務時，另一邊不會再建一筆。",
+          "電量門檻派的充電任務優先權最高，閒置規則派的最低。",
+          "車已經停在充電站裡時，閒置規則的「去充電」不會動它；在站裡要不要再充由電量門檻決定。",
+          "兩邊都不會打斷車正在做的任務。"
+        ]
+      },
+      {
+        "title": "充電中的車什麼時候離開",
+        "items": [
+          "電量到「滿電」：充電任務結束，車留在充電站裡。",
+          "電量超過「可接任務」而且有任務在等這台車：結束充電去做任務。",
+          "充飽的車不會自己離開充電站。要它讓出位置，加一條閒置規則：車在「充電站」、閒置滿幾分鐘 → 回待命點。",
+          "車要出站一定要有「離開充電站強制任務」。沒有設定的車任務派不出去，會停在站裡並跳出告警，站也就一直被佔著。"
+        ]
+      },
+      {
+        "title": "車比充電站多時的建議",
+        "items": [
+          "閒置規則由上往下排：① 車在充電站、閒置滿 5 分鐘 → 回待命點　② 閒置滿 10 分鐘、電量低於 70% → 去充電　③ 車不在待命區和充電站 → 回待命點。",
+          "「去充電」的「電量低於」建議要填。不填的話，先閒置的幾台車會把充電站佔滿，電量低的車沒有站可去。",
+          "充電站都被佔用時，「去充電」那一條先跳過、往下比對，過了重試時間再試。系統不會把正在充電的車趕走。",
+          "每台車充電管理的門檻照常設定，當作保底：閒置規則沒輪到、電量還是掉到門檻的車，一樣會被派去充電。"
+        ]
+      }
+    ]
   }
 }
