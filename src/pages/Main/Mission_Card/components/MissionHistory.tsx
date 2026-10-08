@@ -50,11 +50,20 @@ import { themeAtom } from "@/theme";
 
 const { RangePicker } = DatePicker;
 // Define the Mission interface based on your schema
+type ActionSource = {
+  account?: string;
+  ip?: string;
+  clientId?: string;
+  clientName?: string;
+};
+
 interface Mission {
   id: string;
   order?: number;
   priority?: number;
   send_by: number;
+  send_source?: ActionSource | null;
+  cancel_source?: ActionSource | null;
   amrId: string;
   status: number;
   sub_name?: string;
@@ -607,6 +616,19 @@ const MissionHistory: FC<{
     }
   };
 
+  // 帳號 · 電腦名稱 (· IP)。沒取名的電腦用 ID 前幾碼代替, 至少分得出是不同台
+  const sourceLabel = (source?: ActionSource | null, withIp = false) => {
+    if (!source) return "";
+    const computer =
+      source.clientName ||
+      (source.clientId
+        ? `${t("mission_history.unnamed_computer")} ${source.clientId.slice(0, 4)}`
+        : "");
+    return [source.account, computer, withIp ? source.ip : ""]
+      .filter(Boolean)
+      .join(" · ");
+  };
+
   const missionTitle = (record: Mission) =>
     record.full_name?.filter(Boolean).join(" → ") || record.sub_name || "—";
 
@@ -848,6 +870,11 @@ const MissionHistory: FC<{
             {amrId || "—"}
           </PrimaryText>
           <MutedText>{sendByLabel(record.send_by)}</MutedText>
+          {sourceLabel(record.send_source) && (
+            <Tooltip title={sourceLabel(record.send_source, true)}>
+              <MutedText>{sourceLabel(record.send_source)}</MutedText>
+            </Tooltip>
+          )}
         </CellStack>
       ),
     },
@@ -1038,6 +1065,12 @@ const MissionHistory: FC<{
             <span>{t("mission_history.send_by")}</span>
             <span>{sendByLabel(record.send_by)}</span>
           </DetailRow>
+          {sourceLabel(record.send_source, true) && (
+            <DetailRow>
+              <span>{t("mission_history.sent_from")}</span>
+              <span>{sourceLabel(record.send_source, true)}</span>
+            </DetailRow>
+          )}
           <DetailRow>
             <span>{t("mission_history.category")}</span>
             <span>
@@ -1058,6 +1091,13 @@ const MissionHistory: FC<{
               </span>
             </DetailRow>
           )}
+          {isCanceled(record.status) &&
+            sourceLabel(record.cancel_source, true) && (
+              <DetailRow>
+                <span>{t("mission_history.canceled_from")}</span>
+                <span>{sourceLabel(record.cancel_source, true)}</span>
+              </DetailRow>
+            )}
           {record.message && (
             <DetailRow>
               <span>{t("mission_history.message")}</span>

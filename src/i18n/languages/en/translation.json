@@ -247,6 +247,9 @@
     "category": "Category",
     "priority": "Priority",
     "send_by": "Source",
+    "sent_from": "Sent by / computer",
+    "canceled_from": "Canceled by / computer",
+    "unnamed_computer": "Unnamed computer",
     "created_at": "Created At",
     "started_at": "Started At",
     "completed_at": "Completed At",
@@ -2500,6 +2503,14 @@
     "newPassword": "New Password",
     "confirmPassword": "Confirm Password",
     "passwordNotMatch": "Passwords do not match"
+  },
+  "client_name": {
+    "title": "Computer name",
+    "unset": "not set",
+    "label": "Name of this computer",
+    "placeholder": "e.g. Packaging line PC",
+    "hint": "When one account is signed in on several computers, mission records use this name to show which one dispatched or canceled a mission. The name is stored in this browser only.",
+    "id": "Computer ID"
   },
   "create_user": {
     "title": "CREATE USER",

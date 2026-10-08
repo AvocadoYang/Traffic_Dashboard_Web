@@ -246,6 +246,9 @@
     "category": "任務標籤",
     "priority": "優先權",
     "send_by": "派發來源",
+    "sent_from": "派發者 / 電腦",
+    "canceled_from": "取消者 / 電腦",
+    "unnamed_computer": "未命名電腦",
     "created_at": "建立時間",
     "started_at": "開始時間",
     "completed_at": "完成時間",
@@ -2501,6 +2504,14 @@
     "newPassword": "新密碼",
     "confirmPassword": "確認密碼",
     "passwordNotMatch": "密碼不相符"
+  },
+  "client_name": {
+    "title": "電腦名稱",
+    "unset": "未設定",
+    "label": "這台電腦的名稱",
+    "placeholder": "例如: 包裝線電腦",
+    "hint": "同一個帳號在不同電腦登入時, 任務紀錄會用這個名稱標示是哪一台派發 / 取消的。名稱只存在這台電腦的瀏覽器。",
+    "id": "電腦識別碼"
   },
   "create_user": {
     "title": "建立使用者",

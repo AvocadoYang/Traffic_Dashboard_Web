@@ -39,6 +39,8 @@ import dayjs from "dayjs";
 import MissionBtn from "@/pages/Main/components/WebView/components/MissionBtn";
 import HaStatusWidget from "@/pages/Main/components/HaStatusWidget";
 import ChangePasswordModal from "./ChangePasswordModal";
+import ClientNameModal from "./ClientNameModal";
+import { getClientName } from "@/utils/clientIdentity";
 import CreateUserModel from "./CreateUserModel";
 import { jwtDecode } from "jwt-decode";
 import SimTime from "./SimTime";
@@ -436,6 +438,8 @@ const Header: React.FC = () => {
   const hasToolsRow = location.pathname === "/";
   const activeRow: HeaderRow = hasToolsRow ? headerRow : "nav";
   const [openChangePassword, setOpenChangePassword] = useState(false);
+  const [openClientName, setOpenClientName] = useState(false);
+  const [clientName, setClientNameState] = useState(getClientName);
   const [openCreateUser, setOpenCreateUser] = useState(false);
   const currentMapInfo = useMap();
   const setScale = useSetAtom(Scale);
@@ -579,6 +583,9 @@ const Header: React.FC = () => {
       case "4":
         setOpenCreateUser(true);
         break;
+      case "5":
+        setOpenClientName(true);
+        break;
       default:
         break;
     }
@@ -589,6 +596,7 @@ const Header: React.FC = () => {
     ` logout`,
     `change password`,
     `create user`,
+    `${t("client_name.title")}: ${clientName || t("client_name.unset")}`,
   ].map((name, index) => ({
     key: index + 1,
     label: name,
@@ -751,6 +759,12 @@ const Header: React.FC = () => {
       ></ChangePasswordModal>
 
       <CreateUserModel open={openCreateUser} setOpen={setOpenCreateUser} />
+
+      <ClientNameModal
+        open={openClientName}
+        setOpen={setOpenClientName}
+        onSaved={setClientNameState}
+      />
     </>
   );
 };
