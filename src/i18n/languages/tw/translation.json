@@ -2639,6 +2639,17 @@
     "title": "系統告警",
     "type_filter": "告警類型顯示",
     "type_filter_hint": "關掉的類型就不會在畫面上跳出來(只影響這台瀏覽器)",
+    "position": "告警顯示位置",
+    "position_hint": "告警卡片跳出來的位置。整個案場共用,所有連線中的畫面都會一起換",
+    "position_preview": "告警會顯示在這裡",
+    "position_option": {
+      "top-left": "左上",
+      "top-center": "正上方",
+      "top-right": "右上",
+      "bottom-left": "左下",
+      "bottom-center": "正下方",
+      "bottom-right": "右下"
+    },
     "type": {
       "error": "錯誤",
       "warn": "警告",
