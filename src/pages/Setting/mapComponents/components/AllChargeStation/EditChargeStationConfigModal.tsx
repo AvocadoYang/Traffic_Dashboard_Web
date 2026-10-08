@@ -66,22 +66,15 @@ const EditChargeStationConfigModal = () => {
   const currentMapId = useAtomValue(currentMapIdAtom);
   const { data: mapData } = useMap();
 
-  const AmrOption: { value: string; label: string }[] | undefined =
-    useMemo(() => {
-      let options;
-      if (name?.isSim) {
-        options = name.amrs
-          .filter((a) => a.isReal === false)
-          .map((m) => ({ label: m.amrId, value: m.amrId }));
-      } else {
-        options = name?.amrs
-          .filter((a) => a.isReal === true)
-          .map((m) => ({ label: m.amrId, value: m.amrId }));
-      }
-      return options ? [...options] : undefined;
-    }, [name]);
+  const AmrOption = useMemo(() => {
+    return (
+      name?.amrs?.map((a) => ({
+        label: a.amrId,
+        value: a.amrId,
+      })) ?? []
+    );
+  }, [name]);
 
-  // 靠近充電站的偵測點位——從所有地點裡選,取代原本寫死的單一 6005
   const locationOptions = useMemo(
     () =>
       mapData?.locations.map((v) => ({
