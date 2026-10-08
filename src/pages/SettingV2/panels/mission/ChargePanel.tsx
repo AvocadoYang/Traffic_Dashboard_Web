@@ -27,6 +27,7 @@ import { array, boolean, number, object, string } from "yup";
 import client from "@/api/axiosClient";
 import useCharge from "@/api/useCharge";
 import { Err } from "@/utils/responseErr";
+import HelpButton from "../../ui/HelpButton";
 import useIsNarrow from "../../ui/useIsNarrow";
 import StatusTag from "../../ui/StatusTag";
 import useAmrOptions from "../../ui/useAmrOptions";
@@ -375,6 +376,7 @@ const ChargePanel: FC = () => {
         <SectionTitle>
           <ThunderboltOutlined />
           {t("mission.charge_mission.charge_mission")}
+          <HelpButton i18nKey="charge_help" label={t("charge_help.open")} />
         </SectionTitle>
 
         <Toolbar>
@@ -395,6 +397,7 @@ const ChargePanel: FC = () => {
           {t("charge.threshold_note_title")} {t("charge.threshold_note_desc")}
         </Hint>
         <Hint>{t("mission.charge_mission.mission_moved_hint")}</Hint>
+        <Hint>{t("mission.charge_mission.idle_rule_hint")}</Hint>
 
         {rows.length === 0 ? (
           <EmptyState>{t("setting_v2.empty.charge_missions")}</EmptyState>

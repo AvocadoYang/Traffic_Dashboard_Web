@@ -26,6 +26,7 @@ import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
+import HelpButton from "../../ui/HelpButton";
 import StatusTag from "../../ui/StatusTag";
 import useNormalMissionOptions from "../../ui/useNormalMissionOptions";
 import {
@@ -50,7 +51,7 @@ import {
 
 type TargetKind = "ALL" | "ROBOT_TYPE" | "ROBOTS";
 type LocationMode = "ANY" | "IN" | "NOT_IN";
-type ActionKind = "STANDBY" | "MISSION";
+type ActionKind = "STANDBY" | "MISSION" | "CHARGE";
 
 type RuleForm = {
   name: string;
@@ -62,6 +63,8 @@ type RuleForm = {
   locationValues: string[];
   actionKind: ActionKind;
   missionTitleId: string | null;
+  /** 只有「去充電」用: 電量低於這個百分比才去; null 不看電量 */
+  batteryBelow: number | null;
   onlyWhenFleetIdle: boolean;
   retrySec: number;
 };
@@ -126,6 +129,7 @@ const emptyForm: RuleForm = {
   locationValues: ["STANDBY", "CHARGING"],
   actionKind: "STANDBY",
   missionTitleId: null,
+  batteryBelow: null,
   onlyWhenFleetIdle: false,
   retrySec: 30,
 };
@@ -142,6 +146,7 @@ const toForm = (rule: IdleRule | null): RuleForm =>
         locationValues: rule.locationValues,
         actionKind: rule.actionKind,
         missionTitleId: rule.missionTitleId,
+        batteryBelow: rule.batteryBelow ?? null,
         onlyWhenFleetIdle: rule.onlyWhenFleetIdle,
         retrySec: rule.retrySec,
       }
@@ -149,7 +154,8 @@ const toForm = (rule: IdleRule | null): RuleForm =>
 
 /**
  * 閒置規則: 車閒置時要做什麼。清單由上往下比對, 一台車做第一條符合的。
- * 每條規則 = 哪些車 + 閒置多久、在不在哪些地方 + 回待命點或執行任務。
+ * 每條規則 = 哪些車 + 閒置多久、在不在哪些地方 + 回待命點、執行任務或去充電。
+ * 「去充電」去哪一座、跑哪個任務由進入充電站強制任務決定, 這裡不選任務。
  */
 const IdleRulePanel: FC = () => {
   const { t } = useTranslation();
@@ -242,6 +248,18 @@ const IdleRulePanel: FC = () => {
     setOpen(true);
   };
 
+  // 新規則預設「車不在待命區、充電站才做」是給回待命點用的。要去充電的車通常就停在
+  // 待命點上, 位置還沒改過的話換成不限, 不然這條規則永遠不成立
+  const onActionChange = (kind: ActionKind) => {
+    if (kind !== "CHARGE" || editing) return;
+    const values = (form.getFieldValue("locationValues") ?? []) as string[];
+    const untouched =
+      form.getFieldValue("locationMode") === emptyForm.locationMode &&
+      values.length === emptyForm.locationValues.length &&
+      values.every((v) => emptyForm.locationValues.includes(v));
+    if (untouched) form.setFieldsValue({ locationMode: "ANY", locationValues: [] });
+  };
+
   const submit = async () => {
     let values: RuleForm;
     try {
@@ -255,6 +273,7 @@ const IdleRulePanel: FC = () => {
       targetIds: values.targetKind === "ALL" ? [] : values.targetIds ?? [],
       locationValues: values.locationMode === "ANY" ? [] : values.locationValues ?? [],
       missionTitleId: values.actionKind === "MISSION" ? values.missionTitleId : null,
+      batteryBelow: values.actionKind === "CHARGE" ? values.batteryBelow ?? null : null,
       id: editing?.id,
     });
   };
@@ -278,6 +297,14 @@ const IdleRulePanel: FC = () => {
       : t("idle_rules.target_none");
   };
 
+  const describeAction = (rule: IdleRule) => {
+    if (rule.actionKind === "STANDBY") return t("idle_rules.action_STANDBY");
+    if (rule.actionKind === "CHARGE") return t("idle_rules.action_CHARGE");
+    return t("idle_rules.run_mission", {
+      name: rule.missionName ?? t("idle_rules.mission_gone"),
+    });
+  };
+
   if (isLoading || !rules) return <Skeleton active />;
 
   return (
@@ -288,8 +315,10 @@ const IdleRulePanel: FC = () => {
         <SectionTitle>
           <ClockCircleOutlined />
           {t("idle_rules.title")}
+          <HelpButton i18nKey="charge_help" label={t("charge_help.open")} />
         </SectionTitle>
         <Hint>{t("idle_rules.hint")}</Hint>
+        <Hint>{t("idle_rules.charge_hint")}</Hint>
 
         <Toolbar>
           <SolidButton onClick={() => openEdit(null)}>
@@ -334,16 +363,13 @@ const IdleRulePanel: FC = () => {
                         ))}
                       </div>
                     )}
+                    {rule.batteryBelow !== null && rule.batteryBelow !== undefined && (
+                      <div>{t("idle_rules.battery_below_fact", { pct: rule.batteryBelow })}</div>
+                    )}
                     {rule.onlyWhenFleetIdle && <div>{t("idle_rules.only_when_fleet_idle")}</div>}
                   </dd>
                   <dt>{t("idle_rules.action")}</dt>
-                  <dd>
-                    {rule.actionKind === "STANDBY"
-                      ? t("idle_rules.action_STANDBY")
-                      : t("idle_rules.run_mission", {
-                          name: rule.missionName ?? t("idle_rules.mission_gone"),
-                        })}
-                  </dd>
+                  <dd>{describeAction(rule)}</dd>
                   <dt>{t("idle_rules.retry")}</dt>
                   <dd>{t("idle_rules.retry_after", { sec: rule.retrySec })}</dd>
                 </CardFacts>
@@ -484,13 +510,14 @@ const IdleRulePanel: FC = () => {
           <FieldLabel>{t("idle_rules.action")}</FieldLabel>
           <Form.Item
             name="actionKind"
-            extra={actionKind === "STANDBY" ? t("idle_rules.action_STANDBY_hint") : undefined}
+            extra={t(`idle_rules.action_${actionKind ?? "STANDBY"}_hint`)}
           >
             <Select
-              options={(["STANDBY", "MISSION"] as const).map((kind) => ({
+              options={(["STANDBY", "CHARGE", "MISSION"] as const).map((kind) => ({
                 value: kind,
                 label: t(`idle_rules.action_${kind}`),
               }))}
+              onChange={onActionChange}
             />
           </Form.Item>
           {actionKind === "MISSION" && (
@@ -505,6 +532,22 @@ const IdleRulePanel: FC = () => {
                 placeholder={t("utils.select")}
               />
             </Form.Item>
+          )}
+
+          {actionKind === "CHARGE" && (
+            <>
+              <FieldLabel>{t("idle_rules.battery_below")}</FieldLabel>
+              <Form.Item name="batteryBelow" extra={t("idle_rules.battery_below_hint")}>
+                <InputNumber
+                  min={1}
+                  max={100}
+                  precision={0}
+                  suffix="%"
+                  placeholder={t("idle_rules.battery_below_placeholder")}
+                  style={{ width: 160 }}
+                />
+              </Form.Item>
+            </>
           )}
 
           <FieldGrid $cols={2}>

@@ -16,6 +16,7 @@ import useChargeStationSocket from "@/sockets/useChargeStationSocket";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import useIsNarrow from "../../ui/useIsNarrow";
+import HelpButton from "../../ui/HelpButton";
 import StatusTag from "../../ui/StatusTag";
 import useAmrOptions from "../../ui/useAmrOptions";
 import {
@@ -258,6 +259,7 @@ const StationMissionPanel: FC<Props> = ({
         <SectionTitle>
           <ThunderboltOutlined />
           {title}
+          <HelpButton i18nKey="charge_help" label={t("charge_help.open")} />
         </SectionTitle>
 
         <Hint>{hint}</Hint>
