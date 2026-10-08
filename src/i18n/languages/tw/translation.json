@@ -490,8 +490,9 @@
     "mission": {
       "mission": "任務",
       "edit_mission": "編輯任務",
-      "charge_mission": "充電任務",
+      "charge_mission": "每台車充電管理",
       "cycle_mission": "循環任務",
+      "before_enter_charge_station_mission": "進入充電站強制任務",
       "before_left_charge_station_mission": "離開充電站強制任務",
       "schedule_mission": "定時任務",
       "idle_mission": "閒置任務",
@@ -1378,7 +1379,8 @@
       "upper_control": "上肢控制"
     },
     "charge_mission": {
-      "charge_mission": "充電任務",
+      "charge_mission": "每台車充電管理",
+      "mission_moved_hint": "這裡只設定每台車什麼時候去充電。充電時要跑哪個任務，在「進入充電站強制任務」設定。",
       "executing": "運行中",
       "stale": "停止",
       "amr_warn": "車輛為必填",
@@ -1446,8 +1448,19 @@
         "TRIVIAL": "次要"
       }
     },
+    "station_mission": {
+      "station": "充電站",
+      "all_stations": "所有充電站",
+      "station_placeholder": "不選 = 所有充電站",
+      "priority_hint": "同一台車有指定充電站的那一筆，優先於「所有充電站」的那一筆。新增後是停止的，要按「運行中」才會生效。"
+    },
+    "before_enter_charge_station_mission": {
+      "before_enter_charge_station_mission": "進入充電站強制任務",
+      "hint": "車要去充電時派這裡設定的任務（完整的充電任務，分類要有 charge）。電量到門檻或手動按充電時，會挑這台車有設定、現在也能去的充電站裡最近的一座。"
+    },
     "before_left_charge_station_mission": {
       "before_left_charge_station_mission": "離開充電站強制任務",
+      "hint": "車從充電站出站時，先跑這裡設定的任務，再做原本的任務。",
       "field_required": "輸入資料有缺少",
       "car": "車輛",
       "mission": "任務",

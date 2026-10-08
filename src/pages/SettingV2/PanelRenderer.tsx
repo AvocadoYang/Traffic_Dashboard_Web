@@ -16,6 +16,7 @@ import RegisterAmrPanel from "./panels/amr/RegisterAmrPanel";
 import AmrConfigPanel from "./panels/amr/AmrConfigPanel";
 import ChargePanel from "./panels/mission/ChargePanel";
 import BeforeLeftChargeStationPanel from "./panels/mission/BeforeLeftChargeStationPanel";
+import BeforeEnterChargeStationPanel from "./panels/mission/BeforeEnterChargeStationPanel";
 import SchedulePanel from "./panels/mission/SchedulePanel";
 import IdleRulePanel from "./panels/mission/IdleRulePanel";
 import TopicMissionPanel from "./panels/mission/TopicMissionPanel";
@@ -100,6 +101,8 @@ const PanelRenderer: FC<Props> = ({
       return <EditMissionPanel />;
     case "charge_mission":
       return <ChargePanel />;
+    case "before_enter_charge_station_task":
+      return <BeforeEnterChargeStationPanel />;
     case "before_left_charge_station_task":
       return <BeforeLeftChargeStationPanel />;
     case "schedule_mission":

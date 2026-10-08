@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import {
   Form,
   InputNumber,
@@ -26,7 +26,6 @@ import { useTranslation } from "react-i18next";
 import { array, boolean, number, object, string } from "yup";
 import client from "@/api/axiosClient";
 import useCharge from "@/api/useCharge";
-import useAllMissionTitles from "@/api/useMissionTitle";
 import { Err } from "@/utils/responseErr";
 import useIsNarrow from "../../ui/useIsNarrow";
 import StatusTag from "../../ui/StatusTag";
@@ -63,13 +62,10 @@ type ChargeRow = {
   availableGetTaskTriggerDelayMin?: number | null;
   passiveTriggerDelayMin?: number | null;
   amr?: { fullName?: string; id?: string; isReal?: boolean }[] | null;
-  titleId?: string | null;
-  title?: string | null;
 };
 
 type ChargeFormValues = {
   amrId: string[];
-  taskId: string;
   aggressiveThreshold: number;
   passiveThreshold: number;
   fullThreshold: number;
@@ -113,7 +109,6 @@ const ChargePanel: FC = () => {
   const [form] = Form.useForm();
 
   const { data, isLoading, isFetching, refetch } = useCharge();
-  const { data: missionTitle } = useAllMissionTitles();
   const amrOptions = useAmrOptions();
 
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -126,24 +121,10 @@ const ChargePanel: FC = () => {
     { enabled: !!editingId },
   );
 
-  /** 充電任務只能挑掛在 charge 分類底下的任務,跟一般任務不同 */
-  const taskOptions = useMemo(
-    () =>
-      missionTitle
-        ?.filter((g) =>
-          g.MissionTitleBridgeCategory.some(
-            (s) => s.Category?.tagName === "charge",
-          ),
-        )
-        .map((v) => ({ value: v.id, label: v.name })) ?? [],
-    [missionTitle],
-  );
-
   useEffect(() => {
     if (!editingId || !selected) return;
     form.setFieldsValue({
       amrId: selected.amr?.map((r) => r.fullName) ?? [],
-      taskId: selected.titleId ?? null,
       aggressiveThreshold: selected.aggressiveThreshold ?? null,
       passiveThreshold: selected.passiveThreshold ?? null,
       fullThreshold: selected.fullThreshold ?? null,
@@ -308,13 +289,6 @@ const ChargePanel: FC = () => {
       ),
     },
     {
-      title: t("charge.name"),
-      dataIndex: "title",
-      key: "title",
-      width: 170,
-      render: (v: string | null) => v || "—",
-    },
-    {
       title: t("charge.amrId"),
       key: "amr",
       width: 180,
@@ -420,6 +394,7 @@ const ChargePanel: FC = () => {
         <Hint>
           {t("charge.threshold_note_title")} {t("charge.threshold_note_desc")}
         </Hint>
+        <Hint>{t("mission.charge_mission.mission_moved_hint")}</Hint>
 
         {rows.length === 0 ? (
           <EmptyState>{t("setting_v2.empty.charge_missions")}</EmptyState>
@@ -428,7 +403,7 @@ const ChargePanel: FC = () => {
             {rows.map((row) => (
               <ItemCard key={row.id} $selected={row.id === editingId}>
                 <CardTitleRow>
-                  <span>{row.title || "—"}</span>
+                  <span>{amrNames(row).join("、") || "—"}</span>
                   <StatusTag $on={!!row.active}>
                     {row.active
                       ? t("mission.charge_mission.executing")
@@ -548,27 +523,6 @@ const ChargePanel: FC = () => {
                     mode="multiple"
                     options={amrOptions}
                     placeholder={t("charge.select_amr")}
-                    showSearch={{
-                      filterOption: (input, option) =>
-                        (option?.label ?? "")
-                          .toLowerCase()
-                          .includes(input.toLowerCase()),
-                    }}
-                  />
-                </Form.Item>
-              </Field>
-
-              <Field>
-                <FieldLabel>{t("charge.name")}</FieldLabel>
-                <Form.Item
-                  name="taskId"
-                  rules={[
-                    { required: true, message: t("charge.task_required") },
-                  ]}
-                >
-                  <Select
-                    options={taskOptions}
-                    placeholder={t("charge.select_task")}
                     showSearch={{
                       filterOption: (input, option) =>
                         (option?.label ?? "")
