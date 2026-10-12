@@ -7,11 +7,31 @@ import {
   mirSoundLight,
 } from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/type";
 
-/** 唯一可以把別的動作包在裡面的動作 */
+/** 可以把別的動作包在裡面的動作 */
 export const CONTAINER_TYPE = "reduce_protective_fields";
+export const TRY_CATCH_TYPE = "try_catch";
+
+export type ParentSlot = "content" | "try" | "catch";
+
+export const containerSlots = (op?: Mir_Action | null): ParentSlot[] => {
+  switch (op?.type) {
+    case CONTAINER_TYPE:
+      return ["content"];
+    case TRY_CATCH_TYPE:
+      return ["try", "catch"];
+    default:
+      return [];
+  }
+};
+
+export const SLOT_LABEL: Record<ParentSlot, string> = {
+  content: "Content",
+  try: "Try",
+  catch: "Catch",
+};
 
 export const isContainerOperation = (op?: Mir_Action | null) =>
-  op?.type === CONTAINER_TYPE;
+  containerSlots(op).length > 0;
 
 export const ACTION_CATEGORIES: {
   label: string;
@@ -20,7 +40,11 @@ export const ACTION_CATEGORIES: {
 }[] = [
   { label: "Move", value: "move", actions: mirMoveActonList },
   { label: "Sound / Light", value: "sound/light", actions: mirSoundLight },
-  { label: "Error Handling", value: "error", actions: mirErrorHandlingList },
+  {
+    label: "Error Handling",
+    value: "error",
+    actions: [...mirErrorHandlingList, TRY_CATCH_TYPE],
+  },
   { label: "IO Module", value: "io", actions: mirIoModule },
   { label: "Safety System", value: "safety", actions: mirSaftySystemList },
 ];
@@ -460,6 +484,8 @@ export const summarizeAction = (
       };
     case CONTAINER_TYPE:
       return { verb: "Mute protective fields" };
+    case TRY_CATCH_TYPE:
+      return { verb: "Try / Catch" };
     case "set_io":
       return {
         verb: `Set IO ${op.module ?? ""} port ${op.port ?? 0} to ${op.value ?? ""}`,
