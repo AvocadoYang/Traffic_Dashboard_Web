@@ -308,6 +308,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       );
       break;
     case "canRotate":
+    case "is_waiting_poiont":
       inputNode = (
         <Select options={canRotateOption} style={{ width: "100%" }} />
       );
@@ -475,6 +476,10 @@ const AllLocationTable: React.FC<{
     locationPanelForm.setFieldValue("areaType", record.areaType);
     locationPanelForm.setFieldValue("locationId", record.locationId);
     locationPanelForm.setFieldValue("ip", record.ip);
+    locationPanelForm.setFieldValue(
+      "is_waiting_poiont",
+      record.is_waiting_poiont ?? false,
+    );
     setEditingKey(record.locationId);
   };
 
@@ -664,6 +669,16 @@ const AllLocationTable: React.FC<{
       editable: true,
       render: (_: unknown, record: LocationType) => {
         return <Checkbox checked={record.canRotate} disabled />;
+      },
+    },
+    {
+      title: t("edit_location_panel.is_waiting_point"),
+      dataIndex: "is_waiting_poiont",
+      key: "is_waiting_poiont",
+      width: 120,
+      editable: true,
+      render: (_: unknown, record: LocationType) => {
+        return <Checkbox checked={!!record.is_waiting_poiont} disabled />;
       },
     },
     {
