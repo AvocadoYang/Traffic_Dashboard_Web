@@ -3378,6 +3378,7 @@
       "use_variable": "Use variable",
       "variable_name": "Variable name",
       "unnamed_variable": "(unnamed variable)",
+      "default_location": "Default location",
       "current_position": "Current position",
       "current_position_must_be_empty": "\"Current position\" is on, leave this empty",
       "select_location": "Please select a location",

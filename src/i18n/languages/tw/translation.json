@@ -3379,6 +3379,7 @@
       "use_variable": "使用變數",
       "variable_name": "變數名稱",
       "unnamed_variable": "(未命名變數)",
+      "default_location": "預設點位",
       "current_position": "目前位置",
       "current_position_must_be_empty": "已選「目前位置」,這裡要留空",
       "select_location": "請選一個點位",
