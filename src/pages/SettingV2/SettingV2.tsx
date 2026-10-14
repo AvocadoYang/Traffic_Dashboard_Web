@@ -13,6 +13,7 @@ import {
   EditLocationPanelSwitch,
   EditRoadPanelSwitch,
   EditZoneSwitch,
+  EditAnnotationSwitch,
   QuickEditLocationPanelSwitch,
 } from "@/utils/siderGloble";
 import MapView from "@/pages/Setting/mapComponents/MapView";
@@ -186,6 +187,7 @@ const SettingV2: React.FC = () => {
   const setEditLocationPanelSwitch = useSetAtom(EditLocationPanelSwitch);
   const setEditRoadPanelSwitch = useSetAtom(EditRoadPanelSwitch);
   const setEditZoneSwitch = useSetAtom(EditZoneSwitch);
+  const setEditAnnotationSwitch = useSetAtom(EditAnnotationSwitch);
   const setQuickEditLocationPanelSwitch = useSetAtom(
     QuickEditLocationPanelSwitch,
   );
@@ -194,11 +196,13 @@ const SettingV2: React.FC = () => {
     setEditRoadPanelSwitch(activePanel === "road_panel");
     setEditZoneSwitch(activePanel === "edit_zone");
     setQuickEditLocationPanelSwitch(activePanel === "quick_location_panel");
+    setEditAnnotationSwitch(activePanel === "map_annotation");
   }, [
     activePanel,
     setEditLocationPanelSwitch,
     setEditRoadPanelSwitch,
     setEditZoneSwitch,
+    setEditAnnotationSwitch,
     setQuickEditLocationPanelSwitch,
   ]);
 

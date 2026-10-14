@@ -537,7 +537,8 @@
     "map_setting": {
       "map_setting": "地圖設定",
       "switch_map": "變更地圖",
-      "map_group": "地圖群組"
+      "map_group": "地圖群組",
+      "map_annotation": "地圖標註"
     },
     "category": {
       "charge": "充電",
@@ -3711,5 +3712,36 @@
         ]
       }
     ]
+  },
+  "map_annotation": {
+    "default_text": "新標註",
+    "tool_select": "選取 / 移動",
+    "tool_text": "新增文字",
+    "tool_rect": "新增框線",
+    "hint_select": "點地圖上的標註或下方列表來選取;按住標註拖曳可以移動,框線右下角的方塊可以調整大小。改完按「儲存」才會生效。",
+    "hint_text": "在地圖上點一下,放一個文字標註。",
+    "hint_rect": "在地圖上按住拖曳,拉出一個框線。",
+    "editing": "編輯標註",
+    "new": "新標註(尚未儲存)",
+    "style_for_new": "新標註的樣式",
+    "unsaved": "未儲存",
+    "text": "文字",
+    "text_optional": "框線上的文字(可留空)",
+    "text_required": "文字標註的內容不能是空的",
+    "font_size": "字體大小",
+    "color": "文字顏色",
+    "background_color": "字底顏色",
+    "border_color": "框線顏色",
+    "border_width": "框線粗細",
+    "fill_color": "填滿顏色",
+    "transparent": "透明",
+    "deselect": "取消選取",
+    "delete_confirm": "確定要刪除這個標註嗎?",
+    "list": "這張地圖的標註",
+    "empty": "這張地圖還沒有標註",
+    "kind_text": "文字",
+    "kind_rect": "框線",
+    "no_text": "(無文字)",
+    "save_or_cancel_first": "目前的標註還沒儲存,請先儲存或取消"
   }
 }

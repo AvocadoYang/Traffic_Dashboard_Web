@@ -537,7 +537,8 @@
     "map_setting": {
       "map_setting": "Map Setting",
       "switch_map": "Switch Map",
-      "map_group": "Map Group"
+      "map_group": "Map Group",
+      "map_annotation": "Map annotations"
     },
     "category": {
       "charge": "Charging",
@@ -3710,5 +3711,36 @@
         ]
       }
     ]
+  },
+  "map_annotation": {
+    "default_text": "New label",
+    "tool_select": "Select / move",
+    "tool_text": "Add text",
+    "tool_rect": "Add box",
+    "hint_select": "Click an annotation on the map or in the list below to select it. Drag it to move; drag the square at a box's bottom-right corner to resize. Changes take effect after Save.",
+    "hint_text": "Click on the map to place a text label.",
+    "hint_rect": "Press and drag on the map to draw a box.",
+    "editing": "Edit annotation",
+    "new": "New annotation (not saved)",
+    "style_for_new": "Style for new annotations",
+    "unsaved": "Unsaved",
+    "text": "Text",
+    "text_optional": "Text on the box (optional)",
+    "text_required": "A text label cannot be empty",
+    "font_size": "Font size",
+    "color": "Text color",
+    "background_color": "Text background",
+    "border_color": "Border color",
+    "border_width": "Border width",
+    "fill_color": "Fill color",
+    "transparent": "Transparent",
+    "deselect": "Deselect",
+    "delete_confirm": "Delete this annotation?",
+    "list": "Annotations on this map",
+    "empty": "No annotations on this map yet",
+    "kind_text": "Text",
+    "kind_rect": "Box",
+    "no_text": "(no text)",
+    "save_or_cancel_first": "The current annotation is not saved. Save or cancel it first."
   }
 }

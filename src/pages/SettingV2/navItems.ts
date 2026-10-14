@@ -99,6 +99,10 @@ export const navCategories: NavCategory[] = [
     children: [
       { key: "switch_map", labelKey: "toolbar.map_setting.switch_map" },
       { key: "map_group_table", labelKey: "toolbar.map_setting.map_group" },
+      {
+        key: "map_annotation",
+        labelKey: "toolbar.map_setting.map_annotation",
+      },
     ],
   },
   {
