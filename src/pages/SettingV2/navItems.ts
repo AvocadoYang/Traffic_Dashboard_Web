@@ -13,6 +13,7 @@ import {
   ApartmentOutlined,
   InboxOutlined,
   AlertOutlined,
+  HistoryOutlined,
 } from "@ant-design/icons";
 import type { SettingV2PanelKey } from "./panelKeys";
 
@@ -230,6 +231,17 @@ export const navCategories: NavCategory[] = [
       {
         key: "show_system_alarm",
         labelKey: "toolbar.file_setting.system_alarm",
+      },
+    ],
+  },
+  {
+    key: "records",
+    labelKey: "toolbar.category.records",
+    icon: HistoryOutlined,
+    children: [
+      {
+        key: "setting_change_log",
+        labelKey: "toolbar.records.setting_change_log",
       },
     ],
   },

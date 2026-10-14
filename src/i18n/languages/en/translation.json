@@ -637,10 +637,14 @@
       "charge": "Charging",
       "dispatch": "Dispatch Rules",
       "cargo": "Cargo",
-      "alarm": "Alarms"
+      "alarm": "Alarms",
+      "records": "Records"
     },
     "restart": {
       "restart": "restart system"
+    },
+    "records": {
+      "setting_change_log": "Setting changes"
     }
   },
   "sider_output_form_name": {
@@ -3879,5 +3883,66 @@
     "repeat_until": "Until",
     "repeat_hint": "Starting at the time above, dispatch again every N minutes until this time (inclusive). Empty = until 23:59; earlier than the start = past midnight into the next day. If the previous mission of this schedule is not finished, this one is skipped.",
     "repeat_fact": "· every {{min}} min until {{until}}"
+  },
+  "change_log": {
+    "title": "Setting changes",
+    "hint": "Every change made on the settings pages, dispatch rules, charging and maintenance: who, when, from which computer, what was sent and whether it worked. Points, roads, zones, mission steps and rules also keep the value before and after. Reading data, dispatching missions and operating vehicles or cargo are not listed here. Kept for {{days}} days.",
+    "all_accounts": "All accounts",
+    "all_categories": "All kinds",
+    "search": "Search target, path",
+    "failed_only": "Failed only",
+    "not_recorded": "The log table does not exist yet (run 20261014_setting_change_log.sql or yarn pdp on the database); changes are not recorded.",
+    "empty": "No setting changes in this period",
+    "ok": "OK",
+    "failed": "Failed",
+    "when": "When",
+    "who": "Who",
+    "no_account": "(not logged in)",
+    "changed": "Changed",
+    "error": "Error",
+    "view_diff": "Before / after",
+    "view_body": "What was sent",
+    "detail_title": "Setting change",
+    "request": "Request",
+    "field": "Field",
+    "before": "Before",
+    "after": "After",
+    "deleted": "This setting has been deleted",
+    "no_change": "No difference",
+    "body": "What was sent",
+    "before_full": "Full data before the change",
+    "category": {
+      "point": "Point",
+      "road": "Road",
+      "zone": "Zone",
+      "map": "Map",
+      "mission": "Mission",
+      "schedule": "Schedule",
+      "idle_rule": "Idle rule",
+      "charge": "Charging",
+      "dispatch": "Dispatch rule",
+      "dispatch_board": "Dispatch board",
+      "amr": "Vehicle",
+      "peripheral": "Device",
+      "shelf": "Shelf",
+      "cargo_format": "Cargo format",
+      "alarm": "Alarm",
+      "system": "System",
+      "mir": "MiR",
+      "user": "Account",
+      "maintenance": "Maintenance",
+      "other": "Other"
+    },
+    "action": {
+      "create": "Add",
+      "update": "Edit",
+      "delete": "Delete",
+      "import": "Import",
+      "run": "Run",
+      "stop": "Stop",
+      "backup": "Backup",
+      "restore": "Restore",
+      "other": "Other"
+    }
   }
 }

@@ -9,6 +9,7 @@ export type SettingV2OnlyKey =
   | "conveyor_dispatch"
   | "transfer_rules"
   | "work_areas"
-  | "map_annotation";
+  | "map_annotation"
+  | "setting_change_log";
 
 export type SettingV2PanelKey = ToolBarItemType | SettingV2OnlyKey;

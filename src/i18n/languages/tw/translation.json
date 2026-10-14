@@ -637,10 +637,14 @@
       "charge": "充電",
       "dispatch": "調度規則",
       "cargo": "貨物",
-      "alarm": "告警"
+      "alarm": "告警",
+      "records": "紀錄"
     },
     "restart": {
       "restart": "重起系統"
+    },
+    "records": {
+      "setting_change_log": "設定變更紀錄"
     }
   },
   "sider_output_form_name": {
@@ -3880,5 +3884,66 @@
     "repeat_until": "派到幾點",
     "repeat_hint": "從上面的時間開始, 每隔設定的分鐘派一次, 派到這個時間 (含)。不填 = 派到 23:59; 比開始早 = 跨午夜派到隔天。同一筆排程上一次派的任務還沒做完, 這次就不派。",
     "repeat_fact": "· 每 {{min}} 分鐘, 到 {{until}}"
+  },
+  "change_log": {
+    "title": "設定變更紀錄",
+    "hint": "設定頁、調度規則、充電、保養等每一次修改: 誰、什麼時候、從哪台電腦、改了什麼、成功與否。點位、路徑、區域、任務步驟、各種規則另外記改前改後的值。讀取資料、派任務、操作車和貨不在這裡。紀錄保留 {{days}} 天。",
+    "all_accounts": "全部帳號",
+    "all_categories": "全部種類",
+    "search": "搜尋對象、路徑",
+    "failed_only": "只看失敗",
+    "not_recorded": "還沒有紀錄表 (資料庫要先跑 20261014_setting_change_log.sql 或 yarn pdp), 修改不會被記下來。",
+    "empty": "這段期間沒有設定變更",
+    "ok": "成功",
+    "failed": "失敗",
+    "when": "時間",
+    "who": "誰",
+    "no_account": "(沒登入)",
+    "changed": "改了",
+    "error": "錯誤",
+    "view_diff": "看改前改後",
+    "view_body": "看送出的內容",
+    "detail_title": "設定變更內容",
+    "request": "請求",
+    "field": "欄位",
+    "before": "改前",
+    "after": "改後",
+    "deleted": "這筆設定已經刪除",
+    "no_change": "改前改後一樣",
+    "body": "送出的內容",
+    "before_full": "改之前的完整資料",
+    "category": {
+      "point": "點位",
+      "road": "路徑",
+      "zone": "區域",
+      "map": "地圖",
+      "mission": "任務",
+      "schedule": "定時任務",
+      "idle_rule": "閒置任務",
+      "charge": "充電",
+      "dispatch": "調度規則",
+      "dispatch_board": "任務看板",
+      "amr": "車輛",
+      "peripheral": "設備",
+      "shelf": "貨架",
+      "cargo_format": "貨物格式",
+      "alarm": "告警",
+      "system": "系統",
+      "mir": "MiR",
+      "user": "帳號",
+      "maintenance": "保養",
+      "other": "其他"
+    },
+    "action": {
+      "create": "新增",
+      "update": "修改",
+      "delete": "刪除",
+      "import": "匯入",
+      "run": "執行",
+      "stop": "停止",
+      "backup": "備份",
+      "restore": "還原",
+      "other": "其他"
+    }
   }
 }
