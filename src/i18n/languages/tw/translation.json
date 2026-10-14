@@ -441,6 +441,98 @@
   "page_simulate_result": "模擬任務統計表",
   "page_record": "告警紀錄",
   "page_mission_dispatch": "任務看板",
+  "page_report": "營運報表",
+  "report": {
+    "hint": "任務、車輛時間和告警的統計, 可以匯出 xlsx",
+    "query": "查詢",
+    "export": "匯出 xlsx",
+    "export_done": "已匯出",
+    "export_failed": "匯出失敗",
+    "load_failed": "報表讀取失敗",
+    "no_data": "這段期間沒有資料",
+    "no_vehicle": "沒有車輛資料",
+    "no_alarm": "這段期間沒有告警",
+    "no_cancel": "沒有取消的搬運任務",
+    "no_transport": "沒有完成的搬運任務",
+    "all_vehicles": "全部車輛",
+    "simulated_tag": "模擬",
+    "no_online_records": "還沒有車輛連線紀錄 (資料庫要先跑 20261014_amr_online_session.sql 或 yarn pdp)。閒置和離線時間會算在「沒有紀錄」。",
+    "preset": {
+      "today": "今天",
+      "yesterday": "昨天",
+      "last7": "最近 7 天",
+      "thisMonth": "這個月"
+    },
+    "scope": {
+      "all": "全部",
+      "real": "實車",
+      "simulated": "模擬車"
+    },
+    "tile": {
+      "transport_done": "完成搬運",
+      "per_hour": "每小時完成",
+      "avg_wait": "平均等車",
+      "p90_wait": "等車 90%",
+      "avg_run": "平均執行",
+      "canceled": "取消",
+      "give_way": "讓路次數",
+      "charge": "充電次數",
+      "distance": "里程"
+    },
+    "tile_hint": {
+      "transport_done": "期間內完成的搬運任務。充電、讓路、回待命點和手動移動不算搬運",
+      "avg_wait": "任務排進佇列到派給車的時間",
+      "p90_wait": "九成的任務在這個時間內就等到車",
+      "avg_run": "車開始做到做完的時間",
+      "give_way": "交管叫車讓路 (move away) 的次數"
+    },
+    "per_hour_title": "每小時完成數",
+    "per_day_title": "每天完成數",
+    "per_bucket_hint": "長條是完成的搬運任務, 線是平均等車 / 執行時間 (分鐘)",
+    "time_split_title": "每台車的時間分配",
+    "time_split_hint": "閒置 = 在線但沒任務; 離線 = 後端在跑但車沒連線; 沒有紀錄 = 後端沒在跑或功能上線之前",
+    "vehicle_table_title": "每台車明細",
+    "alarm_title": "告警排行",
+    "alarm_hint": "車的警告多半沒有解除時間, 這些只算次數",
+    "other_title": "取消原因 / 搬運任務",
+    "series": {
+      "done": "完成搬運",
+      "wait_min": "平均等車 (分)",
+      "run_min": "平均執行 (分)"
+    },
+    "time": {
+      "transport": "搬運",
+      "charge": "充電",
+      "giveWay": "讓路",
+      "standby": "回待命點",
+      "manual": "手動移動",
+      "idle": "閒置",
+      "offline": "離線",
+      "unrecorded": "沒有紀錄"
+    },
+    "alarm_kind": {
+      "alarm": "異常",
+      "warning": "警告",
+      "system": "系統告警"
+    },
+    "col": {
+      "vehicle": "車輛",
+      "transport_done": "完成搬運",
+      "canceled": "取消",
+      "avg_run": "平均執行",
+      "distance": "里程 (km)",
+      "give_way": "讓路",
+      "charge": "充電",
+      "kind": "種類",
+      "code": "代碼",
+      "label": "說明",
+      "count": "次數",
+      "total_time": "累計時間",
+      "vehicles": "車輛",
+      "cancel_reason": "取消原因",
+      "mission_name": "搬運任務"
+    }
+  },
   "simulate": "模擬的",
   "page_analysis": "任務統計",
   "page_cargo_history": "貨物紀錄",

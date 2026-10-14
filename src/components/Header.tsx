@@ -512,6 +512,7 @@ const Header: React.FC = () => {
     `${t("page_simulate_result")}`,
     `${t("page_record")}`,
     `${t("page_mission_dispatch")}`,
+    `${t("page_report")}`,
   ].map((name, index) => ({
     key: index + 1,
     label: name,
@@ -543,6 +544,9 @@ const Header: React.FC = () => {
         break;
       case "8":
         navigate("/mission-dispatch");
+        break;
+      case "9":
+        navigate("/report");
         break;
       default:
         break;
