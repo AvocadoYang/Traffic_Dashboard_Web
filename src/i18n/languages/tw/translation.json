@@ -3400,6 +3400,9 @@
       "drawer_hint": "這裡只改本地暫存,要按上面工具列的「儲存」才會真的寫進後端。",
       "hint": {
         "wait": "車輛在這裡等多久才繼續下一個動作。",
+        "charging_minimum_time": "至少充電這麼久才結束。",
+        "charging_minimum_percentage": "電量至少充到這個百分比才結束。",
+        "charge_until_new_mission": "開啟後會一直充電,直到有新任務排進佇列為止。",
         "live_list_not_db": "清單是即時向線上的 MiR 車輛查來的,不是本地資料庫那一份。",
         "volume": "100% 大約是 80 dB。",
         "duration": "只有 Mode 選 Custom 時才有作用,最小單位是秒。",

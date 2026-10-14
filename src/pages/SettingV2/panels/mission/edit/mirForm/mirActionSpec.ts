@@ -11,6 +11,8 @@ import {
 export const CONTAINER_TYPE = "reduce_protective_fields";
 export const TRY_CATCH_TYPE = "try_catch";
 export const INCLUDE_TYPE = "mission";
+/** MiR 原生的充電動作,v1 沒有 */
+export const CHARGING_TYPE = "charging";
 
 export type ParentSlot = "content" | "try" | "catch";
 
@@ -48,6 +50,7 @@ export const ACTION_CATEGORIES: {
   },
   { label: "IO Module", value: "io", actions: mirIoModule },
   { label: "Safety System", value: "safety", actions: mirSaftySystemList },
+  { label: "Charging", value: "charging", actions: [CHARGING_TYPE] },
 ];
 
 /** 跟 missionDefaultValue.ts 的 defaultMirAction() 同一套預設值 */
@@ -89,6 +92,9 @@ export const buildDefaultOperation = (type: string): Mir_Action => ({
   value: "on",
   operation: "on",
   timeout: "00:00:00",
+  minimum_time: "00:30:00",
+  minimum_percentage: 40,
+  charge_until_new_mission: false,
   variables: {},
 });
 
@@ -442,6 +448,29 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
     },
     { kind: "time", name: "timeout", label: "Timeout" },
   ],
+
+  [CHARGING_TYPE]: [
+    {
+      kind: "time",
+      name: "minimum_time",
+      label: "Minimum time",
+      hintKey: "setting_v2.mir.hint.charging_minimum_time",
+    },
+    {
+      kind: "number",
+      name: "minimum_percentage",
+      label: "Minimum percentage",
+      min: 0,
+      max: 100,
+      hintKey: "setting_v2.mir.hint.charging_minimum_percentage",
+    },
+    {
+      kind: "switch",
+      name: "charge_until_new_mission",
+      label: "Charge until new mission",
+      hintKey: "setting_v2.mir.hint.charge_until_new_mission",
+    },
+  ],
 };
 
 /** 卡片上那一行摘要 */
@@ -489,6 +518,10 @@ export const summarizeAction = (
       return { verb: "Try / Catch" };
     case INCLUDE_TYPE:
       return { verb: "Mission" };
+    case CHARGING_TYPE:
+      return {
+        verb: `Charge to ${op.minimum_percentage ?? 40}% for at least ${op.minimum_time || "00:30:00"}`,
+      };
     case "set_io":
       return {
         verb: `Set IO ${op.module ?? ""} port ${op.port ?? 0} to ${op.value ?? ""}`,

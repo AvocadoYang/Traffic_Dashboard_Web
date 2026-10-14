@@ -261,6 +261,9 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       value: operation.value ?? "on",
       operation: operation.operation ?? "on",
       timeout: toTime(operation.timeout),
+      minimum_time: toTime(operation.minimum_time ?? "00:30:00"),
+      minimum_percentage: Number(operation.minimum_percentage ?? 40),
+      charge_until_new_mission: operation.charge_until_new_mission ?? false,
     });
 
     setAllFields(
@@ -330,6 +333,10 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       value: (raw.value as string) ?? "on",
       operation: (raw.operation as string) ?? "on",
       timeout: time("timeout"),
+      minimum_time: time("minimum_time"),
+      minimum_percentage: num("minimum_percentage", 40),
+      charge_until_new_mission:
+        (raw.charge_until_new_mission as boolean) ?? false,
       variables: Object.fromEntries(
         Object.entries(variableFields)
           .filter(([, v]) => v.enabled && v.name)

@@ -3399,6 +3399,9 @@
       "drawer_hint": "This only changes the local draft. Press \"Save\" in the toolbar above to write it to the backend.",
       "hint": {
         "wait": "How long the vehicle waits here before continuing to the next action.",
+        "charging_minimum_time": "Charge for at least this long before finishing.",
+        "charging_minimum_percentage": "Charge until the battery reaches at least this percentage.",
+        "charge_until_new_mission": "When on, keeps charging until a new mission is queued.",
         "live_list_not_db": "The list is queried live from an online MiR vehicle, not from the local database.",
         "volume": "100% is roughly 80 dB.",
         "duration": "Only applies when Mode is Custom. The smallest unit is one second.",

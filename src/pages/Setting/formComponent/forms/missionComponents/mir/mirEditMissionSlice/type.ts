@@ -69,6 +69,11 @@ export type Mir_Action = {
   operation: string;
   timeout: string;
 
+  // charging
+  minimum_time?: string;
+  minimum_percentage?: number;
+  charge_until_new_mission?: boolean;
+
   // 欄位名稱 -> 變數名稱。有 key 代表該欄位設成「使用變數」，
   variables?: Record<string, string>;
 };
