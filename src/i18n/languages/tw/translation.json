@@ -3521,7 +3521,7 @@
     },
     "mission": {
       "blind_hint": "新增只能選還沒綁過任務的地點,已綁定的請用清單上的編輯修改。",
-      "schedule_hint": "新增會先建立一筆空白排程,再按編輯填入車輛、任務、星期與時間。",
+      "schedule_hint": "新增會先建立一筆空白排程, 再按編輯填入車輛、任務、星期與時間。可以設「重複派」: 從那個時間開始每隔幾分鐘派一次。模擬進行中看的是模擬時間。",
       "unsupported_type": "這個車種的步驟編輯還沒有搬到新版設定頁。請先從舊版設定頁 (/setting-v1) 編輯。",
       "control_sequence_hint": "同一個控制項可以重複加,順序就是車輛執行的順序。",
       "peripheral_control": "設備控制",
@@ -3853,5 +3853,32 @@
     "reservation_item": "充電站 {{stationId}} 留給 {{forAmrId}} (從 {{fromAmrId}} 換出來), 還剩 {{time}}",
     "swap_ok": "{{fromAmrId}} 讓出 {{stationId}} 給 {{forAmrId}}, 已派回待命點",
     "swap_failed": "想讓 {{fromAmrId}} 讓位給 {{forAmrId}}, 沒換: {{reason}}"
+  },
+  "time_condition": {
+    "days": "星期",
+    "days_hint": "都不勾 = 每天",
+    "time_range": "時段",
+    "from": "開始",
+    "to": "結束",
+    "time_range_hint": "都不填 = 整天。結束比開始早代表跨午夜 (例如 22:00 ~ 06:00), 這時星期看開始的那天。模擬進行中看的是模擬時間。",
+    "need_both": "時段要同時填開始和結束, 而且不能一樣 (整天就都不要填)",
+    "only_during": "只在 ",
+    "every_day": "每天",
+    "days_prefix": "星期",
+    "overnight": "(跨午夜)",
+    "day_short": {
+      "1": "一",
+      "2": "二",
+      "3": "三",
+      "4": "四",
+      "5": "五",
+      "6": "六",
+      "7": "日"
+    },
+    "repeat": "重複派",
+    "repeat_every": "每隔",
+    "repeat_until": "派到幾點",
+    "repeat_hint": "從上面的時間開始, 每隔設定的分鐘派一次, 派到這個時間 (含)。不填 = 派到 23:59; 比開始早 = 跨午夜派到隔天。同一筆排程上一次派的任務還沒做完, 這次就不派。",
+    "repeat_fact": "· 每 {{min}} 分鐘, 到 {{until}}"
   }
 }

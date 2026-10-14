@@ -3520,7 +3520,7 @@
     },
     "mission": {
       "blind_hint": "Only locations without a bound mission can be added. To change an existing binding, use Edit in the list.",
-      "schedule_hint": "Add creates a blank schedule first; then use Edit to fill in the vehicle, mission, weekdays and time.",
+      "schedule_hint": "Add creates a blank schedule first; then use Edit to fill in the vehicle, mission, weekdays and time. \"Repeat\" dispatches again every N minutes from that time. During a simulation the simulated time is used.",
       "unsupported_type": "Step editing for this robot type has not been moved to the new settings page yet. Please edit it in the old settings page (/setting-v1).",
       "control_sequence_hint": "The same control can be added more than once. The order is the order in which the vehicle executes them.",
       "peripheral_control": "Peripheral control",
@@ -3852,5 +3852,32 @@
     "reservation_item": "Station {{stationId}} kept for {{forAmrId}} (swapped out {{fromAmrId}}), {{time}} left",
     "swap_ok": "{{fromAmrId}} gave {{stationId}} to {{forAmrId}} and was sent to standby",
     "swap_failed": "Tried to swap {{fromAmrId}} out for {{forAmrId}}, did not: {{reason}}"
+  },
+  "time_condition": {
+    "days": "Weekdays",
+    "days_hint": "None ticked = every day",
+    "time_range": "Time range",
+    "from": "From",
+    "to": "To",
+    "time_range_hint": "Leave both empty for all day. An end earlier than the start crosses midnight (e.g. 22:00 ~ 06:00); the weekday is the day it starts. During a simulation the simulated time is used.",
+    "need_both": "Fill in both the start and the end of the time range, and make them different (leave both empty for all day)",
+    "only_during": "Only ",
+    "every_day": "every day",
+    "days_prefix": "",
+    "overnight": "(overnight)",
+    "day_short": {
+      "1": "Mon",
+      "2": "Tue",
+      "3": "Wed",
+      "4": "Thu",
+      "5": "Fri",
+      "6": "Sat",
+      "7": "Sun"
+    },
+    "repeat": "Repeat",
+    "repeat_every": "Every",
+    "repeat_until": "Until",
+    "repeat_hint": "Starting at the time above, dispatch again every N minutes until this time (inclusive). Empty = until 23:59; earlier than the start = past midnight into the next day. If the previous mission of this schedule is not finished, this one is skipped.",
+    "repeat_fact": "· every {{min}} min until {{until}}"
   }
 }
