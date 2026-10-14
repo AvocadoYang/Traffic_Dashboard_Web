@@ -28,6 +28,7 @@ import client from "@/api/axiosClient";
 import useCharge from "@/api/useCharge";
 import { Err } from "@/utils/responseErr";
 import HelpButton from "../../ui/HelpButton";
+import ChargeQueueSection from "./ChargeQueueSection";
 import useIsNarrow from "../../ui/useIsNarrow";
 import StatusTag from "../../ui/StatusTag";
 import useAmrOptions from "../../ui/useAmrOptions";
@@ -371,6 +372,8 @@ const ChargePanel: FC = () => {
   return (
     <PanelShell>
       {contextHolder}
+
+      <ChargeQueueSection />
 
       <Section>
         <SectionTitle>

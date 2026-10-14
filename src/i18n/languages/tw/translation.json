@@ -3837,5 +3837,21 @@
     "no_text": "(無文字)",
     "save_or_cancel_first": "目前的標註還沒儲存,請先儲存或取消",
     "rotation": "旋轉 (°)"
+  },
+  "charge_queue": {
+    "title": "充電站全滿時 (整個案場)",
+    "queue": "排隊: 電量低的車先進站",
+    "swap": "換手: 缺電的車可以換出充飽的車",
+    "swap_wait": "排隊多久才換手",
+    "sec": "秒",
+    "queue_hint": "排隊: 充電站都被佔用時, 空出來的站先給電量最低的車 (一樣低就先來的先)。車在哪裡等由閒置規則決定。排隊中、電量低於自己「主動充電」門檻的車不接搬運任務 (去充電、回待命點、讓路照常)。",
+    "swap_hint": "換手: 排隊超過設定的秒數、電量低於自己「主動充電」門檻的車, 可以讓站內電量高於它自己「可接任務」門檻的車 (挑電量最高的) 回待命點, 那座站先留給它 5 分鐘。站內的車會先跑離開充電站強制任務; 沒有空的待命點就不換。",
+    "waiting_title": "現在在等充電站的車",
+    "nobody_waiting": "沒有車在等",
+    "waiting_item": "{{amrId}} {{battery}}% · 等了 {{time}}",
+    "holds_work": "不接搬運任務",
+    "reservation_item": "充電站 {{stationId}} 留給 {{forAmrId}} (從 {{fromAmrId}} 換出來), 還剩 {{time}}",
+    "swap_ok": "{{fromAmrId}} 讓出 {{stationId}} 給 {{forAmrId}}, 已派回待命點",
+    "swap_failed": "想讓 {{fromAmrId}} 讓位給 {{forAmrId}}, 沒換: {{reason}}"
   }
 }

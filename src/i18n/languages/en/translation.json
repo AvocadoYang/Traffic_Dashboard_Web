@@ -3836,5 +3836,21 @@
     "no_text": "(no text)",
     "save_or_cancel_first": "The current annotation is not saved. Save or cancel it first.",
     "rotation": "Rotation (°)"
+  },
+  "charge_queue": {
+    "title": "When every charger is taken (whole site)",
+    "queue": "Queue: lowest battery charges first",
+    "swap": "Swap: a low vehicle can take over from a charged one",
+    "swap_wait": "Queue time before a swap",
+    "sec": "s",
+    "queue_hint": "Queue: when every station is occupied, the next free one goes to the vehicle with the lowest battery (first come first served on a tie). Where it waits is up to the idle rules. A queued vehicle below its own \"aggressive\" threshold takes no transport missions (charging, standby and give-way moves still run).",
+    "swap_hint": "Swap: a vehicle that has queued longer than the set time and is below its own \"aggressive\" threshold can send a charging vehicle above its own \"available for tasks\" threshold (the fullest one) to standby; that station is then kept for it for 5 minutes. The charging vehicle runs its leave-station mission first; without a free standby point there is no swap.",
+    "waiting_title": "Vehicles waiting for a charger",
+    "nobody_waiting": "Nobody is waiting",
+    "waiting_item": "{{amrId}} {{battery}}% · waiting {{time}}",
+    "holds_work": "no transport missions",
+    "reservation_item": "Station {{stationId}} kept for {{forAmrId}} (swapped out {{fromAmrId}}), {{time}} left",
+    "swap_ok": "{{fromAmrId}} gave {{stationId}} to {{forAmrId}} and was sent to standby",
+    "swap_failed": "Tried to swap {{fromAmrId}} out for {{forAmrId}}, did not: {{reason}}"
   }
 }
