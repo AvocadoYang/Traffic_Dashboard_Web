@@ -80,5 +80,7 @@ export const annotationSchema = object({
   borderColor: string().defined(),
   fillColor: string().defined(),
   borderWidth: number().required(),
+  // 舊版後端沒有這個欄位
+  rotation: number().default(0),
   rev: string().required(),
 }).required();

@@ -431,7 +431,8 @@
     "location": "Location",
     "road_tooltip": "Road Tooltip",
     "location_tooltip": "Road Tooltip",
-    "point_cloud": "Point Cloud"
+    "point_cloud": "Point Cloud",
+    "annotation": "Map annotations"
   },
   "page_view": "View",
   "page_setting": "Setting",
@@ -3717,7 +3718,7 @@
     "tool_select": "Select / move",
     "tool_text": "Add text",
     "tool_rect": "Add box",
-    "hint_select": "Click an annotation on the map or in the list below to select it. Drag it to move; drag the square at a box's bottom-right corner to resize. Changes take effect after Save.",
+    "hint_select": "Click an annotation on the map or in the list below to select it. Drag it to move; drag the square at a box's bottom-right corner to resize; drag the dot above a text label to rotate it (hold Shift for 15° steps). Changes take effect after Save.",
     "hint_text": "Click on the map to place a text label.",
     "hint_rect": "Press and drag on the map to draw a box.",
     "editing": "Edit annotation",
@@ -3741,6 +3742,7 @@
     "kind_text": "Text",
     "kind_rect": "Box",
     "no_text": "(no text)",
-    "save_or_cancel_first": "The current annotation is not saved. Save or cancel it first."
+    "save_or_cancel_first": "The current annotation is not saved. Save or cancel it first.",
+    "rotation": "Rotation (°)"
   }
 }

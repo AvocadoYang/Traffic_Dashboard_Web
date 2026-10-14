@@ -431,7 +431,8 @@
     "location": "地點",
     "road_tooltip": "路徑提示",
     "location_tooltip": "地點提示",
-    "point_cloud": "點雲"
+    "point_cloud": "點雲",
+    "annotation": "地圖標註"
   },
   "page_view": "地圖",
   "page_setting": "設定",
@@ -3718,7 +3719,7 @@
     "tool_select": "選取 / 移動",
     "tool_text": "新增文字",
     "tool_rect": "新增框線",
-    "hint_select": "點地圖上的標註或下方列表來選取;按住標註拖曳可以移動,框線右下角的方塊可以調整大小。改完按「儲存」才會生效。",
+    "hint_select": "點地圖上的標註或下方列表來選取;按住標註拖曳可以移動,框線右下角的方塊可以調整大小,文字上方的圓點可以旋轉(按住 Shift 每 15 度一格)。改完按「儲存」才會生效。",
     "hint_text": "在地圖上點一下,放一個文字標註。",
     "hint_rect": "在地圖上按住拖曳,拉出一個框線。",
     "editing": "編輯標註",
@@ -3742,6 +3743,7 @@
     "kind_text": "文字",
     "kind_rect": "框線",
     "no_text": "(無文字)",
-    "save_or_cancel_first": "目前的標註還沒儲存,請先儲存或取消"
+    "save_or_cancel_first": "目前的標註還沒儲存,請先儲存或取消",
+    "rotation": "旋轉 (°)"
   }
 }

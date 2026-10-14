@@ -11,7 +11,7 @@ import { message } from "antd";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import useMap, { type MapType } from "@/api/useMap";
-import { EditAnnotationSwitch } from "@/utils/siderGloble";
+import { EditAnnotationSwitch, isShowAnnotation } from "@/utils/siderGloble";
 import { rosCoord2DisplayCoord, rvizCoord } from "@/utils/utils";
 import {
   type Annotation,
@@ -30,6 +30,8 @@ type Props = {
   mapRef?: RefObject<HTMLDivElement>;
   mapImageRef?: RefObject<HTMLImageElement>;
 };
+
+type DragMode = "move" | "resize" | "rotate";
 
 /** 拉框小於這個 (螢幕像素) 當成誤觸, 不建立 */
 const MIN_RECT_PX = 4;
@@ -60,7 +62,7 @@ const AnnotationShape: FC<{
   scale: number;
   editing: boolean;
   selected: boolean;
-  onPointerDown?: (e: ReactPointerEvent, mode: "move" | "resize") => void;
+  onPointerDown?: (e: ReactPointerEvent, mode: DragMode) => void;
 }> = ({ map, a, scale, editing, selected, onPointerDown }) => {
   const [left, top] = toDisplay(map, a.x, a.y);
   const base: CSSProperties = {
@@ -77,17 +79,63 @@ const AnnotationShape: FC<{
     outline: selected ? `${2 / scale}px dashed #1677ff` : undefined,
     outlineOffset: selected ? 2 / scale : undefined,
   };
-  const down = (mode: "move" | "resize") => (e: ReactPointerEvent) =>
+  const down = (mode: DragMode) => (e: ReactPointerEvent) =>
     onPointerDown?.(e, mode);
 
   if (a.kind === "text") {
+    const stem = 22 / scale;
+    const knob = 12 / scale;
     return (
       <div
-        style={{ ...base, ...textStyle(a) }}
+        style={{
+          ...base,
+          ...textStyle(a),
+          // 繞文字中心轉, (x, y) 仍是沒轉之前的左上角
+          transform: a.rotation ? `rotate(${a.rotation}deg)` : undefined,
+          transformOrigin: "center",
+        }}
         onPointerDown={down("move")}
         draggable={false}
       >
         {a.text}
+        {selected ? (
+          // 旋轉把手: 文字上方一根線加一個圓, 跟著文字一起轉
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: -stem - knob,
+              width: knob,
+              height: stem + knob,
+              transform: "translateX(-50%)",
+              cursor: "grab",
+            }}
+            data-annotation-rotate=""
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              down("rotate")(e);
+            }}
+          >
+            <div
+              style={{
+                width: knob,
+                height: knob,
+                borderRadius: "50%",
+                background: "#fff",
+                border: `${1.5 / scale}px solid #1677ff`,
+                boxSizing: "border-box",
+              }}
+            />
+            <div
+              style={{
+                width: 1.5 / scale,
+                height: stem,
+                margin: "0 auto",
+                background: "#1677ff",
+              }}
+            />
+          </div>
+        ) : null}
       </div>
     );
   }
@@ -142,6 +190,7 @@ const AllAnnotations: FC<Props> = ({ scale, mapRef, mapImageRef }) => {
   const { data } = useMap();
   const [messageApi, contextHolder] = message.useMessage();
   const panelOpen = useAtomValue(EditAnnotationSwitch);
+  const showOnViewer = useAtomValue(isShowAnnotation);
   const editing = panelOpen && !!mapRef && !!mapImageRef;
   const [draft, setDraft] = useAtom(annotationDraftAtom);
   const [tool, setTool] = useAtom(annotationToolAtom);
@@ -218,6 +267,7 @@ const AllAnnotations: FC<Props> = ({ scale, mapRef, mapImageRef }) => {
           y: p.y,
           x2: null,
           y2: null,
+          rotation: 0,
           ...s,
         });
         setTool("select");
@@ -232,6 +282,7 @@ const AllAnnotations: FC<Props> = ({ scale, mapRef, mapImageRef }) => {
         y: p.y,
         x2: p.x,
         y2: p.y,
+        rotation: 0,
         ...s,
       };
       setDraft(startDraft);
@@ -270,12 +321,14 @@ const AllAnnotations: FC<Props> = ({ scale, mapRef, mapImageRef }) => {
   }, [panelOpen]);
 
   if (!data) return null;
+  // 首頁 / 平板 (沒給 mapRef) 才看「顯示標註」開關; 設定頁一律顯示
+  if (!mapRef && !showOnViewer) return null;
   const saved = data.annotations;
 
   const startDrag = (
     a: AnnotationDraft,
     e: ReactPointerEvent,
-    mode: "move" | "resize",
+    mode: DragMode,
   ) => {
     if (!editing || e.button !== 0) return;
     e.stopPropagation();
@@ -297,6 +350,29 @@ const AllAnnotations: FC<Props> = ({ scale, mapRef, mapImageRef }) => {
       fillColor: from.fillColor,
       borderWidth: from.borderWidth,
     });
+    if (mode === "rotate") {
+      // 文字中心 (轉過的元素, 外框中心還是同一點) 指向游標的角度; 把手朝上 = 0 度
+      const box = (
+        e.currentTarget.parentElement as HTMLElement
+      ).getBoundingClientRect();
+      const cx = box.left + box.width / 2;
+      const cy = box.top + box.height / 2;
+      const move = (ev: PointerEvent) => {
+        let deg =
+          (Math.atan2(ev.clientY - cy, ev.clientX - cx) * 180) / Math.PI + 90;
+        if (deg > 180) deg -= 360;
+        // 按住 Shift 每 15 度一格
+        deg = ev.shiftKey ? Math.round(deg / 15) * 15 : Math.round(deg);
+        setDraft({ ...from, rotation: deg === -180 ? 180 : deg });
+      };
+      const up = () => {
+        window.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", up);
+      };
+      window.addEventListener("pointermove", move);
+      window.addEventListener("pointerup", up);
+      return;
+    }
     trackDrag(
       e,
       (dx, dy) =>

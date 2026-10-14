@@ -46,12 +46,14 @@ export const toDraft = (a: Annotation): AnnotationDraft => ({ ...a });
 /** 框線兩個角整理成 (x, y) = 左上、(x2, y2) = 右下, 縮放把手才會在右下角 */
 export const normalizeRect = (d: AnnotationDraft): AnnotationDraft => {
   if (d.kind !== "rect" || d.x2 == null || d.y2 == null) return d;
+  // 框線不旋轉 (後端也一律存 0)
   return {
     ...d,
     x: Math.min(d.x, d.x2),
     x2: Math.max(d.x, d.x2),
     y: Math.max(d.y, d.y2),
     y2: Math.min(d.y, d.y2),
+    rotation: 0,
   };
 };
 
@@ -68,6 +70,7 @@ const EDITABLE_FIELDS = [
   "borderColor",
   "fillColor",
   "borderWidth",
+  "rotation",
 ] as const;
 
 /** 草稿跟存檔的不一樣 (新的一律算有改) */

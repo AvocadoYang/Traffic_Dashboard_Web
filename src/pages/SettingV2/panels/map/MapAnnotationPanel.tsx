@@ -308,7 +308,7 @@ const MapAnnotationPanel: FC = () => {
         ) : null}
 
         {draft ? (
-          <FieldGrid $cols={2}>
+          <FieldGrid $cols={draft.kind === "text" ? 3 : 2}>
             <Field as="div">
               <FieldLabel>X (m)</FieldLabel>
               <InputNumber
@@ -342,6 +342,20 @@ const MapAnnotationPanel: FC = () => {
                 }}
               />
             </Field>
+            {draft.kind === "text" ? (
+              <Field as="div">
+                <FieldLabel>{t("map_annotation.rotation")}</FieldLabel>
+                <InputNumber
+                  style={{ width: "100%" }}
+                  min={-180}
+                  max={180}
+                  step={15}
+                  suffix="°"
+                  value={draft.rotation}
+                  onChange={(v) => v != null && patchDraft({ rotation: v })}
+                />
+              </Field>
+            ) : null}
           </FieldGrid>
         ) : null}
 
