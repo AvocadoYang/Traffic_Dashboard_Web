@@ -10,6 +10,7 @@ import {
 /** 可以把別的動作包在裡面的動作 */
 export const CONTAINER_TYPE = "reduce_protective_fields";
 export const TRY_CATCH_TYPE = "try_catch";
+export const INCLUDE_TYPE = "mission";
 
 export type ParentSlot = "content" | "try" | "catch";
 
@@ -486,6 +487,8 @@ export const summarizeAction = (
       return { verb: "Mute protective fields" };
     case TRY_CATCH_TYPE:
       return { verb: "Try / Catch" };
+    case INCLUDE_TYPE:
+      return { verb: "Mission" };
     case "set_io":
       return {
         verb: `Set IO ${op.module ?? ""} port ${op.port ?? 0} to ${op.value ?? ""}`,

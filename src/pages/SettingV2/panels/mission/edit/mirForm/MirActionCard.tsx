@@ -29,6 +29,10 @@ export type EditorSlice = {
   operation: Mir_Action;
   parentClientId: string | null;
   parentSlot: ParentSlot | null;
+  includeTitleId: string | null;
+  includeTitleName: string;
+  includeGroupId: string | null;
+  includeVariables: Record<string, string | number | boolean>;
 };
 
 /** 「哪個容器的哪個區塊」合成一個字串,當分組與 drop zone 的 key */
@@ -105,6 +109,7 @@ type Props = {
   onEdit: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
+  unfilledVariables?: number;
 };
 
 const MirActionCard: FC<Props> = ({
@@ -119,6 +124,7 @@ const MirActionCard: FC<Props> = ({
   onEdit,
   onDuplicate,
   onDelete,
+  unfilledVariables = 0,
 }) => {
   const { t } = useTranslation();
   const {
@@ -132,7 +138,9 @@ const MirActionCard: FC<Props> = ({
   } = useSortable({ id: slice.clientId });
 
   const isContainer = isContainerOperation(slice.operation);
-  const { verb, chip } = summarizeAction(slice.operation);
+  const { verb, chip } = slice.includeTitleId
+    ? { verb: "Mission", chip: slice.includeTitleName || "-" }
+    : summarizeAction(slice.operation);
 
   return (
     <div
@@ -165,6 +173,15 @@ const MirActionCard: FC<Props> = ({
         <Label>
           {verb}
           {chip ? <Chip>{chip}</Chip> : null}
+          {unfilledVariables > 0 ? (
+            <Tooltip title={t("setting_v2.mir.unfilled_variables_hint")}>
+              <Chip>
+                {t("setting_v2.mir.unfilled_variables", {
+                  count: unfilledVariables,
+                })}
+              </Chip>
+            </Tooltip>
+          ) : null}
         </Label>
 
         <IconBar>

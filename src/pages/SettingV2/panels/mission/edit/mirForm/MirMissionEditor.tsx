@@ -1,7 +1,12 @@
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Dropdown, Skeleton, message } from "antd";
 import type { MenuProps } from "antd";
-import { DownOutlined, HolderOutlined, SaveOutlined } from "@ant-design/icons";
+import {
+  DownOutlined,
+  HolderOutlined,
+  NodeExpandOutlined,
+  SaveOutlined,
+} from "@ant-design/icons";
 import {
   DndContext,
   DragEndEvent,
@@ -37,10 +42,17 @@ import {
 import styled from "styled-components";
 import { c, font, space } from "../../../../ui/tokens";
 import { NestedEmpty, NestedList } from "../steps/stepPrimitives";
+import { useIncludeMissionOptions } from "../steps/includeMission";
+import useMirMissionTitleVariables from "@/api/useMirMissionTitleVariables";
+import IncludeMissionDialog, {
+  IncludeDialogTarget,
+  IncludeVariables,
+} from "./IncludeMissionDialog";
 import MirActionCard, { EditorSlice, slotKey } from "./MirActionCard";
 import MirParamDrawer from "./MirParamDrawer";
 import {
   ACTION_CATEGORIES,
+  INCLUDE_TYPE,
   ParentSlot,
   SLOT_LABEL,
   TRY_CATCH_TYPE,
@@ -50,7 +62,17 @@ import {
   summarizeAction,
 } from "./mirActionSpec";
 
-type Props = { missionId: string };
+type Props = {
+  missionId: string;
+  robotValue: string;
+};
+
+type IncludeFields = {
+  include_title_id?: string | null;
+  include_title_name?: string | null;
+  include_variables?: IncludeVariables | null;
+  include_group_id?: string | null;
+};
 
 const SlotHeader = styled.div`
   margin: ${space.sm} 0 ${space.xs};
@@ -105,7 +127,7 @@ const SlotDropZone: FC<{
   );
 };
 
-const MirMissionEditorContent: FC<Props> = ({ missionId }) => {
+const MirMissionEditorContent: FC<Props> = ({ missionId, robotValue }) => {
   const { t } = useTranslation();
   const isNarrow = useIsNarrow();
   const queryClient = useQueryClient();
@@ -113,10 +135,13 @@ const MirMissionEditorContent: FC<Props> = ({ missionId }) => {
   const [messageApi, contextHolder] = message.useMessage();
 
   const { data, isLoading } = useTaskMir(missionId);
+  const includeOptions = useIncludeMissionOptions(missionId, robotValue);
 
   const [slices, setSlices] = useState<EditorSlice[]>([]);
   const [expanded, setExpanded] = useState<string[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
+  /** 新增或編輯 Missions 卡的對話框 */
+  const [includeTarget, setIncludeTarget] = useState<IncludeDialogTarget>(null);
   /** 正在拖的那張,給 DragOverlay 用 */
   const [activeId, setActiveId] = useState<string | null>(null);
   /** 有沒有還沒存的本地修改 */
@@ -157,18 +182,57 @@ const MirMissionEditorContent: FC<Props> = ({ missionId }) => {
         parentSlot: "content",
       });
     });
-    const next: EditorSlice[] = data.map((s) => {
+    // 同一個引用的複製在 process_order 上是連續的一段,第一筆是最外層。
+    // 整段收成一張 Missions 卡,放在第一筆的位置、掛在第一筆的父層底下;
+    // 複製出來的動作是唯讀的,不放進本地狀態,存檔時後端會重新產生。
+    const disabledByGroup = new Map<string, boolean>();
+    data.forEach((s) => {
+      const groupId = (s as IncludeFields).include_group_id;
+      if (!groupId) return;
+      disabledByGroup.set(
+        groupId,
+        (disabledByGroup.get(groupId) ?? true) && s.disable,
+      );
+    });
+    const seenGroups = new Set<string>();
+    const next: EditorSlice[] = [];
+    data.forEach((s) => {
+      const include = s as IncludeFields;
+      const groupId = include.include_group_id ?? null;
+      if (groupId && seenGroups.has(groupId)) return;
+      if (groupId) seenGroups.add(groupId);
+
       const parent = s.scope_reference_content
         ? parentByAnchor.get(s.scope_reference_content)
         : undefined;
-      return {
-        clientId: s.id,
-        dbId: s.id,
-        disable: s.disable,
-        operation: s.operation,
-        parentClientId: parent?.parentClientId ?? null,
-        parentSlot: parent?.parentSlot ?? null,
-      };
+      next.push(
+        groupId
+          ? {
+              clientId: groupId,
+              dbId: null,
+              // 全部複製都停用,整張才算停用
+              disable: disabledByGroup.get(groupId) ?? false,
+              operation: buildDefaultOperation(INCLUDE_TYPE),
+              parentClientId: parent?.parentClientId ?? null,
+              parentSlot: parent?.parentSlot ?? null,
+              includeTitleId: include.include_title_id ?? null,
+              includeTitleName: include.include_title_name ?? "",
+              includeGroupId: groupId,
+              includeVariables: include.include_variables ?? {},
+            }
+          : {
+              clientId: s.id,
+              dbId: s.id,
+              disable: s.disable,
+              operation: s.operation,
+              parentClientId: parent?.parentClientId ?? null,
+              parentSlot: parent?.parentSlot ?? null,
+              includeTitleId: null,
+              includeTitleName: "",
+              includeGroupId: null,
+              includeVariables: {},
+            },
+      );
     });
     setSlices(next);
     setExpanded(
@@ -186,6 +250,15 @@ const MirMissionEditorContent: FC<Props> = ({ missionId }) => {
     },
     [],
   );
+
+  /** 畫面上的 Missions 卡引用的任務,查它們的變數算「還有幾個沒填」 */
+  const includedIds = useMemo(
+    () =>
+      slices.map((s) => s.includeTitleId).filter((id): id is string => !!id),
+    [slices],
+  );
+  const { variablesOf, fetchVariables } =
+    useMirMissionTitleVariables(includedIds);
 
   const topLevel = useMemo(
     () => slices.filter((s) => !s.parentClientId),
@@ -257,8 +330,82 @@ const MirMissionEditorContent: FC<Props> = ({ missionId }) => {
         operation: buildDefaultOperation(type),
         parentClientId: null,
         parentSlot: null,
+        includeTitleId: null,
+        includeTitleName: "",
+        includeGroupId: null,
+        includeVariables: {},
       },
     ]);
+
+  /** 跟其他動作一樣加在最後,再拖進想要的位置或容器裡 */
+  const addInclude = (
+    includeTitleId: string,
+    includeVariables: IncludeVariables,
+  ) =>
+    edit((prev) => [
+      ...prev,
+      {
+        clientId: nanoid(),
+        dbId: null,
+        disable: false,
+        operation: buildDefaultOperation(INCLUDE_TYPE),
+        parentClientId: null,
+        parentSlot: null,
+        includeTitleId,
+        includeTitleName: includeOptions.nameOf(includeTitleId),
+        // 新的引用,後端會配一個 group id
+        includeGroupId: null,
+        includeVariables,
+      },
+    ]);
+
+  const changeInclude = (
+    clientId: string,
+    includeTitleId: string,
+    includeVariables: IncludeVariables,
+  ) =>
+    edit((prev) =>
+      prev.map((s) =>
+        s.clientId === clientId
+          ? {
+              ...s,
+              includeTitleId,
+              includeTitleName: includeOptions.nameOf(includeTitleId),
+              includeVariables,
+            }
+          : s,
+      ),
+    );
+
+  const pickInclude = (includeTitleId: string) => {
+    fetchVariables(includeTitleId)
+      .then((list) =>
+        list.length
+          ? setIncludeTarget({ clientId: null, includeTitleId, values: {} })
+          : addInclude(includeTitleId, {}),
+      )
+      .catch(() =>
+        setIncludeTarget({ clientId: null, includeTitleId, values: {} }),
+      );
+  };
+
+  /** 引用那一張沒有一般的參數,編輯就是換任務、改變數的值 */
+  const openEdit = (slice: EditorSlice) =>
+    slice.includeTitleId
+      ? setIncludeTarget({
+          clientId: slice.clientId,
+          includeTitleId: slice.includeTitleId,
+          values: slice.includeVariables,
+        })
+      : setEditingId(slice.clientId);
+
+  /** 這張還有幾個變數沒填,沒填的要等派任務時再填 */
+  const unfilledCount = (slice: EditorSlice) =>
+    slice.includeTitleId
+      ? variablesOf(slice.includeTitleId).filter(
+          (v) => slice.includeVariables[v.name] === undefined,
+        ).length
+      : 0;
 
   const duplicate = (clientId: string) =>
     edit((prev) => {
@@ -272,6 +419,7 @@ const MirMissionEditorContent: FC<Props> = ({ missionId }) => {
         // 容器的 scope_reference 是後端配的,複製出來的那張要重新拿一個,
         // 不然兩個容器會共用同一個內容群組
         operation: { ...prev[index].operation, id: "", scope_reference: "" },
+        includeGroupId: null,
       });
       return next;
     });
@@ -387,10 +535,19 @@ const MirMissionEditorContent: FC<Props> = ({ missionId }) => {
           operation: s.operation,
           parentClientId: s.parentClientId,
           parentSlot: s.parentSlot,
+          // 引用只送這一筆,不送複製出來的那些動作;後端照來源重新複製
+          includeTitleId: s.includeTitleId,
+          includeGroupId: s.includeGroupId,
+          includeVariables: s.includeTitleId ? s.includeVariables : undefined,
         })),
       }),
-    onSuccess: async () => {
+    onSuccess: async ({ data: res }) => {
       void messageApi.success(t("utils.success"));
+      // 這次存檔已經成功,這些是「引用這個任務的其他任務」重新同步到車上失敗,
+      // 不擋這次存檔,只提醒
+      ((res as { includeWarnings?: string[] })?.includeWarnings ?? []).forEach(
+        (w) => void messageApi.warning(w, 8),
+      );
       // 先把 dirty 關掉,下面 refetch 回來的資料才會重建本地狀態
       setDirty(false);
       dirtyRef.current = false;
@@ -407,6 +564,27 @@ const MirMissionEditorContent: FC<Props> = ({ missionId }) => {
     items: category.actions.map((a) => ({ key: a, label: a })),
     onClick: ({ key }) => addAction(key),
   });
+
+  /** 跟 MiR 自己的編輯器一樣,既有任務是動作分類裡的一類 */
+  const missionMenu: MenuProps = {
+    items: includeOptions.groups.length
+      ? includeOptions.groups.map((g) => ({
+          type: "group" as const,
+          key: `folder-${g.folder}`,
+          label: g.folder,
+          children: g.missions.map((m) => ({ key: m.id, label: m.name })),
+        }))
+      : [
+          {
+            key: "empty",
+            label: t("setting_v2.mission.include_empty"),
+            disabled: true,
+          },
+        ],
+    onClick: ({ key }) => pickInclude(key),
+    // 任務可能很多,不要讓選單長到超出畫面
+    style: { maxHeight: 360, overflowY: "auto" },
+  };
 
   /**
    * 卡片本身加上(容器展開時)底下的區塊。子動作也可能是容器,所以會遞迴,
@@ -425,7 +603,8 @@ const MirMissionEditorContent: FC<Props> = ({ missionId }) => {
         onMove={(from, to) =>
           moveWithin(slice.parentClientId, slice.parentSlot, from, to)
         }
-        onEdit={() => setEditingId(slice.clientId)}
+        onEdit={() => openEdit(slice)}
+        unfilledVariables={unfilledCount(slice)}
         onDuplicate={() => duplicate(slice.clientId)}
         onDelete={() => remove(slice.clientId)}
       />
@@ -483,6 +662,13 @@ const MirMissionEditorContent: FC<Props> = ({ missionId }) => {
             </GhostButton>
           </Dropdown>
         ))}
+        <Dropdown menu={missionMenu} trigger={["click"]}>
+          <GhostButton type="button">
+            <NodeExpandOutlined />
+            Missions
+            <DownOutlined />
+          </GhostButton>
+        </Dropdown>
       </Toolbar>
 
       <Toolbar>
@@ -541,14 +727,29 @@ const MirMissionEditorContent: FC<Props> = ({ missionId }) => {
         onSubmit={(next) => editingId && updateOperation(editingId, next)}
         onDelete={() => editingId && remove(editingId)}
       />
+
+      <IncludeMissionDialog
+        target={includeTarget}
+        groups={includeOptions.groups}
+        fetchVariables={fetchVariables}
+        onCancel={() => setIncludeTarget(null)}
+        onOk={(includeTitleId, values) => {
+          if (includeTarget?.clientId) {
+            changeInclude(includeTarget.clientId, includeTitleId, values);
+          } else {
+            addInclude(includeTitleId, values);
+          }
+          setIncludeTarget(null);
+        }}
+      />
     </>
   );
 };
 
 /** 參數抽屜的「改用變數」狀態是跨欄位共用的,所以要包一層 Provider */
-const MirMissionEditor: FC<Props> = ({ missionId }) => (
+const MirMissionEditor: FC<Props> = ({ missionId, robotValue }) => (
   <MirVariableProvider>
-    <MirMissionEditorContent missionId={missionId} />
+    <MirMissionEditorContent missionId={missionId} robotValue={robotValue} />
   </MirVariableProvider>
 );
 
