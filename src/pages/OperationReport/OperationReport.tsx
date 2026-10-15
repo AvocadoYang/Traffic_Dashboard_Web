@@ -8,6 +8,7 @@ import {
   Select,
   Spin,
   Table,
+  Tabs,
   Tooltip as AntTooltip,
   message,
 } from "antd";
@@ -48,28 +49,33 @@ import useOperationReport, {
   reportParams,
   useReportOptions,
 } from "@/api/useOperationReport";
+import useBatteryReport from "@/api/useBatteryReport";
 import {
   CATEGORICAL_PALETTE,
   CHART_GRID,
   CHART_TEXT_SECONDARY,
-  OTHER_SLICE_COLOR,
   SEQUENTIAL_BLUE,
 } from "@/pages/MissionDispatchBoard/chartPalette";
+import BatteryReportBody from "./BatteryReport";
+import {
+  ChartBox,
+  Panel,
+  PanelBody,
+  PanelHead,
+  PanelHint,
+  PanelTitle,
+  TIME_COLOR,
+  Tile,
+  TileLabel,
+  TileValue,
+  Tiles,
+  TwoColumns,
+  legendOrder,
+  legendText,
+} from "./reportParts";
 import { mq } from "@/styles/responsive";
 
 const { RangePicker } = DatePicker;
-
-// 時間分配的顏色: 有事做的五類用分類色盤, 閒置灰、離線紅、沒有紀錄最淡
-const TIME_COLOR: Record<TimeClass, string> = {
-  transport: CATEGORICAL_PALETTE[0],
-  charge: CATEGORICAL_PALETTE[3],
-  giveWay: CATEGORICAL_PALETTE[1],
-  standby: CATEGORICAL_PALETTE[2],
-  manual: CATEGORICAL_PALETTE[6],
-  idle: OTHER_SLICE_COLOR,
-  offline: CATEGORICAL_PALETTE[7],
-  unrecorded: "#ecebe6",
-};
 
 const StyledLayout = styled(Layout)`
   height: var(--app-height);
@@ -89,53 +95,6 @@ const StyledContent = styled(Content)`
   ${mq.pad} {
     padding: var(--space-md);
   }
-`;
-
-// 外框跟告警紀錄的面板同一套: 1px 邊框 + 左側色條 + 淡陰影
-const Panel = styled.section`
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  background: var(--c-bg);
-  border: 1px solid var(--c-header-border);
-  border-left: 4px solid var(--c-header-accent);
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-`;
-
-const PanelHead = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
-  background: var(--c-bg-subtle);
-  border-bottom: 1px solid var(--c-border);
-`;
-
-const PanelTitle = styled.h2`
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  margin: 0;
-  font-size: var(--font-md);
-  font-weight: 600;
-  color: var(--c-text);
-
-  .anticon {
-    color: var(--c-header-accent);
-  }
-`;
-
-const PanelHint = styled.span`
-  font-size: var(--font-sm);
-  color: var(--c-text-muted);
-`;
-
-const PanelBody = styled.div`
-  padding: var(--space-md);
-  min-width: 0;
 `;
 
 const Filters = styled.div`
@@ -160,67 +119,6 @@ const FilterButtons = styled.div`
   margin-left: auto;
 `;
 
-const Tiles = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-sm);
-
-  ${mq.pad} {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  ${mq.web} {
-    grid-template-columns: repeat(9, minmax(0, 1fr));
-  }
-`;
-
-const Tile = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: var(--space-sm) var(--space-md);
-  background: var(--c-bg);
-  border: 1px solid var(--c-header-border);
-  border-radius: 4px;
-`;
-
-const TileLabel = styled.span`
-  font-size: var(--font-sm);
-  color: var(--c-text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
-const TileValue = styled.span`
-  font-family: "Roboto Mono", monospace;
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--c-text);
-`;
-
-const TwoColumns = styled.div`
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-md);
-
-  ${mq.web} {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-`;
-
-const ChartBox = styled.div<{ $height: number }>`
-  width: 100%;
-  height: ${({ $height }) => $height}px;
-`;
-
-// 圖例的字一律用次要文字色 (預設跟線條同色, 淺色的「沒有紀錄」會看不到),
-// 順序照資料的順序 (recharts 預設會照名稱排序)
-const legendText = (value: string) => (
-  <span style={{ color: CHART_TEXT_SECONDARY }}>{value}</span>
-);
-const legendOrder = (keys: string[]) => (item: { dataKey?: unknown }) =>
-  keys.indexOf(String(item.dataKey));
-
 const pad2 = (n: number) => String(n).padStart(2, "0");
 
 /** 秒數 → m:ss 或 h:mm:ss */
@@ -237,6 +135,18 @@ const formatHours = (sec: number) => `${(sec / 3600).toFixed(1)} h`;
 
 const percent = (part: number, total: number) =>
   total > 0 ? Math.round((part / total) * 1000) / 10 : 0;
+
+type ReportTab = "overview" | "battery";
+
+const EXPORT_PATH: Record<ReportTab, string> = {
+  overview: "api/report/operation/xlsx",
+  battery: "api/report/battery/xlsx",
+};
+
+const EXPORT_NAME: Record<ReportTab, string> = {
+  overview: "operation_report",
+  battery: "battery_report",
+};
 
 type Preset = "today" | "yesterday" | "last7" | "thisMonth";
 
@@ -270,8 +180,13 @@ const OperationReport: FC = () => {
     amrIds: [],
   }));
 
+  // 總覽 / 電量紀錄; 切到哪一頁才查哪一頁
+  const [tab, setTab] = useState<ReportTab>("overview");
+
   const options = useReportOptions();
-  const { data, isFetching, error, refetch } = useOperationReport(query);
+  const overview = useOperationReport(tab === "overview" ? query : null);
+  const battery = useBatteryReport(tab === "battery" ? query : null);
+  const { data, isFetching, error, refetch } = tab === "overview" ? overview : battery;
 
   const vehicleOptions = useMemo(
     () =>
@@ -294,7 +209,7 @@ const OperationReport: FC = () => {
 
   const exportMutation = useMutation({
     mutationFn: async () => {
-      const res = await client.get("api/report/operation/xlsx", {
+      const res = await client.get(EXPORT_PATH[tab], {
         params: reportParams(query, i18n.language === "en" ? "en" : "tw"),
         responseType: "blob",
       });
@@ -304,7 +219,7 @@ const OperationReport: FC = () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `operation_report_${dayjs(query.from).format("YYYYMMDDHHmm")}_${dayjs(
+      link.download = `${EXPORT_NAME[tab]}_${dayjs(query.from).format("YYYYMMDDHHmm")}_${dayjs(
         query.to,
       ).format("YYYYMMDDHHmm")}.xlsx`;
       document.body.appendChild(link);
@@ -387,6 +302,16 @@ const OperationReport: FC = () => {
           </PanelBody>
         </Panel>
 
+        <Tabs
+          className="report-tabs"
+          activeKey={tab}
+          onChange={(k) => setTab(k as ReportTab)}
+          items={[
+            { key: "overview", label: t("report.tab.overview") },
+            { key: "battery", label: t("report.tab.battery") },
+          ]}
+        />
+
         {error ? (
           <Alert type="error" showIcon message={errorText || t("report.load_failed")} />
         ) : null}
@@ -397,7 +322,11 @@ const OperationReport: FC = () => {
           </Spin>
         ) : (
           <Spin spinning={isFetching}>
-            <ReportBody report={data} />
+            {tab === "overview" ? (
+              <ReportBody report={overview.data as Report} />
+            ) : (
+              <BatteryReportBody report={battery.data!} />
+            )}
           </Spin>
         )}
       </StyledContent>
