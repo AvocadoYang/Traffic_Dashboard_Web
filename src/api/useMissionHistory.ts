@@ -3,6 +3,16 @@ import { useQuery } from "@tanstack/react-query";
 import { array, object, string, number, boolean, date } from "yup";
 import client from "./axiosClient";
 
+// 是誰、從哪台電腦派的 / 取消的; 系統自己派的任務跟舊資料是 null
+const actionSourceSchema = object({
+  account: string().optional(),
+  ip: string().optional(),
+  clientId: string().optional(),
+  clientName: string().optional(),
+})
+  .nullable()
+  .default(null);
+
 const missionSchema = object({
   pagination: object({
     page: number().required(),
@@ -15,6 +25,15 @@ const missionSchema = object({
       order: number().nullable(),
       priority: number().nullable(),
       send_by: number().required(),
+      send_source: actionSourceSchema,
+      cancel_source: actionSourceSchema,
+      // 能重新派發的紀錄才有: 要派的任務名稱跟預設的車
+      redispatch: object({
+        titleName: string().required(),
+        amrId: string().required(),
+      })
+        .nullable()
+        .default(null),
       amrId: string().required(),
       status: number().required(),
       full_name: array(string().optional()).required().nullable(),

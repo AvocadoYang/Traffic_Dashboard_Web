@@ -64,3 +64,23 @@ export const zoneSchema = object({
     endY: number().required(),
   }).required(),
 });
+
+/** 地圖標註: 畫在地圖上給人看的文字 / 框線, 座標是地圖座標 (公尺) */
+export const annotationSchema = object({
+  id: string().required(),
+  kind: mixed<"text" | "rect">().oneOf(["text", "rect"]).required(),
+  text: string().defined(),
+  x: number().required(),
+  y: number().required(),
+  x2: number().nullable().defined(),
+  y2: number().nullable().defined(),
+  fontSize: number().required(),
+  color: string().defined(),
+  backgroundColor: string().defined(),
+  borderColor: string().defined(),
+  fillColor: string().defined(),
+  borderWidth: number().required(),
+  // 舊版後端沒有這個欄位
+  rotation: number().default(0),
+  rev: string().required(),
+}).required();

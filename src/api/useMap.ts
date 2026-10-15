@@ -2,13 +2,21 @@ import { useQuery } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { array, InferType, number, object, string } from "yup";
 import { currentMapIdAtom } from "@/utils/mapSelection";
-import { locationSchema, roadSchema, zoneSchema } from "./schemas/mapEntities";
+import {
+  annotationSchema,
+  locationSchema,
+  roadSchema,
+  zoneSchema,
+} from "./schemas/mapEntities";
 import api from "./axiosClient";
 
 const schema = object({
   locations: array(locationSchema).required(),
   roads: array(roadSchema).required(),
   zones: array(zoneSchema).required(),
+  // 舊版後端沒有這兩個欄位
+  mapId: string().nullable().default(null),
+  annotations: array(annotationSchema).default([]),
   mapWidth: number().required(),
   mapHeight: number().required(),
   mapOriginX: number().required(),

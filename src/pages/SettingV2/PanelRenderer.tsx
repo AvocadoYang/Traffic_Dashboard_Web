@@ -35,6 +35,9 @@ import CustomCargoInfoPanel from "./panels/other/CustomCargoInfoPanel";
 import ContainerTablePanel from "./panels/other/ContainerTablePanel";
 import MapManagerPanel from "./panels/map/MapManagerPanel";
 import MapGroupPanel from "./panels/map/MapGroupPanel";
+import MapAnnotationPanel from "./panels/map/MapAnnotationPanel";
+import ChangeLogPanel from "./panels/records/ChangeLogPanel";
+import MaintenanceItemPanel from "./panels/amr/MaintenanceItemPanel";
 import WarningListPanel from "./panels/file/WarningListPanel";
 import SystemAlarmPanel from "./panels/file/SystemAlarmPanel";
 import FootprintPanel from "./panels/mir/FootprintPanel";
@@ -153,6 +156,12 @@ const PanelRenderer: FC<Props> = ({
       return <MapManagerPanel />;
     case "map_group_table":
       return <MapGroupPanel />;
+    case "map_annotation":
+      return <MapAnnotationPanel />;
+    case "setting_change_log":
+      return <ChangeLogPanel />;
+    case "maintenance_items":
+      return <MaintenanceItemPanel />;
     case "footprint":
       return <FootprintPanel />;
     case "sound":
