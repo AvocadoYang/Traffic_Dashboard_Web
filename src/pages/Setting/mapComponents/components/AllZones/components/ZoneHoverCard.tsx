@@ -6,12 +6,14 @@ import { showZoneForbidden } from "@/utils/gloable";
 import { amrId2ColorRainbow } from "@/utils/utils";
 import useZoneOccupants from "@/api/useZoneOccupants";
 import { c, font, space } from "@/pages/SettingV2/ui/tokens";
+import { PoweroffOutlined, StopOutlined } from "@ant-design/icons";
 
 export type ZoneHoverInfo = {
   id: string;
   name: string;
   category: string[];
   backgroundColor: string;
+  disabled?: boolean;
   tagSetting?: {
     speed_limit?: number | null;
     hight_limit?: number | null;
@@ -62,6 +64,58 @@ const Header = styled.div`
   font-size: ${font.md};
   font-weight: 700;
   word-break: break-all;
+`;
+
+const HeaderName = styled.span`
+  flex: 1;
+  min-width: 0;
+`;
+
+const ToggleButton = styled.button<{ $enable: boolean }>`
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  font-family: ${font.mono};
+  font-size: ${font.xs};
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: ${({ $enable }) => ($enable ? c.onAccent : c.danger)};
+  background: ${({ $enable }) => ($enable ? c.accent : c.bg)};
+  border: 1px solid ${({ $enable }) => ($enable ? c.accent : c.danger)};
+
+  &:hover:not(:disabled) {
+    background: ${({ $enable }) => ($enable ? c.accentHover : c.dangerSoft)};
+  }
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+`;
+
+const DisabledBanner = styled.div`
+  display: flex;
+  gap: ${space.sm};
+  padding: ${space.sm} ${space.lg};
+  font-size: ${font.xs};
+  line-height: 1.5;
+  color: ${c.textSecondary};
+  background: repeating-linear-gradient(
+    135deg,
+    ${c.bgMuted} 0 6px,
+    ${c.bgSubtle} 6px 12px
+  );
+  border-bottom: 1px solid ${c.border};
+
+  .anticon {
+    margin-top: 2px;
+    color: ${c.textMuted};
+  }
 `;
 
 const Swatch = styled.span<{ $color: string }>`
@@ -177,15 +231,18 @@ const Count = styled.span<{ $full: boolean }>`
 `;
 
 /** 地圖上區域名稱 hover 時的資訊卡: 區域類型、各類型的設定、目前記錄在裡面的車 */
-const ZoneHoverCard: FC<{ info: ZoneHoverInfo; open: boolean }> = ({
-  info,
-  open,
-}) => {
+const ZoneHoverCard: FC<{
+  info: ZoneHoverInfo;
+  open: boolean;
+  toggling?: boolean;
+  onToggleEnabled?: (enabled: boolean) => void;
+}> = ({ info, open, toggling, onToggleEnabled }) => {
   const { t } = useTranslation();
   const setZoneForbidden = useSetAtom(showZoneForbidden);
   const { data: occupants, isLoading } = useZoneOccupants(open);
 
   const { category, tagSetting } = info;
+  const disabled = !!info.disabled;
   const has = (tag: string) => category.includes(tag);
   const amrIds = [...(occupants?.[info.id] ?? [])].sort();
   const limitNum = has("限制區") ? tagSetting?.limitNum : null;
@@ -245,9 +302,32 @@ const ZoneHoverCard: FC<{ info: ZoneHoverInfo; open: boolean }> = ({
   return (
     <Card>
       <Header>
-        <Swatch $color={toOpaque(info.backgroundColor)} />
-        {info.name}
+        <Swatch
+          $color={disabled ? c.textMuted : toOpaque(info.backgroundColor)}
+        />
+        <HeaderName>{info.name}</HeaderName>
+        {onToggleEnabled && (
+          <ToggleButton
+            type="button"
+            $enable={disabled}
+            disabled={toggling}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleEnabled(disabled);
+            }}
+          >
+            {disabled ? <PoweroffOutlined /> : <StopOutlined />}
+            {t(disabled ? "zone_enable.enable" : "zone_enable.disable")}
+          </ToggleButton>
+        )}
       </Header>
+
+      {disabled && (
+        <DisabledBanner>
+          <StopOutlined />
+          <span>{t("zone_enable.disabled_banner")}</span>
+        </DisabledBanner>
+      )}
 
       <Block>
         <BlockTitle>{t("zone_hover.zone_type")}</BlockTitle>

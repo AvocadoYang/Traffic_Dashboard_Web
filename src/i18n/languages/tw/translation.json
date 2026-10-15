@@ -3697,5 +3697,21 @@
     "no_amr": "目前沒有車輛",
     "loading": "讀取中…",
     "highlight_forbidden": "在地圖上標示 {{count}} 台禁止車輛"
+  },
+  "zone_enable": {
+    "status": "狀態",
+    "enabled": "啟用中",
+    "disabled": "已停用",
+    "enable": "啟用",
+    "disable": "停用",
+    "disabled_banner": "此區域已停用：交管不會套用它的任何限制，但仍會記錄區域內的車輛。",
+    "confirm_disable_title": "停用區域「{{name}}」？",
+    "confirm_disable_content": "停用後交管會略過這個區域的禁止、限制車數、查看點等設定，區域內與之後進入的車都不受限制。重新啟用時，區域內的車必須符合區域條件。",
+    "enable_blocked_title": "無法啟用區域「{{name}}」",
+    "enable_blocked_hint": "區域內目前的車輛不符合區域條件。請先把以下車輛移出區域，再重新啟用。",
+    "forbidden_inside": "禁止進入的車輛在區域內",
+    "over_limit": "區域內有 {{count}} 台車，超過容車上限 {{limit}} 台",
+    "enabled_success": "已啟用區域「{{name}}」",
+    "disabled_success": "已停用區域「{{name}}」"
   }
 }

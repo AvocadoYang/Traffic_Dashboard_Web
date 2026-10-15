@@ -3696,5 +3696,21 @@
     "no_amr": "No vehicles in this zone",
     "loading": "Loading…",
     "highlight_forbidden": "Highlight {{count}} forbidden vehicles on map"
+  },
+  "zone_enable": {
+    "status": "Status",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "enable": "Enable",
+    "disable": "Disable",
+    "disabled_banner": "This zone is disabled: traffic control ignores all of its rules, but still records the vehicles inside.",
+    "confirm_disable_title": "Disable zone \"{{name}}\"?",
+    "confirm_disable_content": "Traffic control will ignore this zone's forbidden vehicles, vehicle limit and view point. Vehicles inside or entering later are not restricted. To enable it again, the vehicles inside must meet the zone's rules.",
+    "enable_blocked_title": "Cannot enable zone \"{{name}}\"",
+    "enable_blocked_hint": "The vehicles currently in this zone break its rules. Move these vehicles out of the zone, then enable it again.",
+    "forbidden_inside": "Forbidden vehicles are inside the zone",
+    "over_limit": "{{count}} vehicles are inside, over the limit of {{limit}}",
+    "enabled_success": "Zone \"{{name}}\" enabled",
+    "disabled_success": "Zone \"{{name}}\" disabled"
   }
 }

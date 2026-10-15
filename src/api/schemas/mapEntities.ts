@@ -49,6 +49,7 @@ export const zoneSchema = object({
   layer: string().required(),
   lidar_front: boolean().required(),
   lidar_back: boolean().required(),
+  disabled: boolean().optional(),
   tagSetting: object({
     speed_limit: number().nullable(),
     hight_limit: number().nullable(),
