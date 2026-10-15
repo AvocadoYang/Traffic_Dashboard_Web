@@ -55,6 +55,7 @@ export const zoneSchema = object({
     forbidden_car: array(string()),
     limitNum: number().nullable(),
     view_available: number().nullable(),
+    elevator_id: string().nullable(),
   }).optional(),
   startPoint: object({
     startX: number().required(),

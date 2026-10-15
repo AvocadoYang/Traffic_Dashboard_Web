@@ -62,6 +62,7 @@ type ZoneRow = {
     forbidden_car?: string[];
     limitNum?: number | null;
     view_available?: number | null;
+    elevator_id?: string | null;
   };
   startPoint: { startX: number; startY: number };
   endPoint: { endX: number; endY: number };
@@ -188,6 +189,7 @@ const ZoneListPanel: FC = () => {
       hight_limit: row.tagSetting?.hight_limit ?? undefined,
       limitNum: row.tagSetting?.limitNum ?? undefined,
       view_available: row.tagSetting?.view_available ?? undefined,
+      elevator_id: row.tagSetting?.elevator_id ?? undefined,
       all_forbidden: isAll,
       forbidden: isAll ? [] : forbiddenCar,
       color: row.backgroundColor,

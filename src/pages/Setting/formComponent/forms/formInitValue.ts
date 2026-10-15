@@ -36,6 +36,7 @@ export const initialTagFormValue = {
   all_forbidden: false,
   hight_limit: undefined,
   view_available: undefined,
+  elevator_id: undefined,
 };
 
 export const initialTagSettingValue = {

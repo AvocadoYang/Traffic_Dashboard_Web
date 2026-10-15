@@ -37,6 +37,7 @@ export type TagSettingType = {
   hight_limit: number;
   limitNum: number;
   view_available: string;
+  elevator_id: string;
 };
 
 export type RoadListType = {

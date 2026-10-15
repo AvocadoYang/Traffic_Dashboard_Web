@@ -695,6 +695,8 @@
     "controlled_zone": "限制區",
     "view_available_zone": "查看區",
     "view_available": "查看區",
+    "elevator_zone": "電梯區",
+    "elevator_id": "電梯 ID",
     "hint": "參數數設定尚未完成！",
     "placeholder": {
       "zone_name": "請輸入區域名稱",
@@ -703,7 +705,8 @@
       "limit": "請輸入限制車數",
       "hight_limit": "請輸入高度限制",
       "speed_limit": "請輸入最高速限",
-      "view_available": "請輸入區域外等待點"
+      "view_available": "請輸入區域外等待點",
+      "elevator_id": "請輸入電梯 ID (不同樓層同一台電梯填一樣的 ID)"
     },
     "waring": {
       "tag_not_yet_setting": "尚未設定完成區域參數設定",

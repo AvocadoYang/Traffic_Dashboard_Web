@@ -701,6 +701,8 @@
     "controlled_zone": "Controlled zone",
     "view_available_zone": "View available zone",
     "view_available": "View available",
+    "elevator_zone": "Elevator zone",
+    "elevator_id": "Elevator ID",
     "placeholder": {
       "zone_name": "Please enter zone name",
       "zone_category": "Please select zone category (multiple selection allowed)",
@@ -708,7 +710,8 @@
       "limit": "Please enter vehicle limit",
       "hight_limit": "Please enter height limit",
       "speed_limit": "Please enter maximum speed limit",
-      "view_available": "Please enter waiting point"
+      "view_available": "Please enter waiting point",
+      "elevator_id": "Enter the elevator ID (use the same ID for the same elevator on every floor)"
     },
     "waring": {
       "tag_not_yet_setting": "The tag setting is still not setting ",
