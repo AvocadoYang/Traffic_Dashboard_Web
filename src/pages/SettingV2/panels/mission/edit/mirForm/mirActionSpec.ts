@@ -407,8 +407,8 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
       kind: "number",
       name: "port",
       label: "Port",
-      min: 1,
-      max: 4,
+      min: 0,
+      max: 3,
       hintKey: "setting_v2.mir.hint.relay_port",
     },
     {
@@ -433,7 +433,7 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
       source: "ioModules",
       hintKey: "setting_v2.mir.hint.live_list",
     },
-    { kind: "number", name: "port", label: "Port", min: 1, max: 4 },
+    { kind: "number", name: "port", label: "Port", min: 0, max: 3 },
     {
       kind: "select",
       name: "value",
