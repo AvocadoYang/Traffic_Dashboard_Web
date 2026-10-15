@@ -123,7 +123,8 @@ const ParamField: FC<{
   label: string;
   hint?: string;
   children: ReactNode;
-}> = ({ fieldName, label, hint, children }) => {
+  variableChildren?: ReactNode;
+}> = ({ fieldName, label, hint, children, variableChildren }) => {
   const { t } = useTranslation();
   const { enabled, name, setVariable } = useMirVariableField(fieldName);
   const [open, setOpen] = useState(false);
@@ -169,10 +170,13 @@ const ParamField: FC<{
       </ParamHead>
 
       {enabled ? (
-        <VariableChip type="button" onClick={() => setOpen(true)}>
-          <SettingOutlined />
-          {name || t("setting_v2.mir.unnamed_variable")}
-        </VariableChip>
+        <>
+          <VariableChip type="button" onClick={() => setOpen(true)}>
+            <SettingOutlined />
+            {name || t("setting_v2.mir.unnamed_variable")}
+          </VariableChip>
+          {variableChildren}
+        </>
       ) : (
         <>
           {children}
@@ -198,10 +202,24 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
   const operation = slice?.operation ?? null;
   const { t } = useTranslation();
   const [form] = Form.useForm();
-  const { locations, markerTypeOptions, bySource, liveStateOf } =
-    useMirOptions();
+  const {
+    locations,
+    markerTypeOptions,
+    markerTypeLocationIds,
+    bySource,
+    liveStateOf,
+  } = useMirOptions();
   const { fields: variableFields, setAllFields } = useMirVariableFields();
   const isCurrentPosition = Form.useWatch("is_current_position", form);
+  const locationId = Form.useWatch<string | undefined>("location_id", form);
+  const needMarkerType =
+    !!isCurrentPosition || markerTypeLocationIds.has(locationId ?? "");
+
+  const handleLocationChange = (value?: string) => {
+    if (!markerTypeLocationIds.has(value ?? "")) {
+      form.setFieldValue("marker_type", null);
+    }
+  };
 
   const toTime = (v?: string) =>
     v && dayjs(v, TIME_FORMAT).isValid() ? dayjs(v, TIME_FORMAT) : undefined;
@@ -243,6 +261,9 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       value: operation.value ?? "on",
       operation: operation.operation ?? "on",
       timeout: toTime(operation.timeout),
+      minimum_time: toTime(operation.minimum_time ?? "00:30:00"),
+      minimum_percentage: Number(operation.minimum_percentage ?? 40),
+      charge_until_new_mission: operation.charge_until_new_mission ?? false,
     });
 
     setAllFields(
@@ -283,7 +304,7 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       location_id: (raw.location_id as string) ?? "",
       entry_position: (raw.entry_position as string) ?? "",
       footprint: (raw.footprint as string) ?? "",
-      marker_type: (raw.marker_type as string) ?? "",
+      marker_type: needMarkerType ? ((raw.marker_type as string) ?? "") : "",
       blocked_path_timeout: num("blocked_path_timeout", 60),
       blocked_docking_timeout: num("blocked_docking_timeout", 60),
       maximum_linear_speed: num("maximum_linear_speed", 0.25),
@@ -312,6 +333,10 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       value: (raw.value as string) ?? "on",
       operation: (raw.operation as string) ?? "on",
       timeout: time("timeout"),
+      minimum_time: time("minimum_time"),
+      minimum_percentage: num("minimum_percentage", 40),
+      charge_until_new_mission:
+        (raw.charge_until_new_mission as boolean) ?? false,
       variables: Object.fromEntries(
         Object.entries(variableFields)
           .filter(([, v]) => v.enabled && v.name)
@@ -323,7 +348,42 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
   const renderField = (field: MirField) => {
     if (field.kind === "location") {
       return (
-        <ParamField key={field.name} fieldName={field.name} label={field.label}>
+        <ParamField
+          key={field.name}
+          fieldName={field.name}
+          label={field.label}
+          variableChildren={
+            <Form.Item
+              name="location_id"
+              label={
+                <FieldLabel>{t("setting_v2.mir.default_location")}</FieldLabel>
+              }
+              rules={[
+                {
+                  required: true,
+                  message: t("mir.form.default_marker_position_required"),
+                },
+              ]}
+            >
+              <Select
+                options={locations}
+                style={{ width: "100%" }}
+                allowClear
+                placeholder={t("utils.select")}
+                showSearch={{
+                  filterOption: (input, option) =>
+                    (option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase()),
+                }}
+                onChange={(value?: string) => {
+                  form.setFieldValue("is_current_position", false);
+                  handleLocationChange(value);
+                }}
+              />
+            </Form.Item>
+          }
+        >
           <Form.Item
             name="location_id"
             dependencies={["is_current_position"]}
@@ -354,6 +414,7 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
               allowClear
               placeholder={t("utils.select")}
               disabled={!!isCurrentPosition}
+              onChange={handleLocationChange}
               showSearch={{
                 filterOption: (input, option) =>
                   (option?.label ?? "")
@@ -391,23 +452,28 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
     }
 
     if (field.kind === "markerType") {
+      if (!needMarkerType) return null;
       return (
         <ParamField key={field.name} fieldName={field.name} label={field.label}>
           <Form.Item
             name="marker_type"
-            dependencies={["is_current_position"]}
+            dependencies={["is_current_position", "location_id"]}
             rules={[
               ({ getFieldValue }) => ({
                 validator(_, value: string) {
-                  const current = getFieldValue("is_current_position");
-                  if (current && !value) {
+                  const need =
+                    !!getFieldValue("is_current_position") ||
+                    markerTypeLocationIds.has(
+                      (getFieldValue("location_id") as string) ?? "",
+                    );
+                  if (need && !value) {
                     return Promise.reject(
                       new Error(t("setting_v2.mir.select_marker_type")),
                     );
                   }
-                  if (!current && value) {
+                  if (!need && value) {
                     return Promise.reject(
-                      new Error(t("setting_v2.mir.marker_type_must_be_empty")),
+                      new Error(t("mir.form.marker_type_not_allowed")),
                     );
                   }
                   return Promise.resolve();
@@ -420,7 +486,6 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
               style={{ width: "100%" }}
               allowClear
               placeholder={t("utils.select")}
-              disabled={!isCurrentPosition}
             />
           </Form.Item>
         </ParamField>

@@ -7,11 +7,34 @@ import {
   mirSoundLight,
 } from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/type";
 
-/** 唯一可以把別的動作包在裡面的動作 */
+/** 可以把別的動作包在裡面的動作 */
 export const CONTAINER_TYPE = "reduce_protective_fields";
+export const TRY_CATCH_TYPE = "try_catch";
+export const INCLUDE_TYPE = "mission";
+/** MiR 原生的充電動作,v1 沒有 */
+export const CHARGING_TYPE = "charging";
+
+export type ParentSlot = "content" | "try" | "catch";
+
+export const containerSlots = (op?: Mir_Action | null): ParentSlot[] => {
+  switch (op?.type) {
+    case CONTAINER_TYPE:
+      return ["content"];
+    case TRY_CATCH_TYPE:
+      return ["try", "catch"];
+    default:
+      return [];
+  }
+};
+
+export const SLOT_LABEL: Record<ParentSlot, string> = {
+  content: "Content",
+  try: "Try",
+  catch: "Catch",
+};
 
 export const isContainerOperation = (op?: Mir_Action | null) =>
-  op?.type === CONTAINER_TYPE;
+  containerSlots(op).length > 0;
 
 export const ACTION_CATEGORIES: {
   label: string;
@@ -20,9 +43,14 @@ export const ACTION_CATEGORIES: {
 }[] = [
   { label: "Move", value: "move", actions: mirMoveActonList },
   { label: "Sound / Light", value: "sound/light", actions: mirSoundLight },
-  { label: "Error Handling", value: "error", actions: mirErrorHandlingList },
+  {
+    label: "Error Handling",
+    value: "error",
+    actions: [...mirErrorHandlingList, TRY_CATCH_TYPE],
+  },
   { label: "IO Module", value: "io", actions: mirIoModule },
   { label: "Safety System", value: "safety", actions: mirSaftySystemList },
+  { label: "Charging", value: "charging", actions: [CHARGING_TYPE] },
 ];
 
 /** 跟 missionDefaultValue.ts 的 defaultMirAction() 同一套預設值 */
@@ -64,6 +92,9 @@ export const buildDefaultOperation = (type: string): Mir_Action => ({
   value: "on",
   operation: "on",
   timeout: "00:00:00",
+  minimum_time: "00:30:00",
+  minimum_percentage: 40,
+  charge_until_new_mission: false,
   variables: {},
 });
 
@@ -417,6 +448,29 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
     },
     { kind: "time", name: "timeout", label: "Timeout" },
   ],
+
+  [CHARGING_TYPE]: [
+    {
+      kind: "time",
+      name: "minimum_time",
+      label: "Minimum time",
+      hintKey: "setting_v2.mir.hint.charging_minimum_time",
+    },
+    {
+      kind: "number",
+      name: "minimum_percentage",
+      label: "Minimum percentage",
+      min: 0,
+      max: 100,
+      hintKey: "setting_v2.mir.hint.charging_minimum_percentage",
+    },
+    {
+      kind: "switch",
+      name: "charge_until_new_mission",
+      label: "Charge until new mission",
+      hintKey: "setting_v2.mir.hint.charge_until_new_mission",
+    },
+  ],
 };
 
 /** 卡片上那一行摘要 */
@@ -460,6 +514,14 @@ export const summarizeAction = (
       };
     case CONTAINER_TYPE:
       return { verb: "Mute protective fields" };
+    case TRY_CATCH_TYPE:
+      return { verb: "Try / Catch" };
+    case INCLUDE_TYPE:
+      return { verb: "Mission" };
+    case CHARGING_TYPE:
+      return {
+        verb: `Charge to ${op.minimum_percentage ?? 40}% for at least ${op.minimum_time || "00:30:00"}`,
+      };
     case "set_io":
       return {
         verb: `Set IO ${op.module ?? ""} port ${op.port ?? 0} to ${op.value ?? ""}`,
