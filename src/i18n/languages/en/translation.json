@@ -439,6 +439,7 @@
   "page_dashboard": "Dashboard",
   "page_simulate": "Simulate",
   "page_simulate_result": "Simulation task statistics table",
+  "page_simulate_v2": "Simulation v2",
   "page_record": "warn and alarm records",
   "page_mission_dispatch": "Mission Dispatch Board",
   "page_report": "Operations report",
@@ -4097,5 +4098,221 @@
     "unit_km": "km",
     "unit_hours": "h",
     "unit_days": "days"
+  },
+  "sim_v2": {
+    "common": {
+      "ok": "OK",
+      "cancel": "Cancel"
+    },
+    "tab": {
+      "layout": "Layout",
+      "vehicles": "Vehicles",
+      "demand": "Transport demand",
+      "run": "Run & results",
+      "next_phase": "Available in the next phase"
+    },
+    "project": {
+      "pick": "Select a project",
+      "new": "New",
+      "more": "More",
+      "info": "Name and description",
+      "copy": "Duplicate",
+      "export": "Export project file",
+      "delete": "Delete project",
+      "delete_confirm": "Delete \"{{name}}\"? The project and its background files cannot be recovered.",
+      "save": "Save",
+      "saved": "Saved",
+      "unsaved": "Unsaved changes"
+    },
+    "empty": {
+      "title": "No simulation projects yet",
+      "body": "Create one: start from a blank canvas, copy the site map, or import a project file.",
+      "load_failed": "Could not load simulation projects",
+      "retry": "Retry"
+    },
+    "new": {
+      "title": "New simulation project",
+      "source": "Start from",
+      "blank": "Blank project",
+      "site": "Copy site map",
+      "file": "Import project file",
+      "map": "Site map",
+      "active_map": "Map in use (the one on the map page)",
+      "site_empty": "This map has no points; pick another map.",
+      "site_note": "Copies the points, roads and map image. The copy is independent: editing it never changes the site.",
+      "file_label": "Project file",
+      "pick_file": "Choose a .simv2.json file",
+      "file_summary": "The file has {{nodes}} points, {{paths}} paths and {{files}} background files",
+      "not_project_file": "This is not a simulation project file (.simv2.json)",
+      "name": "Name",
+      "description": "Description",
+      "create": "Create",
+      "need_name": "Enter a project name",
+      "need_file": "Choose a project file to import",
+      "site_copied": "Copied {{nodes}} points ({{stations}} stations, {{standby}} standby) and {{paths}} paths from the site; {{skippedRoads}} disabled, duplicate or self-looping roads were skipped.",
+      "failed": "Could not create the project: {{reason}}"
+    },
+    "conflict": {
+      "title": "This project was saved somewhere else",
+      "body": "Another tab or computer saved this project first. Reload it (your changes are discarded) or save your version as a new project.",
+      "new_name": "New project name",
+      "copy_name": "{{name}} (copy)",
+      "reload": "Reload and discard my changes",
+      "save_as": "Save as new project"
+    },
+    "leave": {
+      "title": "Unsaved changes",
+      "body": "Save the current project first?",
+      "discard": "Don't save",
+      "save": "Save"
+    },
+    "msg": {
+      "saved": "Saved",
+      "save_failed": "Save failed: {{reason}}",
+      "open_failed": "Could not open the project: {{reason}}",
+      "newer_doc": "This project was saved by a newer version. Update the system to open it.",
+      "copied": "Saved as \"{{name}}\"",
+      "deleted": "Deleted \"{{name}}\"",
+      "export_failed": "Export failed: {{reason}}",
+      "name_taken": "A point named \"{{name}}\" already exists",
+      "group_name_taken": "A group named \"{{name}}\" already exists",
+      "group_created": "Created group \"{{name}}\" ({{count}} stations)"
+    },
+    "tool": {
+      "select": "Select",
+      "point": "Point",
+      "path": "Path",
+      "station": "Station",
+      "standby": "Standby point",
+      "measure": "Measure",
+      "background": "Background & scale",
+      "undo": "Undo",
+      "redo": "Redo",
+      "delete": "Delete selection",
+      "fit": "Fit to view"
+    },
+    "hint": {
+      "select": "Click or drag a box to select; hold Shift to add. Drag points to move them. Pan with Space + drag or right-drag, zoom with the wheel.",
+      "point": "Click to place a point; clicking on a path inserts the point into it.",
+      "path": "Click point after point to draw a path; double-click, Enter or right-click ends it. Hold Shift for 45° steps. Crossings with other paths are joined automatically.",
+      "station": "Click a point to make it a station; click empty space or a path to add a new station.",
+      "standby": "Click a point to make it a standby point; click empty space or a path to add a new one.",
+      "measure": "Click two places to measure; snaps to points and the grid. Esc clears.",
+      "calibrate": "Click two places on the background whose real distance you know (e.g. two columns), then enter it. Esc cancels."
+    },
+    "direction": {
+      "two-way": "Two-way",
+      "one-way": "One-way"
+    },
+    "kind": {
+      "point": "Point",
+      "station": "Station",
+      "standby": "Standby"
+    },
+    "station_type": {
+      "pick": "Pick",
+      "drop": "Drop",
+      "both": "Pick & drop"
+    },
+    "layer": {
+      "background": "Background",
+      "grid": "Grid",
+      "paths": "Paths",
+      "nodes": "Points",
+      "labels": "Names"
+    },
+    "status": {
+      "no_cursor": "Move the mouse over the map to see coordinates",
+      "grid": "Grid",
+      "snap": "Snap to grid",
+      "layers": "Layers",
+      "counts": "Points {{nodes}} · Paths {{paths}}"
+    },
+    "unit": {
+      "sec": "s",
+      "pallet": "pallets"
+    },
+    "props": {
+      "overview_title": "Project summary",
+      "nodes": "Points",
+      "nodes_detail": "{{total}} ({{stations}} stations, {{standby}} standby)",
+      "paths": "Paths",
+      "paths_detail": "{{total}} ({{oneWay}} one-way)",
+      "total_length": "Total length",
+      "legend": "Legend",
+      "navigation_tip": "Wheel to zoom; hold Space or the right mouse button and drag to pan; F fits everything.",
+      "node_title": "Point",
+      "name": "Name",
+      "kind": "Type",
+      "station_type": "Station type",
+      "pick_sec": "Pick time",
+      "drop_sec": "Drop time",
+      "buffer": "Buffer",
+      "buffer_tip": "How many pallets can wait at this pick station; when it is full the line has to stop. Empty means unlimited.",
+      "unlimited": "Unlimited",
+      "mixed_station": "The selected stations have different settings; changes here apply to all of them.",
+      "connections": "Connections",
+      "connections_count": "{{count}} paths",
+      "groups": "Groups",
+      "path_title": "Path",
+      "from": "From",
+      "to": "To",
+      "length": "Length",
+      "direction": "Direction",
+      "reverse": "Reverse",
+      "max_speed": "Speed limit",
+      "max_speed_tip": "Maximum speed on this path in m/s; empty means the vehicle's own speed.",
+      "vehicle_speed": "Vehicle speed",
+      "mixed": "Mixed",
+      "multi_title": "Selection",
+      "selected_count": "{{nodes}} points, {{paths}} paths",
+      "delete_selected": "Delete selection"
+    },
+    "group": {
+      "title": "Groups",
+      "empty": "Select some stations to make a group (e.g. a row of storage slots); transport demand can then target the group.",
+      "from_selection": "Make a group of the {{count}} selected stations",
+      "default_name": "Group {{n}}",
+      "create": "Create",
+      "select_members": "Select members",
+      "add_selected": "Add selected stations",
+      "remove_selected": "Remove selected stations",
+      "delete": "Delete group",
+      "member_count": "{{count}} stations"
+    },
+    "bg": {
+      "title": "Background & scale",
+      "drop_here": "Click or drop a file here",
+      "drop_hint": "Floor plans can be PNG, JPG or PDF. After uploading, calibrate the scale: click two places with a known distance and enter it.",
+      "uploaded_calibrate": "Background uploaded. Next, press \"Calibrate scale\" and click two places with a known distance.",
+      "failed": "Could not process the background: {{reason}}",
+      "wrong_type": "Only PNG, JPG or PDF files",
+      "pdf_pages": "This PDF has {{count}} pages. Which one should be used?",
+      "use_page": "Use this page",
+      "file": "File",
+      "size": "Size",
+      "size_value": "{{w}} × {{h}} px, about {{mw}} × {{mh}} m",
+      "scale": "Scale",
+      "scale_value": "1 px = {{cm}} cm",
+      "calibrated": "Calibrated",
+      "not_calibrated": "Not calibrated",
+      "opacity": "Opacity",
+      "locked": "Locked",
+      "locked_tip": "When unlocked, dragging on the background with the Select tool moves it (box selection is off)",
+      "calibrate": "Calibrate scale",
+      "replace": "Replace",
+      "remove": "Remove background",
+      "remove_confirm": "Remove the background? Points and paths stay where they are."
+    },
+    "calibrate": {
+      "title": "Calibrate scale",
+      "measured": "The two points are {{length}} apart on the image ({{pixels}} px).",
+      "real": "Real distance",
+      "scale_nodes": "Scale the {{count}} existing points too (tick this if you drew points before calibrating)",
+      "need_distance": "Enter the real distance",
+      "too_close": "The points are too close; pick two places further apart",
+      "no_background": "There is no background yet",
+      "done": "Scale calibrated: 1 px = {{cm}} cm"
+    }
   }
 }

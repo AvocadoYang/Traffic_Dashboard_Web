@@ -510,6 +510,7 @@ const Header: React.FC = () => {
     `${t("page_setting")}`,
     `${t("page_simulate")}`,
     `${t("page_simulate_result")}`,
+    `${t("page_simulate_v2")}`,
     `${t("page_record")}`,
     `${t("page_mission_dispatch")}`,
     `${t("page_report")}`,
@@ -540,12 +541,16 @@ const Header: React.FC = () => {
         navigate("/simulate-result");
         break;
       case "7":
-        navigate("/records");
+        // 任務模擬 v2: 自己畫佈局、算運能; 舊的任務模擬 (5) 還在
+        navigate("/simulate-v2");
         break;
       case "8":
-        navigate("/mission-dispatch");
+        navigate("/records");
         break;
       case "9":
+        navigate("/mission-dispatch");
+        break;
+      case "10":
         navigate("/report");
         break;
       default:

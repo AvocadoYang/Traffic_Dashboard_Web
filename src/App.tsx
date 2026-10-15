@@ -19,6 +19,7 @@ import { SystemAlarmOverlay } from "./pages/Main/components/SystemAlarm";
 import { UserConformOverlay } from "./pages/Main/components/UserConformTaskStep";
 import MissionDispatchBoard from "./pages/MissionDispatchBoard/MissionDispatchBoard";
 import OperationReport from "./pages/OperationReport/OperationReport";
+import SimulateV2 from "./pages/SimulateV2/SimulateV2";
 import { ThemeVarsProvider, ThemedAppConfigProvider } from "./theme";
 import { useTranslation } from "react-i18next";
 
@@ -70,6 +71,7 @@ function App() {
                 <Route path="/setting-v1" element={<Setting></Setting>}></Route>
                 <Route path="/setting-v2" element={<SettingV2 />}></Route>
                 <Route path="/simulate" element={<Simulate />}></Route>
+                <Route path="/simulate-v2" element={<SimulateV2 />} />
                 <Route path="/cargo-history" element={<CargoHistory />}></Route>
                 <Route
                   path="/simulate-result"

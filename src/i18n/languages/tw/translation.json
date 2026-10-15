@@ -439,6 +439,7 @@
   "page_dashboard": "控制中心",
   "page_simulate": "任務模擬",
   "page_simulate_result": "模擬任務統計表",
+  "page_simulate_v2": "任務模擬 v2",
   "page_record": "告警紀錄",
   "page_mission_dispatch": "任務看板",
   "page_report": "營運報表",
@@ -4098,5 +4099,221 @@
     "unit_km": "公里",
     "unit_hours": "小時",
     "unit_days": "天"
+  },
+  "sim_v2": {
+    "common": {
+      "ok": "確定",
+      "cancel": "取消"
+    },
+    "tab": {
+      "layout": "佈局",
+      "vehicles": "車輛",
+      "demand": "搬運需求",
+      "run": "執行與結果",
+      "next_phase": "下一個階段才會開放"
+    },
+    "project": {
+      "pick": "選擇專案",
+      "new": "新增",
+      "more": "更多",
+      "info": "專案名稱與說明",
+      "copy": "複製一份",
+      "export": "匯出專案檔",
+      "delete": "刪除專案",
+      "delete_confirm": "確定要刪除「{{name}}」嗎？刪掉的專案和底圖都救不回來。",
+      "save": "儲存",
+      "saved": "已儲存",
+      "unsaved": "有修改還沒儲存"
+    },
+    "empty": {
+      "title": "還沒有模擬專案",
+      "body": "先建立一個專案：從空白開始畫、從現場地圖複製一份，或是匯入別人給你的專案檔。",
+      "load_failed": "讀不到模擬專案",
+      "retry": "重試"
+    },
+    "new": {
+      "title": "新增模擬專案",
+      "source": "從哪裡開始",
+      "blank": "空白專案",
+      "site": "從現場地圖複製",
+      "file": "匯入專案檔",
+      "map": "現場地圖",
+      "active_map": "目前使用中的地圖（地圖頁看到的那張）",
+      "site_empty": "這張地圖沒有點位，請選別張地圖。",
+      "site_note": "會複製點位、路線和地圖圖片。複製之後跟現場無關，怎麼改都不會影響現場。",
+      "file_label": "專案檔",
+      "pick_file": "選擇 .simv2.json 檔案",
+      "file_summary": "檔案裡有 {{nodes}} 個點位、{{paths}} 條路線、{{files}} 個底圖檔",
+      "not_project_file": "這不是模擬專案檔（.simv2.json）",
+      "name": "名稱",
+      "description": "說明",
+      "create": "建立",
+      "need_name": "請填專案名稱",
+      "need_file": "請選擇要匯入的專案檔",
+      "site_copied": "已從現場複製 {{nodes}} 個點位（站點 {{stations}}、待命點 {{standby}}）和 {{paths}} 條路線；停用、重複或兩端是同一個點的路線有 {{skippedRoads}} 條沒有帶過來。",
+      "failed": "建立失敗：{{reason}}"
+    },
+    "conflict": {
+      "title": "這個專案在別的地方被存過了",
+      "body": "可能是另一個分頁或另一台電腦也打開了這個專案，而且先存了。你可以重新載入（你這邊的修改會不見），或是把你這邊的內容另存成新專案。",
+      "new_name": "新專案名稱",
+      "copy_name": "{{name}}（複製）",
+      "reload": "重新載入，放棄我的修改",
+      "save_as": "另存成新專案"
+    },
+    "leave": {
+      "title": "還有修改沒有儲存",
+      "body": "要先儲存目前的專案嗎？",
+      "discard": "不儲存",
+      "save": "儲存"
+    },
+    "msg": {
+      "saved": "已儲存",
+      "save_failed": "儲存失敗：{{reason}}",
+      "open_failed": "打不開這個專案：{{reason}}",
+      "newer_doc": "這個專案是用比較新版的畫面存的，請先更新系統再打開。",
+      "copied": "已另存成「{{name}}」",
+      "deleted": "已刪除「{{name}}」",
+      "export_failed": "匯出失敗：{{reason}}",
+      "name_taken": "已經有叫「{{name}}」的點位了",
+      "group_name_taken": "已經有叫「{{name}}」的群組了",
+      "group_created": "已建立群組「{{name}}」（{{count}} 個站點）"
+    },
+    "tool": {
+      "select": "選取",
+      "point": "點位",
+      "path": "路線",
+      "station": "站點",
+      "standby": "待命點",
+      "measure": "量測",
+      "background": "底圖與比例",
+      "undo": "復原",
+      "redo": "重做",
+      "delete": "刪除選取",
+      "fit": "全部顯示"
+    },
+    "hint": {
+      "select": "點選或框選，按住 Shift 可以加選；拖曳點位可以移動。按住空白鍵或右鍵拖曳平移，滾輪縮放。",
+      "point": "點一下放一個點位；點在路線上會插進路線中間。",
+      "path": "連續點擊畫路線，雙擊、Enter 或右鍵結束這一串；按住 Shift 鎖定 45 度。跟其他路線交叉的地方會自動接起來。",
+      "station": "點在點位上把它設成站點；點在空地或路線上就新增一個站點。",
+      "standby": "點在點位上把它設成待命點；點在空地或路線上就新增一個待命點。",
+      "measure": "點兩個位置量距離，會吸附到點位和格線。按 Esc 清除。",
+      "calibrate": "在底圖上點兩個已知距離的位置（例如兩根柱子），再輸入實際距離。按 Esc 取消。"
+    },
+    "direction": {
+      "two-way": "雙向",
+      "one-way": "單向"
+    },
+    "kind": {
+      "point": "點位",
+      "station": "站點",
+      "standby": "待命點"
+    },
+    "station_type": {
+      "pick": "取貨",
+      "drop": "放貨",
+      "both": "取放貨"
+    },
+    "layer": {
+      "background": "底圖",
+      "grid": "格線",
+      "paths": "路線",
+      "nodes": "點位",
+      "labels": "名稱"
+    },
+    "status": {
+      "no_cursor": "滑鼠移到地圖上會顯示座標",
+      "grid": "格線",
+      "snap": "吸附格線",
+      "layers": "圖層",
+      "counts": "點位 {{nodes}} · 路線 {{paths}}"
+    },
+    "unit": {
+      "sec": "秒",
+      "pallet": "板"
+    },
+    "props": {
+      "overview_title": "專案概要",
+      "nodes": "點位",
+      "nodes_detail": "共 {{total}} 個（站點 {{stations}}、待命點 {{standby}}）",
+      "paths": "路線",
+      "paths_detail": "共 {{total}} 條（單向 {{oneWay}}）",
+      "total_length": "路線總長",
+      "legend": "圖例",
+      "navigation_tip": "滾輪縮放；按住空白鍵或滑鼠右鍵拖曳平移；按 F 全部顯示。",
+      "node_title": "點位",
+      "name": "名稱",
+      "kind": "類型",
+      "station_type": "站點類型",
+      "pick_sec": "取貨時間",
+      "drop_sec": "放貨時間",
+      "buffer": "暫存上限",
+      "buffer_tip": "取貨站最多暫存幾板等車來取；滿了產線就要停下來等。空白代表不限。",
+      "unlimited": "不限",
+      "mixed_station": "選到的站點設定不一樣，在這裡改會套用到全部。",
+      "connections": "連接",
+      "connections_count": "{{count}} 條路線",
+      "groups": "群組",
+      "path_title": "路線",
+      "from": "起點",
+      "to": "終點",
+      "length": "長度",
+      "direction": "方向",
+      "reverse": "反轉方向",
+      "max_speed": "限速",
+      "max_speed_tip": "這段路最快幾公尺/秒；空白代表照車子的速度。",
+      "vehicle_speed": "照車速",
+      "mixed": "不一樣",
+      "multi_title": "已選取",
+      "selected_count": "{{nodes}} 個點位、{{paths}} 條路線",
+      "delete_selected": "刪除選取"
+    },
+    "group": {
+      "title": "群組",
+      "empty": "選取幾個站點後，可以把它們建成一個群組（例如一排儲位），之後搬運需求就能寫「送到某個群組」。",
+      "from_selection": "把選到的 {{count}} 個站點建成群組",
+      "default_name": "群組 {{n}}",
+      "create": "建立",
+      "select_members": "選取成員",
+      "add_selected": "加入選取的站點",
+      "remove_selected": "移除選取的站點",
+      "delete": "刪除群組",
+      "member_count": "{{count}} 個站點"
+    },
+    "bg": {
+      "title": "底圖與比例",
+      "drop_here": "點這裡或把檔案拖進來",
+      "drop_hint": "平面圖可以是 PNG、JPG 或 PDF。上傳後要校正比例：在圖上點兩個已知距離的位置，再輸入實際距離。",
+      "uploaded_calibrate": "底圖已上傳。下一步請按「校正比例」，在圖上點兩個已知距離的位置。",
+      "failed": "底圖處理失敗：{{reason}}",
+      "wrong_type": "只能上傳 PNG、JPG 或 PDF",
+      "pdf_pages": "這個 PDF 有 {{count}} 頁，要用哪一頁？",
+      "use_page": "使用這一頁",
+      "file": "檔案",
+      "size": "尺寸",
+      "size_value": "{{w}} × {{h}} 像素，約 {{mw}} × {{mh}} 公尺",
+      "scale": "比例",
+      "scale_value": "1 像素 = {{cm}} 公分",
+      "calibrated": "已校正",
+      "not_calibrated": "還沒校正",
+      "opacity": "透明度",
+      "locked": "鎖定",
+      "locked_tip": "解鎖時，用選取工具在底圖上拖曳會移動底圖（這時不能框選）",
+      "calibrate": "校正比例",
+      "replace": "換一張",
+      "remove": "移除底圖",
+      "remove_confirm": "確定要移除底圖嗎？點位和路線不會動。"
+    },
+    "calibrate": {
+      "title": "校正比例",
+      "measured": "你點的兩點在圖上相距 {{length}}（{{pixels}} 像素）。",
+      "real": "實際距離",
+      "scale_nodes": "已經畫好的 {{count}} 個點位一起縮放（還沒校正就先畫了點位的話要勾）",
+      "need_distance": "請輸入實際距離",
+      "too_close": "兩點太近，請點遠一點的兩個位置",
+      "no_background": "還沒有底圖",
+      "done": "比例已校正：1 像素 = {{cm}} 公分"
+    }
   }
 }
