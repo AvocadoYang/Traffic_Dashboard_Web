@@ -2,7 +2,10 @@ import { useMemo } from "react";
 import useMap from "@/api/useMap";
 import { useFootprint } from "@/api/useFootprint";
 import { useMarkerType } from "@/api/useMarkerType";
+import useShelf from "@/api/useShelf";
 import {
+  MARKER_TYPE_AREA_TYPE,
+  MARKER_TYPE_SHELF_STYLE,
   useMirIoModuleOptions,
   useMirSoundOptions,
 } from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/useMirTaskOptions";
@@ -33,6 +36,7 @@ const useMirOptions = () => {
   const { data: mapData } = useMap();
   const { data: footprints } = useFootprint();
   const { data: markerTypes } = useMarkerType();
+  const { data: shelfData } = useShelf();
   const { soundOption, ...soundsLive } = useMirSoundOptions();
   const { ioModuleOption, ...ioModulesLive } = useMirIoModuleOptions();
 
@@ -55,6 +59,22 @@ const useMirOptions = () => {
     [markerTypes],
   );
 
+  /** 這些點位(type_1 貨架、MiR Shelf position)docking 時要選 marker type */
+  const markerTypeLocationIds = useMemo(
+    () =>
+      new Set([
+        ...(shelfData
+          ?.filter(
+            (v) => v.ShelfCategory?.shelf_style === MARKER_TYPE_SHELF_STYLE,
+          )
+          .map((v) => v.peripheral_station.source.locationId) ?? []),
+        ...(mapData?.locations
+          .filter((v) => v.areaType === MARKER_TYPE_AREA_TYPE)
+          .map((v) => v.locationId) ?? []),
+      ]),
+    [shelfData, mapData],
+  );
+
   const bySource = (source: OptionSource): Option[] => {
     switch (source) {
       case "locations":
@@ -75,7 +95,13 @@ const useMirOptions = () => {
     return undefined;
   };
 
-  return { locations, markerTypeOptions, bySource, liveStateOf };
+  return {
+    locations,
+    markerTypeOptions,
+    markerTypeLocationIds,
+    bySource,
+    liveStateOf,
+  };
 };
 
 export default useMirOptions;

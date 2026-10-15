@@ -18,6 +18,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { SystemAlarmOverlay } from "./pages/Main/components/SystemAlarm";
 import { UserConformOverlay } from "./pages/Main/components/UserConformTaskStep";
 import MissionDispatchBoard from "./pages/MissionDispatchBoard/MissionDispatchBoard";
+import OperationReport from "./pages/OperationReport/OperationReport";
 import { ThemeVarsProvider, ThemedAppConfigProvider } from "./theme";
 import { useTranslation } from "react-i18next";
 
@@ -86,6 +87,7 @@ function App() {
                 ></Route>
                 <Route path="/amr" element={<AmrList />} />
                 <Route path="/amr/:amrId" element={<AmrDetail />} />
+                <Route path="/report" element={<OperationReport />} />
                 <Route path="*" element={<h1>{t("utils.not_found")}</h1>} />
               </Route>
             </Routes>

@@ -10,6 +10,7 @@ import {
   ALARM_TYPES,
   systemAlarmTypeFilter,
 } from "@/utils/systemAlarmFilter";
+import AlarmPositionPicker from "./AlarmPositionPicker";
 import useIsNarrow from "../../ui/useIsNarrow";
 import StatusTag from "../../ui/StatusTag";
 import { c, font, space } from "../../ui/tokens";
@@ -160,6 +161,17 @@ const SystemAlarmPanel: FC = () => {
             </TypeItem>
           ))}
         </TypeGrid>
+      </Section>
+
+      <Section>
+        <SectionTitle>
+          <AlertOutlined />
+          {t("system_alarm.position")}
+        </SectionTitle>
+
+        <Hint>{t("system_alarm.position_hint")}</Hint>
+
+        <AlarmPositionPicker />
       </Section>
 
       <Section>

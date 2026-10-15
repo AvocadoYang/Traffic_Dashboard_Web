@@ -18,6 +18,7 @@ import {
   isShowRoadTooltip,
   QuickEditLocationPanelSwitch,
   MirStyleLocationPlacerSwitch,
+  EditAnnotationSwitch,
 } from "@/utils/siderGloble";
 import MirStyleLocationPlacer from "../formComponent/forms/MirStyleLocationPlacer";
 import useMap from "@/api/useMap";
@@ -44,8 +45,10 @@ import {
   ZoneIconHint,
   DragFrame,
   AllZones,
+  AllAnnotations,
   LocationHoverCluster,
 } from "./components";
+import { annotationToolAtom } from "./components/AllAnnotations/annotationAtoms";
 import type { FrameColor } from "./components";
 import { LocationType } from "@/utils/jotai";
 import AllRoads from "./components/AllRoads/AllRoads";
@@ -126,6 +129,8 @@ const MapView: React.FC<{
   );
   const openMirStyleLocationPlacer = useAtomValue(MirStyleLocationPlacerSwitch);
   const openEditZone = useAtomValue(EditZoneSwitch);
+  const openEditAnnotation = useAtomValue(EditAnnotationSwitch);
+  const annotationTool = useAtomValue(annotationToolAtom);
   const shelfSelectedStyleId = useAtomValue(shelfSelectedStyleLocationId);
   const batchStyle = useAtomValue(batchCargoStyle);
   const showLocationToolTip = useAtomValue(isShowLocationTooltip);
@@ -204,7 +209,9 @@ const MapView: React.FC<{
     openEditLocationPanel ||
     openQuickEditLocationPanelSwitch ||
     openEditZone ||
-    openMirStyleLocationPlacer;
+    openMirStyleLocationPlacer ||
+    // 新增文字 / 拉框時左鍵用來放標註; 選取模式照常拖曳地圖
+    (openEditAnnotation && annotationTool !== "select");
 
   // 控制地圖拖曳
   useDragPan(mapWrapRef, mapRef, mapImageRef, !isEditingOnMap);
@@ -244,6 +251,8 @@ const MapView: React.FC<{
       draggable={false}
     >
       <MapImage ref={mapImageRef} />
+
+      <AllAnnotations scale={scale} mapRef={mapRef} mapImageRef={mapImageRef} />
 
       <AllLocation
         setInitPoint={setInitPoint}

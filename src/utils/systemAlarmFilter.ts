@@ -43,3 +43,49 @@ export const systemAlarmTypeFilter = atom(
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   },
 );
+
+// 告警浮層的位置。整個案場共用,存在後端;這裡的 localStorage 只是讓重新整理時
+// 先用上次的位置畫,不用等 socket 送來才從正下方跳過去。
+export const ALARM_POSITIONS = [
+  "top-left",
+  "top-center",
+  "top-right",
+  "bottom-left",
+  "bottom-center",
+  "bottom-right",
+] as const;
+
+export type AlarmPosition = (typeof ALARM_POSITIONS)[number];
+
+export const DEFAULT_ALARM_POSITION: AlarmPosition = "bottom-center";
+
+const POSITION_STORAGE_KEY = "systemAlarmPosition";
+
+export const isAlarmPosition = (value: unknown): value is AlarmPosition =>
+  ALARM_POSITIONS.includes(value as AlarmPosition);
+
+const readStoredPosition = (): AlarmPosition => {
+  try {
+    const raw = localStorage.getItem(POSITION_STORAGE_KEY);
+    return isAlarmPosition(raw) ? raw : DEFAULT_ALARM_POSITION;
+  } catch {
+    return DEFAULT_ALARM_POSITION;
+  }
+};
+
+const storedPosition = atom(readStoredPosition());
+
+export const systemAlarmPosition = atom(
+  (get) => get(storedPosition),
+  (_get, set, position: AlarmPosition) => {
+    set(storedPosition, position);
+    try {
+      localStorage.setItem(POSITION_STORAGE_KEY, position);
+    } catch {
+      // 存不進去只是下次開頁會先閃一下預設位置
+    }
+  },
+);
+
+// 設定頁選了位置就加一,浮層看到數字變了會在新位置跳一張範例卡。
+export const systemAlarmPreviewTick = atom(0);
