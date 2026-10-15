@@ -116,6 +116,10 @@ export const navCategories: NavCategory[] = [
         key: "edit_register_amr",
         labelKey: "toolbar.amr_setting.register_amr",
       },
+      {
+        key: "maintenance_items",
+        labelKey: "toolbar.amr_setting.maintenance_items",
+      },
     ],
   },
   {

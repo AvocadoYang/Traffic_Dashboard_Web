@@ -10,6 +10,7 @@ export type SettingV2OnlyKey =
   | "transfer_rules"
   | "work_areas"
   | "map_annotation"
-  | "setting_change_log";
+  | "setting_change_log"
+  | "maintenance_items";
 
 export type SettingV2PanelKey = ToolBarItemType | SettingV2OnlyKey;
