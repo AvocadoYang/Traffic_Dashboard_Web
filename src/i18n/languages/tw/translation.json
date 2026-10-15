@@ -3689,5 +3689,13 @@
         ]
       }
     ]
+  },
+  "zone_hover": {
+    "zone_type": "區域類型",
+    "general_zone": "一般區域",
+    "amrs_in_zone": "區域內車輛",
+    "no_amr": "目前沒有車輛",
+    "loading": "讀取中…",
+    "highlight_forbidden": "在地圖上標示 {{count}} 台禁止車輛"
   }
 }

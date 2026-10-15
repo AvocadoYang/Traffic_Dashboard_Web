@@ -3688,5 +3688,13 @@
         ]
       }
     ]
+  },
+  "zone_hover": {
+    "zone_type": "Zone type",
+    "general_zone": "General zone",
+    "amrs_in_zone": "Vehicles in zone",
+    "no_amr": "No vehicles in this zone",
+    "loading": "Loading…",
+    "highlight_forbidden": "Highlight {{count}} forbidden vehicles on map"
   }
 }
