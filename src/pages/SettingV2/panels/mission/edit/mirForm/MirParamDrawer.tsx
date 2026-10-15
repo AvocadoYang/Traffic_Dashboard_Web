@@ -29,6 +29,7 @@ import {
   SolidButton,
   Toolbar,
 } from "../../../../ui/primitives";
+import { isCurrentPositionOperation } from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/mirActionFields";
 import { ACTION_FIELDS, MirField, summarizeAction } from "./mirActionSpec";
 import useMirOptions from "./useMirOptions";
 
@@ -210,10 +211,13 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
     liveStateOf,
   } = useMirOptions();
   const { fields: variableFields, setAllFields } = useMirVariableFields();
+  const fields = operation ? (ACTION_FIELDS[operation.type] ?? []) : [];
   const isCurrentPosition = Form.useWatch("is_current_position", form);
   const locationId = Form.useWatch<string | undefined>("location_id", form);
+  // check_pose 也有「Current position」開關,但沒有 marker_type 欄位
   const needMarkerType =
-    !!isCurrentPosition || markerTypeLocationIds.has(locationId ?? "");
+    fields.some((f) => f.kind === "markerType") &&
+    (!!isCurrentPosition || markerTypeLocationIds.has(locationId ?? ""));
 
   const handleLocationChange = (value?: string) => {
     if (!markerTypeLocationIds.has(value ?? "")) {
@@ -228,8 +232,7 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
     if (!operation) return;
     form.setFieldsValue({
       location_id: operation.location_id,
-      // location_id 有值就代表不是「目前位置」
-      is_current_position: !operation.location_id && !!operation.marker_type,
+      is_current_position: isCurrentPositionOperation(operation),
       entry_position: operation.entry_position,
       footprint: operation.footprint,
       marker_type: operation.marker_type || null,
@@ -305,6 +308,9 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       entry_position: (raw.entry_position as string) ?? "",
       footprint: (raw.footprint as string) ?? "",
       marker_type: needMarkerType ? ((raw.marker_type as string) ?? "") : "",
+      // 沒有點位欄位的動作不會有這個開關,不要留著舊值
+      is_current_position:
+        fields.some((f) => f.kind === "location") && !!raw.is_current_position,
       blocked_path_timeout: num("blocked_path_timeout", 60),
       blocked_docking_timeout: num("blocked_docking_timeout", 60),
       maximum_linear_speed: num("maximum_linear_speed", 0.25),
@@ -580,8 +586,6 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       </ParamField>
     );
   };
-
-  const fields = operation ? (ACTION_FIELDS[operation.type] ?? []) : [];
 
   return (
     <Drawer

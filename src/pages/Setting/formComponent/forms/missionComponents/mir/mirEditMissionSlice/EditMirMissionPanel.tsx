@@ -91,7 +91,11 @@ import {
   MirVariableProvider,
   useMirVariableFields,
 } from "./MirVariableContext";
-import { MIR_ACTION_FIELDS, buildMirOperationFields } from "./mirActionFields";
+import {
+  MIR_ACTION_FIELDS,
+  buildMirOperationFields,
+  isCurrentPositionOperation,
+} from "./mirActionFields";
 import { useMirDockingMarkerType } from "./useMirTaskOptions";
 import { useTranslation } from "react-i18next";
 
@@ -702,7 +706,7 @@ const ParameterDrawer: FC<{
       entry_position: op.entry_position,
       footprint: op.footprint,
       marker_type: op.marker_type || null,
-      is_current_position: !op.location_id && !!op.marker_type,
+      is_current_position: isCurrentPositionOperation(op),
       blocked_path_timeout: op.blocked_path_timeout ?? 60,
       blocked_docking_timeout: op.blocked_docking_timeout ?? 60,
       maximum_linear_speed: op.maximum_linear_speed ?? 0.25,

@@ -26,6 +26,7 @@ export type Mir_Action = {
   entry_position?: string;
   footprint?: string;
   marker_type?: string;
+  is_current_position?: boolean;
 
   // 逾時與限制參數
   blocked_path_timeout?: number;

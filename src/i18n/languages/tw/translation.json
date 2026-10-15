@@ -3391,7 +3391,7 @@
       "current_position": "目前位置",
       "current_position_must_be_empty": "已選「目前位置」,這裡要留空",
       "select_location": "請選一個點位",
-      "current_position_hint": "開啟「目前位置」代表在車輛目前的位置對接。",
+      "current_position_hint": "開啟「目前位置」代表以車輛目前的位置執行,不指定點位。",
       "select_marker_type": "請選一個 marker type",
       "marker_type_must_be_empty": "沒有開「目前位置」,這裡要留空",
       "no_online_mir": "目前沒有連線中的 MiR 車輛",

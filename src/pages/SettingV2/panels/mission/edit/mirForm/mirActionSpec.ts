@@ -63,6 +63,7 @@ export const buildDefaultOperation = (type: string): Mir_Action => ({
   entry_position: "",
   footprint: "",
   marker_type: "",
+  is_current_position: false,
   blocked_path_timeout: 60,
   blocked_docking_timeout: 60,
   maximum_linear_speed: 0.25,
@@ -359,15 +360,8 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
   ],
 
   check_pose: [
-    // 這裡用單純的點位下拉,不是 docking/move 那個 kind: "location"——
-    // 那顆會連帶帶出「Current position」開關,而開關是跟 marker_type 互斥的,
-    // check_pose 根本沒有 marker_type 這個欄位。
-    {
-      kind: "optionSelect",
-      name: "location_id",
-      label: "Position",
-      source: "locations",
-    },
+    // 用 kind: "location" 帶出「Current position」開關,開關存在 is_current_position
+    { kind: "location", name: "location_id", label: "Position" },
     ...coordinateFields,
     {
       kind: "select",
@@ -524,10 +518,12 @@ export const summarizeAction = (
       };
     case "set_io":
       return {
-        verb: `Set IO ${op.module ?? ""} port ${op.port ?? 0} to ${op.value ?? ""}`,
+        verb: `Set IO ${op.module ?? ""} port ${op.port ?? 0} to ${op.operation ?? ""}`,
       };
     case "wait_for_io":
-      return { verb: `Wait for IO ${op.module ?? ""} port ${op.port ?? 0}` };
+      return {
+        verb: `Wait for IO ${op.module ?? ""} port ${op.port ?? 0} to be ${op.value ?? ""}`,
+      };
     default:
       return { verb: op.type || "Unknown action" };
   }

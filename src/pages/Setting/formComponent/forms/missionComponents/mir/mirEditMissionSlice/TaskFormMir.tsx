@@ -53,7 +53,10 @@ import {
   MirVariableProvider,
   useMirVariableFields,
 } from "./MirVariableContext";
-import { buildMirOperationFields } from "./mirActionFields";
+import {
+  buildMirOperationFields,
+  isCurrentPositionOperation,
+} from "./mirActionFields";
 import { useMirDockingMarkerType } from "./useMirTaskOptions";
 
 // save-edit-mir-task 實際送出去的形狀:是一個 Mir_Action 加上 missionTitleId,
@@ -377,7 +380,7 @@ const TaskFormMirContent: FC<{
         entry_position: op.entry_position,
         footprint: op.footprint,
         marker_type: op?.marker_type || null,
-        is_current_position: !op.location_id && !!op.marker_type,
+        is_current_position: isCurrentPositionOperation(op),
 
         blocked_path_timeout: op.blocked_path_timeout ?? 60,
         blocked_docking_timeout: op.blocked_docking_timeout ?? 60,

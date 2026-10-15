@@ -3390,7 +3390,7 @@
       "current_position": "Current position",
       "current_position_must_be_empty": "\"Current position\" is on, leave this empty",
       "select_location": "Please select a location",
-      "current_position_hint": "Turning on \"Current position\" docks at the vehicle's current position.",
+      "current_position_hint": "Turning on \"Current position\" uses the vehicle's current position instead of a marker.",
       "select_marker_type": "Please select a marker type",
       "marker_type_must_be_empty": "\"Current position\" is off, leave this empty",
       "no_online_mir": "No MiR vehicle is currently online",
