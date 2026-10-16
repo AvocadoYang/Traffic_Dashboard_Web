@@ -1,14 +1,19 @@
-import { DEFAULT_EDITOR, DEFAULT_STATION } from "./defaults";
+import { DEFAULT_EDITOR, DEFAULT_RUN, DEFAULT_STATION, DEFAULT_TRAFFIC, DEFAULT_VEHICLE, newId, newVehicleType } from "./defaults";
 import {
+  DemandMode,
+  DemandRow,
   ImageBackground,
   NodeKind,
   PathDirection,
+  RunSettings,
   SIM_DOC_VERSION,
   SimDoc,
   SimGroup,
   SimNode,
   SimPath,
   StationType,
+  TrafficSettings,
+  VehicleType,
 } from "./types";
 
 /** 專案是用比較新版的畫面存的, 這一版看不懂 */
@@ -105,6 +110,10 @@ export function parseDoc(raw: unknown): SimDoc {
   }
 
   const e = isObj(d.editor) ? d.editor : {};
+  // 第 1 版沒有車種、需求表、執行設定: 補預設值 (一種車, 需求表空白)
+  const vehicleTypes = Array.isArray(d.vehicleTypes)
+    ? d.vehicleTypes.filter(isObj).map(parseVehicleType)
+    : [newVehicleType()];
   return {
     schemaVersion: SIM_DOC_VERSION,
     background: parseBackground(d.background),
@@ -116,5 +125,85 @@ export function parseDoc(raw: unknown): SimDoc {
       snap: typeof e.snap === "boolean" ? e.snap : DEFAULT_EDITOR.snap,
       defaultDirection: oneOf(e.defaultDirection, DIRECTIONS, DEFAULT_EDITOR.defaultDirection),
     },
+    vehicleTypes: dedupeIds(vehicleTypes),
+    traffic: parseTraffic(d.traffic),
+    demand: dedupeIds(Array.isArray(d.demand) ? d.demand.filter(isObj).map(parseDemandRow) : []),
+    run: parseRun(d.run),
+  };
+}
+
+const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+const ranged = (v: unknown, fallback: number, lo: number, hi: number) => clamp(num(v, fallback), lo, hi);
+const int = (v: unknown, fallback: number, lo: number, hi: number) => Math.round(ranged(v, fallback, lo, hi));
+
+/** "HH:MM" (00:00 ~ 23:59); 格式不對回 null */
+export function parseClock(v: unknown): string | null {
+  if (typeof v !== "string") return null;
+  const m = /^(\d{1,2}):(\d{2})$/.exec(v.trim());
+  if (!m || Number(m[1]) > 23 || Number(m[2]) > 59) return null;
+  return `${m[1].padStart(2, "0")}:${m[2]}`;
+}
+
+/** id 重複 (手改過的檔案) 的換一個新的, 不然表格和刪除會亂掉 */
+function dedupeIds<T extends { id: string }>(items: T[]): T[] {
+  const seen = new Set<string>();
+  return items.map((item) => {
+    const id = item.id && !seen.has(item.id) ? item.id : newId();
+    seen.add(id);
+    return id === item.id ? item : { ...item, id };
+  });
+}
+
+function parseVehicleType(v: Obj): VehicleType {
+  const D = DEFAULT_VEHICLE;
+  return {
+    id: str(v.id),
+    name: str(v.name, D.name).slice(0, 50) || D.name,
+    count: int(v.count, D.count, 0, 200),
+    length: ranged(v.length, D.length, 0.2, 30),
+    width: ranged(v.width, D.width, 0.2, 10),
+    speedEmpty: ranged(v.speedEmpty, D.speedEmpty, 0.05, 10),
+    speedLoaded: ranged(v.speedLoaded, D.speedLoaded, 0.05, 10),
+    accel: ranged(v.accel, D.accel, 0.01, 10),
+    decel: ranged(v.decel, D.decel, 0.01, 10),
+    turnSpeed: ranged(v.turnSpeed, D.turnSpeed, 1, 360),
+    canReverse: typeof v.canReverse === "boolean" ? v.canReverse : D.canReverse,
+  };
+}
+
+function parseTraffic(v: unknown): TrafficSettings {
+  const t = isObj(v) ? v : {};
+  return {
+    safetyGap: ranged(t.safetyGap, DEFAULT_TRAFFIC.safetyGap, 0, 10),
+    turnThresholdDeg: ranged(t.turnThresholdDeg, DEFAULT_TRAFFIC.turnThresholdDeg, 0, 180),
+  };
+}
+
+const DEMAND_MODES: DemandMode[] = ["fixed", "random"];
+
+function parseDemandRow(v: Obj): DemandRow {
+  const start = parseClock(v.start);
+  const end = parseClock(v.end);
+  return {
+    id: str(v.id),
+    from: str(v.from),
+    to: str(v.to),
+    perHour: ranged(v.perHour, 10, 0, 100000),
+    mode: oneOf(v.mode, DEMAND_MODES, "random"),
+    // 時段要兩頭都有才算數
+    start: start && end ? start : null,
+    end: start && end ? end : null,
+    priority: int(v.priority, 0, -1000, 1000),
+  };
+}
+
+function parseRun(v: unknown): RunSettings {
+  const r = isObj(v) ? v : {};
+  const durationH = ranged(r.durationH, DEFAULT_RUN.durationH, 0.1, 24 * 7);
+  return {
+    durationH,
+    warmupMin: ranged(r.warmupMin, DEFAULT_RUN.warmupMin, 0, durationH * 60),
+    startClock: parseClock(r.startClock) ?? DEFAULT_RUN.startClock,
+    seed: int(r.seed, DEFAULT_RUN.seed, 0, 2 ** 31 - 1),
   };
 }

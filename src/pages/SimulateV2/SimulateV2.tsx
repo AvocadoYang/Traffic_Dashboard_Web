@@ -19,7 +19,10 @@ import NewProjectModal, { NewProjectSource } from "./components/NewProjectModal"
 import ProjectBar, { ProjectAction } from "./components/ProjectBar";
 import { ConflictModal, LeaveModal, NameModal } from "./components/Dialogs";
 import { lastProject, useProjectSession } from "./components/useProjectSession";
-import { docAtom, isDirtyAtom, projectAtom } from "./state/editorAtoms";
+import { docAtom, isDirtyAtom, projectAtom, redoAtom, undoAtom, workspaceTabAtom } from "./state/editorAtoms";
+import VehiclesTab from "./setup/VehiclesTab";
+import DemandTab from "./setup/DemandTab";
+import RunWorkspace from "./run/RunWorkspace";
 
 const StyledLayout = styled(Layout)`
   height: var(--app-height);
@@ -96,19 +99,21 @@ const EmptyCard = styled.div`
   }
 `;
 
-const Workspace: FC<{ projectId: string }> = ({ projectId }) => {
+const Workspace: FC<{ projectId: string; active: boolean }> = ({ projectId, active }) => {
   const shellRef = useRef<HTMLDivElement>(null);
   const shortcuts = useEditorShortcuts();
   const doc = useAtomValue(docAtom);
   const [bgOpen, setBgOpen] = useState(false);
   const bgUrl = doc.background ? fileUrl(projectId, doc.background.fileId) : null;
-  // capture: antd 的下拉選單會 stopPropagation, 焦點留在選單上時 bubble 收不到
+  // capture: antd 的下拉選單會 stopPropagation, 焦點留在選單上時 bubble 收不到.
+  // 只有在佈局分頁才有快捷鍵 (不然在需求表按 Delete 會刪到地圖上選取的點位)
   useEffect(() => {
+    if (!active) return;
     window.addEventListener("keydown", shortcuts, true);
     return () => window.removeEventListener("keydown", shortcuts, true);
-  }, [shortcuts]);
+  }, [shortcuts, active]);
   return (
-    <Shell ref={shellRef} tabIndex={-1} data-testid="simv2-shell">
+    <Shell ref={shellRef} tabIndex={-1} data-testid="simv2-shell" style={active ? undefined : { display: "none" }}>
       <div className="toolbar" style={{ display: "flex" }}>
         <Toolbar onOpenBackground={() => setBgOpen(true)} />
       </div>
@@ -137,6 +142,7 @@ const SimulateV2Page: FC = () => {
   const projects = useProjects();
   const session = useProjectSession();
   const project = useAtomValue(projectAtom);
+  const tab = useAtomValue(workspaceTabAtom);
   const [newOpen, setNewOpen] = useState<NewProjectSource | null>(null);
   const [nameModal, setNameModal] = useState<null | "info" | "copy">(null);
   /** 換專案前有沒存的修改: 先問 */
@@ -169,6 +175,17 @@ const SimulateV2Page: FC = () => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
         e.preventDefault();
         if (store.get(isDirtyAtom)) void save();
+        return;
+      }
+      // 佈局分頁的復原 / 重做在編輯器的快捷鍵裡; 其他分頁 (不是在輸入框裡) 也可以按
+      if (store.get(workspaceTabAtom) === "layout" || !(e.ctrlKey || e.metaKey) || isTypingTarget(e.target)) return;
+      const key = e.key.toLowerCase();
+      if (key === "z" && !e.shiftKey) {
+        e.preventDefault();
+        store.set(undoAtom);
+      } else if (key === "y" || (key === "z" && e.shiftKey)) {
+        e.preventDefault();
+        store.set(redoAtom);
       }
     };
     const onBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -198,7 +215,15 @@ const SimulateV2Page: FC = () => {
 
   let body;
   if (project) {
-    body = <Workspace projectId={project.id} />;
+    // 佈局一直掛著 (切回來時畫面、選取都還在), 其他分頁切到才掛上去
+    body = (
+      <>
+        <Workspace projectId={project.id} active={tab === "layout"} />
+        {tab === "vehicles" && <VehiclesTab />}
+        {tab === "demand" && <DemandTab />}
+        {tab === "run" && <RunWorkspace />}
+      </>
+    );
   } else if (projects.isError) {
     body = (
       <Center>

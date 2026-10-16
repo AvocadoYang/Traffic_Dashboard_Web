@@ -1,7 +1,9 @@
 import { atom } from "jotai";
 import { createEmptyDoc } from "../model/defaults";
+import { Bounds, boundsOf } from "../model/geometry";
 import { Point, SimDoc } from "../model/types";
 import type { Target } from "../editor/targeting";
+import { clearRunAtom } from "./runAtoms";
 
 /** 復原最多幾步 */
 const HISTORY_LIMIT = 200;
@@ -120,6 +122,7 @@ export const loadDocAtom = atom(null, (_get, set, doc: SimDoc) => {
   set(measureAtom, { a: null, b: null });
   set(calibrationAtom, { a: null, b: null });
   set(pathDraftAtom, null);
+  set(clearRunAtom);
 });
 
 export const markSavedAtom = atom(null, (get, set, doc?: SimDoc) => {
@@ -143,3 +146,27 @@ export const projectAtom = atom<ProjectMeta | null>(null);
 
 /** 要求畫面縮放到全部看得到 (每次 +1 觸發一次) */
 export const fitRequestAtom = atom(0);
+
+/** 下一次縮放只看這個範圍 (例如執行前檢查點出來的點位); 用完就清掉 */
+export const fitBoundsAtom = atom<Bounds | null>(null);
+
+/** 選取這些點位 / 路線, 切到佈局分頁, 畫面移過去 */
+export const showInLayoutAtom = atom(null, (get, set, target: { nodeIds?: string[]; pathIds?: string[] }) => {
+  const doc = get(docAtom);
+  const nodeIds = new Set(target.nodeIds ?? []);
+  for (const p of doc.paths) {
+    if (target.pathIds?.includes(p.id)) {
+      nodeIds.add(p.from);
+      nodeIds.add(p.to);
+    }
+  }
+  const bounds = boundsOf(doc.nodes.filter((n) => nodeIds.has(n.id)));
+  set(selectionAtom, { nodeIds: target.nodeIds ?? [], pathIds: target.pathIds ?? [] });
+  set(workspaceTabAtom, "layout");
+  if (bounds) {
+    // 只有一個點時範圍是 0, 四周留一點
+    const pad = 4;
+    set(fitBoundsAtom, { minX: bounds.minX - pad, minY: bounds.minY - pad, maxX: bounds.maxX + pad, maxY: bounds.maxY + pad });
+    set(fitRequestAtom, (n) => n + 1);
+  }
+});

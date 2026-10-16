@@ -30,12 +30,11 @@ const Dirty = styled.span<{ $dirty: boolean }>`
 
 export type ProjectAction = "new" | "info" | "copy" | "export" | "delete";
 
-/** 第 1 階段只有佈局, 其他分頁先看得到、按不了 */
 const TABS: { value: WorkspaceTab; enabled: boolean }[] = [
   { value: "layout", enabled: true },
-  { value: "vehicles", enabled: false },
-  { value: "demand", enabled: false },
-  { value: "run", enabled: false },
+  { value: "vehicles", enabled: true },
+  { value: "demand", enabled: true },
+  { value: "run", enabled: true },
 ];
 
 const ProjectBar: FC<{

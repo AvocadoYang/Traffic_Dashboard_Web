@@ -1,11 +1,15 @@
 import { nanoid } from "nanoid";
 import {
+  DemandRow,
   EditorSettings,
   NodeKind,
+  RunSettings,
   SIM_DOC_VERSION,
   SimDoc,
   SimNode,
   StationProps,
+  TrafficSettings,
+  VehicleType,
 } from "./types";
 
 export const DEFAULT_EDITOR: EditorSettings = {
@@ -21,6 +25,52 @@ export const DEFAULT_STATION: StationProps = {
   bufferMax: null,
 };
 
+/** 新車種的預設值: 一般的堆高機式 AGV */
+export const DEFAULT_VEHICLE: Omit<VehicleType, "id"> = {
+  name: "AGV",
+  count: 3,
+  length: 2.4,
+  width: 1.2,
+  speedEmpty: 1.5,
+  speedLoaded: 1.0,
+  accel: 0.4,
+  decel: 0.5,
+  turnSpeed: 30,
+  canReverse: true,
+};
+
+export const DEFAULT_TRAFFIC: TrafficSettings = {
+  safetyGap: 0.5,
+  turnThresholdDeg: 30,
+};
+
+export const DEFAULT_RUN: RunSettings = {
+  durationH: 8,
+  warmupMin: 30,
+  startClock: "08:00",
+  seed: 1,
+};
+
+export const newId = () => nanoid(10);
+
+export const newVehicleType = (patch: Partial<VehicleType> = {}): VehicleType => ({
+  id: newId(),
+  ...DEFAULT_VEHICLE,
+  ...patch,
+});
+
+export const newDemandRow = (patch: Partial<DemandRow> = {}): DemandRow => ({
+  id: newId(),
+  from: "",
+  to: "",
+  perHour: 10,
+  mode: "random",
+  start: null,
+  end: null,
+  priority: 0,
+  ...patch,
+});
+
 export const createEmptyDoc = (): SimDoc => ({
   schemaVersion: SIM_DOC_VERSION,
   background: null,
@@ -28,9 +78,11 @@ export const createEmptyDoc = (): SimDoc => ({
   paths: [],
   groups: [],
   editor: { ...DEFAULT_EDITOR },
+  vehicleTypes: [newVehicleType()],
+  traffic: { ...DEFAULT_TRAFFIC },
+  demand: [],
+  run: { ...DEFAULT_RUN },
 });
-
-export const newId = () => nanoid(10);
 
 /**
  * 新點位的名稱: 目前最大的數字名稱 + 1 (跟現場點位一樣用數字), 從 1 開始.

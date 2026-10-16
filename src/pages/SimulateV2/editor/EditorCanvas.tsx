@@ -1,6 +1,6 @@
 import { FC, PointerEvent as ReactPointerEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Layer, Shape, Stage } from "react-konva";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
 import styled from "styled-components";
 import { constrainAngle, snapToGrid } from "../model/geometry";
 import { addSegment, findNodeNear, findPathNear, moveNodes, nodeMap } from "../model/ops";
@@ -12,6 +12,7 @@ import {
   commitAtom,
   cursorAtom,
   docAtom,
+  fitBoundsAtom,
   fitRequestAtom,
   layersAtom,
   measureAtom,
@@ -115,12 +116,15 @@ const EditorCanvas: FC<{ backgroundUrl: string | null }> = ({ backgroundUrl }) =
   useEffect(() => {
     pendingFit.current = true;
   }, [fitRequest]);
+  const store = useStore();
   useEffect(() => {
     if (pendingFit.current && width > 0 && height > 0) {
       pendingFit.current = false;
-      setView(fitView(contentBounds(doc), width, height));
+      const target = store.get(fitBoundsAtom);
+      store.set(fitBoundsAtom, null);
+      setView(fitView(target ?? contentBounds(doc), width, height));
     }
-  }, [fitRequest, width, height, doc, setView]);
+  }, [fitRequest, width, height, doc, setView, store]);
 
   // 滾輪縮放 (要能 preventDefault, 所以不用 React 的 onWheel)
   useEffect(() => {
