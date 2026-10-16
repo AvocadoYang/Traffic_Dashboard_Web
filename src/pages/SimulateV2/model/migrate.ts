@@ -1,5 +1,7 @@
-import { DEFAULT_EDITOR, DEFAULT_RUN, DEFAULT_STATION, DEFAULT_TRAFFIC, DEFAULT_VEHICLE, newId, newVehicleType } from "./defaults";
+import { CAD_UNITS, CAD_UNIT_METERS } from "./cad";
+import { DEFAULT_EDITOR, DEFAULT_RUN, DEFAULT_STATION, DEFAULT_SWEEP, DEFAULT_TRAFFIC, DEFAULT_VEHICLE, newId, newVehicleType } from "./defaults";
 import {
+  CadBackground,
   DemandMode,
   DemandRow,
   ImageBackground,
@@ -12,6 +14,7 @@ import {
   SimNode,
   SimPath,
   StationType,
+  SweepSettings,
   TrafficSettings,
   VehicleType,
 } from "./types";
@@ -68,6 +71,36 @@ function parseBackground(v: unknown): ImageBackground | null {
   };
 }
 
+function parseExtent(v: unknown): CadBackground["extent"] {
+  const e = isObj(v) ? v : {};
+  const minX = num(e.minX, 0);
+  const minY = num(e.minY, 0);
+  return { minX, minY, maxX: Math.max(minX, num(e.maxX, minX)), maxY: Math.max(minY, num(e.maxY, minY)) };
+}
+
+function parseCad(v: unknown): CadBackground | null {
+  if (!isObj(v) || v.kind !== "dxf" || !str(v.fileId)) return null;
+  const unit = oneOf(v.unit, CAD_UNITS, "mm");
+  const mpu = num(v.metersPerUnit, CAD_UNIT_METERS[unit]);
+  const hidden = Array.isArray(v.hiddenLayers) ? v.hiddenLayers.filter((x): x is string => typeof x === "string") : [];
+  return {
+    kind: "dxf",
+    fileId: str(v.fileId),
+    fileName: str(v.fileName),
+    unit,
+    metersPerUnit: mpu > 0 ? mpu : CAD_UNIT_METERS[unit],
+    baseX: num(v.baseX, 0),
+    baseY: num(v.baseY, 0),
+    extent: parseExtent(v.extent),
+    originX: num(v.originX, 0),
+    originY: num(v.originY, 0),
+    hiddenLayers: [...new Set(hidden)],
+    opacity: Math.min(1, Math.max(0, num(v.opacity, 0.7))),
+    locked: v.locked !== false,
+    calibrated: v.calibrated === true,
+  };
+}
+
 /**
  * 從後端或檔案讀進來的 doc 轉成這一版的格式. 缺的欄位補預設值, 壞掉的項目丟掉
  * (例如路線指到不存在的點位), 不讓畫面因為一筆壞資料整個打不開.
@@ -117,6 +150,8 @@ export function parseDoc(raw: unknown): SimDoc {
   return {
     schemaVersion: SIM_DOC_VERSION,
     background: parseBackground(d.background),
+    // 第 2 版以前沒有 DXF 底圖和車數掃描
+    cad: parseCad(d.cad),
     nodes,
     paths,
     groups,
@@ -124,11 +159,13 @@ export function parseDoc(raw: unknown): SimDoc {
       gridSize: num(e.gridSize, DEFAULT_EDITOR.gridSize) > 0 ? num(e.gridSize, DEFAULT_EDITOR.gridSize) : DEFAULT_EDITOR.gridSize,
       snap: typeof e.snap === "boolean" ? e.snap : DEFAULT_EDITOR.snap,
       defaultDirection: oneOf(e.defaultDirection, DIRECTIONS, DEFAULT_EDITOR.defaultDirection),
+      snapCad: typeof e.snapCad === "boolean" ? e.snapCad : DEFAULT_EDITOR.snapCad,
     },
     vehicleTypes: dedupeIds(vehicleTypes),
     traffic: parseTraffic(d.traffic),
     demand: dedupeIds(Array.isArray(d.demand) ? d.demand.filter(isObj).map(parseDemandRow) : []),
     run: parseRun(d.run),
+    sweep: parseSweep(d.sweep),
   };
 }
 
@@ -205,5 +242,21 @@ function parseRun(v: unknown): RunSettings {
     warmupMin: ranged(r.warmupMin, DEFAULT_RUN.warmupMin, 0, durationH * 60),
     startClock: parseClock(r.startClock) ?? DEFAULT_RUN.startClock,
     seed: int(r.seed, DEFAULT_RUN.seed, 0, 2 ** 31 - 1),
+  };
+}
+
+function parseSweep(v: unknown): SweepSettings {
+  const w = isObj(v) ? v : {};
+  const D = DEFAULT_SWEEP;
+  const min = int(w.min, D.min, 1, 200);
+  return {
+    typeId: typeof w.typeId === "string" && w.typeId ? w.typeId : null,
+    min,
+    max: int(w.max, Math.max(min, D.max), min, 200),
+    seeds: int(w.seeds, D.seeds, 1, 10),
+    minAchievement: ranged(w.minAchievement, D.minAchievement, 0.5, 1),
+    maxWaitP95Min: ranged(w.maxWaitP95Min, D.maxWaitP95Min, 0, 600),
+    maxUtilization: ranged(w.maxUtilization, D.maxUtilization, 0.1, 1),
+    availability: ranged(w.availability, D.availability, 0.3, 1),
   };
 }

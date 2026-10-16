@@ -4,7 +4,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { PathDirection } from "../model/types";
-import { commitAtom, docAtom, toolAtom } from "../state/editorAtoms";
+import { calibrationTargetAtom, commitAtom, docAtom, toolAtom } from "../state/editorAtoms";
 
 const Bar = styled.div`
   position: absolute;
@@ -39,10 +39,12 @@ const HintBar: FC = () => {
   const tool = useAtomValue(toolAtom);
   const doc = useAtomValue(docAtom);
   const commit = useSetAtom(commitAtom);
+  const calTarget = useAtomValue(calibrationTargetAtom);
+  const key = tool === "calibrate" && calTarget === "cad" ? "calibrate_cad" : tool;
 
   return (
     <Bar>
-      <Hint data-testid="simv2-hint">{t(`sim_v2.hint.${tool}`)}</Hint>
+      <Hint data-testid="simv2-hint">{t(`sim_v2.hint.${key}`)}</Hint>
       {tool === "path" && (
         <Segmented<PathDirection>
           size="small"

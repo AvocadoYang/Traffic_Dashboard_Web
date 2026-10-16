@@ -4,6 +4,12 @@
  */
 import type { SimDoc } from "../model/types";
 
+/**
+ * 引擎的版本: 規則改了 (同樣的輸入會算出不一樣的結果) 就改這個. 結果紀錄會存它,
+ * 打開舊的紀錄時拿來判斷回放 (重算) 跟當時的數字可能對不起來.
+ */
+export const ENGINE_VERSION = "2026-10-16";
+
 /** 引擎只看得到這些 (底圖、編輯器設定跟模擬無關) */
 export type SimInput = Pick<SimDoc, "nodes" | "paths" | "groups" | "vehicleTypes" | "traffic" | "demand" | "run">;
 
@@ -159,3 +165,24 @@ export interface SimResult {
   notes: SimNote[];
   trace: Trace | null;
 }
+
+/** 車數掃描只要這些 (不傳回任務清單、軌跡) */
+export interface RunSummary {
+  kpi: Kpi;
+  deadlock: DeadlockInfo | null;
+  endSec: number;
+  wallMs: number;
+  /** 為了解開互卡改走別條路幾次 */
+  reroutes: number;
+  /** 閒置車擋路、沒有空的待命點可以讓幾次 */
+  noStandby: number;
+}
+
+export const summaryOf = (r: SimResult): RunSummary => ({
+  kpi: r.kpi,
+  deadlock: r.deadlock,
+  endSec: r.endSec,
+  wallMs: r.wallMs,
+  reroutes: r.notes.filter((n) => n.code === "reroute").length,
+  noStandby: r.notes.filter((n) => n.code === "no_standby_free").length,
+});

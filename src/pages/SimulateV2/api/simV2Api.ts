@@ -86,3 +86,41 @@ export function apiErrorOf(err: unknown): { status: number | null; message: stri
   }
   return { status: null, message: err instanceof Error ? err.message : String(err) };
 }
+
+// ---------------------------------------------------------------- 結果紀錄 (sim_run)
+
+export type RunKind = "single" | "sweep";
+
+export interface RunMeta {
+  id: string;
+  kind: RunKind;
+  project_rev: number;
+  /** 列表顯示的幾個數字 (格式見 run/history.ts) */
+  summary: unknown;
+  created_at: string;
+}
+
+export interface RunDetail extends RunMeta {
+  params: unknown;
+  result: unknown;
+}
+
+export const runsKey = (projectId: string) => ["sim-v2-runs", projectId];
+
+export const listRuns = async (projectId: string) =>
+  (await client.get<Wrapped<RunMeta[]>>(`${base}/${projectId}/runs`)).data.response;
+
+export const getRun = async (projectId: string, runId: string) =>
+  (await client.get<Wrapped<RunDetail>>(`${base}/${projectId}/runs/${runId}`)).data.response;
+
+export const createRun = async (
+  projectId: string,
+  body: { kind: RunKind; projectRev: number; params: unknown; summary: unknown; result: unknown },
+) => (await client.post<Wrapped<RunMeta>>(`${base}/${projectId}/runs`, body)).data.response;
+
+export const deleteRun = async (projectId: string, runId: string) => {
+  await client.delete(`${base}/${projectId}/runs/${runId}`);
+};
+
+export const useRuns = (projectId: string | null | undefined) =>
+  useQuery({ queryKey: runsKey(projectId ?? ""), queryFn: () => listRuns(projectId!), enabled: !!projectId });

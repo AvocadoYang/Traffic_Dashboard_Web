@@ -6,6 +6,9 @@ import { Simulator, runSimulation } from "../sim";
 import type { SimInput } from "../types";
 import { Layout, trapezoidTime } from "./layout";
 import { warehouse } from "./warehouse";
+import crowdedJson from "./fixtures/crowded-deadend.json";
+
+const crowded = crowdedJson as unknown as SimInput;
 
 /** 跑一次, 每一步都檢查內部狀態有沒有矛盾 */
 function runChecked(input: SimInput, every = 1) {
@@ -319,4 +322,27 @@ describe("仿倉庫的地圖", () => {
     const plain = runSimulation(warehouse({ vehicles: 10 }));
     expect(plain.wallMs).toBeLessThan(5000);
   }, 60_000);
+});
+
+describe("單線雙向主走道 + 死巷倉儲 (很擠的佈局)", () => {
+  /**
+   * 第 3 階段拿 DXF 測試時畫出來的佈局 (fixtures/crowded-deadend.json): 主走道是一條雙向單線,
+   * 倉儲走道是死巷, 每條死巷 4 個站點, 8 個待命點. 車多的時候真的會塞死 (結果標死結),
+   * 但程式不能出錯, 內部狀態也不能矛盾. 8 台、種子 2 曾經在解死結「換目的地」那一步出錯
+   * (車剛好停在新的目的地上, 馬上抵達又被派了新任務).
+   */
+  it("1 ~ 8 台、兩個種子都跑得完, 不會出錯, 狀態一致", () => {
+    for (let count = 1; count <= 8; count++) {
+      for (const seed of [1, 2]) {
+        const input: SimInput = {
+          ...crowded,
+          vehicleTypes: crowded.vehicleTypes.map((v) => ({ ...v, count })),
+          run: { ...crowded.run, durationH: 4, seed },
+        };
+        const { res, errors } = runChecked(input, 10);
+        expect(errors, `${count} 台 種子 ${seed}`).toEqual([]);
+        expect(res.endSec).toBeGreaterThan(0);
+      }
+    }
+  }, 120_000);
 });

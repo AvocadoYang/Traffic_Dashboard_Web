@@ -35,18 +35,26 @@ export function backgroundBounds(doc: SimDoc): Bounds | null {
   };
 }
 
-/** 點位和底圖全部看得到的範圍; 什麼都沒有時回 null */
+/** DXF 底圖主要範圍 (零星畫在很遠的線不算) 在地圖上的位置 */
+export function cadBounds(doc: SimDoc): Bounds | null {
+  const cad = doc.cad;
+  if (!cad) return null;
+  const e = cad.extent;
+  if (!(e.maxX > e.minX || e.maxY > e.minY)) return null;
+  const m = cad.metersPerUnit;
+  return { minX: cad.originX + e.minX * m, minY: cad.originY + e.minY * m, maxX: cad.originX + e.maxX * m, maxY: cad.originY + e.maxY * m };
+}
+
+const union = (a: Bounds | null, b: Bounds | null): Bounds | null =>
+  !a
+    ? b
+    : !b
+      ? a
+      : { minX: Math.min(a.minX, b.minX), minY: Math.min(a.minY, b.minY), maxX: Math.max(a.maxX, b.maxX), maxY: Math.max(a.maxY, b.maxY) };
+
+/** 點位、底圖、DXF 全部看得到的範圍; 什麼都沒有時回 null */
 export function contentBounds(doc: SimDoc): Bounds | null {
-  const nodes = boundsOf(doc.nodes);
-  const bg = backgroundBounds(doc);
-  if (!nodes) return bg;
-  if (!bg) return nodes;
-  return {
-    minX: Math.min(nodes.minX, bg.minX),
-    minY: Math.min(nodes.minY, bg.minY),
-    maxX: Math.max(nodes.maxX, bg.maxX),
-    maxY: Math.max(nodes.maxY, bg.maxY),
-  };
+  return union(union(boundsOf(doc.nodes), backgroundBounds(doc)), cadBounds(doc));
 }
 
 export function fitView(bounds: Bounds | null, width: number, height: number, padding = 40): View {

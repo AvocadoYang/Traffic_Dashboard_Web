@@ -38,7 +38,7 @@ export function startSimulation(input: SimInput, onProgress?: (fraction: number)
       else if (m.type === "done") {
         finish?.();
         resolve(m.result);
-      } else finish?.(new Error(m.message));
+      } else if (m.type === "error") finish?.(new Error(m.message));
     };
     worker.onerror = (e) => finish?.(new Error(e.message || "worker error"));
     worker.postMessage({ id: 1, input });

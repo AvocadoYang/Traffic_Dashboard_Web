@@ -5,10 +5,12 @@ import styled from "styled-components";
 import { constrainAngle, snapToGrid } from "../model/geometry";
 import { addSegment, findNodeNear, findPathNear, moveNodes, nodeMap } from "../model/ops";
 import { Point, SimDoc } from "../model/types";
+import { useCadGeometry, useHiddenMask } from "../io/dxf/cadLoader";
 import {
   EMPTY_SELECTION,
   View,
   calibrationAtom,
+  calibrationTargetAtom,
   commitAtom,
   cursorAtom,
   docAtom,
@@ -21,10 +23,12 @@ import {
   toolAtom,
   viewAtom,
 } from "../state/editorAtoms";
+import { drawCad } from "./cadDraw";
+import { findCadSnap } from "./cadSnap";
 import { Frame, Overlay, drawBackground, drawGrid, drawNodes, drawOverlay, drawPaths } from "./drawing";
 import { useCanvasColors, useElementSize, useHtmlImage } from "./hooks";
-import { NODE_HIT_PX, PATH_HIT_PX, Target, materialize, resolveTarget } from "./targeting";
-import { backgroundBounds, contentBounds, fitView, toWorld, zoomAt } from "./viewMath";
+import { CAD_SNAP_PX, CadSnapper, NODE_HIT_PX, PATH_HIT_PX, Target, materialize, resolveTarget } from "./targeting";
+import { backgroundBounds, cadBounds, contentBounds, fitView, toWorld, zoomAt } from "./viewMath";
 
 type Interaction =
   | { kind: "pan"; sx: number; sy: number; view: View; button: number }
@@ -39,7 +43,8 @@ type Interaction =
       started: boolean;
     }
   | { kind: "box"; a: Point; b: Point; additive: boolean; downAt: Point }
-  | { kind: "background"; start: Point; delta: Point };
+  /** 拖曳沒鎖定的底圖 (圖片或 DXF) */
+  | { kind: "background"; target: "image" | "cad"; start: Point; delta: Point };
 
 /** 按下去之後移動超過幾個像素才算拖曳 (不然只是點一下) */
 const DRAG_THRESHOLD_PX = 4;
@@ -61,7 +66,7 @@ const sameTarget = (d: Target | null, doc: SimDoc): Target | null => {
   return d;
 };
 
-const EditorCanvas: FC<{ backgroundUrl: string | null }> = ({ backgroundUrl }) => {
+const EditorCanvas: FC<{ backgroundUrl: string | null; projectId: string }> = ({ backgroundUrl, projectId }) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const { width, height } = useElementSize(wrapRef);
   const doc = useAtomValue(docAtom);
@@ -77,6 +82,9 @@ const EditorCanvas: FC<{ backgroundUrl: string | null }> = ({ backgroundUrl }) =
   const fitRequest = useAtomValue(fitRequestAtom);
   const colors = useCanvasColors();
   const image = useHtmlImage(backgroundUrl);
+  const cadGeom = useCadGeometry(projectId, doc.cad).geometry;
+  const cadHidden = useHiddenMask(cadGeom, doc.cad?.hiddenLayers);
+  const calTarget = useAtomValue(calibrationTargetAtom);
 
   const [interaction, setInteraction] = useState<Interaction | null>(null);
   const [hover, setHover] = useState<Point | null>(null);
@@ -84,6 +92,13 @@ const EditorCanvas: FC<{ backgroundUrl: string | null }> = ({ backgroundUrl }) =
   const [space, setSpace] = useState(false);
 
   const draft = useMemo(() => sameTarget(draftRaw, doc), [draftRaw, doc]);
+
+  /** 吸附到 CAD 圖上的點 (DXF 看得到、吸附開著才有) */
+  const cadSnap = useMemo<CadSnapper | null>(() => {
+    const cad = doc.cad;
+    if (!cad || !cadGeom || !cadHidden || !layers.cad || !doc.editor.snapCad) return null;
+    return (p, radius) => findCadSnap(cadGeom, cad, cadHidden, p, radius);
+  }, [doc.cad, cadGeom, cadHidden, layers.cad, doc.editor.snapCad]);
 
   // Shift: 畫線鎖 45 度; 空白鍵: 按住拖曳平移
   useEffect(() => {
@@ -164,10 +179,9 @@ const EditorCanvas: FC<{ backgroundUrl: string | null }> = ({ backgroundUrl }) =
   /** 畫路線時滑鼠的位置: 按住 Shift 鎖角度 */
   const pathRaw = (world: Point) => (shift && draft ? constrainAngle(draft.point, world) : world);
 
-  const insideBackground = (p: Point) => {
-    const b = backgroundBounds(doc);
-    return !!b && p.x >= b.minX && p.x <= b.maxX && p.y >= b.minY && p.y <= b.maxY;
-  };
+  const inside = (b: ReturnType<typeof backgroundBounds>, p: Point) => !!b && p.x >= b.minX && p.x <= b.maxX && p.y >= b.minY && p.y <= b.maxY;
+  /** 校正比例時點的位置: CAD 圖上有點就吸過去 */
+  const calibrationPoint = (world: Point) => (calTarget === "cad" ? cadSnap?.(world, CAD_SNAP_PX / view.scale)?.point : null) ?? world;
 
   const onPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     const s = local(e);
@@ -179,7 +193,7 @@ const EditorCanvas: FC<{ backgroundUrl: string | null }> = ({ backgroundUrl }) =
       return;
     }
     if (e.button !== 0) return;
-    const opts = { snap: doc.editor.snap };
+    const opts = { snap: doc.editor.snap, cad: cadSnap };
 
     switch (tool) {
       case "select": {
@@ -226,8 +240,13 @@ const EditorCanvas: FC<{ backgroundUrl: string | null }> = ({ backgroundUrl }) =
           }
           return;
         }
-        if (layers.background && doc.background && !doc.background.locked && insideBackground(world) && !e.shiftKey) {
-          setInteraction({ kind: "background", start: world, delta: { x: 0, y: 0 } });
+        // DXF 畫在圖片上面, 兩個都沒鎖定時先拖 DXF
+        if (layers.cad && doc.cad && !doc.cad.locked && inside(cadBounds(doc), world) && !e.shiftKey) {
+          setInteraction({ kind: "background", target: "cad", start: world, delta: { x: 0, y: 0 } });
+          return;
+        }
+        if (layers.background && doc.background && !doc.background.locked && inside(backgroundBounds(doc), world) && !e.shiftKey) {
+          setInteraction({ kind: "background", target: "image", start: world, delta: { x: 0, y: 0 } });
           return;
         }
         setInteraction({ kind: "box", a: world, b: world, additive: e.shiftKey, downAt: s });
@@ -267,12 +286,13 @@ const EditorCanvas: FC<{ backgroundUrl: string | null }> = ({ backgroundUrl }) =
         return;
       }
       case "measure": {
-        const p = resolveTarget(doc, world, view.scale, { snap: doc.editor.snap, usePaths: false }).point;
+        const p = resolveTarget(doc, world, view.scale, { snap: doc.editor.snap, usePaths: false, cad: cadSnap }).point;
         setMeasure(!measure.a || measure.b ? { a: p, b: null } : { a: measure.a, b: p });
         return;
       }
       case "calibrate": {
-        setCalibration(!calibration.a || calibration.b ? { a: world, b: null } : { a: calibration.a, b: world });
+        const p = calibrationPoint(world);
+        setCalibration(!calibration.a || calibration.b ? { a: p, b: null } : { a: calibration.a, b: p });
         return;
       }
     }
@@ -291,7 +311,9 @@ const EditorCanvas: FC<{ backgroundUrl: string | null }> = ({ backgroundUrl }) =
       const started = it.started || Math.hypot(s.x - it.downAt.x, s.y - it.downAt.y) > DRAG_THRESHOLD_PX;
       if (!started) return;
       let anchor = { x: it.anchor.x + world.x - it.start.x, y: it.anchor.y + world.y - it.start.y };
-      if (doc.editor.snap) anchor = snapToGrid(anchor, doc.editor.gridSize);
+      const onCad = cadSnap?.(anchor, CAD_SNAP_PX / view.scale);
+      if (onCad) anchor = onCad.point;
+      else if (doc.editor.snap) anchor = snapToGrid(anchor, doc.editor.gridSize);
       setInteraction({ ...it, started, delta: { x: anchor.x - it.anchor.x, y: anchor.y - it.anchor.y } });
     } else if (it.kind === "box") {
       setInteraction({ ...it, b: world });
@@ -320,6 +342,10 @@ const EditorCanvas: FC<{ backgroundUrl: string | null }> = ({ backgroundUrl }) =
     }
     if (it.kind === "background") {
       if (it.delta.x === 0 && it.delta.y === 0) return;
+      if (it.target === "cad") {
+        commit((d) => (d.cad ? { ...d, cad: { ...d.cad, originX: d.cad.originX + it.delta.x, originY: d.cad.originY + it.delta.y } } : d));
+        return;
+      }
       commit((d) =>
         d.background
           ? { ...d, background: { ...d.background, originX: d.background.originX + it.delta.x, originY: d.background.originY + it.delta.y } }
@@ -360,12 +386,20 @@ const EditorCanvas: FC<{ backgroundUrl: string | null }> = ({ backgroundUrl }) =
       calibration: null,
     };
     if (measure.a) {
-      const b = measure.b ?? (tool === "measure" && hover ? resolveTarget(doc, hover, view.scale, { snap: doc.editor.snap, usePaths: false }).point : null);
+      const b = measure.b ?? (tool === "measure" && hover ? resolveTarget(doc, hover, view.scale, { snap: doc.editor.snap, usePaths: false, cad: cadSnap }).point : null);
       if (b) o.measure = { a: measure.a, b };
     }
-    if (tool === "calibrate" && calibration.a) o.calibration = { a: calibration.a, b: calibration.b ?? hover };
+    if (tool === "calibrate" && calibration.a) o.calibration = { a: calibration.a, b: calibration.b ?? (hover ? calibrationPoint(hover) : null) };
     if (!hover || interaction) return o;
-    const opts = { snap: doc.editor.snap };
+    const opts = { snap: doc.editor.snap, cad: cadSnap };
+    if (tool === "measure") {
+      const t = resolveTarget(doc, hover, view.scale, { ...opts, usePaths: false });
+      if (t.kind === "free" && t.cadSnap !== undefined) o.target = t;
+    }
+    if (tool === "calibrate" && calTarget === "cad") {
+      const hit = cadSnap?.(hover, CAD_SNAP_PX / view.scale);
+      if (hit) o.target = { kind: "free", point: hit.point, cadSnap: hit.kind };
+    }
     if (tool === "point" || tool === "station" || tool === "standby") {
       o.target = resolveTarget(doc, hover, view.scale, opts);
     } else if (tool === "path") {
@@ -382,12 +416,24 @@ const EditorCanvas: FC<{ backgroundUrl: string | null }> = ({ backgroundUrl }) =
       }
     }
     return o;
-    // pathRaw 只依賴 shift / draft
+    // pathRaw 只依賴 shift / draft; calibrationPoint 只依賴 calTarget / cadSnap / view.scale
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [interaction, measure, calibration, tool, hover, doc, view.scale, draft, shift, nodesById]);
+  }, [interaction, measure, calibration, tool, hover, doc, view.scale, draft, shift, nodesById, cadSnap, calTarget]);
 
-  const frame: Frame = { view, width, height, colors };
-  const bgOffset = interaction?.kind === "background" ? interaction.delta : undefined;
+  const frame: Frame = useMemo(() => ({ view, width, height, colors }), [view, width, height, colors]);
+  const bgOffset = interaction?.kind === "background" && interaction.target === "image" ? interaction.delta : undefined;
+  const cadOffset = interaction?.kind === "background" && interaction.target === "cad" ? interaction.delta : undefined;
+  // 底圖和 DXF 自己一層, 只有畫面移動、底圖改了才重畫 (滑鼠移動時不重畫, DXF 線很多)
+  const showBackground = layers.background && !!doc.background && !!image;
+  const showCad = layers.cad && !!doc.cad && !!cadGeom && !!cadHidden;
+  const baseScene = useCallback(
+    (ctx: { _context: CanvasRenderingContext2D }) => {
+      const c = ctx._context;
+      if (showBackground && doc.background && image) drawBackground(c, frame, doc.background, image, bgOffset);
+      if (showCad && doc.cad && cadGeom && cadHidden) drawCad(c, frame, doc.cad, cadGeom, cadHidden, cadOffset);
+    },
+    [showBackground, showCad, doc.background, doc.cad, image, cadGeom, cadHidden, frame, bgOffset, cadOffset],
+  );
 
   let cursor = "default";
   if (interaction?.kind === "pan") cursor = "grabbing";
@@ -415,11 +461,13 @@ const EditorCanvas: FC<{ backgroundUrl: string | null }> = ({ backgroundUrl }) =
       {width > 0 && height > 0 && (
         <Stage width={width} height={height} listening={false}>
           <Layer listening={false}>
+            <Shape listening={false} sceneFunc={baseScene} />
+          </Layer>
+          <Layer listening={false}>
             <Shape
               listening={false}
               sceneFunc={(ctx) => {
                 const c = ctx._context;
-                if (layers.background && doc.background && image) drawBackground(c, frame, doc.background, image, bgOffset);
                 if (layers.grid) drawGrid(c, frame, doc.editor.gridSize);
                 if (layers.paths) drawPaths(c, frame, doc, pos, selectedPaths);
                 if (layers.nodes) drawNodes(c, frame, doc, pos, selectedNodes, layers.labels);

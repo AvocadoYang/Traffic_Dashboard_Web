@@ -7,6 +7,7 @@ import { downloadBlob } from "../io/image";
 import { safeFileName } from "../io/projectFile";
 import type { RunOutcome } from "../state/runAtoms";
 import { fmtClock, fmtDuration } from "./format";
+import { T, addTasksSheet } from "./report/excelReport";
 
 const TaskTable: FC<{ outcome: RunOutcome; projectName: string }> = ({ outcome, projectName }) => {
   const { t } = useTranslation();
@@ -21,41 +22,7 @@ const TaskTable: FC<{ outcome: RunOutcome; projectName: string }> = ({ outcome, 
     try {
       const ExcelJS = (await import("exceljs")).default;
       const wb = new ExcelJS.Workbook();
-      const ws = wb.addWorksheet(t("sim_v2.result.tab_tasks"));
-      const headers = [
-        t("sim_v2.task.id"),
-        t("sim_v2.task.row"),
-        t("sim_v2.task.created"),
-        t("sim_v2.task.assigned"),
-        t("sim_v2.task.pick_start"),
-        t("sim_v2.task.pick_done"),
-        t("sim_v2.task.drop_start"),
-        t("sim_v2.task.drop_done"),
-        t("sim_v2.task.wait_sec"),
-        t("sim_v2.task.total_sec"),
-        t("sim_v2.task.from"),
-        t("sim_v2.task.to"),
-        t("sim_v2.task.vehicle"),
-      ];
-      ws.addRow(headers).font = { bold: true };
-      for (const l of result.loads) {
-        ws.addRow([
-          l.id,
-          l.row + 1,
-          clock(l.created),
-          clock(l.assigned),
-          clock(l.pickStart),
-          clock(l.pickDone),
-          clock(l.dropStart),
-          clock(l.dropDone),
-          l.pickStart >= 0 ? Math.round(l.pickStart - l.created) : null,
-          l.dropDone >= 0 ? Math.round(l.dropDone - l.created) : null,
-          l.from ? names.get(l.from) ?? l.from : "",
-          l.to ? names.get(l.to) ?? l.to : "",
-          l.vehicle ?? "",
-        ]);
-      }
-      ws.columns.forEach((c) => (c.width = 14));
+      addTasksSheet(wb, t as unknown as T, outcome);
       const buf = await wb.xlsx.writeBuffer();
       downloadBlob(
         new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }),

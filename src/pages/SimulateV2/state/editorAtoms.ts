@@ -79,6 +79,8 @@ export const viewAtom = atom<View>({ x: 0, y: 0, scale: 10 });
 
 export interface Layers {
   background: boolean;
+  /** DXF 底圖 (各圖層的開關存在 doc.cad.hiddenLayers) */
+  cad: boolean;
   grid: boolean;
   paths: boolean;
   nodes: boolean;
@@ -87,6 +89,7 @@ export interface Layers {
 
 export const layersAtom = atom<Layers>({
   background: true,
+  cad: true,
   grid: true,
   paths: true,
   nodes: true,
@@ -101,6 +104,9 @@ export const measureAtom = atom<{ a: Point | null; b: Point | null }>({ a: null,
 
 /** 比例校正: 點的兩個位置; 兩點都有了就跳出輸入距離的視窗 */
 export const calibrationAtom = atom<{ a: Point | null; b: Point | null }>({ a: null, b: null });
+
+/** 比例校正要校哪一個: 圖片底圖或 DXF */
+export const calibrationTargetAtom = atom<"image" | "cad">("image");
 
 /** 畫路線時, 這一串目前接到哪裡 (第一下點完、還沒拉出第一段時, 起點還沒建成點位) */
 export const pathDraftAtom = atom<Target | null>(null);

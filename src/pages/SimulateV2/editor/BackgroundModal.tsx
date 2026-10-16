@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from "react";
-import { App, Button, InputNumber, Modal, Popconfirm, Slider, Space, Switch, Tag, Upload } from "antd";
+import { App, Button, InputNumber, Modal, Popconfirm, Slider, Space, Switch, Tabs, Tag, Upload } from "antd";
 import { DeleteOutlined, InboxOutlined, ColumnWidthOutlined, SyncOutlined } from "@ant-design/icons";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
@@ -9,7 +9,8 @@ import { imageSizeOf } from "../io/image";
 import { PdfDocument, openPdf, renderPdfPage } from "../io/pdf";
 import { boundsOf } from "../model/geometry";
 import { ImageBackground } from "../model/types";
-import { commitAtom, docAtom, fitRequestAtom, switchToolAtom } from "../state/editorAtoms";
+import { calibrationTargetAtom, commitAtom, docAtom, fitRequestAtom, switchToolAtom } from "../state/editorAtoms";
+import CadSection from "./CadSection";
 
 const Info = styled.div`
   display: grid;
@@ -36,7 +37,15 @@ const BackgroundModal: FC<{ open: boolean; projectId: string; onClose: () => voi
   const commit = useSetAtom(commitAtom);
   const switchTool = useSetAtom(switchToolAtom);
   const fit = useSetAtom(fitRequestAtom);
+  const setCalTarget = useSetAtom(calibrationTargetAtom);
   const [busy, setBusy] = useState(false);
+  // 只有 DXF 時打開就停在 DXF 那一頁
+  const [tab, setTab] = useState<"image" | "cad">("image");
+  useEffect(() => {
+    if (open) setTab(doc.cad && !doc.background ? "cad" : "image");
+    // 只在打開的那一下決定
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
   const [pdf, setPdf] = useState<{ pdf: PdfDocument; name: string; page: number } | null>(null);
   const bg = doc.background;
   const [opacity, setOpacity] = useState(bg?.opacity ?? 0.6);
@@ -129,8 +138,8 @@ const BackgroundModal: FC<{ open: boolean; projectId: string; onClose: () => voi
   const update = (patch: Partial<ImageBackground>) =>
     commit((d) => (d.background ? { ...d, background: { ...d.background, ...patch } } : d));
 
-  return (
-    <Modal open={open} title={t("sim_v2.bg.title")} onCancel={onClose} footer={null} width={560} destroyOnHidden>
+  const imagePane = (
+    <>
       {pdf ? (
         <Space orientation="vertical">
           <span>{t("sim_v2.bg.pdf_pages", { count: pdf.pdf.numPages })}</span>
@@ -196,6 +205,7 @@ const BackgroundModal: FC<{ open: boolean; projectId: string; onClose: () => voi
               icon={<ColumnWidthOutlined />}
               data-testid="simv2-bg-calibrate"
               onClick={() => {
+                setCalTarget("image");
                 switchTool("calibrate");
                 onClose();
               }}
@@ -211,6 +221,19 @@ const BackgroundModal: FC<{ open: boolean; projectId: string; onClose: () => voi
           </Space>
         </>
       )}
+    </>
+  );
+
+  return (
+    <Modal open={open} title={t("sim_v2.bg.title")} onCancel={onClose} footer={null} width={600} destroyOnHidden>
+      <Tabs
+        activeKey={tab}
+        onChange={(k) => setTab(k as "image" | "cad")}
+        items={[
+          { key: "image", label: t("sim_v2.bg.tab_image"), children: imagePane },
+          { key: "cad", label: <span data-testid="simv2-bg-tab-cad">{t("sim_v2.bg.tab_cad")}</span>, children: <CadSection projectId={projectId} onClose={onClose} /> },
+        ]}
+      />
     </Modal>
   );
 };

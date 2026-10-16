@@ -1,14 +1,16 @@
-import { FC, ReactNode, useRef } from "react";
-import { Alert, Button, Empty, Table, Tabs, Tooltip } from "antd";
+import { FC, ReactNode, useMemo, useRef } from "react";
+import { Alert, Button, Dropdown, Empty, Table, Tabs, Tooltip } from "antd";
+import { DownOutlined, FileExcelOutlined, PrinterOutlined } from "@ant-design/icons";
 import { useAtomValue, useSetAtom, useStore } from "jotai";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { useElementSize } from "../editor/hooks";
 import type { Hotspot, StationStats } from "../engine/types";
-import { sameSimSetup } from "../model/setupOps";
 import { docAtom, projectAtom } from "../state/editorAtoms";
-import { RunOutcome, mapModeAtom, playTimeAtom, playingAtom, replayFocusAtom } from "../state/runAtoms";
-import { startRun } from "./controller";
+import { RunOutcome, mapModeAtom, playTimeAtom, playingAtom, replayFocusAtom, reportOpenAtom } from "../state/runAtoms";
+import { startRun, startSweep } from "./controller";
+import { useExportReport } from "./report/useExportReport";
+import { runHash, sweepHash } from "./sweep";
 import { heatColor } from "./colors";
 import { fmtClock, fmtDuration, fmtMinutes, fmtNumber, fmtPercent } from "./format";
 import { HourlyChart, VehicleTimeChart } from "./ResultCharts";
@@ -65,6 +67,18 @@ const Tile: FC<{ label: ReactNode; value: ReactNode; sub?: ReactNode; testId?: s
   </TileBox>
 );
 
+const Head = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+
+  .sub {
+    font-size: 12px;
+    color: var(--c-text-muted);
+  }
+`;
+
 const HotRow = styled.button`
   display: grid;
   grid-template-columns: 22px minmax(0, 1fr) 64px;
@@ -110,11 +124,15 @@ const ResultsPanel: FC<{ outcome: RunOutcome }> = ({ outcome }) => {
   const setMode = useSetAtom(mapModeAtom);
   const setTime = useSetAtom(playTimeAtom);
   const setPlaying = useSetAtom(playingAtom);
+  const setReportOpen = useSetAtom(reportOpenAtom);
+  const exportReport = useExportReport();
   const wrapRef = useRef<HTMLDivElement>(null);
   const { width } = useElementSize(wrapRef);
   const { result } = outcome;
   const k = result.kpi;
-  const stale = !sameSimSetup(outcome.doc, doc);
+  const fromSweep = outcome.source.kind === "sweep";
+  const currentHash = useMemo(() => (fromSweep ? sweepHash(doc) : runHash(doc)), [doc, fromSweep]);
+  const stale = currentHash !== outcome.hash;
   const nodePos = new Map(outcome.doc.nodes.map((n) => [n.id, n]));
   // 面板左右各有 12px 的內距, 再留一點給捲軸
   const chartWidth = Math.max(240, width - 24 - 12);
@@ -145,19 +163,47 @@ const ResultsPanel: FC<{ outcome: RunOutcome }> = ({ outcome }) => {
 
   return (
     <Panel ref={wrapRef} data-testid="simv2-results">
+      <Head>
+        <div>
+          <b>{fromSweep && outcome.source.kind === "sweep" ? t("sim_v2.result.title_sweep", { count: outcome.source.count, seed: outcome.source.seed }) : t("sim_v2.result.title_single")}</b>
+          <div className="sub">
+            {outcome.savedAt
+              ? t("sim_v2.history.saved_at", { time: new Date(outcome.savedAt).toLocaleString() })
+              : fromSweep
+                ? t("sim_v2.result.from_sweep")
+                : t("sim_v2.result.not_saved")}
+          </div>
+        </div>
+        <Dropdown
+          trigger={["click"]}
+          menu={{
+            items: [
+              { key: "xlsx", icon: <FileExcelOutlined />, label: t("sim_v2.report.excel") },
+              { key: "print", icon: <PrinterOutlined />, label: t("sim_v2.report.print") },
+            ],
+            onClick: ({ key }) => (key === "xlsx" ? void exportReport.single(outcome) : setReportOpen(true)),
+          }}
+        >
+          <Button size="small" loading={exportReport.busy} data-testid="simv2-report-menu">
+            {t("sim_v2.report.button")} <DownOutlined />
+          </Button>
+        </Dropdown>
+      </Head>
       {stale && (
         <Alert
           type="warning"
           showIcon
-          title={t("sim_v2.result.stale")}
+          title={fromSweep ? t("sim_v2.sweep.stale") : t("sim_v2.result.stale")}
           action={
-            <Button size="small" onClick={() => startRun(store)}>
-              {t("sim_v2.result.rerun")}
+            <Button size="small" onClick={() => (fromSweep ? startSweep(store) : startRun(store))}>
+              {fromSweep ? t("sim_v2.sweep.rerun") : t("sim_v2.result.rerun")}
             </Button>
           }
           data-testid="simv2-result-stale"
         />
       )}
+      {outcome.mismatch && <Alert type="info" showIcon title={t("sim_v2.history.mismatch")} />}
+      {outcome.trace === "failed" && <Alert type="warning" showIcon title={t("sim_v2.history.trace_failed")} />}
       {result.deadlock && (
         <Alert
           type="error"

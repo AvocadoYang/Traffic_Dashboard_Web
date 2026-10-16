@@ -123,7 +123,7 @@ const Workspace: FC<{ projectId: string; active: boolean }> = ({ projectId, acti
           if (!isTypingTarget(e.target)) shellRef.current?.focus({ preventScroll: true });
         }}
       >
-        <EditorCanvas backgroundUrl={bgUrl} />
+        <EditorCanvas backgroundUrl={bgUrl} projectId={projectId} />
         <HintBar />
       </div>
       <StatusBar />

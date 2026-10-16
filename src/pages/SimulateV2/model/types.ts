@@ -4,7 +4,7 @@
  * 座標一律是公尺, y 軸朝上 (跟 CAD、現場地圖一樣); 畫到畫面上時才把 y 反過來.
  * 格式有變時把 SIM_DOC_VERSION 加一, 並在 migrate.ts 裡把舊格式升上來.
  */
-export const SIM_DOC_VERSION = 2;
+export const SIM_DOC_VERSION = 3;
 
 /** point: 一般點位 / station: 站點 (取放貨) / standby: 待命點 */
 export type NodeKind = "point" | "station" | "standby";
@@ -77,6 +77,41 @@ export interface ImageBackground {
 
 export type SimBackground = ImageBackground;
 
+/** CAD 圖 (DXF) 的單位 */
+export type CadUnit = "mm" | "cm" | "m" | "in" | "ft";
+
+/**
+ * DXF 底圖. 圖面座標換到地圖: 地圖 = origin + (圖面座標 - base) x metersPerUnit.
+ * base 是匯入時圖面主要範圍的左下角 (圖面單位), 之後就固定, 圖面上的線以它為原點存成
+ * 比較小的數字 (CAD 圖常常畫在離原點很遠的地方). 檔案本身存在 sim_project_file.
+ */
+export interface CadBackground {
+  kind: "dxf";
+  fileId: string;
+  fileName: string;
+  /** 圖面單位: DXF 裡寫的, 或使用者選的 */
+  unit: CadUnit;
+  /** 圖面上的一個單位是幾公尺 (照單位換算, 或兩點校正出來的) */
+  metersPerUnit: number;
+  baseX: number;
+  baseY: number;
+  /**
+   * 主要範圍 (圖面單位, 以 base 為原點; 零星畫在很遠的線不算). 縮放到全部看得到、拖曳底圖時用,
+   * 不用等檔案讀完. 換成新版的圖時 base 不變, 範圍可能從負的開始.
+   */
+  extent: { minX: number; minY: number; maxX: number; maxY: number };
+  originX: number;
+  originY: number;
+  /** 隱藏的圖層 (名稱) */
+  hiddenLayers: string[];
+  /** 0 ~ 1 */
+  opacity: number;
+  /** 鎖定時不能拖曳 */
+  locked: boolean;
+  /** 比例是兩點校正出來的 (不是照單位換算) */
+  calibrated: boolean;
+}
+
 export interface EditorSettings {
   /** 格線間距 (公尺) */
   gridSize: number;
@@ -84,6 +119,8 @@ export interface EditorSettings {
   snap: boolean;
   /** 新畫的路線預設方向 */
   defaultDirection: PathDirection;
+  /** 吸附到 CAD 圖的端點、交點、圓心 */
+  snapCad: boolean;
 }
 
 /** 車種; 車隊就是每種車的台數 */
@@ -144,9 +181,32 @@ export interface RunSettings {
   seed: number;
 }
 
+/**
+ * 車數掃描: 某一種車的台數從 min 跑到 max, 每個台數跑 seeds 個亂數種子, 找出達到目標的最少台數.
+ * 不放在 run 裡: 改掃描設定不會讓單次執行的結果變成過期.
+ */
+export interface SweepSettings {
+  /** 掃描哪一種車 (vehicleTypes 的 id); null 或找不到 = 第一種有台數的車. 其他車種照原本的台數 */
+  typeId: string | null;
+  min: number;
+  max: number;
+  /** 每個台數跑幾個亂數種子 (從執行設定的種子開始, 一次加一) */
+  seeds: number;
+  /** 目標: 需求達成率至少 (0 ~ 1) */
+  minAchievement: number;
+  /** 目標: P95 等待最多幾分鐘 */
+  maxWaitP95Min: number;
+  /** 目標: 稼動率最多 (0 ~ 1) */
+  maxUtilization: number;
+  /** 可用率 (0 ~ 1): 扣掉充電、保養, 建議台數 = 達標台數 / 可用率, 無條件進位 */
+  availability: number;
+}
+
 export interface SimDoc {
   schemaVersion: typeof SIM_DOC_VERSION;
   background: SimBackground | null;
+  /** DXF 底圖; 可以跟圖片底圖同時有 */
+  cad: CadBackground | null;
   nodes: SimNode[];
   paths: SimPath[];
   groups: SimGroup[];
@@ -155,6 +215,7 @@ export interface SimDoc {
   traffic: TrafficSettings;
   demand: DemandRow[];
   run: RunSettings;
+  sweep: SweepSettings;
 }
 
 export interface Point {

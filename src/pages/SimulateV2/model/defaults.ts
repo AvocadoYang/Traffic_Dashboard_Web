@@ -8,6 +8,7 @@ import {
   SimDoc,
   SimNode,
   StationProps,
+  SweepSettings,
   TrafficSettings,
   VehicleType,
 } from "./types";
@@ -16,6 +17,7 @@ export const DEFAULT_EDITOR: EditorSettings = {
   gridSize: 1,
   snap: true,
   defaultDirection: "two-way",
+  snapCad: true,
 };
 
 export const DEFAULT_STATION: StationProps = {
@@ -51,6 +53,17 @@ export const DEFAULT_RUN: RunSettings = {
   seed: 1,
 };
 
+export const DEFAULT_SWEEP: SweepSettings = {
+  typeId: null,
+  min: 1,
+  max: 10,
+  seeds: 3,
+  minAchievement: 0.99,
+  maxWaitP95Min: 5,
+  maxUtilization: 0.85,
+  availability: 0.85,
+};
+
 export const newId = () => nanoid(10);
 
 export const newVehicleType = (patch: Partial<VehicleType> = {}): VehicleType => ({
@@ -74,6 +87,7 @@ export const newDemandRow = (patch: Partial<DemandRow> = {}): DemandRow => ({
 export const createEmptyDoc = (): SimDoc => ({
   schemaVersion: SIM_DOC_VERSION,
   background: null,
+  cad: null,
   nodes: [],
   paths: [],
   groups: [],
@@ -82,6 +96,7 @@ export const createEmptyDoc = (): SimDoc => ({
   traffic: { ...DEFAULT_TRAFFIC },
   demand: [],
   run: { ...DEFAULT_RUN },
+  sweep: { ...DEFAULT_SWEEP },
 });
 
 /**

@@ -2,7 +2,7 @@
  * 車輛、搬運需求、執行設定的編輯操作. 跟 ops.ts 一樣: 吃一份 doc、回一份新的, 沒有改就回同一份.
  */
 import { newDemandRow, newVehicleType } from "./defaults";
-import type { DemandRow, RunSettings, SimDoc, TrafficSettings, VehicleType } from "./types";
+import type { DemandRow, RunSettings, SimDoc, SweepSettings, TrafficSettings, VehicleType } from "./types";
 
 const changed = <T extends object>(item: T, patch: Partial<T>) =>
   (Object.keys(patch) as (keyof T)[]).some((k) => item[k] !== patch[k]);
@@ -62,6 +62,15 @@ export function moveDemandRow(doc: SimDoc, id: string, delta: -1 | 1): SimDoc {
 
 export function updateRun(doc: SimDoc, patch: Partial<RunSettings>): SimDoc {
   return changed(doc.run, patch) ? { ...doc, run: { ...doc.run, ...patch } } : doc;
+}
+
+export function updateSweep(doc: SimDoc, patch: Partial<SweepSettings>): SimDoc {
+  if (!changed(doc.sweep, patch)) return doc;
+  const next = { ...doc.sweep, ...patch };
+  // 範圍反過來時把另一頭推過去
+  if (patch.min !== undefined && next.max < next.min) next.max = next.min;
+  if (patch.max !== undefined && next.min > next.max) next.min = next.max;
+  return { ...doc, sweep: next };
 }
 
 /** 模擬會用到的設定 (點位、路線、群組、車、規則、需求、執行設定) 是不是同一份: 結果過期了沒 */

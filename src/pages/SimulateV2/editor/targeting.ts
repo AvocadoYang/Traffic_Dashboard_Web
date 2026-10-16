@@ -1,5 +1,5 @@
 /**
- * 點在畫布上的那一下要對到什麼: 既有點位、路線上的某一點, 或空地 (會吸附格線).
+ * 點在畫布上的那一下要對到什麼: 既有點位、路線上的某一點, CAD 圖上的點, 或空地 (會吸附格線).
  */
 import { snapToGrid } from "../model/geometry";
 import { addNode, findNodeNear, findPathNear, setKind, splitPath } from "../model/ops";
@@ -9,17 +9,23 @@ import { NodeKind, Point, SimDoc } from "../model/types";
 export const NODE_HIT_PX = 9;
 /** 滑鼠離路線幾個像素內算點到它 */
 export const PATH_HIT_PX = 7;
+/** 滑鼠離 CAD 圖上的點幾個像素內就吸過去 */
+export const CAD_SNAP_PX = 10;
+
+/** 找 CAD 圖上離 p 最近 (radius 公尺內) 的吸附點; 回 null 代表沒有 */
+export type CadSnapper = (p: Point, radius: number) => { point: Point; kind: number } | null;
 
 export type Target =
   | { kind: "node"; id: string; point: Point }
   | { kind: "path"; pathId: string; point: Point }
-  | { kind: "free"; point: Point };
+  /** cadSnap: 吸到 CAD 圖上的點 (SNAP_END / SNAP_CROSS / SNAP_CENTER) */
+  | { kind: "free"; point: Point; cadSnap?: number };
 
 export function resolveTarget(
   doc: SimDoc,
   raw: Point,
   scale: number,
-  opts: { snap: boolean; usePaths?: boolean },
+  opts: { snap: boolean; usePaths?: boolean; cad?: CadSnapper | null },
 ): Target {
   const node = findNodeNear(doc, raw, NODE_HIT_PX / scale);
   if (node) return { kind: "node", id: node.id, point: { x: node.x, y: node.y } };
@@ -27,6 +33,8 @@ export function resolveTarget(
     const hit = findPathNear(doc, raw, PATH_HIT_PX / scale);
     if (hit) return { kind: "path", pathId: hit.path.id, point: hit.point };
   }
+  const cad = opts.cad?.(raw, CAD_SNAP_PX / scale);
+  if (cad) return { kind: "free", point: cad.point, cadSnap: cad.kind };
   return { kind: "free", point: opts.snap ? snapToGrid(raw, doc.editor.gridSize) : raw };
 }
 

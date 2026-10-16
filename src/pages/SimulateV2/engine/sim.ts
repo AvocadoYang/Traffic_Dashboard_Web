@@ -69,7 +69,7 @@ const B_QUEUE = 6;
 /** 閒置車擋路超過這麼久, 叫它讓開 */
 const IDLE_BLOCK_SEC = 30;
 /** 同一台車同一趟最多為了解開互卡改道幾次 */
-const MAX_REROUTES = 3;
+const MAX_REROUTES = 10;
 
 interface Event {
   kind: number;
@@ -1477,13 +1477,23 @@ export class Simulator {
     };
   }
 
-  /** 圈裡其他車佔著的、和它們接下來要走的 */
-  private cycleBans(v: Veh, cycle: Veh[]) {
+  /**
+   * 圈裡其他車佔著的、和它們接下來要走的. standing: 連不在圈裡、停在點位上的車也繞過去
+   * (先去旁邊等的時候用: 穿過停著的車的路要等它先走, 它要走的方向又常常就是這台車讓出來的路,
+   * 例如死巷裡的兩個站點)
+   */
+  private cycleBans(v: Veh, cycle: Veh[], standing = false) {
     const net = this.net;
     const others = cycle.filter((u) => u !== v);
     const otherIdx = new Set(others.map((u) => u.idx));
     const held = new Set<number>();
     for (let i = 0; i < this.owner.length; i++) if (otherIdx.has(this.owner[i])) held.add(i);
+    for (const u of standing ? this.vehicles : []) {
+      if (u === v) continue;
+      const at = u.node >= 0 ? u.node : u.route && u.s <= EPS ? net.arcs[u.route.arcs[0]].from : -1;
+      const z = at >= 0 ? net.nodes[at].zone : -1;
+      if (z >= 0 && this.owner[z] === u.idx) held.add(z);
+    }
     const ahead = new Set<number>(held);
     const cors = new Set<number>();
     for (const u of others) {
@@ -1549,7 +1559,7 @@ export class Simulator {
 
   private resolveFor(v: Veh, cycle: Veh[], step: "route" | "switch" | "detour"): boolean {
     const net = this.net;
-    const bans = this.cycleBans(v, cycle);
+    const bans = this.cycleBans(v, cycle, step === "detour");
     const loaded = v.phase === P_TO_DROP;
     const R = v.route;
     if (step === "route") {
@@ -1572,19 +1582,24 @@ export class Simulator {
     const zoneOf = (m: number) => net.nodes[m].zone;
     if (step === "switch") {
       const load = v.load;
+      // 換之前的階段: applyPlan 裡車可能馬上抵達 (又被派了新任務), 之後不能再看 v.phase
+      const phase = v.phase;
       let options: number[];
-      if (v.phase === P_TO_PICK && load) options = load.pickNodes;
-      else if (v.phase === P_TO_DROP && load) options = load.dropNodes;
-      else if (v.phase === P_HOME) options = net.nodes.map((_, i) => i).filter((i) => net.nodes[i].role === 2 && this.standbyOwner[i] < 0);
+      if (phase === P_TO_PICK && load) options = load.pickNodes;
+      else if (phase === P_TO_DROP && load) options = load.dropNodes;
+      else if (phase === P_HOME) options = net.nodes.map((_, i) => i).filter((i) => net.nodes[i].role === 2 && this.standbyOwner[i] < 0);
       else return false;
+      // 車現在停的地方不算 (換過去等於原地不動, 解不開)
+      const here = v.node >= 0 ? v.node : R && v.s <= EPS ? net.arcs[R.arcs[0]].from : -1;
       const work = (m: number) => (loaded ? net.nodes[m].dropSec : net.nodes[m].pickSec);
-      const free = options.filter((m) => m !== v.target && !(zoneOf(m) >= 0 && bans.touchesHeld(zoneOf(m))));
-      for (const m of pickCandidates(free, (m) => (v.phase === P_HOME ? 0 : this.stationPenalty(v, m, work(m))))) {
+      const free = options.filter((m) => m !== v.target && m !== here && !(zoneOf(m) >= 0 && bans.touchesHeld(zoneOf(m))));
+      for (const m of pickCandidates(free, (m) => (phase === P_HOME ? 0 : this.stationPenalty(v, m, work(m))))) {
         const arcs = this.planFor(v, m, loaded, bans.bannedArc);
-        if (!arcs) continue;
+        if (!arcs || !arcs.length) continue;
         const old = v.target;
-        if (!this.applyPlan(v, arcs, m, v.phase)) continue;
-        if (v.phase === P_HOME) {
+        const oldStandby = v.standby;
+        // 先記好新的目的地, 再出發 (出發時可能就抵達了, 抵達要看到對的站點和待命點)
+        if (phase === P_HOME) {
           if (v.standby >= 0) this.standbyOwner[v.standby] = -1;
           v.standby = m;
           this.standbyOwner[m] = v.idx;
@@ -1594,7 +1609,18 @@ export class Simulator {
           if (loaded) load!.dropNode = m;
           else load!.pickNode = m;
         }
-        return true;
+        if (this.applyPlan(v, arcs, m, phase)) return true;
+        // 換不了路: 還原
+        if (phase === P_HOME) {
+          this.standbyOwner[m] = -1;
+          v.standby = oldStandby;
+          if (oldStandby >= 0 && this.standbyOwner[oldStandby] < 0) this.standbyOwner[oldStandby] = v.idx;
+        } else {
+          this.stationTargets[m]--;
+          this.stationTargets[old]++;
+          if (loaded) load!.dropNode = old;
+          else load!.pickNode = old;
+        }
       }
       return false;
     }

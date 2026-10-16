@@ -4,7 +4,9 @@ import { EyeOutlined } from "@ant-design/icons";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import { Layers, commitAtom, cursorAtom, docAtom, layersAtom, viewAtom } from "../state/editorAtoms";
+import { useCadGeometry } from "../io/dxf/cadLoader";
+import { Layers, commitAtom, cursorAtom, docAtom, layersAtom, projectAtom, viewAtom } from "../state/editorAtoms";
+import CadLayerList from "./CadLayerList";
 
 const Bar = styled.div`
   display: flex;
@@ -53,7 +55,7 @@ function scaleBarLength(pxPerM: number) {
   return options.reduce((best, v) => (Math.abs(v * pxPerM - 100) < Math.abs(best * pxPerM - 100) ? v : best));
 }
 
-const LAYER_KEYS: (keyof Layers)[] = ["background", "grid", "paths", "nodes", "labels"];
+const LAYER_KEYS: (keyof Layers)[] = ["background", "cad", "grid", "paths", "nodes", "labels"];
 
 const StatusBar: FC = () => {
   const { t } = useTranslation();
@@ -62,6 +64,8 @@ const StatusBar: FC = () => {
   const doc = useAtomValue(docAtom);
   const commit = useSetAtom(commitAtom);
   const [layers, setLayers] = useAtom(layersAtom);
+  const project = useAtomValue(projectAtom);
+  const cadGeom = useCadGeometry(project?.id, doc.cad).geometry;
   const bar = scaleBarLength(view.scale);
 
   return (
@@ -91,15 +95,36 @@ const StatusBar: FC = () => {
         />
         {t("sim_v2.status.snap")}
       </Field>
+      {doc.cad && (
+        <Field>
+          <Switch
+            size="small"
+            checked={doc.editor.snapCad}
+            onChange={(v) => commit((d) => ({ ...d, editor: { ...d.editor, snapCad: v } }))}
+            data-testid="simv2-snap-cad"
+          />
+          {t("sim_v2.status.snap_cad")}
+        </Field>
+      )}
       <Dropdown
         trigger={["click"]}
         popupRender={() => (
-          <div style={{ padding: 8, background: "var(--c-bg)", border: "1px solid var(--c-border)", borderRadius: 8, display: "flex", flexDirection: "column", gap: 4 }}>
-            {LAYER_KEYS.map((k) => (
+          <div style={{ padding: 8, background: "var(--c-bg)", border: "1px solid var(--c-border)", borderRadius: 8, display: "flex", flexDirection: "column", gap: 4, width: doc.cad ? 300 : undefined }}>
+            {LAYER_KEYS.filter((k) => k !== "cad" || doc.cad).map((k) => (
               <Checkbox key={k} checked={layers[k]} onChange={(e) => setLayers({ ...layers, [k]: e.target.checked })}>
                 {t(`sim_v2.layer.${k}`)}
               </Checkbox>
             ))}
+            {doc.cad && cadGeom && layers.cad && (
+              <div style={{ marginTop: 6 }}>
+                <CadLayerList
+                  layers={cadGeom.layers}
+                  hidden={doc.cad.hiddenLayers}
+                  onChange={(hiddenLayers) => commit((d) => (d.cad ? { ...d, cad: { ...d.cad, hiddenLayers } } : d))}
+                  testId="simv2-status-cad-layers"
+                />
+              </div>
+            )}
           </div>
         )}
       >

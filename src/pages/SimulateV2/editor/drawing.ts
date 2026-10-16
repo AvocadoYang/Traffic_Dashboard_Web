@@ -5,6 +5,7 @@
 import { formatLength } from "../model/geometry";
 import { ImageBackground, Point, SimDoc, SimNode } from "../model/types";
 import { View } from "../state/editorAtoms";
+import { SNAP_CENTER, SNAP_CROSS } from "../io/dxf/types";
 import { CanvasColors, STATION_COLORS } from "./hooks";
 import { Target } from "./targeting";
 import { toScreen, toWorld } from "./viewMath";
@@ -261,7 +262,22 @@ function marker(c: Ctx, f: Frame, t: Target) {
   c.strokeStyle = f.colors.accent;
   c.lineWidth = 2;
   c.beginPath();
-  if (t.kind === "node") {
+  if (t.kind === "free" && t.cadSnap !== undefined) {
+    // 吸到 CAD 圖: 端點方框、交點叉叉、圓心圓圈
+    c.strokeStyle = f.colors.snap;
+    if (t.cadSnap === SNAP_CROSS) {
+      c.moveTo(s.x - 6, s.y - 6);
+      c.lineTo(s.x + 6, s.y + 6);
+      c.moveTo(s.x + 6, s.y - 6);
+      c.lineTo(s.x - 6, s.y + 6);
+    } else if (t.cadSnap === SNAP_CENTER) {
+      c.arc(s.x, s.y, 6, 0, Math.PI * 2);
+      c.moveTo(s.x + 1.5, s.y);
+      c.arc(s.x, s.y, 1.5, 0, Math.PI * 2);
+    } else {
+      c.rect(s.x - 5.5, s.y - 5.5, 11, 11);
+    }
+  } else if (t.kind === "node") {
     c.arc(s.x, s.y, 11, 0, Math.PI * 2);
   } else if (t.kind === "path") {
     c.moveTo(s.x, s.y - 7);

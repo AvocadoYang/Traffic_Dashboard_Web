@@ -1,16 +1,18 @@
 import { FC, PointerEvent as ReactPointerEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Button, Segmented, Tooltip } from "antd";
-import { CompressOutlined } from "@ant-design/icons";
+import { Button, Segmented, Spin, Tooltip } from "antd";
+import { CompressOutlined, FullscreenOutlined } from "@ant-design/icons";
 import { Layer, Shape, Stage } from "react-konva";
-import { useAtom, useAtomValue, useStore } from "jotai";
+import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
+import { drawCad } from "../editor/cadDraw";
 import { Frame, drawBackground, drawNodes, drawPaths } from "../editor/drawing";
+import { useCadGeometry, useHiddenMask } from "../io/dxf/cadLoader";
 import { useCanvasColors, useElementSize, useHtmlImage } from "../editor/hooks";
 import { contentBounds, fitView, zoomAt } from "../editor/viewMath";
 import { nodeMap } from "../model/ops";
-import { View } from "../state/editorAtoms";
-import { RunOutcome, mapModeAtom, playTimeAtom, replayFocusAtom, replayViewAtom } from "../state/runAtoms";
+import { View, projectAtom } from "../state/editorAtoms";
+import { RunOutcome, mapModeAtom, playTimeAtom, presentAtom, replayFocusAtom, replayViewAtom } from "../state/runAtoms";
 import { STATE_ORDER, bucketOf, heatColor, isLoaded, stateColors } from "./colors";
 import { fmtMinutes } from "./format";
 import { drawDeadlock, drawHeat, drawHighlight, drawVehicles, posesAt, vehicleAt } from "./replayDraw";
@@ -89,18 +91,32 @@ const VehicleLayer: FC<{ outcome: RunOutcome; frame: Frame; hover: number | null
   );
 };
 
-const ReplayCanvas: FC<{ outcome: RunOutcome; backgroundUrl: string | null }> = ({ outcome, backgroundUrl }) => {
+/**
+ * 回放 / 塞車熱點的地圖. present: 展示模式 (全螢幕) 裡用, 不顯示切換展示模式的按鈕,
+ * 角落的東西由展示模式自己放.
+ */
+const ReplayCanvas: FC<{
+  outcome: RunOutcome;
+  backgroundUrl: string | null;
+  present?: boolean;
+  /** 平移縮放存在哪裡 (展示模式用自己的, 不跟結果頁的地圖搶) */
+  viewAtom?: PrimitiveAtom<View | null>;
+}> = ({ outcome, backgroundUrl, present = false, viewAtom = replayViewAtom }) => {
   const { t } = useTranslation();
   const store = useStore();
   const wrapRef = useRef<HTMLDivElement>(null);
   const { width, height } = useElementSize(wrapRef);
-  const [storedView, setView] = useAtom(replayViewAtom);
+  const [storedView, setView] = useAtom(viewAtom);
   const [mode, setMode] = useAtom(mapModeAtom);
   const focus = useAtomValue(replayFocusAtom);
   const canvas = useCanvasColors();
   const image = useHtmlImage(backgroundUrl);
   const doc = outcome.doc;
   const result = outcome.result;
+  const project = useAtomValue(projectAtom);
+  const setPresent = useSetAtom(presentAtom);
+  const cadGeom = useCadGeometry(project?.id, doc.cad).geometry;
+  const cadHidden = useHiddenMask(cadGeom, doc.cad?.hiddenLayers);
   const colors = useMemo(() => stateColors(canvas.dark), [canvas.dark]);
   const [pan, setPan] = useState<{ sx: number; sy: number; view: View } | null>(null);
   const [pointer, setPointer] = useState<{ x: number; y: number } | null>(null);
@@ -143,6 +159,7 @@ const ReplayCanvas: FC<{ outcome: RunOutcome; backgroundUrl: string | null }> = 
   const drawStatic = useCallback(
     (c: CanvasRenderingContext2D) => {
       if (doc.background && image) drawBackground(c, frame, doc.background, image);
+      if (doc.cad && cadGeom && cadHidden) drawCad(c, frame, doc.cad, cadGeom, cadHidden);
       if (mode === "heat") {
         c.globalAlpha = 0.45;
         drawPaths(c, frame, doc, pos, none);
@@ -156,7 +173,7 @@ const ReplayCanvas: FC<{ outcome: RunOutcome; backgroundUrl: string | null }> = 
       if (highlight) drawHighlight(c, frame, doc, pos, highlight);
       if (result.deadlock) drawDeadlock(c, frame, result.deadlock);
     },
-    [doc, image, frame, mode, pos, none, result, canvas.dark, highlight],
+    [doc, image, cadGeom, cadHidden, frame, mode, pos, none, result, canvas.dark, highlight],
   );
   // 同一個函式就不重畫 (播放時只有車那一層在動)
   const staticScene = useCallback((ctx: { _context: CanvasRenderingContext2D }) => drawStatic(ctx._context), [drawStatic]);
@@ -218,6 +235,23 @@ const ReplayCanvas: FC<{ outcome: RunOutcome; backgroundUrl: string | null }> = 
         <Tooltip title={t("sim_v2.result.fit")}>
           <Button size="small" type="text" icon={<CompressOutlined />} onClick={() => setView(fitView(contentBounds(doc), width, height))} />
         </Tooltip>
+        {!present && (
+          <Tooltip title={t("sim_v2.present.enter")}>
+            <Button
+              size="small"
+              type="text"
+              icon={<FullscreenOutlined />}
+              onClick={() => setPresent(true)}
+              aria-label={t("sim_v2.present.enter")}
+              data-testid="simv2-present"
+            />
+          </Tooltip>
+        )}
+        {outcome.trace === "loading" && mode === "replay" && (
+          <span data-testid="simv2-trace-loading">
+            <Spin size="small" /> {t("sim_v2.history.trace_loading")}
+          </span>
+        )}
       </Corner>
       <Corner style={{ bottom: 10, left: 10, maxWidth: "calc(100% - 20px)" }} onPointerDown={(e) => e.stopPropagation()} data-testid="simv2-map-legend">
         {mode === "replay" ? (
