@@ -784,6 +784,7 @@
     "ip": "Elevator IP (optional)",
     "invalid_ip_address": "Invalid IP address format",
     "wait_point": "Wait point",
+    "is_waiting_point": "Is waiting point",
     "wait_area": "Wait point (work area)",
     "wait_area_placeholder": "Not a wait point",
     "wait_area_none": "No work area yet. Add one under Device → Work Areas first.",
@@ -878,6 +879,8 @@
     "controlled_zone": "Controlled zone",
     "view_available_zone": "View available zone",
     "view_available": "View available",
+    "elevator_zone": "Elevator zone",
+    "elevator_id": "Elevator ID",
     "placeholder": {
       "zone_name": "Please enter zone name",
       "zone_category": "Please select zone category (multiple selection allowed)",
@@ -885,7 +888,8 @@
       "limit": "Please enter vehicle limit",
       "hight_limit": "Please enter height limit",
       "speed_limit": "Please enter maximum speed limit",
-      "view_available": "Please enter waiting point"
+      "view_available": "Please enter waiting point",
+      "elevator_id": "Enter the elevator ID (use the same ID for the same elevator on every floor)"
     },
     "waring": {
       "tag_not_yet_setting": "The tag setting is still not setting ",
@@ -3587,7 +3591,7 @@
       "current_position": "Current position",
       "current_position_must_be_empty": "\"Current position\" is on, leave this empty",
       "select_location": "Please select a location",
-      "current_position_hint": "Turning on \"Current position\" docks at the vehicle's current position.",
+      "current_position_hint": "Turning on \"Current position\" uses the vehicle's current position instead of a marker.",
       "select_marker_type": "Please select a marker type",
       "marker_type_must_be_empty": "\"Current position\" is off, leave this empty",
       "no_online_mir": "No MiR vehicle is currently online",
@@ -3901,6 +3905,29 @@
       }
     ]
   },
+  "zone_hover": {
+    "zone_type": "Zone type",
+    "general_zone": "General zone",
+    "amrs_in_zone": "Vehicles in zone",
+    "no_amr": "No vehicles in this zone",
+    "loading": "Loading…",
+    "highlight_forbidden": "Highlight {{count}} forbidden vehicles on map"
+  },
+  "zone_enable": {
+    "status": "Status",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "enable": "Enable",
+    "disable": "Disable",
+    "disabled_banner": "This zone is disabled: traffic control ignores all of its rules, but still records the vehicles inside.",
+    "confirm_disable_title": "Disable zone \"{{name}}\"?",
+    "confirm_disable_content": "Traffic control will ignore this zone's forbidden vehicles, vehicle limit and view point. Vehicles inside or entering later are not restricted. To enable it again, the vehicles inside must meet the zone's rules.",
+    "enable_blocked_title": "Cannot enable zone \"{{name}}\"",
+    "enable_blocked_hint": "The vehicles currently in this zone break its rules. Move these vehicles out of the zone, then enable it again.",
+    "forbidden_inside": "Forbidden vehicles are inside the zone",
+    "over_limit": "{{count}} vehicles are inside, over the limit of {{limit}}",
+    "enabled_success": "Zone \"{{name}}\" enabled",
+    "disabled_success": "Zone \"{{name}}\" disabled"},
   "map_annotation": {
     "default_text": "New label",
     "tool_select": "Select / move",

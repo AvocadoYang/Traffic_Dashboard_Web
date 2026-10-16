@@ -784,6 +784,7 @@
     "ip": "電梯 IP (選填)",
     "invalid_ip_address": "IP 格式錯誤",
     "wait_point": "等待點",
+    "is_waiting_point": "是否為等待點",
     "wait_area": "等待點（所屬作業區）",
     "wait_area_placeholder": "不是等待點",
     "wait_area_none": "還沒有作業區，先到「設備 → 作業區」新增。",
@@ -872,6 +873,8 @@
     "controlled_zone": "限制區",
     "view_available_zone": "查看區",
     "view_available": "查看區",
+    "elevator_zone": "電梯區",
+    "elevator_id": "電梯 ID",
     "hint": "參數數設定尚未完成！",
     "placeholder": {
       "zone_name": "請輸入區域名稱",
@@ -880,7 +883,8 @@
       "limit": "請輸入限制車數",
       "hight_limit": "請輸入高度限制",
       "speed_limit": "請輸入最高速限",
-      "view_available": "請輸入區域外等待點"
+      "view_available": "請輸入區域外等待點",
+      "elevator_id": "請輸入電梯 ID (不同樓層同一台電梯填一樣的 ID)"
     },
     "waring": {
       "tag_not_yet_setting": "尚未設定完成區域參數設定",
@@ -3588,7 +3592,7 @@
       "current_position": "目前位置",
       "current_position_must_be_empty": "已選「目前位置」,這裡要留空",
       "select_location": "請選一個點位",
-      "current_position_hint": "開啟「目前位置」代表在車輛目前的位置對接。",
+      "current_position_hint": "開啟「目前位置」代表以車輛目前的位置執行,不指定點位。",
       "select_marker_type": "請選一個 marker type",
       "marker_type_must_be_empty": "沒有開「目前位置」,這裡要留空",
       "no_online_mir": "目前沒有連線中的 MiR 車輛",
@@ -3902,6 +3906,29 @@
       }
     ]
   },
+  "zone_hover": {
+    "zone_type": "區域類型",
+    "general_zone": "一般區域",
+    "amrs_in_zone": "區域內車輛",
+    "no_amr": "目前沒有車輛",
+    "loading": "讀取中…",
+    "highlight_forbidden": "在地圖上標示 {{count}} 台禁止車輛"
+  },
+  "zone_enable": {
+    "status": "狀態",
+    "enabled": "啟用中",
+    "disabled": "已停用",
+    "enable": "啟用",
+    "disable": "停用",
+    "disabled_banner": "此區域已停用：交管不會套用它的任何限制，但仍會記錄區域內的車輛。",
+    "confirm_disable_title": "停用區域「{{name}}」？",
+    "confirm_disable_content": "停用後交管會略過這個區域的禁止、限制車數、查看點等設定，區域內與之後進入的車都不受限制。重新啟用時，區域內的車必須符合區域條件。",
+    "enable_blocked_title": "無法啟用區域「{{name}}」",
+    "enable_blocked_hint": "區域內目前的車輛不符合區域條件。請先把以下車輛移出區域，再重新啟用。",
+    "forbidden_inside": "禁止進入的車輛在區域內",
+    "over_limit": "區域內有 {{count}} 台車，超過容車上限 {{limit}} 台",
+    "enabled_success": "已啟用區域「{{name}}」",
+    "disabled_success": "已停用區域「{{name}}」"},
   "map_annotation": {
     "default_text": "新標註",
     "tool_select": "選取 / 移動",

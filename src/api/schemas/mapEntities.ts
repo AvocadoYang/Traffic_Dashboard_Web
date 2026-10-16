@@ -14,6 +14,7 @@ export const locationSchema = object({
   // 等待點: 屬於哪個作業區、排第幾個; 不是等待點時 wait_area_id 是 null
   wait_area_id: string().nullable().optional(),
   wait_order: number().optional(),
+  is_waiting_poiont: boolean().optional(),
 }).required();
 
 export const roadSchema = object({
@@ -48,12 +49,14 @@ export const zoneSchema = object({
   layer: string().required(),
   lidar_front: boolean().required(),
   lidar_back: boolean().required(),
+  disabled: boolean().optional(),
   tagSetting: object({
     speed_limit: number().nullable(),
     hight_limit: number().nullable(),
     forbidden_car: array(string()),
     limitNum: number().nullable(),
     view_available: number().nullable(),
+    elevator_id: string().nullable(),
   }).optional(),
   startPoint: object({
     startX: number().required(),

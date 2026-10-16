@@ -3,6 +3,7 @@ export const zoneTagResetFields: Record<string, Record<string, unknown>> = {
   限高區: { hight_limit: undefined },
   限制區: { limitNum: undefined },
   查看區: { view_available: undefined },
+  電梯區: { elevator_id: undefined },
   禁止區: { forbidden: [], all_forbidden: false },
 };
 

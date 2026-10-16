@@ -81,8 +81,9 @@ const PanelColumn = styled.div<{ $mode: MapViewMode }>`
   ${({ $mode }) => {
     if ($mode === "full") return `display: none;`;
     if ($mode === "hidden") return `display: flex; flex: 1; min-width: 0;`;
-    return `display: flex; width: clamp(380px, 42%, 900px); flex-shrink: 0;`;
+    return `display: flex; width: var(--panel-width, clamp(380px, 42%, 900px)); flex-shrink: 0;`;
   }}
+  position: relative;
   height: 100%;
   flex-direction: column;
   background: ${c.bg};
@@ -97,6 +98,36 @@ const PanelColumn = styled.div<{ $mode: MapViewMode }>`
         : `display: flex; width: 100%; flex: 1;`}
   }
 `;
+
+const PanelResizeHandle = styled.div`
+  position: absolute;
+  top: 0;
+  right: -6px;
+  bottom: 0;
+  z-index: 2;
+  width: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: ew-resize;
+  touch-action: none;
+
+  &::before {
+    content: "";
+    width: 4px;
+    height: 48px;
+    border-radius: 2px;
+    background: ${c.borderStrong};
+  }
+
+  ${mqNarrow} {
+    display: none;
+  }
+`;
+
+const PANEL_MIN_WIDTH = 320;
+/** 拖到最寬時,地圖至少還留這麼多 */
+const MAP_MIN_WIDTH = 160;
 
 const PanelHeader = styled.div`
   display: flex;
@@ -175,6 +206,46 @@ const SettingV2: React.FC = () => {
   const isNarrow = useIsNarrow();
   const [navOpen, setNavOpen] = useState(false);
   const [navCollapsed, setNavCollapsed] = useAtom(navCollapsedAtom);
+  const panelDragRef = useRef<{
+    startX: number;
+    startWidth: number;
+    maxWidth: number;
+    /** 寫 --panel-width 的那層。寫在 Body 而不是面板本身,關掉面板再開寬度還在 */
+    body: HTMLElement;
+  } | null>(null);
+
+  const handlePanelDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
+    const panel = e.currentTarget.parentElement;
+    const body = panel?.parentElement;
+    if (!panel || !body) return;
+    const panelRect = panel.getBoundingClientRect();
+    panelDragRef.current = {
+      startX: e.clientX,
+      startWidth: panelRect.width,
+      maxWidth:
+        body.getBoundingClientRect().right - panelRect.left - MAP_MIN_WIDTH,
+      body,
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const handlePanelDragMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const drag = panelDragRef.current;
+    if (!drag) return;
+    const next = drag.startWidth + (e.clientX - drag.startX);
+    drag.body.style.setProperty(
+      "--panel-width",
+      `${Math.min(Math.max(next, PANEL_MIN_WIDTH), drag.maxWidth)}px`,
+    );
+  };
+
+  const handlePanelDragEnd = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!panelDragRef.current) return;
+    panelDragRef.current = null;
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+  };
 
   // v1 也是這樣做的:進頁面先把幾顆地圖編輯模式的 atom 歸零。因為 v1/v2 共用同一份
   // atom,誰後進來誰負責重置,不會互相殘留狀態。
@@ -308,6 +379,15 @@ const SettingV2: React.FC = () => {
                       zonePanelForm={zonePanelForm}
                     />
                   </PanelBody>
+
+                  {mapMode === "half" && (
+                    <PanelResizeHandle
+                      onPointerDown={handlePanelDragStart}
+                      onPointerMove={handlePanelDragMove}
+                      onPointerUp={handlePanelDragEnd}
+                      onPointerCancel={handlePanelDragEnd}
+                    />
+                  )}
                 </PanelColumn>
               )}
 

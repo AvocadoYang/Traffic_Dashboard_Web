@@ -20,6 +20,7 @@ export type ZoneTableData = {
     speed_limit: number | null;
     limitNum: number | null;
     view_available: string | null;
+    elevator_id?: string | null;
   };
   backgroundColor: string;
   startPoint: { startX: number; startY: number };

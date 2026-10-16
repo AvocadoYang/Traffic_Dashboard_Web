@@ -6,6 +6,7 @@ export type MirEditableField =
   | "entry_position"
   | "footprint"
   | "marker_type"
+  | "is_current_position"
   | "blocked_path_timeout"
   | "blocked_docking_timeout"
   | "maximum_linear_speed"
@@ -40,6 +41,7 @@ const ALL_EDITABLE_FIELDS: readonly MirEditableField[] = [
   "entry_position",
   "footprint",
   "marker_type",
+  "is_current_position",
   "blocked_path_timeout",
   "blocked_docking_timeout",
   "maximum_linear_speed",
@@ -72,15 +74,29 @@ const ALL_EDITABLE_FIELDS: readonly MirEditableField[] = [
 
 export const MIR_ACTION_FIELDS: Record<string, readonly MirEditableField[]> = {
   adjust_localization: [],
-  check_pose: ["location_id", "x", "y", "orientation", "option", "timeout"],
+  check_pose: [
+    "location_id",
+    "is_current_position",
+    "x",
+    "y",
+    "orientation",
+    "option",
+    "timeout",
+  ],
   docking: [
     "location_id",
+    "is_current_position",
     "marker_type",
     "blocked_path_timeout",
     "blocked_docking_timeout",
     "maximum_linear_speed",
   ],
-  move: ["location_id", "blocked_path_timeout", "distance_threshold"],
+  move: [
+    "location_id",
+    "is_current_position",
+    "blocked_path_timeout",
+    "distance_threshold",
+  ],
   move_to_coordinate: [],
   relative_move: [
     "x",
@@ -114,6 +130,7 @@ const DEFAULTS: Record<MirEditableField, unknown> = {
   entry_position: "",
   footprint: "",
   marker_type: null,
+  is_current_position: false,
   blocked_path_timeout: 60,
   blocked_docking_timeout: 60,
   maximum_linear_speed: 0.25,
@@ -143,6 +160,10 @@ const DEFAULTS: Record<MirEditableField, unknown> = {
   operation: "on",
   timeout: "00:00:00",
 };
+
+export const isCurrentPositionOperation = (
+  op: Pick<Mir_Action, "is_current_position" | "location_id" | "marker_type">,
+) => op.is_current_position ?? (!op.location_id && !!op.marker_type);
 
 const TIME_FIELDS: readonly MirEditableField[] = ["wait", "timeout"];
 
