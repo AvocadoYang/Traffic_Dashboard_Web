@@ -435,7 +435,8 @@ const Header: React.FC = () => {
   const location = useLocation();
   // 任務列(HA 狀態 / 任務派發)只有首頁才有內容。其他頁面一律顯示導覽、也不給切換,
   // 不然上次停在任務列的人換到別頁會看到一排空白,連導覽都不見。
-  const hasToolsRow = location.pathname === "/";
+  const hasToolsRow =
+    location.pathname === "/" || location.pathname === "/main-v2";
   const activeRow: HeaderRow = hasToolsRow ? headerRow : "nav";
   const [openChangePassword, setOpenChangePassword] = useState(false);
   const [openClientName, setOpenClientName] = useState(false);

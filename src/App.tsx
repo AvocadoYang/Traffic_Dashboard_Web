@@ -20,6 +20,7 @@ import { UserConformOverlay } from "./pages/Main/components/UserConformTaskStep"
 import MissionDispatchBoard from "./pages/MissionDispatchBoard/MissionDispatchBoard";
 import OperationReport from "./pages/OperationReport/OperationReport";
 import SimulateV2 from "./pages/SimulateV2/SimulateV2";
+import MainV2 from "./pages/MainV2/MainV2";
 import { ThemeVarsProvider, ThemedAppConfigProvider } from "./theme";
 import { useTranslation } from "react-i18next";
 
@@ -78,6 +79,7 @@ function App() {
                   element={<AllSimulateResult />}
                 ></Route>
                 <Route path="/" element={<Main />}></Route>
+                <Route path="/main-v2" element={<MainV2 />} />
                 <Route
                   path="/test"
                   element={<MonitorCenter></MonitorCenter>}

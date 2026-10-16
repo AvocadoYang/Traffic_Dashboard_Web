@@ -255,7 +255,7 @@ const schema = () =>
     }).required(),
   ).required();
 
-const profiles$ = fromEventPattern(
+export const profiles$ = fromEventPattern(
   (next) => {
     io.on("amr-profile", next);
     return next;
