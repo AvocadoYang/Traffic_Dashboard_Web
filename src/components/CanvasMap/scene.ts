@@ -69,6 +69,8 @@ export type MapScene = {
   resolution: number;
   /** ROS 座標 (公尺) -> 底圖像素 */
   toPx: (x: number, y: number) => [number, number];
+  /** 底圖像素 -> ROS 座標 (公尺) */
+  toRos: (px: number, py: number) => [number, number];
   points: ScenePoint[];
   roads: SceneRoad[];
   zones: SceneZone[];
@@ -155,6 +157,7 @@ export const buildScene = (map: MapType): MapScene => {
     height: map.mapHeight,
     resolution: res,
     toPx,
+    toRos: (px, py) => [px * res + ox, (mapHeight - py) * res + oy],
     points,
     roads,
     zones,

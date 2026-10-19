@@ -1,6 +1,5 @@
 import { FC, ReactNode, memo, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef } from "react";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import useMap from "@/api/useMap";
 import useName from "@/api/useAmrName";
@@ -10,14 +9,19 @@ import {
   AmrFilterCarCard,
   centerMap,
   hintAmr,
+  hoverRoad,
+  locationHoverInfo,
+  roadHoverInfo,
   Scale,
   showZoneForbidden,
+  tooltipProp,
 } from "@/utils/gloable";
 import {
   isShowAnnotation,
   isShowLocation,
   isShowPointCloud,
   isShowRoad,
+  isShowRoadTooltip,
   showAllZonesSwitch,
 } from "@/utils/siderGloble";
 import { currentMapIdAtom } from "@/utils/mapSelection";
@@ -25,8 +29,10 @@ import { buildMapImageMatrix, getMapCanvas, mapImageModeAtom, resolveColors, the
 import { isDarkColor } from "@/theme/mapImage";
 import { buildScene } from "./scene";
 import { createLiveStore, LiveStore } from "./liveStore";
-import { drawBase, drawLive, Frame } from "./draw";
+import { AmrHit, drawBase, drawLive, Frame } from "./draw";
 import { MapView, initialView, wheelFactor, zoomTo } from "./view";
+import { amrAt, nearbyPoints, nearbyRoads, pauseSignAt, pointAt, roadAt } from "./hitTest";
+import MapOverlay, { hiddenZoneIdsAtom, pauseHintAtom } from "./MapOverlay";
 
 /**
  * 用 canvas 畫的地圖 (首頁 main-v2 用; 之後 setting-v3 也用這個)。
@@ -37,6 +43,11 @@ import { MapView, initialView, wheelFactor, zoomTo } from "./view";
  *  2. 底層 canvas: 標註、路線、區域、點位
  *  3. 設備層 (children): 貨架、輸送帶、電梯…這些舊的 React 元件原封不動, 座標一樣是底圖像素
  *  4. 上層 canvas: 點雲、車框、車、車的提示框 (不吃滑鼠, 底下的設備照樣點得到)
+ *  5. 最上層 DOM: 區域名稱、點位 / 路線的提示標籤 (MapOverlay)
+ *
+ * 畫布上的點位、路線、車沒有 DOM 元素, 游標指著什麼由 hitTest 算距離;
+ * hover 的結果寫進舊地圖用的同一組 atom (tooltipProp、hoverRoad、locationHoverInfo…),
+ * 舊的提示標籤元件不用改就能用。
  *
  * 視角放在 ref 裡, 平移縮放不經過 React; 跟全域的 Scale atom 雙向同步,
  * 舊的工具列 (ZoomPad 的放大縮小、地圖置中) 和定位校正殘影照樣能用。
@@ -89,10 +100,16 @@ const robotTypeValueOf = (amrId: string) =>
 type Props = {
   /** 設備層: 畫在底層 canvas 和車中間的 DOM 元件, 座標是底圖像素 */
   children?: ReactNode;
+  /** 點了點位 (首頁: 打開直接移動) */
+  onPointClick?: (locationId: string) => void;
 };
 
-const CanvasMap: FC<Props> = ({ children }) => {
-  const { t } = useTranslation();
+/** 游標附近沒有點位時用同一個空集合, 底層才不會每次移動都重畫 */
+const NO_IDS = new Set<string>();
+
+const sameIds = (a: string[], b: Set<string>) => a.length === b.size && a.every((id) => b.has(id));
+
+const CanvasMap: FC<Props> = ({ children, onPointClick }) => {
   const { data, isLoading, isError } = useMap();
   const { data: names } = useName();
   const { data: robotTypes } = useAMRsample();
@@ -100,6 +117,7 @@ const CanvasMap: FC<Props> = ({ children }) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const imageLayerRef = useRef<HTMLDivElement>(null);
   const deviceLayerRef = useRef<HTMLDivElement>(null);
+  const overlayLayerRef = useRef<HTMLDivElement>(null);
   const baseRef = useRef<HTMLCanvasElement>(null);
   const liveRef = useRef<HTMLCanvasElement>(null);
 
@@ -107,6 +125,16 @@ const CanvasMap: FC<Props> = ({ children }) => {
   const sizeRef = useRef({ width: 0, height: 0, dpr: 1 });
   const storeRef = useRef<LiveStore | null>(null);
   const lastClaimedRef = useRef<Map<string, string> | null>(null);
+  /** 上一幀畫出來的車的範圍, 點選用 */
+  const hitsRef = useRef<AmrHit[]>([]);
+  /** 游標現在指著什麼 */
+  const hoverRef = useRef<{
+    pointId: string | null;
+    roadId: string | null;
+    amrId: string | null;
+    pause: boolean;
+    nearby: Set<string>;
+  }>({ pointId: null, roadId: null, amrId: null, pause: false, nearby: NO_IDS });
 
   const [scale, setScale] = useAtom(Scale);
   /** 最後一次由畫布自己寫進 Scale atom 的值, 用來分辨 atom 的變動是不是自己造成的 */
@@ -120,6 +148,13 @@ const CanvasMap: FC<Props> = ({ children }) => {
   const showPointCloud = useAtomValue(isShowPointCloud);
   const showAnnotation = useAtomValue(isShowAnnotation);
   const showZones = useAtomValue(showAllZonesSwitch);
+  const showRoadTooltip = useAtomValue(isShowRoadTooltip);
+  const hiddenZoneIds = useAtomValue(hiddenZoneIdsAtom);
+  const setTooltip = useSetAtom(tooltipProp);
+  const setHoverRoad = useSetAtom(hoverRoad);
+  const setLocationHover = useSetAtom(locationHoverInfo);
+  const setRoadHover = useSetAtom(roadHoverInfo);
+  const setPauseHint = useSetAtom(pauseHintAtom);
   const currentMapId = useAtomValue(currentMapIdAtom);
   const theme = useAtomValue(themeAtom);
   const mapImageMode = useAtomValue(mapImageModeAtom);
@@ -158,7 +193,8 @@ const CanvasMap: FC<Props> = ({ children }) => {
     colors,
     darkCanvas,
     robotTypes,
-    disabledZoneLabel: t("zone_enable.disabled"),
+    hiddenZoneIds,
+    showRoadTooltip,
   });
   optsRef.current = {
     scene,
@@ -175,7 +211,8 @@ const CanvasMap: FC<Props> = ({ children }) => {
     colors,
     darkCanvas,
     robotTypes,
-    disabledZoneLabel: t("zone_enable.disabled"),
+    hiddenZoneIds,
+    showRoadTooltip,
   };
 
   const render = useCallback(() => {
@@ -190,6 +227,7 @@ const CanvasMap: FC<Props> = ({ children }) => {
       const transform = `translate(${view.x}px, ${view.y}px) scale(${view.scale})`;
       if (imageLayerRef.current) imageLayerRef.current.style.transform = transform;
       if (deviceLayerRef.current) deviceLayerRef.current.style.transform = transform;
+      if (overlayLayerRef.current) overlayLayerRef.current.style.transform = transform;
     }
 
     const store = storeRef.current;
@@ -203,7 +241,10 @@ const CanvasMap: FC<Props> = ({ children }) => {
         showZones: o.showZones,
         showAnnotation: o.showAnnotation,
         claimedRoads: store?.state.claimedRoads ?? new Map(),
-        disabledZoneLabel: o.disabledZoneLabel,
+        hoveredPointId: hoverRef.current.pointId,
+        hoveredRoadId: hoverRef.current.roadId,
+        nearbyPointIds: hoverRef.current.nearby,
+        hiddenZoneIds: o.hiddenZoneIds,
         mirIcon: (areaType) => {
           if (!icons.has(areaType)) {
             icons.set(areaType, null);
@@ -224,7 +265,7 @@ const CanvasMap: FC<Props> = ({ children }) => {
     if (dirty.live && live && store) {
       const frame: Frame = { ctx: live, view, width, height, dpr, colors: o.colors, darkCanvas: o.darkCanvas };
       const res = o.scene.resolution;
-      drawLive(frame, o.scene, store.state, {
+      hitsRef.current = drawLive(frame, o.scene, store.state, {
         amrIds: o.amrIds,
         showPointCloud: o.showPointCloud,
         currentMapId: o.currentMapId,
@@ -268,7 +309,7 @@ const CanvasMap: FC<Props> = ({ children }) => {
   // 設定、主題、地圖資料變了: 重畫
   useEffect(() => {
     requestDraw({ base: true });
-  }, [scene, showLocation, showRoad, showAnnotation, showZones, colors, darkCanvas, requestDraw]);
+  }, [scene, showLocation, showRoad, showAnnotation, showZones, hiddenZoneIds, colors, darkCanvas, requestDraw]);
   useEffect(() => {
     requestDraw({ live: true });
   }, [scene, amrIds, filterIds, forbiddenIds, hintId, currentMapId, showPointCloud, colors, darkCanvas, robotTypes, requestDraw]);
@@ -450,12 +491,101 @@ const CanvasMap: FC<Props> = ({ children }) => {
       }
     };
 
-    /** 拖曳結束後的那次 click 不該觸發地圖上的點擊行為 */
+    // ---------------- hover: 游標指著什麼 (每幀最多算一次)
+    let hoverFrame = 0;
+    let hoverAt: { x: number; y: number; onCanvas: boolean } | null = null;
+
+    const applyHover = () => {
+      hoverFrame = 0;
+      const view = viewRef.current;
+      const o = optsRef.current;
+      const scene = o.scene;
+      const h = hoverRef.current;
+      if (!view || !scene) return;
+      const at = hoverAt;
+
+      // 車畫在最上層, 疊在設備上面時也算指著車 (舊地圖車的 z-index 也比設備高)
+      const amr = at ? amrAt(hitsRef.current, view, at.x, at.y) : null;
+      const point = at?.onCanvas && !amr && o.showLocation ? pointAt(scene, view, at.x, at.y) : null;
+      const roadId = at?.onCanvas && !amr && !point && o.showRoad ? roadAt(scene, view, at.x, at.y) : null;
+      const pause = !!amr && pauseSignAt(amr, view, at!.x, at!.y);
+      // 附近的點位一律算 (點位放大); 附近的路線只有「路徑提示」開著才算
+      const near = at ? nearbyPoints(scene, view, at.x, at.y) : [];
+      const nearRoads = at && o.showRoad && o.showRoadTooltip ? nearbyRoads(scene, view, at.x, at.y) : [];
+      const mx = at ? (at.x - view.x) / view.scale : 0;
+      const my = at ? (at.y - view.y) / view.scale : 0;
+
+      let baseDirty = false;
+      const pointId = point?.id ?? null;
+      if (pointId !== h.pointId) {
+        h.pointId = pointId;
+        baseDirty = true;
+        if (point) {
+          const [x, y] = scene.toRos(point.x, point.y);
+          setTooltip({ x, y, locationId: point.id });
+        } else setTooltip(null);
+      }
+      if (roadId !== h.roadId) {
+        h.roadId = roadId;
+        baseDirty = true;
+        setHoverRoad(roadId ?? "");
+      }
+      if (!sameIds(near, h.nearby)) {
+        h.nearby = near.length ? new Set(near) : NO_IDS;
+        baseDirty = true;
+      }
+      setLocationHover(near.length ? { x: mx, y: my, locationIds: near } : null);
+      setRoadHover(nearRoads.length ? { x: mx, y: my, roadIds: nearRoads } : null);
+      const amrId = amr?.id ?? null;
+      if (amrId !== h.amrId || pause !== h.pause) {
+        h.amrId = amrId;
+        h.pause = pause;
+        setPauseHint(pause && amr ? { x: amr.x + 10 * Math.sin(amr.angle), y: amr.y - 10 * Math.cos(amr.angle) } : null);
+      }
+      if (!drag) {
+        const clickable = (amr && amr.clickable) || point || roadId;
+        wrap.style.cursor = clickable ? "pointer" : "";
+      }
+      if (baseDirty) requestDrawRef.current({ base: true });
+    };
+
+    const scheduleHover = (next: typeof hoverAt) => {
+      hoverAt = next;
+      if (!hoverFrame) hoverFrame = requestAnimationFrame(applyHover);
+    };
+
+    const onHoverMove = (e: PointerEvent) => {
+      // 只有滑鼠有 hover; 拖曳中不算
+      if (e.pointerType !== "mouse" || pointers.size) return;
+      const p = local(e);
+      scheduleHover({ ...p, onCanvas: e.target === baseRef.current });
+    };
+    const onLeave = () => scheduleHover(null);
+
     const onClickCapture = (e: MouseEvent) => {
-      if (!suppressClick) return;
-      suppressClick = false;
+      // 拖曳結束後的那次 click 不該觸發地圖上的點擊行為
+      if (suppressClick) {
+        suppressClick = false;
+        e.stopPropagation();
+        e.preventDefault();
+        return;
+      }
+      // 點到車: 車疊在設備上面時, 設備不該收到這次點擊; 跟舊地圖一樣只有堆高機會切換車卡片的選取
+      const view = viewRef.current;
+      if (!view) return;
+      const p = local(e);
+      const amr = amrAt(hitsRef.current, view, p.x, p.y);
+      if (!amr) return;
       e.stopPropagation();
       e.preventDefault();
+      setForbiddenIds((prev) => (prev.size ? new Set() : prev));
+      if (!amr.clickable) return;
+      setFilterIds((prev) => {
+        const next = new Set(prev);
+        if (next.has(amr.id)) next.delete(amr.id);
+        else next.add(amr.id);
+        return next;
+      });
     };
 
     wrap.addEventListener("wheel", onWheel, { passive: false });
@@ -464,7 +594,12 @@ const CanvasMap: FC<Props> = ({ children }) => {
     wrap.addEventListener("pointerup", onUp);
     wrap.addEventListener("pointercancel", onUp);
     wrap.addEventListener("click", onClickCapture, true);
+    wrap.addEventListener("pointermove", onHoverMove);
+    wrap.addEventListener("pointerleave", onLeave);
     return () => {
+      cancelAnimationFrame(hoverFrame);
+      wrap.removeEventListener("pointermove", onHoverMove);
+      wrap.removeEventListener("pointerleave", onLeave);
       wrap.removeEventListener("wheel", onWheel);
       wrap.removeEventListener("pointerdown", onDown);
       wrap.removeEventListener("pointermove", onMove);
@@ -472,13 +607,48 @@ const CanvasMap: FC<Props> = ({ children }) => {
       wrap.removeEventListener("pointercancel", onUp);
       wrap.removeEventListener("click", onClickCapture, true);
     };
-  }, [setView, isLoading, isError]);
+  }, [setView, isLoading, isError, setTooltip, setHoverRoad, setLocationHover, setRoadHover, setPauseHint, setFilterIds, setForbiddenIds]);
 
-  // 點地圖空白處: 取消車卡片選的車、區域禁行的標示 (同舊地圖點底圖)
-  const onBaseClick = useCallback(() => {
-    if (forbiddenIds.size) setForbiddenIds(new Set());
-    if (filterIds.size) setFilterIds(new Set());
-  }, [filterIds, forbiddenIds, setFilterIds, setForbiddenIds]);
+  // 離開頁面時把 hover 留下的提示清掉, 別的頁面 (舊首頁、設定頁) 也讀這幾顆 atom
+  useEffect(
+    () => () => {
+      setTooltip(null);
+      setHoverRoad("");
+      setLocationHover(null);
+      setRoadHover(null);
+      setPauseHint(null);
+    },
+    [setTooltip, setHoverRoad, setLocationHover, setRoadHover, setPauseHint],
+  );
+
+  /**
+   * 點畫布, 規則同舊地圖:
+   *  - 任何點擊都取消區域禁行的標示
+   *  - 點到車: 在上面的 click capture 就處理掉了 (車可能疊在設備上)
+   *  - 點到點位: onPointClick (首頁打開直接移動)
+   *  - 點到空白處: 取消車卡片的選取
+   */
+  const onPointClickRef = useRef(onPointClick);
+  onPointClickRef.current = onPointClick;
+  const onBaseClick = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const view = viewRef.current;
+      const scene = optsRef.current.scene;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      setForbiddenIds((prev) => (prev.size ? new Set() : prev));
+      if (!view || !scene) return;
+
+      const point = optsRef.current.showLocation ? pointAt(scene, view, x, y) : null;
+      if (point) {
+        onPointClickRef.current?.(point.id);
+        return;
+      }
+      setFilterIds((prev) => (prev.size ? new Set() : prev));
+    },
+    [setFilterIds, setForbiddenIds],
+  );
 
   if (isLoading || isError || !data) {
     return (
@@ -509,6 +679,7 @@ const CanvasMap: FC<Props> = ({ children }) => {
       <Canvas ref={baseRef} onClick={onBaseClick} />
       <TransformLayer ref={deviceLayerRef}>{children}</TransformLayer>
       <Canvas ref={liveRef} $passive />
+      <TransformLayer ref={overlayLayerRef}>{scene ? <MapOverlay scene={scene} /> : null}</TransformLayer>
     </Wrap>
   );
 };

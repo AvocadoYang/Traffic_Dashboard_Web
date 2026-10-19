@@ -78,7 +78,13 @@ export type BaseOptions = {
   showZones: boolean;
   showAnnotation: boolean;
   claimedRoads: Map<string, string>;
-  disabledZoneLabel: string;
+  /** 游標正指著的點位 / 路線 (變紅、變大) */
+  hoveredPointId: string | null;
+  hoveredRoadId: string | null;
+  /** 游標附近 (2 公尺內) 的點位, 稍微放大方便點 */
+  nearbyPointIds: Set<string>;
+  /** 按了眼睛圖示藏起來的區域 */
+  hiddenZoneIds: Set<string>;
   /** MiR 類型點位的圖示, 還沒載入的先不畫 */
   mirIcon: (areaType: string) => HTMLImageElement | null;
 };
@@ -91,9 +97,9 @@ export function drawBase(f: Frame, scene: MapScene, o: BaseOptions) {
 
   // 順序同舊地圖的 DOM 順序: 標註在最底, 再來路線、區域, 點位最上面
   if (o.showAnnotation) drawAnnotations(f, scene.annotations);
-  if (o.showRoad) drawRoads(f, scene, o.claimedRoads, vis);
-  if (o.showZones) drawZones(f, scene, o.disabledZoneLabel);
-  if (o.showLocation) drawPoints(f, scene, vis, o.mirIcon);
+  if (o.showRoad) drawRoads(f, scene, o.claimedRoads, vis, o.hoveredRoadId);
+  if (o.showZones) drawZones(f, scene, o.hiddenZoneIds);
+  if (o.showLocation) drawPoints(f, scene, vis, o);
 }
 
 type Rect = ReturnType<typeof visibleRect>;
@@ -101,11 +107,13 @@ type Rect = ReturnType<typeof visibleRect>;
 const segmentVisible = (r: Rect, x1: number, y1: number, x2: number, y2: number) =>
   !(Math.max(x1, x2) < r.minX || Math.min(x1, x2) > r.maxX || Math.max(y1, y2) < r.minY || Math.min(y1, y2) > r.maxY);
 
-function drawRoads(f: Frame, scene: MapScene, claimed: Map<string, string>, vis: Rect) {
+/** 路線的線寬 (螢幕像素): 舊地圖是 1px 高、上下各 0.5px 框線的 div (約 2 地圖像素) */
+export const roadLineWidth = (f: Pick<Frame, "view">) => Math.min(4, Math.max(1, 2 * f.view.scale));
+
+function drawRoads(f: Frame, scene: MapScene, claimed: Map<string, string>, vis: Rect, hoveredId: string | null) {
   const { ctx, colors } = f;
   screenSpace(f);
-  // 舊地圖的路線是 1px 高、上下各 0.5px 框線的 div (約 2 地圖像素), 透明度 0.7
-  const lineWidth = sized(f, 2, 1, 4);
+  const lineWidth = roadLineWidth(f);
   ctx.lineWidth = lineWidth;
   ctx.lineCap = "butt";
   ctx.globalAlpha = 0.7;
@@ -125,11 +133,13 @@ function drawRoads(f: Frame, scene: MapScene, claimed: Map<string, string>, vis:
   const arrows = new Path2D();
   const arrowSize = sized(f, 5, 3, 9);
   const marks: { text: string; x: number; y: number }[] = [];
+  let hovered: [number, number, number, number] | null = null;
 
   for (const r of scene.roads) {
     if (!segmentVisible(vis, r.x1, r.y1, r.x2, r.y2)) continue;
     const [ax, ay] = toScreen(f, r.x1, r.y1);
     const [bx, by] = toScreen(f, r.x2, r.y2);
+    if (r.id === hoveredId) hovered = [ax, ay, bx, by];
     const claimedBy = claimed.get(r.id);
     const color = claimedBy
       ? amrColor(claimedBy)
@@ -172,6 +182,16 @@ function drawRoads(f: Frame, scene: MapScene, claimed: Map<string, string>, vis:
   });
 
   ctx.globalAlpha = 1;
+  if (hovered) {
+    // 游標指著的路線加粗 (舊地圖 hover 時是優先路線的顏色)
+    const [ax, ay, bx, by] = hovered;
+    ctx.beginPath();
+    ctx.moveTo(ax, ay);
+    ctx.lineTo(bx, by);
+    ctx.lineWidth = lineWidth + 2;
+    ctx.strokeStyle = colors.mapRoadPriority;
+    ctx.stroke();
+  }
   ctx.strokeStyle = colors.mapRoadArrow;
   ctx.lineWidth = Math.max(1.2, arrowSize * 0.4);
   ctx.lineJoin = "miter";
@@ -187,10 +207,12 @@ function drawRoads(f: Frame, scene: MapScene, claimed: Map<string, string>, vis:
   }
 }
 
-function drawZones(f: Frame, scene: MapScene, disabledLabel: string) {
+/** 區域只畫框; 名稱、眼睛圖示、資訊卡是 DOM (CanvasMap 的 ZoneLabels), 才點得到 */
+function drawZones(f: Frame, scene: MapScene, hidden: Set<string>) {
   const { ctx } = f;
+  mapSpace(f);
   for (const z of scene.zones) {
-    mapSpace(f);
+    if (hidden.has(z.id)) continue;
     // 框線 2 地圖像素, 縮小時至少 1 螢幕像素
     const border = Math.max(2, 1 / f.view.scale);
     if (z.disabled) {
@@ -218,60 +240,42 @@ function drawZones(f: Frame, scene: MapScene, disabledLabel: string) {
     ctx.lineWidth = border;
     ctx.strokeRect(z.x + border / 2, z.y + border / 2, Math.max(0, z.w - border), Math.max(0, z.h - border));
     ctx.setLineDash([]);
-
-    // 名稱放在框的左上方, 字不跟著縮放
-    screenSpace(f);
-    const [sx, sy] = toScreen(f, z.x, z.y);
-    ctx.font = `12px ${FONT}`;
-    ctx.textBaseline = "bottom";
-    ctx.textAlign = "left";
-    let x = sx;
-    if (z.disabled) {
-      ctx.font = `bold 10px ${FONT}`;
-      const w = ctx.measureText(disabledLabel).width + 10;
-      ctx.fillStyle = "rgba(110, 110, 110, 0.95)";
-      ctx.fillRect(x, sy - 18, w, 15);
-      ctx.fillStyle = "#ffffff";
-      ctx.fillText(disabledLabel, x + 5, sy - 5);
-      x += w + 4;
-      ctx.font = `12px ${FONT}`;
-    }
-    ctx.globalAlpha = z.disabled ? 0.7 : 1;
-    ctx.lineJoin = "round";
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = f.darkCanvas ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.8)";
-    ctx.strokeText(z.name, x, sy - 4);
-    ctx.fillStyle = mapTextColor(f);
-    ctx.fillText(z.name, x, sy - 4);
-    ctx.globalAlpha = 1;
   }
 }
 
-function drawPoints(f: Frame, scene: MapScene, vis: Rect, mirIcon: BaseOptions["mirIcon"]) {
+/** 點位圓點的半徑 (螢幕像素): 舊地圖是 3 地圖像素; 縮小時不讓它小到看不見, 放大時也不要變成大餅 */
+export const pointRadius = (f: Pick<Frame, "view">) => Math.min(5, Math.max(1.5, 1.5 * f.view.scale));
+
+function drawPoints(f: Frame, scene: MapScene, vis: Rect, o: BaseOptions) {
   const { ctx, colors } = f;
   screenSpace(f);
-  // 舊地圖是 3 地圖像素的小圓點; 縮小時不讓它小到看不見, 放大時也不要變成大餅
-  const r = sized(f, 1.5, 1.5, 5);
+  const r0 = pointRadius(f);
+  let hovered: { x: number; y: number } | null = null;
   const plain = new Path2D();
   const rotate = new Path2D();
   const ringPlain = new Path2D();
   const ringRotate = new Path2D();
-  const ringR = r + sized(f, 2.5, 2, 6);
+  const ring = sized(f, 2.5, 2, 6);
   const mirSize = 22 * f.view.scale;
 
   for (const p of scene.points) {
     if (p.x < vis.minX || p.x > vis.maxX || p.y < vis.minY || p.y > vis.maxY) continue;
     const [sx, sy] = toScreen(f, p.x, p.y);
     if (p.mir) {
-      const img = mirIcon(p.areaType);
+      const img = o.mirIcon(p.areaType);
       if (!img) continue;
       ctx.save();
       ctx.translate(sx, sy);
       ctx.rotate((-p.rotate * Math.PI) / 180);
-      ctx.drawImage(img, -mirSize / 2, -mirSize / 2, mirSize, mirSize);
+      const size = p.id === o.hoveredPointId ? mirSize * 1.2 : mirSize;
+      ctx.drawImage(img, -size / 2, -size / 2, size, size);
       ctx.restore();
       continue;
     }
+    if (p.id === o.hoveredPointId) hovered = { x: sx, y: sy };
+    // 游標附近的點稍微放大 (舊地圖 3px -> 5px)
+    const r = o.nearbyPointIds.has(p.id) ? r0 * 1.6 : r0;
+    const ringR = r + ring;
     const path = p.canRotate ? rotate : plain;
     path.moveTo(sx + r, sy);
     path.arc(sx, sy, r, 0, Math.PI * 2);
@@ -291,6 +295,13 @@ function drawPoints(f: Frame, scene: MapScene, vis: Rect, mirIcon: BaseOptions["
   ctx.stroke(ringPlain);
   ctx.strokeStyle = colors.mapPointRotate;
   ctx.stroke(ringRotate);
+  if (hovered) {
+    // 游標指著的點變紅變大
+    ctx.beginPath();
+    ctx.arc(hovered.x, hovered.y, Math.max(4, r0 * 2.6), 0, Math.PI * 2);
+    ctx.fillStyle = "#ff0000";
+    ctx.fill();
+  }
 }
 
 function annotationLines(c: Ctx, a: SceneAnnotation) {
@@ -374,7 +385,25 @@ export type LiveOptions = {
 
 type Visible = { id: string; x: number; y: number; yaw: number; color: string };
 
-export function drawLive(f: Frame, scene: MapScene, live: LiveState, o: LiveOptions) {
+/**
+ * 畫出來的車在地圖上佔的範圍 (地圖像素), 點選用:
+ * 以 (x, y) 為原點、轉 angle 弧度之後, 車身是 [left, right] x [top, bottom]
+ */
+export type AmrHit = {
+  id: string;
+  x: number;
+  y: number;
+  angle: number;
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+  isPause: boolean;
+  /** 跟舊地圖一樣只有堆高機點得到 (點了切換車卡片的選取) */
+  clickable: boolean;
+};
+
+export function drawLive(f: Frame, scene: MapScene, live: LiveState, o: LiveOptions): AmrHit[] {
   const { ctx } = f;
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -406,12 +435,21 @@ export function drawLive(f: Frame, scene: MapScene, live: LiveState, o: LiveOpti
   }
 
   const dimOthers = o.filterIds.size > 0 || o.forbiddenIds.size > 0;
+  const hits: AmrHit[] = [];
   for (const v of shown) {
     const highlighted = o.filterIds.size ? o.filterIds.has(v.id) : o.forbiddenIds.has(v.id);
     ctx.globalAlpha = dimOthers && !highlighted ? 0.1 : 1;
     const a = live.amrs.get(v.id)!;
-    if (v.id.includes("mi")) drawMiR(f, v, a.hasCargo, o.mirLength(v.id));
-    else drawForklift(f, v, a.hasCargo, a.isPause);
+    if (v.id.includes("mi")) {
+      const length = o.mirLength(v.id);
+      drawMiR(f, v, a.hasCargo, length);
+      const angle = ((90 - v.yaw) * Math.PI) / 180;
+      hits.push({ id: v.id, x: v.x, y: v.y, angle, left: -7.5, right: 7.5, top: -length / 2, bottom: length / 2, isPause: false, clickable: false });
+    } else {
+      drawForklift(f, v, a.hasCargo, a.isPause);
+      const deg = v.id.includes("SW15") ? 90 - v.yaw + 180 : 90 - v.yaw;
+      hits.push({ id: v.id, x: v.x, y: v.y, angle: (deg * Math.PI) / 180, left: -7.5, right: 7.5, top: -20, bottom: 0, isPause: a.isPause, clickable: true });
+    }
     ctx.globalAlpha = 1;
   }
 
@@ -419,6 +457,7 @@ export function drawLive(f: Frame, scene: MapScene, live: LiveState, o: LiveOpti
     if (live.warnings.has(v.id)) drawWarning(f, v);
   }
   for (const v of shown) drawTip(f, v, live, o);
+  return hits;
 }
 
 function drawPointClouds(f: Frame, scene: MapScene, live: LiveState, o: LiveOptions) {

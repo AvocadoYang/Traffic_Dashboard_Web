@@ -6,13 +6,14 @@ import {
   Splitter,
   Tooltip,
 } from "antd";
-import { memo, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { Layout } from "antd";
 import "@/pages/Main/components/WebView/webview.css";
 import ZoomPad from "@/pages/Main/components/WebView/components/ZoomPad";
 import ScalePad from "@/pages/Main/components/WebView/components/ScalePad";
 import CanvasMap from "@/components/CanvasMap/CanvasMap";
 import MainDevices from "./MainDevices";
+import { OpenDirect } from "@/pages/Main/global/jotai";
 import { useAtomValue, useSetAtom } from "jotai";
 import CarCardWrap from "@/pages/Main/Car_Card/CardWrap";
 import { centerMap, darkMode, Scale } from "@/utils/gloable";
@@ -207,6 +208,12 @@ const WebViewV2 = () => {
   const { t } = useTranslation();
   const [bottomView, setBottomView] = useState<BottomView>("car");
   const [showSidebars, setShowSidebars] = useState(true);
+  // 點地圖上的點位: 打開「直接移動」(同舊首頁)
+  const setOpenDirect = useSetAtom(OpenDirect);
+  const openDirectMove = useCallback(
+    (locationId: string) => setOpenDirect({ open: true, locationId }),
+    [setOpenDirect],
+  );
 
   const mapScale = currentMapInfo?.data?.scale;
   useEffect(() => {
@@ -255,7 +262,7 @@ const WebViewV2 = () => {
           >
             <MapPanelInner>
               <MapArea>
-                <CanvasMap>
+                <CanvasMap onPointClick={openDirectMove}>
                   <MainDevices />
                 </CanvasMap>
               </MapArea>
