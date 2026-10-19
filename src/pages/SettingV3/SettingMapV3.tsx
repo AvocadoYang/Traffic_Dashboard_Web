@@ -6,7 +6,7 @@ import useMap from "@/api/useMap";
 import useVerityVersion from "@/api/useVerityVersion";
 import CanvasMap from "@/components/CanvasMap/CanvasMap";
 import CargoPanel from "@/components/CargoPanel/CargoPanel";
-import { DragLineInfo, sameVersion, shelfSelectedStyleLocationId, batchCargoStyle, showBlockId as ShowBlockId } from "@/utils/gloable";
+import { DragLineInfo, Scale, sameVersion, shelfSelectedStyleLocationId, batchCargoStyle, showBlockId as ShowBlockId } from "@/utils/gloable";
 import {
   EditAnnotationSwitch,
   EditLocationPanelSwitch,
@@ -41,6 +41,10 @@ import EditPeripheralModal from "@/pages/Setting/formComponent/forms/peripheralM
 import { SudoPeripheral } from "@/pages/Setting/formComponent/forms/other/editPeripheralIcon";
 import BlindLocationMissionModal from "@/pages/Setting/components/BlindLocationMissionModal";
 import LocationDetectModal from "@/pages/Setting/components/LocationDetectModal";
+import { useMousePoint } from "@/pages/Setting/hooks";
+import { MousePoint } from "@/pages/Setting/mapComponents/components";
+import TempLocations from "@/pages/Setting/mapComponents/components/TempResources/TempLocations";
+import MirStyleLocationPlacer from "@/pages/Setting/formComponent/forms/MirStyleLocationPlacer";
 
 /**
  * 設定頁 (setting-v3) 的地圖: 舊 MapView 的畫布版。
@@ -77,7 +81,7 @@ const useReloadOnNewVersion = () => {
   }, [currentVersion]);
 };
 
-const SettingMapV3: FC<Props> = ({ roadPanelForm }) => {
+const SettingMapV3: FC<Props> = ({ roadPanelForm, locationPanelForm }) => {
   const { data: mapData } = useMap();
   const wrapRef = useRef<HTMLDivElement>(null);
   const mapImageRef = useRef<HTMLImageElement>(null);
@@ -109,6 +113,11 @@ const SettingMapV3: FC<Props> = ({ roadPanelForm }) => {
     openEditZone ||
     openMirPlacer ||
     (openEditAnnotation && annotationTool !== "select");
+
+  // ---------------- 點位: 編輯點位 / 快速編輯點位時點地圖打點 (小紅點 + 表單的 x、y)
+  // 舊 hook 原封不動: 它拿底圖 <img> 的位置和 Scale 換算座標, 底圖在畫布跟著平移縮放的那一層
+  const scale = useAtomValue(Scale);
+  useMousePoint(wrapRef, wrapRef, mapImageRef, scale, locationPanelForm, openEditLocationPanel);
 
   // ---------------- 路線: 從貨架 / 充電站拉線的起點 (設備元件 mousedown 時呼叫, 同舊 MapView)
   const [, setInitPoint] = useState({} as draggableLineInitialPoint);
@@ -151,6 +160,14 @@ const SettingMapV3: FC<Props> = ({ roadPanelForm }) => {
       alwaysShowAnnotations
       leftButtonPans={!isEditingOnMap}
       onPointClick={onPointClick}
+      overlay={
+        <>
+          {openQuickEditLocationPanel ? <TempLocations /> : null}
+          {/* 編輯點位跟快速編輯點位時的小紅點 */}
+          {openEditLocationPanel || openQuickEditLocationPanel ? <MousePoint /> : null}
+          {openMirPlacer ? <MirStyleLocationPlacer mapRef={wrapRef} mapImageRef={mapImageRef} scale={scale} /> : null}
+        </>
+      }
     >
       <AllElevator />
       <YfyPackage />

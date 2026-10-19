@@ -469,6 +469,9 @@ const CanvasMap: FC<Props> = ({
     };
 
     const onDown = (e: PointerEvent) => {
+      // 新的一次按下: 上一次拖曳留下的「吃掉下一個 click」不算數
+      // (中鍵拖曳放開時瀏覽器不發 click, 不清掉的話會吃掉之後真正的點擊)
+      if (pointers.size === 0) suppressClick = false;
       if (e.pointerType === "mouse") {
         if (!canStartMouse(e) || drag) return;
         if (e.button === 1) e.preventDefault();
@@ -600,6 +603,14 @@ const CanvasMap: FC<Props> = ({
     };
     const onLeave = () => scheduleHover(null);
 
+    /** 中鍵拖曳放開時的 auxclick 也不該觸發地圖上的動作 (貨架的中鍵是改欄位) */
+    const onAuxClickCapture = (e: MouseEvent) => {
+      if (!suppressClick) return;
+      suppressClick = false;
+      e.stopPropagation();
+      e.preventDefault();
+    };
+
     const onClickCapture = (e: MouseEvent) => {
       // 拖曳結束後的那次 click 不該觸發地圖上的點擊行為
       if (suppressClick) {
@@ -632,6 +643,7 @@ const CanvasMap: FC<Props> = ({
     wrap.addEventListener("pointerup", onUp);
     wrap.addEventListener("pointercancel", onUp);
     wrap.addEventListener("click", onClickCapture, true);
+    wrap.addEventListener("auxclick", onAuxClickCapture, true);
     wrap.addEventListener("pointermove", onHoverMove);
     wrap.addEventListener("pointerleave", onLeave);
     return () => {
@@ -644,6 +656,7 @@ const CanvasMap: FC<Props> = ({
       wrap.removeEventListener("pointerup", onUp);
       wrap.removeEventListener("pointercancel", onUp);
       wrap.removeEventListener("click", onClickCapture, true);
+      wrap.removeEventListener("auxclick", onAuxClickCapture, true);
     };
   }, [setView, isLoading, isError, setTooltip, setHoverRoad, setLocationHover, setRoadHover, setPauseHint, setFilterIds, setForbiddenIds]);
 
