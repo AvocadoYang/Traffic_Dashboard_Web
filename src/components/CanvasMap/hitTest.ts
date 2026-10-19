@@ -67,6 +67,20 @@ export const pointAt = (scene: MapScene, view: MapView, sx: number, sy: number):
   return best;
 };
 
+/** 離 (sx, sy) 最近的點位, 不限距離 (把模擬車拖到地圖上時用, 跟舊模擬頁一樣找最近的點) */
+export const nearestPoint = (scene: MapScene, view: MapView, sx: number, sy: number): ScenePoint | null => {
+  let best: ScenePoint | null = null;
+  let bestD = Infinity;
+  for (const p of scene.points) {
+    const d = Math.hypot(view.x + p.x * view.scale - sx, view.y + p.y * view.scale - sy);
+    if (d < bestD) {
+      best = p;
+      bestD = d;
+    }
+  }
+  return best;
+};
+
 /** 游標指著的路線 (取最近的) */
 export const roadAt = (scene: MapScene, view: MapView, sx: number, sy: number): string | null => {
   const tol = Math.max(roadLineWidth({ view }) / 2 + 3, 4);

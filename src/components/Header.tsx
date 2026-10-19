@@ -30,11 +30,10 @@ import client from "@/api/axiosClient";
 import { errorHandler } from "@/utils/utils";
 import { ErrorResponse } from "@/utils/globalType";
 import useName from "@/api/useAmrName";
-import StartSimModal from "@/pages/SimulateResult/StartSimModal";
+import StartSimModal from "@/components/StartSimModal";
 import { useMockInfo } from "@/sockets/useMockInfo";
 import styled from "styled-components";
 import { mq } from "@/styles/responsive";
-import { useTimelineSocket } from "@/sockets/useTimelineSocket";
 import dayjs from "dayjs";
 import MissionBtn from "@/pages/Main/components/WebView/components/MissionBtn";
 import HaStatusWidget from "@/pages/Main/components/HaStatusWidget";
@@ -436,7 +435,7 @@ const Header: React.FC = () => {
   // 任務列(HA 狀態 / 任務派發)只有首頁才有內容。其他頁面一律顯示導覽、也不給切換,
   // 不然上次停在任務列的人換到別頁會看到一排空白,連導覽都不見。
   const hasToolsRow =
-    location.pathname === "/" || location.pathname === "/main-v2";
+    location.pathname === "/" || location.pathname === "/main-v1";
   const activeRow: HeaderRow = hasToolsRow ? headerRow : "nav";
   const [openChangePassword, setOpenChangePassword] = useState(false);
   const [openClientName, setOpenClientName] = useState(false);
@@ -509,8 +508,6 @@ const Header: React.FC = () => {
     `${t("page_amr")}`,
     `${t("page_cargo_history")}`,
     `${t("page_setting")}`,
-    `${t("page_simulate")}`,
-    `${t("page_simulate_result")}`,
     `${t("page_simulate_v2")}`,
     `${t("page_record")}`,
     `${t("page_mission_dispatch")}`,
@@ -536,22 +533,17 @@ const Header: React.FC = () => {
         navigate("/setting-v2");
         break;
       case "5":
-        navigate("/simulate");
-        break;
-      case "6":
-        navigate("/simulate-result");
-        break;
-      case "7":
-        // 任務模擬 v2: 自己畫佈局、算運能; 舊的任務模擬 (5) 還在
+        // 任務模擬 v2: 自己畫佈局、算運能。舊的任務模擬頁拿掉了,
+        // 放模擬車改在首頁地圖的「模擬車輛」
         navigate("/simulate-v2");
         break;
-      case "8":
+      case "6":
         navigate("/records");
         break;
-      case "9":
+      case "7":
         navigate("/mission-dispatch");
         break;
-      case "10":
+      case "8":
         navigate("/report");
         break;
       default:

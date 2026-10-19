@@ -8,7 +8,7 @@ const MainLayout = styled(Layout)`
   height: var(--app-height);
 `;
 
-/** 首頁的畫布地圖版本 (/main-v2), 舊首頁 (/) 不動 */
+/** 首頁 (/), 畫布地圖版本; 舊首頁 (DOM 地圖) 留在 /main-v1 */
 const MainV2: React.FC = () => {
   return (
     <MainLayout>

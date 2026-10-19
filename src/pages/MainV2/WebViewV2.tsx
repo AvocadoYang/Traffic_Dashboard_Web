@@ -6,13 +6,16 @@ import {
   Splitter,
   Tooltip,
 } from "antd";
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Layout } from "antd";
 import "@/pages/Main/components/WebView/webview.css";
 import ZoomPad from "@/pages/Main/components/WebView/components/ZoomPad";
 import ScalePad from "@/pages/Main/components/WebView/components/ScalePad";
-import CanvasMap from "@/components/CanvasMap/CanvasMap";
+import CanvasMap, { CanvasMapApi } from "@/components/CanvasMap/CanvasMap";
 import MainDevices from "./MainDevices";
+import SimCarPanel from "@/components/SimCars/SimCarPanel";
+import SimCarMarkers from "@/components/SimCars/SimCarMarkers";
+import useSimCarPlacement from "@/components/SimCars/useSimCarPlacement";
 import { OpenDirect } from "@/pages/Main/global/jotai";
 import { useAtomValue, useSetAtom } from "jotai";
 import CarCardWrap from "@/pages/Main/Car_Card/CardWrap";
@@ -215,6 +218,10 @@ const WebViewV2 = () => {
     [setOpenDirect],
   );
 
+  // 模擬車輛面板: 車從面板 (或地圖上已放的位置) 拖到地圖, 放到最近的點位
+  const mapApiRef = useRef<CanvasMapApi | null>(null);
+  const simCarDrop = useSimCarPlacement(mapApiRef);
+
   const mapScale = currentMapInfo?.data?.scale;
   useEffect(() => {
     if (mapScale === undefined) return;
@@ -261,9 +268,14 @@ const WebViewV2 = () => {
             className={`${isDark ? "dark-mode-map" : ""}`}
           >
             <MapPanelInner>
-              <MapArea>
-                <CanvasMap onPointClick={openDirectMove}>
+              <MapArea
+                onDragOver={simCarDrop.onDragOver}
+                onDrop={simCarDrop.onDrop}
+              >
+                {simCarDrop.contextHolder}
+                <CanvasMap onPointClick={openDirectMove} apiRef={mapApiRef}>
                   <MainDevices />
+                  <SimCarMarkers />
                 </CanvasMap>
               </MapArea>
               <MapOverlay>
@@ -275,6 +287,8 @@ const WebViewV2 = () => {
                     面板讓開右上角的 MapSelectorSlot */}
                 <OpenPerformanceBtn top="72px" left="16px" />
                 <PerformancePanel top="64px" right="16px" />
+                {/* 模擬車輛: 取代舊的 /simulate 頁; 開始 / 停止模擬還是 Header 的按鈕 */}
+                <SimCarPanel top="128px" left="16px" />
                 <ToggleSidebarBtn
                   type="primary"
                   icon={showSidebars ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}

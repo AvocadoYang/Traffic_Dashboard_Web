@@ -7,13 +7,11 @@ import {
   Setting,
   SettingV2,
   Register,
-  Simulate,
   Records,
 } from "./pages";
 import CargoHistory from "./pages/CargoHistory/CargoHistory";
 import AmrDetail from "./pages/AmrDetail/AmrDetail";
 import AmrList from "./pages/AmrDetail/AmrList";
-import AllSimulateResult from "./pages/SimulateResult/AllSimulateResult";
 import { Navigate, Outlet } from "react-router-dom";
 import { SystemAlarmOverlay } from "./pages/Main/components/SystemAlarm";
 import { UserConformOverlay } from "./pages/Main/components/UserConformTaskStep";
@@ -73,15 +71,21 @@ function App() {
                 <Route path="/setting-v1" element={<Setting></Setting>}></Route>
                 <Route path="/setting-v2" element={<SettingV2 />}></Route>
                 <Route path="/setting-v3" element={<SettingV3 />} />
-                <Route path="/simulate" element={<Simulate />}></Route>
+                {/* 舊的任務模擬頁拿掉了: 放模擬車改在首頁地圖的「模擬車輛」 */}
+                <Route
+                  path="/simulate"
+                  element={<Navigate to="/" replace />}
+                ></Route>
                 <Route path="/simulate-v2" element={<SimulateV2 />} />
                 <Route path="/cargo-history" element={<CargoHistory />}></Route>
+                {/* 首頁正式改用畫布地圖版 (原 /main-v2); 舊首頁留在 /main-v1,
+                /main-v2 轉回首頁, 舊書籤不會壞 */}
+                <Route path="/" element={<MainV2 />} />
+                <Route path="/main-v1" element={<Main />}></Route>
                 <Route
-                  path="/simulate-result"
-                  element={<AllSimulateResult />}
+                  path="/main-v2"
+                  element={<Navigate to="/" replace />}
                 ></Route>
-                <Route path="/" element={<Main />}></Route>
-                <Route path="/main-v2" element={<MainV2 />} />
                 <Route
                   path="/test"
                   element={<MonitorCenter></MonitorCenter>}

@@ -31,7 +31,7 @@ import { buildScene } from "./scene";
 import { createLiveStore, LiveStore } from "./liveStore";
 import { AmrHit, drawBase, drawLive, Frame } from "./draw";
 import { MapView, initialView, wheelFactor, zoomTo } from "./view";
-import { amrAt, nearbyPoints, nearbyRoads, pauseSignAt, pointAt, roadAt } from "./hitTest";
+import { amrAt, nearbyPoints, nearbyRoads, nearestPoint, pauseSignAt, pointAt, roadAt } from "./hitTest";
 import MapOverlay, { hiddenZoneIdsAtom, pauseHintAtom } from "./MapOverlay";
 
 /**
@@ -103,6 +103,8 @@ export type CanvasMapApi = {
   pointAt: (clientX: number, clientY: number) => string | null;
   /** 某個地點 (任何類型) 中心在螢幕上的位置 */
   locationClientPos: (locationId: string) => { x: number; y: number } | null;
+  /** 離這個位置最近的點位, 不限距離; 位置不在地圖範圍內就 null */
+  nearestPointAt: (clientX: number, clientY: number) => string | null;
 };
 
 type Props = {
@@ -740,6 +742,16 @@ const CanvasMap: FC<Props> = ({
         if (!view || !rect || !loc || !scene) return null;
         const [px, py] = scene.toPx(loc.x, loc.y);
         return { x: rect.left + view.x + px * view.scale, y: rect.top + view.y + py * view.scale };
+      },
+      nearestPointAt: (clientX, clientY) => {
+        const view = viewRef.current;
+        const rect = baseRef.current?.getBoundingClientRect();
+        const o = optsRef.current;
+        if (!view || !rect || !o.scene) return null;
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
+        if (x < 0 || y < 0 || x > rect.width || y > rect.height) return null;
+        return nearestPoint(o.scene, view, x, y)?.id ?? null;
       },
     };
     return () => {

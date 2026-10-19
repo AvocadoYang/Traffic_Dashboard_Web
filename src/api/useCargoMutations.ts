@@ -1,14 +1,23 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MessageInstance } from "antd/es/message/interface";
-import type {
-  CargoMissionEdit,
-  EditColumn,
-} from "../pages/Simulate/mapComponents/components/AllCargo.tsx/types";
 import client from "@/api/axiosClient";
 import { Err } from "@/utils/responseErr";
 import { errorHandler } from "@/utils/utils";
 import { ErrorResponse } from "@/utils/globalType";
 import { useTranslation } from "react-i18next";
+
+// 原本放在舊模擬頁的 AllCargo/types (那頁已經拿掉)
+export type CargoMissionEdit = {
+  loc: string;
+  directionId: string;
+  name: string;
+};
+
+export type EditColumn = {
+  id: string;
+  locationId: string;
+  level: number;
+};
 
 export const useCargoMutations = (messageApi: MessageInstance) => {
   const { t } = useTranslation();

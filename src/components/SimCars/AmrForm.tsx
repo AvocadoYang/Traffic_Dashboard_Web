@@ -1,14 +1,24 @@
 import useMap from "@/api/useMap";
 import SubmitButton from "@/utils/SubmitButton";
-import { Button, Form, Input, InputNumber, message, Modal, Select } from "antd";
+import { Button, Form, InputNumber, message, Modal, Select } from "antd";
 import { Dispatch, FC, SetStateAction, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { EditFormType } from "./amr";
 import useScriptRobot from "@/api/useScriptRobot";
 import client from "@/api/axiosClient";
 import { useMutation } from "@tanstack/react-query";
 import useRobotType from "@/api/useRobotType";
 
+export type EditFormType = {
+  id?: string;
+  robotTypeId: string;
+  carNum: number;
+  script_placement_location: string;
+  loadSpeed: number;
+  offloadSpeed: number;
+  move_speed: number;
+};
+
+/** 模擬車的參數 (車種、編號、起始點位、速度), 從舊模擬頁搬過來 */
 const AmrForm: FC<{
   id: string;
   handleEditMutation: (payload: EditFormType) => void;
@@ -43,13 +53,6 @@ const AmrForm: FC<{
     },
   });
 
-  const deleteHandler = () => {
-    deleteMutation.mutate();
-  };
-
-  const handleCancel = () => {
-    setIsOpen(false);
-  };
   const locationOptions = useMemo(() => {
     const items =
       map?.locations
@@ -60,39 +63,29 @@ const AmrForm: FC<{
   }, [map?.locations]);
 
   const editHandler = () => {
-    const robotTypeId = form.getFieldValue("robot_type") as string;
-    const carNum = form.getFieldValue("car_number") as number;
-    const script_placement_location = form.getFieldValue(
-      "script_placement_location"
-    ) as string;
-    const loadSpeed = form.getFieldValue("loadSpeed") as number;
-    const offloadSpeed = form.getFieldValue("offloadSpeed") as number;
-    const move_speed = form.getFieldValue("move_speed") as number;
-
-    const payload = {
-      robotTypeId,
-      carNum,
-      script_placement_location,
-      loadSpeed,
-      offloadSpeed,
-      move_speed,
-    };
-    console.log(payload);
-    handleEditMutation(payload);
+    handleEditMutation({
+      robotTypeId: form.getFieldValue("robot_type") as string,
+      carNum: form.getFieldValue("car_number") as number,
+      script_placement_location: form.getFieldValue(
+        "script_placement_location",
+      ) as string,
+      loadSpeed: form.getFieldValue("loadSpeed") as number,
+      offloadSpeed: form.getFieldValue("offloadSpeed") as number,
+      move_speed: form.getFieldValue("move_speed") as number,
+    });
   };
 
   useEffect(() => {
     if (!isOpen) return;
 
     const info = robot?.find((v) => v?.id === id);
-
-    const nameArr = info?.full_name.split("-") as string[];
+    const nameArr = info?.full_name.split("-") ?? [];
 
     form.setFieldValue("robot_type", info?.Robot_type.id);
-    form.setFieldValue("car_number", nameArr[nameArr?.length - 1]);
+    form.setFieldValue("car_number", nameArr[nameArr.length - 1]);
     form.setFieldValue(
       "script_placement_location",
-      info?.script_placement_location
+      info?.script_placement_location,
     );
     form.setFieldValue("loadSpeed", info?.load_speed);
     form.setFieldValue("offloadSpeed", info?.offload_speed);
@@ -105,11 +98,11 @@ const AmrForm: FC<{
       <Modal
         title={t("sim.robot.modal.edit")}
         open={isOpen}
-        onCancel={handleCancel}
+        onCancel={() => setIsOpen(false)}
         footer={() => (
           <>
             <Button
-              onClick={deleteHandler}
+              onClick={() => deleteMutation.mutate()}
               loading={deleteMutation.isLoading}
               color="danger"
               variant="filled"
@@ -142,7 +135,7 @@ const AmrForm: FC<{
             label={"initial location"}
             rules={[{ required: true }]}
           >
-            <Select options={locationOptions} />
+            <Select options={locationOptions} showSearch />
           </Form.Item>
 
           <Form.Item
