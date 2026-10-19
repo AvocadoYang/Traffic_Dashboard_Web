@@ -1,4 +1,6 @@
 import { FC, memo } from "react";
+import useConfigFlags from "@/api/useConfigFlags";
+import { navCategories } from "./navItems";
 import { FormInstance } from "antd";
 import type { DraggableAttributes } from "@dnd-kit/core";
 import LocationEditPanel from "./panels/location/LocationEditPanel";
@@ -63,13 +65,20 @@ type Props = {
   zonePanelForm: FormInstance<unknown>;
 };
 
+/** MIR 分類底下的面板; HAS_MIR: false 時就算 activeKey 指到也不畫 */
+const MIR_PANEL_KEYS = new Set<string>(
+  navCategories.find((c) => c.key === "mir")?.children.map((c) => c.key) ?? [],
+);
+
 const PanelRenderer: FC<Props> = ({
   activeKey,
   locationPanelForm,
   roadPanelForm,
   zonePanelForm,
 }) => {
+  const { data: configFlags } = useConfigFlags();
   if (!activeKey) return null;
+  if (MIR_PANEL_KEYS.has(activeKey) && !configFlags?.hasMir) return null;
 
   switch (activeKey) {
     // ✅ 已改用 v2 重新設計的版本(灰黑白 + RWD)

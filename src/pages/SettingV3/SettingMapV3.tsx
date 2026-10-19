@@ -1,3 +1,4 @@
+import useConfigFlags from "@/api/useConfigFlags";
 import { FC, memo, useCallback, useEffect, useRef, useState } from "react";
 import { Form, FormInstance } from "antd";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
@@ -94,7 +95,10 @@ const SettingMapV3: FC<Props> = ({ roadPanelForm, locationPanelForm, zonePanelFo
 
   const openEditLocationPanel = useAtomValue(EditLocationPanelSwitch);
   const openQuickEditLocationPanel = useAtomValue(QuickEditLocationPanelSwitch);
-  const openMirPlacer = useAtomValue(MirStyleLocationPlacerSwitch);
+  // MiR 打點: 開關只在 HAS_MIR 時出現, 這裡再擋一次, 免得開關殘留成 true
+  const { data: configFlags } = useConfigFlags();
+  const openMirPlacer =
+    useAtomValue(MirStyleLocationPlacerSwitch) && !!configFlags?.hasMir;
   const openEditZone = useAtomValue(EditZoneSwitch);
   const openEditRoadPanel = useAtomValue(EditRoadPanelSwitch);
   const openEditAnnotation = useAtomValue(EditAnnotationSwitch);
