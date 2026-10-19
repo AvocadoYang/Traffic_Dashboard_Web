@@ -27,6 +27,7 @@ import useAllMissionTitlesDetail from "@/api/useMissionTitleDetail";
 import Folder from "./folder/Folder";
 import FolderEditor from "./folder/FolderEditor";
 import UpgradeTaskFormat from "./UpgradeTaskFormat";
+import MissionTransfer from "@/pages/SettingV2/panels/mission/edit/MissionTransfer";
 import { useAtomValue } from "jotai";
 import { currentMapIdAtom } from "@/utils/mapSelection";
 
@@ -400,6 +401,10 @@ const EditMissionPanel: FC<{
                   />
                 </Col>
               </ControlRow>
+
+              <Flex gap={12} style={{ marginBottom: 16 }}>
+                <MissionTransfer missions={filterMissionData} />
+              </Flex>
 
               <Folder
                 selected={selectFolder}

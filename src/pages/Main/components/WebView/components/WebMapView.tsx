@@ -4,7 +4,10 @@ import {
   LocationHoverCluster,
 } from "@/pages/Setting/mapComponents/components";
 import "../webview.css";
-import { AllZones } from "@/pages/Setting/mapComponents/components";
+import {
+  AllAnnotations,
+  AllZones,
+} from "@/pages/Setting/mapComponents/components";
 import AllLocation from "../../PadViwe/components/PadMapContent/component/AllLocation";
 import { useAtom, useAtomValue } from "jotai";
 import { AmrFilterCarCard, Scale, showZoneForbidden } from "@/utils/gloable";
@@ -130,6 +133,7 @@ const WebMapView: React.FC<{
       ) : (
         <>
           {/* <AllLocation mapRef={mapRef}></AllLocation> */}
+          <AllAnnotations scale={scale} />
           <AllAMRs></AllAMRs>
           <LocalizationCorrectionGhost></LocalizationCorrectionGhost>
           {showPointCloud ? <AllPointCloud></AllPointCloud> : null}

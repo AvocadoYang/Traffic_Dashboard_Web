@@ -5,6 +5,7 @@ import {
   QuickEditLocationPanelSwitch,
   EditRoadPanelSwitch,
   EditZoneSwitch,
+  EditAnnotationSwitch,
   showAllZonesSwitch,
   isOpenSwitchMap,
 } from "@/utils/siderGloble";
@@ -18,6 +19,7 @@ const useResetSiderSwitch = () => {
   const [, setShowAllLocationListTable] = useAtom(EditLocationListTableSwitch);
   const [, setOpenEditZone] = useAtom(EditZoneSwitch);
   const setOpenSwitchMap = useSetAtom(isOpenSwitchMap);
+  const setEditAnnotation = useSetAtom(EditAnnotationSwitch);
   const [, setShowAllZonesSwitch] = useAtom(showAllZonesSwitch);
   const [, setShowBlockId] = useAtom(showBlockId);
   useEffect(() => {
@@ -26,6 +28,7 @@ const useResetSiderSwitch = () => {
     setEditRoadPanelSwitch(false);
     setQuickEditLocationPanel(false);
     setOpenEditZone(false);
+    setEditAnnotation(false);
     setShowAllZonesSwitch(true);
     setOpenSwitchMap(false);
     setShowBlockId("");

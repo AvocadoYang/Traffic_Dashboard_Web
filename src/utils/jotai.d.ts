@@ -13,6 +13,7 @@ export type LocationType = {
   ip?: string | null;
   wait_area_id?: string | null;
   wait_order?: number;
+  is_waiting_poiont?: boolean;
   currentMapId?: string;
 };
 
@@ -36,6 +37,7 @@ export type TagSettingType = {
   hight_limit: number;
   limitNum: number;
   view_available: string;
+  elevator_id: string;
 };
 
 export type RoadListType = {

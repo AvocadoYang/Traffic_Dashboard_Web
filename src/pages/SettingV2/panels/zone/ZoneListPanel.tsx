@@ -13,7 +13,9 @@ import type { TableColumnsType } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
+  PoweroffOutlined,
   ReloadOutlined,
+  StopOutlined,
   SearchOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
@@ -47,6 +49,8 @@ import {
   Tag,
 } from "../../ui/primitives";
 import { c } from "../../ui/tokens";
+import StatusTag from "../../ui/StatusTag";
+import useToggleZoneEnabled from "@/api/useToggleZoneEnabled";
 
 type ZoneRow = {
   id: string;
@@ -56,12 +60,14 @@ type ZoneRow = {
   layer: string;
   lidar_front: boolean;
   lidar_back: boolean;
+  disabled?: boolean;
   tagSetting?: {
     speed_limit?: number | null;
     hight_limit?: number | null;
     forbidden_car?: string[];
     limitNum?: number | null;
     view_available?: number | null;
+    elevator_id?: string | null;
   };
   startPoint: { startX: number; startY: number };
   endPoint: { endX: number; endY: number };
@@ -82,6 +88,38 @@ const ZoneListPanel: FC = () => {
 
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<ZoneRow | null>(null);
+  const {
+    setEnabled,
+    pendingId,
+    contextHolder: toggleHolder,
+  } = useToggleZoneEnabled();
+
+  const statusTag = (row: ZoneRow) => (
+    <StatusTag $on={!row.disabled}>
+      {t(row.disabled ? "zone_enable.disabled" : "zone_enable.enabled")}
+    </StatusTag>
+  );
+
+  const toggleButton = (row: ZoneRow, withText: boolean) =>
+    row.disabled ? (
+      <GhostButton
+        title={t("zone_enable.enable")}
+        disabled={pendingId === row.id}
+        onClick={() => setEnabled(row, true)}
+      >
+        <PoweroffOutlined />
+        {withText && t("zone_enable.enable")}
+      </GhostButton>
+    ) : (
+      <GhostButton
+        title={t("zone_enable.disable")}
+        disabled={pendingId === row.id}
+        onClick={() => setEnabled(row, false)}
+      >
+        <StopOutlined />
+        {withText && t("zone_enable.disable")}
+      </GhostButton>
+    );
 
   const activeGroupId = useMemo(
     () => resources?.groups.find((g) => g.isUsing)?.groupId ?? null,
@@ -188,6 +226,7 @@ const ZoneListPanel: FC = () => {
       hight_limit: row.tagSetting?.hight_limit ?? undefined,
       limitNum: row.tagSetting?.limitNum ?? undefined,
       view_available: row.tagSetting?.view_available ?? undefined,
+      elevator_id: row.tagSetting?.elevator_id ?? undefined,
       all_forbidden: isAll,
       forbidden: isAll ? [] : forbiddenCar,
       color: row.backgroundColor,
@@ -231,6 +270,18 @@ const ZoneListPanel: FC = () => {
   );
 
   const columns: TableColumnsType<ZoneRow> = [
+    {
+      title: t("zone_enable.status"),
+      key: "status",
+      width: 90,
+      fixed: "left",
+      filters: [
+        { text: t("zone_enable.enabled"), value: "enabled" },
+        { text: t("zone_enable.disabled"), value: "disabled" },
+      ],
+      onFilter: (value, r) => (value === "disabled") === !!r.disabled,
+      render: (_, r) => statusTag(r),
+    },
     {
       title: t("zone_table_form.zone_name"),
       dataIndex: "name",
@@ -293,10 +344,11 @@ const ZoneListPanel: FC = () => {
     {
       title: "",
       key: "actions",
-      width: 110,
+      width: 150,
       fixed: "right",
       render: (_, row) => (
         <Toolbar>
+          {toggleButton(row, false)}
           <GhostButton onClick={() => openEdit(row)}>
             <EditOutlined />
           </GhostButton>
@@ -318,6 +370,7 @@ const ZoneListPanel: FC = () => {
   return (
     <PanelShell>
       {contextHolder}
+      {toggleHolder}
 
       <Section>
         <SectionTitle>
@@ -358,6 +411,7 @@ const ZoneListPanel: FC = () => {
                   <span>
                     {colorDot(row.backgroundColor)} {row.name}
                   </span>
+                  {statusTag(row)}
                 </CardTitleRow>
 
                 <CardFacts>
@@ -384,6 +438,7 @@ const ZoneListPanel: FC = () => {
                 </CardFacts>
 
                 <Toolbar>
+                  {toggleButton(row, true)}
                   <GhostButton onClick={() => openEdit(row)}>
                     <EditOutlined />
                     {t("utils.edit")}

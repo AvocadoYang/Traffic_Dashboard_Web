@@ -7,17 +7,19 @@ import {
   Setting,
   SettingV2,
   Register,
-  Simulate,
   Records,
 } from "./pages";
 import CargoHistory from "./pages/CargoHistory/CargoHistory";
 import AmrDetail from "./pages/AmrDetail/AmrDetail";
 import AmrList from "./pages/AmrDetail/AmrList";
-import AllSimulateResult from "./pages/SimulateResult/AllSimulateResult";
 import { Navigate, Outlet } from "react-router-dom";
 import { SystemAlarmOverlay } from "./pages/Main/components/SystemAlarm";
 import { UserConformOverlay } from "./pages/Main/components/UserConformTaskStep";
 import MissionDispatchBoard from "./pages/MissionDispatchBoard/MissionDispatchBoard";
+import OperationReport from "./pages/OperationReport/OperationReport";
+import SimulateV2Gate from "./pages/SimulateV2/SimulateV2Gate";
+import MainV2 from "./pages/MainV2/MainV2";
+import SettingV3 from "./pages/SettingV3/SettingV3";
 import { ThemeVarsProvider, ThemedAppConfigProvider } from "./theme";
 import { useTranslation } from "react-i18next";
 
@@ -60,21 +62,30 @@ function App() {
 
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<Register />}></Route>
-                {/* 設定頁正式改用 v2。/setting 保留成轉址,舊書籤跟外部連結不會壞;
-                舊版仍可從 /setting-v1 進去,真的少了什麼功能時還有得退。 */}
+                {/* 設定頁正式改用 v3 (畫布地圖版)。/setting 保留成轉址,舊書籤跟外部連結不會壞;
+                舊版仍可從 /setting-v2、/setting-v1 進去,真的少了什麼功能時還有得退。 */}
                 <Route
                   path="/setting"
-                  element={<Navigate to="/setting-v2" replace />}
+                  element={<Navigate to="/setting-v3" replace />}
                 ></Route>
                 <Route path="/setting-v1" element={<Setting></Setting>}></Route>
                 <Route path="/setting-v2" element={<SettingV2 />}></Route>
-                <Route path="/simulate" element={<Simulate />}></Route>
-                <Route path="/cargo-history" element={<CargoHistory />}></Route>
+                <Route path="/setting-v3" element={<SettingV3 />} />
+                {/* 舊的任務模擬頁拿掉了: 放模擬車改在首頁地圖的「模擬車輛」 */}
                 <Route
-                  path="/simulate-result"
-                  element={<AllSimulateResult />}
+                  path="/simulate"
+                  element={<Navigate to="/" replace />}
                 ></Route>
-                <Route path="/" element={<Main />}></Route>
+                <Route path="/simulate-v2" element={<SimulateV2Gate />} />
+                <Route path="/cargo-history" element={<CargoHistory />}></Route>
+                {/* 首頁正式改用畫布地圖版 (原 /main-v2); 舊首頁留在 /main-v1,
+                /main-v2 轉回首頁, 舊書籤不會壞 */}
+                <Route path="/" element={<MainV2 />} />
+                <Route path="/main-v1" element={<Main />}></Route>
+                <Route
+                  path="/main-v2"
+                  element={<Navigate to="/" replace />}
+                ></Route>
                 <Route
                   path="/test"
                   element={<MonitorCenter></MonitorCenter>}
@@ -86,6 +97,7 @@ function App() {
                 ></Route>
                 <Route path="/amr" element={<AmrList />} />
                 <Route path="/amr/:amrId" element={<AmrDetail />} />
+                <Route path="/report" element={<OperationReport />} />
                 <Route path="*" element={<h1>{t("utils.not_found")}</h1>} />
               </Route>
             </Routes>

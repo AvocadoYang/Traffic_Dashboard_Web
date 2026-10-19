@@ -81,6 +81,7 @@ type LocationRow = {
   ip?: string | null;
   wait_area_id?: string | null;
   wait_order?: number;
+  is_waiting_poiont?: boolean;
   rev?: string;
   mapFileName: string;
   groupName: string;
@@ -255,6 +256,7 @@ const LocationListPanel: FC = () => {
       ip: row.ip ?? "",
       wait_area_id: row.wait_area_id ?? undefined,
       wait_order: row.wait_order ?? 0,
+      is_waiting_poiont: row.is_waiting_poiont ?? false,
     });
     setEditing(row);
   };
@@ -273,6 +275,7 @@ const LocationListPanel: FC = () => {
         newLocationId: values.locationId,
         map_id: currentMapId,
         currentMapId,
+        is_waiting_poiont: !!values.is_waiting_poiont,
         // 能不能當等待點看的是換完之後的類型
         ...waitPointPayload(areaType, values),
       });
@@ -333,6 +336,13 @@ const LocationListPanel: FC = () => {
       key: "waitPoint",
       width: 150,
       render: (_, row) => waitPointText(row) ?? "—",
+    },
+    {
+      title: t("edit_location_panel.is_waiting_point"),
+      dataIndex: "is_waiting_poiont",
+      key: "is_waiting_poiont",
+      width: 110,
+      render: (v?: boolean) => (v ? "YES" : "—"),
     },
     { title: "IP", dataIndex: "ip", key: "ip", width: 130, render: (v) => v || "—" },
     {
@@ -460,6 +470,12 @@ const LocationListPanel: FC = () => {
                       <dd>{waitPointText(row)}</dd>
                     </>
                   ) : null}
+                  {row.is_waiting_poiont ? (
+                    <>
+                      <dt>{t("edit_location_panel.is_waiting_point")}</dt>
+                      <dd>YES</dd>
+                    </>
+                  ) : null}
                   {row.ip ? (
                     <>
                       <dt>IP</dt>
@@ -585,6 +601,16 @@ const LocationListPanel: FC = () => {
             <Field>
               <FieldLabel>{t("edit_location_panel.can_rotate")}</FieldLabel>
               <Form.Item name="canRotate" valuePropName="checked" noStyle>
+                <Switch size="small" />
+              </Form.Item>
+            </Field>
+            <Field>
+              <FieldLabel>{t("edit_location_panel.is_waiting_point")}</FieldLabel>
+              <Form.Item
+                name="is_waiting_poiont"
+                valuePropName="checked"
+                noStyle
+              >
                 <Switch size="small" />
               </Form.Item>
             </Field>

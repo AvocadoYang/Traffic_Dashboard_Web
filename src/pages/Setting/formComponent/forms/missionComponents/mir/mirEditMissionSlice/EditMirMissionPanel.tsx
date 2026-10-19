@@ -91,7 +91,11 @@ import {
   MirVariableProvider,
   useMirVariableFields,
 } from "./MirVariableContext";
-import { MIR_ACTION_FIELDS, buildMirOperationFields } from "./mirActionFields";
+import {
+  MIR_ACTION_FIELDS,
+  buildMirOperationFields,
+  isCurrentPositionOperation,
+} from "./mirActionFields";
 import { useMirDockingMarkerType } from "./useMirTaskOptions";
 import { useTranslation } from "react-i18next";
 
@@ -702,7 +706,7 @@ const ParameterDrawer: FC<{
       entry_position: op.entry_position,
       footprint: op.footprint,
       marker_type: op.marker_type || null,
-      is_current_position: !op.location_id && !!op.marker_type,
+      is_current_position: isCurrentPositionOperation(op),
       blocked_path_timeout: op.blocked_path_timeout ?? 60,
       blocked_docking_timeout: op.blocked_docking_timeout ?? 60,
       maximum_linear_speed: op.maximum_linear_speed ?? 0.25,
@@ -809,6 +813,13 @@ const EditMirMissionPanelContent: FC<{
 }> = ({ selectedMissionKey }) => {
   const { t } = useTranslation();
   const { data: taskDataSource } = useTaskMir(selectedMissionKey);
+  /**
+   * 引用既有任務時,後端會把來源任務的動作複製進來。v1 不認得這些複製,
+   * 照原樣整批存回去會把引用拆成一般動作,所以這種任務只能在 v2 編輯。
+   */
+  const hasIncludes = (taskDataSource ?? []).some(
+    (s) => !!(s as { include_group_id?: string | null }).include_group_id,
+  );
   const currentMapId = useAtomValue(currentMapIdAtom);
   const [messageApi, contextHolder] = message.useMessage();
   const queryClient = useQueryClient();
@@ -1079,14 +1090,17 @@ const EditMirMissionPanelContent: FC<{
           </Dropdown>
         ))}
         <SaveBar>
-          <Button
-            type="primary"
-            icon={<SaveOutlined />}
-            loading={batchSaveMutation.isPending}
-            onClick={() => batchSaveMutation.mutate()}
-          >
-            Save
-          </Button>
+          <Tooltip title={hasIncludes ? t("mir.include_v1_readonly") : undefined}>
+            <Button
+              type="primary"
+              icon={<SaveOutlined />}
+              loading={batchSaveMutation.isPending}
+              disabled={hasIncludes}
+              onClick={() => batchSaveMutation.mutate()}
+            >
+              Save
+            </Button>
+          </Tooltip>
         </SaveBar>
       </Toolbar>
 

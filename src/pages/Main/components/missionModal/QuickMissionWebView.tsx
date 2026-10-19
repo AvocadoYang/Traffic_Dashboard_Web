@@ -23,6 +23,8 @@ import { useMutation } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
+import useCargoInfo from "@/sockets/useCargoInfo";
+import { isMir, prefixLevelName } from "@/utils/globalFunction";
 
 enum MissionPriority {
   TRIVIAL,
@@ -237,10 +239,18 @@ const LocationCard = styled.div<{
   selected: boolean;
 }>`
   background: ${({ selected, type }) =>
-    selected ? (type === "load" ? "var(--c-header-accent-soft)" : "var(--c-success-soft)") : "var(--c-bg-subtle)"};
+    selected
+      ? type === "load"
+        ? "var(--c-header-accent-soft)"
+        : "var(--c-success-soft)"
+      : "var(--c-bg-subtle)"};
   border: 2px solid;
   border-color: ${({ selected, type }) =>
-    selected ? (type === "load" ? "var(--c-header-accent)" : "var(--c-success)") : "var(--c-header-border)"};
+    selected
+      ? type === "load"
+        ? "var(--c-header-accent)"
+        : "var(--c-success)"
+      : "var(--c-header-border)"};
   padding: 12px;
   margin-bottom: 10px;
   position: relative;
@@ -254,9 +264,17 @@ const LocationCard = styled.div<{
 
   &:hover {
     border-color: ${({ selected, type }) =>
-      selected ? (type === "load" ? "var(--c-header-accent)" : "var(--c-success)") : "var(--c-text-muted)"};
+      selected
+        ? type === "load"
+          ? "var(--c-header-accent)"
+          : "var(--c-success)"
+        : "var(--c-text-muted)"};
     background: ${({ selected, type }) =>
-      selected ? (type === "load" ? "var(--c-header-accent-soft)" : "var(--c-success-soft)") : "var(--c-bg-subtle)"};
+      selected
+        ? type === "load"
+          ? "var(--c-header-accent-soft)"
+          : "var(--c-success-soft)"
+        : "var(--c-bg-subtle)"};
   }
 
   &::before {
@@ -266,7 +284,8 @@ const LocationCard = styled.div<{
     top: 0;
     bottom: 0;
     width: 3px;
-    background: ${({ type }) => (type === "load" ? "var(--c-header-accent)" : "var(--c-success)")};
+    background: ${({ type }) =>
+      type === "load" ? "var(--c-header-accent)" : "var(--c-success)"};
     opacity: ${({ selected }) => (selected ? 1 : 0)};
     transition: opacity 0.2s;
 
@@ -294,11 +313,13 @@ const LocationIcon = styled.div<{ type: "load" | "offload" }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${({ type }) => (type === "load" ? "var(--c-header-accent)" : "var(--c-success)")};
+  background: ${({ type }) =>
+    type === "load" ? "var(--c-header-accent)" : "var(--c-success)"};
   color: #ffffff;
   font-size: 14px;
   border: 1px solid;
-  border-color: ${({ type }) => (type === "load" ? "var(--c-header-accent)" : "var(--c-success)")};
+  border-color: ${({ type }) =>
+    type === "load" ? "var(--c-header-accent)" : "var(--c-success)"};
   flex-shrink: 0;
 
   @media (min-width: 768px) {
@@ -551,6 +572,42 @@ const QuickMissionWebView: React.FC<{
         .map((g) => ({ label: g.name, value: g.name })),
     [peripheralGroups],
   );
+  const selectedAmr = Form.useWatch<string | undefined>("amrId", form);
+  const isMirAmr = !!selectedAmr && isMir(selectedAmr);
+  const cargoInfo = useCargoInfo();
+  const storageOptions = useMemo(() => {
+    const build = (action: "load" | "offload") =>
+      Object.values(cargoInfo ?? {})
+        .filter((c) => c.type === "STORAGE")
+        .flatMap((c) =>
+          Object.entries(c.layer ?? {})
+            .filter(([, info]) => {
+              if (info.disable || info.booker !== null) return false;
+              const hasCargo = info.cargo.length > 0;
+              return action === "load" ? hasCargo : !hasCargo;
+            })
+            .map(([levelStr, info]) => ({
+              label: `${c.locationId} · ${prefixLevelName(info.levelName)}`,
+              value: `${c.locationId}|${levelStr}`,
+            })),
+        );
+    return { load: build("load"), offload: build("offload") };
+  }, [cargoInfo]);
+
+  const handleSelectStorage = (action: "load" | "offload", key: string) => {
+    const [locationId, levelStr] = key.split("|");
+    const level = Number(levelStr);
+    const info = cargoInfo?.[locationId]?.layer?.[level];
+    if (!info) return;
+    const value = {
+      missionType: action,
+      columnName: prefixLevelName(info.levelName),
+      locationId,
+      level,
+    };
+    if (action === "load") setLoad(value);
+    else setOffload(value);
+  };
 
   const handleSelectGroup = (action: "load" | "offload", name: string) => {
     const value = {
@@ -730,9 +787,7 @@ const QuickMissionWebView: React.FC<{
                       </LocationTitle>
                     </LocationHeader>
                     {loadValue && (
-                      <LocationValue>
-                        {renderValue(loadValue)}
-                      </LocationValue>
+                      <LocationValue>{renderValue(loadValue)}</LocationValue>
                     )}
                     {!loadValue && (
                       <div
@@ -755,7 +810,34 @@ const QuickMissionWebView: React.FC<{
                         <StyledSelect
                           options={groupOptions}
                           placeholder={t("main.quick_mission.select_group")}
-                          onChange={(v) => handleSelectGroup("load", v as string)}
+                          onChange={(v) =>
+                            handleSelectGroup("load", v as string)
+                          }
+                          allowClear={false}
+                          style={{ width: "100%" }}
+                        />
+                      </div>
+                    )}
+                    {!loadValue && isMirAmr && (
+                      <div
+                        style={{ paddingLeft: "38px", marginTop: 8 }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <StyledSelect
+                          showSearch={{
+                            filterOption: (input, option) =>
+                              String(option?.label ?? "")
+                                .toLowerCase()
+                                .includes(input.toLowerCase()),
+                          }}
+                          options={storageOptions.load}
+                          placeholder={t(
+                            "main.quick_mission.select_storage_load",
+                          )}
+                          notFoundContent={t("main.quick_mission.no_storage")}
+                          onChange={(v) =>
+                            handleSelectStorage("load", v as string)
+                          }
                           allowClear={false}
                           style={{ width: "100%" }}
                         />
@@ -777,9 +859,7 @@ const QuickMissionWebView: React.FC<{
                       </LocationTitle>
                     </LocationHeader>
                     {offloadValue && (
-                      <LocationValue>
-                        {renderValue(offloadValue)}
-                      </LocationValue>
+                      <LocationValue>{renderValue(offloadValue)}</LocationValue>
                     )}
                     {!offloadValue && (
                       <div
@@ -802,7 +882,34 @@ const QuickMissionWebView: React.FC<{
                         <StyledSelect
                           options={groupOptions}
                           placeholder={t("main.quick_mission.select_group")}
-                          onChange={(v) => handleSelectGroup("offload", v as string)}
+                          onChange={(v) =>
+                            handleSelectGroup("offload", v as string)
+                          }
+                          allowClear={false}
+                          style={{ width: "100%" }}
+                        />
+                      </div>
+                    )}
+                    {!offloadValue && isMirAmr && (
+                      <div
+                        style={{ paddingLeft: "38px", marginTop: 8 }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <StyledSelect
+                          showSearch={{
+                            filterOption: (input, option) =>
+                              String(option?.label ?? "")
+                                .toLowerCase()
+                                .includes(input.toLowerCase()),
+                          }}
+                          options={storageOptions.offload}
+                          placeholder={t(
+                            "main.quick_mission.select_storage_offload",
+                          )}
+                          notFoundContent={t("main.quick_mission.no_storage")}
+                          onChange={(v) =>
+                            handleSelectStorage("offload", v as string)
+                          }
                           allowClear={false}
                           style={{ width: "100%" }}
                         />

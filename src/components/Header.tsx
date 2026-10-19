@@ -30,15 +30,17 @@ import client from "@/api/axiosClient";
 import { errorHandler } from "@/utils/utils";
 import { ErrorResponse } from "@/utils/globalType";
 import useName from "@/api/useAmrName";
-import StartSimModal from "@/pages/SimulateResult/StartSimModal";
+import StartSimModal from "@/components/StartSimModal";
+import useUiConfig from "@/api/useUiConfig";
 import { useMockInfo } from "@/sockets/useMockInfo";
 import styled from "styled-components";
 import { mq } from "@/styles/responsive";
-import { useTimelineSocket } from "@/sockets/useTimelineSocket";
 import dayjs from "dayjs";
 import MissionBtn from "@/pages/Main/components/WebView/components/MissionBtn";
 import HaStatusWidget from "@/pages/Main/components/HaStatusWidget";
 import ChangePasswordModal from "./ChangePasswordModal";
+import ClientNameModal from "./ClientNameModal";
+import { getClientName } from "@/utils/clientIdentity";
 import CreateUserModel from "./CreateUserModel";
 import { jwtDecode } from "jwt-decode";
 import SimTime from "./SimTime";
@@ -431,11 +433,18 @@ const Header: React.FC = () => {
   const { refetch: amrNameRefetch } = useName();
   const [messageApi, contextHolder] = message.useMessage();
   const location = useLocation();
+  // 實際案場 (YAML SHOW_SIMULATION_UI: false) 不顯示「模擬」按鈕;
+  // 模擬正在跑時照樣顯示「停止模擬」和模擬時間, 才停得掉
+  // 「任務模擬 v2」選單也一樣看 YAML (SHOW_SIMULATE_V2)
+  const { showSimulationUi, showSimulateV2 } = useUiConfig();
   // 任務列(HA 狀態 / 任務派發)只有首頁才有內容。其他頁面一律顯示導覽、也不給切換,
   // 不然上次停在任務列的人換到別頁會看到一排空白,連導覽都不見。
-  const hasToolsRow = location.pathname === "/";
+  const hasToolsRow =
+    location.pathname === "/" || location.pathname === "/main-v1";
   const activeRow: HeaderRow = hasToolsRow ? headerRow : "nav";
   const [openChangePassword, setOpenChangePassword] = useState(false);
+  const [openClientName, setOpenClientName] = useState(false);
+  const [clientName, setClientNameState] = useState(getClientName);
   const [openCreateUser, setOpenCreateUser] = useState(false);
   const currentMapInfo = useMap();
   const setScale = useSetAtom(Scale);
@@ -499,50 +508,25 @@ const Header: React.FC = () => {
     });
   };
 
+  // key 就是網址; 依 YAML 藏掉的項目直接不放, 其他項目不受影響
   const items = [
-    `${t("page_view")}`,
-    `${t("page_amr")}`,
-    `${t("page_cargo_history")}`,
-    `${t("page_setting")}`,
-    `${t("page_simulate")}`,
-    `${t("page_simulate_result")}`,
-    `${t("page_record")}`,
-    `${t("page_mission_dispatch")}`,
-  ].map((name, index) => ({
-    key: index + 1,
-    label: name,
-  }));
+    { key: "/", label: t("page_view") },
+    { key: "/amr", label: t("page_amr") },
+    { key: "/cargo-history", label: t("page_cargo_history") },
+    // 設定頁已經正式改用 v3;舊版還留在 /setting-v2、/setting-v1,/setting 會轉過去
+    { key: "/setting-v3", label: t("page_setting") },
+    // 任務模擬 v2: 自己畫佈局、算運能。舊的任務模擬頁拿掉了,
+    // 放模擬車改在首頁地圖的「模擬車輛」
+    ...(showSimulateV2
+      ? [{ key: "/simulate-v2", label: t("page_simulate_v2") }]
+      : []),
+    { key: "/records", label: t("page_record") },
+    { key: "/mission-dispatch", label: t("page_mission_dispatch") },
+    { key: "/report", label: t("page_report") },
+  ];
 
   const handleMenuClick = (e: { key: string }) => {
-    switch (e.key) {
-      case "1":
-        navigate("/");
-        break;
-      case "2":
-        navigate("/amr");
-        break;
-      case "3":
-        navigate("/cargo-history");
-        break;
-      case "4":
-        // 設定頁已經正式改用 v2;舊版還留在 /setting-v1,/setting 會轉過去
-        navigate("/setting-v2");
-        break;
-      case "5":
-        navigate("/simulate");
-        break;
-      case "6":
-        navigate("/simulate-result");
-        break;
-      case "7":
-        navigate("/records");
-        break;
-      case "8":
-        navigate("/mission-dispatch");
-        break;
-      default:
-        break;
-    }
+    navigate(e.key);
   };
 
   const handleChineseItemClick = (value: string) => {
@@ -579,6 +563,9 @@ const Header: React.FC = () => {
       case "4":
         setOpenCreateUser(true);
         break;
+      case "5":
+        setOpenClientName(true);
+        break;
       default:
         break;
     }
@@ -589,6 +576,7 @@ const Header: React.FC = () => {
     ` logout`,
     `change password`,
     `create user`,
+    `${t("client_name.title")}: ${clientName || t("client_name.unset")}`,
   ].map((name, index) => ({
     key: index + 1,
     label: name,
@@ -703,7 +691,7 @@ const Header: React.FC = () => {
                   {t("header.stop_sim")}
                 </ControlButton>
               </Tooltip>
-            ) : (
+            ) : showSimulationUi ? (
               <Tooltip title={t("page_simulate")}>
                 <ControlButton
                   onClick={() => setIsSimulateOpen(true)}
@@ -716,7 +704,7 @@ const Header: React.FC = () => {
                   {t("header.simulate")}
                 </ControlButton>
               </Tooltip>
-            )}
+            ) : null}
 
             <IndustrialSelect
               value={i18n.language === "en" ? "en" : "ch.tw"}
@@ -751,6 +739,12 @@ const Header: React.FC = () => {
       ></ChangePasswordModal>
 
       <CreateUserModel open={openCreateUser} setOpen={setOpenCreateUser} />
+
+      <ClientNameModal
+        open={openClientName}
+        setOpen={setOpenClientName}
+        onSaved={setClientNameState}
+      />
     </>
   );
 };

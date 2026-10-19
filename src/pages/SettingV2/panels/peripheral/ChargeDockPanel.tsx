@@ -39,6 +39,21 @@ import {
   WarnNote,
 } from "../../ui/primitives";
 
+const POSE_KEYS = [
+  "precise_x",
+  "precise_y",
+  "precise_yaw",
+  "tolerance_x",
+  "tolerance_y",
+  "tolerance_yaw",
+] as const;
+type PoseKey = (typeof POSE_KEYS)[number];
+
+/** 綁定在這座站的一台車自己的停準座標; 沒填的欄位是 null, 沿用充電站那一組 */
+type BindingPose = { id: string; amrId: string } & {
+  [K in PoseKey]: number | null;
+};
+
 type DockConfig = {
   id: string;
   station_id: string;
@@ -48,10 +63,22 @@ type DockConfig = {
   tolerance_x: number;
   tolerance_y: number;
   tolerance_yaw: number;
+  amr_bindings?: BindingPose[];
 };
 
 const radToDeg = (rad: number) => ((rad * 180) / Math.PI).toFixed(2);
 const mToMm = (m: number) => (m * 1000).toFixed(1);
+
+/** 表格 / 說明文字裡的一個停準數值: 位置給 mm, 角度給度, 誤差前面加 ± */
+const showPose = (key: PoseKey, v: number) => {
+  const sign = key.startsWith("tolerance") ? "±" : "";
+  return key.endsWith("yaw")
+    ? `${sign}${radToDeg(v)}°`
+    : `${sign}${mToMm(v)} mm`;
+};
+
+const inheritsAll = (binding: BindingPose) =>
+  POSE_KEYS.every((key) => binding[key] === null);
 
 /** 現場常見的充電樁接觸型式,對應的容忍誤差範本 */
 const PRESETS = {
@@ -68,7 +95,13 @@ const ChargeDockPanel: FC = () => {
   const [form] = Form.useForm();
 
   const [editing, setEditing] = useState<DockConfig | null>(null);
-  const values = Form.useWatch([], form) as Partial<DockConfig> | undefined;
+  // 有值 = 對話框改的是 editing 這座站底下某一台車自己的停準座標
+  const [editingBinding, setEditingBinding] = useState<BindingPose | null>(
+    null,
+  );
+  const values = Form.useWatch([], form) as
+    | Partial<Record<PoseKey, number | null>>
+    | undefined;
 
   const {
     data: stations = [],
@@ -96,25 +129,88 @@ const ChargeDockPanel: FC = () => {
     onError: () => void messageApi.error(t("utils.fail")),
   });
 
+  const saveBindingMutation = useMutation({
+    mutationFn: (payload: Omit<BindingPose, "amrId">) =>
+      client.post(
+        "api/peripherals/update-charge-station-binding-docking",
+        payload,
+      ),
+    onSuccess: () => {
+      void messageApi.success(t("utils.success"));
+      void queryClient.invalidateQueries({
+        queryKey: ["chargeStationDockConfig"],
+      });
+      close();
+    },
+    onError: () => void messageApi.error(t("utils.fail")),
+  });
+
   const close = () => {
     setEditing(null);
+    setEditingBinding(null);
     form.resetFields();
   };
 
   const openEdit = (row: DockConfig) => {
+    form.resetFields();
     form.setFieldsValue(row);
+    setEditingBinding(null);
     setEditing(row);
+  };
+
+  const openEditBinding = (station: DockConfig, binding: BindingPose) => {
+    form.resetFields();
+    form.setFieldsValue(
+      Object.fromEntries(POSE_KEYS.map((key) => [key, binding[key]])),
+    );
+    setEditingBinding(binding);
+    setEditing(station);
   };
 
   const submit = async () => {
     if (!editing) return;
-    let v: Omit<DockConfig, "id" | "station_id">;
+    let v: Record<PoseKey, number | null | undefined>;
     try {
       v = (await form.validateFields()) as typeof v;
     } catch {
       return;
     }
-    saveMutation.mutate({ ...editing, ...v, id: editing.id });
+
+    if (editingBinding) {
+      // 空白的欄位送 null: 這一項沿用充電站的
+      saveBindingMutation.mutate({
+        id: editingBinding.id,
+        ...(Object.fromEntries(
+          POSE_KEYS.map((key) => [key, v[key] ?? null]),
+        ) as Record<PoseKey, number | null>),
+      });
+      return;
+    }
+
+    saveMutation.mutate({
+      ...editing,
+      ...(v as Omit<DockConfig, "id" | "station_id" | "amr_bindings">),
+      id: editing.id,
+    });
+  };
+
+  /** 這台車沒填的欄位, 實際用的是充電站的值 */
+  const effective = (key: PoseKey) =>
+    values?.[key] ?? (editingBinding && editing ? editing[key] : 0);
+
+  const poseRules = [
+    { required: !editingBinding, message: t("utils.required") },
+  ];
+
+  const poseExtra = (key: PoseKey) => {
+    const own = values?.[key];
+    if (own !== undefined && own !== null) return showPose(key, own);
+    if (editingBinding && editing) {
+      return t("setting_v2.charge_dock.inherit_value", {
+        value: showPose(key, editing[key]),
+      });
+    }
+    return showPose(key, 0);
   };
 
   const applyPreset = (key: keyof typeof PRESETS) => {
@@ -123,7 +219,7 @@ const ChargeDockPanel: FC = () => {
 
   /** 誤差設得太寬會造成充電片接觸不良,這裡沿用 v1 的門檻:Y 超過 30mm 或角度超過 5° */
   const isLoose =
-    (values?.tolerance_y ?? 0) > 0.03 || (values?.tolerance_yaw ?? 0) > 0.087;
+    effective("tolerance_y") > 0.03 || effective("tolerance_yaw") > 0.087;
 
   const columns: TableColumnsType<DockConfig> = [
     {
@@ -184,6 +280,49 @@ const ChargeDockPanel: FC = () => {
       render: (_, row) => (
         <Toolbar>
           <GhostButton onClick={() => openEdit(row)}>
+            <EditOutlined />
+          </GhostButton>
+        </Toolbar>
+      ),
+    },
+  ];
+
+  /** 表格展開後: 綁定在這座站的每一台車, 沒填的欄位用淡色顯示充電站的值 */
+  const bindingColumns = (
+    station: DockConfig,
+  ): TableColumnsType<BindingPose> => [
+    {
+      title: t("setting_v2.charge_dock.col_amr"),
+      dataIndex: "amrId",
+      key: "amrId",
+      render: (v: string, binding) => (
+        <>
+          {v}{" "}
+          {inheritsAll(binding) && (
+            <Tag>{t("setting_v2.charge_dock.inherit_tag")}</Tag>
+          )}
+        </>
+      ),
+    },
+    ...POSE_KEYS.map((key) => ({
+      title: key.replace("precise", "TARGET").replace("tolerance", "TOL").replace("_", " ").toUpperCase(),
+      key,
+      render: (_: unknown, binding: BindingPose) => {
+        const own = binding[key];
+        return own === null ? (
+          <span style={{ opacity: 0.5 }}>{showPose(key, station[key])}</span>
+        ) : (
+          showPose(key, own)
+        );
+      },
+    })),
+    {
+      title: "",
+      key: "actions",
+      width: 80,
+      render: (_, binding) => (
+        <Toolbar>
+          <GhostButton onClick={() => openEditBinding(station, binding)}>
             <EditOutlined />
           </GhostButton>
         </Toolbar>
@@ -252,6 +391,28 @@ const ChargeDockPanel: FC = () => {
                     {t("utils.edit")}
                   </GhostButton>
                 </Toolbar>
+
+                {(row.amr_bindings ?? []).map((binding) => (
+                  <CardFacts key={binding.id}>
+                    <dt>{binding.amrId}</dt>
+                    <dd>
+                      {inheritsAll(binding) ? (
+                        t("setting_v2.charge_dock.inherit_tag")
+                      ) : (
+                        <>
+                          X {mToMm(binding.precise_x ?? row.precise_x)} mm · Y{" "}
+                          {mToMm(binding.precise_y ?? row.precise_y)} mm ·{" "}
+                          {radToDeg(binding.precise_yaw ?? row.precise_yaw)}°
+                        </>
+                      )}{" "}
+                      <GhostButton
+                        onClick={() => openEditBinding(row, binding)}
+                      >
+                        <EditOutlined />
+                      </GhostButton>
+                    </dd>
+                  </CardFacts>
+                ))}
               </ItemCard>
             ))}
           </CardList>
@@ -265,6 +426,18 @@ const ChargeDockPanel: FC = () => {
               loading={isFetching}
               scroll={{ x: "max-content" }}
               pagination={{ pageSize: 12, showTotal: (n) => t("utils.total", { total: n }) }}
+              expandable={{
+                rowExpandable: (row) => (row.amr_bindings?.length ?? 0) > 0,
+                expandedRowRender: (row) => (
+                  <Table<BindingPose>
+                    size="small"
+                    rowKey="id"
+                    dataSource={row.amr_bindings ?? []}
+                    columns={bindingColumns(row)}
+                    pagination={false}
+                  />
+                ),
+              }}
             />
           </TableWrap>
         )}
@@ -272,10 +445,14 @@ const ChargeDockPanel: FC = () => {
 
       <Modal
         open={!!editing}
-        title={`${t("utils.edit")} — ${editing?.station_id ?? ""}`}
+        title={`${t("utils.edit")} — ${editing?.station_id ?? ""}${
+          editingBinding ? ` / ${editingBinding.amrId}` : ""
+        }`}
         onCancel={close}
         onOk={submit}
-        confirmLoading={saveMutation.isLoading}
+        confirmLoading={
+          saveMutation.isLoading || saveBindingMutation.isLoading
+        }
         okText={t("utils.save")}
         cancelText={t("utils.cancel")}
         width={680}
@@ -286,14 +463,33 @@ const ChargeDockPanel: FC = () => {
             {t("setting_v2.charge_dock.axis_hint")}
           </Hint>
 
+          {editingBinding && (
+            <>
+              <Hint style={{ marginBottom: 8 }}>
+                {t("setting_v2.charge_dock.amr_hint")}
+              </Hint>
+              <Toolbar style={{ marginBottom: 12 }}>
+                <GhostButton
+                  onClick={() =>
+                    form.setFieldsValue(
+                      Object.fromEntries(POSE_KEYS.map((key) => [key, null])),
+                    )
+                  }
+                >
+                  {t("setting_v2.charge_dock.inherit_all")}
+                </GhostButton>
+              </Toolbar>
+            </>
+          )}
+
           <FieldLabel>{t("setting_v2.charge_dock.target_title")}</FieldLabel>
           <FieldGrid $cols={3} style={{ marginTop: 8 }}>
             <Field>
               {tipLabel("TARGET X", t("setting_v2.charge_dock.tip_target_x"))}
               <Form.Item
                 name="precise_x"
-                rules={[{ required: true, message: t("utils.required") }]}
-                extra={`${mToMm(values?.precise_x ?? 0)} mm`}
+                rules={poseRules}
+                extra={poseExtra("precise_x")}
               >
                 <InputNumber
                   step={0.001}
@@ -308,8 +504,8 @@ const ChargeDockPanel: FC = () => {
               {tipLabel("TARGET Y", t("setting_v2.charge_dock.tip_target_y"))}
               <Form.Item
                 name="precise_y"
-                rules={[{ required: true, message: t("utils.required") }]}
-                extra={`${mToMm(values?.precise_y ?? 0)} mm`}
+                rules={poseRules}
+                extra={poseExtra("precise_y")}
               >
                 <InputNumber
                   step={0.001}
@@ -324,8 +520,8 @@ const ChargeDockPanel: FC = () => {
               {tipLabel("TARGET YAW", t("setting_v2.charge_dock.tip_target_yaw"))}
               <Form.Item
                 name="precise_yaw"
-                rules={[{ required: true, message: t("utils.required") }]}
-                extra={`${radToDeg(values?.precise_yaw ?? 0)}°`}
+                rules={poseRules}
+                extra={poseExtra("precise_yaw")}
               >
                 <InputNumber
                   step={0.001}
@@ -355,8 +551,8 @@ const ChargeDockPanel: FC = () => {
               {tipLabel("TOL X", t("setting_v2.charge_dock.tip_tol_x"))}
               <Form.Item
                 name="tolerance_x"
-                rules={[{ required: true, message: t("utils.required") }]}
-                extra={`±${mToMm(values?.tolerance_x ?? 0)} mm`}
+                rules={poseRules}
+                extra={poseExtra("tolerance_x")}
               >
                 <InputNumber
                   min={0}
@@ -372,8 +568,8 @@ const ChargeDockPanel: FC = () => {
               {tipLabel("TOL Y", t("setting_v2.charge_dock.tip_tol_y"))}
               <Form.Item
                 name="tolerance_y"
-                rules={[{ required: true, message: t("utils.required") }]}
-                extra={`±${mToMm(values?.tolerance_y ?? 0)} mm`}
+                rules={poseRules}
+                extra={poseExtra("tolerance_y")}
               >
                 <InputNumber
                   min={0}
@@ -389,8 +585,8 @@ const ChargeDockPanel: FC = () => {
               {tipLabel("TOL YAW", t("setting_v2.charge_dock.tip_tol_yaw"))}
               <Form.Item
                 name="tolerance_yaw"
-                rules={[{ required: true, message: t("utils.required") }]}
-                extra={`±${radToDeg(values?.tolerance_yaw ?? 0)}°`}
+                rules={poseRules}
+                extra={poseExtra("tolerance_yaw")}
               >
                 <InputNumber
                   min={0}
@@ -406,8 +602,8 @@ const ChargeDockPanel: FC = () => {
           {isLoose && (
             <WarnNote>
               {t("setting_v2.charge_dock.loose_warn", {
-                y: mToMm(values?.tolerance_y ?? 0),
-                yaw: radToDeg(values?.tolerance_yaw ?? 0),
+                y: mToMm(effective("tolerance_y")),
+                yaw: radToDeg(effective("tolerance_yaw")),
               })}
             </WarnNote>
           )}

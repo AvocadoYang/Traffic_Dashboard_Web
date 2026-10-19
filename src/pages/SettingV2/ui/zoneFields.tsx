@@ -13,6 +13,7 @@ export const ZONE_TAGS = {
   forbid: "禁止區",
   limit: "限制區",
   view: "查看區",
+  elevator: "電梯區",
 } as const;
 
 /** 取消勾選某個分類時,要一併清掉的欄位(沿用 v1 的行為) */
@@ -21,6 +22,7 @@ export const ZONE_TAG_RESET: Record<string, Record<string, unknown>> = {
   限高區: { hight_limit: undefined },
   限制區: { limitNum: undefined },
   查看區: { view_available: undefined },
+  電梯區: { elevator_id: undefined },
   禁止區: { forbidden: [], all_forbidden: false },
 };
 
@@ -48,6 +50,7 @@ const ZoneFields: FC<{ form: FormInstance<unknown> }> = ({ form }) => {
     { label: t("edit_zone_panel.restricted_zone"), value: ZONE_TAGS.forbid },
     { label: t("edit_zone_panel.controlled_zone"), value: ZONE_TAGS.limit },
     { label: t("edit_zone_panel.view_available_zone"), value: ZONE_TAGS.view },
+    { label: t("edit_zone_panel.elevator_zone"), value: ZONE_TAGS.elevator },
   ];
 
   const layerOptions: SelectProps["options"] = [
@@ -201,6 +204,28 @@ const ZoneFields: FC<{ form: FormInstance<unknown> }> = ({ form }) => {
               <FieldLabel>{t("edit_zone_panel.view_available_zone")}</FieldLabel>
               <Form.Item name="view_available" noStyle>
                 <Select allowClear options={viewAvailableOptions} />
+              </Form.Item>
+            </Field>
+          )}
+
+          {has(ZONE_TAGS.elevator) && (
+            <Field>
+              <FieldLabel>
+                {t("edit_zone_panel.elevator_id")} ({t("edit_zone_panel.necessary")})
+              </FieldLabel>
+              {/* 不同樓層的同一台電梯填一樣的 id,後端靠這個歸成同一組 */}
+              <Form.Item
+                name="elevator_id"
+                noStyle
+                rules={[
+                  {
+                    required: true,
+                    whitespace: true,
+                    message: t("edit_zone_panel.placeholder.elevator_id"),
+                  },
+                ]}
+              >
+                <Input placeholder={t("edit_zone_panel.placeholder.elevator_id")} />
               </Form.Item>
             </Field>
           )}

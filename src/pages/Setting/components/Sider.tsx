@@ -313,7 +313,8 @@ const Sider: React.FC<{
   const [showSound, setShowSound] = useAtom(isShowSound);
 
   const { data: configFlags } = useConfigFlags();
-  const hasMir = configFlags?.hasMir ?? true;
+  // 還沒拿到 (或拿失敗) 時當成沒有 MiR, 沒有 MiR 的案場不會先閃出 MiR 選單
+  const hasMir = configFlags?.hasMir ?? false;
   const [collapsed, setCollapsed] = useState(false);
   const [activeCategoryKey, setActiveCategoryKey] = useState<string | null>(
     null,
