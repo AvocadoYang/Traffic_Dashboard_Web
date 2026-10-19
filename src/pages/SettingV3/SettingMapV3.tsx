@@ -1,12 +1,12 @@
-import { FC, memo, useCallback, useEffect, useRef } from "react";
-import { FormInstance } from "antd";
+import { FC, memo, useCallback, useEffect, useRef, useState } from "react";
+import { Form, FormInstance } from "antd";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import Cookies from "js-cookie";
 import useMap from "@/api/useMap";
 import useVerityVersion from "@/api/useVerityVersion";
 import CanvasMap, { CanvasMapApi } from "@/components/CanvasMap/CanvasMap";
 import CargoPanel from "@/components/CargoPanel/CargoPanel";
-import { DragLineInfo, Scale, sameVersion, shelfSelectedStyleLocationId, batchCargoStyle, showBlockId as ShowBlockId } from "@/utils/gloable";
+import { DragLineInfo, Scale, sameVersion, zoneRectInfo, shelfSelectedStyleLocationId, batchCargoStyle, showBlockId as ShowBlockId } from "@/utils/gloable";
 import {
   EditAnnotationSwitch,
   EditLocationPanelSwitch,
@@ -43,8 +43,10 @@ import EditPeripheralModal from "@/pages/Setting/formComponent/forms/peripheralM
 import { SudoPeripheral } from "@/pages/Setting/formComponent/forms/other/editPeripheralIcon";
 import BlindLocationMissionModal from "@/pages/Setting/components/BlindLocationMissionModal";
 import LocationDetectModal from "@/pages/Setting/components/LocationDetectModal";
-import { useMousePoint } from "@/pages/Setting/hooks";
-import { MousePoint } from "@/pages/Setting/mapComponents/components";
+import { useMousePoint, useZoneFrame } from "@/pages/Setting/hooks";
+import { AllAnnotations, DragFrame, MousePoint, ZoneIconHint } from "@/pages/Setting/mapComponents/components";
+import type { FrameColor } from "@/pages/Setting/mapComponents/components";
+import { MouseLocationForFrame } from "@/pages/Setting/hooks/hook";
 import TempLocations from "@/pages/Setting/mapComponents/components/TempResources/TempLocations";
 import MirStyleLocationPlacer from "@/pages/Setting/formComponent/forms/MirStyleLocationPlacer";
 
@@ -83,7 +85,7 @@ const useReloadOnNewVersion = () => {
   }, [currentVersion]);
 };
 
-const SettingMapV3: FC<Props> = ({ roadPanelForm, locationPanelForm }) => {
+const SettingMapV3: FC<Props> = ({ roadPanelForm, locationPanelForm, zonePanelForm }) => {
   const { data: mapData } = useMap();
   const wrapRef = useRef<HTMLDivElement>(null);
   const mapImageRef = useRef<HTMLImageElement>(null);
@@ -120,6 +122,24 @@ const SettingMapV3: FC<Props> = ({ roadPanelForm, locationPanelForm }) => {
   // 舊 hook 原封不動: 它拿底圖 <img> 的位置和 Scale 換算座標, 底圖在畫布跟著平移縮放的那一層
   const scale = useAtomValue(Scale);
   useMousePoint(wrapRef, wrapRef, mapImageRef, scale, locationPanelForm, openEditLocationPanel);
+
+  // ---------------- 區域: 編輯區域時在地圖上拉框 (舊的 useZoneFrame 原封不動)
+  const [isDraggingZone, setIsDraggingZone] = useState(false);
+  const [, setZoneStart] = useState({ rvizX: 0, rvizY: 0 } as MouseLocationForFrame);
+  const [, setZoneEnd] = useState({ rvizX: 0, rvizY: 0 } as MouseLocationForFrame);
+  const [rectInfo, setRectInfo] = useAtom(zoneRectInfo);
+  const zoneFrameColor = Form.useWatch("color", zonePanelForm) as FrameColor;
+  useZoneFrame(
+    wrapRef,
+    wrapRef,
+    mapImageRef,
+    scale,
+    setIsDraggingZone,
+    setZoneStart,
+    setZoneEnd,
+    setRectInfo,
+    zonePanelForm,
+  );
 
   // ---------------- 路線: 從一個地點拉到另一個地點 (表單的起點 x、終點 to)
   // 起點: 畫布上的點位由 onCanvasPointerDown 判斷; 貨架 / 充電站是 DOM, 它們 mousedown 時
@@ -256,8 +276,21 @@ const SettingMapV3: FC<Props> = ({ roadPanelForm, locationPanelForm }) => {
       onPointClick={onPointClick}
       apiRef={apiRef}
       onCanvasPointerDown={onCanvasPointerDown}
+      // 編輯標註時改用 DOM 版 (點選、拖曳、旋轉), 畫布上就不畫, 免得畫兩份
+      hideAnnotations={openEditAnnotation}
       overlay={
         <>
+          {openEditAnnotation ? <AllAnnotations scale={scale} mapRef={wrapRef} mapImageRef={mapImageRef} /> : null}
+          {openEditZone ? (
+            <ZoneIconHint
+              mapWrapRef={wrapRef}
+              mapRef={wrapRef}
+              mapImageRef={mapImageRef as unknown as React.RefObject<HTMLDivElement>}
+              scale={scale}
+              isDragging={isDraggingZone}
+            />
+          ) : null}
+          {openEditZone ? <DragFrame rectInfo={rectInfo} color={zoneFrameColor} /> : null}
           {dragStart ? <DraggableLine locId={showBlockId} left={dragStart.left} top={dragStart.top} /> : null}
           {openQuickEditLocationPanel ? <TempLocations /> : null}
           {/* 編輯點位跟快速編輯點位時的小紅點 */}
