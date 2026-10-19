@@ -24,6 +24,12 @@ export const QuickEditRoadSwitch = atom<boolean>(false);
 /** 3-1 編輯區域開關 */
 export const EditZoneSwitch = atom<boolean>(false);
 
+/** 地圖標註面板開著: 地圖上的標註可以點選、拖曳 */
+export const EditAnnotationSwitch = atom<boolean>(false);
+
+/** 首頁 / 平板地圖顯示地圖標註 (設定頁一律顯示) */
+export const isShowAnnotation = atom<boolean>(true);
+
 /** 3-2 顯示區域開關 */
 export const showAllZonesSwitch = atom<boolean>(true);
 

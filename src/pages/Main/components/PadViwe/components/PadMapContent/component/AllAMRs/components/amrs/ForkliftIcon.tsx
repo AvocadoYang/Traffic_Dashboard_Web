@@ -6,7 +6,7 @@ import { useAmrPose, useIsCarry, useIsPause } from "@/sockets/useAMRInfo";
 import { AmrFilterCarCard, showZoneForbidden } from "@/utils/gloable";
 import { Tooltip } from "antd";
 import { useAtom, useAtomValue } from "jotai";
-import { FC, useEffect, useMemo, useRef } from "react";
+import { FC, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 
@@ -34,17 +34,21 @@ const IconWrapper = styled.div.attrs<{
 const SquareBody = styled.div.attrs<{
   rotate: number;
   color: string;
-}>(({ rotate, color }) => ({
+  $width: number;
+  $length: number;
+}>(({ rotate, $width, $length }) => ({
   style: {
     transform: `rotate(${rotate}deg)`,
     transition: "x 1s, y 1s",
+    width: $width,
+    height: $length,
   },
 }))<{
   rotate: number;
   color: string;
+  $width: number;
+  $length: number;
 }>`
-  width: 15px;
-  height: 20px;
   background-color: ${(p) => p.color};
   border-radius: 3px;
   position: relative;
@@ -234,6 +238,18 @@ const StopSignOverlay = styled.div`
   }
 `;
 
+/** MiR 圖示寬度固定 (px), 只有長度跟著車型等比例 */
+const MIR_WIDTH = 15;
+/** 查不到車型長度時的 MiR 圖示長度 (px) */
+const MIR_FALLBACK_LENGTH = 20;
+
+/** 跟後端 checkAMRSize 一樣: 車號 (有 # 取 # 後面) 的前三段就是車型的 value */
+const robotTypeValueOf = (amrId: string) =>
+  (amrId.includes("#") ? amrId.split("#")[1] : amrId)
+    .split("-")
+    .slice(0, 3)
+    .join("-");
+
 const ForkLiftIcon: FC<{
   amrId: string;
   color: string;
@@ -241,10 +257,6 @@ const ForkLiftIcon: FC<{
   top: number;
   yaw: number;
 }> = ({ amrId, color, left, top, yaw }) => {
-  const size = useRef<{ width: number; length: number }>({
-    width: 1,
-    length: 1,
-  });
   const { data: map } = useMap();
   const { pose } = useAmrPose(amrId);
   const { isCarry } = useIsCarry(amrId);
@@ -252,17 +264,14 @@ const ForkLiftIcon: FC<{
   const { isPause } = useIsPause(amrId);
   const { t } = useTranslation();
 
-  useEffect(() => {
-    if (!robotTypes) return;
-    const type = amrId.split("-").slice(0, -1).join("-");
-    const amrSize = robotTypes.filter((amr) => type.includes(amr.value));
-    if (!amrSize.length) {
-      size.current = { width: 1, length: 1 };
-    } else {
-      const m = amrSize[0];
-      size.current = { width: m.width, length: m.length };
-    }
-  }, [robotTypes]);
+  // MiR 圖示的長度照車型的實際長度 (公尺) 換成地圖像素, 跟底圖等比例
+  const mirLength = useMemo(() => {
+    if (!map?.mapResolution) return MIR_FALLBACK_LENGTH;
+    const value = robotTypeValueOf(amrId);
+    const type = robotTypes?.find((r) => r.value === value);
+    if (!type || type.length <= 0) return MIR_FALLBACK_LENGTH;
+    return type.length / map.mapResolution;
+  }, [robotTypes, amrId, map?.mapResolution]);
 
   const [amrFilterCarCard, setAmrFilterCarCard] = useAtom(AmrFilterCarCard);
   const zoneForbidden = useAtomValue(showZoneForbidden);
@@ -288,7 +297,12 @@ const ForkLiftIcon: FC<{
       className={`${needOpacity ? "opacity-icon" : ""}`}
     >
       {amrId.includes("mi") ? (
-        <SquareBody rotate={90 - yaw} color={color}>
+        <SquareBody
+          rotate={90 - yaw}
+          color={color}
+          $width={MIR_WIDTH}
+          $length={mirLength}
+        >
           <MiRDirection>
             <NoseChevron />
           </MiRDirection>

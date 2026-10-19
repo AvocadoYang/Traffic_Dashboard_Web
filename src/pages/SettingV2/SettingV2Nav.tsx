@@ -146,7 +146,8 @@ const SettingV2Nav: FC<Props> = ({
   );
   const [, setOpenUploadWarning] = useAtom(isOpenUploadWarningIDModal);
   const { data: configFlags } = useConfigFlags();
-  const hasMir = configFlags?.hasMir ?? true;
+  // 還沒拿到 (或拿失敗) 時當成沒有 MiR, 沒有 MiR 的案場不會先閃出 MiR 選單
+  const hasMir = configFlags?.hasMir ?? false;
 
   const restartMutate = useMutation({
     mutationFn: () => client.post("api/setting/restart"),

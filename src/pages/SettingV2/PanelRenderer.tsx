@@ -1,4 +1,6 @@
 import { FC, memo } from "react";
+import useConfigFlags from "@/api/useConfigFlags";
+import { navCategories } from "./navItems";
 import { FormInstance } from "antd";
 import type { DraggableAttributes } from "@dnd-kit/core";
 import LocationEditPanel from "./panels/location/LocationEditPanel";
@@ -16,6 +18,7 @@ import RegisterAmrPanel from "./panels/amr/RegisterAmrPanel";
 import AmrConfigPanel from "./panels/amr/AmrConfigPanel";
 import ChargePanel from "./panels/mission/ChargePanel";
 import BeforeLeftChargeStationPanel from "./panels/mission/BeforeLeftChargeStationPanel";
+import BeforeEnterChargeStationPanel from "./panels/mission/BeforeEnterChargeStationPanel";
 import SchedulePanel from "./panels/mission/SchedulePanel";
 import IdleRulePanel from "./panels/mission/IdleRulePanel";
 import TopicMissionPanel from "./panels/mission/TopicMissionPanel";
@@ -34,6 +37,9 @@ import CustomCargoInfoPanel from "./panels/other/CustomCargoInfoPanel";
 import ContainerTablePanel from "./panels/other/ContainerTablePanel";
 import MapManagerPanel from "./panels/map/MapManagerPanel";
 import MapGroupPanel from "./panels/map/MapGroupPanel";
+import MapAnnotationPanel from "./panels/map/MapAnnotationPanel";
+import ChangeLogPanel from "./panels/records/ChangeLogPanel";
+import MaintenanceItemPanel from "./panels/amr/MaintenanceItemPanel";
 import WarningListPanel from "./panels/file/WarningListPanel";
 import SystemAlarmPanel from "./panels/file/SystemAlarmPanel";
 import FootprintPanel from "./panels/mir/FootprintPanel";
@@ -62,13 +68,20 @@ type Props = {
   zonePanelForm: FormInstance<unknown>;
 };
 
+/** MIR 分類底下的面板; HAS_MIR: false 時就算 activeKey 指到也不畫 */
+const MIR_PANEL_KEYS = new Set<string>(
+  navCategories.find((c) => c.key === "mir")?.children.map((c) => c.key) ?? [],
+);
+
 const PanelRenderer: FC<Props> = ({
   activeKey,
   locationPanelForm,
   roadPanelForm,
   zonePanelForm,
 }) => {
+  const { data: configFlags } = useConfigFlags();
   if (!activeKey) return null;
+  if (MIR_PANEL_KEYS.has(activeKey) && !configFlags?.hasMir) return null;
 
   switch (activeKey) {
     // ✅ 已改用 v2 重新設計的版本(灰黑白 + RWD)
@@ -103,6 +116,8 @@ const PanelRenderer: FC<Props> = ({
       return <EditMissionPanel />;
     case "charge_mission":
       return <ChargePanel />;
+    case "before_enter_charge_station_task":
+      return <BeforeEnterChargeStationPanel />;
     case "before_left_charge_station_task":
       return <BeforeLeftChargeStationPanel />;
     case "schedule_mission":
@@ -153,6 +168,12 @@ const PanelRenderer: FC<Props> = ({
       return <MapManagerPanel />;
     case "map_group_table":
       return <MapGroupPanel />;
+    case "map_annotation":
+      return <MapAnnotationPanel />;
+    case "setting_change_log":
+      return <ChangeLogPanel />;
+    case "maintenance_items":
+      return <MaintenanceItemPanel />;
     case "footprint":
       return <FootprintPanel />;
     case "sound":

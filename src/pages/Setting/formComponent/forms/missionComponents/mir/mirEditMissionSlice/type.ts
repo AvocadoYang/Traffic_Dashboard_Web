@@ -26,6 +26,7 @@ export type Mir_Action = {
   entry_position?: string;
   footprint?: string;
   marker_type?: string;
+  is_current_position?: boolean;
 
   // 逾時與限制參數
   blocked_path_timeout?: number;
@@ -68,6 +69,11 @@ export type Mir_Action = {
   value: string;
   operation: string;
   timeout: string;
+
+  // charging
+  minimum_time?: string;
+  minimum_percentage?: number;
+  charge_until_new_mission?: boolean;
 
   // 欄位名稱 -> 變數名稱。有 key 代表該欄位設成「使用變數」，
   variables?: Record<string, string>;

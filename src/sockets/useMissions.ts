@@ -78,7 +78,7 @@ const schema = () =>
     ).required(),
   }).required();
 
-const missionReports$ = fromEventPattern(
+export const missionReports$ = fromEventPattern(
   (next) => {
     io.on("mission", next);
     return next;

@@ -13,6 +13,7 @@ import {
   ApartmentOutlined,
   InboxOutlined,
   AlertOutlined,
+  HistoryOutlined,
   AndroidOutlined,
 } from "@ant-design/icons";
 import type { SettingV2PanelKey } from "./panelKeys";
@@ -100,6 +101,10 @@ export const navCategories: NavCategory[] = [
     children: [
       { key: "switch_map", labelKey: "toolbar.map_setting.switch_map" },
       { key: "map_group_table", labelKey: "toolbar.map_setting.map_group" },
+      {
+        key: "map_annotation",
+        labelKey: "toolbar.map_setting.map_annotation",
+      },
     ],
   },
   {
@@ -112,6 +117,10 @@ export const navCategories: NavCategory[] = [
         key: "edit_register_amr",
         labelKey: "toolbar.amr_setting.register_amr",
       },
+      {
+        key: "maintenance_items",
+        labelKey: "toolbar.amr_setting.maintenance_items",
+      },
     ],
   },
   {
@@ -120,6 +129,10 @@ export const navCategories: NavCategory[] = [
     icon: ThunderboltOutlined,
     children: [
       { key: "charge_mission", labelKey: "toolbar.mission.charge_mission" },
+      {
+        key: "before_enter_charge_station_task",
+        labelKey: "toolbar.mission.before_enter_charge_station_mission",
+      },
       {
         key: "before_left_charge_station_task",
         labelKey: "toolbar.mission.before_left_charge_station_mission",
@@ -236,6 +249,17 @@ export const navCategories: NavCategory[] = [
       { key: "elevator_mission", rawLabel: "電梯任務" },
       { key: "clamp_height", rawLabel: "夾具線高" },
       { key: "lock_by_mission", rawLabel: "任務卡住鎖定" },
+    ],
+  },
+  {
+    key: "records",
+    labelKey: "toolbar.category.records",
+    icon: HistoryOutlined,
+    children: [
+      {
+        key: "setting_change_log",
+        labelKey: "toolbar.records.setting_change_log",
+      },
     ],
   },
   {

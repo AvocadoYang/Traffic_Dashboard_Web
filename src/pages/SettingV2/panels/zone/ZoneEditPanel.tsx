@@ -72,6 +72,7 @@ const ZoneEditPanel: FC<Props> = ({ zonePanelForm }) => {
       limitNum,
       all_forbidden,
       view_available,
+      elevator_id,
     } = v as never as {
       name?: string;
       color?: Color;
@@ -89,6 +90,7 @@ const ZoneEditPanel: FC<Props> = ({ zonePanelForm }) => {
       limitNum?: number;
       all_forbidden?: boolean;
       view_available?: string;
+      elevator_id?: string;
     };
 
     if ((startX === endX && startY === endY) || !startX || !startY) {
@@ -141,6 +143,7 @@ const ZoneEditPanel: FC<Props> = ({ zonePanelForm }) => {
         hight_limit: has(ZONE_TAGS.height) ? Number(hight_limit) : undefined,
         limitNum: has(ZONE_TAGS.limit) ? Number(limitNum) : undefined,
         view_available: has(ZONE_TAGS.view) ? view_available : undefined,
+        elevator_id: has(ZONE_TAGS.elevator) ? elevator_id?.trim() : undefined,
       },
       startPoint: { startX, startY },
       layer: layer ? layer : "none",

@@ -5,6 +5,7 @@ import styled from "styled-components";
 import FormHr from "@/pages/Setting/utils/FormHr";
 import { useTranslation } from "react-i18next";
 import { useAtom } from "jotai";
+import AlarmPositionPicker from "@/pages/SettingV2/panels/file/AlarmPositionPicker";
 import {
   ALARM_ACCENT,
   ALARM_TYPES,
@@ -61,6 +62,10 @@ const TypeSwitchGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 8px;
+  margin: 12px 0 20px;
+`;
+
+const PositionWrap = styled.div`
   margin: 12px 0 20px;
 `;
 
@@ -154,8 +159,11 @@ const SystemAlarmPanel: FC<{
           ))}
         </TypeSwitchGrid>
 
-        <FormHr />
-        <Typography.Title level={4}>可設定是否開啟提醒</Typography.Title>
+        <SectionLabel>{t("system_alarm.position")}</SectionLabel>
+        <SectionHint>{t("system_alarm.position_hint")}</SectionHint>
+        <PositionWrap>
+          <AlarmPositionPicker />
+        </PositionWrap>
 
         <Table
           rowKey="code"

@@ -1,10 +1,12 @@
-import { Card, Col, Empty, Layout, List, Row, Typography } from "antd";
+import { Card, Col, Empty, Layout, List, Row, Tag, Typography } from "antd";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import { useIsMobile } from "@/hooks/useIsMoblie";
 import { useAllAmrStatus } from "@/sockets/useAMRInfo";
 import { useTranslation } from "react-i18next";
+import { useCarMaintenance } from "@/api/useMaintenance";
+import { STATUS_COLOR } from "./MaintenanceSection";
 import { RobotOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
@@ -184,6 +186,9 @@ const AmrList = () => {
   const { isMobile } = useIsMobile();
   const data = useAllAmrStatus();
   const { t } = useTranslation();
+  // 保養到期 / 即將到期 / 維修中 的標記 (設定頁 車輛 > 保養項目)
+  const { data: maintenance } = useCarMaintenance();
+  const carMaintenance = (id: string) => maintenance?.cars.find((c) => c.amrId === id);
 
   const columns = isMobile ? 1 : 2;
   const colSpan = isMobile ? 24 : 12;
@@ -249,6 +254,24 @@ const AmrList = () => {
                             : t("utils.offline")}
                         </StatusBadge>
                       </InfoRow>
+
+                      {(() => {
+                        const m = carMaintenance(amr.amrId);
+                        if (!m || (!m.hold && m.status === "ok")) return null;
+                        return (
+                          <InfoRow>
+                            <span className="label">{t("car_maintenance.title")}:</span>
+                            <span>
+                              {m.hold && <Tag color="red">{t("car_maintenance.on_hold")}</Tag>}
+                              {m.status !== "ok" && (
+                                <Tag color={STATUS_COLOR[m.status]}>
+                                  {t(`car_maintenance.status_${m.status}`)}
+                                </Tag>
+                              )}
+                            </span>
+                          </InfoRow>
+                        );
+                      })()}
 
                       <InfoRow>
                         <span className="label">
