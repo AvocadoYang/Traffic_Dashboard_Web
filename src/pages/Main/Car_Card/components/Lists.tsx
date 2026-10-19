@@ -638,6 +638,17 @@ const RosStatusRow: React.FC<RowProps> = memo(({ amrId, isOffline }) => {
   );
 });
 
+const SystemStateRow: React.FC<RowProps> = memo(({ amrId, isOffline }) => {
+  const s = useSystemState(amrId);
+  const { t } = useTranslation();
+  return (
+    <TextRow
+      label={t("utils.system_state", { defaultValue: "系統狀態" })}
+      value={isOffline || !s?.state ? NO_DATA : s.state}
+    />
+  );
+});
+
 const DestinationRow: React.FC<RowProps> = memo(({ amrId, isOffline }) => {
   const { destination } = useAmrDestination(amrId);
   const { t } = useTranslation();
@@ -776,6 +787,7 @@ export const InfoRows: React.FC<{ amrId: string; detailed: boolean }> = memo(
         ) : (
           <>
             {detailed && <RosStatusRow amrId={amrId} isOffline={isOverdue} />}
+            {detailed && <SystemStateRow amrId={amrId} isOffline={isOverdue} />}
             <RoadRow amrId={amrId} isOffline={isOverdue} />
             <MaintenanceRow amrId={amrId} isOffline={isOverdue} />
           </>
