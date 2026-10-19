@@ -1,10 +1,10 @@
-import { FC, memo, useCallback, useEffect, useRef, useState } from "react";
+import { FC, memo, useCallback, useEffect, useRef } from "react";
 import { FormInstance } from "antd";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import Cookies from "js-cookie";
 import useMap from "@/api/useMap";
 import useVerityVersion from "@/api/useVerityVersion";
-import CanvasMap from "@/components/CanvasMap/CanvasMap";
+import CanvasMap, { CanvasMapApi } from "@/components/CanvasMap/CanvasMap";
 import CargoPanel from "@/components/CargoPanel/CargoPanel";
 import { DragLineInfo, Scale, sameVersion, shelfSelectedStyleLocationId, batchCargoStyle, showBlockId as ShowBlockId } from "@/utils/gloable";
 import {
@@ -16,6 +16,8 @@ import {
   QuickEditLocationPanelSwitch,
 } from "@/utils/siderGloble";
 import { LocationType } from "@/utils/jotai";
+import { rad2Deg, rosCoord2DisplayCoord } from "@/utils/utils";
+import { DraggableLine } from "@/pages/Setting/mapComponents/components/AllLocation/components/PointAndLine";
 import "@/pages/Setting/setting.css";
 import { draggableLineInitialPoint } from "@/pages/Setting/hooks/hook";
 import { getLocationInfoById } from "@/pages/Setting/utils/utils";
@@ -119,13 +121,23 @@ const SettingMapV3: FC<Props> = ({ roadPanelForm, locationPanelForm }) => {
   const scale = useAtomValue(Scale);
   useMousePoint(wrapRef, wrapRef, mapImageRef, scale, locationPanelForm, openEditLocationPanel);
 
-  // ---------------- 路線: 從貨架 / 充電站拉線的起點 (設備元件 mousedown 時呼叫, 同舊 MapView)
-  const [, setInitPoint] = useState({} as draggableLineInitialPoint);
-  const setShowBlockId = useSetAtom(ShowBlockId);
+  // ---------------- 路線: 從一個地點拉到另一個地點 (表單的起點 x、終點 to)
+  // 起點: 畫布上的點位由 onCanvasPointerDown 判斷; 貨架 / 充電站是 DOM, 它們 mousedown 時
+  // 自己呼叫 setInitPoint + handleMouseDown (同舊 MapView)。
+  // 舊的 useDraggableLine 靠 mouseup 那個 DOM 元素的 id 找終點, 畫布上的點位沒有 DOM,
+  // 所以拖曳、放開改在這裡做: 放在畫布上就問 CanvasMap 那裡是哪個點位, 放在設備上就用它的 id。
+  const apiRef = useRef<CanvasMapApi | null>(null);
+  const initPointRef = useRef<draggableLineInitialPoint>({ clientX: 0, clientY: 0 });
+  const setInitPoint = useCallback((p: draggableLineInitialPoint) => {
+    initPointRef.current = p;
+  }, []);
+  const draggingRef = useRef(false);
+  const [showBlockId, setShowBlockId] = useAtom(ShowBlockId);
   const setDragLineInfo = useSetAtom(DragLineInfo);
   const handleMouseDown = useCallback(
     (startId: string) => {
       if (!mapData) return;
+      draggingRef.current = true;
       setShowBlockId(startId);
       const result = getLocationInfoById(startId, mapData.locations as LocationType[]);
       setDragLineInfo((pre) => ({ ...pre, width: 1 }));
@@ -134,6 +146,88 @@ const SettingMapV3: FC<Props> = ({ roadPanelForm, locationPanelForm }) => {
     },
     [mapData, roadPanelForm, setShowBlockId, setDragLineInfo],
   );
+
+  const roadDragEnabled = openEditRoadPanel && !openEditZone && !quickRoad;
+  const onCanvasPointerDown = useCallback(
+    (e: PointerEvent) => {
+      if (!roadDragEnabled) return false;
+      const id = apiRef.current?.pointAt(e.clientX, e.clientY);
+      if (!id) return false;
+      // 線從點位中心拉出去, 不是從按下的那個像素
+      const c = apiRef.current?.locationClientPos(id);
+      setInitPoint({ clientX: c?.x ?? e.clientX, clientY: c?.y ?? e.clientY });
+      handleMouseDown(id);
+      return true;
+    },
+    [roadDragEnabled, setInitPoint, handleMouseDown],
+  );
+
+  useEffect(() => {
+    if (!showBlockId || !roadDragEnabled) return;
+    const locationIds = new Set(mapData?.locations.map((l) => String(l.locationId)) ?? []);
+    const reset = () => {
+      setShowBlockId("");
+      setDragLineInfo({ deg: 90, endDisplayX1: initPointRef.current.clientX, endDisplayY1: initPointRef.current.clientY, width: 0 });
+    };
+    const onMove = (e: MouseEvent) => {
+      if (!draggingRef.current) return;
+      const init = initPointRef.current;
+      const dx = e.clientX - init.clientX;
+      const dy = e.clientY - init.clientY;
+      setDragLineInfo({
+        deg: rad2Deg(Math.atan2(dy, dx)),
+        // DraggableLine 畫在跟著縮放的那一層, 長度要換回底圖像素
+        width: Math.hypot(dx, dy) / (scale || 1),
+        endDisplayX1: e.clientX,
+        endDisplayY1: e.clientY,
+      });
+    };
+    const onUp = (e: MouseEvent) => {
+      if (!draggingRef.current) return;
+      draggingRef.current = false;
+      const target = e.target as HTMLElement | null;
+      let endId: string | null = null;
+      if (target?.tagName === "CANVAS") {
+        endId = apiRef.current?.pointAt(e.clientX, e.clientY) ?? null;
+      } else {
+        // 設備 (貨架、充電站…) 的 DOM: 往上找第一個 id 是地點編號的元素
+        for (let el: HTMLElement | null = target; el && el !== wrapRef.current; el = el.parentElement) {
+          if (el.id && locationIds.has(el.id)) {
+            endId = el.id;
+            break;
+          }
+        }
+      }
+      if (!endId || endId === showBlockId) {
+        reset();
+        return;
+      }
+      const result = getLocationInfoById(endId, mapData?.locations as LocationType[]);
+      roadPanelForm.setFieldValue("to", result.locationId);
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, [showBlockId, roadDragEnabled, mapData, scale, roadPanelForm, setShowBlockId, setDragLineInfo]);
+
+  // 拉線的起點 (充電站自己會畫, 其他地點畫在最上層)
+  const dragStart = (() => {
+    if (!showBlockId || !mapData) return null;
+    const loc = mapData.locations.find((l) => String(l.locationId) === showBlockId);
+    if (!loc || loc.areaType === "CHARGING") return null;
+    const [left, top] = rosCoord2DisplayCoord({
+      x: loc.x,
+      y: loc.y,
+      mapHeight: mapData.mapHeight,
+      mapOriginX: mapData.mapOriginX,
+      mapOriginY: mapData.mapOriginY,
+      mapResolution: mapData.mapResolution,
+    });
+    return { left, top };
+  })();
 
   // ---------------- 點了點位 (照舊設定頁 AllLocation 的 handleClick)
   const onPointClick = useCallback(
@@ -160,8 +254,11 @@ const SettingMapV3: FC<Props> = ({ roadPanelForm, locationPanelForm }) => {
       alwaysShowAnnotations
       leftButtonPans={!isEditingOnMap}
       onPointClick={onPointClick}
+      apiRef={apiRef}
+      onCanvasPointerDown={onCanvasPointerDown}
       overlay={
         <>
+          {dragStart ? <DraggableLine locId={showBlockId} left={dragStart.left} top={dragStart.top} /> : null}
           {openQuickEditLocationPanel ? <TempLocations /> : null}
           {/* 編輯點位跟快速編輯點位時的小紅點 */}
           {openEditLocationPanel || openQuickEditLocationPanel ? <MousePoint /> : null}

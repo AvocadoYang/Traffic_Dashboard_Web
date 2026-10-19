@@ -1,4 +1,4 @@
-import { FC, ReactNode, RefObject, memo, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef } from "react";
+import { FC, MutableRefObject, ReactNode, RefObject, memo, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef } from "react";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import styled from "styled-components";
 import useMap from "@/api/useMap";
@@ -97,6 +97,14 @@ const MIR_FALLBACK_LENGTH = 20;
 const robotTypeValueOf = (amrId: string) =>
   (amrId.includes("#") ? amrId.split("#")[1] : amrId).split("-").slice(0, 3).join("-");
 
+/** 給外面 (設定頁的編輯工具) 用的 hit-test, 座標是 clientX / clientY */
+export type CanvasMapApi = {
+  /** 這個位置上的點位 (沒有就 null) */
+  pointAt: (clientX: number, clientY: number) => string | null;
+  /** 某個地點 (任何類型) 中心在螢幕上的位置 */
+  locationClientPos: (locationId: string) => { x: number; y: number } | null;
+};
+
 type Props = {
   /** 設備層: 畫在底層 canvas 和車中間的 DOM 元件, 座標是底圖像素 */
   children?: ReactNode;
@@ -119,6 +127,10 @@ type Props = {
   mapImageRef?: RefObject<HTMLImageElement>;
   /** 地圖最外層 (滑鼠事件都會冒泡到這裡) */
   wrapRef?: RefObject<HTMLDivElement>;
+  /** 拿到 CanvasMapApi */
+  apiRef?: MutableRefObject<CanvasMapApi | null>;
+  /** 左鍵在底層畫布上按下: 回傳 true 表示外面接手了 (例如從點位拉路線), 這次不拖地圖 */
+  onCanvasPointerDown?: (e: PointerEvent) => boolean;
 };
 
 /** 游標附近沒有點位時用同一個空集合, 底層才不會每次移動都重畫 */
@@ -136,6 +148,8 @@ const CanvasMap: FC<Props> = ({
   hideAnnotations = false,
   mapImageRef,
   wrapRef: wrapRefProp,
+  apiRef,
+  onCanvasPointerDown,
 }) => {
   const { data, isLoading, isError } = useMap();
   const { data: names } = useName();
@@ -145,6 +159,8 @@ const CanvasMap: FC<Props> = ({
   const wrapRef = wrapRefProp ?? ownWrapRef;
   const leftButtonPansRef = useRef(leftButtonPans);
   leftButtonPansRef.current = leftButtonPans;
+  const onCanvasPointerDownRef = useRef(onCanvasPointerDown);
+  onCanvasPointerDownRef.current = onCanvasPointerDown;
   const imageLayerRef = useRef<HTMLDivElement>(null);
   const deviceLayerRef = useRef<HTMLDivElement>(null);
   const overlayLayerRef = useRef<HTMLDivElement>(null);
@@ -472,6 +488,7 @@ const CanvasMap: FC<Props> = ({
       // 新的一次按下: 上一次拖曳留下的「吃掉下一個 click」不算數
       // (中鍵拖曳放開時瀏覽器不發 click, 不清掉的話會吃掉之後真正的點擊)
       if (pointers.size === 0) suppressClick = false;
+      if (e.button === 0 && e.target === baseRef.current && onCanvasPointerDownRef.current?.(e)) return;
       if (e.pointerType === "mouse") {
         if (!canStartMouse(e) || drag) return;
         if (e.button === 1) e.preventDefault();
@@ -700,6 +717,35 @@ const CanvasMap: FC<Props> = ({
     },
     [setFilterIds, setForbiddenIds],
   );
+
+  // 給外面用的 hit-test
+  useEffect(() => {
+    if (!apiRef) return;
+    const toLocal = (clientX: number, clientY: number) => {
+      const rect = baseRef.current?.getBoundingClientRect();
+      return rect ? { x: clientX - rect.left, y: clientY - rect.top } : null;
+    };
+    apiRef.current = {
+      pointAt: (clientX, clientY) => {
+        const view = viewRef.current;
+        const o = optsRef.current;
+        const p = toLocal(clientX, clientY);
+        if (!view || !o.scene || !p || !o.showLocation) return null;
+        return pointAt(o.scene, view, p.x, p.y)?.id ?? null;
+      },
+      locationClientPos: (locationId) => {
+        const view = viewRef.current;
+        const rect = baseRef.current?.getBoundingClientRect();
+        const loc = data?.locations.find((l) => String(l.locationId) === locationId);
+        if (!view || !rect || !loc || !scene) return null;
+        const [px, py] = scene.toPx(loc.x, loc.y);
+        return { x: rect.left + view.x + px * view.scale, y: rect.top + view.y + py * view.scale };
+      },
+    };
+    return () => {
+      apiRef.current = null;
+    };
+  }, [apiRef, data, scene]);
 
   if (isLoading || isError || !data) {
     return (
