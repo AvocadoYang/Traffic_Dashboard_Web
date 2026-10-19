@@ -14,7 +14,7 @@ const isPointCloudMessage = (msg: unknown): msg is PointCloudMessage => {
   return typeof amrId === "string" && points instanceof ArrayBuffer;
 };
 
-const pointCloud$ = fromEventPattern<unknown>(
+export const pointCloud$ = fromEventPattern<unknown>(
   (next) => {
     io.on("point-cloud", next);
     return;

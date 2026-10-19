@@ -13,7 +13,7 @@ const schema =
     )
 
 
-const profiles$ = fromEventPattern(
+export const bboxes$ = fromEventPattern(
     (next) => {
         io.on("amr-bbox", next);
         return
@@ -46,7 +46,7 @@ export const useAmrBBox = (amrId: string) => {
 
 
     useEffect(() => {
-        const amrBBox = profiles$.subscribe((data)=> {
+        const amrBBox = bboxes$.subscribe((data)=> {
             const amrBBox = data.filter((amr) => amr.amrId === amrId)[0];
             if(!amrBBox) return;
             setBBox(amrBBox.bbox)

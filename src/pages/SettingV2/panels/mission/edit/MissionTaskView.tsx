@@ -155,7 +155,11 @@ const MissionTaskView: FC<Props> = ({
         )}
 
         {isMirMission && (
-          <MirMissionEditor key={missionId} missionId={missionId} />
+          <MirMissionEditor
+            key={missionId}
+            missionId={missionId}
+            robotValue={robotValue}
+          />
         )}
       </Section>
 

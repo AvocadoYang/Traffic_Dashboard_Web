@@ -12,8 +12,8 @@ import { Form, FormInstance } from "antd";
 import { useMemo } from "react";
 
 // 貨架樣式 type_1 / Shelf position，需要可以點選 marker_type
-const MARKER_TYPE_SHELF_STYLE = "type_1";
-const MARKER_TYPE_AREA_TYPE = "MIR_SHELF_POSITION";
+export const MARKER_TYPE_SHELF_STYLE = "type_1";
+export const MARKER_TYPE_AREA_TYPE = "MIR_SHELF_POSITION";
 
 const useMirTaskOptions = () => {
   const { data: mapData } = useMap();

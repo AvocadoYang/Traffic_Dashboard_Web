@@ -8,6 +8,9 @@ export type SettingV2OnlyKey =
   | "before_enter_charge_station_task"
   | "conveyor_dispatch"
   | "transfer_rules"
-  | "work_areas";
+  | "work_areas"
+  | "map_annotation"
+  | "setting_change_log"
+  | "maintenance_items";
 
 export type SettingV2PanelKey = ToolBarItemType | SettingV2OnlyKey;

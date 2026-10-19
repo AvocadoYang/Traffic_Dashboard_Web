@@ -1,5 +1,6 @@
 import { FC, useState } from "react";
 import {
+  Checkbox,
   Form,
   Input,
   InputNumber,
@@ -8,8 +9,10 @@ import {
   Select,
   Skeleton,
   Switch,
+  TimePicker,
   message,
 } from "antd";
+import type { Dayjs } from "dayjs";
 import {
   ArrowDownOutlined,
   ArrowUpOutlined,
@@ -29,6 +32,13 @@ import { errorHandler } from "@/utils/utils";
 import HelpButton from "../../ui/HelpButton";
 import StatusTag from "../../ui/StatusTag";
 import useNormalMissionOptions from "../../ui/useNormalMissionOptions";
+import {
+  TIME_FORMAT,
+  describeTimeWindow,
+  toDayjs,
+  toHhmm,
+  weekdayOptions,
+} from "../../ui/timeCondition";
 import {
   PanelShell,
   Section,
@@ -67,6 +77,17 @@ type RuleForm = {
   batteryBelow: number | null;
   onlyWhenFleetIdle: boolean;
   retrySec: number;
+  /** 星期幾才做 (1 = 星期一 ... 7 = 星期日); 空的 = 每天 */
+  activeDays: number[];
+  /** 時段 "HH:mm"; 兩個都 null = 整天, 結束比開始早 = 跨午夜 */
+  timeFrom: string | null;
+  timeTo: string | null;
+};
+
+/** 表單裡的時段用 dayjs (TimePicker), 送出前轉回 "HH:mm" */
+type FormValues = Omit<RuleForm, "timeFrom" | "timeTo"> & {
+  timeFrom: Dayjs | null;
+  timeTo: Dayjs | null;
 };
 
 type IdleRule = RuleForm & {
@@ -132,7 +153,16 @@ const emptyForm: RuleForm = {
   batteryBelow: null,
   onlyWhenFleetIdle: false,
   retrySec: 30,
+  activeDays: [],
+  timeFrom: null,
+  timeTo: null,
 };
+
+const toFormValues = (form: RuleForm): FormValues => ({
+  ...form,
+  timeFrom: toDayjs(form.timeFrom),
+  timeTo: toDayjs(form.timeTo),
+});
 
 const toForm = (rule: IdleRule | null): RuleForm =>
   rule
@@ -149,6 +179,9 @@ const toForm = (rule: IdleRule | null): RuleForm =>
         batteryBelow: rule.batteryBelow ?? null,
         onlyWhenFleetIdle: rule.onlyWhenFleetIdle,
         retrySec: rule.retrySec,
+        activeDays: rule.activeDays ?? [],
+        timeFrom: rule.timeFrom ?? null,
+        timeTo: rule.timeTo ?? null,
       }
     : emptyForm;
 
@@ -160,7 +193,7 @@ const toForm = (rule: IdleRule | null): RuleForm =>
 const IdleRulePanel: FC = () => {
   const { t } = useTranslation();
   const [messageApi, contextHolder] = message.useMessage();
-  const [form] = Form.useForm<RuleForm>();
+  const [form] = Form.useForm<FormValues>();
   const [editing, setEditing] = useState<IdleRule | null>(null);
   const [open, setOpen] = useState(false);
 
@@ -244,7 +277,7 @@ const IdleRulePanel: FC = () => {
 
   const openEdit = (rule: IdleRule | null) => {
     setEditing(rule);
-    form.setFieldsValue(toForm(rule));
+    form.setFieldsValue(toFormValues(toForm(rule)));
     setOpen(true);
   };
 
@@ -261,15 +294,24 @@ const IdleRulePanel: FC = () => {
   };
 
   const submit = async () => {
-    let values: RuleForm;
+    let values: FormValues;
     try {
       values = await form.validateFields();
     } catch {
       return;
     }
+    const timeFrom = toHhmm(values.timeFrom);
+    const timeTo = toHhmm(values.timeTo);
+    if (!!timeFrom !== !!timeTo || (timeFrom && timeFrom === timeTo)) {
+      void messageApi.error(t("time_condition.need_both"));
+      return;
+    }
     // 條件收起來的欄位不在表單裡, 補上預設值
     saveMutation.mutate({
       ...values,
+      activeDays: values.activeDays ?? [],
+      timeFrom,
+      timeTo,
       targetIds: values.targetKind === "ALL" ? [] : values.targetIds ?? [],
       locationValues: values.locationMode === "ANY" ? [] : values.locationValues ?? [],
       missionTitleId: values.actionKind === "MISSION" ? values.missionTitleId : null,
@@ -367,6 +409,12 @@ const IdleRulePanel: FC = () => {
                       <div>{t("idle_rules.battery_below_fact", { pct: rule.batteryBelow })}</div>
                     )}
                     {rule.onlyWhenFleetIdle && <div>{t("idle_rules.only_when_fleet_idle")}</div>}
+                    {describeTimeWindow(t, rule.activeDays, rule.timeFrom, rule.timeTo) && (
+                      <div>
+                        {t("time_condition.only_during")}
+                        {describeTimeWindow(t, rule.activeDays, rule.timeFrom, rule.timeTo)}
+                      </div>
+                    )}
                   </dd>
                   <dt>{t("idle_rules.action")}</dt>
                   <dd>{describeAction(rule)}</dd>
@@ -429,7 +477,12 @@ const IdleRulePanel: FC = () => {
         cancelText={t("utils.cancel")}
         forceRender
       >
-        <Form form={form} layout="vertical" autoComplete="off" initialValues={emptyForm}>
+        <Form
+          form={form}
+          layout="vertical"
+          autoComplete="off"
+          initialValues={toFormValues(emptyForm)}
+        >
           <FieldGrid $cols={2}>
             <Field>
               <FieldLabel>{t("idle_rules.name")}</FieldLabel>
@@ -483,6 +536,32 @@ const IdleRulePanel: FC = () => {
               style={{ width: 160 }}
             />
           </Form.Item>
+
+          <FieldLabel>{t("time_condition.days")}</FieldLabel>
+          <Form.Item name="activeDays" extra={t("time_condition.days_hint")}>
+            <Checkbox.Group options={weekdayOptions(t)} />
+          </Form.Item>
+
+          <FieldLabel>{t("time_condition.time_range")}</FieldLabel>
+          <FieldGrid $cols={2}>
+            <Form.Item name="timeFrom">
+              <TimePicker
+                format={TIME_FORMAT}
+                minuteStep={5}
+                placeholder={t("time_condition.from")}
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
+            <Form.Item name="timeTo">
+              <TimePicker
+                format={TIME_FORMAT}
+                minuteStep={5}
+                placeholder={t("time_condition.to")}
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
+          </FieldGrid>
+          <Hint>{t("time_condition.time_range_hint")}</Hint>
 
           <FieldLabel>{t("idle_rules.location")}</FieldLabel>
           <Form.Item name="locationMode">

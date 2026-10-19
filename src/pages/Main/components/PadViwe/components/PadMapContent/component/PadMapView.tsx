@@ -2,7 +2,10 @@ import { RefObject } from "react";
 import { MapImage } from "@/pages/Setting/mapComponents/components";
 import AllLocation from "./AllLocation";
 import AllRoads from "@/pages/Setting/mapComponents/components/AllRoads/AllRoads";
-import { AllZones } from "@/pages/Setting/mapComponents/components";
+import {
+  AllAnnotations,
+  AllZones,
+} from "@/pages/Setting/mapComponents/components";
 import AllAMRs from "./AllAMRs/AllAMRs";
 import AllPointCloud from "./AllPointCloud/AllPointCloud";
 import LocalizationCorrectionGhost from "./LocalizationCorrection/LocalizationCorrectionGhost";
@@ -22,6 +25,7 @@ const PadMapView: React.FC<{
       draggable={false}
     >
       <MapImage></MapImage>
+      <AllAnnotations scale={scale} />
       <AllLocation></AllLocation>
       <AllZones scale={scale}></AllZones>
       <AllAMRs></AllAMRs>

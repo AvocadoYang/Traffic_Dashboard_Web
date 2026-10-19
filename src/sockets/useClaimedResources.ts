@@ -28,7 +28,7 @@ const schema = () =>
     ).required(),
   }).required();
 
-const claimedResource$ = fromEventPattern(
+export const claimedResource$ = fromEventPattern(
   (next) => {
     io.on("claimed-resources", next);
     return next;

@@ -18,7 +18,7 @@ const schema = () => {
     })
 }
 
-const amrStatus$ = fromEventPattern(
+export const amrStatus$ = fromEventPattern(
     (next) => {
         io.on('mir-status', next);
         return next;

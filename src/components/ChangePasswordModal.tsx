@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { LockOutlined } from "@ant-design/icons";
 
-const IndustrialModal = styled(Modal)`
+export const IndustrialModal = styled(Modal)`
   .ant-modal-content {
     background: var(--c-bg-subtle);
     font-family: "Roboto Mono", monospace;
@@ -77,7 +77,7 @@ const IndustrialModal = styled(Modal)`
   }
 `;
 
-const IndustrialButton = styled(Button)`
+export const IndustrialButton = styled(Button)`
   background: var(--c-bg);
   border: 1px solid var(--c-header-border);
   color: var(--c-text-secondary);

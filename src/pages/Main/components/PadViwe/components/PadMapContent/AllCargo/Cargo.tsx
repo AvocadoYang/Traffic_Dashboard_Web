@@ -116,7 +116,7 @@ const Cargo: FC<{
     (
       event: React.MouseEvent<HTMLDivElement>,
       targetId: string,
-      targetLevel: number
+      targetLevel: number,
     ) => {
       if (event.button !== 1) return;
       editColumnMutation.mutate({
@@ -125,7 +125,7 @@ const Cargo: FC<{
         level: targetLevel,
       });
     },
-    [editColumnMutation]
+    [editColumnMutation],
   );
 
   const levels: PickLevel[] = useMemo(
@@ -137,12 +137,12 @@ const Cargo: FC<{
         disable: info.disable,
         booker: info.booker,
       })),
-    [shelfInfo?.layer]
+    [shelfInfo?.layer],
   );
 
   const isMultiLevel = levels.length > 1;
   const selectableCount = levels.filter((l) =>
-    isLevelSelectable(selectMode, l.hasCargo, l.disable)
+    isLevelSelectable(selectMode, l.hasCargo, l.disable),
   ).length;
   const isPicking = isSelecting && selectMode !== null;
   const modeColor = selectMode ? getModeColor(selectMode).main : null;
@@ -207,7 +207,7 @@ const Cargo: FC<{
               handleMouseDown(
                 e as React.MouseEvent<HTMLDivElement>,
                 locId,
-                level
+                level,
               )
             }
           />
@@ -236,7 +236,9 @@ const Cargo: FC<{
               levels={levels}
               onSelect={handlePick}
               onHover={(level) =>
-                setHoverCell(level === null ? null : { locationId: locId, level })
+                setHoverCell(
+                  level === null ? null : { locationId: locId, level },
+                )
               }
             />
           }

@@ -34,6 +34,7 @@ import DPad from "./DPad";
 import AmrCargoPanel from "@/components/CargoPanel/AmrCargoPanel";
 import MarkPointModal from "./MarkPointModal";
 import AmrLiveMap from "./AmrLiveMap";
+import MaintenanceSection from "./MaintenanceSection";
 import styled from "styled-components";
 
 const { Title, Text } = Typography;
@@ -464,6 +465,8 @@ const AmrDetail = () => {
                 </pre>
               </Card>
             )}
+
+            <MaintenanceSection amrId={prefixAmrId} />
 
             <SectionTitle level={4}>
               {t("amr_detail.recent_tasks")}
