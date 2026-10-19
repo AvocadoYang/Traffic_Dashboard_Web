@@ -31,7 +31,7 @@ import { errorHandler } from "@/utils/utils";
 import { ErrorResponse } from "@/utils/globalType";
 import useName from "@/api/useAmrName";
 import StartSimModal from "@/components/StartSimModal";
-import useSimulationUi from "@/api/useSimulationUi";
+import useUiConfig from "@/api/useUiConfig";
 import { useMockInfo } from "@/sockets/useMockInfo";
 import styled from "styled-components";
 import { mq } from "@/styles/responsive";
@@ -435,7 +435,8 @@ const Header: React.FC = () => {
   const location = useLocation();
   // 實際案場 (YAML SHOW_SIMULATION_UI: false) 不顯示「模擬」按鈕;
   // 模擬正在跑時照樣顯示「停止模擬」和模擬時間, 才停得掉
-  const showSimulationUi = useSimulationUi();
+  // 「任務模擬 v2」選單也一樣看 YAML (SHOW_SIMULATE_V2)
+  const { showSimulationUi, showSimulateV2 } = useUiConfig();
   // 任務列(HA 狀態 / 任務派發)只有首頁才有內容。其他頁面一律顯示導覽、也不給切換,
   // 不然上次停在任務列的人換到別頁會看到一排空白,連導覽都不見。
   const hasToolsRow =
@@ -507,52 +508,25 @@ const Header: React.FC = () => {
     });
   };
 
+  // key 就是網址; 依 YAML 藏掉的項目直接不放, 其他項目不受影響
   const items = [
-    `${t("page_view")}`,
-    `${t("page_amr")}`,
-    `${t("page_cargo_history")}`,
-    `${t("page_setting")}`,
-    `${t("page_simulate_v2")}`,
-    `${t("page_record")}`,
-    `${t("page_mission_dispatch")}`,
-    `${t("page_report")}`,
-  ].map((name, index) => ({
-    key: index + 1,
-    label: name,
-  }));
+    { key: "/", label: t("page_view") },
+    { key: "/amr", label: t("page_amr") },
+    { key: "/cargo-history", label: t("page_cargo_history") },
+    // 設定頁已經正式改用 v3;舊版還留在 /setting-v2、/setting-v1,/setting 會轉過去
+    { key: "/setting-v3", label: t("page_setting") },
+    // 任務模擬 v2: 自己畫佈局、算運能。舊的任務模擬頁拿掉了,
+    // 放模擬車改在首頁地圖的「模擬車輛」
+    ...(showSimulateV2
+      ? [{ key: "/simulate-v2", label: t("page_simulate_v2") }]
+      : []),
+    { key: "/records", label: t("page_record") },
+    { key: "/mission-dispatch", label: t("page_mission_dispatch") },
+    { key: "/report", label: t("page_report") },
+  ];
 
   const handleMenuClick = (e: { key: string }) => {
-    switch (e.key) {
-      case "1":
-        navigate("/");
-        break;
-      case "2":
-        navigate("/amr");
-        break;
-      case "3":
-        navigate("/cargo-history");
-        break;
-      case "4":
-        // 設定頁已經正式改用 v3;舊版還留在 /setting-v2、/setting-v1,/setting 會轉過去
-        navigate("/setting-v3");
-        break;
-      case "5":
-        // 任務模擬 v2: 自己畫佈局、算運能。舊的任務模擬頁拿掉了,
-        // 放模擬車改在首頁地圖的「模擬車輛」
-        navigate("/simulate-v2");
-        break;
-      case "6":
-        navigate("/records");
-        break;
-      case "7":
-        navigate("/mission-dispatch");
-        break;
-      case "8":
-        navigate("/report");
-        break;
-      default:
-        break;
-    }
+    navigate(e.key);
   };
 
   const handleChineseItemClick = (value: string) => {

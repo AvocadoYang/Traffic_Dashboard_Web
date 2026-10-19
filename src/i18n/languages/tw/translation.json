@@ -4625,5 +4625,10 @@
       "carrying": "搬運中",
       "loads": "板"
     }
+  },
+  "page_disabled": {
+    "title": "此頁面未開放",
+    "desc": "這個頁面在此系統的設定中已關閉。",
+    "back_home": "回首頁"
   }
 }

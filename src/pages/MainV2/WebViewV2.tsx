@@ -16,7 +16,7 @@ import MainDevices from "./MainDevices";
 import SimCarPanel from "@/components/SimCars/SimCarPanel";
 import SimCarMarkers from "@/components/SimCars/SimCarMarkers";
 import useSimCarPlacement from "@/components/SimCars/useSimCarPlacement";
-import useSimulationUi from "@/api/useSimulationUi";
+import useUiConfig from "@/api/useUiConfig";
 import { OpenDirect } from "@/pages/Main/global/jotai";
 import { useAtomValue, useSetAtom } from "jotai";
 import CarCardWrap from "@/pages/Main/Car_Card/CardWrap";
@@ -223,7 +223,7 @@ const WebViewV2 = () => {
   const mapApiRef = useRef<CanvasMapApi | null>(null);
   const simCarDrop = useSimCarPlacement(mapApiRef);
   // 實際案場 (YAML SHOW_SIMULATION_UI: false) 不顯示「模擬車輛」
-  const showSimulationUi = useSimulationUi();
+  const { showSimulationUi } = useUiConfig();
 
   const mapScale = currentMapInfo?.data?.scale;
   useEffect(() => {

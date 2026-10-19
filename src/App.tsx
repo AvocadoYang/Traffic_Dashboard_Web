@@ -17,7 +17,7 @@ import { SystemAlarmOverlay } from "./pages/Main/components/SystemAlarm";
 import { UserConformOverlay } from "./pages/Main/components/UserConformTaskStep";
 import MissionDispatchBoard from "./pages/MissionDispatchBoard/MissionDispatchBoard";
 import OperationReport from "./pages/OperationReport/OperationReport";
-import SimulateV2 from "./pages/SimulateV2/SimulateV2";
+import SimulateV2Gate from "./pages/SimulateV2/SimulateV2Gate";
 import MainV2 from "./pages/MainV2/MainV2";
 import SettingV3 from "./pages/SettingV3/SettingV3";
 import { ThemeVarsProvider, ThemedAppConfigProvider } from "./theme";
@@ -76,7 +76,7 @@ function App() {
                   path="/simulate"
                   element={<Navigate to="/" replace />}
                 ></Route>
-                <Route path="/simulate-v2" element={<SimulateV2 />} />
+                <Route path="/simulate-v2" element={<SimulateV2Gate />} />
                 <Route path="/cargo-history" element={<CargoHistory />}></Route>
                 {/* 首頁正式改用畫布地圖版 (原 /main-v2); 舊首頁留在 /main-v1,
                 /main-v2 轉回首頁, 舊書籤不會壞 */}

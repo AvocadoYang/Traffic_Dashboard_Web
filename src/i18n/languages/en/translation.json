@@ -4624,5 +4624,10 @@
       "carrying": "In transit",
       "loads": "pallets"
     }
+  },
+  "page_disabled": {
+    "title": "This page is disabled",
+    "desc": "This page has been turned off in this system's configuration.",
+    "back_home": "Back to home"
   }
 }
