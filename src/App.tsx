@@ -62,11 +62,11 @@ function App() {
 
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<Register />}></Route>
-                {/* 設定頁正式改用 v2。/setting 保留成轉址,舊書籤跟外部連結不會壞;
-                舊版仍可從 /setting-v1 進去,真的少了什麼功能時還有得退。 */}
+                {/* 設定頁正式改用 v3 (畫布地圖版)。/setting 保留成轉址,舊書籤跟外部連結不會壞;
+                舊版仍可從 /setting-v2、/setting-v1 進去,真的少了什麼功能時還有得退。 */}
                 <Route
                   path="/setting"
-                  element={<Navigate to="/setting-v2" replace />}
+                  element={<Navigate to="/setting-v3" replace />}
                 ></Route>
                 <Route path="/setting-v1" element={<Setting></Setting>}></Route>
                 <Route path="/setting-v2" element={<SettingV2 />}></Route>

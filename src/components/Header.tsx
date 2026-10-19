@@ -31,6 +31,7 @@ import { errorHandler } from "@/utils/utils";
 import { ErrorResponse } from "@/utils/globalType";
 import useName from "@/api/useAmrName";
 import StartSimModal from "@/components/StartSimModal";
+import useSimulationUi from "@/api/useSimulationUi";
 import { useMockInfo } from "@/sockets/useMockInfo";
 import styled from "styled-components";
 import { mq } from "@/styles/responsive";
@@ -432,6 +433,9 @@ const Header: React.FC = () => {
   const { refetch: amrNameRefetch } = useName();
   const [messageApi, contextHolder] = message.useMessage();
   const location = useLocation();
+  // 實際案場 (YAML SHOW_SIMULATION_UI: false) 不顯示「模擬」按鈕;
+  // 模擬正在跑時照樣顯示「停止模擬」和模擬時間, 才停得掉
+  const showSimulationUi = useSimulationUi();
   // 任務列(HA 狀態 / 任務派發)只有首頁才有內容。其他頁面一律顯示導覽、也不給切換,
   // 不然上次停在任務列的人換到別頁會看到一排空白,連導覽都不見。
   const hasToolsRow =
@@ -529,8 +533,8 @@ const Header: React.FC = () => {
         navigate("/cargo-history");
         break;
       case "4":
-        // 設定頁已經正式改用 v2;舊版還留在 /setting-v1,/setting 會轉過去
-        navigate("/setting-v2");
+        // 設定頁已經正式改用 v3;舊版還留在 /setting-v2、/setting-v1,/setting 會轉過去
+        navigate("/setting-v3");
         break;
       case "5":
         // 任務模擬 v2: 自己畫佈局、算運能。舊的任務模擬頁拿掉了,
@@ -713,7 +717,7 @@ const Header: React.FC = () => {
                   {t("header.stop_sim")}
                 </ControlButton>
               </Tooltip>
-            ) : (
+            ) : showSimulationUi ? (
               <Tooltip title={t("page_simulate")}>
                 <ControlButton
                   onClick={() => setIsSimulateOpen(true)}
@@ -726,7 +730,7 @@ const Header: React.FC = () => {
                   {t("header.simulate")}
                 </ControlButton>
               </Tooltip>
-            )}
+            ) : null}
 
             <IndustrialSelect
               value={i18n.language === "en" ? "en" : "ch.tw"}

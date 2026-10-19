@@ -16,6 +16,7 @@ import MainDevices from "./MainDevices";
 import SimCarPanel from "@/components/SimCars/SimCarPanel";
 import SimCarMarkers from "@/components/SimCars/SimCarMarkers";
 import useSimCarPlacement from "@/components/SimCars/useSimCarPlacement";
+import useSimulationUi from "@/api/useSimulationUi";
 import { OpenDirect } from "@/pages/Main/global/jotai";
 import { useAtomValue, useSetAtom } from "jotai";
 import CarCardWrap from "@/pages/Main/Car_Card/CardWrap";
@@ -221,6 +222,8 @@ const WebViewV2 = () => {
   // 模擬車輛面板: 車從面板 (或地圖上已放的位置) 拖到地圖, 放到最近的點位
   const mapApiRef = useRef<CanvasMapApi | null>(null);
   const simCarDrop = useSimCarPlacement(mapApiRef);
+  // 實際案場 (YAML SHOW_SIMULATION_UI: false) 不顯示「模擬車輛」
+  const showSimulationUi = useSimulationUi();
 
   const mapScale = currentMapInfo?.data?.scale;
   useEffect(() => {
@@ -275,7 +278,7 @@ const WebViewV2 = () => {
                 {simCarDrop.contextHolder}
                 <CanvasMap onPointClick={openDirectMove} apiRef={mapApiRef}>
                   <MainDevices />
-                  <SimCarMarkers />
+                  {showSimulationUi ? <SimCarMarkers /> : null}
                 </CanvasMap>
               </MapArea>
               <MapOverlay>
@@ -288,7 +291,7 @@ const WebViewV2 = () => {
                 <OpenPerformanceBtn top="72px" left="16px" />
                 <PerformancePanel top="64px" right="16px" />
                 {/* 模擬車輛: 取代舊的 /simulate 頁; 開始 / 停止模擬還是 Header 的按鈕 */}
-                <SimCarPanel top="128px" left="16px" />
+                {showSimulationUi ? <SimCarPanel top="128px" left="16px" /> : null}
                 <ToggleSidebarBtn
                   type="primary"
                   icon={showSidebars ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
