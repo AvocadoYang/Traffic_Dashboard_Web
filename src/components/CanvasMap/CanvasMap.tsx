@@ -1,4 +1,4 @@
-import { FC, ReactNode, memo, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef } from "react";
+import { FC, ReactNode, RefObject, memo, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef } from "react";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import styled from "styled-components";
 import useMap from "@/api/useMap";
@@ -100,8 +100,25 @@ const robotTypeValueOf = (amrId: string) =>
 type Props = {
   /** 設備層: 畫在底層 canvas 和車中間的 DOM 元件, 座標是底圖像素 */
   children?: ReactNode;
-  /** 點了點位 (首頁: 打開直接移動) */
+  /** 點了點位 (首頁: 打開直接移動; 設定頁: 點位偵測) */
   onPointClick?: (locationId: string) => void;
+  /** 疊在最上層的 DOM (設定頁的編輯工具: 打點的小紅點、拉線、框選…), 座標是底圖像素 */
+  overlay?: ReactNode;
+  /** 左鍵在空白處拖曳地圖; 設定頁打點 / 框選時左鍵要留給編輯工具 (中鍵、觸控照樣拖) */
+  leftButtonPans?: boolean;
+  /** 畫車、點雲 (舊設定頁沒有車) */
+  showAmrs?: boolean;
+  /** 標註不看工具列的「顯示標註」開關一律畫 (舊設定頁也是) */
+  alwaysShowAnnotations?: boolean;
+  /** 標註不要畫在畫布上 (設定頁編輯標註時改用 DOM 版, 才能拖曳) */
+  hideAnnotations?: boolean;
+  /**
+   * 給舊的編輯 hook 用 (useMousePoint、useZoneFrame…): 它們拿底圖 <img> 的
+   * getBoundingClientRect() 和 Scale atom 換算座標, 底圖就在跟著平移縮放的那一層, 照樣算得對
+   */
+  mapImageRef?: RefObject<HTMLImageElement>;
+  /** 地圖最外層 (滑鼠事件都會冒泡到這裡) */
+  wrapRef?: RefObject<HTMLDivElement>;
 };
 
 /** 游標附近沒有點位時用同一個空集合, 底層才不會每次移動都重畫 */
@@ -109,12 +126,25 @@ const NO_IDS = new Set<string>();
 
 const sameIds = (a: string[], b: Set<string>) => a.length === b.size && a.every((id) => b.has(id));
 
-const CanvasMap: FC<Props> = ({ children, onPointClick }) => {
+const CanvasMap: FC<Props> = ({
+  children,
+  onPointClick,
+  overlay,
+  leftButtonPans = true,
+  showAmrs = true,
+  alwaysShowAnnotations = false,
+  hideAnnotations = false,
+  mapImageRef,
+  wrapRef: wrapRefProp,
+}) => {
   const { data, isLoading, isError } = useMap();
   const { data: names } = useName();
   const { data: robotTypes } = useAMRsample();
 
-  const wrapRef = useRef<HTMLDivElement>(null);
+  const ownWrapRef = useRef<HTMLDivElement>(null);
+  const wrapRef = wrapRefProp ?? ownWrapRef;
+  const leftButtonPansRef = useRef(leftButtonPans);
+  leftButtonPansRef.current = leftButtonPans;
   const imageLayerRef = useRef<HTMLDivElement>(null);
   const deviceLayerRef = useRef<HTMLDivElement>(null);
   const overlayLayerRef = useRef<HTMLDivElement>(null);
@@ -125,6 +155,8 @@ const CanvasMap: FC<Props> = ({ children, onPointClick }) => {
   const sizeRef = useRef({ width: 0, height: 0, dpr: 1 });
   const storeRef = useRef<LiveStore | null>(null);
   const lastClaimedRef = useRef<Map<string, string> | null>(null);
+  const showAmrsRef = useRef(showAmrs);
+  showAmrsRef.current = showAmrs;
   /** 上一幀畫出來的車的範圍, 點選用 */
   const hitsRef = useRef<AmrHit[]>([]);
   /** 游標現在指著什麼 */
@@ -146,7 +178,8 @@ const CanvasMap: FC<Props> = ({ children, onPointClick }) => {
   const showLocation = useAtomValue(isShowLocation);
   const showRoad = useAtomValue(isShowRoad);
   const showPointCloud = useAtomValue(isShowPointCloud);
-  const showAnnotation = useAtomValue(isShowAnnotation);
+  const annotationSwitch = useAtomValue(isShowAnnotation);
+  const showAnnotation = !hideAnnotations && (alwaysShowAnnotations || annotationSwitch);
   const showZones = useAtomValue(showAllZonesSwitch);
   const showRoadTooltip = useAtomValue(isShowRoadTooltip);
   const hiddenZoneIds = useAtomValue(hiddenZoneIdsAtom);
@@ -262,7 +295,11 @@ const CanvasMap: FC<Props> = ({ children, onPointClick }) => {
     }
 
     const live = liveRef.current?.getContext("2d");
-    if (dirty.live && live && store) {
+    if (dirty.live && live && !showAmrsRef.current) {
+      live.setTransform(1, 0, 0, 1, 0, 0);
+      live.clearRect(0, 0, live.canvas.width, live.canvas.height);
+      hitsRef.current = [];
+    } else if (dirty.live && live && store) {
       const frame: Frame = { ctx: live, view, width, height, dpr, colors: o.colors, darkCanvas: o.darkCanvas };
       const res = o.scene.resolution;
       hitsRef.current = drawLive(frame, o.scene, store.state, {
@@ -312,7 +349,7 @@ const CanvasMap: FC<Props> = ({ children, onPointClick }) => {
   }, [scene, showLocation, showRoad, showAnnotation, showZones, hiddenZoneIds, colors, darkCanvas, requestDraw]);
   useEffect(() => {
     requestDraw({ live: true });
-  }, [scene, amrIds, filterIds, forbiddenIds, hintId, currentMapId, showPointCloud, colors, darkCanvas, robotTypes, requestDraw]);
+  }, [scene, amrIds, filterIds, forbiddenIds, hintId, currentMapId, showPointCloud, showAmrs, colors, darkCanvas, robotTypes, requestDraw]);
 
   // 即時資料: 訂閱 socket, 每次有新訊息就排下一幀
   useEffect(() => {
@@ -416,7 +453,8 @@ const CanvasMap: FC<Props> = ({ children, onPointClick }) => {
 
     /** 滑鼠左鍵只在空白處 (底層畫布) 開始拖曳, 設備上的按鈕照常點; 中鍵不限位置 */
     const canStartMouse = (e: PointerEvent) =>
-      e.button === 1 || (e.button === 0 && (e.target === baseRef.current || e.target === wrap));
+      e.button === 1 ||
+      (e.button === 0 && leftButtonPansRef.current && (e.target === baseRef.current || e.target === wrap));
 
     const startPinch = () => {
       const [a, b] = [...pointers.values()];
@@ -662,6 +700,7 @@ const CanvasMap: FC<Props> = ({ children, onPointClick }) => {
     <Wrap ref={wrapRef}>
       <TransformLayer ref={imageLayerRef}>
         <img
+          ref={mapImageRef}
           src={data.imageUrl}
           draggable={false}
           alt=""
@@ -679,7 +718,10 @@ const CanvasMap: FC<Props> = ({ children, onPointClick }) => {
       <Canvas ref={baseRef} onClick={onBaseClick} />
       <TransformLayer ref={deviceLayerRef}>{children}</TransformLayer>
       <Canvas ref={liveRef} $passive />
-      <TransformLayer ref={overlayLayerRef}>{scene ? <MapOverlay scene={scene} /> : null}</TransformLayer>
+      <TransformLayer ref={overlayLayerRef}>
+        {scene ? <MapOverlay scene={scene} /> : null}
+        {overlay}
+      </TransformLayer>
     </Wrap>
   );
 };

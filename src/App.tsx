@@ -21,6 +21,7 @@ import MissionDispatchBoard from "./pages/MissionDispatchBoard/MissionDispatchBo
 import OperationReport from "./pages/OperationReport/OperationReport";
 import SimulateV2 from "./pages/SimulateV2/SimulateV2";
 import MainV2 from "./pages/MainV2/MainV2";
+import SettingV3 from "./pages/SettingV3/SettingV3";
 import { ThemeVarsProvider, ThemedAppConfigProvider } from "./theme";
 import { useTranslation } from "react-i18next";
 
@@ -71,6 +72,7 @@ function App() {
                 ></Route>
                 <Route path="/setting-v1" element={<Setting></Setting>}></Route>
                 <Route path="/setting-v2" element={<SettingV2 />}></Route>
+                <Route path="/setting-v3" element={<SettingV3 />} />
                 <Route path="/simulate" element={<Simulate />}></Route>
                 <Route path="/simulate-v2" element={<SimulateV2 />} />
                 <Route path="/cargo-history" element={<CargoHistory />}></Route>
