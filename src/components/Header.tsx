@@ -8,15 +8,20 @@ import {
   message,
   Tooltip,
   Select,
-  Avatar,
   Dropdown,
+  Badge,
+  Space,
+  type MenuProps,
 } from "antd";
 import "./component.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import { memo, useEffect, useState } from "react";
 import {
   MenuOutlined,
-  UserOutlined,
+  SettingOutlined,
+  MessageOutlined,
+  DesktopOutlined,
+  LogoutOutlined,
   PoweroffOutlined,
   ClockCircleOutlined,
   AppstoreOutlined,
@@ -38,11 +43,11 @@ import { mq } from "@/styles/responsive";
 import dayjs from "dayjs";
 import MissionBtn from "@/pages/Main/components/WebView/components/MissionBtn";
 import HaStatusWidget from "@/pages/Main/components/HaStatusWidget";
-import ChangePasswordModal from "./ChangePasswordModal";
 import ClientNameModal from "./ClientNameModal";
 import { getClientName } from "@/utils/clientIdentity";
-import CreateUserModel from "./CreateUserModel";
-import { jwtDecode } from "jwt-decode";
+import { UserAvatar as ProfileAvatar } from "@/components/UserAvatar/UserAvatar";
+import { useMyProfile, useShiftNotes } from "@/api/useProfile";
+import { getToken, logout, tokenAccount } from "@/utils/session";
 import SimTime from "./SimTime";
 import DirectMove from "@/pages/Main/components/missionModal/DirectMove";
 import ZoomPad from "@/pages/Main/components/WebView/components/ZoomPad";
@@ -391,13 +396,35 @@ const MobileMenu = styled(Menu)`
   }
 `;
 
-const UserAvatar = styled(Avatar)`
-  && {
-    width: var(--avatar-size);
-    height: var(--avatar-size);
-    line-height: var(--avatar-size);
+const UserButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 50%;
+
+  &:focus-visible {
+    outline: 2px solid var(--c-header-accent);
+    outline-offset: 2px;
+  }
+`;
+
+const UserMenuHead = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+  color: var(--c-text);
+
+  strong {
+    display: block;
     font-size: var(--font-md);
-    cursor: pointer;
+  }
+  small {
+    display: block;
+    color: var(--c-text-secondary);
   }
 `;
 
@@ -408,8 +435,6 @@ const MapOverlay = styled.div`
   }
 `;
 
-const token = localStorage.getItem("token");
-const username = token ? jwtDecode<{ username: string }>(token).username : "";
 
 type HeaderRow = "nav" | "tools";
 const HEADER_ROW_KEY = "headerActiveRow";
@@ -442,10 +467,11 @@ const Header: React.FC = () => {
   const hasToolsRow =
     location.pathname === "/" || location.pathname === "/main-v1";
   const activeRow: HeaderRow = hasToolsRow ? headerRow : "nav";
-  const [openChangePassword, setOpenChangePassword] = useState(false);
   const [openClientName, setOpenClientName] = useState(false);
   const [clientName, setClientNameState] = useState(getClientName);
-  const [openCreateUser, setOpenCreateUser] = useState(false);
+  const username = tokenAccount(getToken());
+  const { data: profile } = useMyProfile();
+  const { data: shiftNotes } = useShiftNotes();
   const currentMapInfo = useMap();
   const setScale = useSetAtom(Scale);
   const cm = useAtomValue(centerMap);
@@ -553,39 +579,72 @@ const Header: React.FC = () => {
 
   const handleUserMenuClick = (e: { key: string }) => {
     switch (e.key) {
-      case "2":
-        localStorage.removeItem("token");
-        navigate("/login");
+      case "profile":
+        navigate("/profile");
         break;
-      case "3":
-        setOpenChangePassword(true);
+      case "shift":
+        navigate("/profile?tab=shift");
         break;
-      case "4":
-        setOpenCreateUser(true);
-        break;
-      case "5":
+      case "client-name":
         setOpenClientName(true);
+        break;
+      case "logout":
+        logout();
         break;
       default:
         break;
     }
   };
 
-  const userItems = [
-    `HI 👋 ${username}`,
-    ` logout`,
-    `change password`,
-    `create user`,
-    `${t("client_name.title")}: ${clientName || t("client_name.unset")}`,
-  ].map((name, index) => ({
-    key: index + 1,
-    label: name,
-  }));
-
-  const menuProps = {
-    items: userItems,
+  const unreadNotes = shiftNotes?.unread ?? 0;
+  const menuProps: MenuProps = {
+    items: [
+      {
+        key: "me",
+        disabled: true,
+        style: { cursor: "default" },
+        label: (
+          <UserMenuHead>
+            <ProfileAvatar avatar={profile?.avatar} account={username} size={36} />
+            <div>
+              <strong>{username}</strong>
+              {profile && <small>{t(`profile.role.${profile.role}`)}</small>}
+            </div>
+          </UserMenuHead>
+        ),
+      },
+      { type: "divider" },
+      { key: "profile", icon: <SettingOutlined />, label: t("profile.title") },
+      {
+        key: "shift",
+        icon: <MessageOutlined />,
+        label: (
+          <Space size={6}>
+            {t("profile.tab.shift")}
+            {unreadNotes > 0 && <Badge count={unreadNotes} size="small" />}
+          </Space>
+        ),
+      },
+      {
+        key: "client-name",
+        icon: <DesktopOutlined />,
+        label: `${t("client_name.title")}: ${clientName || t("client_name.unset")}`,
+      },
+      { type: "divider" },
+      { key: "logout", icon: <LogoutOutlined />, danger: true, label: t("profile.logout") },
+    ],
     onClick: handleUserMenuClick,
   };
+
+  const userButton = (
+    <Dropdown menu={menuProps} placement="bottomRight" trigger={["click"]}>
+      <UserButton type="button" aria-label={t("profile.title")}>
+        <Badge count={unreadNotes} size="small" offset={[-2, 2]}>
+          <ProfileAvatar avatar={profile?.avatar} account={username} size={30} />
+        </Badge>
+      </UserButton>
+    </Dropdown>
+  );
 
   return (
     <>
@@ -624,7 +683,7 @@ const Header: React.FC = () => {
           open={drawerOpen}
         >
           <MobileMenu mode="vertical" items={items} onClick={handleMenuClick} />
-          <UserAvatar icon={<UserOutlined />} />
+          {userButton}
         </IndustrialDrawer>
 
         <DesktopBar>
@@ -715,13 +774,7 @@ const Header: React.FC = () => {
               ]}
             />
 
-            <Dropdown
-              menu={menuProps}
-              placement="bottomRight"
-              trigger={["click"]}
-            >
-              <UserAvatar icon={<UserOutlined />} shape="square"></UserAvatar>
-            </Dropdown>
+            {userButton}
           </Flex>
         </DesktopBar>
       </IndustrialHeader>
@@ -732,13 +785,6 @@ const Header: React.FC = () => {
         handleSim={handleSim}
         setIsSimulateOpen={setIsSimulateOpen}
       />
-
-      <ChangePasswordModal
-        open={openChangePassword}
-        setOpen={setOpenChangePassword}
-      ></ChangePasswordModal>
-
-      <CreateUserModel open={openCreateUser} setOpen={setOpenCreateUser} />
 
       <ClientNameModal
         open={openClientName}

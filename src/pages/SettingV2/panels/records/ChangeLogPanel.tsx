@@ -1,3 +1,4 @@
+import { AccountTag } from "@/components/UserAvatar/UserAvatar";
 import { FC, useState } from "react";
 import { DatePicker, Input, Modal, Pagination, Select, Skeleton, Switch, Table } from "antd";
 import { DiffOutlined, HistoryOutlined, ReloadOutlined } from "@ant-design/icons";
@@ -226,9 +227,11 @@ const ChangeLogPanel: FC = () => {
                   <dd>{dayjs(row.created_at).format("YYYY-MM-DD HH:mm:ss")}</dd>
                   <dt>{t("change_log.who")}</dt>
                   <dd>
-                    {row.account ?? t("change_log.no_account")}
-                    {row.client_name ? ` · ${row.client_name}` : ""}
-                    {row.ip ? ` · ${row.ip}` : ""}
+                    <AccountTag account={row.account} size={18}>
+                      {row.account ?? t("change_log.no_account")}
+                      {row.client_name ? ` · ${row.client_name}` : ""}
+                      {row.ip ? ` · ${row.ip}` : ""}
+                    </AccountTag>
                   </dd>
                   {row.changed.length > 0 && (
                     <>

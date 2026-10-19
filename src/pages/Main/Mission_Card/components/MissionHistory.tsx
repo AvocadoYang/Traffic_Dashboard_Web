@@ -1,3 +1,4 @@
+import { AccountAvatar, AccountTag } from "@/components/UserAvatar/UserAvatar";
 import {
   Drawer,
   Table,
@@ -882,7 +883,10 @@ const MissionHistory: FC<{
           <MutedText>{sendByLabel(record.send_by)}</MutedText>
           {sourceLabel(record.send_source) && (
             <Tooltip title={sourceLabel(record.send_source, true)}>
-              <MutedText>{sourceLabel(record.send_source)}</MutedText>
+              <MutedText style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                <AccountAvatar account={record.send_source?.account} size={14} />
+                {sourceLabel(record.send_source)}
+              </MutedText>
             </Tooltip>
           )}
         </CellStack>
@@ -1100,7 +1104,9 @@ const MissionHistory: FC<{
           {sourceLabel(record.send_source, true) && (
             <DetailRow>
               <span>{t("mission_history.sent_from")}</span>
-              <span>{sourceLabel(record.send_source, true)}</span>
+              <AccountTag account={record.send_source?.account} size={18}>
+                {sourceLabel(record.send_source, true)}
+              </AccountTag>
             </DetailRow>
           )}
           <DetailRow>
@@ -1127,7 +1133,9 @@ const MissionHistory: FC<{
             sourceLabel(record.cancel_source, true) && (
               <DetailRow>
                 <span>{t("mission_history.canceled_from")}</span>
-                <span>{sourceLabel(record.cancel_source, true)}</span>
+                <AccountTag account={record.cancel_source?.account} size={18}>
+                  {sourceLabel(record.cancel_source, true)}
+                </AccountTag>
               </DetailRow>
             )}
           {record.message && (

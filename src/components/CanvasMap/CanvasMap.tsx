@@ -30,7 +30,7 @@ import { isDarkColor } from "@/theme/mapImage";
 import { buildScene } from "./scene";
 import { createLiveStore, LiveStore } from "./liveStore";
 import { AmrHit, drawBase, drawLive, Frame } from "./draw";
-import { MapView, initialView, wheelFactor, zoomTo } from "./view";
+import { MapView, clampScale, initialView, wheelFactor, zoomTo } from "./view";
 import { amrAt, nearbyPoints, nearbyRoads, nearestPoint, pauseSignAt, pointAt, roadAt } from "./hitTest";
 import MapOverlay, { hiddenZoneIdsAtom, pauseHintAtom } from "./MapOverlay";
 
@@ -105,6 +105,8 @@ export type CanvasMapApi = {
   locationClientPos: (locationId: string) => { x: number; y: number } | null;
   /** 離這個位置最近的點位, 不限距離; 位置不在地圖範圍內就 null */
   nearestPointAt: (clientX: number, clientY: number) => string | null;
+  /** 目前視角: 畫面中心在底圖上的位置 (像素) + 縮放; 個人設定的「預設視角」存這個 */
+  currentView: () => { mapId: string; scale: number; cx: number; cy: number } | null;
 };
 
 type Props = {
@@ -118,6 +120,11 @@ type Props = {
   leftButtonPans?: boolean;
   /** 畫車、點雲 (舊設定頁沒有車) */
   showAmrs?: boolean;
+  /**
+   * 開地圖 / 按「回原位」時用的視角 (個人設定存的), 地圖 id 對得上才用;
+   * 沒給就照地圖設定的初始視角
+   */
+  preferredView?: { mapId: string; scale: number; cx: number; cy: number } | null;
   /** 標註不看工具列的「顯示標註」開關一律畫 (舊設定頁也是) */
   alwaysShowAnnotations?: boolean;
   /** 標註不要畫在畫布上 (設定頁編輯標註時改用 DOM 版, 才能拖曳) */
@@ -146,6 +153,7 @@ const CanvasMap: FC<Props> = ({
   overlay,
   leftButtonPans = true,
   showAmrs = true,
+  preferredView,
   alwaysShowAnnotations = false,
   hideAnnotations = false,
   mapImageRef,
@@ -399,9 +407,25 @@ const CanvasMap: FC<Props> = ({
     [redrawAll, setScale],
   );
 
+  const preferredViewRef = useRef(preferredView);
+  preferredViewRef.current = preferredView;
+
   const resetView = useCallback(() => {
     const { width, height } = sizeRef.current;
     if (!data || !width || !height) return;
+    const pref = preferredViewRef.current;
+    if (pref && String(pref.mapId) === String(data.mapId)) {
+      const apply = () => {
+        const size = sizeRef.current;
+        const scale = clampScale(pref.scale);
+        setView({ scale, x: size.width / 2 - pref.cx * scale, y: size.height / 2 - pref.cy * scale }, true);
+      };
+      apply();
+      // Header / 首頁在地圖載入時會把 Scale 設回地圖的預設縮放 (同一輪 effect, 比這裡晚),
+      // 等它們跑完再套一次, 存的縮放才不會被蓋掉
+      setTimeout(apply, 0);
+      return;
+    }
     setView(initialView(data, width, height), true);
   }, [data, setView]);
 
@@ -427,6 +451,14 @@ const CanvasMap: FC<Props> = ({
     observer.observe(wrap);
     return () => observer.disconnect();
   }, [resetView, redrawAll, isLoading, isError]);
+
+  // 個人設定的預設視角通常比地圖晚到 (要等 /api/profile/me), 到了先套一次
+  const preferredApplied = useRef(false);
+  useEffect(() => {
+    if (!preferredView || preferredApplied.current || !viewRef.current) return;
+    preferredApplied.current = true;
+    resetView();
+  }, [preferredView, resetView]);
 
   // 換地圖 (底圖網址變了) 或按「地圖置中」: 回到預設視角
   const imageUrl = data?.imageUrl;
@@ -728,6 +760,17 @@ const CanvasMap: FC<Props> = ({
       return rect ? { x: clientX - rect.left, y: clientY - rect.top } : null;
     };
     apiRef.current = {
+      currentView: () => {
+        const view = viewRef.current;
+        const { width, height } = sizeRef.current;
+        if (!view || !data || !width || !height) return null;
+        return {
+          mapId: String(data.mapId),
+          scale: view.scale,
+          cx: (width / 2 - view.x) / view.scale,
+          cy: (height / 2 - view.y) / view.scale,
+        };
+      },
       pointAt: (clientX, clientY) => {
         const view = viewRef.current;
         const o = optsRef.current;

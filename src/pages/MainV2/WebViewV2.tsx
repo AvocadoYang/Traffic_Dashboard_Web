@@ -5,6 +5,7 @@ import {
   Segmented,
   Splitter,
   Tooltip,
+  message,
 } from "antd";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Layout } from "antd";
@@ -34,7 +35,15 @@ import styled, { css } from "styled-components";
 import { mq } from "@/styles/responsive";
 import { useTranslation } from "react-i18next";
 import { themeAtom } from "@/theme";
-import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
+import { MenuFoldOutlined, MenuUnfoldOutlined, PushpinOutlined } from "@ant-design/icons";
+import { useMyProfile, useSaveProfile } from "@/api/useProfile";
+import {
+  isShowAnnotation,
+  isShowLocation,
+  isShowPointCloud,
+  isShowRoad,
+  showAllZonesSwitch,
+} from "@/utils/siderGloble";
 
 const { Content } = Layout;
 
@@ -198,6 +207,19 @@ const ToggleSidebarBtn = styled(Button)`
   z-index: 20;
 `;
 
+const SaveViewBtn = styled(Button)`
+  position: absolute;
+  top: var(--space-sm);
+  right: calc(7rem + 40px);
+  z-index: 20;
+`;
+
+/**
+ * 已經套用過哪個帳號的地圖圖層偏好。放在模組層: App 重繪 (換語言) 會讓首頁重掛,
+ * 用 ref 會再套一次, 把工具列剛切的圖層蓋回去
+ */
+let layersAppliedFor: string | null = null;
+
 /**
  * 首頁 (WebView) 的畫布地圖版本: 版面、車輛 / 任務面板、地圖工具列都跟舊首頁一樣,
  * 只有中間的地圖換成 CanvasMap。
@@ -225,6 +247,40 @@ const WebViewV2 = () => {
   // 實際案場 (YAML SHOW_SIMULATION_UI: false) 不顯示「模擬車輛」
   const { showSimulationUi } = useUiConfig();
 
+  // 個人設定: 地圖預設視角 + 圖層 (換帳號登入才重套, 之後工具列切換不會被蓋回去)
+  const { data: profile } = useMyProfile();
+  const saveProfile = useSaveProfile();
+  const [messageApi, messageHolder] = message.useMessage();
+  const preferredView = profile?.preferences.map?.view ?? null;
+  const setShowLocation = useSetAtom(isShowLocation);
+  const setShowRoad = useSetAtom(isShowRoad);
+  const setShowPointCloud = useSetAtom(isShowPointCloud);
+  const setShowAnnotation = useSetAtom(isShowAnnotation);
+  const setShowZones = useSetAtom(showAllZonesSwitch);
+  useEffect(() => {
+    if (!profile || layersAppliedFor === profile.id) return;
+    layersAppliedFor = profile.id;
+    const layers = profile.preferences.map?.layers;
+    if (!layers) return;
+    if (layers.location !== undefined) setShowLocation(layers.location);
+    if (layers.road !== undefined) setShowRoad(layers.road);
+    if (layers.pointCloud !== undefined) setShowPointCloud(layers.pointCloud);
+    if (layers.annotation !== undefined) setShowAnnotation(layers.annotation);
+    if (layers.zones !== undefined) setShowZones(layers.zones);
+  }, [profile, setShowLocation, setShowRoad, setShowPointCloud, setShowAnnotation, setShowZones]);
+
+  const saveCurrentView = () => {
+    const view = mapApiRef.current?.currentView();
+    if (!view) return;
+    saveProfile.mutate(
+      { preferences: { map: { view } } },
+      {
+        onSuccess: () => void messageApi.success(t("profile.prefs.view_saved_toast")),
+        onError: () => void messageApi.error(t("profile.save_failed")),
+      },
+    );
+  };
+
   const mapScale = currentMapInfo?.data?.scale;
   useEffect(() => {
     if (mapScale === undefined) return;
@@ -233,6 +289,7 @@ const WebViewV2 = () => {
 
   return (
     <WebViewContent>
+      {messageHolder}
       {/* 點地圖上的貨架 / 輸送帶 / stack / 電梯,右側打開貨物面板 */}
       <CargoPanel />
       <ConfigProvider
@@ -276,7 +333,7 @@ const WebViewV2 = () => {
                 onDrop={simCarDrop.onDrop}
               >
                 {simCarDrop.contextHolder}
-                <CanvasMap onPointClick={openDirectMove} apiRef={mapApiRef}>
+                <CanvasMap onPointClick={openDirectMove} apiRef={mapApiRef} preferredView={preferredView}>
                   <MainDevices />
                   {showSimulationUi ? <SimCarMarkers /> : null}
                 </CanvasMap>
@@ -292,6 +349,16 @@ const WebViewV2 = () => {
                 <PerformancePanel top="64px" right="16px" />
                 {/* 模擬車輛: 取代舊的 /simulate 頁; 開始 / 停止模擬還是 Header 的按鈕 */}
                 {showSimulationUi ? <SimCarPanel top="128px" left="16px" /> : null}
+                {profile && (
+                  <Tooltip title={t("profile.prefs.save_view")}>
+                    <SaveViewBtn
+                      icon={<PushpinOutlined />}
+                      aria-label={t("profile.prefs.save_view")}
+                      loading={saveProfile.isLoading}
+                      onClick={saveCurrentView}
+                    />
+                  </Tooltip>
+                )}
                 <ToggleSidebarBtn
                   type="primary"
                   icon={showSidebars ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}

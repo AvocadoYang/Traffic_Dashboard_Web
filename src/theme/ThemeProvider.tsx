@@ -4,6 +4,7 @@ import { ConfigProvider } from "antd";
 import { applyTheme } from "./applyTheme";
 import { buildAntdTheme, buildAppAntdTheme } from "./antdTheme";
 import { mapImageModeAtom, themeAtom } from "./themeAtom";
+import { fontScaleAtom } from "./fontScale";
 
 /**
  * 掛在 App 最外層。只負責把選到的主題灌成 <html> 上的 CSS 變數,
@@ -14,6 +15,11 @@ import { mapImageModeAtom, themeAtom } from "./themeAtom";
 export const ThemeVarsProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const theme = useAtomValue(themeAtom);
   const mapImage = useAtomValue(mapImageModeAtom);
+  const fontScale = useAtomValue(fontScaleAtom);
+
+  useLayoutEffect(() => {
+    document.documentElement.style.setProperty("--font-scale", String(fontScale));
+  }, [fontScale]);
 
   // useLayoutEffect:在瀏覽器畫下這一幀之前就把變數換掉,避免切主題時閃一下舊色。
   useLayoutEffect(() => {
@@ -28,8 +34,9 @@ export const ThemedConfigProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const theme = useAtomValue(themeAtom);
+  const fontScale = useAtomValue(fontScaleAtom);
   return (
-    <ConfigProvider theme={buildAntdTheme(theme)}>{children}</ConfigProvider>
+    <ConfigProvider theme={buildAntdTheme(theme, fontScale)}>{children}</ConfigProvider>
   );
 };
 
@@ -41,7 +48,8 @@ export const ThemedAppConfigProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const theme = useAtomValue(themeAtom);
+  const fontScale = useAtomValue(fontScaleAtom);
   return (
-    <ConfigProvider theme={buildAppAntdTheme(theme)}>{children}</ConfigProvider>
+    <ConfigProvider theme={buildAppAntdTheme(theme, fontScale)}>{children}</ConfigProvider>
   );
 };

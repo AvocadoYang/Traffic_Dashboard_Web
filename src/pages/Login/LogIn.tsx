@@ -1,13 +1,15 @@
 import React from "react";
-import { Col, message, Row, Tooltip, Form, Input, Button, Space } from "antd";
+import { Alert, Col, message, Row, Tooltip, Form, Input, Button, Space } from "antd";
 import {
   EyeInvisibleOutlined,
   EyeTwoTone,
   UserOutlined,
   LockOutlined,
 } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { HOME_PAGES, MyProfile, PROFILE_KEY, SHIFT_NOTES_KEY } from "@/api/useProfile";
+import { SHIFT_NOTE_CHECK_KEY } from "@/utils/session";
 import client from "@/api/axiosClient";
 import { Err } from "@/utils/responseErr";
 import { useTranslation } from "react-i18next";
@@ -270,13 +272,35 @@ const Login: React.FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const { t } = useTranslation();
 
+  const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const logoutReason = searchParams.get("reason");
+
   const editMutation = useMutation({
     mutationFn: (payload: { username: string; password: string }) =>
       client.post("api/logInAndOut/login", payload),
-    onSuccess: (res) => {
+    onSuccess: async (res) => {
       localStorage.setItem("token", res.data.token);
+      // 上一個帳號的個人設定 / 交班留言不要留給這個帳號
+      queryClient.removeQueries({ queryKey: ["profile"] });
+      queryClient.removeQueries({ queryKey: SHIFT_NOTES_KEY });
+      try {
+        sessionStorage.setItem(SHIFT_NOTE_CHECK_KEY, "1");
+      } catch {
+        /* 跳不出交班留言而已 */
+      }
       messageApi.success(t("utils.success"));
-      navigate("/", { replace: true });
+      // 個人設定的預設首頁; 讀不到 (舊後端) 就回首頁
+      let home = "/";
+      try {
+        const me = await client.get<MyProfile>("api/profile/me");
+        queryClient.setQueryData(PROFILE_KEY, me.data);
+        const page = me.data.preferences?.homePage;
+        if (page && (HOME_PAGES as readonly string[]).includes(page)) home = page;
+      } catch {
+        /* 舊後端沒有 /api/profile */
+      }
+      navigate(home, { replace: true });
     },
     onError(error: Err) {
       messageApi.error(error.response.data.message);
@@ -297,6 +321,14 @@ const Login: React.FC = () => {
             <SystemLabel>{t("login.system_label")}</SystemLabel>
           </LoginHeader>
 
+          {logoutReason && ["idle", "expired", "disabled"].includes(logoutReason) && (
+            <Alert
+              type="info"
+              showIcon
+              style={{ marginBottom: 16 }}
+              title={t(`profile.logout_reason.${logoutReason as "idle" | "expired" | "disabled"}`)}
+            />
+          )}
           <StyledForm layout="vertical" onFinish={handleSubmit}>
             <Form.Item
               label={t("login.username")}
