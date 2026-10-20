@@ -3,10 +3,9 @@ import styled from "styled-components";
 import { Tooltip } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import { LocWithoutArr } from "@/api/useLoc";
 import { ShelfWithoutList } from "@/api/type/useShelf";
 import { c, font, space } from "../../ui/tokens";
-import { CardFacts, Tag } from "../../ui/primitives";
+import { Tag } from "../../ui/primitives";
 
 const Wrap = styled.div`
   display: flex;
@@ -60,29 +59,14 @@ const DisabledTag = styled(Tag)`
 
 type Props = {
   shelf: ShelfWithoutList;
-  locList: LocWithoutArr[];
 };
 
-const ShelfConfigDetail: FC<Props> = ({ shelf, locList }) => {
+const ShelfConfigDetail: FC<Props> = ({ shelf }) => {
   const { t } = useTranslation();
 
   const sortedConfig = [...(shelf.ShelfConfig ?? [])].sort(
     (a, b) => a.level - b.level,
   );
-  const locInfo = locList.find(
-    (v) => v.locationId === shelf.peripheral_station.source.locationId,
-  );
-
-  const relationships = locInfo?.relationships
-    ? Object.entries(locInfo.relationships).map(
-        ([locId, type]) =>
-          `${locId}: ${
-            type === "fixed"
-              ? t("shelf.cargo_mission.relationship_fixed")
-              : t("shelf.cargo_mission.relationship_non_fixed")
-          }`,
-      )
-    : [];
 
   return (
     <Wrap>
@@ -116,15 +100,6 @@ const ShelfConfigDetail: FC<Props> = ({ shelf, locList }) => {
           );
         })
       )}
-
-      <CardFacts>
-        <dt>{t("edit_shelf_panel.placement_priority")}</dt>
-        <dd>{locInfo?.placement_priority ?? t("utils.none")}</dd>
-        <dt>{t("edit_shelf_panel.relationships")}</dt>
-        <dd>
-          {relationships.length ? relationships.join(", ") : t("utils.none")}
-        </dd>
-      </CardFacts>
     </Wrap>
   );
 };

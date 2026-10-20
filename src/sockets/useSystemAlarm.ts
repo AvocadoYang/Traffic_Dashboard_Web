@@ -8,6 +8,8 @@ export type SystemAlarmData = {
   level: number;
   message: string;
   alarmType: AlarmType;
+  /** 告警代碼 (system_alarm.code); 舊後端沒送 */
+  code?: number;
   tstamp?: Date;
 };
 
@@ -16,6 +18,7 @@ const schema = () =>
     level: number().required(),
     message: string().required(),
     alarmType: string().required(),
+    code: number().optional(),
   });
 
 const warningId$ = fromEventPattern(

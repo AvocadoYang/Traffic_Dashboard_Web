@@ -6,7 +6,6 @@ import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import client from "@/api/axiosClient";
 import { useMutation } from "@tanstack/react-query";
-import { Relation } from "@/api/useLoc";
 import { PeripheralTypes } from "@/types/peripheral";
 import {
   IsOpenStackModal,

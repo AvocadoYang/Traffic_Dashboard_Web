@@ -7,7 +7,6 @@ const collectionSchema = object({
   TitleBridgeLocs: array(
     object({
       missionType: string().required(),
-      missionOrder: number().required(),
       Title: object({
         id: string().required(),
         name: string().required(),
