@@ -355,6 +355,10 @@
   "amr_card": {
     "delete_current_mission": "Delete mission",
     "force_delete_mission": "FOrce delete mission",
+    "force_next_step": "Skip to next step",
+    "force_next_step_hint": "Use when the vehicle has actually finished but the system is still waiting for its done signal",
+    "force_next_step_confirm_title": "Skip to the next step?",
+    "force_next_step_confirm_content": "This will not wait for the vehicle's done signal. The current step is treated as finished and the next step is sent to the vehicle. Make sure the vehicle has really completed the current action, otherwise it may collide or drop its cargo.",
     "charge_reset": "Charge reset",
     "spin": "Spin in place",
     "spin_hint": "The vehicle turns to the target yaw at the point it is standing on. It must be idle, and the point must be set as rotatable on the map.",

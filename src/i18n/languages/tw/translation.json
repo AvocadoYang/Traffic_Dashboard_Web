@@ -355,6 +355,10 @@
   "amr_card": {
     "delete_current_mission": "刪除任務",
     "force_delete_mission": "強制刪除任務",
+    "force_next_step": "直接下一動",
+    "force_next_step_hint": "車端其實已經做完、但系統還在等完成訊號時使用",
+    "force_next_step_confirm_title": "確定要直接下一動嗎?",
+    "force_next_step_confirm_content": "不會等車端的完成訊號, 直接把目前這一動當成已完成, 並發下一動給車子。請先確認車子真的已經做完目前動作, 否則可能發生碰撞或貨物掉落。",
     "charge_reset": "校正充電",
     "spin": "原地旋轉",
     "spin_hint": "車子會在目前站的點轉到目標角度。車子要閒置，而且那個點要在地圖上設定成可旋轉。",
