@@ -765,14 +765,6 @@ const Header: React.FC = () => {
               </Tooltip>
             ) : null}
 
-            <IndustrialSelect
-              value={i18n.language === "en" ? "en" : "ch.tw"}
-              onChange={(e) => handleChineseItemClick(e as any)}
-              options={[
-                { value: "en", label: "EN" },
-                { value: "ch.tw", label: "中文" },
-              ]}
-            />
 
             {userButton}
           </Flex>

@@ -8,15 +8,23 @@ import {
   Input,
   Alert,
   Tooltip,
+  Select,
+  DatePicker,
+  Switch,
+  Statistic,
+  Row,
+  Col,
 } from "antd";
+import { DownloadOutlined } from "@ant-design/icons";
 import moment from "moment";
-import { FC, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import ReactJsonView from "@uiw/react-json-view";
 import { Button } from "antd";
 import { useTranslation } from "react-i18next";
 import useSearchCargoMetadata from "@/api/useSearchCargoMetadata";
 import { useReverifyCargoFormat } from "@/hooks/useReverifyCargoFormat";
+import MissionDetailModal from "@/components/MissionDetail/MissionDetailModal";
 
 const { Text } = Typography;
 
@@ -38,10 +46,6 @@ const StyledTable = styled(Table)`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const ActionWrapper = styled.div`
-  width: 6em;
-`;
-
 const MetaCard = styled(Card)`
   width: 30%;
   min-height: 100%;
@@ -50,6 +54,12 @@ const MetaCard = styled(Card)`
 const HisCard = styled(Card)`
   width: 70%;
   min-height: 100%;
+`;
+
+const HistoryItem = styled.div`
+  padding: 8px 0 8px 12px;
+  border-left: 2px solid var(--c-border, #d9d9d9);
+  margin-bottom: 4px;
 `;
 
 const NoDefine = styled.span`
@@ -73,6 +83,9 @@ type CargoData = {
     action: string;
     description?: string;
     actor?: string;
+    mission_id?: string | null;
+    amr_id?: string | null;
+    location?: string | null;
     timestamp: string;
   }[];
 };
@@ -93,6 +106,15 @@ export enum CargoAction {
   UPDATED = "UPDATED",
 }
 
+const AUTO_REFRESH_MS = 30000;
+
+const csvCell = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+
+const lastHistory = (r: CargoData) =>
+  [...(r.history || [])].sort(
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  )[0];
+
 const HistoryTable: FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 20;
@@ -100,7 +122,90 @@ const HistoryTable: FC = () => {
   const { data, refetch, isFetching } = useCargoHistory(currentPage, pageSize);
   const { data: searchData } = useSearchCargoMetadata(metadataSearch);
 
+  const [statusFilter, setStatusFilter] = useState<string | undefined>();
+  const [actionFilter, setActionFilter] = useState<string | undefined>();
+  const [range, setRange] = useState<[number, number] | null>(null);
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [missionId, setMissionId] = useState<string | null>(null);
+
   const { t } = useTranslation();
+
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const timer = setInterval(() => refetch(), AUTO_REFRESH_MS);
+    return () => clearInterval(timer);
+  }, [autoRefresh, refetch]);
+
+  const baseRows: CargoData[] = (
+    metadataSearch ? searchData?.data || [] : data?.data || []
+  ) as any;
+
+  // 後端分頁, 篩選只作用在目前載入的這一頁(或搜尋結果)
+  const rows = useMemo(
+    () =>
+      baseRows.filter((r) => {
+        if (statusFilter && r.status !== statusFilter) return false;
+        if (actionFilter && !r.history?.some((h) => h.action === actionFilter))
+          return false;
+        if (range) {
+          const ts = new Date(r.createdAt).getTime();
+          if (ts < range[0] || ts > range[1]) return false;
+        }
+        return true;
+      }),
+    [baseRows, statusFilter, actionFilter, range]
+  );
+
+  const hasFilter = !!(statusFilter || actionFilter || range || metadataSearch);
+  const resetFilters = () => {
+    setStatusFilter(undefined);
+    setActionFilter(undefined);
+    setRange(null);
+    setMetadataSearch("");
+  };
+
+  const countBy = (st: CargoCurrentStatus) =>
+    baseRows.filter((r) => r.status === st).length;
+  const undefinedCount = baseRows.filter((r) => !r.custom_cargo_metadata).length;
+
+  const exportCsv = () => {
+    const head = [
+      t("cargo_history.cargoId"),
+      "ID",
+      t("cargo_history.status"),
+      t("cargo_history.customFormat"),
+      t("cargo_history.metadata"),
+      t("cargo_history.last_action"),
+      t("cargo_history.createdAt"),
+    ];
+    const lines = rows.map((r) => {
+      const last = lastHistory(r);
+      return [
+        r.custom_id,
+        r.id,
+        r.status,
+        r.custom_cargo_metadata?.custom_name,
+        r.metadata && r.metadata !== "null"
+          ? typeof r.metadata === "string"
+            ? r.metadata
+            : JSON.stringify(r.metadata)
+          : "",
+        last ? `${last.action} ${moment(last.timestamp).format("YYYY-MM-DD HH:mm:ss")}` : "",
+        moment(r.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+      ]
+        .map(csvCell)
+        .join(",");
+    });
+    const blob = new Blob(["\uFEFF" + [head.map(csvCell).join(","), ...lines].join("\n")], {
+      type: "text/csv;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `cargo-history-${moment().format("YYYYMMDD-HHmmss")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const { mutate, isPending, contextHolder } = useReverifyCargoFormat(refetch);
 
@@ -132,9 +237,14 @@ const HistoryTable: FC = () => {
       title: t("cargo_history.cargoId"),
       dataIndex: "custom_id",
       key: "custom_id",
-      render: (record: string) => {
-        return <Text code>{record?.slice(0, 10) || ""}...</Text>;
-      },
+      render: (record: string) =>
+        record ? (
+          <Text code copyable={{ text: record }}>
+            {record.length > 10 ? `${record.slice(0, 10)}...` : record}
+          </Text>
+        ) : (
+          "-"
+        ),
     },
     {
       title: t("cargo_history.status"),
@@ -179,6 +289,24 @@ const HistoryTable: FC = () => {
       },
     },
     {
+      title: t("cargo_history.last_action"),
+      key: "last_action",
+      render: (_v: unknown, record: CargoData) => {
+        const last = lastHistory(record);
+        if (!last) return "-";
+        return (
+          <Tooltip title={last.description || undefined}>
+            <Flex gap="small" align="center">
+              <Tag style={{ margin: 0 }} color={getActionColor(last.action as CargoAction)}>
+                {last.action}
+              </Tag>
+              <Text type="secondary">{moment(last.timestamp).fromNow()}</Text>
+            </Flex>
+          </Tooltip>
+        );
+      },
+    },
+    {
       title: t("cargo_history.createdAt"),
       dataIndex: "createdAt",
       key: "createdAt",
@@ -193,8 +321,56 @@ const HistoryTable: FC = () => {
     <>
       {contextHolder}
       <PageContainer>
-        <HeaderContainer>
-          <Flex gap="small">
+        <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+          {[
+            { label: t("cargo_history.total"), value: data?.total ?? 0 },
+            { label: "ON_AMR", value: countBy(CargoCurrentStatus.ON_AMR) },
+            { label: "AT_LOCATION", value: countBy(CargoCurrentStatus.AT_LOCATION) },
+            { label: "PRE_SPAWN", value: countBy(CargoCurrentStatus.PRE_SPAWN) },
+            { label: t("cargo_history.undefined_format"), value: undefinedCount },
+          ].map((it) => (
+            <Col key={it.label} xs={12} md={8} xl={4}>
+              <Card size="small">
+                <Statistic title={it.label} value={it.value} />
+              </Card>
+            </Col>
+          ))}
+        </Row>
+        <Text type="secondary" style={{ display: "block", marginBottom: 8 }}>
+          {t("cargo_history.stats_hint", { count: baseRows.length })}
+        </Text>
+        <HeaderContainer style={{ flexWrap: "wrap", gap: 8 }}>
+          <Flex gap="small" wrap>
+            <Select
+              allowClear
+              placeholder={t("cargo_history.status")}
+              value={statusFilter}
+              onChange={setStatusFilter}
+              style={{ width: 160 }}
+              options={Object.values(CargoCurrentStatus).map((v) => ({
+                value: v,
+                label: v,
+              }))}
+            />
+            <Select
+              allowClear
+              placeholder={t("cargo_history.action_filter")}
+              value={actionFilter}
+              onChange={setActionFilter}
+              style={{ width: 160 }}
+              options={Object.values(CargoAction).map((v) => ({
+                value: v,
+                label: v,
+              }))}
+            />
+            <DatePicker.RangePicker
+              showTime
+              onChange={(v) =>
+                setRange(
+                  v && v[0] && v[1] ? [v[0].valueOf(), v[1].valueOf()] : null
+                )
+              }
+            />
             <Input
               placeholder={t("cargo_history.search_metadata")}
               value={metadataSearch}
@@ -202,19 +378,33 @@ const HistoryTable: FC = () => {
               style={{ width: 300 }}
               allowClear
             />
+            {hasFilter && (
+              <Button onClick={resetFilters}>{t("cargo_history.reset")}</Button>
+            )}
           </Flex>
 
-          <Button onClick={() => refetch()} loading={isFetching}>
-            {t("cargo_history.refetch")}
-          </Button>
+          <Flex gap="small" align="center" wrap>
+            <Flex gap={6} align="center">
+              <Switch size="small" checked={autoRefresh} onChange={setAutoRefresh} />
+              <Text type="secondary">{t("cargo_history.auto_refresh")}</Text>
+            </Flex>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={exportCsv}
+              disabled={rows.length === 0}
+            >
+              {t("cargo_history.export_csv")}
+            </Button>
+            <Button onClick={() => refetch()} loading={isFetching}>
+              {t("cargo_history.refetch")}
+            </Button>
+          </Flex>
         </HeaderContainer>
         <StyledTable<any>
-          dataSource={
-            metadataSearch ? searchData?.data || [] : data?.data || []
-          }
+          dataSource={rows}
           columns={columns}
           pagination={
-            metadataSearch
+            metadataSearch || statusFilter || actionFilter || range
               ? false
               : {
                   pageSize,
@@ -281,27 +471,99 @@ const HistoryTable: FC = () => {
                             new Date(a.timestamp).getTime() -
                             new Date(b.timestamp).getTime()
                         )
-                        .map((h) => (
-                          <Flex
-                            key={h.id}
-                            gap="small"
-                            style={{ marginBottom: 4 }}
-                          >
-                            <Text type="secondary" style={{ minWidth: 160 }}>
-                              {moment(h.timestamp).format(
-                                "YYYY-MM-DD HH:mm:ss"
-                              )}
-                            </Text>
-                            <ActionWrapper>
-                              <Tag
-                                color={getActionColor(h.action as CargoAction)}
+                        .map((h, i, arr) => {
+                          const prev = arr[i - 1];
+                          const gap = prev
+                            ? moment(h.timestamp).diff(moment(prev.timestamp))
+                            : null;
+                          return (
+                            <HistoryItem key={h.id}>
+                              <Flex gap="small" align="center" wrap>
+                                <Text
+                                  type="secondary"
+                                  style={{ minWidth: 160 }}
+                                >
+                                  {moment(h.timestamp).format(
+                                    "YYYY-MM-DD HH:mm:ss"
+                                  )}
+                                </Text>
+                                <Tag
+                                  style={{ margin: 0 }}
+                                  color={getActionColor(
+                                    h.action as CargoAction
+                                  )}
+                                >
+                                  {h.action}{" "}
+                                  {
+                                    t(
+                                      `cargo_history.action.${h.action}` as Parameters<
+                                        typeof t
+                                      >[0]
+                                    ) as string
+                                  }
+                                </Tag>
+                                {gap !== null && gap > 0 && (
+                                  <Text type="secondary" style={{ fontSize: 12 }}>
+                                    +{moment.duration(gap).humanize()}
+                                  </Text>
+                                )}
+                              </Flex>
+                              <Flex
+                                gap="middle"
+                                wrap
+                                style={{ marginTop: 4, paddingLeft: 4 }}
                               >
-                                {h.action}
-                              </Tag>
-                            </ActionWrapper>
-                            <span>{h.description}</span>
-                          </Flex>
-                        ))}
+                                {h.amr_id && (
+                                  <Text>
+                                    {t("cargo_history.amr")}: <b>{h.amr_id}</b>
+                                  </Text>
+                                )}
+                                {h.location && (
+                                  <Text>
+                                    {t("cargo_history.location")}:{" "}
+                                    <b>{h.location}</b>
+                                  </Text>
+                                )}
+                                {h.mission_id ? (
+                                  <Text>
+                                    {t("cargo_history.mission")}:{" "}
+                                    <Button
+                                      type="link"
+                                      size="small"
+                                      style={{ padding: 0 }}
+                                      onClick={() => setMissionId(h.mission_id!)}
+                                    >
+                                      {h.mission_id.slice(0, 8)}…
+                                    </Button>
+                                  </Text>
+                                ) : (
+                                  ["LOAD", "OFFLOAD"].includes(h.action) && (
+                                    <Text type="secondary">
+                                      {t("cargo_history.no_mission")}
+                                    </Text>
+                                  )
+                                )}
+                                {h.actor && (
+                                  <Text type="secondary">
+                                    {t("cargo_history.actor")}: {h.actor}
+                                  </Text>
+                                )}
+                              </Flex>
+                              {h.description && (
+                                <Text
+                                  type="secondary"
+                                  style={{
+                                    display: "block",
+                                    marginTop: 2,
+                                    paddingLeft: 4,
+                                  }}
+                                >
+                                  {h.description}
+                                </Text>
+                              )}
+                            </HistoryItem>
+                          );
+                        })}
                     </div>
                   </HisCard>
                 </Flex>
@@ -310,6 +572,10 @@ const HistoryTable: FC = () => {
           }}
         />
       </PageContainer>
+      <MissionDetailModal
+        missionId={missionId}
+        onClose={() => setMissionId(null)}
+      />
     </>
   );
 };

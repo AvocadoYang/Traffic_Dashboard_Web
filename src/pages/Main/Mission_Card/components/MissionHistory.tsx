@@ -45,6 +45,7 @@ import { useAtomValue } from "jotai";
 import { useRejectMission } from "@/sockets/useRejectMission";
 import { CancelReason, MissionStatus } from "@/types/mission";
 import I18nCancelReason from "@/i18n/I18nCancelReason";
+import MissionCargoEvents from "@/components/MissionDetail/MissionCargoEvents";
 import { useMutation } from "@tanstack/react-query";
 import { Dayjs } from "dayjs";
 import client from "@/api/axiosClient";
@@ -1063,6 +1064,11 @@ const MissionHistory: FC<{
               );
             })}
           </Timeline>
+        </DetailSection>
+
+        <DetailSection $wide>
+          <h5>{t("cargo_history.cargo_events")}</h5>
+          <MissionCargoEvents missionId={record.id} />
         </DetailSection>
 
         <DetailSection>
