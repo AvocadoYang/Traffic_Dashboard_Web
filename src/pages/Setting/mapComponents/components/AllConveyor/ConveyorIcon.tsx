@@ -71,7 +71,6 @@ const ConveyorIcon: React.FC<{
       activeOffload: info.activeOffload,
       loadMissionId: info.loadMissionId,
       offloadMissionId: info.offloadMissionId,
-      relationships: info.relationships,
       cargo: info.cargo,
       loadPriority: info.loadPriority,
       offloadPriority: info.offloadPriority,

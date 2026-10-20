@@ -958,23 +958,13 @@
       "prepare_point": "預備點",
       "prepare_point_required": "請選擇預備點",
       "unset": "未設定",
-      "relationships": "關係",
-      "add_relationship": "新增關係",
-      "related_loc_required": "請選擇相關位置",
-      "relationship_type_required": "請選擇關係類型",
-      "select_location": "選擇位置",
-      "select_relationship_type": "選擇關係型別",
-      "relationship_fixed": "固定",
-      "relationship_non_fixed": "非固定",
       "submit": "儲存變更",
-      "duplicate_relationships": "不允許重複的相關位置",
       "utils.select": "選擇",
       "utils.enter_number": "輸入數字",
       "load_desc": "當要去此儲位執行取貨時會讀取的任務",
       "offload_desc": "當要去此儲位執行放貨時會讀取的任務",
       "yaw_desc": "如果在dynamic_mission中的有自轉的子任務角度設定為'自動（快速任務架方向）'就會使用到該角度",
-      "prepare_point_desc": "dynamic_mission時, 有指定'自動(預設預派點)'時, 會帶入此地點ID",
-      "relationships_desc": "定義與其他位置的貨物放置關係。選擇「固定」以設定嚴格的起點-終點對（例如，僅到一個位置）。選擇「非固定」以允許靈活放置，若主要位置不可用，貨物可移至備用位置。"
+      "prepare_point_desc": "dynamic_mission時, 有指定'自動(預設預派點)'時, 會帶入此地點ID"
     },
     "layer_form": {
       "layers": "個別樓層設定",
@@ -1016,7 +1006,6 @@
     "edit_position": "調整位置",
     "shelf_config": "個別儲位資訊",
     "config_tooltip": "點擊地圖上的儲位編輯相關參數",
-    "relationships": "關係",
     "warn": "編輯貨物種類可有可能會刪除所有現存的資料,先請開發人員備份後在編輯"
   },
   "edit_shelf_category": {

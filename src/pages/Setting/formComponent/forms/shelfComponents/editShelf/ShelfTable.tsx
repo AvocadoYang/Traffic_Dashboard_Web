@@ -26,7 +26,6 @@ import { ShelfWithoutList } from "@/api/type/useShelf";
 import SettingCargoStyleForm from "./SettingCargoStyleForm";
 import { DataIndex } from "../../antd";
 import { FilterDropdownProps } from "antd/es/table/interface";
-import useLoc, { LocWithoutArr } from "@/api/useLoc";
 
 const ExpandedRowWrapper = styled.div`
   padding: 20px;
@@ -216,7 +215,6 @@ const ShelfTable: FC<{
   const setCStyle = useSetAtom(cargoStyle);
   const setShelfSelectedStyle = useSetAtom(shelfSelectedStyleLocationId);
   const { data: shelfDataSource, isLoading: isLoadingShelf } = useShelf();
-  const { data: locData } = useLoc(undefined);
 
   const { t } = useTranslation();
   const searchInput = useRef<InputRef>(null);
@@ -434,19 +432,6 @@ const ShelfTable: FC<{
               const sortedConfig = record.ShelfConfig.sort(
                 (a, b) => a.level - b.level
               );
-              const thisLocationInfo = (locData as LocWithoutArr[]).find(
-                (v) => v.locationId === record.peripheral_station.source.locationId
-              );
-
-              const relationshipsDisplay = thisLocationInfo?.relationships
-                ? Object.entries(thisLocationInfo.relationships)
-                    .map(
-                      ([locId, type]) =>
-                        `${locId}: ${type === "fixed" ? t("shelf.cargo_mission.relationship_fixed") : t("shelf.cargo_mission.relationship_non_fixed")}`
-                    )
-                    .join(", ")
-                : t("utils.none");
-
               return (
                 <ExpandedRowWrapper>
                   <ConfigCard
@@ -502,25 +487,6 @@ const ShelfTable: FC<{
                           </Descriptions.Item>
                         );
                       })}
-                      <Descriptions.Item
-                        label={
-                          <Flex align="center" gap="small">
-                            <span>{t("edit_shelf_panel.relationships")}</span>
-                            <Tooltip
-                              title={t(
-                                "shelf.cargo_mission.relationships_desc"
-                              )}
-                            >
-                              <InfoCircleOutlined
-                                style={{ color: "#1890ff" }}
-                              />
-                            </Tooltip>
-                          </Flex>
-                        }
-                        span={2}
-                      >
-                        {relationshipsDisplay}
-                      </Descriptions.Item>
                     </Descriptions>
                   </ConfigCard>
                 </ExpandedRowWrapper>

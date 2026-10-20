@@ -27,24 +27,6 @@ export const layerSchema = object().test(
     return true;
   },
 );
-const strSchema = string().optional().nullable();
-const relationshipSchema = object().test(
-  "relation-type",
-  "relationship has format error",
-  (value) => {
-    if (!value || Object.keys(value).length === 0) return true;
-
-    if (typeof value !== "object" || Array.isArray(value)) return false;
-
-    for (const key in value) {
-      const levelValue = value[key];
-      const valid = strSchema.isValidSync(levelValue);
-      if (!valid) return false;
-    }
-
-    return true;
-  },
-);
 
 const getLocations = async () => {
   const { data } = await api.get<unknown>("api/test/locations");
@@ -94,7 +76,6 @@ const getLocations = async () => {
           occupier: string().optional().nullable(),
           layer: layerSchema.optional(),
           isDropping: boolean().optional(),
-          relationships: relationshipSchema.optional().nullable(),
           lastUpdated: string().required(),
         }).required(),
       ).required(),

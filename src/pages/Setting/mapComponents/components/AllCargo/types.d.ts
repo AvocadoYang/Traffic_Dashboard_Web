@@ -14,7 +14,6 @@ export type FormCargo = {
   yaw: string;
   load: string;
   offload: string;
-  relationships: unknown;
 };
 
 export type HasCargo = {

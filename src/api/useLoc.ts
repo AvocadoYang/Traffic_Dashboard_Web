@@ -5,25 +5,6 @@ import client from "./axiosClient";
 const getLoc = async () => {
   const { data } = await client.get<unknown>("api/setting/all-loc-only");
 
-  const strSchema = string().optional().nullable();
-
-  const relationshipSchema = object().test(
-    "relation-type",
-    "relationship has format error",
-    (value) => {
-      if (!value || Object.keys(value).length === 0) return true;
-
-      if (typeof value !== "object" || Array.isArray(value)) return false;
-
-      for (const key in value) {
-        const levelValue = value[key];
-        const valid = strSchema.isValidSync(levelValue);
-        if (!valid) return false;
-      }
-
-      return true;
-    },
-  );
 
   const schema = () =>
     array(
@@ -36,7 +17,6 @@ const getLoc = async () => {
         rotate: number().required(),
         scale: number().required(),
         flex_direction: string().required("all loc only req"),
-        relationships: relationshipSchema.optional().nullable(),
         prepare_point: object({
           id: string().required(),
           locationId: string().required(),
@@ -61,10 +41,6 @@ const useLoc = (locId: string | undefined) => {
   });
 };
 
-export type Relation = {
-  [locationId: string]: string;
-};
-
 export type LocWithoutArr = {
   id: string;
   locationId: string;
@@ -73,7 +49,6 @@ export type LocWithoutArr = {
   translateY: number;
   rotate: number;
   scale: number;
-  relationships: Relation;
   flex_direction: string;
   prepare_point: {
     id: string;

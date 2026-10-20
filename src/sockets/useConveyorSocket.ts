@@ -1,4 +1,3 @@
-import { array, string, object, ValidationError, number, boolean } from "yup";
 import {
   from,
   fromEventPattern,
@@ -11,25 +10,6 @@ import { io } from "./socketConnect";
 import { Conveyor_Info } from "@/types/peripheral";
 import { deepEqual } from "@/utils/deepEqual";
 
-const strSchema = string().optional().nullable();
-
-const relationshipSchema = object().test(
-  "relation-type",
-  "relationship has format error",
-  (value) => {
-    if (!value || Object.keys(value).length === 0) return true;
-
-    if (typeof value !== "object" || Array.isArray(value)) return false;
-
-    for (const key in value) {
-      const levelValue = value[key];
-      const valid = strSchema.isValidSync(levelValue);
-      if (!valid) return false;
-    }
-
-    return true;
-  },
-);
 
 const profiles$ = fromEventPattern(
   (next) => {

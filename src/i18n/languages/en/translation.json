@@ -958,23 +958,13 @@
       "prepare_point": "Prepare Point",
       "prepare_point_required": "Please select a prepare point",
       "unset": "Unset",
-      "relationships": "Relationships",
-      "add_relationship": "Add Relationship",
-      "related_loc_required": "Please select a related location",
-      "relationship_type_required": "Please select a relationship type",
-      "select_location": "Select Location",
-      "select_relationship_type": "Select Relationship Type",
-      "relationship_fixed": "Fixed",
-      "relationship_non_fixed": "Non-Fixed",
       "submit": "Save Changes",
-      "duplicate_relationships": "Duplicate related locations are not allowed",
       "utils.select": "Select",
       "utils.enter_number": "Enter a number",
       "load_desc": "The task that will be read when going to this storage location to pick up goods",
       "offload_desc": "The task that will be read when going to this storage location to release the goods",
       "yaw_desc": "This angle will be used if the sub-mission angle with rotation in dynamic_mission is set to 'Auto (Fast Mission Frame Direction)'",
-      "prepare_point_desc": "When dynamic_mission is selected, if 'Automatic (preset pre-assignment point)' is specified, this location ID will be imported",
-      "relationships_desc": "Define connections to other locations for cargo placement. Select 'Fixed' for strict source-destination pairs (e.g., only to one location). Select 'Non-Fixed' for flexible placement, allowing cargo to move to backup locations if the primary is unavailable."
+      "prepare_point_desc": "When dynamic_mission is selected, if 'Automatic (preset pre-assignment point)' is specified, this location ID will be imported"
     },
     "layer_form": {
       "layers": "Individual floor settings",
@@ -1016,7 +1006,6 @@
     "edit_position": "Edit Style",
     "shelf_config": "Individual storage location information",
     "config_tooltip": "Click on the storage location on the map to edit related parameters",
-    "relationships": "Relationships",
     "warn": "edit shelf category might clear exist shelf data, please ask programer to when edit"
   },
   "edit_shelf_category": {

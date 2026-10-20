@@ -5,7 +5,6 @@ import {
   FormInstance,
   Skeleton,
   Typography,
-  Button,
   Flex,
   Tooltip,
 } from "antd";
@@ -16,8 +15,6 @@ import useYaw from "@/api/useYaw";
 import useSpecificShelf from "@/api/useSpecificShelf";
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import {
-  MinusCircleOutlined,
-  PlusOutlined,
   QuestionCircleOutlined,
 } from "@ant-design/icons";
 import { editHalfPanelStyle, EDIT_TITLE_COLOR } from "../editModalStyle";
@@ -50,21 +47,6 @@ const CargoMissionForm: FC<{
     return mixData;
   }, [loc, locId, t]);
 
-  const relationOption = useMemo(() => {
-    const info = (loc ?? []) as LocWithoutArr[];
-    const mixData = info
-      .filter(
-        (v) =>
-          (v.areaType === "STORAGE" || v.areaType === "CONVEYOR") &&
-          v.id !== locId,
-      )
-      .sort((a, b) => Number(a.locationId) - Number(b.locationId))
-      .map((v) => ({
-        label: v.locationId,
-        value: v.locationId,
-      }));
-    return mixData;
-  }, [loc, locId, t]);
 
   const taskOption = misTitle
     ?.filter((g) =>
@@ -76,13 +58,6 @@ const CargoMissionForm: FC<{
 
   const dirOption = yaw?.map((v) => ({ value: v.id, label: v.yaw }));
 
-  const relationshipTypeOption = [
-    { value: "fixed", label: t("shelf.cargo_mission.relationship_fixed") },
-    {
-      value: "non-fixed",
-      label: t("shelf.cargo_mission.relationship_non_fixed"),
-    },
-  ];
 
   useEffect(() => {
     if (!shelf || !loc) return;
@@ -98,21 +73,11 @@ const CargoMissionForm: FC<{
     const currentLoc = info.find((v) => v.locationId === locId);
     const defaultPreparedPoint = currentLoc?.prepare_point?.id || null;
 
-    const relationships = currentLoc?.relationships
-      ? Object.entries(currentLoc.relationships).map(
-          ([relatedLocId, type]) => ({
-            relatedLocId,
-            relationshipType: type,
-          }),
-        )
-      : [];
-
     form.setFieldsValue({
       load: loadTask,
       offload: offloadTask,
       yaw: shelf.Dir?.id,
       prepare_point_id: defaultPreparedPoint,
-      relationships,
     });
   }, [form, shelf, loc, locId]);
 
@@ -262,92 +227,6 @@ const CargoMissionForm: FC<{
           />
         </Form.Item> */}
 
-        <Form.Item
-          label={
-            <>
-              <Flex align="center" justify="center">
-                <Typography.Text>
-                  {t("shelf.cargo_mission.relationships")}
-                </Typography.Text>
-                <Tooltip title={t("shelf.cargo_mission.relationships_desc")}>
-                  <QuestionCircleOutlined style={{ marginLeft: 8 }} />
-                </Tooltip>
-              </Flex>
-            </>
-          }
-        >
-          <Form.List name="relationships">
-            {(fields, { add, remove }) => (
-              <>
-                {fields.map(({ key, name, ...restField }) => (
-                  <div
-                    key={key}
-                    style={{ display: "flex", gap: 8, marginBottom: 8 }}
-                  >
-                    <Form.Item
-                      {...restField}
-                      name={[name, "relatedLocId"]}
-                      rules={[
-                        {
-                          required: true,
-                          message: t(
-                            "shelf.cargo_mission.related_loc_required",
-                          ),
-                        },
-                      ]}
-                      style={{ flex: 1 }}
-                    >
-                      <Select
-                        options={relationOption}
-                        placeholder={t("shelf.cargo_mission.select_location")}
-                        showSearch={{
-                          filterOption: (input, option) =>
-                            (option?.label ?? "")
-                              .toLowerCase()
-                              .includes(input.toLowerCase()),
-                        }}
-                      />
-                    </Form.Item>
-                    <Form.Item
-                      {...restField}
-                      name={[name, "relationshipType"]}
-                      rules={[
-                        {
-                          required: true,
-                          message: t(
-                            "shelf.cargo_mission.relationship_type_required",
-                          ),
-                        },
-                      ]}
-                      style={{ flex: 1 }}
-                    >
-                      <Select
-                        options={relationshipTypeOption}
-                        placeholder={t(
-                          "shelf.cargo_mission.select_relationship_type",
-                        )}
-                      />
-                    </Form.Item>
-                    <MinusCircleOutlined
-                      onClick={() => remove(name)}
-                      style={{ alignSelf: "center" }}
-                    />
-                  </div>
-                ))}
-                <Form.Item>
-                  <Button
-                    type="dashed"
-                    onClick={() => add()}
-                    block
-                    icon={<PlusOutlined />}
-                  >
-                    {t("shelf.cargo_mission.add_relationship")}
-                  </Button>
-                </Form.Item>
-              </>
-            )}
-          </Form.List>
-        </Form.Item>
       </Form>
     </div>
   );

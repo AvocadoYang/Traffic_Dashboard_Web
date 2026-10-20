@@ -1,6 +1,5 @@
 import { FC, useMemo, useState } from "react";
 import {
-  Button,
   Checkbox,
   Form,
   Input,
@@ -19,8 +18,6 @@ import {
   EditOutlined,
   FormatPainterOutlined,
   GoldOutlined,
-  MinusCircleOutlined,
-  PlusOutlined,
   QuestionCircleOutlined,
   ReloadOutlined,
   RightOutlined,
@@ -33,7 +30,6 @@ import useShelf from "@/api/useShelf";
 import useShelfCategory from "@/api/useShelfCategory";
 import useYaw from "@/api/useYaw";
 import useAllMissionTitles from "@/api/useMissionTitle";
-import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import { ShelfWithoutList } from "@/api/type/useShelf";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
@@ -62,7 +58,6 @@ import {
   CountNote,
   Hint,
 } from "../../ui/primitives";
-import { c } from "../../ui/tokens";
 
 type EditPayload = {
   shelfId: React.Key[];
@@ -70,7 +65,6 @@ type EditPayload = {
   load?: string;
   offload?: string;
   cargo_limit?: number;
-  relationships?: { relatedLocId: string; relationshipType: string }[];
 };
 
 const ShelfEditPanel: FC = () => {
@@ -84,7 +78,6 @@ const ShelfEditPanel: FC = () => {
   const { data: yaw } = useYaw();
   const { data: allCategory } = useShelfCategory();
   const { data: missionTitle } = useAllMissionTitles();
-  const { data: locData } = useLoc(undefined);
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   /** 單筆「調整位置」正在編輯的 Loc.id */
@@ -110,7 +103,6 @@ const ShelfEditPanel: FC = () => {
     );
   }, [shelfData, search]);
 
-  const locList = (locData ?? []) as LocWithoutArr[];
 
   /** 只有掛在 dynamic-mission 底下的任務才能當取放貨任務 */
   const misOptions = useMemo(
@@ -124,23 +116,6 @@ const ShelfEditPanel: FC = () => {
         .map((v) => ({ value: v.id, label: v.name })) ?? [],
     [missionTitle],
   );
-
-  const relationOption = useMemo(
-    () =>
-      locList
-        .filter((v) => v.areaType === "STORAGE")
-        .sort((a, b) => Number(a.locationId) - Number(b.locationId))
-        .map((v) => ({ label: v.locationId, value: v.locationId })),
-    [locList],
-  );
-
-  const relationshipTypeOption = [
-    { value: "fixed", label: t("shelf.cargo_mission.relationship_fixed") },
-    {
-      value: "non-fixed",
-      label: t("shelf.cargo_mission.relationship_non_fixed"),
-    },
-  ];
 
   const yawOf = (dirId: string | null | undefined) => {
     const hit = yaw?.find((s) => s.id === dirId);
@@ -378,7 +353,7 @@ const ShelfEditPanel: FC = () => {
                     </GhostButton>
                   </Toolbar>
 
-                  {isOpen && <ShelfConfigDetail shelf={row} locList={locList} />}
+                  {isOpen && <ShelfConfigDetail shelf={row} />}
                 </ItemCard>
               );
             })}
@@ -398,7 +373,7 @@ const ShelfEditPanel: FC = () => {
               }}
               expandable={{
                 expandedRowRender: (record) => (
-                  <ShelfConfigDetail shelf={record} locList={locList} />
+                  <ShelfConfigDetail shelf={record} />
                 ),
               }}
               pagination={{
@@ -467,79 +442,6 @@ const ShelfEditPanel: FC = () => {
             </Form.Item>
           </Field>
 
-          <FieldLabel>
-            {t("shelf.cargo_mission.relationships")}{" "}
-            <Tooltip title={t("shelf.cargo_mission.relationships_desc")}>
-              <QuestionCircleOutlined />
-            </Tooltip>
-          </FieldLabel>
-          <Form.List name="relationships">
-            {(fields, { add, remove }) => (
-              <div style={{ marginTop: 8 }}>
-                {fields.map(({ key, name, ...restField }) => (
-                  <div
-                    key={key}
-                    style={{ display: "flex", gap: 8, marginBottom: 8 }}
-                  >
-                    <Form.Item
-                      {...restField}
-                      name={[name, "relatedLocId"]}
-                      rules={[
-                        {
-                          required: true,
-                          message: t("shelf.cargo_mission.related_loc_required"),
-                        },
-                      ]}
-                      style={{ flex: 1, marginBottom: 0 }}
-                    >
-                      <Select
-                        options={relationOption}
-                        placeholder={t("shelf.cargo_mission.select_location")}
-                        showSearch={{
-                          filterOption: (input, option) =>
-                            (option?.label ?? "")
-                              .toLowerCase()
-                              .includes(input.toLowerCase()),
-                        }}
-                      />
-                    </Form.Item>
-                    <Form.Item
-                      {...restField}
-                      name={[name, "relationshipType"]}
-                      rules={[
-                        {
-                          required: true,
-                          message: t(
-                            "shelf.cargo_mission.relationship_type_required",
-                          ),
-                        },
-                      ]}
-                      style={{ flex: 1, marginBottom: 0 }}
-                    >
-                      <Select
-                        options={relationshipTypeOption}
-                        placeholder={t(
-                          "shelf.cargo_mission.select_relationship_type",
-                        )}
-                      />
-                    </Form.Item>
-                    <MinusCircleOutlined
-                      onClick={() => remove(name)}
-                      style={{ alignSelf: "center", color: c.danger }}
-                    />
-                  </div>
-                ))}
-                <Button
-                  type="dashed"
-                  onClick={() => add()}
-                  block
-                  icon={<PlusOutlined />}
-                >
-                  {t("shelf.cargo_mission.add_relationship")}
-                </Button>
-              </div>
-            )}
-          </Form.List>
         </Form>
       </Modal>
 

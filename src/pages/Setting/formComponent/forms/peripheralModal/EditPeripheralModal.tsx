@@ -6,7 +6,6 @@ import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import client from "@/api/axiosClient";
 import { useMutation } from "@tanstack/react-query";
-import { Relation } from "@/api/useLoc";
 import Config from "./Config";
 import CargoInfoAtPeripheral from "./CargoInfo";
 import { IsEditPeripheralModal, IsOpenPeripheralModal } from "./jotai";
@@ -30,7 +29,6 @@ const EditPeripheralModal: FC = () => {
       activeOffload: boolean;
       loadMissionId: string;
       offloadMissionId: string;
-      relationships: Relation;
       loadPriority: number;
       offloadPriority: number;
     }) => {
@@ -46,22 +44,12 @@ const EditPeripheralModal: FC = () => {
 
   useEffect(() => {
     if (openModal) {
-      const relationshipArray = openModal.relationships
-        ? Object.entries(openModal.relationships).map(
-            ([relatedLocId, relationshipType]) => ({
-              relatedLocId,
-              relationshipType,
-            }),
-          )
-        : [];
-
       formConfig.setFieldsValue({
         forkHeight: openModal.forkHeight,
         activeLoad: openModal.activeLoad,
         activeOffload: openModal.activeOffload,
         loadMissionId: openModal.loadMissionId,
         offloadMissionId: openModal.offloadMissionId,
-        relationships: relationshipArray,
         loadPriority: openModal.loadPriority,
         offloadPriority: openModal.offloadPriority,
       });
