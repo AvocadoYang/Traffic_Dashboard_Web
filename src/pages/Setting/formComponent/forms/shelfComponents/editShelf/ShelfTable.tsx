@@ -505,26 +505,6 @@ const ShelfTable: FC<{
                       <Descriptions.Item
                         label={
                           <Flex align="center" gap="small">
-                            <span>
-                              {t("edit_shelf_panel.placement_priority")}
-                            </span>
-                            <Tooltip
-                              title={t("shelf.cargo_mission.priority_desc")}
-                            >
-                              <InfoCircleOutlined
-                                style={{ color: "#1890ff" }}
-                              />
-                            </Tooltip>
-                          </Flex>
-                        }
-                        span={2}
-                      >
-                        {thisLocationInfo?.placement_priority ??
-                          t("utils.none")}
-                      </Descriptions.Item>
-                      <Descriptions.Item
-                        label={
-                          <Flex align="center" gap="small">
                             <span>{t("edit_shelf_panel.relationships")}</span>
                             <Tooltip
                               title={t(

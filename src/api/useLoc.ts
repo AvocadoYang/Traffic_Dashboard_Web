@@ -36,7 +36,6 @@ const getLoc = async () => {
         rotate: number().required(),
         scale: number().required(),
         flex_direction: string().required("all loc only req"),
-        placement_priority: number().required(),
         relationships: relationshipSchema.optional().nullable(),
         prepare_point: object({
           id: string().required(),
@@ -74,7 +73,6 @@ export type LocWithoutArr = {
   translateY: number;
   rotate: number;
   scale: number;
-  placement_priority: number;
   relationships: Relation;
   flex_direction: string;
   prepare_point: {

@@ -67,7 +67,6 @@ export type Conveyor_Info = {
   activeOffload: boolean;
   loadMissionId: string;
   offloadMissionId: string;
-  placement_priority: number;
   relationships: Relation;
   loadPriority: number;
   offloadPriority: number;

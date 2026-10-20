@@ -118,8 +118,6 @@ const ShelfConfigDetail: FC<Props> = ({ shelf, locList }) => {
       )}
 
       <CardFacts>
-        <dt>{t("edit_shelf_panel.placement_priority")}</dt>
-        <dd>{locInfo?.placement_priority ?? t("utils.none")}</dd>
         <dt>{t("edit_shelf_panel.relationships")}</dt>
         <dd>
           {relationships.length ? relationships.join(", ") : t("utils.none")}

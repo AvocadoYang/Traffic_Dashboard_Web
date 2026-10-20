@@ -958,9 +958,6 @@
       "prepare_point": "Prepare Point",
       "prepare_point_required": "Please select a prepare point",
       "unset": "Unset",
-      "priority": "Priority",
-      "priority_required": "Please enter a priority",
-      "priority_min": "Priority must be at least 0",
       "relationships": "Relationships",
       "add_relationship": "Add Relationship",
       "related_loc_required": "Please select a related location",
@@ -977,7 +974,6 @@
       "offload_desc": "The task that will be read when going to this storage location to release the goods",
       "yaw_desc": "This angle will be used if the sub-mission angle with rotation in dynamic_mission is set to 'Auto (Fast Mission Frame Direction)'",
       "prepare_point_desc": "When dynamic_mission is selected, if 'Automatic (preset pre-assignment point)' is specified, this location ID will be imported",
-      "priority_desc": "Set a number (0-1000) to determine the priority of this location for sending or receiving goods. Higher values ​​will take precedence over other locations with lower values. For example, when releasing goods, a destination with a priority of 20 will be released before a destination with a priority of 15. Conversely, when picking up goods, a destination with a priority of 15 will be picked up before a destination with a priority of 20",
       "relationships_desc": "Define connections to other locations for cargo placement. Select 'Fixed' for strict source-destination pairs (e.g., only to one location). Select 'Non-Fixed' for flexible placement, allowing cargo to move to backup locations if the primary is unavailable."
     },
     "layer_form": {
@@ -1021,7 +1017,6 @@
     "shelf_config": "Individual storage location information",
     "config_tooltip": "Click on the storage location on the map to edit related parameters",
     "relationships": "Relationships",
-    "placement_priority": "Priority",
     "warn": "edit shelf category might clear exist shelf data, please ask programer to when edit"
   },
   "edit_shelf_category": {

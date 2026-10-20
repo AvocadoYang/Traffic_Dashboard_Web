@@ -70,7 +70,6 @@ type EditPayload = {
   load?: string;
   offload?: string;
   cargo_limit?: number;
-  placement_priority?: number;
   relationships?: { relatedLocId: string; relationshipType: string }[];
 };
 
@@ -223,14 +222,6 @@ const ShelfEditPanel: FC = () => {
       render: (_, r) => yawOf(r.peripheral_station.source.dirId),
     },
     {
-      title: t("edit_shelf_panel.placement_priority"),
-      key: "priority",
-      width: 90,
-      render: (_, r) =>
-        locList.find((l) => l.locationId === r.peripheral_station.source.locationId)
-          ?.placement_priority ?? t("utils.none"),
-    },
-    {
       title: t("edit_shelf_panel.region_name"),
       key: "region_name",
       width: 120,
@@ -374,11 +365,6 @@ const ShelfEditPanel: FC = () => {
                     <dd>{row.ShelfCategory?.Height?.length ?? 0}</dd>
                     <dt>{t("edit_shelf_panel.yaw")}</dt>
                     <dd>{yawOf(row.peripheral_station.source.dirId)}</dd>
-                    <dt>{t("edit_shelf_panel.placement_priority")}</dt>
-                    <dd>
-                      {locList.find((l) => l.locationId === row.peripheral_station.source.locationId)
-                        ?.placement_priority ?? t("utils.none")}
-                    </dd>
                   </CardFacts>
 
                   <Toolbar>
@@ -478,36 +464,6 @@ const ShelfEditPanel: FC = () => {
             <FieldLabel>{t("edit_shelf_panel.cargo_limit")}</FieldLabel>
             <Form.Item name="cargo_limit" noStyle>
               <InputNumber style={{ width: "100%" }} />
-            </Form.Item>
-          </Field>
-
-          <Field style={{ marginTop: 12 }}>
-            <FieldLabel>
-              {t("shelf.cargo_mission.priority")}{" "}
-              <Tooltip title={t("shelf.cargo_mission.priority_desc")}>
-                <QuestionCircleOutlined />
-              </Tooltip>
-            </FieldLabel>
-            <Form.Item
-              name="placement_priority"
-              rules={[
-                {
-                  required: true,
-                  message: t("shelf.cargo_mission.priority_required"),
-                },
-                {
-                  type: "number",
-                  min: 0,
-                  message: t("shelf.cargo_mission.priority_min"),
-                },
-              ]}
-            >
-              <InputNumber
-                min={0}
-                max={100}
-                style={{ width: "100%" }}
-                placeholder="10"
-              />
             </Form.Item>
           </Field>
 

@@ -163,40 +163,6 @@ const ShelfDrawer: FC<{
                   <>
                     <Flex align="center" justify="center">
                       <Typography.Text>
-                        {t("shelf.cargo_mission.priority")}
-                      </Typography.Text>
-                      <Tooltip title={t("shelf.cargo_mission.priority_desc")}>
-                        <QuestionCircleOutlined style={{ marginLeft: 8 }} />
-                      </Tooltip>
-                    </Flex>
-                  </>
-                }
-                name="placement_priority"
-                rules={[
-                  {
-                    required: true,
-                    message: t("shelf.cargo_mission.priority_required"),
-                  },
-                  {
-                    type: "number",
-                    min: 0,
-                    message: t("shelf.cargo_mission.priority_min"),
-                  },
-                ]}
-              >
-                <InputNumber
-                  min={0}
-                  max={100}
-                  style={{ width: "100%" }}
-                  placeholder={"10"}
-                />
-              </Form.Item>
-
-              <Form.Item
-                label={
-                  <>
-                    <Flex align="center" justify="center">
-                      <Typography.Text>
                         {t("shelf.cargo_mission.relationships")}
                       </Typography.Text>
                       <Tooltip

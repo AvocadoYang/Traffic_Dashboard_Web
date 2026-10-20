@@ -5,7 +5,6 @@ import {
   FormInstance,
   Skeleton,
   Typography,
-  InputNumber,
   Button,
   Flex,
   Tooltip,
@@ -99,7 +98,6 @@ const CargoMissionForm: FC<{
     const currentLoc = info.find((v) => v.locationId === locId);
     const defaultPreparedPoint = currentLoc?.prepare_point?.id || null;
 
-    const placement_priority = currentLoc?.placement_priority || 0;
     const relationships = currentLoc?.relationships
       ? Object.entries(currentLoc.relationships).map(
           ([relatedLocId, type]) => ({
@@ -114,7 +112,6 @@ const CargoMissionForm: FC<{
       offload: offloadTask,
       yaw: shelf.Dir?.id,
       prepare_point_id: defaultPreparedPoint,
-      placement_priority,
       relationships,
     });
   }, [form, shelf, loc, locId]);
@@ -264,40 +261,6 @@ const CargoMissionForm: FC<{
             showSearch
           />
         </Form.Item> */}
-
-        <Form.Item
-          label={
-            <>
-              <Flex align="center" justify="center">
-                <Typography.Text>
-                  {t("shelf.cargo_mission.priority")}
-                </Typography.Text>
-                <Tooltip title={t("shelf.cargo_mission.priority_desc")}>
-                  <QuestionCircleOutlined style={{ marginLeft: 8 }} />
-                </Tooltip>
-              </Flex>
-            </>
-          }
-          name="placement_priority"
-          rules={[
-            {
-              required: true,
-              message: t("shelf.cargo_mission.priority_required"),
-            },
-            {
-              type: "number",
-              min: 0,
-              message: t("shelf.cargo_mission.priority_min"),
-            },
-          ]}
-        >
-          <InputNumber
-            min={0}
-            max={100}
-            style={{ width: "100%" }}
-            placeholder={"10"}
-          />
-        </Form.Item>
 
         <Form.Item
           label={

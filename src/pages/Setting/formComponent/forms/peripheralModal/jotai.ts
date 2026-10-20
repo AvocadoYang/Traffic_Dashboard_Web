@@ -12,7 +12,6 @@ export const IsEditPeripheralModal = atom<{
   activeOffload: boolean;
   loadMissionId: string;
   offloadMissionId: string;
-  placement_priority?: number;
   relationships?: Relation;
   cargo: Cargo[];
   loadPriority: number;

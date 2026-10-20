@@ -30,7 +30,6 @@ const EditPeripheralModal: FC = () => {
       activeOffload: boolean;
       loadMissionId: string;
       offloadMissionId: string;
-      placement_priority: number;
       relationships: Relation;
       loadPriority: number;
       offloadPriority: number;
@@ -62,7 +61,6 @@ const EditPeripheralModal: FC = () => {
         activeOffload: openModal.activeOffload,
         loadMissionId: openModal.loadMissionId,
         offloadMissionId: openModal.offloadMissionId,
-        placement_priority: openModal.placement_priority,
         relationships: relationshipArray,
         loadPriority: openModal.loadPriority,
         offloadPriority: openModal.offloadPriority,

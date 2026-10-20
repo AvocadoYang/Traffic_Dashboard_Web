@@ -94,7 +94,6 @@ const getLocations = async () => {
           occupier: string().optional().nullable(),
           layer: layerSchema.optional(),
           isDropping: boolean().optional(),
-          placement_priority: number().required(),
           relationships: relationshipSchema.optional().nullable(),
           lastUpdated: string().required(),
         }).required(),
