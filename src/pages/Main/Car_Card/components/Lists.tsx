@@ -25,6 +25,7 @@ import {
   MaintenanceLevel,
 } from "@/sockets/useAMRInfo";
 import { useTranslation } from "react-i18next";
+import OfflineReason from "./OfflineReason";
 import {
   CarryTag,
   ChargingTag,
@@ -390,6 +391,7 @@ export const CardHeader: React.FC<{
             )}
           </HeadSub>
         )}
+        {!compact && <OfflineReason amrId={amrId} />}
       </Head>
     );
   },

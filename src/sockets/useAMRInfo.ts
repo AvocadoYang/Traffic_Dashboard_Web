@@ -125,6 +125,8 @@ export type FleetInfo = {
   stepWaitMs?: number | null;
   /** 斷線重連後判斷不出這一動有沒有做完, 要人到現場確認; 沒有是 null */
   stepCheck?: { reason: string; since: number } | null;
+  /** 這台車為什麼離線 / 還沒上線 (後端判斷); 正常是 null */
+  offline?: OfflineInfo | null;
   destination: MissionDestination | null;
   rosStatus: string;
   rosError: string;
@@ -230,6 +232,19 @@ const schema = () =>
       doingTask: boolean().optional(),
       stepWaitMs: number().nullable().optional(),
       // 預設 null: 不然 yup 會把缺的 object 補成 {} 而被當成「要確認」
+      offline: object({
+        code: string().required(),
+        level: string().oneOf(["error", "warn"]).required(),
+        title: string().required(),
+        hint: string().required(),
+        details: array(string().required()).required(),
+        lastSeenAt: number().nullable().defined(),
+        since: number().required(),
+        carUrl: string().nullable().defined(),
+      })
+        .nullable()
+        .optional()
+        .default(null),
       stepCheck: object({
         reason: string().required(),
         since: number().required(),
@@ -1000,6 +1015,34 @@ export const useStepWaitMs = (amrId: string) => {
     return () => sub.unsubscribe();
   }, [amrId]);
   return stepWaitMs;
+};
+
+/** 車輛離線 / 還沒上線的最可能原因 (後端判斷), 給 FAE 看 */
+export type OfflineInfo = {
+  code: string;
+  level: "error" | "warn";
+  title: string;
+  hint: string;
+  details: string[];
+  lastSeenAt: number | null;
+  since: number;
+  carUrl: string | null;
+};
+
+export const useOfflineInfo = (amrId: string) => {
+  const [info, setInfo] = useState<OfflineInfo | null>(null);
+  useEffect(() => {
+    const sub = profiles$
+      .pipe(
+        map((p) => p.find((x) => x.amrId === amrId)),
+        filter(isDefined),
+        map((i) => (i.offline as OfflineInfo | null | undefined) ?? null),
+        distinctUntilChanged((pre, cur) => deepEqual(pre, cur)),
+      )
+      .subscribe(setInfo);
+    return () => sub.unsubscribe();
+  }, [amrId]);
+  return info;
 };
 
 /** 斷線重連後要人確認的這一動 (原因 + 從什麼時候開始); 沒有是 null */
