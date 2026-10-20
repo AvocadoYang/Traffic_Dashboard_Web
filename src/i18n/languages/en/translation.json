@@ -2133,6 +2133,8 @@
     "export_csv": "Export CSV",
     "filter_mission": "Filter by mission ID",
     "unknown_operator": "Unknown operator",
+    "locate": "Locate on map",
+    "locate_not_found": "Location {{id}} is not on the map being shown (it may be on another map)",
     "time": "Time",
     "amr": "AMR",
     "location": "Location",

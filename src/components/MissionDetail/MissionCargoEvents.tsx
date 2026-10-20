@@ -7,11 +7,16 @@ import useCargoByMission, {
   CargoMissionEvent,
 } from "@/api/useCargoByMission";
 import { cargoActionColor } from "./cargoAction";
+import LocateLocationLink from "@/components/LocateLocationLink";
 
 const { Text } = Typography;
 
 /** 任務 → 貨物: 這個任務取過、放過哪些貨物 */
-const MissionCargoEvents: FC<{ missionId: string }> = ({ missionId }) => {
+const MissionCargoEvents: FC<{
+  missionId: string;
+  /** 點地點定位前先做的事 (例如關掉蓋住地圖的抽屜) */
+  onLocate?: () => void;
+}> = ({ missionId, onLocate }) => {
   const { t } = useTranslation();
   const { data, isLoading } = useCargoByMission(missionId);
 
@@ -51,7 +56,9 @@ const MissionCargoEvents: FC<{ missionId: string }> = ({ missionId }) => {
     {
       title: t("cargo_history.location"),
       dataIndex: "location",
-      render: (v: string | null) => v || "-",
+      render: (v: string | null) => (
+        <LocateLocationLink location={v} onLocate={onLocate} />
+      ),
     },
     {
       title: t("cargo_history.amr"),

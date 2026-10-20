@@ -1089,7 +1089,7 @@ const MissionHistory: FC<{
 
         <DetailSection $wide>
           <h5>{t("cargo_history.cargo_events")}</h5>
-          <MissionCargoEvents missionId={record.id} />
+          <MissionCargoEvents missionId={record.id} onLocate={closeHistory} />
         </DetailSection>
 
         <DetailSection>

@@ -24,6 +24,8 @@ import { Button } from "antd";
 import { useTranslation } from "react-i18next";
 import useSearchCargoMetadata from "@/api/useSearchCargoMetadata";
 import { useReverifyCargoFormat } from "@/hooks/useReverifyCargoFormat";
+import LocateLocationLink from "@/components/LocateLocationLink";
+import { locationFromDescription } from "@/components/CanvasMap/focusLocation";
 import MissionDetailModal from "@/components/MissionDetail/MissionDetailModal";
 
 const { Text } = Typography;
@@ -542,10 +544,19 @@ const HistoryTable: FC = () => {
                                     {t("cargo_history.amr")}: <b>{h.amr_id}</b>
                                   </Text>
                                 )}
-                                {h.location && (
+                                {(h.location ||
+                                  locationFromDescription(h.description)) && (
                                   <Text>
                                     {t("cargo_history.location")}:{" "}
-                                    <b>{h.location}</b>
+                                    <b>
+                                      <LocateLocationLink
+                                        location={
+                                          h.location ||
+                                          locationFromDescription(h.description)
+                                        }
+                                        onLocate={() => setMissionId(null)}
+                                      />
+                                    </b>
                                   </Text>
                                 )}
                                 {h.mission_id ? (

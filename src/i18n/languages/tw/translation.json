@@ -2134,6 +2134,8 @@
     "export_csv": "匯出 CSV",
     "filter_mission": "以任務 ID 篩選",
     "unknown_operator": "未知的操作者",
+    "locate": "在地圖上定位",
+    "locate_not_found": "目前顯示的地圖上找不到地點 {{id}} (可能在別張地圖)",
     "time": "時間",
     "amr": "車輛",
     "location": "地點",
