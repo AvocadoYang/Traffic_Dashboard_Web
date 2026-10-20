@@ -362,6 +362,13 @@
     "force_next_step_stuck": "這一動已經等了 {{time}}, 車端可能其實做完了卻沒回報。確認車子真的做完後可以直接下一動",
     "step_wait": "等待 {{time}}",
     "step_wait_hint": "這一動等很久了, 車端可能已完成但沒回報 (可用「直接下一動」)",
+    "step_check": "要人確認",
+    "step_check_hint": "{{reason}}。請到現場確認: 做完了按「直接下一動」, 沒做完按「重送這一步」, 不做了刪除任務",
+    "force_next_step_check": "{{reason}}。確認車子真的做完這一動後, 按這裡繼續下一動",
+    "resend_step": "重送這一步",
+    "resend_step_hint": "車子沒做完這一動時使用: 先叫車放掉這一步, 再把同一個指令重新送給車",
+    "resend_step_confirm_title": "確定要重送這一步嗎?",
+    "resend_step_confirm_content": "車子會先取消目前的動作, 再從頭重做這一步。如果這一步其實已經做完 (例如貨已經叉起來或放下), 重做可能撞到或重複取放貨。請先到現場確認車子確實沒做完。",
     "charge_reset": "校正充電",
     "spin": "原地旋轉",
     "spin_hint": "車子會在目前站的點轉到目標角度。車子要閒置，而且那個點要在地圖上設定成可旋轉。",
@@ -4843,7 +4850,8 @@
   "mission_manual": {
     "title": "人工介入",
     "force_next_step": "第 {{step}} 動被手動跳過 (直接下一動)",
-    "badge": "手動跳步 {{count}} 次",
+    "resend_step": "第 {{step}} 動被手動重送 (重送這一步)",
+    "badge": "人工介入 {{count}} 次",
     "cargo_badge": "搬貨異動 {{count}} 筆"
   }
 }

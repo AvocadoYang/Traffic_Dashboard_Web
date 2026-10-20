@@ -362,6 +362,13 @@
     "force_next_step_stuck": "This step has been waiting {{time}}; the vehicle may have finished without reporting. Once you are sure it has, you can skip to the next step",
     "step_wait": "Waiting {{time}}",
     "step_wait_hint": "This step has been waiting a long time; the vehicle may have finished without reporting (you can use \"Skip to next step\")",
+    "step_check": "Needs check",
+    "step_check_hint": "{{reason}}. Check on site: if it finished, use \"Skip to next step\"; if not, use \"Resend this step\"; if the job is off, delete the mission",
+    "force_next_step_check": "{{reason}}. Once you are sure the vehicle finished this step, continue with the next one here",
+    "resend_step": "Resend this step",
+    "resend_step_hint": "Use when the vehicle did not finish this step: it drops the step first, then gets the same command again",
+    "resend_step_confirm_title": "Resend this step?",
+    "resend_step_confirm_content": "The vehicle cancels its current action and starts this step over. If the step was actually finished (cargo already picked up or put down), redoing it may cause a collision or a double pick/drop. Check on site that the vehicle really did not finish.",
     "charge_reset": "Charge reset",
     "spin": "Spin in place",
     "spin_hint": "The vehicle turns to the target yaw at the point it is standing on. It must be idle, and the point must be set as rotatable on the map.",
@@ -4842,7 +4849,8 @@
   "mission_manual": {
     "title": "Manual intervention",
     "force_next_step": "Step {{step}} was skipped manually (skip to next step)",
-    "badge": "Manually skipped {{count}}×",
+    "resend_step": "Step {{step}} was resent manually (resend this step)",
+    "badge": "Manual interventions {{count}}×",
     "cargo_badge": "{{count}} cargo movements"
   }
 }
