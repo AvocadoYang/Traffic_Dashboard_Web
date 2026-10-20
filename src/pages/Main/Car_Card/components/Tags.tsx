@@ -6,7 +6,9 @@ import {
   useIsPause,
   useIsWorking,
   usePosIsAccurate,
+  useStepWaitMs,
 } from "@/sockets/useAMRInfo";
+import { STEP_WAIT_WARN_MS, formatWait } from "../stepWait";
 import { errorHandler } from "@/utils/utils";
 import { useMutation } from "@tanstack/react-query";
 import { message } from "antd";
@@ -112,6 +114,18 @@ export const MissionTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   return (
     <StatusChip $tone={isWorking ? "success" : "off"}>
       {`${t("mode.is_mission")}`}
+    </StatusChip>
+  );
+});
+
+/** 這一動等太久了: 提示可以考慮用「直接下一動」 */
+export const StepWaitTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
+  const stepWaitMs = useStepWaitMs(amrId);
+  const { t } = useTranslation();
+  if (stepWaitMs === null || stepWaitMs < STEP_WAIT_WARN_MS) return null;
+  return (
+    <StatusChip $tone="warning" title={t("amr_card.step_wait_hint")}>
+      {t("amr_card.step_wait", { time: formatWait(stepWaitMs) })}
     </StatusChip>
   );
 });

@@ -1,6 +1,6 @@
 /* eslint-disable no-void */
 
-import { message, Tooltip } from "antd";
+import { message, Modal, Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
 import { FC, useState } from "react";
 import client from "@/api/axiosClient";
@@ -22,8 +22,11 @@ import {
   CloudSyncOutlined,
   AimOutlined,
   RotateRightOutlined,
+  StepForwardOutlined,
 } from "@ant-design/icons";
 import { isFork } from "@/utils/globalFunction";
+import { useStepWaitMs } from "@/sockets/useAMRInfo";
+import { STEP_WAIT_WARN_MS, formatWait } from "../stepWait";
 import MaintenancePanel from "./MaintenancePanel";
 import SpinModal from "./SpinModal";
 
@@ -170,6 +173,9 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
   const [isCarrierModalOpen, setIsCarrierModalOpen] = useState(false);
   const [isSpinModalOpen, setIsSpinModalOpen] = useState(false);
   const setLocalizationCorrection = useSetAtom(localizationCorrection);
+  const stepWaitMs = useStepWaitMs(amrId);
+  // 這一動等很久了, 車端可能其實做完了但沒回報: 把「直接下一動」標出來
+  const stepStuck = stepWaitMs !== null && stepWaitMs >= STEP_WAIT_WARN_MS;
 
   const manualChargeMutation = useMutation({
     mutationFn: () => {
@@ -231,6 +237,16 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
+  const forceNextStepMutation = useMutation({
+    mutationFn: () => {
+      return client.post("/api/amr/force-next-step", { amrId });
+    },
+    onSuccess: () => {
+      void messageApi.success(t("utils.success"));
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
   const updatePositionMutation = useMutation({
     mutationFn: () => {
       return client.post("api/amr/update-position", { amrId });
@@ -257,6 +273,16 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
 
   const handleDelMis = () => {
     deleteMissionMutation.mutate();
+  };
+
+  // 會略過車端完成訊號, 所以先跟操作員確認車子真的做完了
+  const handleForceNextStep = () => {
+    Modal.confirm({
+      title: t("amr_card.force_next_step_confirm_title"),
+      content: t("amr_card.force_next_step_confirm_content"),
+      okButtonProps: { danger: true },
+      onOk: () => forceNextStepMutation.mutateAsync().catch(() => undefined),
+    });
   };
 
   const handleForceDelMis = () => {
@@ -308,6 +334,26 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
               <FireOutlined />
               {t("amr_card.force_delete_mission")}
             </ActionButton>
+
+            <Tooltip
+              title={
+                stepStuck
+                  ? t("amr_card.force_next_step_stuck", {
+                      time: formatWait(stepWaitMs),
+                    })
+                  : t("amr_card.force_next_step_hint")
+              }
+              placement="bottom"
+            >
+              <ActionButton
+                type="button"
+                $tone={stepStuck ? "primary" : "warning"}
+                onClick={() => handleForceNextStep()}
+              >
+                <StepForwardOutlined />
+                {t("amr_card.force_next_step")}
+              </ActionButton>
+            </Tooltip>
 
             {isFork(amrId) && (
               <ActionButton

@@ -1,11 +1,12 @@
 import { theme as antdTheme, type ThemeConfig } from "antd";
 import type { Theme } from "./palettes";
+import { scaledPx } from "./fontScale";
 
 // antd 的 token 只能吃真實色碼,不能吃 var(--c-xxx):它會拿這些值去算 hover、
 // active、disabled 的衍生色(TinyColor),餵 var() 進去會算出 NaN。
 // 所以 styled-components 那條路走 CSS 變數,antd 這條路走這裡的真實 hex,
 // 兩邊的來源都是同一份 palette,不會各走各的。
-export const buildAntdTheme = (theme: Theme): ThemeConfig => {
+export const buildAntdTheme = (theme: Theme, fontScale = 1): ThemeConfig => {
   const c = theme.colors;
   return {
     // 深色主題要換演算法,否則 antd 自己算出來的彈窗、下拉、disabled 底色
@@ -29,7 +30,7 @@ export const buildAntdTheme = (theme: Theme): ThemeConfig => {
       colorBgLayout: c.bgSubtle,
       borderRadius: 2,
       fontFamily: `"Roboto Mono", ui-monospace, monospace`,
-      fontSize: 13,
+      fontSize: scaledPx(13, fontScale),
       controlHeight: 32,
     },
     components: {
@@ -91,7 +92,7 @@ export const buildAntdTheme = (theme: Theme): ThemeConfig => {
  * 真正的價值在深色主題:algorithm 換成 darkAlgorithm 之後,首頁的表格、下拉、
  * 彈窗才不會在深色底上開出一塊白。
  */
-export const buildAppAntdTheme = (theme: Theme): ThemeConfig => {
+export const buildAppAntdTheme = (theme: Theme, fontScale = 1): ThemeConfig => {
   const c = theme.colors;
   return {
     algorithm:
@@ -110,6 +111,8 @@ export const buildAppAntdTheme = (theme: Theme): ThemeConfig => {
       colorBgContainer: c.bg,
       colorBgElevated: c.bg,
       colorBgLayout: c.bgSubtle,
+      // 字體大小是個人偏好; 原本大小 (1) 時不設, 保持 antd 預設
+      ...(fontScale !== 1 ? { fontSize: scaledPx(14, fontScale) } : {}),
     },
     components: {
       // 同 buildAntdTheme:亮色強調色上面放白字 / 白勾會看不清楚(終端機綠、藍圖黃…)

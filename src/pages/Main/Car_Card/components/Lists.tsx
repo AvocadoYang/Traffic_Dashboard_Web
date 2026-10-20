@@ -34,6 +34,7 @@ import {
   MiR_Error,
   MissionTag,
   PowerTag,
+  StepWaitTag,
 } from "./Tags";
 import useRoadConditions from "@/sockets/useAmrRoadConditions";
 import useMapList from "@/api/useMapList";
@@ -812,6 +813,7 @@ export const CarTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   return (
     <TagWrap $offline={isOverdue}>
       <MissionTag amrId={amrId} />
+      {!isOverdue && <StepWaitTag amrId={amrId} />}
       <CarryTag amrId={amrId} />
       <ChargingTag amrId={amrId} />
       <PowerTag amrId={amrId} />

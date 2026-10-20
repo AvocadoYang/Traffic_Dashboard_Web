@@ -1,4 +1,6 @@
-import { FC, MutableRefObject, ReactNode, RefObject, memo, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef } from "react";
+import { FC, MutableRefObject, ReactNode, RefObject, memo, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { message } from "antd";
+import { useTranslation } from "react-i18next";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import styled from "styled-components";
 import useMap from "@/api/useMap";
@@ -30,9 +32,11 @@ import { isDarkColor } from "@/theme/mapImage";
 import { buildScene } from "./scene";
 import { createLiveStore, LiveStore } from "./liveStore";
 import { AmrHit, drawBase, drawLive, Frame } from "./draw";
-import { MapView, initialView, wheelFactor, zoomTo } from "./view";
+import { MapView, clampScale, initialView, wheelFactor, zoomTo } from "./view";
 import { amrAt, nearbyPoints, nearbyRoads, nearestPoint, pauseSignAt, pointAt, roadAt } from "./hitTest";
 import MapOverlay, { hiddenZoneIdsAtom, pauseHintAtom } from "./MapOverlay";
+import FocusMarker from "./FocusMarker";
+import { FOCUS_MARKER_MS, FOCUS_MIN_SCALE, FOCUS_REQUEST_TTL_MS, focusLocationRequest } from "./focusLocation";
 
 /**
  * 用 canvas 畫的地圖 (首頁 main-v2 用; 之後 setting-v3 也用這個)。
@@ -105,6 +109,8 @@ export type CanvasMapApi = {
   locationClientPos: (locationId: string) => { x: number; y: number } | null;
   /** 離這個位置最近的點位, 不限距離; 位置不在地圖範圍內就 null */
   nearestPointAt: (clientX: number, clientY: number) => string | null;
+  /** 目前視角: 畫面中心在底圖上的位置 (像素) + 縮放; 個人設定的「預設視角」存這個 */
+  currentView: () => { mapId: string; scale: number; cx: number; cy: number } | null;
 };
 
 type Props = {
@@ -118,6 +124,11 @@ type Props = {
   leftButtonPans?: boolean;
   /** 畫車、點雲 (舊設定頁沒有車) */
   showAmrs?: boolean;
+  /**
+   * 開地圖 / 按「回原位」時用的視角 (個人設定存的), 地圖 id 對得上才用;
+   * 沒給就照地圖設定的初始視角
+   */
+  preferredView?: { mapId: string; scale: number; cx: number; cy: number } | null;
   /** 標註不看工具列的「顯示標註」開關一律畫 (舊設定頁也是) */
   alwaysShowAnnotations?: boolean;
   /** 標註不要畫在畫布上 (設定頁編輯標註時改用 DOM 版, 才能拖曳) */
@@ -146,6 +157,7 @@ const CanvasMap: FC<Props> = ({
   overlay,
   leftButtonPans = true,
   showAmrs = true,
+  preferredView,
   alwaysShowAnnotations = false,
   hideAnnotations = false,
   mapImageRef,
@@ -187,6 +199,12 @@ const CanvasMap: FC<Props> = ({
   }>({ pointId: null, roadId: null, amrId: null, pause: false, nearby: NO_IDS });
 
   const [scale, setScale] = useAtom(Scale);
+  const { t } = useTranslation();
+  const [focusReq, setFocusReq] = useAtom(focusLocationRequest);
+  /** 定位完成後停幾秒的箭頭 (底圖像素) */
+  const [focusMarker, setFocusMarker] = useState<{ x: number; y: number; key: number } | null>(null);
+  /** 取消進行中的定位動畫 (使用者自己滾輪 / 拖曳時) */
+  const cancelFocusRef = useRef<(() => void) | null>(null);
   /** 最後一次由畫布自己寫進 Scale atom 的值, 用來分辨 atom 的變動是不是自己造成的 */
   const writtenScaleRef = useRef<number | null>(null);
   const cm = useAtomValue(centerMap);
@@ -399,9 +417,25 @@ const CanvasMap: FC<Props> = ({
     [redrawAll, setScale],
   );
 
+  const preferredViewRef = useRef(preferredView);
+  preferredViewRef.current = preferredView;
+
   const resetView = useCallback(() => {
     const { width, height } = sizeRef.current;
     if (!data || !width || !height) return;
+    const pref = preferredViewRef.current;
+    if (pref && String(pref.mapId) === String(data.mapId)) {
+      const apply = () => {
+        const size = sizeRef.current;
+        const scale = clampScale(pref.scale);
+        setView({ scale, x: size.width / 2 - pref.cx * scale, y: size.height / 2 - pref.cy * scale }, true);
+      };
+      apply();
+      // Header / 首頁在地圖載入時會把 Scale 設回地圖的預設縮放 (同一輪 effect, 比這裡晚),
+      // 等它們跑完再套一次, 存的縮放才不會被蓋掉
+      setTimeout(apply, 0);
+      return;
+    }
     setView(initialView(data, width, height), true);
   }, [data, setView]);
 
@@ -427,6 +461,14 @@ const CanvasMap: FC<Props> = ({
     observer.observe(wrap);
     return () => observer.disconnect();
   }, [resetView, redrawAll, isLoading, isError]);
+
+  // 個人設定的預設視角通常比地圖晚到 (要等 /api/profile/me), 到了先套一次
+  const preferredApplied = useRef(false);
+  useEffect(() => {
+    if (!preferredView || preferredApplied.current || !viewRef.current) return;
+    preferredApplied.current = true;
+    resetView();
+  }, [preferredView, resetView]);
 
   // 換地圖 (底圖網址變了) 或按「地圖置中」: 回到預設視角
   const imageUrl = data?.imageUrl;
@@ -458,6 +500,7 @@ const CanvasMap: FC<Props> = ({
 
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
+      cancelFocusRef.current?.();
       const view = viewRef.current;
       if (!view) return;
       const p = local(e);
@@ -487,6 +530,7 @@ const CanvasMap: FC<Props> = ({
     };
 
     const onDown = (e: PointerEvent) => {
+      cancelFocusRef.current?.();
       // 新的一次按下: 上一次拖曳留下的「吃掉下一個 click」不算數
       // (中鍵拖曳放開時瀏覽器不發 click, 不清掉的話會吃掉之後真正的點擊)
       if (pointers.size === 0) suppressClick = false;
@@ -720,6 +764,84 @@ const CanvasMap: FC<Props> = ({
     [setFilterIds, setForbiddenIds],
   );
 
+  // 在地圖上定位: 把點位移到畫面中央並放大, 再用箭頭指幾秒
+  useEffect(() => {
+    if (!focusReq) return;
+    if (Date.now() - focusReq.at > FOCUS_REQUEST_TTL_MS) {
+      setFocusReq(null);
+      return;
+    }
+    if (!scene || !data) return;
+
+    let tries = 0;
+    let timer = 0;
+    const run = () => {
+      const view = viewRef.current;
+      const { width, height } = sizeRef.current;
+      // 剛進首頁時畫布還沒量好大小、視角也可能被預設視角蓋掉, 等一下再做
+      if (!view || !width || !height) {
+        if (++tries < 20) timer = window.setTimeout(run, 100);
+        else setFocusReq(null);
+        return;
+      }
+      setFocusReq(null);
+      const loc = data.locations.find((l) => String(l.locationId) === focusReq.locationId);
+      if (!loc) {
+        void message.warning(t("cargo_history.locate_not_found", { id: focusReq.locationId }));
+        return;
+      }
+      const [px, py] = scene.toPx(loc.x, loc.y);
+      const targetScale = clampScale(Math.max(view.scale, FOCUS_MIN_SCALE));
+      const target: MapView = { scale: targetScale, x: width / 2 - px * targetScale, y: height / 2 - py * targetScale };
+
+      cancelFocusRef.current?.();
+      setFocusMarker(null);
+      // 縮放用倍率內插、中心點用線性內插, 看起來是順順地飛過去
+      const c0 = { x: (width / 2 - view.x) / view.scale, y: (height / 2 - view.y) / view.scale };
+      const startedAt = performance.now();
+      const DURATION = 600;
+      let raf = 0;
+      let cancelled = false;
+      const step = (now: number) => {
+        if (cancelled) return;
+        const p = Math.min(1, (now - startedAt) / DURATION);
+        const e = 1 - Math.pow(1 - p, 3);
+        const s = view.scale * Math.pow(targetScale / view.scale, e);
+        const cx = c0.x + (px - c0.x) * e;
+        const cy = c0.y + (py - c0.y) * e;
+        setView({ scale: s, x: width / 2 - cx * s, y: height / 2 - cy * s }, p === 1);
+        if (p < 1) {
+          raf = requestAnimationFrame(step);
+          return;
+        }
+        cancelFocusRef.current = null;
+        setView(target, true);
+        setFocusMarker({ x: px, y: py, key: focusReq.at });
+      };
+      cancelFocusRef.current = () => {
+        cancelled = true;
+        cancelAnimationFrame(raf);
+        cancelFocusRef.current = null;
+      };
+      raf = requestAnimationFrame(step);
+    };
+    // 先等 400ms: 首頁剛載入時 Header / 預設視角會再設一次 Scale 和視角
+    timer = window.setTimeout(run, 400);
+    return () => window.clearTimeout(timer);
+  }, [focusReq, scene, data, setFocusReq, setView, t]);
+
+  // 箭頭停幾秒就拿掉
+  useEffect(() => {
+    if (!focusMarker) return;
+    const timer = window.setTimeout(() => setFocusMarker(null), FOCUS_MARKER_MS);
+    return () => window.clearTimeout(timer);
+  }, [focusMarker]);
+
+  // 換了地圖, 舊地圖上的箭頭不該留著
+  useEffect(() => {
+    setFocusMarker(null);
+  }, [data?.mapId]);
+
   // 給外面用的 hit-test
   useEffect(() => {
     if (!apiRef) return;
@@ -728,6 +850,17 @@ const CanvasMap: FC<Props> = ({
       return rect ? { x: clientX - rect.left, y: clientY - rect.top } : null;
     };
     apiRef.current = {
+      currentView: () => {
+        const view = viewRef.current;
+        const { width, height } = sizeRef.current;
+        if (!view || !data || !width || !height) return null;
+        return {
+          mapId: String(data.mapId),
+          scale: view.scale,
+          cx: (width / 2 - view.x) / view.scale,
+          cy: (height / 2 - view.y) / view.scale,
+        };
+      },
       pointAt: (clientX, clientY) => {
         const view = viewRef.current;
         const o = optsRef.current;
@@ -792,6 +925,7 @@ const CanvasMap: FC<Props> = ({
       <TransformLayer ref={overlayLayerRef}>
         {scene ? <MapOverlay scene={scene} /> : null}
         {overlay}
+        {focusMarker ? <FocusMarker key={focusMarker.key} x={focusMarker.x} y={focusMarker.y} scale={scale} /> : null}
       </TransformLayer>
     </Wrap>
   );

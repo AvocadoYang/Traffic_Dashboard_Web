@@ -48,8 +48,6 @@ const CargoModal: FC = () => {
       loadId: payload.load,
       offloadId: payload.offload,
       prepare_point_id: payload.prepare_point_id,
-      placement_priority: payload.placement_priority,
-      relationships: payload.relationships,
       layer: { ...layerPayload, isEditLayer },
     };
 

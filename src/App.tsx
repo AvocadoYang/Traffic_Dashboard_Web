@@ -20,6 +20,8 @@ import OperationReport from "./pages/OperationReport/OperationReport";
 import SimulateV2Gate from "./pages/SimulateV2/SimulateV2Gate";
 import MainV2 from "./pages/MainV2/MainV2";
 import SettingV3 from "./pages/SettingV3/SettingV3";
+import Profile from "./pages/Profile/Profile";
+import UserSession from "./components/UserSession/UserSession";
 import { ThemeVarsProvider, ThemedAppConfigProvider } from "./theme";
 import { useTranslation } from "react-i18next";
 
@@ -44,7 +46,12 @@ function App() {
       return <Navigate to="/login" replace />;
     }
 
-    return <Outlet />;
+    return (
+      <>
+        <UserSession />
+        <Outlet />
+      </>
+    );
   };
 
   // const ipcHandle = (): void => window.electron.ipc.send('ping')
@@ -98,6 +105,7 @@ function App() {
                 <Route path="/amr" element={<AmrList />} />
                 <Route path="/amr/:amrId" element={<AmrDetail />} />
                 <Route path="/report" element={<OperationReport />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="*" element={<h1>{t("utils.not_found")}</h1>} />
               </Route>
             </Routes>

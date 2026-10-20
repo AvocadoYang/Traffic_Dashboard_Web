@@ -4,8 +4,11 @@ import {
   UploadOutlined,
   SyncOutlined,
   RocketOutlined,
+  StarOutlined,
 } from "@ant-design/icons";
-import { Button, Flex } from "antd";
+import { Button, Dropdown, Flex, Modal } from "antd";
+import { useNavigate } from "react-router-dom";
+import { useFavoriteMissions } from "./FavoriteMissionBar";
 import { useTranslation } from "react-i18next";
 import { DialogMission } from "../../missionModal";
 import { memo, useState } from "react";
@@ -42,9 +45,15 @@ const MissionBtn = () => {
   const [showCycleMission, setShowCycleMission] = useState(false);
   const [showEditCycleMission, setShowEditCycleMission] = useState(false);
   const [editCyc, setEditCyc] = useState<null | Cycle>(null);
+  // 常用任務 (個人設定 > 常用任務)
+  const navigate = useNavigate();
+  const { favorites, run, busy, contextHolder } = useFavoriteMissions();
+  const [modal, modalHolder] = Modal.useModal();
 
   return (
     <>
+      {contextHolder}
+      {modalHolder}
       <ButtonGroup align="center">
         <NavStyleButton
           onClick={() => {
@@ -81,6 +90,39 @@ const MissionBtn = () => {
         >
           {t("main.card_name.new_mission")}
         </NavStyleButton>
+
+        {favorites.length > 0 && (
+          <Dropdown
+            trigger={["click"]}
+            menu={{
+              items: [
+                ...favorites.map(({ fav, name, title }) => ({
+                  key: fav.id,
+                  label: name,
+                  title,
+                  disabled: busy === fav.id,
+                })),
+                { type: "divider" as const },
+                { key: "__manage", label: t("profile.favorites.manage") },
+              ],
+              onClick: ({ key }) => {
+                if (key === "__manage") {
+                  navigate("/profile?tab=favorites");
+                  return;
+                }
+                const item = favorites.find((x) => x.fav.id === key);
+                if (!item) return;
+                modal.confirm({
+                  title: t("profile.favorites.confirm", { name: item.name }),
+                  content: item.fav.amrId ? `${t("utils.amr_id")}: ${item.fav.amrId}` : t("utils.random"),
+                  onOk: () => run(item.fav),
+                });
+              },
+            }}
+          >
+            <NavStyleButton icon={<StarOutlined />}>{t("profile.tab.favorites")}</NavStyleButton>
+          </Dropdown>
+        )}
 
         {/* <NavStyleButton
           onClick={() => {
