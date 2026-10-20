@@ -359,6 +359,9 @@
     "force_next_step_hint": "車端其實已經做完、但系統還在等完成訊號時使用",
     "force_next_step_confirm_title": "確定要直接下一動嗎?",
     "force_next_step_confirm_content": "不會等車端的完成訊號, 直接把目前這一動當成已完成, 並發下一動給車子。請先確認車子真的已經做完目前動作, 否則可能發生碰撞或貨物掉落。",
+    "force_next_step_stuck": "這一動已經等了 {{time}}, 車端可能其實做完了卻沒回報。確認車子真的做完後可以直接下一動",
+    "step_wait": "等待 {{time}}",
+    "step_wait_hint": "這一動等很久了, 車端可能已完成但沒回報 (可用「直接下一動」)",
     "charge_reset": "校正充電",
     "spin": "原地旋轉",
     "spin_hint": "車子會在目前站的點轉到目標角度。車子要閒置，而且那個點要在地圖上設定成可旋轉。",
@@ -2129,6 +2132,8 @@
     "action_filter": "動作",
     "auto_refresh": "自動更新 (30 秒)",
     "export_csv": "匯出 CSV",
+    "filter_mission": "以任務 ID 篩選",
+    "unknown_operator": "未知的操作者",
     "time": "時間",
     "amr": "車輛",
     "location": "地點",
@@ -4833,5 +4838,11 @@
       "password_mismatch": "兩次輸入的密碼不一樣",
       "delete_confirm": "刪除帳號 {{account}}?"
     }
+  },
+  "mission_manual": {
+    "title": "人工介入",
+    "force_next_step": "第 {{step}} 動被手動跳過 (直接下一動)",
+    "badge": "手動跳步 {{count}} 次",
+    "cargo_badge": "搬貨異動 {{count}} 筆"
   }
 }

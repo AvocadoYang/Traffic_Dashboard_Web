@@ -1,6 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import client from "./axiosClient";
 
+export type MissionManualAction = {
+  id: string;
+  created_at: string;
+  action: string;
+  step_idx: number | null;
+  step_label: string | null;
+  account: string | null;
+  ip: string | null;
+  client_name: string | null;
+};
+
 export type MissionDetail = {
   id: string;
   amrId: string;
@@ -19,6 +30,7 @@ export type MissionDetail = {
   cancel_reason: number | null;
   info: string | null;
   message: string | null;
+  manual_actions: MissionManualAction[];
 };
 
 // data 為 null 代表任務紀錄已不存在 (被清掉), 不是錯誤

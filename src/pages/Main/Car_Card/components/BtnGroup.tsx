@@ -25,6 +25,8 @@ import {
   StepForwardOutlined,
 } from "@ant-design/icons";
 import { isFork } from "@/utils/globalFunction";
+import { useStepWaitMs } from "@/sockets/useAMRInfo";
+import { STEP_WAIT_WARN_MS, formatWait } from "../stepWait";
 import MaintenancePanel from "./MaintenancePanel";
 import SpinModal from "./SpinModal";
 
@@ -171,6 +173,9 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
   const [isCarrierModalOpen, setIsCarrierModalOpen] = useState(false);
   const [isSpinModalOpen, setIsSpinModalOpen] = useState(false);
   const setLocalizationCorrection = useSetAtom(localizationCorrection);
+  const stepWaitMs = useStepWaitMs(amrId);
+  // 這一動等很久了, 車端可能其實做完了但沒回報: 把「直接下一動」標出來
+  const stepStuck = stepWaitMs !== null && stepWaitMs >= STEP_WAIT_WARN_MS;
 
   const manualChargeMutation = useMutation({
     mutationFn: () => {
@@ -330,10 +335,19 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
               {t("amr_card.force_delete_mission")}
             </ActionButton>
 
-            <Tooltip title={t("amr_card.force_next_step_hint")} placement="bottom">
+            <Tooltip
+              title={
+                stepStuck
+                  ? t("amr_card.force_next_step_stuck", {
+                      time: formatWait(stepWaitMs),
+                    })
+                  : t("amr_card.force_next_step_hint")
+              }
+              placement="bottom"
+            >
               <ActionButton
                 type="button"
-                $tone="warning"
+                $tone={stepStuck ? "primary" : "warning"}
                 onClick={() => handleForceNextStep()}
               >
                 <StepForwardOutlined />

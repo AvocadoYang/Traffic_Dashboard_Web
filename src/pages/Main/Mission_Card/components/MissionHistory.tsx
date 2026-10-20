@@ -46,6 +46,7 @@ import { useRejectMission } from "@/sockets/useRejectMission";
 import { CancelReason, MissionStatus } from "@/types/mission";
 import I18nCancelReason from "@/i18n/I18nCancelReason";
 import MissionCargoEvents from "@/components/MissionDetail/MissionCargoEvents";
+import MissionManualActions from "@/components/MissionDetail/MissionManualActions";
 import { useMutation } from "@tanstack/react-query";
 import { Dayjs } from "dayjs";
 import client from "@/api/axiosClient";
@@ -88,6 +89,9 @@ interface Mission {
   message?: string;
   full_name?: string[];
   category?: string[];
+  /** 搬過幾筆貨 / 人工介入 (直接下一動) 幾次 */
+  cargoCount: number;
+  manualCount: number;
 }
 
 enum Send_By {
@@ -858,6 +862,16 @@ const MissionHistory: FC<{
                 <I18nCancelReason reason={record.cancel_reason} />
               </MutedText>
             )}
+            {record.manualCount > 0 && (
+              <MutedText $tone="warning">
+                {t("mission_manual.badge", { count: record.manualCount })}
+              </MutedText>
+            )}
+            {record.cargoCount > 0 && (
+              <MutedText>
+                {t("mission_manual.cargo_badge", { count: record.cargoCount })}
+              </MutedText>
+            )}
             {status === MissionStatus.WAITING && record.message && (
               <MutedText $tone="warning">{record.message}</MutedText>
             )}
@@ -1065,6 +1079,13 @@ const MissionHistory: FC<{
             })}
           </Timeline>
         </DetailSection>
+
+        {record.manualCount > 0 && (
+          <DetailSection $wide>
+            <h5>{t("mission_manual.title")}</h5>
+            <MissionManualActions missionId={record.id} />
+          </DetailSection>
+        )}
 
         <DetailSection $wide>
           <h5>{t("cargo_history.cargo_events")}</h5>

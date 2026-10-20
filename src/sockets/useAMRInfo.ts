@@ -121,6 +121,8 @@ export type FleetInfo = {
     recovery: boolean;
   };
   doingTask: boolean;
+  /** 目前這一動已經做了多久 (ms), 沒有任務是 null */
+  stepWaitMs?: number | null;
   destination: MissionDestination | null;
   rosStatus: string;
   rosError: string;
@@ -224,6 +226,7 @@ const schema = () =>
 
       rosError: string().optional(),
       doingTask: boolean().optional(),
+      stepWaitMs: number().nullable().optional(),
       isPause: boolean().optional(),
       rosStatus: string().optional(),
       arriveInit: boolean().optional().default(false),
@@ -965,6 +968,28 @@ export const useIsWorking = (amrId: string) => {
   }, [amrId]);
 
   return { isWorking };
+};
+
+/** 這一動已經等了多久 (ms); 沒有任務是 null。每 0.5 秒會更新一次 */
+export const useStepWaitMs = (amrId: string) => {
+  const [stepWaitMs, setStepWaitMs] = useState<number | null>(null);
+  useEffect(() => {
+    const sub = profiles$
+      .pipe(
+        map((p) => p.find((x) => x.amrId === amrId)),
+        filter(isDefined),
+        map((info) => info.stepWaitMs ?? null),
+        // 只在「秒」變的時候才更新畫面
+        distinctUntilChanged(
+          (pre, cur) =>
+            pre === cur ||
+            (pre !== null && cur !== null && Math.floor(pre / 1000) === Math.floor(cur / 1000)),
+        ),
+      )
+      .subscribe(setStepWaitMs);
+    return () => sub.unsubscribe();
+  }, [amrId]);
+  return stepWaitMs;
 };
 
 export const useSpeed = (amrId: string, timeoutMs: number = 5000) => {

@@ -359,6 +359,9 @@
     "force_next_step_hint": "Use when the vehicle has actually finished but the system is still waiting for its done signal",
     "force_next_step_confirm_title": "Skip to the next step?",
     "force_next_step_confirm_content": "This will not wait for the vehicle's done signal. The current step is treated as finished and the next step is sent to the vehicle. Make sure the vehicle has really completed the current action, otherwise it may collide or drop its cargo.",
+    "force_next_step_stuck": "This step has been waiting {{time}}; the vehicle may have finished without reporting. Once you are sure it has, you can skip to the next step",
+    "step_wait": "Waiting {{time}}",
+    "step_wait_hint": "This step has been waiting a long time; the vehicle may have finished without reporting (you can use \"Skip to next step\")",
     "charge_reset": "Charge reset",
     "spin": "Spin in place",
     "spin_hint": "The vehicle turns to the target yaw at the point it is standing on. It must be idle, and the point must be set as rotatable on the map.",
@@ -2128,6 +2131,8 @@
     "action_filter": "Action",
     "auto_refresh": "Auto refresh (30s)",
     "export_csv": "Export CSV",
+    "filter_mission": "Filter by mission ID",
+    "unknown_operator": "Unknown operator",
     "time": "Time",
     "amr": "AMR",
     "location": "Location",
@@ -4832,5 +4837,11 @@
       "password_mismatch": "The passwords don't match",
       "delete_confirm": "Delete account {{account}}?"
     }
+  },
+  "mission_manual": {
+    "title": "Manual intervention",
+    "force_next_step": "Step {{step}} was skipped manually (skip to next step)",
+    "badge": "Manually skipped {{count}}×",
+    "cargo_badge": "{{count}} cargo movements"
   }
 }

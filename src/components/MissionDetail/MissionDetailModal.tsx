@@ -6,6 +6,7 @@ import useMissionDetail from "@/api/useMissionDetail";
 import I18nCancelReason from "@/i18n/I18nCancelReason";
 import { MissionStatus } from "@/types/mission";
 import MissionCargoEvents from "./MissionCargoEvents";
+import MissionManualActions from "./MissionManualActions";
 
 const { Text, Title } = Typography;
 
@@ -129,6 +130,15 @@ const MissionDetailModal: FC<{
               message={mission.message}
             />
           )}
+        </>
+      )}
+
+      {mission && mission.manual_actions.length > 0 && (
+        <>
+          <Title level={5} style={{ marginTop: 20 }}>
+            {t("mission_manual.title")}
+          </Title>
+          <MissionManualActions missionId={mission.id} />
         </>
       )}
 

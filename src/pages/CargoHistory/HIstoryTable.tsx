@@ -119,7 +119,13 @@ const HistoryTable: FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 20;
   const [metadataSearch, setMetadataSearch] = useState("");
-  const { data, refetch, isFetching } = useCargoHistory(currentPage, pageSize);
+  // 任務 ID 是後端篩選, 跨頁都找得到 (其他篩選只作用在目前載入的這一頁)
+  const [missionFilter, setMissionFilter] = useState("");
+  const { data, refetch, isFetching } = useCargoHistory(
+    currentPage,
+    pageSize,
+    missionFilter.trim() || undefined
+  );
   const { data: searchData } = useSearchCargoMetadata(metadataSearch);
 
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
@@ -156,12 +162,20 @@ const HistoryTable: FC = () => {
     [baseRows, statusFilter, actionFilter, range]
   );
 
-  const hasFilter = !!(statusFilter || actionFilter || range || metadataSearch);
+  const hasFilter = !!(
+    statusFilter ||
+    actionFilter ||
+    range ||
+    metadataSearch ||
+    missionFilter
+  );
   const resetFilters = () => {
     setStatusFilter(undefined);
     setActionFilter(undefined);
     setRange(null);
     setMetadataSearch("");
+    setMissionFilter("");
+    setCurrentPage(1);
   };
 
   const countBy = (st: CargoCurrentStatus) =>
@@ -370,6 +384,16 @@ const HistoryTable: FC = () => {
                   v && v[0] && v[1] ? [v[0].valueOf(), v[1].valueOf()] : null
                 )
               }
+            />
+            <Input
+              placeholder={t("cargo_history.filter_mission")}
+              value={missionFilter}
+              onChange={(e) => {
+                setMissionFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              style={{ width: 280 }}
+              allowClear
             />
             <Input
               placeholder={t("cargo_history.search_metadata")}
