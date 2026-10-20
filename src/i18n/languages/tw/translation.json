@@ -790,7 +790,6 @@
     "ip": "電梯 IP (選填)",
     "invalid_ip_address": "IP 格式錯誤",
     "wait_point": "等待點",
-    "is_waiting_point": "是否為等待點",
     "wait_area": "等待點（所屬作業區）",
     "wait_area_placeholder": "不是等待點",
     "wait_area_none": "還沒有作業區，先到「設備 → 作業區」新增。",

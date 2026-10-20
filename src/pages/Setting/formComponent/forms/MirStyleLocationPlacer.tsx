@@ -1,6 +1,6 @@
 import { RefObject, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Button, Input, InputNumber, message, Select, Switch } from "antd";
+import { Button, Input, InputNumber, message, Select } from "antd";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import styled from "styled-components";
@@ -53,7 +53,6 @@ type Pending = {
   name: string;
   markerFor?: MarkerFor;
   ip?: string;
-  isWaitingPoint: boolean;
 };
 
 const Toolbar = styled.div`
@@ -225,7 +224,6 @@ const MirStyleLocationPlacer: React.FC<{
       rotation: number;
       map_id: string;
       ip?: string;
-      is_waiting_poiont: boolean;
     }) => client.post("api/setting/save-edit-loc", payload),
     onSuccess: () => {
       void messageApi.success(t("mir_placer.created"));
@@ -282,7 +280,6 @@ const MirStyleLocationPlacer: React.FC<{
         x: rx,
         y: ry,
         orientation: 0,
-        isWaitingPoint: false,
         name: TYPE_OPTIONS.find((t) => t.value === type)?.label ?? "",
       });
       setPanelPos(DEFAULT_PANEL_POS);
@@ -409,7 +406,6 @@ const MirStyleLocationPlacer: React.FC<{
       canRotate: true,
       rotation: pending.orientation,
       map_id: currentMapId,
-      is_waiting_poiont: pending.isWaitingPoint,
       ...(MARKER_FOR_CAPABLE_TYPES.has(pending.areaType) &&
       pending.markerFor === "ELEVATOR"
         ? { ip: pending.ip?.trim() }
@@ -524,19 +520,6 @@ const MirStyleLocationPlacer: React.FC<{
               onChange={(v) =>
                 setPending((prev) =>
                   prev ? { ...prev, orientation: Number(v ?? 0) } : prev,
-                )
-              }
-            />
-          </div>
-          <div>
-            <FieldLabel>{t("edit_location_panel.is_waiting_point")}</FieldLabel>
-            <Switch
-              checkedChildren="true"
-              unCheckedChildren="false"
-              checked={pending.isWaitingPoint}
-              onChange={(v) =>
-                setPending((prev) =>
-                  prev ? { ...prev, isWaitingPoint: v } : prev,
                 )
               }
             />

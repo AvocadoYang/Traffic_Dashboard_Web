@@ -790,7 +790,6 @@
     "ip": "Elevator IP (optional)",
     "invalid_ip_address": "Invalid IP address format",
     "wait_point": "Wait point",
-    "is_waiting_point": "Is waiting point",
     "wait_area": "Wait point (work area)",
     "wait_area_placeholder": "Not a wait point",
     "wait_area_none": "No work area yet. Add one under Device → Work Areas first.",
