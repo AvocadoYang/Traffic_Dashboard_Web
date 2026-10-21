@@ -684,6 +684,7 @@
       "name_table": "Device Name Table",
       "group_table": "Device Area Table",
       "stack_batch_edit": "Stack Batch Edit",
+      "dispatch_strategy": "Dispatch Strategy",
       "conveyor_dispatch": "Conveyor Dispatch",
       "transfer_rules": "Area Transfer",
       "work_areas": "Work Areas"
@@ -3799,6 +3800,23 @@
     "reservation_item": "Station {{stationId}} kept for {{forAmrId}} (swapped out {{fromAmrId}}), {{time}} left",
     "swap_ok": "{{fromAmrId}} gave {{stationId}} to {{forAmrId}} and was sent to standby",
     "swap_failed": "Tried to swap {{fromAmrId}} out for {{forAmrId}}, did not: {{reason}}"
+  },
+  "dispatch_strategy": {
+    "title": "Dispatch Strategy",
+    "mode": "Dispatch mode",
+    "fifo": "First come, first served",
+    "fifo_hint": "A new mission goes to the nearest idle vehicle; when all vehicles are busy, the first vehicle to become idle takes the oldest mission, regardless of distance. The original behaviour.",
+    "batch": "Global matching",
+    "batch_hint": "Whenever a mission is created or a vehicle becomes idle, idle vehicles and queued missions are matched together so that the total empty driving time is the shortest.",
+    "aging": "Waiting weight",
+    "aging_unit": "s per minute waited",
+    "aging_hint": "Waiting weight: every minute a mission has waited counts as this many seconds closer to a vehicle. Higher keeps creation order, lower prefers missions on the way.",
+    "max_wait": "Maximum wait",
+    "max_wait_unit": "min",
+    "max_wait_hint": "Maximum wait: missions that have waited longer than this go first within the same priority. 0 = no limit.",
+    "common_hint": "Both modes: higher-priority missions go first; designated vehicles, work-area queues, charging queues and vehicle status rules apply as before.",
+    "last_round": "Last round {{time}}: {{cars}} idle vehicles, {{missions}} queued missions, {{assigned}} dispatched, {{failed}} failed",
+    "last_round_none": "No matching yet (it runs when there are idle vehicles and queued missions)"
   },
   "time_condition": {
     "days": "Weekdays",

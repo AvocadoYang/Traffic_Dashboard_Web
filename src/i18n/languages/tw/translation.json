@@ -684,6 +684,7 @@
       "name_table": "設備名稱表",
       "group_table": "設備群組表",
       "stack_batch_edit": "Stack 批次編輯",
+      "dispatch_strategy": "派車策略",
       "conveyor_dispatch": "輸送帶派送",
       "transfer_rules": "區域搬運",
       "work_areas": "作業區"
@@ -3800,6 +3801,23 @@
     "reservation_item": "充電站 {{stationId}} 留給 {{forAmrId}} (從 {{fromAmrId}} 換出來), 還剩 {{time}}",
     "swap_ok": "{{fromAmrId}} 讓出 {{stationId}} 給 {{forAmrId}}, 已派回待命點",
     "swap_failed": "想讓 {{fromAmrId}} 讓位給 {{forAmrId}}, 沒換: {{reason}}"
+  },
+  "dispatch_strategy": {
+    "title": "派車策略",
+    "mode": "派車方式",
+    "fifo": "先來先派",
+    "fifo_hint": "新任務找最近的空車; 車都在忙時, 哪台車先空下來就接排最前面的任務 (不看距離)。原本的做法",
+    "batch": "全域配對",
+    "batch_hint": "每次有新任務或車空下來, 把空車和排隊中的任務一起算, 讓空車開過去的總時間最短",
+    "aging": "等待權重",
+    "aging_unit": "秒 / 每等 1 分鐘",
+    "aging_hint": "等待權重: 任務每多等 1 分鐘, 就當作離車子近這麼多秒。調大比較照建立順序派, 調小比較挑順路的。",
+    "max_wait": "最久等待",
+    "max_wait_unit": "分鐘",
+    "max_wait_hint": "最久等待: 等超過這個時間的任務, 同優先度內一律先派。0 = 不限。",
+    "common_hint": "兩種方式都一樣: 優先度高的任務先派; 指定車、作業區排隊、充電排隊、車況的限制照舊。",
+    "last_round": "上一輪 {{time}}: 空車 {{cars}} 台、排隊 {{missions}} 筆, 派出 {{assigned}} 筆, 沒派成 {{failed}} 筆",
+    "last_round_none": "還沒有配對過 (有空車和排隊中的任務時才會配)"
   },
   "time_condition": {
     "days": "星期",
