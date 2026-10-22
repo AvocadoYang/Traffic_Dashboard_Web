@@ -100,7 +100,7 @@ const ControlSequence: FC<Props> = ({
               <OrderBadge>{idx + 1}</OrderBadge>
               <RowName>{controlLabel(control)}</RowName>
               {hasControlFields(control) ? null : (
-                <CountNote>NO PARAMS</CountNote>
+                <CountNote>{t("setting_v2.empty.params")}</CountNote>
               )}
               <IconBar>
                 <Tooltip title={t("mission.task_form_fork.move_up")}>
@@ -147,7 +147,7 @@ const ControlSequence: FC<Props> = ({
               </GhostButton>
             ))}
           </Toolbar>
-          <Hint>同一個控制項可以重複加,順序就是車輛執行的順序。</Hint>
+          <Hint>{t("setting_v2.mission.control_sequence_hint")}</Hint>
         </>
       )}
     </>

@@ -30,7 +30,8 @@ const HoverLabelWrapper = styled.div.attrs<{
   pointer-events: none;
 `;
 
-//#9cb4c8 #02ddff
+// 路線的顏色跟著主題走(theme/palettes.ts 的 map* 那一組)。
+// 被車佔用時的顏色是那台車自己的代表色,不是主題色。
 const Line = styled.div.attrs<{
   length: number;
   angle: number;
@@ -59,7 +60,7 @@ const Line = styled.div.attrs<{
       border:
         $isClaimed || $isOnHover
           ? `0.5px solid ${color}`
-          : `${priority === 1 ? "0.5px solid #ff9646" : "0.5px solid #02ddff"}`,
+          : `${priority === 1 ? "0.5px solid var(--c-map-road-priority)" : "0.5px solid var(--c-map-road)"}`,
     },
   }),
 )<{
@@ -74,6 +75,21 @@ const Line = styled.div.attrs<{
   transform-origin: top left;
 
   cursor: pointer;
+
+  /* 被車佔用的路線用的是那台車的代表色,有深有淺。底圖跟著深色主題變深時,
+     深色的會看不到,所以補一點淺色的光暈。
+     (「祖先 &」的區塊裡不能直接寫跟 props 有關的值,先存成變數再取。) */
+  --claimed-glow: ${({ $isClaimed }) =>
+    $isClaimed ? "0 0 2px rgba(255, 255, 255, 0.85)" : "none"};
+
+  [data-map-canvas="dark"] & {
+    box-shadow: var(--claimed-glow);
+  }
+
+  /* 深色主題配原圖(白底)時,❶ 這種標記不能用主題的淺色字 */
+  [data-theme-mode="dark"][data-map-canvas="light"] & {
+    color: #1c1c1c;
+  }
 
   :hover {
     height: 6px;
@@ -91,7 +107,7 @@ const Line = styled.div.attrs<{
       ::before {
         border-style: solid;
         border-width: 2px 2px 0 0;
-        border-color: #f0c381;
+        border-color: var(--c-map-road-arrow);
         height: 5px;
         margin-top: -3.2px;
         margin-left: 50%;
@@ -129,7 +145,9 @@ const Road: FC<{
 }) => {
   const ref = useRef(null);
 
-  const [simulateColor, setSimulateColor] = useState("#ff9646");
+  const [simulateColor, setSimulateColor] = useState(
+    "var(--c-map-road-priority)",
+  );
   const length = Math.hypot(x1 - x2, y1 - y2);
   const angle = rad2Deg(Math.atan2(y2 - y1, x2 - x1));
   const script = useMockInfo();
@@ -139,9 +157,9 @@ const Road: FC<{
   useEffect(() => {
     if (!script) return;
     if (script.isSimulate) {
-      setSimulateColor("#ff9646");
+      setSimulateColor("var(--c-map-road-priority)");
     } else {
-      setSimulateColor("#ff9646");
+      setSimulateColor("var(--c-map-road-priority)");
     }
   }, [script]);
 

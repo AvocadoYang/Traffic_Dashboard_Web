@@ -15,7 +15,12 @@ import {
   EditStackConfig,
   IsOpenStackModal,
 } from "@/pages/Setting/formComponent/forms/peripheralModal/jotai";
-import { ESC, ESM } from "@/pages/Setting/utils/settingJotai";
+import { CargoPanelTarget } from "@/components/CargoPanel/state";
+import {
+  editHalfPanelStyle,
+  editSubPanelStyle,
+  EDIT_TITLE_COLOR,
+} from "../editModalStyle";
 
 const { Title } = Typography;
 
@@ -23,17 +28,14 @@ const CargoInfoAtPeripheral: FC<{ form: FormInstance<unknown> }> = ({
   form,
 }) => {
   const { t } = useTranslation();
-  const setOpenContainerModal = useSetAtom(ESC);
-  const setOpenContainer = useSetAtom(ESM);
+  const openCargoPanel = useSetAtom(CargoPanelTarget);
   const openModal = useAtomValue(EditStackConfig);
   const setOpen = useSetAtom(IsOpenStackModal);
 
+  // 貨物改用跟主畫面同一個面板編輯
   const setOpenEditCargoDetailModal = () => {
-    setOpenContainer({
-      locationId: openModal?.stationId as string,
-      isOpen: true,
-    });
-    setOpenContainerModal(true);
+    if (!openModal?.stationId) return;
+    openCargoPanel({ type: "STACK", locationId: openModal.stationId });
     setOpen(false);
   };
 
@@ -49,34 +51,20 @@ const CargoInfoAtPeripheral: FC<{ form: FormInstance<unknown> }> = ({
 
   return (
     <>
-      <div
-        style={{
-          width: "50%",
-          background: "#fff",
-          padding: "24px",
-          borderRadius: 8,
-          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-          maxHeight: "70vh",
-          overflowY: "auto",
-        }}
-      >
+      <div style={editHalfPanelStyle}>
         <Form
           form={form}
           layout="vertical"
           size="large"
           initialValues={{ isEdit: false }}
         >
-          <Title level={3} style={{ marginBottom: "24px", color: "#1890ff" }}>
+          <Title
+            level={3}
+            style={{ marginBottom: "24px", color: EDIT_TITLE_COLOR }}
+          >
             {t("shelf.layer_form.layers")}
           </Title>
-          <div
-            style={{
-              marginBottom: "24px",
-              padding: "16px",
-              background: "#f5f5f5",
-              borderRadius: 6,
-            }}
-          >
+          <div style={editSubPanelStyle}>
             <Title
               level={4}
               style={{ marginBottom: "16px" }}
@@ -97,7 +85,10 @@ const CargoInfoAtPeripheral: FC<{ form: FormInstance<unknown> }> = ({
               name={`disable`}
               valuePropName="checked"
             >
-              <Switch checkedChildren="On" unCheckedChildren="Off" />
+              <Switch
+                checkedChildren={t("utils.on")}
+                unCheckedChildren={t("utils.off")}
+              />
             </Form.Item>
             <Flex align="center" gap="middle">
               <Button onClick={() => setOpenEditCargoDetailModal()}>

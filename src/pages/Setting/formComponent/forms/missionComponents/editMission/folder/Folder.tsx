@@ -2,6 +2,7 @@ import useMissionFolder from "@/api/useMissionFolder";
 import { FolderOutlined, FolderOpenOutlined } from "@ant-design/icons";
 import { FC } from "react";
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 
 const FolderList = styled.div`
   display: flex;
@@ -106,6 +107,7 @@ const Folder: FC<{
   selected: string;
   handleFilterFolder: (v: string) => void;
 }> = ({ selected, handleFilterFolder }) => {
+  const { t } = useTranslation();
   const { data: folders } = useMissionFolder();
 
   return (
@@ -117,7 +119,7 @@ const Folder: FC<{
         >
           <FolderName $isSelected={selected === ""}>
             {selected === "" ? <FolderOpenOutlined /> : <FolderOutlined />}
-            All
+            {t("setting_v2.all")}
           </FolderName>
         </FolderItem>
         {folders && folders.length > 0

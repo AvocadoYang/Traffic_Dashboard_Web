@@ -15,7 +15,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";
-import useAllMissionTitlesDetail from "@/api/useMissionTitleDetail";
+import useAllMissionTitlesDetail, {
+  MTType,
+} from "@/api/useMissionTitleDetail";
 import useMissionFolder from "@/api/useMissionFolder";
 import { currentMapIdAtom } from "@/utils/mapSelection";
 import { Err } from "@/utils/responseErr";
@@ -26,6 +28,7 @@ import FolderChips from "./FolderChips";
 import FolderEditorModal from "./FolderEditorModal";
 import MissionMetaModal from "./MissionMetaModal";
 import MissionTaskView from "./MissionTaskView";
+import MissionTransfer from "./MissionTransfer";
 import {
   PanelShell,
   Section,
@@ -260,11 +263,12 @@ const EditMissionPanel: FC = () => {
             <ReloadOutlined />
             {t("utils.reload")}
           </GhostButton>
+          <MissionTransfer missions={rows as unknown as MTType} />
           <UpgradeTaskFormat />
         </Toolbar>
 
         {rows.length === 0 ? (
-          <EmptyState>NO MISSIONS</EmptyState>
+          <EmptyState>{t("setting_v2.empty.missions")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (
@@ -317,7 +321,7 @@ const EditMissionPanel: FC = () => {
               pagination={{
                 pageSize: 15,
                 showSizeChanger: true,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>

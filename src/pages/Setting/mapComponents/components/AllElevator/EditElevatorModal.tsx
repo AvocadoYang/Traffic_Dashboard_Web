@@ -11,6 +11,8 @@ import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import useElevatorInfo from "@/api/useElevatorInfo";
+import { editModalBodyStyle } from "../editModalStyle";
+import PeripheralIdentity from "../PeripheralIdentity";
 
 const EditElevatorModal: FC = () => {
   const [formLeft] = Form.useForm();
@@ -91,15 +93,18 @@ const EditElevatorModal: FC = () => {
     <>
       {contextHolder}
       <Modal
+        title={
+          open.locationId ? (
+            <PeripheralIdentity locationId={open.locationId} />
+          ) : null
+        }
         width={1530}
-        styles={{
-          body: { padding: "24px", background: "#fafafa" },
-        }}
+        styles={{ body: editModalBodyStyle }}
         open={open.isOpen}
         onCancel={handleCancel}
         onOk={handleOk}
       >
-        <Flex>
+        <Flex gap={16}>
           <LeftSide form={formLeft} />
           <RightSide form={formRight} locationId={open.locationId as string} />
         </Flex>

@@ -603,7 +603,7 @@ const ChargePanel: FC<{
       },
     },
     {
-      title: "Actions",
+      title: t("utils.action"),
       dataIndex: "action",
       key: "action",
       width: 300,
@@ -616,7 +616,7 @@ const ChargePanel: FC<{
               icon={<EditOutlined />}
               size="small"
             >
-              Edit
+              {t("utils.edit")}
             </IndustrialButton>
             {record.active ? (
               <IndustrialButton
@@ -631,7 +631,7 @@ const ChargePanel: FC<{
                 icon={<CloseCircleOutlined />}
                 size="small"
               >
-                Stop
+                {t("utils.stop")}
               </IndustrialButton>
             ) : (
               <IndustrialButton
@@ -646,27 +646,27 @@ const ChargePanel: FC<{
                 icon={<PlayCircleOutlined />}
                 size="small"
               >
-                Start
+                {t("utils.start")}
               </IndustrialButton>
             )}
             <Popconfirm
-              title="Delete charge mission?"
-              description="Are you sure you want to delete this charge mission?"
+              title={t("confirm.delete_charge_mission")}
+              description={t("confirm.delete_charge_mission_desc")}
               onConfirm={() =>
                 handleDelete(
                   record.id,
                   record.amr.map((v) => v.fullName),
                 )
               }
-              okText="Yes"
-              cancelText="No"
+              okText={t("utils.yes")}
+              cancelText={t("utils.no")}
             >
               <IndustrialButton
                 className="delete-btn"
                 icon={<DeleteOutlined />}
                 size="small"
               >
-                Delete
+                {t("utils.delete")}
               </IndustrialButton>
             </Popconfirm>
           </Flex>
@@ -710,7 +710,7 @@ const ChargePanel: FC<{
               pageSize: 10,
               showTotal: (total, range) => (
                 <span style={{ fontFamily: "Roboto Mono, monospace" }}>
-                  {range[0]}-{range[1]} of {total}
+                  {range[0]}-{range[1]} {t("utils.of")} {total}
                 </span>
               ),
             }}
@@ -730,8 +730,8 @@ const ChargePanel: FC<{
           open={open}
           onOk={() => handleSave()}
           onCancel={handleCancel}
-          okText="Save"
-          cancelText="Cancel"
+          okText={t("utils.save")}
+          cancelText={t("utils.cancel")}
           confirmLoading={saveMutation.isLoading}
         >
           <ChargeForm form={form} selectKey={selectKey} />

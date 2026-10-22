@@ -6,7 +6,6 @@ import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import client from "@/api/axiosClient";
 import { useMutation } from "@tanstack/react-query";
-import { Relation } from "@/api/useLoc";
 import { PeripheralTypes } from "@/types/peripheral";
 import {
   IsOpenStackModal,
@@ -14,6 +13,7 @@ import {
 } from "@/pages/Setting/formComponent/forms/peripheralModal/jotai";
 import Config from "./Config";
 import CargoInfoAtPeripheral from "./CargoInfo";
+import PeripheralIdentity from "../PeripheralIdentity";
 
 const EditStackModal: FC = () => {
   const [editStack, setEditStack] = useAtom(EditStackConfig);
@@ -71,7 +71,7 @@ const EditStackModal: FC = () => {
 
   const handleSubmit = async () => {
     if (!editStack) {
-      messageApi.warning("the station not found");
+      messageApi.warning(t("utils.station_not_found"));
       return;
     }
 
@@ -90,7 +90,11 @@ const EditStackModal: FC = () => {
     <>
       {contextHolder}
       <Modal
-        title={null}
+        title={
+          editStack ? (
+            <PeripheralIdentity locationId={editStack.stationId} />
+          ) : null
+        }
         open={open}
         onCancel={handleCancel}
         centered
@@ -105,7 +109,7 @@ const EditStackModal: FC = () => {
           </Button>
         }
       >
-        <Flex>
+        <Flex gap={16}>
           <Config formConfig={formConfig} />
           <CargoInfoAtPeripheral form={formCargo} />
         </Flex>

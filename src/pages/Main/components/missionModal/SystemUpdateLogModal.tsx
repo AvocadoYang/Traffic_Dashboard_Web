@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Modal, Flex } from "antd";
 import styled from "styled-components";
 import { BulbOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
 
 
 type LogType = "feature" | "fix" | "improvement";
@@ -57,11 +58,11 @@ const FilterBar = styled.div`
   align-items: center;
   gap: 8px;
   padding: 12px 0 16px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--c-bg-muted);
 `;
 
 const FilterLabel = styled.span`
-  color: #8c8c8c;
+  color: var(--c-text-muted);
   font-size: 10px;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -69,9 +70,9 @@ const FilterLabel = styled.span`
 `;
 
 const FilterButton = styled.button<{ active: boolean }>`
-  background: ${({ active }) => (active ? "#1890ff" : "#fff")};
-  border: 1px solid ${({ active }) => (active ? "#1890ff" : "#d9d9d9")};
-  color: ${({ active }) => (active ? "#fff" : "#8c8c8c")};
+  background: ${({ active }) => (active ? "var(--c-header-accent)" : "#fff")};
+  border: 1px solid ${({ active }) => (active ? "var(--c-header-accent)" : "var(--c-header-border)")};
+  color: ${({ active }) => (active ? "#fff" : "var(--c-text-muted)")};
   font-family: "Roboto Mono", monospace;
   font-size: 10px;
   letter-spacing: 1px;
@@ -81,9 +82,9 @@ const FilterButton = styled.button<{ active: boolean }>`
   transition: all 0.2s;
 
   &:hover {
-    background: ${({ active }) => (active ? "#40a9ff" : "#f0f5ff")};
-    border-color: #1890ff;
-    color: ${({ active }) => (active ? "#fff" : "#1890ff")};
+    background: ${({ active }) => (active ? "var(--c-header-accent)" : "var(--c-header-accent-soft)")};
+    border-color: var(--c-header-accent);
+    color: ${({ active }) => (active ? "#fff" : "var(--c-header-accent)")};
   }
 `;
 
@@ -93,12 +94,12 @@ const LogList = styled.div`
 `;
 
 const LogRow = styled.div`
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--c-bg-muted);
   padding: 14px 4px;
   transition: background 0.15s;
 
   &:hover {
-    background: #f0f5ff;
+    background: var(--c-header-accent-soft);
   }
 
   &:last-child {
@@ -107,9 +108,9 @@ const LogRow = styled.div`
 `;
 
 const VersionBadge = styled.span`
-  background: #e6f7ff;
-  border: 1px solid #1890ff;
-  color: #1890ff;
+  background: var(--c-header-accent-soft);
+  border: 1px solid var(--c-header-accent);
+  color: var(--c-header-accent);
   font-size: 10px;
   font-weight: 700;
   padding: 1px 8px;
@@ -128,37 +129,37 @@ const TypeBadge = styled.span<{ type: LogType }>`
   ${({ type }) =>
     type === "feature" &&
     `
-    background: #f6ffed;
-    border: 1px solid #52c41a;
-    color: #52c41a;
+    background: var(--c-success-soft);
+    border: 1px solid var(--c-success);
+    color: var(--c-success);
   `}
 
   ${({ type }) =>
     type === "fix" &&
     `
-    background: #fff1f0;
-    border: 1px solid #ff4d4f;
-    color: #ff4d4f;
+    background: var(--c-danger-soft);
+    border: 1px solid var(--c-danger);
+    color: var(--c-danger);
   `}
 
   ${({ type }) =>
     type === "improvement" &&
     `
-    background: #fff7e6;
-    border: 1px solid #fa8c16;
-    color: #fa8c16;
+    background: var(--c-warning-soft);
+    border: 1px solid var(--c-warning);
+    color: var(--c-warning);
   `}
 `;
 
 const DateText = styled.span`
-  color: #bfbfbf;
+  color: var(--c-text-muted);
   font-size: 10px;
   letter-spacing: 1px;
   font-family: "Roboto Mono", monospace;
 `;
 
 const DescriptionText = styled.div`
-  color: #262626;
+  color: var(--c-text);
   font-size: 12px;
   letter-spacing: 0.5px;
   font-family: "Roboto Mono", monospace;
@@ -170,12 +171,12 @@ const Footer = styled.div`
   align-items: center;
   justify-content: space-between;
   padding-top: 12px;
-  border-top: 1px solid #d9d9d9;
+  border-top: 1px solid var(--c-header-border);
   margin-top: 4px;
 `;
 
 const EntryCount = styled.span`
-  color: #8c8c8c;
+  color: var(--c-text-muted);
   font-size: 10px;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -185,12 +186,12 @@ const EntryCount = styled.span`
 const StatusDot = styled.div`
   width: 6px;
   height: 6px;
-  background: #52c41a;
+  background: var(--c-success);
   border-radius: 50%;
 `;
 
 const StatusText = styled.span`
-  color: #52c41a;
+  color: var(--c-success);
   font-size: 10px;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -198,26 +199,28 @@ const StatusText = styled.span`
 `;
 
 
-const ModalTitle = () => (
+const ModalTitle = () => {
+  const { t } = useTranslation();
+  return (
   <Flex align="center" gap={10}>
-    <div style={{ width: 10, height: 10, background: "#1890ff" }} />
+    <div style={{ width: 10, height: 10, background: "var(--c-header-accent)" }} />
     <span
       style={{
         fontFamily: "'Roboto Mono', monospace",
         letterSpacing: 2,
         fontSize: 13,
-        color: "#1890ff",
+        color: "var(--c-header-accent)",
         fontWeight: 700,
         textTransform: "uppercase",
       }}
     >
-      System Update Log
+      {t("update_log.title")}
     </span>
     <span
       style={{
-        background: "#e6f7ff",
-        border: "1px solid #1890ff",
-        color: "#1890ff",
+        background: "var(--c-header-accent-soft)",
+        border: "1px solid var(--c-header-accent)",
+        color: "var(--c-header-accent)",
         fontSize: 10,
         fontWeight: 700,
         padding: "1px 8px",
@@ -229,11 +232,13 @@ const ModalTitle = () => (
     </span>
   </Flex>
 );
+};
 
 
 type FilterType = "all" | LogType;
 
 const SystemUpdateLogModal = () => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<FilterType>("all");
 
@@ -241,10 +246,10 @@ const SystemUpdateLogModal = () => {
     filter === "all" ? LOG_DATA : LOG_DATA.filter((e) => e.type === filter);
 
   const filters: { label: string; value: FilterType }[] = [
-    { label: "All", value: "all" },
-    { label: "Feature", value: "feature" },
-    { label: "Fix", value: "fix" },
-    { label: "Improvement", value: "improvement" },
+    { label: t("update_log.filter_all"), value: "all" },
+    { label: t("update_log.feature"), value: "feature" },
+    { label: t("update_log.fix"), value: "fix" },
+    { label: t("update_log.improvement"), value: "improvement" },
   ];
 
   return (
@@ -253,9 +258,9 @@ const SystemUpdateLogModal = () => {
       <button
         onClick={() => setOpen(true)}
         style={{
-          background: "#fff",
-          border: "1px solid #1890ff",
-          color: "#1890ff",
+          background: "var(--c-bg)",
+          border: "1px solid var(--c-header-accent)",
+          color: "var(--c-header-accent)",
           fontFamily: "'Roboto Mono', monospace",
           fontSize: 11,
           letterSpacing: 1,
@@ -265,7 +270,7 @@ const SystemUpdateLogModal = () => {
         }}
       >
         <BulbOutlined style={{ marginRight: 6 }} />
-        Update Log
+        {t("update_log.button")}
       </button>
 
       <Modal
@@ -276,14 +281,14 @@ const SystemUpdateLogModal = () => {
         width={640}
         styles={{
           header: {
-            borderBottom: "2px solid #1890ff",
+            borderBottom: "2px solid var(--c-header-accent)",
             paddingBottom: 14,
           },
         }}
       >
     
         <FilterBar>
-          <FilterLabel>Filter:</FilterLabel>
+          <FilterLabel>{t("update_log.filter")}</FilterLabel>
           {filters.map(({ label, value }) => (
             <FilterButton
               key={value}
@@ -314,11 +319,16 @@ const SystemUpdateLogModal = () => {
  
         <Footer>
           <EntryCount>
-            {filtered.length} entr{filtered.length === 1 ? "y" : "ies"}
+            {t(
+              filtered.length === 1
+                ? "update_log.entry_single"
+                : "update_log.entry_multiple",
+              { count: filtered.length },
+            )}
           </EntryCount>
           <Flex align="center" gap={8}>
             <StatusDot />
-            <StatusText>System nominal</StatusText>
+            <StatusText>{t("update_log.system_nominal")}</StatusText>
           </Flex>
         </Footer>
       </Modal>

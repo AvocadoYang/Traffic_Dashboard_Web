@@ -313,7 +313,8 @@ const Sider: React.FC<{
   const [showSound, setShowSound] = useAtom(isShowSound);
 
   const { data: configFlags } = useConfigFlags();
-  const hasMir = configFlags?.hasMir ?? true;
+  // 還沒拿到 (或拿失敗) 時當成沒有 MiR, 沒有 MiR 的案場不會先閃出 MiR 選單
+  const hasMir = configFlags?.hasMir ?? false;
   const [collapsed, setCollapsed] = useState(false);
   const [activeCategoryKey, setActiveCategoryKey] = useState<string | null>(
     null,
@@ -620,18 +621,18 @@ const Sider: React.FC<{
             checked={openEditLocationPanel}
           />,
         ),
-        // getItem(
-        //   t("toolbar.location.quick_edit_locations"),
-        //   "1-2",
-        //   <Switch
-        //     onChange={(checked) =>
-        //       handleShowPanel(checked, "quick_location_panel")
-        //     }
-        //     checked={quickEditLocationPanel}
-        //   />,
-        // ),
         getItem(
-          "MiR 風格打點",
+          t("toolbar.location.quick_edit_locations"),
+          "1-2",
+          <Switch
+            onChange={(checked) =>
+              handleShowPanel(checked, "quick_location_panel")
+            }
+            checked={quickEditLocationPanel}
+          />,
+        ),
+        getItem(
+          t("setting_v2.nav.mir_placer"),
           "1-3",
           <Switch
             onChange={(checked) => setOpenMirStyleLocationPlacer(checked)}

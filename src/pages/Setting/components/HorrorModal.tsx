@@ -1,6 +1,7 @@
 import { Modal } from "antd";
 import styled, { createGlobalStyle } from "styled-components";
 import { FC, ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 // 1. 引入恐怖風格字體 (Google Fonts)
 const HorrorFontImport = createGlobalStyle`
@@ -165,9 +166,10 @@ const HorrorModal: FC<HorrorModalProps> = ({
   children,
   onOk,
   onCancel,
-  okText = "確認",
-  cancelText = "取消",
+  okText,
+  cancelText,
 }) => {
+  const { t } = useTranslation();
   return (
     <>
       <HorrorFontImport />
@@ -183,10 +185,10 @@ const HorrorModal: FC<HorrorModalProps> = ({
         className="horror-modal-content"
         footer={[
           <HorrorButton key="cancel" onClick={onCancel}>
-            {cancelText}
+            {cancelText ?? t("utils.cancel")}
           </HorrorButton>,
           <HorrorButton key="ok" onClick={onOk}>
-            {okText}
+            {okText ?? t("utils.confirm")}
           </HorrorButton>,
         ]}
       >

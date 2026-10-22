@@ -8,52 +8,61 @@ import {
   message,
   Tooltip,
   Select,
-  Avatar,
   Dropdown,
-  Segmented,
+  Badge,
+  Space,
+  type MenuProps,
 } from "antd";
 import "./component.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import { memo, useEffect, useState } from "react";
 import {
   MenuOutlined,
-  UserOutlined,
+  SettingOutlined,
+  MessageOutlined,
+  DesktopOutlined,
+  LogoutOutlined,
   PoweroffOutlined,
   ClockCircleOutlined,
   AppstoreOutlined,
-  ToolOutlined,
+  SendOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { AmrFilterCarCard, centerMap, darkMode, Scale } from "@/utils/gloable";
+import { AmrFilterCarCard, centerMap, Scale } from "@/utils/gloable";
 import { useMutation } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { errorHandler } from "@/utils/utils";
 import { ErrorResponse } from "@/utils/globalType";
 import useName from "@/api/useAmrName";
-import StartSimModal from "@/pages/SimulateResult/StartSimModal";
+import StartSimModal from "@/components/StartSimModal";
+import useUiConfig from "@/api/useUiConfig";
 import { useMockInfo } from "@/sockets/useMockInfo";
 import styled from "styled-components";
 import { mq } from "@/styles/responsive";
-import { useTimelineSocket } from "@/sockets/useTimelineSocket";
 import dayjs from "dayjs";
 import MissionBtn from "@/pages/Main/components/WebView/components/MissionBtn";
 import HaStatusWidget from "@/pages/Main/components/HaStatusWidget";
-import ChangePasswordModal from "./ChangePasswordModal";
-import CreateUserModel from "./CreateUserModel";
-import { jwtDecode } from "jwt-decode";
+import ClientNameModal from "./ClientNameModal";
+import { getClientName } from "@/utils/clientIdentity";
+import { UserAvatar as ProfileAvatar } from "@/components/UserAvatar/UserAvatar";
+import { useMyProfile, useShiftNotes } from "@/api/useProfile";
+import { getToken, logout, tokenAccount } from "@/utils/session";
 import SimTime from "./SimTime";
 import DirectMove from "@/pages/Main/components/missionModal/DirectMove";
 import ZoomPad from "@/pages/Main/components/WebView/components/ZoomPad";
 import useMap from "@/api/useMap";
-import { headerNavItemBase, headerNavItemActive } from "@/styles/headerNavItemStyle";
+import {
+  headerNavItemBase,
+  headerNavItemActive,
+} from "@/styles/headerNavItemStyle";
 
 const { Header: AntdHeader } = Layout;
 
 const IndustrialHeader = styled(AntdHeader)`
   && {
-    background: #ffffff;
-    /* border-bottom: 3px solid #1890ff; */
+    background: var(--c-header-bg);
+    /* border-bottom: 3px solid var(--c-header-accent); */
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -71,7 +80,7 @@ const IndustrialHeader = styled(AntdHeader)`
     left: 0;
     right: 0;
     height: 1px;
-    // background: linear-gradient(90deg, transparent, #1890ff, transparent);
+    // background: linear-gradient(90deg, transparent, var(--c-header-accent), transparent);
   }
 `;
 
@@ -116,9 +125,76 @@ const ActionsBar = styled(Flex)`
 `;
 
 // 導覽選單跟 HA/任務工具列不再同時擠在同一排,改成一次只顯示一排,
-// 用這顆切換要看哪一排,兩排都用不到的空間就還給彼此。
-const RowSwitch = styled(Segmented)`
+// 用這組分頁切換要看哪一排,兩排都用不到的空間就還給彼此。
+//
+// 原本是一顆只有兩個小圖示的 Segmented:目標太小不好點,也看不出哪個圖示是什麼。
+// 改成兩個有字的分頁,而且整條 header 的高度都點得到(見 RowTab 的 ::before)。
+const RowTabs = styled.div`
+  display: inline-flex;
   flex-shrink: 0;
+  align-items: stretch;
+  height: var(--control-height);
+  background: var(--c-bg-subtle);
+  border: 1px solid var(--c-header-border);
+  border-radius: 4px;
+`;
+
+const RowTab = styled.button<{ $active: boolean }>`
+  all: unset;
+  box-sizing: border-box;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 var(--space-md);
+  font-family: "Roboto Mono", monospace;
+  font-size: var(--font-sm);
+  font-weight: 600;
+  /* header 本身的 line-height 是整條的高度,不重設的話字會被撐到框外 */
+  line-height: 1;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  color: ${({ $active }) =>
+    $active ? "var(--c-header-accent)" : "var(--c-header-text)"};
+  background: ${({ $active }) =>
+    $active ? "var(--c-header-accent-soft)" : "transparent"};
+  /* 跟導覽項目選中時一樣,底下一條強調色 */
+  box-shadow: ${({ $active }) =>
+    $active ? "inset 0 -2px 0 var(--c-header-accent)" : "none"};
+  transition:
+    color 0.2s,
+    background 0.2s;
+
+  & + & {
+    border-left: 1px solid var(--c-header-border);
+  }
+
+  .anticon {
+    font-size: var(--icon-size);
+  }
+
+  /* 看起來只有一般控制項那麼高,但可以點的範圍往上下延伸到整條 header,
+     滑鼠甩到畫面最上緣也點得到 */
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc((var(--control-height) - var(--header-height)) / 2);
+    bottom: calc((var(--control-height) - var(--header-height)) / 2);
+  }
+
+  &:hover {
+    color: var(--c-header-accent);
+    background: var(--c-header-accent-soft);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--c-header-accent);
+    outline-offset: 2px;
+  }
 `;
 
 const IndustrialMenu = styled(Menu)`
@@ -148,9 +224,9 @@ const SimulationStatus = styled.div`
   align-items: center;
   gap: var(--space-md);
   padding: var(--space-sm) var(--space-lg);
-  /* background: #fff1f0; */
-  /* border: 2px solid #ff4d4f; */
-  /* border-left: 4px solid #ff4d4f; */
+  /* background: var(--c-danger-soft); */
+  /* border: 2px solid var(--c-danger); */
+  /* border-left: 4px solid var(--c-danger); */
   font-family: "Roboto Mono", monospace;
   box-shadow: inset 0 0 20px rgba(255, 77, 79, 0.05);
 
@@ -161,16 +237,16 @@ const SimulationStatus = styled.div`
 
 const StatusLabel = styled.span`
   font-size: var(--font-xs);
-  color: #ff4d4f;
+  color: var(--c-danger);
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: 700;
 `;
 
 const ControlButton = styled(Button)`
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  color: #595959;
+  background: var(--c-bg);
+  border: 1px solid var(--c-header-border);
+  color: var(--c-header-text);
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
   font-size: var(--font-xs);
@@ -193,28 +269,26 @@ const ControlButton = styled(Button)`
   }
 
   &:hover {
-    background: #f0f5ff;
-    border-color: #1890ff;
-    color: #1890ff;
-    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+    background: var(--c-header-accent-soft);
+    border-color: var(--c-header-accent);
+    color: var(--c-header-accent);
   }
 
   &.danger {
-    border-color: #ff4d4f;
-    color: #ff4d4f;
+    border-color: var(--c-danger);
+    color: var(--c-danger);
 
     &:hover {
-      background: #fff1f0;
-      border-color: #ff7875;
-      color: #ff7875;
-      box-shadow: 0 2px 8px rgba(255, 77, 79, 0.2);
+      background: var(--c-danger-soft);
+      border-color: var(--c-danger);
+      color: var(--c-danger);
     }
   }
 
   &.simulate-active {
-    background: #fff1f0;
-    border-color: #ff4d4f;
-    color: #ff4d4f;
+    background: var(--c-danger-soft);
+    border-color: var(--c-danger);
+    color: var(--c-danger);
     animation: pulse 2s ease-in-out infinite;
   }
 
@@ -236,45 +310,45 @@ const IndustrialSelect = styled(Select)`
 
     width: var(--select-width);
     height: var(--control-height);
-    background: #ffffff;
-    border: 1px solid #d9d9d9;
+    background: var(--c-bg);
+    border: 1px solid var(--c-header-border);
     border-radius: 0;
-    color: #595959;
+    color: var(--c-header-text);
     font-family: "Roboto Mono", monospace;
     text-transform: uppercase;
     font-size: var(--font-xs);
     letter-spacing: 1px;
 
     &:hover {
-      border-color: #1890ff;
-      background: #f0f5ff;
-      color: #1890ff;
+      border-color: var(--c-header-accent);
+      background: var(--c-header-accent-soft);
+      color: var(--c-header-accent);
     }
 
     &.ant-select-focused {
-      border-color: #1890ff;
-      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+      border-color: var(--c-header-accent);
+      box-shadow: 0 0 0 2px var(--c-header-accent-soft);
     }
   }
 
   && .ant-select-suffix {
-    color: #595959;
+    color: var(--c-header-text);
   }
 `;
 
 const IndustrialDrawer = styled(Drawer)`
   && {
-    background: #fafafa;
+    background: var(--c-bg-subtle);
   }
 
   && .ant-drawer-header {
-    background: #ffffff;
-    border-bottom: 2px solid #d9d9d9;
-    border-left: 4px solid #1890ff;
+    background: var(--c-bg);
+    border-bottom: 2px solid var(--c-header-border);
+    border-left: 4px solid var(--c-header-accent);
   }
 
   && .ant-drawer-title {
-    color: #1890ff;
+    color: var(--c-header-accent);
     font-family: "Roboto Mono", monospace;
     text-transform: uppercase;
     letter-spacing: 1.5px;
@@ -288,7 +362,7 @@ const IndustrialDrawer = styled(Drawer)`
 
 const MobileMenu = styled(Menu)`
   && {
-    background: #fafafa;
+    background: var(--c-bg-subtle);
     border: none;
     font-family: "Roboto Mono", monospace;
   }
@@ -296,40 +370,61 @@ const MobileMenu = styled(Menu)`
   /* vertical 模式下 antd 對 item 的規則為 20（.ant-menu-light .ant-menu-item），
      && = 30 就夠。 */
   && .ant-menu-item {
-    color: #595959;
+    color: var(--c-header-text);
     font-size: var(--font-md);
     text-transform: uppercase;
     letter-spacing: 1px;
     margin: var(--space-xs) var(--space-sm);
     transition: all 0.2s;
-    background: #ffffff;
-    border: 1px solid #d9d9d9;
+    background: var(--c-bg);
+    border: 1px solid var(--c-header-border);
     border-left: 3px solid transparent;
 
     &:hover {
-      color: #1890ff;
-      background: #f0f5ff;
-      border-color: #1890ff;
-      border-left-color: #1890ff;
+      color: var(--c-header-accent);
+      background: var(--c-header-accent-soft);
+      border-color: var(--c-header-accent);
+      border-left-color: var(--c-header-accent);
     }
 
     &.ant-menu-item-selected {
-      color: #1890ff;
-      background: #e6f7ff;
-      border-color: #1890ff;
-      border-left-color: #1890ff;
-      box-shadow: inset 0 0 20px rgba(24, 144, 255, 0.08);
+      color: var(--c-header-accent);
+      background: var(--c-header-accent-soft);
+      border-color: var(--c-header-accent);
+      border-left-color: var(--c-header-accent);
     }
   }
 `;
 
-const UserAvatar = styled(Avatar)`
-  && {
-    width: var(--avatar-size);
-    height: var(--avatar-size);
-    line-height: var(--avatar-size);
+const UserButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 50%;
+
+  &:focus-visible {
+    outline: 2px solid var(--c-header-accent);
+    outline-offset: 2px;
+  }
+`;
+
+const UserMenuHead = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+  color: var(--c-text);
+
+  strong {
+    display: block;
     font-size: var(--font-md);
-    cursor: pointer;
+  }
+  small {
+    display: block;
+    color: var(--c-text-secondary);
   }
 `;
 
@@ -340,8 +435,6 @@ const MapOverlay = styled.div`
   }
 `;
 
-const token = localStorage.getItem("token");
-const username = token ? jwtDecode<{ username: string }>(token).username : "";
 
 type HeaderRow = "nav" | "tools";
 const HEADER_ROW_KEY = "headerActiveRow";
@@ -349,7 +442,6 @@ const HEADER_ROW_KEY = "headerActiveRow";
 const Header: React.FC = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const [isDark] = useAtom(darkMode);
   const [canSim, setCanSim] = useState(false);
   const [isSimulateOpen, setIsSimulateOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -366,8 +458,20 @@ const Header: React.FC = () => {
   const { refetch: amrNameRefetch } = useName();
   const [messageApi, contextHolder] = message.useMessage();
   const location = useLocation();
-  const [openChangePassword, setOpenChangePassword] = useState(false);
-  const [openCreateUser, setOpenCreateUser] = useState(false);
+  // 實際案場 (YAML SHOW_SIMULATION_UI: false) 不顯示「模擬」按鈕;
+  // 模擬正在跑時照樣顯示「停止模擬」和模擬時間, 才停得掉
+  // 「任務模擬 v2」選單也一樣看 YAML (SHOW_SIMULATE_V2)
+  const { showSimulationUi, showSimulateV2 } = useUiConfig();
+  // 任務列(HA 狀態 / 任務派發)只有首頁才有內容。其他頁面一律顯示導覽、也不給切換,
+  // 不然上次停在任務列的人換到別頁會看到一排空白,連導覽都不見。
+  const hasToolsRow =
+    location.pathname === "/" || location.pathname === "/main-v1";
+  const activeRow: HeaderRow = hasToolsRow ? headerRow : "nav";
+  const [openClientName, setOpenClientName] = useState(false);
+  const [clientName, setClientNameState] = useState(getClientName);
+  const username = tokenAccount(getToken());
+  const { data: profile } = useMyProfile();
+  const { data: shiftNotes } = useShiftNotes();
   const currentMapInfo = useMap();
   const setScale = useSetAtom(Scale);
   const cm = useAtomValue(centerMap);
@@ -430,49 +534,25 @@ const Header: React.FC = () => {
     });
   };
 
+  // key 就是網址; 依 YAML 藏掉的項目直接不放, 其他項目不受影響
   const items = [
-    `${t("page_view")}`,
-    `${t("page_amr")}`,
-    `${t("page_cargo_history")}`,
-    `${t("page_setting")}`,
-    `${t("page_simulate")}`,
-    `${t("page_simulate_result")}`,
-    `${t("page_record")}`,
-    `${t("page_mission_dispatch")}`,
-  ].map((name, index) => ({
-    key: index + 1,
-    label: name,
-  }));
+    { key: "/", label: t("page_view") },
+    { key: "/amr", label: t("page_amr") },
+    { key: "/cargo-history", label: t("page_cargo_history") },
+    // 設定頁已經正式改用 v3;舊版還留在 /setting-v2、/setting-v1,/setting 會轉過去
+    { key: "/setting-v3", label: t("page_setting") },
+    // 任務模擬 v2: 自己畫佈局、算運能。舊的任務模擬頁拿掉了,
+    // 放模擬車改在首頁地圖的「模擬車輛」
+    ...(showSimulateV2
+      ? [{ key: "/simulate-v2", label: t("page_simulate_v2") }]
+      : []),
+    { key: "/records", label: t("page_record") },
+    { key: "/mission-dispatch", label: t("page_mission_dispatch") },
+    { key: "/report", label: t("page_report") },
+  ];
 
   const handleMenuClick = (e: { key: string }) => {
-    switch (e.key) {
-      case "1":
-        navigate("/");
-        break;
-      case "2":
-        navigate("/amr");
-        break;
-      case "3":
-        navigate("/cargo-history");
-        break;
-      case "4":
-        navigate("/setting");
-        break;
-      case "5":
-        navigate("/simulate");
-        break;
-      case "6":
-        navigate("/simulate-result");
-        break;
-      case "7":
-        navigate("/records");
-        break;
-      case "8":
-        navigate("/mission-dispatch");
-        break;
-      default:
-        break;
-    }
+    navigate(e.key);
   };
 
   const handleChineseItemClick = (value: string) => {
@@ -499,35 +579,72 @@ const Header: React.FC = () => {
 
   const handleUserMenuClick = (e: { key: string }) => {
     switch (e.key) {
-      case "2":
-        localStorage.removeItem("token");
-        navigate("/login");
+      case "profile":
+        navigate("/profile");
         break;
-      case "3":
-        setOpenChangePassword(true);
+      case "shift":
+        navigate("/profile?tab=shift");
         break;
-      case "4":
-        setOpenCreateUser(true);
+      case "client-name":
+        setOpenClientName(true);
+        break;
+      case "logout":
+        logout();
         break;
       default:
         break;
     }
   };
 
-  const userItems = [
-    `HI 👋 ${username}`,
-    ` logout`,
-    `change password`,
-    `create user`,
-  ].map((name, index) => ({
-    key: index + 1,
-    label: name,
-  }));
-
-  const menuProps = {
-    items: userItems,
+  const unreadNotes = shiftNotes?.unread ?? 0;
+  const menuProps: MenuProps = {
+    items: [
+      {
+        key: "me",
+        disabled: true,
+        style: { cursor: "default" },
+        label: (
+          <UserMenuHead>
+            <ProfileAvatar avatar={profile?.avatar} account={username} size={36} />
+            <div>
+              <strong>{username}</strong>
+              {profile && <small>{t(`profile.role.${profile.role}`)}</small>}
+            </div>
+          </UserMenuHead>
+        ),
+      },
+      { type: "divider" },
+      { key: "profile", icon: <SettingOutlined />, label: t("profile.title") },
+      {
+        key: "shift",
+        icon: <MessageOutlined />,
+        label: (
+          <Space size={6}>
+            {t("profile.tab.shift")}
+            {unreadNotes > 0 && <Badge count={unreadNotes} size="small" />}
+          </Space>
+        ),
+      },
+      {
+        key: "client-name",
+        icon: <DesktopOutlined />,
+        label: `${t("client_name.title")}: ${clientName || t("client_name.unset")}`,
+      },
+      { type: "divider" },
+      { key: "logout", icon: <LogoutOutlined />, danger: true, label: t("profile.logout") },
+    ],
     onClick: handleUserMenuClick,
   };
+
+  const userButton = (
+    <Dropdown menu={menuProps} placement="bottomRight" trigger={["click"]}>
+      <UserButton type="button" aria-label={t("profile.title")}>
+        <Badge count={unreadNotes} size="small" offset={[-2, 2]}>
+          <ProfileAvatar avatar={profile?.avatar} account={username} size={30} />
+        </Badge>
+      </UserButton>
+    </Dropdown>
+  );
 
   return (
     <>
@@ -560,29 +677,42 @@ const Header: React.FC = () => {
         </CompactBar>
 
         <IndustrialDrawer
-          title="Navigation"
+          title={t("header.navigation")}
           placement="left"
           onClose={() => setDrawerOpen(false)}
           open={drawerOpen}
         >
           <MobileMenu mode="vertical" items={items} onClick={handleMenuClick} />
-          <UserAvatar icon={<UserOutlined />} />
+          {userButton}
         </IndustrialDrawer>
 
         <DesktopBar>
-          <Tooltip title={t("header.switch_row")}>
-            <RowSwitch
-              size="small"
-              value={headerRow}
-              onChange={(v) => setHeaderRow(v as HeaderRow)}
-              options={[
-                { value: "nav", icon: <AppstoreOutlined /> },
-                { value: "tools", icon: <ToolOutlined /> },
-              ]}
-            />
-          </Tooltip>
+          {hasToolsRow && (
+            <RowTabs role="tablist" aria-label={t("header.switch_row")}>
+              <RowTab
+                type="button"
+                role="tab"
+                aria-selected={activeRow === "nav"}
+                $active={activeRow === "nav"}
+                onClick={() => setHeaderRow("nav")}
+              >
+                <AppstoreOutlined />
+                {t("header.navigation")}
+              </RowTab>
+              <RowTab
+                type="button"
+                role="tab"
+                aria-selected={activeRow === "tools"}
+                $active={activeRow === "tools"}
+                onClick={() => setHeaderRow("tools")}
+              >
+                <SendOutlined />
+                {t("main.card_name.mission")}
+              </RowTab>
+            </RowTabs>
+          )}
 
-          {headerRow === "nav" && (
+          {activeRow === "nav" && (
             <IndustrialMenu
               mode="horizontal"
               items={items}
@@ -590,10 +720,10 @@ const Header: React.FC = () => {
             />
           )}
 
-          {headerRow === "tools" && (
+          {activeRow === "tools" && (
             <ActionsBar gap="middle" align="center">
-              {location.pathname === "/" && <HaStatusWidget />}
-              {location.pathname === "/" && <MissionBtn />}
+              <HaStatusWidget />
+              <MissionBtn />
             </ActionsBar>
           )}
 
@@ -605,7 +735,7 @@ const Header: React.FC = () => {
             {script?.isSimulate ? (
               <SimulationStatus>
                 <ClockCircleOutlined />
-                <StatusLabel>SIM TIME</StatusLabel>
+                <StatusLabel>{t("header.sim_time")}</StatusLabel>
                 <SimTime></SimTime>
               </SimulationStatus>
             ) : null}
@@ -617,10 +747,10 @@ const Header: React.FC = () => {
                   onClick={handleAbortSim}
                   icon={<PoweroffOutlined />}
                 >
-                  STOP SIM
+                  {t("header.stop_sim")}
                 </ControlButton>
               </Tooltip>
-            ) : (
+            ) : showSimulationUi ? (
               <Tooltip title={t("page_simulate")}>
                 <ControlButton
                   onClick={() => setIsSimulateOpen(true)}
@@ -630,27 +760,13 @@ const Header: React.FC = () => {
                     </svg>
                   }
                 >
-                  SIMULATE
+                  {t("header.simulate")}
                 </ControlButton>
               </Tooltip>
-            )}
+            ) : null}
 
-            <IndustrialSelect
-              value={i18n.language === "en" ? "en" : "ch.tw"}
-              onChange={(e) => handleChineseItemClick(e as any)}
-              options={[
-                { value: "en", label: "EN" },
-                { value: "ch.tw", label: "中文" },
-              ]}
-            />
 
-            <Dropdown
-              menu={menuProps}
-              placement="bottomRight"
-              trigger={["click"]}
-            >
-              <UserAvatar icon={<UserOutlined />} shape="square"></UserAvatar>
-            </Dropdown>
+            {userButton}
           </Flex>
         </DesktopBar>
       </IndustrialHeader>
@@ -662,12 +778,11 @@ const Header: React.FC = () => {
         setIsSimulateOpen={setIsSimulateOpen}
       />
 
-      <ChangePasswordModal
-        open={openChangePassword}
-        setOpen={setOpenChangePassword}
-      ></ChangePasswordModal>
-
-      <CreateUserModel open={openCreateUser} setOpen={setOpenCreateUser} />
+      <ClientNameModal
+        open={openClientName}
+        setOpen={setOpenClientName}
+        onSaved={setClientNameState}
+      />
     </>
   );
 };

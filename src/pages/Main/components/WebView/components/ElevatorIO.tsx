@@ -6,6 +6,7 @@ import {
   useRightElevatorSignal,
 } from "@/sockets/useElevatorSignal";
 import { io } from "@/sockets/socketConnect";
+import { useTranslation } from "react-i18next";
 
 const MissionBtnWrap = styled.div`
   position: absolute;
@@ -39,6 +40,7 @@ const Label = styled.span`
 `;
 
 const ElevatorIO: React.FC = () => {
+  const { t } = useTranslation();
   const right = useRightElevatorSignal();
   const left = useLeftElevatorSignal();
 
@@ -51,7 +53,13 @@ const ElevatorIO: React.FC = () => {
     ioObj: Record<string, boolean>,
     side: "right" | "left"
   ) => {
-    if (!ioObj) return <div>Waiting for {side} elevator signal...</div>;
+    if (!ioObj) return (
+        <div>
+          {t("elevator.waiting_signal", {
+            side: t(side === "right" ? "elevator.side_right" : "elevator.side_left"),
+          })}
+        </div>
+      );
 
     return (
       <div>
@@ -91,19 +99,19 @@ const ElevatorIO: React.FC = () => {
 
   return (
     <MissionBtnWrap>
-      <Tooltip placement="right" title="Show elevator IO">
+      <Tooltip placement="right" title={t("elevator.show_io")}>
         <Popover
           content={
             <>
-              {renderIOList("Right Elevator IO", right, "right")}
+              {renderIOList(t("elevator.right_io"), right, "right")}
               <div style={{ marginTop: 16 }} />
-              {renderIOList("Left Elevator IO", left, "left")}
+              {renderIOList(t("elevator.left_io"), left, "left")}
             </>
           }
-          title="Elevator IO"
+          title={t("elevator.io")}
           trigger="click"
         >
-          <Button>Elevator IO</Button>
+          <Button>{t("elevator.io")}</Button>
         </Popover>
       </Tooltip>
     </MissionBtnWrap>

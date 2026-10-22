@@ -189,7 +189,7 @@ const BeforeLeftChargeStationForm: FC = () => {
       <FormContainer>
         <SectionHeader>
           <PlusOutlined />
-          Add New Configuration
+          {t("utils.add_config")}
         </SectionHeader>
         <StyledForm
           onFinish={handleAdd}
@@ -202,12 +202,17 @@ const BeforeLeftChargeStationForm: FC = () => {
           <Form.Item
             label={t("mission.before_left_charge_station_mission.car")}
             name="amrId"
-            rules={[{ required: true, message: "Please select AMRs" }]}
+            rules={[
+              {
+                required: true,
+                message: t("mission.schedule_mission.car_required"),
+              },
+            ]}
           >
             <IndustrialSelect
               options={AmrOption}
               mode="multiple"
-              placeholder="Select AMRs"
+              placeholder={t("utils.select_amrs")}
               showSearch={{
                 filterOption: (input, option) =>
                   (option?.label ?? "")
@@ -221,11 +226,16 @@ const BeforeLeftChargeStationForm: FC = () => {
           <Form.Item
             label={t("mission.before_left_charge_station_mission.mission")}
             name="missionId"
-            rules={[{ required: true, message: "Please select a mission" }]}
+            rules={[
+              {
+                required: true,
+                message: t("main.queue_mir_task_modal.select_mission_required"),
+              },
+            ]}
           >
             <IndustrialSelect
               options={missionOptions}
-              placeholder="Select mission"
+              placeholder={t("main.queue_mir_task_modal.select_mission")}
               showSearch={{
                 filterOption: (input, option) =>
                   (option?.label ?? "")

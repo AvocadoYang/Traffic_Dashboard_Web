@@ -12,13 +12,14 @@ import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { nanoid } from "nanoid";
 import { useSetAtom } from "jotai";
-import {
-  BaseGlobalCargoInfoModal,
-  GlobalCargoInfo,
-  GlobalCargoInfoModal,
-} from "./jotaiState";
-import { Cargo } from "@/types/peripheral";
+import { BaseGlobalCargoInfoModal } from "./jotaiState";
+import { CargoPanelTarget } from "@/components/CargoPanel/state";
 import { LayerType } from "@/api/type/useLocation";
+import {
+  editHalfPanelStyle,
+  editSubPanelStyle,
+  EDIT_TITLE_COLOR,
+} from "../editModalStyle";
 
 const prefixLevelName = (word: string | null | undefined) => {
   if (!word) return null;
@@ -36,30 +37,12 @@ const LayerForm: FC<{
   setIsEditLayer: Dispatch<SetStateAction<boolean>>;
 }> = ({ form, layer, setIsEditLayer, locId }) => {
   const { t } = useTranslation();
-  const setCargoInfo = useSetAtom(GlobalCargoInfo);
+  const openCargoPanel = useSetAtom(CargoPanelTarget);
   const [isClickBtn, setIsClickBtn] = useState(false);
   const setIsEditModalOpen = useSetAtom(BaseGlobalCargoInfoModal);
 
-  const setOpenCargoInfo = useSetAtom(GlobalCargoInfoModal);
-
   const userHasChangeData = () => {
     setIsEditLayer(true);
-  };
-
-  const setOpenEditCargoDetailModal = (data: {
-    dbId: string | null;
-    level: number;
-    cargo: Cargo[];
-  }) => {
-    // console.log(data.cargo, 'setting');
-    setCargoInfo({
-      locationId: locId,
-      dbId: data.dbId,
-      level: data.level,
-      cargo: data.cargo,
-    });
-    setOpenCargoInfo(true);
-    setIsClickBtn(true);
   };
 
   useEffect(() => {
@@ -77,28 +60,16 @@ const LayerForm: FC<{
     });
   }, [form, layer]);
 
-  const handleEditCargo = (dbId: string, level: number, cargo: any) => {
-    setOpenEditCargoDetailModal({
-      dbId,
-      level,
-      cargo,
-    });
+  // 貨物改用跟主畫面同一個面板編輯
+  const handleEditCargo = (level: number) => {
+    openCargoPanel({ type: "STORAGE", locationId: locId, level });
+    setIsClickBtn(true);
     setIsEditModalOpen(false);
   };
 
   return (
     <>
-      <div
-        style={{
-          width: "50%",
-          background: "#fff",
-          padding: "24px",
-          borderRadius: 8,
-          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-          maxHeight: "70vh",
-          overflowY: "auto",
-        }}
-      >
+      <div style={editHalfPanelStyle}>
         <Form
           form={form}
           layout="vertical"
@@ -106,22 +77,17 @@ const LayerForm: FC<{
           onValuesChange={userHasChangeData}
           initialValues={{ isEdit: false }}
         >
-          <Title level={3} style={{ marginBottom: "24px", color: "#1890ff" }}>
+          <Title
+            level={3}
+            style={{ marginBottom: "24px", color: EDIT_TITLE_COLOR }}
+          >
             {t("shelf.layer_form.layers")}
           </Title>
           {Object.entries(layer).map(([levelStr, levelValue]) => {
             const index = Number(levelStr);
             //  console.log(levelValue.cargo, 'level value');
             return (
-              <div
-                key={levelStr}
-                style={{
-                  marginBottom: "24px",
-                  padding: "16px",
-                  background: "#f5f5f5",
-                  borderRadius: 6,
-                }}
-              >
+              <div key={levelStr} style={editSubPanelStyle}>
                 <Title
                   level={4}
                   style={{ marginBottom: "16px" }}
@@ -152,13 +118,7 @@ const LayerForm: FC<{
 
                 <Button
                   disabled={isClickBtn}
-                  onClick={() =>
-                    handleEditCargo(
-                      levelValue.dbId,
-                      Number(levelStr),
-                      levelValue.cargo,
-                    )
-                  }
+                  onClick={() => handleEditCargo(Number(levelStr))}
                 >
                   {t("shelf.layer_form.edit_detail")}
                 </Button>
@@ -168,7 +128,10 @@ const LayerForm: FC<{
                   name={`disable${index}`}
                   valuePropName="checked"
                 >
-                  <Switch checkedChildren="On" unCheckedChildren="Off" />
+                  <Switch
+                    checkedChildren={t("utils.on")}
+                    unCheckedChildren={t("utils.off")}
+                  />
                 </Form.Item>
 
                 <Form.Item

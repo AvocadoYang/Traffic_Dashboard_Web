@@ -20,9 +20,11 @@ const Block = styled(Button)<{
   align-items: center;
   justify-content: center;
   background-color: ${({ $hasCargo }) =>
-    $hasCargo ? "#ffe73c80" : "#f5f5f580"};
+    $hasCargo ? "#ffe73c80" : "var(--c-map-cell)"};
   border: ${({ $isSelecting, $canBeClick }) =>
-    $isSelecting && $canBeClick ? "2px solid #1890ff" : "1px dashed #727272"};
+    $isSelecting && $canBeClick
+      ? "2px solid #1890ff"
+      : "1px dashed var(--c-map-device-border)"};
   border-radius: 3px;
   min-height: 15px;
   max-width: 15px;
@@ -44,7 +46,7 @@ const Block = styled(Button)<{
 
   &:hover:not(:disabled) {
     background-color: ${({ $hasCargo }) =>
-      $hasCargo ? "#ffe73cb3" : "#e8e8e8b3"};
+      $hasCargo ? "#ffe73cb3" : "var(--c-map-cell-hover)"};
     transform: scale(1.05);
   }
 
@@ -70,7 +72,7 @@ const Block = styled(Button)<{
 const BlockSpan = styled.span<{ rotate: number; $hasCargo: boolean }>`
   font-size: 12px;
   font-weight: 500;
-  color: ${({ $hasCargo }) => ($hasCargo ? "#000" : "#333")};
+  color: ${({ $hasCargo }) => ($hasCargo ? "#000" : "var(--c-map-cell-text)")};
   transform: ${({ rotate }) => `rotate(${-rotate}deg)`};
   writing-mode: vertical-rl;
   text-orientation: sideways;

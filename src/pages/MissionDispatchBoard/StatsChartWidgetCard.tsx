@@ -45,8 +45,8 @@ const Card = styled.div<{
   width: ${({ $width }) => $width}px;
   height: ${({ $height }) => $height}px;
   border-radius: 8px;
-  background: #ffffff;
-  border: 1px solid #f0f0f0;
+  background: var(--c-bg);
+  border: 1px solid var(--c-bg-muted);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
@@ -59,8 +59,8 @@ const TitleBar = styled.div`
   padding: 8px 12px;
   font-weight: 600;
   font-size: 13px;
-  border-bottom: 1px solid #f0f0f0;
-  background: #fafafa;
+  border-bottom: 1px solid var(--c-bg-muted);
+  background: var(--c-bg-subtle);
   flex-shrink: 0;
   overflow: hidden;
   white-space: nowrap;
@@ -156,7 +156,10 @@ const StatsChartWidgetCard: FC<{
     }
 
     if (result.chartType === "pie") {
-      const series = toPieSeries(result.data);
+      const series = toPieSeries(
+        result.data,
+        t("mission_dispatch_board.stats_other"),
+      );
       return (
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>

@@ -173,7 +173,7 @@ const TopicTaskTable: FC = () => {
               )}
 
               <Popconfirm
-                title="Sure to delete?"
+                title={t("utils.delete_warn")}
                 onConfirm={() => handleDelete(record.id)}
               >
                 <Button

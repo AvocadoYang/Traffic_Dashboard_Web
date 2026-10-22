@@ -117,7 +117,7 @@ const SoundPanel: FC = () => {
           SOUND
         </SectionTitle>
 
-        <Hint>管理可以在任務中播放的聲音檔。MiR 內建的項目只能檢視。</Hint>
+        <Hint>{t("setting_v2.mir.sound_hint")}</Hint>
 
         <Input
           allowClear
@@ -135,7 +135,7 @@ const SoundPanel: FC = () => {
         </Toolbar>
 
         {rows.length === 0 ? (
-          <EmptyState>NO SOUNDS</EmptyState>
+          <EmptyState>{t("setting_v2.empty.sounds")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (
@@ -179,7 +179,7 @@ const SoundPanel: FC = () => {
               scroll={{ x: "max-content" }}
               pagination={{
                 pageSize: 12,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>

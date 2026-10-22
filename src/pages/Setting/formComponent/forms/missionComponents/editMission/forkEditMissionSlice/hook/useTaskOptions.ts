@@ -125,6 +125,12 @@ const useTaskOptions = (action: Action_Type) => {
               label: t("mission.task_table.location_charge_station"),
               value: type,
             };
+          case "available_standby_point":
+            if (action !== "move") return null;
+            return {
+              label: t("mission.task_table.location_standby_point"),
+              value: type,
+            };
           case "prepare_point":
             if (action !== "move") return null;
             return {

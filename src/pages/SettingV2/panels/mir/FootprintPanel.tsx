@@ -255,7 +255,7 @@ const FootprintPanel: FC = () => {
           FOOTPRINT
         </SectionTitle>
 
-        <Hint>定義車輛的外框形狀,供避障與路徑規劃使用。</Hint>
+        <Hint>{t("setting_v2.mir.footprint_hint")}</Hint>
 
         <Input
           allowClear
@@ -277,7 +277,7 @@ const FootprintPanel: FC = () => {
         </Toolbar>
 
         {rows.length === 0 ? (
-          <EmptyState>NO FOOTPRINTS</EmptyState>
+          <EmptyState>{t("setting_v2.empty.footprints")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (
@@ -323,7 +323,7 @@ const FootprintPanel: FC = () => {
               scroll={{ x: "max-content" }}
               pagination={{
                 pageSize: 12,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>
@@ -344,7 +344,7 @@ const FootprintPanel: FC = () => {
         destroyOnHidden
       >
         <Hint style={{ marginBottom: 12 }}>
-          先填名稱與機型,建立後會直接進入外框編輯器調整形狀。
+          {t("setting_v2.mir.footprint_create_hint")}
         </Hint>
 
         <Form

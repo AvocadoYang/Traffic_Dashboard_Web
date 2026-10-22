@@ -64,7 +64,7 @@ const SettingMultiStyleForm: FC<{ locations: string[] }> = ({ locations }) => {
       void messageApi.success(t("utils.success"));
     },
     onError: () => {
-      void messageApi.error("無法排除，請聯絡 FAE 工程師");
+      void messageApi.error(t("utils.contact_fae"));
     },
   });
 

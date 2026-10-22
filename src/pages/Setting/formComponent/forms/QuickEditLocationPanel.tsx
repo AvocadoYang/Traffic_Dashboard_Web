@@ -311,7 +311,7 @@ const QuickEditLocationPanel: React.FC<{
         <FormHr></FormHr>
         <Form
           form={form}
-          title="設定依照車輛回傳的id來做任務"
+          title={t("quick_edit_location_panel.form_title")}
           initialValues={initialFormDate}
           onValuesChange={(_, allValues) => {
             setFormValues(allValues as FormT);

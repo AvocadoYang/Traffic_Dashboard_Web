@@ -7,11 +7,34 @@ import {
   mirSoundLight,
 } from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/type";
 
-/** 唯一可以把別的動作包在裡面的動作 */
+/** 可以把別的動作包在裡面的動作 */
 export const CONTAINER_TYPE = "reduce_protective_fields";
+export const TRY_CATCH_TYPE = "try_catch";
+export const INCLUDE_TYPE = "mission";
+/** MiR 原生的充電動作,v1 沒有 */
+export const CHARGING_TYPE = "charging";
+
+export type ParentSlot = "content" | "try" | "catch";
+
+export const containerSlots = (op?: Mir_Action | null): ParentSlot[] => {
+  switch (op?.type) {
+    case CONTAINER_TYPE:
+      return ["content"];
+    case TRY_CATCH_TYPE:
+      return ["try", "catch"];
+    default:
+      return [];
+  }
+};
+
+export const SLOT_LABEL: Record<ParentSlot, string> = {
+  content: "Content",
+  try: "Try",
+  catch: "Catch",
+};
 
 export const isContainerOperation = (op?: Mir_Action | null) =>
-  op?.type === CONTAINER_TYPE;
+  containerSlots(op).length > 0;
 
 export const ACTION_CATEGORIES: {
   label: string;
@@ -20,9 +43,14 @@ export const ACTION_CATEGORIES: {
 }[] = [
   { label: "Move", value: "move", actions: mirMoveActonList },
   { label: "Sound / Light", value: "sound/light", actions: mirSoundLight },
-  { label: "Error Handling", value: "error", actions: mirErrorHandlingList },
+  {
+    label: "Error Handling",
+    value: "error",
+    actions: [...mirErrorHandlingList, TRY_CATCH_TYPE],
+  },
   { label: "IO Module", value: "io", actions: mirIoModule },
   { label: "Safety System", value: "safety", actions: mirSaftySystemList },
+  { label: "Charging", value: "charging", actions: [CHARGING_TYPE] },
 ];
 
 /** 跟 missionDefaultValue.ts 的 defaultMirAction() 同一套預設值 */
@@ -35,6 +63,7 @@ export const buildDefaultOperation = (type: string): Mir_Action => ({
   entry_position: "",
   footprint: "",
   marker_type: "",
+  is_current_position: false,
   blocked_path_timeout: 60,
   blocked_docking_timeout: 60,
   maximum_linear_speed: 0.25,
@@ -44,9 +73,17 @@ export const buildDefaultOperation = (type: string): Mir_Action => ({
   y: 0,
   orientation: 0,
   collision_detection: true,
+  option: "free",
   wait: "00:00:00",
   sound: "",
   volume: 0,
+  mode: "full",
+  duration: "00:00:01.000000",
+  light_effect: "solid",
+  speed: "slow",
+  color_1: "#ffffff",
+  color_2: "#ffffff",
+  intensity: 100,
   front: "unmuted",
   rear: "unmuted",
   sides: "unmuted",
@@ -56,6 +93,9 @@ export const buildDefaultOperation = (type: string): Mir_Action => ({
   value: "on",
   operation: "on",
   timeout: "00:00:00",
+  minimum_time: "00:30:00",
+  minimum_percentage: 40,
+  charge_until_new_mission: false,
   variables: {},
 });
 
@@ -63,13 +103,18 @@ export const buildDefaultOperation = (type: string): Mir_Action => ({
 /*  參數欄位                                                           */
 /* ------------------------------------------------------------------ */
 
-/** 選項要從哪個 API 來 */
-export type OptionSource = "locations" | "footprints" | "sounds";
+/**
+ * 選項要從哪個 API 來。
+ * sounds 與 ioModules 是「即時向車上問」的清單(車上隨時會被上傳/刪除音檔、
+ * 插拔 IO 模組),沒有車在線時會是空的,所以下拉要另外給提示,見 MirParamDrawer。
+ */
+export type OptionSource = "locations" | "footprints" | "sounds" | "ioModules";
 
 type Base = {
   name: string;
   label: string;
-  hint?: string;
+  /** 欄位下方的補充說明,i18n key */
+  hintKey?: string;
   /**
    * docking 的欄位會看「Current position」開關決定顯示哪些。
    * 沒寫就是一直顯示。
@@ -83,6 +128,8 @@ export type MirField =
   | (Base & { kind: "select"; options: { label: string; value: string }[] })
   | (Base & { kind: "optionSelect"; source: OptionSource })
   | (Base & { kind: "time" })
+  /** 跟 time 一樣用 TimePicker,但 MiR 的 duration 要帶微秒:"HH:mm:ss.000000" */
+  | (Base & { kind: "duration" })
   /** location_id 和「Current position」開關綁在一起,要跨欄位驗證 */
   | { kind: "location"; name: "location_id"; label: string }
   /** 只有 Current position 開啟時才要填,同樣是跨欄位驗證 */
@@ -98,11 +145,45 @@ const ON_OFF_OPTIONS = [
   { label: "OFF", value: "off" },
 ];
 
-const IO_MODULE_OPTIONS = [
-  {
-    label: "MiR Internal IOs",
-    value: "mirconst-guid-0000-0001-internalIO00",
-  },
+/** check_pose:要求該位置必須是空的還是有東西,檢查才算通過 */
+const POSE_OPTION_OPTIONS = [
+  { label: "FREE", value: "free" },
+  { label: "OCCUPIED", value: "occupied" },
+];
+
+/** sound:Full 播完整個音檔,Custom 只播到下面設定的長度 */
+const SOUND_MODE_OPTIONS = [
+  { label: "FULL", value: "full" },
+  { label: "CUSTOM", value: "custom" },
+];
+
+const LIGHT_EFFECT_OPTIONS = [
+  { label: "BLINK", value: "blink" },
+  { label: "CANCEL", value: "cancel" },
+  { label: "CHASE", value: "chase" },
+  { label: "FADE", value: "fade" },
+  { label: "RAINBOW", value: "rainbow" },
+  { label: "SOLID", value: "solid" },
+  { label: "WAVE", value: "wave" },
+];
+
+const LIGHT_SPEED_OPTIONS = [
+  { label: "FAST", value: "fast" },
+  { label: "SLOW", value: "slow" },
+];
+
+/** MiR 收的是色碼字串,不是色名,所以 value 要維持 hex */
+const LIGHT_COLOR_OPTIONS = [
+  { label: "BLACK", value: "#000000" },
+  { label: "BLUE", value: "#0000ff" },
+  { label: "CYAN", value: "#00ffff" },
+  { label: "GREEN", value: "#008000" },
+  { label: "MAGENTA", value: "#ff00ff" },
+  { label: "ORANGE", value: "#ffa500" },
+  { label: "PINK", value: "#ffc0cb" },
+  { label: "RED", value: "#ff0000" },
+  { label: "WHITE", value: "#ffffff" },
+  { label: "YELLOW", value: "#ffff00" },
 ];
 
 const blockedPathTimeout: MirField = {
@@ -138,8 +219,8 @@ const coordinateFields: MirField[] = [
 ];
 
 /**
- * 動作 -> 參數欄位。沒列到的動作(adjust_localization / stop_sound /
- * show_light)本來就沒有參數可以設。
+ * 動作 -> 參數欄位。沒列到的動作(adjust_localization / sound_stop)
+ * 本來就沒有參數可以設。
  */
 export const ACTION_FIELDS: Record<string, MirField[]> = {
   docking: [
@@ -170,7 +251,11 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
     ...coordinateFields,
     maxLinearSpeed,
     maxAngularSpeed,
-    { kind: "switch", name: "collision_detection", label: "Collision detection" },
+    {
+      kind: "switch",
+      name: "collision_detection",
+      label: "Collision detection",
+    },
     blockedPathTimeout,
   ],
 
@@ -201,19 +286,20 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
       kind: "time",
       name: "wait",
       label: "Wait",
-      hint: "車輛在這裡等多久才繼續下一個動作。",
+      hintKey: "setting_v2.mir.hint.wait",
     },
   ],
 
-  // v1 把 sound / volume 放在 reduce_protective_fields 底下,play_sound
-  // 反而一個欄位都沒有,等於選不到要播的音效。這裡對調回來。
-  play_sound: [
+  // dev 把動作改名了:play_sound -> sound、stop_sound -> sound_stop、
+  // show_light -> light,而且 sound 多了 mode / duration。
+  // sound_stop 本來就沒有參數,所以不列。
+  sound: [
     {
       kind: "optionSelect",
       name: "sound",
       label: "Sound",
       source: "sounds",
-      hint: "音效清單在「MIR / 聲音」裡維護。",
+      hintKey: "setting_v2.mir.hint.live_list_not_db",
     },
     {
       kind: "number",
@@ -221,11 +307,89 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
       label: "Volume",
       min: 0,
       max: 100,
-      hint: "100% 大約是 80 dB。",
+      hintKey: "setting_v2.mir.hint.volume",
+    },
+    {
+      kind: "select",
+      name: "mode",
+      label: "Mode",
+      options: SOUND_MODE_OPTIONS,
+    },
+    {
+      kind: "duration",
+      name: "duration",
+      label: "Duration",
+      hintKey: "setting_v2.mir.hint.duration",
     },
   ],
 
+  light: [
+    {
+      kind: "select",
+      name: "light_effect",
+      label: "Light effect",
+      options: LIGHT_EFFECT_OPTIONS,
+    },
+    {
+      kind: "select",
+      name: "speed",
+      label: "Speed",
+      options: LIGHT_SPEED_OPTIONS,
+    },
+    {
+      kind: "select",
+      name: "color_1",
+      label: "Color 1",
+      options: LIGHT_COLOR_OPTIONS,
+    },
+    {
+      kind: "select",
+      name: "color_2",
+      label: "Color 2",
+      options: LIGHT_COLOR_OPTIONS,
+    },
+    {
+      kind: "number",
+      name: "intensity",
+      label: "Intensity",
+      min: 0,
+      max: 100,
+      hintKey: "setting_v2.mir.hint.intensity",
+    },
+    { kind: "time", name: "timeout", label: "Timeout" },
+  ],
+
+  check_pose: [
+    // 用 kind: "location" 帶出「Current position」開關,開關存在 is_current_position
+    { kind: "location", name: "location_id", label: "Position" },
+    ...coordinateFields,
+    {
+      kind: "select",
+      name: "option",
+      label: "Option",
+      options: POSE_OPTION_OPTIONS,
+      hintKey: "setting_v2.mir.hint.pose_option",
+    },
+    { kind: "time", name: "timeout", label: "Timeout" },
+  ],
+
+  // 降低防護區時會放警示音,所以 sound / volume 也是這個動作的參數,
+  // 跟 sound 動作自己的那一組是分開的兩份設定。
   [CONTAINER_TYPE]: [
+    {
+      kind: "optionSelect",
+      name: "sound",
+      label: "Sound",
+      source: "sounds",
+      hintKey: "setting_v2.mir.hint.protective_sound",
+    },
+    {
+      kind: "number",
+      name: "volume",
+      label: "Volume",
+      min: 0,
+      max: 100,
+    },
     { kind: "select", name: "front", label: "Front", options: MUTE_OPTIONS },
     { kind: "select", name: "rear", label: "Rear", options: MUTE_OPTIONS },
     { kind: "select", name: "sides", label: "Sides", options: MUTE_OPTIONS },
@@ -233,18 +397,19 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
 
   set_io: [
     {
-      kind: "select",
+      kind: "optionSelect",
       name: "module",
       label: "Module",
-      options: IO_MODULE_OPTIONS,
+      source: "ioModules",
+      hintKey: "setting_v2.mir.hint.live_list",
     },
     {
       kind: "number",
       name: "port",
       label: "Port",
-      min: 1,
-      max: 4,
-      hint: "要啟動哪一個輸出埠的繼電器(1-4)。",
+      min: 0,
+      max: 3,
+      hintKey: "setting_v2.mir.hint.relay_port",
     },
     {
       kind: "select",
@@ -256,18 +421,19 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
       kind: "time",
       name: "timeout",
       label: "Timeout",
-      hint: "繼電器要維持多久。",
+      hintKey: "setting_v2.mir.hint.relay_timeout",
     },
   ],
 
   wait_for_io: [
     {
-      kind: "select",
+      kind: "optionSelect",
       name: "module",
       label: "Module",
-      options: IO_MODULE_OPTIONS,
+      source: "ioModules",
+      hintKey: "setting_v2.mir.hint.live_list",
     },
-    { kind: "number", name: "port", label: "Port", min: 1, max: 4 },
+    { kind: "number", name: "port", label: "Port", min: 0, max: 3 },
     {
       kind: "select",
       name: "value",
@@ -275,6 +441,29 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
       options: ON_OFF_OPTIONS,
     },
     { kind: "time", name: "timeout", label: "Timeout" },
+  ],
+
+  [CHARGING_TYPE]: [
+    {
+      kind: "time",
+      name: "minimum_time",
+      label: "Minimum time",
+      hintKey: "setting_v2.mir.hint.charging_minimum_time",
+    },
+    {
+      kind: "number",
+      name: "minimum_percentage",
+      label: "Minimum percentage",
+      min: 0,
+      max: 100,
+      hintKey: "setting_v2.mir.hint.charging_minimum_percentage",
+    },
+    {
+      kind: "switch",
+      name: "charge_until_new_mission",
+      label: "Charge until new mission",
+      hintKey: "setting_v2.mir.hint.charge_until_new_mission",
+    },
   ],
 };
 
@@ -303,20 +492,38 @@ export const summarizeAction = (
       return { verb: "Adjust localization" };
     case "wait":
       return { verb: `Wait ${op.wait || "00:00:00"}` };
-    case "play_sound":
+    case "sound":
       return { verb: "Play sound", chip: op.sound || "-" };
-    case "stop_sound":
+    case "sound_stop":
       return { verb: "Stop sound" };
-    case "show_light":
-      return { verb: "Show light" };
+    case "light":
+      return {
+        verb: `Show light ${op.light_effect ?? "solid"}`,
+        chip: op.color_1 || undefined,
+      };
+    case "check_pose":
+      return {
+        verb: `Check pose is ${op.option ?? "free"}`,
+        chip: op.location_id || "-",
+      };
     case CONTAINER_TYPE:
       return { verb: "Mute protective fields" };
+    case TRY_CATCH_TYPE:
+      return { verb: "Try / Catch" };
+    case INCLUDE_TYPE:
+      return { verb: "Mission" };
+    case CHARGING_TYPE:
+      return {
+        verb: `Charge to ${op.minimum_percentage ?? 40}% for at least ${op.minimum_time || "00:30:00"}`,
+      };
     case "set_io":
       return {
-        verb: `Set IO ${op.module ?? ""} port ${op.port ?? 0} to ${op.value ?? ""}`,
+        verb: `Set IO ${op.module ?? ""} port ${op.port ?? 0} to ${op.operation ?? ""}`,
       };
     case "wait_for_io":
-      return { verb: `Wait for IO ${op.module ?? ""} port ${op.port ?? 0}` };
+      return {
+        verb: `Wait for IO ${op.module ?? ""} port ${op.port ?? 0} to be ${op.value ?? ""}`,
+      };
     default:
       return { verb: op.type || "Unknown action" };
   }

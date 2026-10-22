@@ -24,12 +24,16 @@ const Num = styled.div<{ $tone?: "ok" | "warn" | "bad" }>`
   font-weight: 600;
   line-height: 1.2;
   color: ${({ $tone }) =>
-    $tone === "bad" ? "#cf1322" : $tone === "warn" ? "#d46b08" : "inherit"};
+    $tone === "bad"
+      ? "var(--c-danger)"
+      : $tone === "warn"
+        ? "var(--c-warning)"
+        : "inherit"};
 `;
 
 const Label = styled.div`
   font-size: 12px;
-  color: #888;
+  color: var(--c-text-muted);
 `;
 
 const Stat: FC<{
@@ -209,6 +213,23 @@ const PerformancePanel: FC<{ top?: string; right?: string }> = ({
             />
           )}
 
+          {/* 等位置跟等車是不同的瓶頸 (儲位 vs 車輛數), 所以不併進待派 */}
+          {!!fleet?.waitingForLocation && (
+            <Alert
+              type="warning"
+              showIcon
+              message={t("sim.perf.waiting_location", {
+                count: fleet.waitingForLocation,
+                sec: fleet.oldestWaitingSec ?? 0,
+              })}
+              description={
+                <span style={{ fontSize: 12 }}>
+                  {t("sim.perf.waiting_location_hint")}
+                </span>
+              }
+            />
+          )}
+
           {!!fleet?.staleMissions && (
             <Alert
               type="warning"
@@ -220,7 +241,7 @@ const PerformancePanel: FC<{ top?: string; right?: string }> = ({
             />
           )}
 
-          <Flex gap={8} wrap style={{ borderTop: "1px solid #f0f0f0", paddingTop: 8 }}>
+          <Flex gap={8} wrap style={{ borderTop: "1px solid var(--c-bg-muted)", paddingTop: 8 }}>
             <Stat
               label={t("sim.perf.event_loop")}
               value={

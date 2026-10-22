@@ -11,11 +11,13 @@ import { FormInstance } from "antd/es/form/Form";
 import { FC, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { IsEditPeripheralModal, IsOpenPeripheralModal } from "./jotai";
+import { CargoPanelTarget } from "@/components/CargoPanel/state";
 import {
-  IsEditPeripheralModal,
-  IsOpenCargoEditorModal,
-  IsOpenPeripheralModal,
-} from "./jotai";
+  editHalfPanelStyle,
+  editSubPanelStyle,
+  EDIT_TITLE_COLOR,
+} from "@/pages/Setting/mapComponents/components/editModalStyle";
 
 const { Title } = Typography;
 
@@ -23,12 +25,14 @@ const CargoInfoAtPeripheral: FC<{ form: FormInstance<unknown> }> = ({
   form,
 }) => {
   const { t } = useTranslation();
-  const setOpenModal = useSetAtom(IsOpenCargoEditorModal);
+  const openCargoPanel = useSetAtom(CargoPanelTarget);
   const openModal = useAtomValue(IsEditPeripheralModal);
   const setOpen = useSetAtom(IsOpenPeripheralModal);
 
+  // 貨物改用跟主畫面同一個面板編輯
   const setOpenEditCargoDetailModal = () => {
-    setOpenModal(true);
+    if (!openModal) return;
+    openCargoPanel({ type: "CONVEYOR", locationId: openModal.stationId });
     setOpen(false);
   };
   console.log("render");
@@ -44,34 +48,20 @@ const CargoInfoAtPeripheral: FC<{ form: FormInstance<unknown> }> = ({
 
   return (
     <>
-      <div
-        style={{
-          width: "50%",
-          background: "#fff",
-          padding: "24px",
-          borderRadius: 8,
-          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-          maxHeight: "70vh",
-          overflowY: "auto",
-        }}
-      >
+      <div style={editHalfPanelStyle}>
         <Form
           form={form}
           layout="vertical"
           size="large"
           initialValues={{ isEdit: false }}
         >
-          <Title level={3} style={{ marginBottom: "24px", color: "#1890ff" }}>
+          <Title
+            level={3}
+            style={{ marginBottom: "24px", color: EDIT_TITLE_COLOR }}
+          >
             {t("shelf.layer_form.layers")}
           </Title>
-          <div
-            style={{
-              marginBottom: "24px",
-              padding: "16px",
-              background: "#f5f5f5",
-              borderRadius: 6,
-            }}
-          >
+          <div style={editSubPanelStyle}>
             <Title
               level={4}
               style={{ marginBottom: "16px" }}
@@ -84,7 +74,10 @@ const CargoInfoAtPeripheral: FC<{ form: FormInstance<unknown> }> = ({
               name={`disable`}
               valuePropName="checked"
             >
-              <Switch checkedChildren="On" unCheckedChildren="Off" />
+              <Switch
+                checkedChildren={t("utils.on")}
+                unCheckedChildren={t("utils.off")}
+              />
             </Form.Item>
             <Flex align="center" gap="middle">
               <Button onClick={() => setOpenEditCargoDetailModal()}>

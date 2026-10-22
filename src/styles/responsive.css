@@ -31,10 +31,10 @@ body,
   --tool-sheet-menu-max-height: 40dvh;
 
   /* 字級 */
-  --font-xs: 10px;
-  --font-sm: 11px;
-  --font-md: 13px;
-  --font-lg: 15px;
+  --font-xs: calc(10px * var(--font-scale, 1));
+  --font-sm: calc(11px * var(--font-scale, 1));
+  --font-md: calc(13px * var(--font-scale, 1));
+  --font-lg: calc(15px * var(--font-scale, 1));
 
   /* 控制項 */
   --control-height: 32px;
@@ -60,10 +60,10 @@ body,
     --drawer-width: 300px;
     --tool-sheet-icon-size: 26px;
 
-    --font-xs: 10px;
-    --font-sm: 12px;
-    --font-md: 14px;
-    --font-lg: 16px;
+    --font-xs: calc(10px * var(--font-scale, 1));
+    --font-sm: calc(12px * var(--font-scale, 1));
+    --font-md: calc(14px * var(--font-scale, 1));
+    --font-lg: calc(16px * var(--font-scale, 1));
 
     --control-height: 34px;
     --control-padding-x: 12px;
@@ -87,10 +87,10 @@ body,
     --panel-padding: 20px;
     --drawer-width: 320px;
 
-    --font-xs: 11px;
-    --font-sm: 12px;
-    --font-md: 14px;
-    --font-lg: 18px;
+    --font-xs: calc(11px * var(--font-scale, 1));
+    --font-sm: calc(12px * var(--font-scale, 1));
+    --font-md: calc(14px * var(--font-scale, 1));
+    --font-lg: calc(18px * var(--font-scale, 1));
 
     --control-height: 36px;
     --control-padding-x: 16px;

@@ -13,6 +13,7 @@ import {
 import { SettingOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useTranslation } from "react-i18next";
 import { Mir_Action } from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/type";
 import {
@@ -28,8 +29,15 @@ import {
   SolidButton,
   Toolbar,
 } from "../../../../ui/primitives";
+import { isCurrentPositionOperation } from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/mirActionFields";
 import { ACTION_FIELDS, MirField, summarizeAction } from "./mirActionSpec";
 import useMirOptions from "./useMirOptions";
+
+// dayjs(值, "HH:mm:ss") 這種指定格式的解析要靠 customParseFormat,沒有它會
+// 退回瀏覽器的 Date 解析,"00:00:30" 會變成 Invalid Date,TimePicker 就空白。
+// v1 的 EditMirMissionPanel 也 extend 了同一個外掛,但那是別人的模組副作用,
+// 這裡自己來,v1 哪天被移掉或改成延遲載入才不會突然壞掉。
+dayjs.extend(customParseFormat);
 
 const TIME_FORMAT = "HH:mm:ss";
 
@@ -68,11 +76,11 @@ const GearButton = styled.button<{ $active: boolean }>`
   cursor: pointer;
   background: ${({ $active }) => ($active ? c.accent : "transparent")};
   border: 1px solid ${({ $active }) => ($active ? c.accent : c.border)};
-  color: ${({ $active }) => ($active ? "#ffffff" : c.textMuted)};
+  color: ${({ $active }) => ($active ? c.onAccent : c.textMuted)};
 
   &:hover {
     border-color: ${c.borderStrong};
-    color: ${({ $active }) => ($active ? "#ffffff" : c.text)};
+    color: ${({ $active }) => ($active ? c.onAccent : c.text)};
   }
 `;
 
@@ -116,7 +124,9 @@ const ParamField: FC<{
   label: string;
   hint?: string;
   children: ReactNode;
-}> = ({ fieldName, label, hint, children }) => {
+  variableChildren?: ReactNode;
+}> = ({ fieldName, label, hint, children, variableChildren }) => {
+  const { t } = useTranslation();
   const { enabled, name, setVariable } = useMirVariableField(fieldName);
   const [open, setOpen] = useState(false);
 
@@ -132,7 +142,7 @@ const ParamField: FC<{
           content={
             <PopBody>
               <PopRow>
-                <FieldLabel>使用變數</FieldLabel>
+                <FieldLabel>{t("setting_v2.mir.use_variable")}</FieldLabel>
                 <Switch
                   checked={enabled}
                   onChange={(checked) => {
@@ -142,12 +152,12 @@ const ParamField: FC<{
                 />
               </PopRow>
               <PopRow>
-                <FieldLabel>變數名稱</FieldLabel>
+                <FieldLabel>{t("setting_v2.mir.variable_name")}</FieldLabel>
                 <Input
                   size="small"
                   disabled={!enabled}
                   value={name}
-                  placeholder="variable name"
+                  placeholder={t("setting_v2.mir.variable_name")}
                   onChange={(e) => setVariable(enabled, e.target.value)}
                 />
               </PopRow>
@@ -161,10 +171,13 @@ const ParamField: FC<{
       </ParamHead>
 
       {enabled ? (
-        <VariableChip type="button" onClick={() => setOpen(true)}>
-          <SettingOutlined />
-          {name || "(未命名變數)"}
-        </VariableChip>
+        <>
+          <VariableChip type="button" onClick={() => setOpen(true)}>
+            <SettingOutlined />
+            {name || t("setting_v2.mir.unnamed_variable")}
+          </VariableChip>
+          {variableChildren}
+        </>
       ) : (
         <>
           {children}
@@ -190,9 +203,27 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
   const operation = slice?.operation ?? null;
   const { t } = useTranslation();
   const [form] = Form.useForm();
-  const { locations, markerTypeOptions, bySource } = useMirOptions();
+  const {
+    locations,
+    markerTypeOptions,
+    markerTypeLocationIds,
+    bySource,
+    liveStateOf,
+  } = useMirOptions();
   const { fields: variableFields, setAllFields } = useMirVariableFields();
+  const fields = operation ? (ACTION_FIELDS[operation.type] ?? []) : [];
   const isCurrentPosition = Form.useWatch("is_current_position", form);
+  const locationId = Form.useWatch<string | undefined>("location_id", form);
+  // check_pose 也有「Current position」開關,但沒有 marker_type 欄位
+  const needMarkerType =
+    fields.some((f) => f.kind === "markerType") &&
+    (!!isCurrentPosition || markerTypeLocationIds.has(locationId ?? ""));
+
+  const handleLocationChange = (value?: string) => {
+    if (!markerTypeLocationIds.has(value ?? "")) {
+      form.setFieldValue("marker_type", null);
+    }
+  };
 
   const toTime = (v?: string) =>
     v && dayjs(v, TIME_FORMAT).isValid() ? dayjs(v, TIME_FORMAT) : undefined;
@@ -201,8 +232,7 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
     if (!operation) return;
     form.setFieldsValue({
       location_id: operation.location_id,
-      // location_id 有值就代表不是「目前位置」
-      is_current_position: !operation.location_id && !!operation.marker_type,
+      is_current_position: isCurrentPositionOperation(operation),
       entry_position: operation.entry_position,
       footprint: operation.footprint,
       marker_type: operation.marker_type || null,
@@ -215,9 +245,17 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       y: Number(operation.y ?? 0),
       orientation: Number(operation.orientation ?? 0),
       collision_detection: operation.collision_detection ?? true,
+      option: operation.option ?? "free",
       wait: toTime(operation.wait),
       sound: operation.sound,
       volume: Number(operation.volume ?? 0),
+      mode: operation.mode ?? "full",
+      duration: toTime((operation.duration ?? "").split(".")[0]),
+      light_effect: operation.light_effect ?? "solid",
+      speed: operation.speed ?? "slow",
+      color_1: operation.color_1 ?? "#ffffff",
+      color_2: operation.color_2 ?? "#ffffff",
+      intensity: Number(operation.intensity ?? 100),
       front: operation.front ?? "unmuted",
       rear: operation.rear ?? "unmuted",
       sides: operation.sides ?? "unmuted",
@@ -226,6 +264,9 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       value: operation.value ?? "on",
       operation: operation.operation ?? "on",
       timeout: toTime(operation.timeout),
+      minimum_time: toTime(operation.minimum_time ?? "00:30:00"),
+      minimum_percentage: Number(operation.minimum_percentage ?? 40),
+      charge_until_new_mission: operation.charge_until_new_mission ?? false,
     });
 
     setAllFields(
@@ -258,13 +299,18 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
         ? dayjs(v as dayjs.Dayjs).format(TIME_FORMAT)
         : "00:00:00";
     };
+    // MiR 的 duration 帶微秒,跟 timeout / wait 的 "HH:mm:ss" 不同格式
+    const duration = (key: string) => `${time(key)}.000000`;
 
     onSubmit({
       ...operation,
       location_id: (raw.location_id as string) ?? "",
       entry_position: (raw.entry_position as string) ?? "",
       footprint: (raw.footprint as string) ?? "",
-      marker_type: (raw.marker_type as string) ?? "",
+      marker_type: needMarkerType ? ((raw.marker_type as string) ?? "") : "",
+      // 沒有點位欄位的動作不會有這個開關,不要留著舊值
+      is_current_position:
+        fields.some((f) => f.kind === "location") && !!raw.is_current_position,
       blocked_path_timeout: num("blocked_path_timeout", 60),
       blocked_docking_timeout: num("blocked_docking_timeout", 60),
       maximum_linear_speed: num("maximum_linear_speed", 0.25),
@@ -274,9 +320,17 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       y: num("y", 0),
       orientation: num("orientation", 0),
       collision_detection: (raw.collision_detection as boolean) ?? true,
+      option: (raw.option as string) || "free",
       wait: time("wait"),
       sound: (raw.sound as string) ?? "",
       volume: num("volume", 0),
+      mode: (raw.mode as string) || "full",
+      duration: duration("duration"),
+      light_effect: (raw.light_effect as string) || "solid",
+      speed: (raw.speed as string) || "slow",
+      color_1: (raw.color_1 as string) || "#ffffff",
+      color_2: (raw.color_2 as string) || "#ffffff",
+      intensity: num("intensity", 100),
       front: (raw.front as string) ?? "unmuted",
       rear: (raw.rear as string) ?? "unmuted",
       sides: (raw.sides as string) ?? "unmuted",
@@ -285,6 +339,10 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       value: (raw.value as string) ?? "on",
       operation: (raw.operation as string) ?? "on",
       timeout: time("timeout"),
+      minimum_time: time("minimum_time"),
+      minimum_percentage: num("minimum_percentage", 40),
+      charge_until_new_mission:
+        (raw.charge_until_new_mission as boolean) ?? false,
       variables: Object.fromEntries(
         Object.entries(variableFields)
           .filter(([, v]) => v.enabled && v.name)
@@ -296,7 +354,42 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
   const renderField = (field: MirField) => {
     if (field.kind === "location") {
       return (
-        <ParamField key={field.name} fieldName={field.name} label={field.label}>
+        <ParamField
+          key={field.name}
+          fieldName={field.name}
+          label={field.label}
+          variableChildren={
+            <Form.Item
+              name="location_id"
+              label={
+                <FieldLabel>{t("setting_v2.mir.default_location")}</FieldLabel>
+              }
+              rules={[
+                {
+                  required: true,
+                  message: t("mir.form.default_marker_position_required"),
+                },
+              ]}
+            >
+              <Select
+                options={locations}
+                style={{ width: "100%" }}
+                allowClear
+                placeholder={t("utils.select")}
+                showSearch={{
+                  filterOption: (input, option) =>
+                    (option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase()),
+                }}
+                onChange={(value?: string) => {
+                  form.setFieldValue("is_current_position", false);
+                  handleLocationChange(value);
+                }}
+              />
+            </Form.Item>
+          }
+        >
           <Form.Item
             name="location_id"
             dependencies={["is_current_position"]}
@@ -306,13 +399,17 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
                   if (getFieldValue("is_current_position")) {
                     return value
                       ? Promise.reject(
-                          new Error("已選「目前位置」,這裡要留空"),
+                          new Error(
+                            t("setting_v2.mir.current_position_must_be_empty"),
+                          ),
                         )
                       : Promise.resolve();
                   }
                   return value
                     ? Promise.resolve()
-                    : Promise.reject(new Error("請選一個點位"));
+                    : Promise.reject(
+                        new Error(t("setting_v2.mir.select_location")),
+                      );
                 },
               }),
             ]}
@@ -323,6 +420,7 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
               allowClear
               placeholder={t("utils.select")}
               disabled={!!isCurrentPosition}
+              onChange={handleLocationChange}
               showSearch={{
                 filterOption: (input, option) =>
                   (option?.label ?? "")
@@ -333,7 +431,7 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
           </Form.Item>
 
           <PopRow>
-            <FieldLabel>Current position</FieldLabel>
+            <FieldLabel>{t("setting_v2.mir.current_position")}</FieldLabel>
             <Form.Item
               name="is_current_position"
               valuePropName="checked"
@@ -354,27 +452,34 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
               />
             </Form.Item>
           </PopRow>
-          <Hint>開啟「Current position」代表在車輛目前的位置對接。</Hint>
+          <Hint>{t("setting_v2.mir.current_position_hint")}</Hint>
         </ParamField>
       );
     }
 
     if (field.kind === "markerType") {
+      if (!needMarkerType) return null;
       return (
         <ParamField key={field.name} fieldName={field.name} label={field.label}>
           <Form.Item
             name="marker_type"
-            dependencies={["is_current_position"]}
+            dependencies={["is_current_position", "location_id"]}
             rules={[
               ({ getFieldValue }) => ({
                 validator(_, value: string) {
-                  const current = getFieldValue("is_current_position");
-                  if (current && !value) {
-                    return Promise.reject(new Error("請選一個 marker type"));
-                  }
-                  if (!current && value) {
+                  const need =
+                    !!getFieldValue("is_current_position") ||
+                    markerTypeLocationIds.has(
+                      (getFieldValue("location_id") as string) ?? "",
+                    );
+                  if (need && !value) {
                     return Promise.reject(
-                      new Error("沒有開「目前位置」,這裡要留空"),
+                      new Error(t("setting_v2.mir.select_marker_type")),
+                    );
+                  }
+                  if (!need && value) {
+                    return Promise.reject(
+                      new Error(t("mir.form.marker_type_not_allowed")),
                     );
                   }
                   return Promise.resolve();
@@ -387,7 +492,6 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
               style={{ width: "100%" }}
               allowClear
               placeholder={t("utils.select")}
-              disabled={!isCurrentPosition}
             />
           </Form.Item>
         </ParamField>
@@ -415,16 +519,33 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
         case "switch":
           return <Switch />;
         case "select":
-          return (
-            <Select options={field.options} style={{ width: "100%" }} />
-          );
-        case "optionSelect":
+          return <Select options={field.options} style={{ width: "100%" }} />;
+        case "optionSelect": {
+          // 音效與 IO module 是即時向車上查的,清單空掉的原因不只一種
+          // (沒車在線 / 還在讀 / 讀失敗),要分別講清楚,不然使用者只會看到
+          // 一個空下拉不知道發生什麼事。
+          const live = liveStateOf(field.source);
+          const notFound = !live
+            ? undefined
+            : live.isFetching
+              ? t("utils.loading")
+              : !live.amrId
+                ? t("setting_v2.mir.no_online_mir")
+                : live.error
+                  ? t("setting_v2.mir.load_list_failed")
+                  : undefined;
           return (
             <Select
               options={bySource(field.source)}
               style={{ width: "100%" }}
               allowClear
               placeholder={t("utils.select")}
+              loading={live?.isFetching}
+              notFoundContent={notFound}
+              // react-query v4 的手動 refetch 不管 enabled,沒車在線就別打空的 amrId
+              onOpenChange={(open) => {
+                if (open && live?.amrId) void live.refetch();
+              }}
               showSearch={{
                 filterOption: (input, option) =>
                   (option?.label ?? "")
@@ -433,7 +554,9 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
               }}
             />
           );
+        }
         case "time":
+        case "duration":
           return (
             <TimePicker
               style={{ width: "100%" }}
@@ -448,7 +571,11 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
         key={field.name}
         fieldName={field.name}
         label={field.label}
-        hint={field.hint}
+        hint={
+          field.hintKey
+            ? (t(field.hintKey as Parameters<typeof t>[0]) as string)
+            : undefined
+        }
       >
         <Form.Item
           name={field.name}
@@ -459,8 +586,6 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       </ParamField>
     );
   };
-
-  const fields = operation ? (ACTION_FIELDS[operation.type] ?? []) : [];
 
   return (
     <Drawer
@@ -473,7 +598,7 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       {operation ? (
         <Stack>
           {fields.length === 0 ? (
-            <Hint>這個動作沒有參數可以設定,直接儲存即可。</Hint>
+            <Hint>{t("setting_v2.mir.no_params")}</Hint>
           ) : (
             <Form form={form} layout="vertical">
               <Stack>{fields.map(renderField)}</Stack>
@@ -498,9 +623,7 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
             </Popconfirm>
           </Toolbar>
 
-          <Hint>
-            這裡只改本地暫存,要按上面工具列的「儲存」才會真的寫進後端。
-          </Hint>
+          <Hint>{t("setting_v2.mir.drawer_hint")}</Hint>
         </Stack>
       ) : null}
     </Drawer>

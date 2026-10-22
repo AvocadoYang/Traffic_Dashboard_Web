@@ -302,7 +302,7 @@ const AmrMissionBindingPanel: FC<Props> = ({
         </SectionTitle>
 
         {list.length === 0 ? (
-          <EmptyState>NO BINDINGS</EmptyState>
+          <EmptyState>{t("setting_v2.empty.bindings")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {list.map((row) => (
@@ -357,7 +357,7 @@ const AmrMissionBindingPanel: FC<Props> = ({
               scroll={{ x: "max-content" }}
               pagination={{
                 pageSize: 12,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>

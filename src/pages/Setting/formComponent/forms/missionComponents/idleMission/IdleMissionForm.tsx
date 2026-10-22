@@ -183,7 +183,7 @@ const IdleMissionForm: FC = () => {
     const payload = form.getFieldsValue() as SubmitPayload;
 
     if (payload.amrId.length === 0) {
-      messageApi.warning("amrId少填資料");
+      messageApi.warning(t("mission.idle_mission.amr_warn"));
       return;
     }
 
@@ -195,7 +195,7 @@ const IdleMissionForm: FC = () => {
       {contextHolder}
       <SectionHeader>
         <PlusOutlined />
-        Add Idle Mission Configuration
+        {t("mission.idle_mission.add_title")}
       </SectionHeader>
       <StyledForm
         form={form}
@@ -217,7 +217,7 @@ const IdleMissionForm: FC = () => {
           <IndustrialSelect
             mode="multiple"
             options={AmrOption}
-            placeholder="Select AMRs"
+            placeholder={t("utils.select_amrs")}
             showSearch={{
               filterOption: (input, option) =>
                 (option?.label ?? "")
@@ -260,7 +260,7 @@ const IdleMissionForm: FC = () => {
             mode="multiple"
             options={idleLocSelect}
             loading={isLoading}
-            placeholder="Select forbidden locations"
+            placeholder={t("mission.idle_mission.select_forbidden")}
             showSearch={{
               filterOption: (input, option) =>
                 (option?.label ?? "")
@@ -283,7 +283,7 @@ const IdleMissionForm: FC = () => {
         >
           <IndustrialSelect
             options={missionOptions}
-            placeholder="Select mission"
+            placeholder={t("main.queue_mir_task_modal.select_mission")}
             showSearch={{
               filterOption: (input, option) =>
                 (option?.label ?? "")

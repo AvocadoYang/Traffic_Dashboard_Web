@@ -182,7 +182,7 @@ const YawPanel: FC = () => {
         </Toolbar>
 
         {rows.length === 0 ? (
-          <EmptyState>NO YAW</EmptyState>
+          <EmptyState>{t("setting_v2.empty.yaw")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (
@@ -219,7 +219,7 @@ const YawPanel: FC = () => {
               loading={isFetching}
               pagination={{
                 pageSize: 12,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>

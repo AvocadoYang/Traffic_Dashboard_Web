@@ -143,10 +143,7 @@ const MissionTaskView: FC<Props> = ({
         </Toolbar>
 
         {!isForkMission && !isMirMission && (
-          <EmptyState>
-            這個車種的步驟編輯還沒有搬到新版設定頁。請先從舊版設定頁
-            (/setting)編輯。
-          </EmptyState>
+          <EmptyState>{t("setting_v2.mission.unsupported_type")}</EmptyState>
         )}
 
         {isForkMission && (
@@ -158,7 +155,11 @@ const MissionTaskView: FC<Props> = ({
         )}
 
         {isMirMission && (
-          <MirMissionEditor key={missionId} missionId={missionId} />
+          <MirMissionEditor
+            key={missionId}
+            missionId={missionId}
+            robotValue={robotValue}
+          />
         )}
       </Section>
 

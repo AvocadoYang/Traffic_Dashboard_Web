@@ -1,7 +1,9 @@
 // import { useAiInfo } from '~/socket/useAiInfo';
 import { FC } from 'react';
+import { useTranslation } from "react-i18next";
 
 const AIComponent: FC<{ amrId: string }> = ({ amrId }) => {
+  const { t } = useTranslation();
 //   const data = useAiInfo(amrId);
 
   if (true) {
@@ -19,7 +21,7 @@ const AIComponent: FC<{ amrId: string }> = ({ amrId }) => {
           }}
         >
           <span style={{ fontSize: '5vh' }}>🎦</span>
-          <p style={{ color: 'white' }}>Not Connected</p>
+          <p style={{ color: 'white' }}>{t("sw_monitor.not_connected")}</p>
         </div>
       </div>
     );

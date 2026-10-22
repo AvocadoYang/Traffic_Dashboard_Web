@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 import { useConformManager } from "@/sockets/useUserConformTaskStep";
 import { io } from "@/sockets/socketConnect";
+import { useTranslation } from "react-i18next";
 
 // --- 樣式部分保持不變 ---
 const ActionButtonGroup = styled.div`
@@ -67,6 +68,7 @@ const MessageText = styled.div`
 `;
 
 export const UserConformOverlay = () => {
+  const { t } = useTranslation();
   // 注意：這裡的 pendingTasks 是物件陣列 [{ amrId, inner: { ... } }, ...]
   const pendingTasks = useConformManager();
 
@@ -92,12 +94,12 @@ export const UserConformOverlay = () => {
                 fontWeight: "bold",
               }}
             >
-              🤖 任務確認請求
+              {t("main.user_confirm.title")}
             </div>
 
             {/* 顯示 AMR ID */}
             <InfoRow>
-              <span style={{ opacity: 0.7 }}>AMR ID:</span>
+              <span style={{ opacity: 0.7 }}>{t("main.user_confirm.amr_id")}</span>
               <strong>{task.amrId}</strong>
             </InfoRow>
 
@@ -105,7 +107,7 @@ export const UserConformOverlay = () => {
             {task.inner && (
               <>
                 <InfoRow>
-                  <span style={{ opacity: 0.7 }}>名稱:</span>
+                  <span style={{ opacity: 0.7 }}>{t("main.user_confirm.name")}</span>
                   <span>
                     {task.inner.fullName} ({task.inner.subName})
                   </span>
@@ -117,13 +119,13 @@ export const UserConformOverlay = () => {
 
             <ActionButtonGroup>
               <ActionButton onClick={() => handleAction(task.amrId, "cancel")}>
-                取消任務
+                {t("main.user_confirm.cancel")}
               </ActionButton>
               <ActionButton
                 $primary
                 onClick={() => handleAction(task.amrId, "continue")}
               >
-                繼續執行
+                {t("main.user_confirm.continue")}
               </ActionButton>
             </ActionButtonGroup>
           </ConformCard>

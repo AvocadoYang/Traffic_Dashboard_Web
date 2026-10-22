@@ -8,6 +8,7 @@ import styled from "styled-components";
 import { PlusOutlined, RedoOutlined, ToolOutlined } from "@ant-design/icons";
 import useBlindMission from "@/api/useBlindMission";
 import AddBlindLocationMissionModal from "./AddBlindLocationMissionModal";
+import { useTranslation } from "react-i18next";
 
 // ===== 共用 Industrial Style（直接複用 TaskFormFork） =====
 const IndustrialContainer = styled.div`
@@ -134,6 +135,7 @@ const IndustrialSearchInput = styled.input`
 
 // ===== Component =====
 const BlindTable: FC = () => {
+  const { t } = useTranslation();
   const [, setOpen] = useAtom(EBLM);
   const [searchText, setSearchText] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
@@ -168,21 +170,25 @@ const BlindTable: FC = () => {
   };
 
   const columns = [
-    { title: "地點名稱", dataIndex: "name", key: "name" },
     {
-      title: "location ID",
+      title: t("blind_location.location_name"),
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: t("blind_location.locationId"),
       dataIndex: "locationId",
       key: "locationId",
       sorter: (a, b) => a.locationId - b.locationId,
     },
     {
-      title: "綁定任務",
+      title: t("blind_location.bound_mission"),
       dataIndex: "bind_mission",
       key: "mission",
-      render: (mission: any) => mission?.name || "無綁定",
+      render: (mission: any) => mission?.name || t("blind_location.unbound"),
     },
     {
-      title: "操作",
+      title: t("utils.action"),
       render: (_: any, record: any) => (
         <>
           <Flex gap={3}>
@@ -191,13 +197,15 @@ const BlindTable: FC = () => {
                 setOpen({ locationId: record.locationId, isOpen: true })
               }
             >
-              EDIT
+              {t("utils.edit")}
             </IndustrialButton>
             <Popconfirm
-              title="Sure to delete?"
+              title={t("utils.delete_warn")}
               onConfirm={() => handleDelete(record.id)}
             >
-              <IndustrialButtondELETE>DELETE</IndustrialButtondELETE>
+              <IndustrialButtondELETE>
+                {t("utils.delete")}
+              </IndustrialButtondELETE>
             </Popconfirm>
           </Flex>
         </>
@@ -213,14 +221,14 @@ const BlindTable: FC = () => {
           <Flex align="center" gap={8}>
             <ToolOutlined />
             <span style={{ fontWeight: 600, whiteSpace: "nowrap" }}>
-              BLIND MISSION TABLE
+              {t("blind_location.title")}
             </span>
           </Flex>
 
           {/* 右側工具列 (搜尋框 + 按鈕) */}
           <Flex align="center" gap={8} className="search-wrapper">
             <IndustrialSearchInput
-              placeholder="search location / mission..."
+              placeholder={t("blind_location.search_placeholder")}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               style={{ flex: 1 }} // 讓搜尋框自動填滿剩餘空間

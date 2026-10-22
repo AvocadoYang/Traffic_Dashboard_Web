@@ -10,6 +10,7 @@ import { currentMapIdAtom } from "@/utils/mapSelection";
 import { rosCoord2DisplayCoord, rvizCoord } from "@/utils/utils";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
+import { useTranslation } from "react-i18next";
 
 type MirAreaType =
   | "MIR_ROBOT_POSITION"
@@ -29,12 +30,17 @@ const TYPE_OPTIONS: {
   { value: "MIR_STRIPE_MARKER", label: "Stripe marker" },
 ];
 
-// VL marker 目前只能設給電梯用,之後若有其他裝置類型可以在這裡擴充選項。
-type VlMarkerFor = "ELEVATOR";
+// VL marker、Stripe marker 目前只能設給電梯用,之後若有其他裝置類型可以在這裡擴充選項。
+type MarkerFor = "ELEVATOR";
 
-const VL_MARKER_FOR_OPTIONS: { value: VlMarkerFor; label: string }[] = [
+const MARKER_FOR_OPTIONS: { value: MarkerFor; label: string }[] = [
   { value: "ELEVATOR", label: "Elevator" },
 ];
+
+const MARKER_FOR_CAPABLE_TYPES = new Set<MirAreaType>([
+  "MIR_VL_MARKER",
+  "MIR_STRIPE_MARKER",
+]);
 
 const IP_REGEX =
   /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
@@ -45,7 +51,7 @@ type Pending = {
   y: number;
   orientation: number;
   name: string;
-  markerFor?: VlMarkerFor;
+  markerFor?: MarkerFor;
   ip?: string;
 };
 
@@ -63,10 +69,10 @@ const Toolbar = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const Panel = styled.div`
+const Panel = styled.div<{ $left: number; $top: number }>`
   position: fixed;
-  top: 16px;
-  left: 220px;
+  top: ${(p) => p.$top}px;
+  left: ${(p) => p.$left}px;
   z-index: 30;
   width: 260px;
   background: #ffffff;
@@ -82,7 +88,11 @@ const Panel = styled.div`
 const PanelTitle = styled.div`
   font-weight: 600;
   font-size: 13px;
+  cursor: move;
+  user-select: none;
 `;
+
+const DEFAULT_PANEL_POS = { left: 220, top: 16 };
 
 const FieldLabel = styled.div`
   font-size: 12px;
@@ -156,12 +166,53 @@ const MirStyleLocationPlacer: React.FC<{
   mapImageRef: RefObject<HTMLImageElement>;
   scale: number;
 }> = ({ mapRef, mapImageRef, scale }) => {
+  const { t } = useTranslation();
   const { data: mapData } = useMap();
   const currentMapId = useAtomValue(currentMapIdAtom);
   const queryClient = useQueryClient();
   const [messageApi, contextHolder] = message.useMessage();
   const [pending, setPending] = useState<Pending | null>(null);
   const draggingRef = useRef<"move" | "rotate" | null>(null);
+
+  // 面板(Panel)可能會擋住底下想點擊的地圖點位,所以讓它可以用標題列拖曳移動。
+  const [panelPos, setPanelPos] = useState(DEFAULT_PANEL_POS);
+  const panelDragRef = useRef<{
+    startX: number;
+    startY: number;
+    originLeft: number;
+    originTop: number;
+  } | null>(null);
+
+  const handlePanelTitleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    panelDragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      originLeft: panelPos.left,
+      originTop: panelPos.top,
+    };
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!panelDragRef.current) return;
+      const { startX, startY, originLeft, originTop } = panelDragRef.current;
+      setPanelPos({
+        left: originLeft + (e.clientX - startX),
+        top: originTop + (e.clientY - startY),
+      });
+    };
+    const handleMouseUp = () => {
+      panelDragRef.current = null;
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []);
 
   const saveMutation = useMutation({
     mutationFn: (payload: {
@@ -175,7 +226,7 @@ const MirStyleLocationPlacer: React.FC<{
       ip?: string;
     }) => client.post("api/setting/save-edit-loc", payload),
     onSuccess: () => {
-      void messageApi.success("建立成功");
+      void messageApi.success(t("mir_placer.created"));
       queryClient.refetchQueries({ queryKey: ["map"] });
       queryClient.refetchQueries({ queryKey: ["loc-only"] });
       setPending(null);
@@ -231,6 +282,7 @@ const MirStyleLocationPlacer: React.FC<{
         orientation: 0,
         name: TYPE_OPTIONS.find((t) => t.value === type)?.label ?? "",
       });
+      setPanelPos(DEFAULT_PANEL_POS);
       pendingTypeRef.current = null;
     };
 
@@ -323,27 +375,27 @@ const MirStyleLocationPlacer: React.FC<{
   const create = () => {
     if (!pending) return;
     if (!pending.name.trim()) {
-      void messageApi.warning("請輸入名稱");
+      void messageApi.warning(t("mir_placer.name_required"));
       return;
     }
-    if (pending.areaType === "MIR_VL_MARKER") {
+    if (MARKER_FOR_CAPABLE_TYPES.has(pending.areaType)) {
       if (!pending.markerFor) {
-        void messageApi.warning("請選擇 Marker 用途");
+        void messageApi.warning(t("mir_placer.marker_for_required"));
         return;
       }
       if (pending.markerFor === "ELEVATOR") {
         if (!pending.ip?.trim()) {
-          void messageApi.warning("請輸入 IP");
+          void messageApi.warning(t("mir_placer.ip_required"));
           return;
         }
         if (!IP_REGEX.test(pending.ip.trim())) {
-          void messageApi.warning("IP 格式不正確");
+          void messageApi.warning(t("mir_placer.ip_invalid"));
           return;
         }
       }
     }
     if (!currentMapId) {
-      void messageApi.error("尚未選擇地圖");
+      void messageApi.error(t("mir_placer.no_map"));
       return;
     }
     saveMutation.mutate({
@@ -354,7 +406,7 @@ const MirStyleLocationPlacer: React.FC<{
       canRotate: true,
       rotation: pending.orientation,
       map_id: currentMapId,
-      ...(pending.areaType === "MIR_VL_MARKER" &&
+      ...(MARKER_FOR_CAPABLE_TYPES.has(pending.areaType) &&
       pending.markerFor === "ELEVATOR"
         ? { ip: pending.ip?.trim() }
         : {}),
@@ -388,10 +440,12 @@ const MirStyleLocationPlacer: React.FC<{
       ) : null}
 
       {pending && activeType ? (
-        <Panel>
-          <PanelTitle>{activeType.label}</PanelTitle>
+        <Panel $left={panelPos.left} $top={panelPos.top}>
+          <PanelTitle onMouseDown={handlePanelTitleMouseDown}>
+            {activeType.label}
+          </PanelTitle>
           <div>
-            <FieldLabel>Name</FieldLabel>
+            <FieldLabel>{t("utils.name")}</FieldLabel>
             <Input
               value={pending.name}
               onChange={(e) =>
@@ -402,7 +456,7 @@ const MirStyleLocationPlacer: React.FC<{
             />
           </div>
           <div>
-            <FieldLabel>X-coordinate in meters</FieldLabel>
+            <FieldLabel>{t("mir_placer.x_meters")}</FieldLabel>
             <InputNumber
               style={{ width: "100%" }}
               value={pending.x}
@@ -414,7 +468,7 @@ const MirStyleLocationPlacer: React.FC<{
             />
           </div>
           <div>
-            <FieldLabel>Y-coordinate in meters</FieldLabel>
+            <FieldLabel>{t("mir_placer.y_meters")}</FieldLabel>
             <InputNumber
               style={{ width: "100%" }}
               value={pending.y}
@@ -425,15 +479,15 @@ const MirStyleLocationPlacer: React.FC<{
               }
             />
           </div>
-          {pending.areaType === "MIR_VL_MARKER" ? (
+          {MARKER_FOR_CAPABLE_TYPES.has(pending.areaType) ? (
             <div>
-              <FieldLabel>For</FieldLabel>
+              <FieldLabel>{t("mir_placer.marker_for")}</FieldLabel>
               <Select
                 style={{ width: "100%" }}
-                placeholder="Select a device type"
+                placeholder={t("mir_placer.select_device_type")}
                 value={pending.markerFor}
-                options={VL_MARKER_FOR_OPTIONS}
-                onChange={(v: VlMarkerFor) =>
+                options={MARKER_FOR_OPTIONS}
+                onChange={(v: MarkerFor) =>
                   setPending((prev) =>
                     prev ? { ...prev, markerFor: v } : prev,
                   )
@@ -442,7 +496,7 @@ const MirStyleLocationPlacer: React.FC<{
             </div>
           ) : null}
 
-          {pending.areaType === "MIR_VL_MARKER" &&
+          {MARKER_FOR_CAPABLE_TYPES.has(pending.areaType) &&
           pending.markerFor === "ELEVATOR" ? (
             <div>
               <FieldLabel>IP *</FieldLabel>
@@ -459,7 +513,7 @@ const MirStyleLocationPlacer: React.FC<{
           ) : null}
 
           <div>
-            <FieldLabel>Orientation from X-axis (deg)</FieldLabel>
+            <FieldLabel>{t("mir_placer.orientation")}</FieldLabel>
             <InputNumber
               style={{ width: "100%" }}
               value={pending.orientation}
@@ -471,13 +525,13 @@ const MirStyleLocationPlacer: React.FC<{
             />
           </div>
           <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <Button onClick={cancel}>Cancel</Button>
+            <Button onClick={cancel}>{t("utils.cancel")}</Button>
             <Button
               type="primary"
               loading={saveMutation.isPending}
               onClick={create}
             >
-              Create
+              {t("utils.create")}
             </Button>
           </div>
         </Panel>

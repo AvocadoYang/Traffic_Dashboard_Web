@@ -1,6 +1,8 @@
 // import { useThermal } from '~/socket/useThermal';
 import { FC } from 'react';
+import { useTranslation } from "react-i18next";
 const ThermalComponent: FC<{ amrId: string }> = ({ amrId }) => {
+  const { t } = useTranslation();
 //   const data = useThermal(amrId);
 
   if (true) {
@@ -15,7 +17,7 @@ const ThermalComponent: FC<{ amrId: string }> = ({ amrId }) => {
           }}
         >
           <span style={{ fontSize: '5vh', margin: '0 auto' }}>🎦</span>
-          <p style={{ color: 'white' }}>Not Connected</p>
+          <p style={{ color: 'white' }}>{t("sw_monitor.not_connected")}</p>
         </div>
       </div>
     );

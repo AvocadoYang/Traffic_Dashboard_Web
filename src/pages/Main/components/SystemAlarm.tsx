@@ -8,13 +8,24 @@ import {
   InfoCircleFilled,
   CloseOutlined,
 } from "@ant-design/icons";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
+import { useTranslation } from "react-i18next";
+import { io } from "@/sockets/socketConnect";
+import { NotifyPrefs, useMyProfile } from "@/api/useProfile";
+import { DEFAULT_SOUND, DEFAULT_VOLUME, playAlarmTone } from "@/utils/alarmSound";
 import {
   AlarmType,
   SystemAlarmData,
   useSystemAlarm,
 } from "@/sockets/useSystemAlarm";
-import { ALARM_ACCENT, systemAlarmTypeFilter } from "@/utils/systemAlarmFilter";
+import {
+  ALARM_ACCENT,
+  AlarmPosition,
+  isAlarmPosition,
+  systemAlarmPosition,
+  systemAlarmPreviewTick,
+  systemAlarmTypeFilter,
+} from "@/utils/systemAlarmFilter";
 
 // 同時最多疊幾張卡。超過就把最舊的擠掉,避免一串警報把整個畫面洗成瀑布。
 const MAX_VISIBLE = 4;
@@ -45,15 +56,26 @@ const THEMES: Record<
   info: { accent: ALARM_ACCENT.info, label: "info", Icon: InfoCircleFilled },
 };
 
-const AlarmContainer = styled.div`
+const HORIZONTAL = {
+  left: "left: var(--space-lg);",
+  center: "left: 50%; transform: translateX(-50%);",
+  right: "right: var(--space-lg);",
+};
+
+// 新的卡永遠往畫面中間長:在下面就往上疊,在上面就往下疊。
+const AlarmContainer = styled.div<{ $position: AlarmPosition }>`
   position: fixed;
-  bottom: var(--space-lg);
-  left: 50%;
-  transform: translateX(-50%);
+  ${(props) =>
+    props.$position.startsWith("top")
+      ? "top: var(--space-lg);"
+      : "bottom: var(--space-lg);"}
+  ${(props) =>
+    HORIZONTAL[props.$position.split("-")[1] as keyof typeof HORIZONTAL]}
   z-index: 10000;
   pointer-events: none;
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: ${(props) =>
+    props.$position.startsWith("top") ? "column" : "column-reverse"};
   gap: var(--space-sm);
   width: min(420px, calc(100vw - 2 * var(--space-lg)));
 `;
@@ -149,8 +171,13 @@ const CloseButton = styled.button`
 `;
 
 export const SystemAlarmOverlay = () => {
+  const { t } = useTranslation();
   const systemAlarm = useSystemAlarm();
   const [alarms, setAlarms] = useState<ActiveAlarm[]>([]);
+  const alarmsRef = useRef(alarms);
+  alarmsRef.current = alarms;
+  const [position, setPosition] = useAtom(systemAlarmPosition);
+  const previewTick = useAtomValue(systemAlarmPreviewTick);
   // 用 ref 讀設定頁的開關,避免把它放進下面 effect 的 deps —— 那會讓「切換開關」
   // 這件事重跑一次 effect,把最後一則告警重複加進來。
   const typeFilter = useAtomValue(systemAlarmTypeFilter);
@@ -160,6 +187,40 @@ export const SystemAlarmOverlay = () => {
     typeFilterRef.current = typeFilter;
   }, [typeFilter]);
 
+  // 個人設定的通知偏好 (哪些跳、哪些響、音量、多久內不重複跳); 沒登入就是空的
+  const { data: profile } = useMyProfile();
+  const notifyRef = useRef<NotifyPrefs>({});
+  notifyRef.current = profile?.preferences.notify ?? {};
+  /** 每則告警上次跳出來的時間, 算「多久內不再跳」用 */
+  const lastShownRef = useRef(new Map<string, number>());
+
+  // 位置是整個案場共用的,後端連上時送一次,有人改了再送一次
+  useEffect(() => {
+    const handleDisplay = (data: { position?: unknown }) => {
+      if (isAlarmPosition(data?.position)) setPosition(data.position);
+    };
+    io.on("system-alarm-display", handleDisplay);
+    return () => {
+      io.off("system-alarm-display", handleDisplay);
+    };
+  }, [setPosition]);
+
+  // 設定頁換位置時跳一張範例卡,不用等真的告警來才知道會出現在哪
+  useEffect(() => {
+    if (previewTick === 0) return;
+    const key = "preview";
+    const preview: ActiveAlarm = {
+      key,
+      count: 1,
+      level: 0,
+      alarmType: "info",
+      message: t("system_alarm.position_preview"),
+      tstamp: new Date(),
+      expiresAt: Date.now() + 3000,
+    };
+    setAlarms((prev) => [...prev.filter((a) => a.key !== key), preview]);
+  }, [previewTick]);
+
   const removeAlarm = (key: string) => {
     setAlarms((prev) => prev.filter((a) => a.key !== key));
   };
@@ -168,8 +229,24 @@ export const SystemAlarmOverlay = () => {
     if (!systemAlarm.message) return;
     // 只擋「明確關掉」的類型;後端若送來沒看過的 alarmType 就照常顯示,不要靜靜吃掉告警。
     if (typeFilterRef.current[systemAlarm.alarmType] === false) return;
+    const notify = notifyRef.current;
+    if (notify.types?.[systemAlarm.alarmType] === false) return;
+    if (systemAlarm.code !== undefined && notify.mutedCodes?.includes(systemAlarm.code)) return;
 
     const key = `${systemAlarm.alarmType}|${systemAlarm.message}`;
+    // 同一則告警在設定的秒數內不再跳 (卡片還在畫面上的照舊累加次數)
+    const now = Date.now();
+    const dedupeMs = (notify.dedupeSeconds ?? 0) * 1000;
+    const lastShown = lastShownRef.current.get(key);
+    const visible = alarmsRef.current.some((a) => a.key === key);
+    if (!visible && dedupeMs > 0 && lastShown !== undefined && now - lastShown < dedupeMs) return;
+    lastShownRef.current.set(key, now);
+    if (lastShownRef.current.size > 500) lastShownRef.current.clear();
+
+    if (!visible && (notify.sound?.[systemAlarm.alarmType] ?? DEFAULT_SOUND[systemAlarm.alarmType])) {
+      playAlarmTone(systemAlarm.alarmType, notify.volume ?? DEFAULT_VOLUME);
+    }
+
     const expiresAt =
       Date.now() + Math.min(3000 + systemAlarm.level * 2000, 10000);
 
@@ -204,7 +281,7 @@ export const SystemAlarmOverlay = () => {
   }, [alarms.length]);
 
   return (
-    <AlarmContainer>
+    <AlarmContainer $position={position}>
       <AnimatePresence>
         {alarms.map((alarm) => {
           const { accent, label, Icon } =
@@ -214,7 +291,7 @@ export const SystemAlarmOverlay = () => {
             <AlarmCard
               key={alarm.key}
               $accent={accent}
-              initial={{ y: 20, opacity: 0 }}
+              initial={{ y: position.startsWith("top") ? -20 : 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.15 } }}
               layout

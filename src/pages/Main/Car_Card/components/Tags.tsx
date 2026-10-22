@@ -6,10 +6,13 @@ import {
   useIsPause,
   useIsWorking,
   usePosIsAccurate,
+  useStepCheck,
+  useStepWaitMs,
 } from "@/sockets/useAMRInfo";
+import { STEP_WAIT_WARN_MS, formatWait } from "../stepWait";
 import { errorHandler } from "@/utils/utils";
 import { useMutation } from "@tanstack/react-query";
-import { Tag, message } from "antd";
+import { message } from "antd";
 import client from "@/api/axiosClient";
 import { memo } from "react";
 import { ErrorResponse } from "@/utils/globalType";
@@ -17,6 +20,55 @@ import { useTranslation } from "react-i18next";
 import { useMockInfo } from "@/sockets/useMockInfo";
 import useMiRHasError from "@/sockets/useMiRHasError";
 import { useMiRStatus } from "@/sockets/useMirStatus";
+import styled from "styled-components";
+
+// 狀態標籤的語意色。沒亮起來的一律是 off(灰底),亮起來才上色,
+// 所以掃一眼卡片就看得出哪幾個狀態成立。
+type ChipTone = "off" | "info" | "success" | "warning" | "danger";
+
+const CHIP_TONE: Record<ChipTone, { bg: string; border: string; text: string }> =
+  {
+    off: {
+      bg: "var(--c-bg-muted)",
+      border: "transparent",
+      text: "var(--c-text-muted)",
+    },
+    info: {
+      bg: "var(--c-header-accent-soft)",
+      border: "var(--c-header-accent)",
+      text: "var(--c-header-accent)",
+    },
+    success: {
+      bg: "var(--c-success-soft)",
+      border: "var(--c-success)",
+      text: "var(--c-text)",
+    },
+    warning: {
+      bg: "var(--c-warning-soft)",
+      border: "var(--c-warning)",
+      text: "var(--c-text)",
+    },
+    danger: {
+      bg: "var(--c-danger-soft)",
+      border: "var(--c-danger)",
+      text: "var(--c-danger)",
+    },
+  };
+
+const StatusChip = styled.span<{ $tone: ChipTone; $clickable?: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border: 1px solid ${({ $tone }) => CHIP_TONE[$tone].border};
+  border-radius: 2px;
+  background: ${({ $tone }) => CHIP_TONE[$tone].bg};
+  color: ${({ $tone }) => CHIP_TONE[$tone].text};
+  font-size: 11px;
+  font-weight: ${({ $tone }) => ($tone === "off" ? 400 : 600)};
+  line-height: 1.5;
+  white-space: nowrap;
+  cursor: ${({ $clickable }) => ($clickable ? "pointer" : "inherit")};
+`;
 
 export const ManualTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const { isManual } = useIsManual(amrId);
@@ -35,12 +87,16 @@ export const ManualTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
+  const isOn = amrId.includes("mi")
+    ? MiR_Status_IO.status == "EmergencyStop" && !MiR_Status_IO.protectiveStop
+    : Boolean(isManual);
+
   return (
     <>
       {contextHolders}
-      <Tag
-        color={`${amrId.includes("mi") ? ((MiR_Status_IO.status == "EmergencyStop" && !MiR_Status_IO.protectiveStop) ? "blue":"#e3e4e3"): (!isManual ? "#e3e4e3" : "blue")}`}
-        style={{ margin: 0, cursor: "pointer" }}
+      <StatusChip
+        $tone={isOn ? "info" : "off"}
+        $clickable={Boolean(mockRobot?.isSimulate)}
         onClick={(e) => {
           e.stopPropagation();
           if (!mockRobot?.isSimulate) return;
@@ -48,7 +104,7 @@ export const ManualTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
         }}
       >
         {`${t("mode.manual_mode")}`}
-      </Tag>
+      </StatusChip>
     </>
   );
 });
@@ -57,9 +113,36 @@ export const MissionTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const { isWorking } = useIsWorking(amrId);
   const { t } = useTranslation();
   return (
-    <Tag color={`${isWorking ? "green" : "#e3e4e3"}`} style={{ margin: 0 }}>
+    <StatusChip $tone={isWorking ? "success" : "off"}>
       {`${t("mode.is_mission")}`}
-    </Tag>
+    </StatusChip>
+  );
+});
+
+/** 這一動等太久了: 提示可以考慮用「直接下一動」 */
+export const StepWaitTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
+  const stepWaitMs = useStepWaitMs(amrId);
+  const { t } = useTranslation();
+  if (stepWaitMs === null || stepWaitMs < STEP_WAIT_WARN_MS) return null;
+  return (
+    <StatusChip $tone="warning" title={t("amr_card.step_wait_hint")}>
+      {t("amr_card.step_wait", { time: formatWait(stepWaitMs) })}
+    </StatusChip>
+  );
+});
+
+/** 斷線重連後判斷不出這一動有沒有做完: 要人到現場確認, 再用卡片上的按鈕處理 */
+export const StepCheckTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
+  const stepCheck = useStepCheck(amrId);
+  const { t } = useTranslation();
+  if (!stepCheck) return null;
+  return (
+    <StatusChip
+      $tone="danger"
+      title={t("amr_card.step_check_hint", { reason: stepCheck.reason })}
+    >
+      {t("amr_card.step_check")}
+    </StatusChip>
   );
 });
 
@@ -67,9 +150,9 @@ export const CarryTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const { isCarry } = useIsCarry(amrId);
   const { t } = useTranslation();
   return (
-    <Tag color={`${isCarry ? "volcano" : "#e3e4e3"}`} style={{ margin: 0 }}>
+    <StatusChip $tone={isCarry ? "info" : "off"}>
       {`${t("mode.is_carry")}`}
-    </Tag>
+    </StatusChip>
   );
 });
 
@@ -77,9 +160,9 @@ export const ChargingTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const { isCharge } = useIsCharging(amrId);
   const { t } = useTranslation();
   return (
-    <Tag color={`${isCharge ? "purple" : "#e3e4e3"}`} style={{ margin: 0 }}>
+    <StatusChip $tone={isCharge ? "success" : "off"}>
       {`${t("mode.is_charge")}`}
-    </Tag>
+    </StatusChip>
   );
 });
 
@@ -87,12 +170,9 @@ export const PowerTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const { battery } = useBattery(amrId);
   const { t } = useTranslation();
   return (
-    <Tag
-      color={`${(battery as number) < 25 ? "magenta" : "#e3e4e3"}`}
-      style={{ margin: 0 }}
-    >
+    <StatusChip $tone={(battery as number) < 25 ? "danger" : "off"}>
       {`${t("mode.low_power")}`}
-    </Tag>
+    </StatusChip>
   );
 });
 
@@ -101,11 +181,11 @@ export const IsPosAccurate: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const { t } = useTranslation();
 
   return (
-    <Tag color={isPosAccurate ? "#8ed476ff" : "volcano"} style={{ margin: 0 }}>
+    <StatusChip $tone={isPosAccurate ? "success" : "danger"}>
       {isPosAccurate
         ? `${t("mode.positioning_normal")}`
         : `${t("mode.positioning_inaccurate")}`}
-    </Tag>
+    </StatusChip>
   );
 });
 
@@ -116,10 +196,13 @@ export const IsPause: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const MiR_Status_IO= useMiRStatus(amrId);
 
   const { t } = useTranslation();
+  const paused = amrId.includes("mi")
+    ? MiR_Status_IO.status == "Pause" && !MiR_Status_IO.protectiveStop
+    : Boolean(isPause);
   return (
-    <Tag color={`${amrId.includes("mi") ? ((MiR_Status_IO.status == "Pause" && !MiR_Status_IO.protectiveStop) ? "volcano":"#e3e4e3"): (!isPause ? "#e3e4e3" : "volcano")}`} style={{ margin: 0 }}>
+    <StatusChip $tone={paused ? "warning" : "off"}>
       {t("mode.isPause")}
-    </Tag>
+    </StatusChip>
   );
 });
 
@@ -128,8 +211,14 @@ export const MiR_Error: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const { t } = useTranslation();
 
   return (
-    <Tag color={(MiR_Status_IO.status == "Error" && !MiR_Status_IO.protectiveStop) ? "volcano" : "#e3e4e3"} style={{ margin: 0 }}>
+    <StatusChip
+      $tone={
+        MiR_Status_IO.status == "Error" && !MiR_Status_IO.protectiveStop
+          ? "danger"
+          : "off"
+      }
+    >
       {t("mode.error")}
-    </Tag>
+    </StatusChip>
   );
 });

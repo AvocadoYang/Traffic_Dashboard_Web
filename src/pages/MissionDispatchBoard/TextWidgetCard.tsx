@@ -32,7 +32,7 @@ const Card = styled.div<{
   font-size: ${({ $fontSize }) => $fontSize}px;
   font-weight: ${({ $fontWeight }) => $fontWeight};
   cursor: ${({ $editable }) => ($editable ? "grab" : "default")};
-  border: 1px dashed ${({ $editable }) => ($editable ? "#d9d9d9" : "transparent")};
+  border: 1px dashed ${({ $editable }) => ($editable ? "var(--c-header-border)" : "transparent")};
   background: ${({ $editable }) => ($editable ? "rgba(24, 144, 255, 0.03)" : "transparent")};
 `;
 
@@ -65,7 +65,7 @@ const TextWidgetCard: FC<{
         <Card
           $width={width}
           $height={height}
-          $color={widget.fontColor ?? "#262626"}
+          $color={widget.fontColor ?? "var(--c-text)"}
           $fontSize={widget.fontSize ?? 24}
           $fontWeight={widget.fontWeight ?? 600}
           $editable={editMode}

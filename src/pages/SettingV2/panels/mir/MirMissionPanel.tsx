@@ -67,7 +67,7 @@ const StatusCell = styled.button<{ $synced: boolean; $selected: boolean }>`
   background: ${({ $selected, $synced }) =>
     $selected ? c.accent : $synced ? c.bg : c.bgSubtle};
   color: ${({ $selected, $synced }) =>
-    $selected ? "#ffffff" : $synced ? c.text : c.textMuted};
+    $selected ? c.onAccent : $synced ? c.text : c.textMuted};
   cursor: ${({ $synced }) => ($synced ? "pointer" : "not-allowed")};
 
   &:hover:not(:disabled) {
@@ -208,7 +208,7 @@ const MirMissionPanel: FC = () => {
         />
 
         {rows.length === 0 ? (
-          <EmptyState>NO MIR MISSIONS</EmptyState>
+          <EmptyState>{t("setting_v2.empty.mir_missions")}</EmptyState>
         ) : (
           <TableWrap>
             <Table<MirMissionRow>
@@ -220,7 +220,7 @@ const MirMissionPanel: FC = () => {
               scroll={{ x: "max-content" }}
               pagination={{
                 pageSize: 12,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>

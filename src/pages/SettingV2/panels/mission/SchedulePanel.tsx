@@ -2,10 +2,12 @@ import { FC, useState } from "react";
 import {
   Checkbox,
   Form,
+  InputNumber,
   Modal,
   Popconfirm,
   Select,
   Skeleton,
+  Switch,
   Table,
   TimePicker,
   message,
@@ -61,6 +63,9 @@ type ScheduleRow = {
   schedule: string;
   missionId: string;
   missionName: string;
+  /** 有值 = 從開始時間每幾分鐘派一次, 派到 repeatUntil; null = 只派一次 */
+  repeatEveryMin?: number | null;
+  repeatUntil?: string | null;
 };
 
 type UpdatePayload = {
@@ -68,6 +73,8 @@ type UpdatePayload = {
   schedule: string;
   missionId: string;
   amrId: string[];
+  repeatEveryMin: number | null;
+  repeatUntil: string | null;
 };
 
 const SchedulePanel: FC = () => {
@@ -81,11 +88,12 @@ const SchedulePanel: FC = () => {
   const missionOptions = useNormalMissionOptions();
 
   const [editingId, setEditingId] = useState<string | null>(null);
+  const repeat = Form.useWatch("repeat", form) as boolean | undefined;
 
   const rows = (data ?? []) as ScheduleRow[];
 
   const weekOptions = Array.from({ length: 7 }, (_v, i) => i + 1).map((v) => ({
-    label: `${t("mission.schedule_mission.week")}${v}`,
+    label: t("mission.schedule_mission.week_n", { n: v }),
     value: v,
   }));
 
@@ -140,6 +148,9 @@ const SchedulePanel: FC = () => {
       missionId: row.missionId,
       day: day.split("").map((d) => parseInt(d, 10)),
       time: dayjs(`${hour}:${minute}`, TIME_FORMAT),
+      repeat: !!row.repeatEveryMin,
+      repeatEveryMin: row.repeatEveryMin ?? 30,
+      repeatUntil: row.repeatUntil ? dayjs(row.repeatUntil, TIME_FORMAT) : null,
     });
     setEditingId(row.id);
   };
@@ -151,6 +162,9 @@ const SchedulePanel: FC = () => {
       missionId: string;
       day: number[];
       time: dayjs.Dayjs;
+      repeat?: boolean;
+      repeatEveryMin?: number | null;
+      repeatUntil?: dayjs.Dayjs | null;
     };
     try {
       values = (await form.validateFields()) as typeof values;
@@ -163,12 +177,20 @@ const SchedulePanel: FC = () => {
       schedule: `${values.day.join("")}-${values.time.format("HH")}-${values.time.format("mm")}`,
       missionId: values.missionId,
       amrId: values.amrId,
+      repeatEveryMin: values.repeat ? values.repeatEveryMin ?? null : null,
+      repeatUntil:
+        values.repeat && values.repeatUntil ? values.repeatUntil.format(TIME_FORMAT) : null,
     });
   };
 
-  const readableSchedule = (raw: string) => {
-    const [week, hour, minute] = raw.split("-");
-    return `${t("mission.schedule_mission.week")} ${week.split("").join(", ")} · ${hour}:${minute}`;
+  const readableSchedule = (row: ScheduleRow) => {
+    const [week, hour, minute] = row.schedule.split("-");
+    const base = `${t("mission.schedule_mission.week")} ${week.split("").join(", ")} · ${hour}:${minute}`;
+    if (!row.repeatEveryMin) return base;
+    return `${base} ${t("time_condition.repeat_fact", {
+      min: row.repeatEveryMin,
+      until: row.repeatUntil ?? "23:59",
+    })}`;
   };
 
   const toggle = (row: ScheduleRow) =>
@@ -214,7 +236,7 @@ const SchedulePanel: FC = () => {
       width: 190,
       sorter: (a, b) =>
         Number(a.schedule.split("-")[1]) - Number(b.schedule.split("-")[1]),
-      render: (v: string) => readableSchedule(v),
+      render: (_: string, row) => readableSchedule(row),
     },
     {
       title: t("mission.schedule_mission.car"),
@@ -282,11 +304,11 @@ const SchedulePanel: FC = () => {
         </Toolbar>
 
         <Hint>
-          新增會先建立一筆空白排程,再按編輯填入車輛、任務、星期與時間。
+          {t("setting_v2.mission.schedule_hint")}
         </Hint>
 
         {rows.length === 0 ? (
-          <EmptyState>NO SCHEDULES</EmptyState>
+          <EmptyState>{t("setting_v2.empty.schedules")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (
@@ -302,7 +324,7 @@ const SchedulePanel: FC = () => {
 
                 <CardFacts>
                   <dt>{t("mission.schedule_mission.what_time")}</dt>
-                  <dd>{readableSchedule(row.schedule)}</dd>
+                  <dd>{readableSchedule(row)}</dd>
                   <dt>{t("mission.schedule_mission.car")}</dt>
                   <dd>
                     {row.amrId.map((a) => (
@@ -343,7 +365,7 @@ const SchedulePanel: FC = () => {
               scroll={{ x: "max-content" }}
               pagination={{
                 pageSize: 12,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>
@@ -437,6 +459,44 @@ const SchedulePanel: FC = () => {
               />
             </Form.Item>
           </Field>
+
+          <Field>
+            <FieldLabel>{t("time_condition.repeat")}</FieldLabel>
+            <Form.Item name="repeat" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+          </Field>
+
+          {repeat && (
+            <>
+              <Field>
+                <FieldLabel>{t("time_condition.repeat_every")}</FieldLabel>
+                <Form.Item
+                  name="repeatEveryMin"
+                  rules={[{ required: true, message: t("utils.required") }]}
+                >
+                  <InputNumber
+                    min={1}
+                    max={1440}
+                    precision={0}
+                    suffix={t("utils.minutes")}
+                    style={{ width: 160 }}
+                  />
+                </Form.Item>
+              </Field>
+              <Field>
+                <FieldLabel>{t("time_condition.repeat_until")}</FieldLabel>
+                <Form.Item name="repeatUntil" extra={t("time_condition.repeat_hint")}>
+                  <TimePicker
+                    needConfirm={false}
+                    format={TIME_FORMAT}
+                    placeholder="23:59"
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
+              </Field>
+            </>
+          )}
         </Form>
       </Modal>
     </PanelShell>

@@ -10,6 +10,7 @@ import {
   ALARM_TYPES,
   systemAlarmTypeFilter,
 } from "@/utils/systemAlarmFilter";
+import AlarmPositionPicker from "./AlarmPositionPicker";
 import useIsNarrow from "../../ui/useIsNarrow";
 import StatusTag from "../../ui/StatusTag";
 import { c, font, space } from "../../ui/tokens";
@@ -165,6 +166,17 @@ const SystemAlarmPanel: FC = () => {
       <Section>
         <SectionTitle>
           <AlertOutlined />
+          {t("system_alarm.position")}
+        </SectionTitle>
+
+        <Hint>{t("system_alarm.position_hint")}</Hint>
+
+        <AlarmPositionPicker />
+      </Section>
+
+      <Section>
+        <SectionTitle>
+          <AlertOutlined />
           {t("system_alarm.title")}
         </SectionTitle>
 
@@ -177,7 +189,7 @@ const SystemAlarmPanel: FC = () => {
         />
 
         {rows.length === 0 ? (
-          <EmptyState>WAITING FOR CONFIG…</EmptyState>
+          <EmptyState>{t("setting_v2.waiting_config")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (

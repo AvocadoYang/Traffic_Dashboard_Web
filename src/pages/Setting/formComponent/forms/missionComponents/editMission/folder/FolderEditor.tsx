@@ -311,6 +311,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   children,
   ...restProps
 }) => {
+  const { t } = useTranslation();
   const inputNode =
     inputType === "number" ? <InputNumber /> : <IndustrialInput />;
 
@@ -323,7 +324,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
           rules={[
             {
               required: true,
-              message: `Please Input ${title}!`,
+              message: t("utils.please_input", { field: title }),
             },
           ]}
         >
@@ -427,7 +428,7 @@ const FolderEditor: FC<{
   const handleFolderSubmit = () => {
     const values = folderForm.getFieldsValue();
     if (!values.name) {
-      messageApi.warning("Please enter folder name");
+      messageApi.warning(t("folder_editor.folder_name_required"));
       return;
     }
     addFolderMutation.mutate({ name: values.name });

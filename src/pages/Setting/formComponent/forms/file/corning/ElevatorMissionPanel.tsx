@@ -89,14 +89,16 @@ const ElevatorMissionPanel: FC<{
       {contextHolder}
       <div>
         <h3 className="drop_button_style" {...listeners} {...attributes}>
-          電梯任務設定
+          {t("corning.elevator_mission_title")}
         </h3>
         <FormHr />
 
         <Flex gap="middle" justify="flex-start" align="start" vertical>
           <Form form={form} autoComplete="off" size="large" layout="vertical">
             <Form.Item
-              label={<FieldLabel>電梯任務是否啟動</FieldLabel>}
+              label={
+                <FieldLabel>{t("corning.elevator_mission_active")}</FieldLabel>
+              }
               name="active"
               valuePropName="checked" // ← tells Form to use `checked` not `value`
             >
@@ -109,7 +111,7 @@ const ElevatorMissionPanel: FC<{
             className="primary"
             loading={saveMutation.isPending}
           >
-            確認修改
+            {t("corning.confirm_change")}
           </IndustrialButton>
         </Flex>
       </div>

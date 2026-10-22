@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { array, mixed, number, object, string } from "yup";
 import client from "./axiosClient";
 
-export type DispatchButtonType = "NORMAL" | "DYNAMIC" | "MIR";
+export type DispatchButtonType = "NORMAL" | "DYNAMIC" | "MIR" | "TRANSFER";
 
 export interface DispatchButton {
   id: string;
@@ -22,6 +22,8 @@ export interface DispatchButton {
   ept_s: string | null;
   ept_d: string | null;
   missionName: string | null;
+  /** dispatch_type = TRANSFER: 按下去執行的區域搬運規則 */
+  transfer_rule_id: string | null;
   priority: number;
 }
 
@@ -119,13 +121,14 @@ const buttonSchema = object({
   fontSize: number().required(),
   fontWeight: number().required(),
   dispatch_type: mixed<DispatchButtonType>()
-    .oneOf(["NORMAL", "DYNAMIC", "MIR"])
+    .oneOf(["NORMAL", "DYNAMIC", "MIR", "TRANSFER"])
     .required(),
   amrId: string().nullable().default(null),
   missionTitleId: string().nullable().default(null),
   ept_s: string().nullable().default(null),
   ept_d: string().nullable().default(null),
   missionName: string().nullable().default(null),
+  transfer_rule_id: string().nullable().default(null),
   priority: number().required(),
 });
 

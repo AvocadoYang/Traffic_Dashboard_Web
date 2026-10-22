@@ -286,7 +286,7 @@ const MarkerTypePanel: FC = () => {
           MARKER TYPE
         </SectionTitle>
 
-        <Hint>定義貨架 marker 的偵測形狀。MiR 內建的項目只能檢視。</Hint>
+        <Hint>{t("setting_v2.mir.marker_type_hint")}</Hint>
 
         <Input
           allowClear
@@ -308,7 +308,7 @@ const MarkerTypePanel: FC = () => {
         </Toolbar>
 
         {rows.length === 0 ? (
-          <EmptyState>NO MARKER TYPES</EmptyState>
+          <EmptyState>{t("setting_v2.empty.marker_types")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (
@@ -364,7 +364,7 @@ const MarkerTypePanel: FC = () => {
               scroll={{ x: "max-content" }}
               pagination={{
                 pageSize: 12,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>
@@ -511,9 +511,7 @@ const MarkerTypePanel: FC = () => {
           </FieldGrid>
 
           <Hint>
-            Bar：側邊橫桿的長度與兩側橫桿的間距。
-            Leg：同側兩支腳的距離與對側兩支腳的距離。
-            X / Y offset 調整車輛對接時前進與橫向的位移。
+            {t("setting_v2.mir.marker_type_fields_hint")}
           </Hint>
         </Form>
       </Modal>

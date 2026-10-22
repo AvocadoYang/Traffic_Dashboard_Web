@@ -16,6 +16,7 @@ import {
   StorageBlockLabel,
 } from "./sudo";
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 
 const ConveyorContainer = styled.div`
   position: relative;
@@ -35,6 +36,7 @@ const SvgStyle = styled.svg`
 `;
 
 const SudoPeripheral = () => {
+  const { t } = useTranslation();
   const selectStation = useAtomValue(PeripheralEditData);
   const { data: defaultData } = usePeripheralStyle(
     selectStation?.peripheralType || null,
@@ -51,7 +53,7 @@ const SudoPeripheral = () => {
   );
 
   if (!defaultStyle) {
-    return <div>Something went wrong: Station data not found</div>;
+    return <div>{t("other.edit_peripheral_style.station_not_found")}</div>;
   }
 
   const [left, top] = rosCoord2DisplayCoord({
@@ -117,7 +119,7 @@ const SudoPeripheral = () => {
     );
   }
 
-  return <div>Unsupported peripheral type</div>;
+  return <div>{t("other.edit_peripheral_style.unsupported_type")}</div>;
 };
 
 export default SudoPeripheral;

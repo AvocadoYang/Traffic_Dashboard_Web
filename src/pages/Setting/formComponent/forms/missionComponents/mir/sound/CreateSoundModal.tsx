@@ -5,6 +5,7 @@ import type { UploadFile } from "antd/es/upload/interface";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import styled from "styled-components";
 import client from "@/api/axiosClient";
+import { useTranslation } from "react-i18next";
 
 const IntroText = styled.p`
   color: #475467;
@@ -28,6 +29,7 @@ export const CreateSoundModal: FC<CreateSoundModalProps> = ({
   open,
   onClose,
 }) => {
+  const { t } = useTranslation();
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const queryClient = useQueryClient();
 
@@ -43,12 +45,12 @@ export const CreateSoundModal: FC<CreateSoundModalProps> = ({
       });
     },
     onSuccess: () => {
-      message.success("已建立聲音");
+      message.success(t("mir.sound.created"));
       queryClient.invalidateQueries({ queryKey: ["all-sound"] });
       handleClose();
     },
     onError: (err: any) => {
-      message.error(err?.response?.data?.message ?? "上傳失敗");
+      message.error(err?.response?.data?.message ?? t("upload.failed"));
     },
   });
 
@@ -60,7 +62,7 @@ export const CreateSoundModal: FC<CreateSoundModalProps> = ({
   const handleCreate = () => {
     const file = fileList[0]?.originFileObj as File | undefined;
     if (!file) {
-      message.warning("請先選擇一個聲音檔案");
+      message.warning(t("mir.sound.file_required"));
       return;
     }
     createMutation.mutate(file);

@@ -46,9 +46,9 @@ const schema = array(
 
 export type CargoListData = InferType<typeof schema>;
 
-const getCargoHistory = async (page = 1, pageSize = 20) => {
+const getCargoHistory = async (page = 1, pageSize = 20, missionId?: string) => {
   const { data } = await client.get("api/cargo-history/history", {
-    params: { page, pageSize },
+    params: { page, pageSize, missionId: missionId || undefined },
   });
 
   return schema
@@ -59,9 +59,9 @@ const getCargoHistory = async (page = 1, pageSize = 20) => {
     }));
 };
 
-const useCargoHistory = (page: number, pageSize: number) => {
-  return useQuery(["cargo-history", page, pageSize], () =>
-    getCargoHistory(page, pageSize)
+const useCargoHistory = (page: number, pageSize: number, missionId?: string) => {
+  return useQuery(["cargo-history", page, pageSize, missionId ?? ""], () =>
+    getCargoHistory(page, pageSize, missionId)
   );
 };
 

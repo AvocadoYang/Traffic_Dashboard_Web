@@ -146,7 +146,7 @@ const LocationDetectModal = () => {
           >
             <Space size={6}>
               <AimOutlined />
-              {"點位偵測"}
+              {t("location_detect.title")}
             </Space>
           </Title>
 
@@ -183,7 +183,7 @@ const LocationDetectModal = () => {
                 onClick={handleDetect}
                 block
               >
-                {"開始偵測點位"}
+                {t("location_detect.start")}
               </Button>
             </Form.Item>
 
@@ -191,7 +191,11 @@ const LocationDetectModal = () => {
               <Alert
                 type={detectResult.ok === false ? "error" : "success"}
                 showIcon
-                title={detectResult.ok === false ? "偵測失敗" : "偵測完成"}
+                title={
+                  detectResult.ok === false
+                    ? t("location_detect.failed")
+                    : t("location_detect.done")
+                }
                 description={
                   detectResult.message ?? JSON.stringify(detectResult)
                 }

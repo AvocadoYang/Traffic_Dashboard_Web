@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { Popconfirm, Select, Tooltip } from "antd";
+import { Popconfirm, Tooltip } from "antd";
 import {
   CaretDownOutlined,
   CaretRightOutlined,
@@ -16,10 +16,11 @@ import { Mir_Action } from "@/pages/Setting/formComponent/forms/missionComponent
 import { c, font, space } from "../../../../ui/tokens";
 import { IconBar, IconButton } from "../steps/stepPrimitives";
 import StepMoveButtons from "../steps/StepMoveButtons";
-import { isContainerOperation, summarizeAction } from "./mirActionSpec";
-
-/** 移回頂層。Select 不能用 null 當值,所以用一個不會撞名的字串 */
-export const TOP_LEVEL = "__top__";
+import {
+  ParentSlot,
+  isContainerOperation,
+  summarizeAction,
+} from "./mirActionSpec";
 
 export type EditorSlice = {
   clientId: string;
@@ -27,7 +28,16 @@ export type EditorSlice = {
   disable: boolean;
   operation: Mir_Action;
   parentClientId: string | null;
+  parentSlot: ParentSlot | null;
+  includeTitleId: string | null;
+  includeTitleName: string;
+  includeGroupId: string | null;
+  includeVariables: Record<string, string | number | boolean>;
 };
+
+/** 「哪個容器的哪個區塊」合成一個字串,當分組與 drop zone 的 key */
+export const slotKey = (parentClientId: string, slot: ParentSlot) =>
+  `${parentClientId}:${slot}`;
 
 const Row = styled.div<{ $dragging?: boolean; $container?: boolean }>`
   display: flex;
@@ -38,7 +48,8 @@ const Row = styled.div<{ $dragging?: boolean; $container?: boolean }>`
   background: ${({ $container }) => ($container ? c.bgSubtle : c.bg)};
   /* 容器用粗左邊框標出來,不用另一種底色 */
   border: 1px solid ${c.border};
-  border-left: ${({ $container }) => ($container ? `3px solid ${c.accent}` : `1px solid ${c.border}`)};
+  border-left: ${({ $container }) =>
+    $container ? `3px solid ${c.accent}` : `1px solid ${c.border}`};
   opacity: ${({ $dragging }) => ($dragging ? 0.4 : 1)};
 
   &:hover {
@@ -87,20 +98,18 @@ const Handle = styled.button`
 
 type Props = {
   slice: EditorSlice;
-  /** 只有頂層卡片才會排序,巢狀子卡片沒有 */
-  index?: number;
-  total?: number;
+  /** 在同一層(同一個區塊)兄弟之間的位置 */
+  index: number;
+  total: number;
   isNarrow: boolean;
   expanded: boolean;
   childCount: number;
-  /** 可以選的容器。空陣列代表目前沒有任何容器 */
-  containers: EditorSlice[];
   onToggleExpand: () => void;
-  onMove?: (from: number, to: number) => void;
-  onSetParent: (parentClientId: string | null) => void;
+  onMove: (from: number, to: number) => void;
   onEdit: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
+  unfilledVariables?: number;
 };
 
 const MirActionCard: FC<Props> = ({
@@ -110,13 +119,12 @@ const MirActionCard: FC<Props> = ({
   isNarrow,
   expanded,
   childCount,
-  containers,
   onToggleExpand,
   onMove,
-  onSetParent,
   onEdit,
   onDuplicate,
   onDelete,
+  unfilledVariables = 0,
 }) => {
   const { t } = useTranslation();
   const {
@@ -130,8 +138,9 @@ const MirActionCard: FC<Props> = ({
   } = useSortable({ id: slice.clientId });
 
   const isContainer = isContainerOperation(slice.operation);
-  const { verb, chip } = summarizeAction(slice.operation);
-  const sortable = index !== undefined && total !== undefined && !!onMove;
+  const { verb, chip } = slice.includeTitleId
+    ? { verb: "Mission", chip: slice.includeTitleName || "-" }
+    : summarizeAction(slice.operation);
 
   return (
     <div
@@ -140,21 +149,19 @@ const MirActionCard: FC<Props> = ({
       {...attributes}
     >
       <Row $dragging={isDragging} $container={isContainer}>
-        {sortable &&
-          (isNarrow ? (
-            <IconBar>
-              <StepMoveButtons
-                index={index}
-                total={total}
-                busy={false}
-                onMove={onMove}
-              />
-            </IconBar>
-          ) : (
-            <Handle type="button" ref={setActivatorNodeRef} {...listeners}>
-              <HolderOutlined />
-            </Handle>
-          ))}
+        <Handle type="button" ref={setActivatorNodeRef} {...listeners}>
+          <HolderOutlined />
+        </Handle>
+        {isNarrow ? (
+          <IconBar>
+            <StepMoveButtons
+              index={index}
+              total={total}
+              busy={false}
+              onMove={onMove}
+            />
+          </IconBar>
+        ) : null}
 
         {isContainer ? (
           <IconButton type="button" onClick={onToggleExpand}>
@@ -166,23 +173,16 @@ const MirActionCard: FC<Props> = ({
         <Label>
           {verb}
           {chip ? <Chip>{chip}</Chip> : null}
+          {unfilledVariables > 0 ? (
+            <Tooltip title={t("setting_v2.mir.unfilled_variables_hint")}>
+              <Chip>
+                {t("setting_v2.mir.unfilled_variables", {
+                  count: unfilledVariables,
+                })}
+              </Chip>
+            </Tooltip>
+          ) : null}
         </Label>
-
-        {!isContainer && containers.length > 0 ? (
-          <Select<string>
-            size="small"
-            style={{ minWidth: 160 }}
-            value={slice.parentClientId ?? TOP_LEVEL}
-            onChange={(v) => onSetParent(v === TOP_LEVEL ? null : v)}
-            options={[
-              { value: TOP_LEVEL, label: "頂層" },
-              ...containers.map((cont) => ({
-                value: cont.clientId,
-                label: summarizeAction(cont.operation).verb,
-              })),
-            ]}
-          />
-        ) : null}
 
         <IconBar>
           <Tooltip title={t("utils.edit")}>
@@ -190,7 +190,7 @@ const MirActionCard: FC<Props> = ({
               <EditOutlined />
             </IconButton>
           </Tooltip>
-          <Tooltip title="複製這個動作">
+          <Tooltip title={t("setting_v2.mir.duplicate_action")}>
             <IconButton type="button" onClick={onDuplicate}>
               <CopyOutlined />
             </IconButton>

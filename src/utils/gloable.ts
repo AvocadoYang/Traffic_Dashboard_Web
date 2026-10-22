@@ -1,8 +1,10 @@
 import { atom } from "jotai";
+import { selectAtom } from "jotai/utils";
 import { LocationType } from "./jotai";
 import { mouseLocation, RectInfo } from "@/pages/Setting/hooks/hook";
 import { SelectStation } from "@/api/type/useLocation";
 import { SelectProps } from "antd";
+import { themeAtom } from "@/theme";
 
 // record the version of map's points
 export const sameVersion = atom(true);
@@ -44,7 +46,11 @@ export const batchCargoStyle = atom<{
   flex_direction: string | null; // null = 各自維持原本方向
 } | null>(null);
 
-export const darkMode = atom<boolean>(false);
+// 首頁那套手寫的深色樣式(dark-mode-* class、$isDark 分支)本來是靠這顆 atom,
+// 但從來沒有任何地方寫入它,等於永遠關著。改成由使用者選的主題推導:選「深夜」
+// 就整片亮起來,不用再為首頁維護第二套明暗開關。
+// 注意這是唯讀的衍生 atom,要讀請用 useAtomValue。
+export const darkMode = atom<boolean>((get) => get(themeAtom).mode === "dark");
 
 export const centerMap = atom<number>(0);
 
@@ -94,6 +100,23 @@ export const locationHoverInfo = atom<{
   y: number;
   locationIds: string[];
 } | null>(null);
+
+const NO_LOCATION_IDS: string[] = [];
+
+// locationHoverInfo 每次 mousemove(30ms)都會換一個新物件(游標座標變了)，
+// 但「附近有哪些點位」的名單通常沒變。點位圖層只需要名單，訂閱這顆就不會
+// 跟著游標每 30ms 把全部點位重繪一次。
+const nearbyLocationIdList = selectAtom(
+  locationHoverInfo,
+  (info) => info?.locationIds ?? NO_LOCATION_IDS,
+  (pre, cur) =>
+    pre.length === cur.length && pre.every((id, i) => id === cur[i]),
+);
+
+/** 游標附近(偵測半徑內)的點位 id 集合，名單沒變時回傳的是同一個 Set。 */
+export const nearbyLocationIdSet = atom(
+  (get) => new Set(get(nearbyLocationIdList)),
+);
 
 // 「路徑提示」游標移動時，附近路徑的懸浮標籤資訊，座標系與 locationHoverInfo 相同。
 export const roadHoverInfo = atom<{

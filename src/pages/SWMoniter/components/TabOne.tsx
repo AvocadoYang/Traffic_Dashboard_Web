@@ -19,15 +19,15 @@ const TabOne: React.FC = () => {
                         <>
                             <div className="carousel-wrap">
                                 <div className="gauge-wrap" ref={wrapRef}>
-                                    <Gauge label="O₂" value={80} unit="%" color="#1890ff"></Gauge>
+                                    <Gauge label="O₂" value={80} unit="%" color="var(--c-header-accent)"></Gauge>
 
                                     <Gauge label="CO" value={20} unit="ppm" color="#fadb14"></Gauge>
 
-                                    <Gauge label="H₂S" value={5} unit="ppm" color="#52c41a"></Gauge>
+                                    <Gauge label="H₂S" value={5} unit="ppm" color="var(--c-success)"></Gauge>
                                 
-                                    <Gauge label="H₂S" value={5} unit="ppm" color="#52c41a"></Gauge>
+                                    <Gauge label="H₂S" value={5} unit="ppm" color="var(--c-success)"></Gauge>
                         
-                                    <Gauge label="H₂S" value={5} unit="ppm" color="#52c41a"></Gauge>
+                                    <Gauge label="H₂S" value={5} unit="ppm" color="var(--c-success)"></Gauge>
                                 </div>
                                 <LeftOutlined className="outlined left" onClick={() => scrollBy(-wrapRef.current!.offsetWidth)}/>
                                 <RightOutlined className="outlined right" onClick={() => scrollBy(wrapRef.current!.offsetWidth)} />

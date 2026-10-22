@@ -6,11 +6,11 @@ import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import client from "@/api/axiosClient";
 import { useMutation } from "@tanstack/react-query";
-import { Relation } from "@/api/useLoc";
 import Config from "./Config";
 import CargoInfoAtPeripheral from "./CargoInfo";
 import { IsEditPeripheralModal, IsOpenPeripheralModal } from "./jotai";
 import { PeripheralTypes } from "@/types/peripheral";
+import PeripheralIdentity from "@/pages/Setting/mapComponents/components/PeripheralIdentity";
 
 const EditPeripheralModal: FC = () => {
   const [openModal, setOpenModal] = useAtom(IsEditPeripheralModal);
@@ -29,8 +29,6 @@ const EditPeripheralModal: FC = () => {
       activeOffload: boolean;
       loadMissionId: string;
       offloadMissionId: string;
-      placement_priority: number;
-      relationships: Relation;
       loadPriority: number;
       offloadPriority: number;
     }) => {
@@ -46,23 +44,12 @@ const EditPeripheralModal: FC = () => {
 
   useEffect(() => {
     if (openModal) {
-      const relationshipArray = openModal.relationships
-        ? Object.entries(openModal.relationships).map(
-            ([relatedLocId, relationshipType]) => ({
-              relatedLocId,
-              relationshipType,
-            }),
-          )
-        : [];
-
       formConfig.setFieldsValue({
         forkHeight: openModal.forkHeight,
         activeLoad: openModal.activeLoad,
         activeOffload: openModal.activeOffload,
         loadMissionId: openModal.loadMissionId,
         offloadMissionId: openModal.offloadMissionId,
-        placement_priority: openModal.placement_priority,
-        relationships: relationshipArray,
         loadPriority: openModal.loadPriority,
         offloadPriority: openModal.offloadPriority,
       });
@@ -76,7 +63,7 @@ const EditPeripheralModal: FC = () => {
 
   const handleSubmit = async () => {
     if (!openModal) {
-      messageApi.warning("the station not found");
+      messageApi.warning(t("utils.station_not_found"));
       return;
     }
 
@@ -95,7 +82,11 @@ const EditPeripheralModal: FC = () => {
     <>
       {contextHolder}
       <Modal
-        title={null}
+        title={
+          openModal ? (
+            <PeripheralIdentity locationId={openModal.stationId} />
+          ) : null
+        }
         open={open}
         onCancel={handleCancel}
         centered
@@ -110,7 +101,7 @@ const EditPeripheralModal: FC = () => {
           </Button>
         }
       >
-        <Flex>
+        <Flex gap={16}>
           <Config formConfig={formConfig} />
           <CargoInfoAtPeripheral form={formCargo} />
         </Flex>

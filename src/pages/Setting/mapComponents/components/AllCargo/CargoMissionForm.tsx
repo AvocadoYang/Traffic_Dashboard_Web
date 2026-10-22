@@ -5,8 +5,6 @@ import {
   FormInstance,
   Skeleton,
   Typography,
-  InputNumber,
-  Button,
   Flex,
   Tooltip,
 } from "antd";
@@ -17,10 +15,9 @@ import useYaw from "@/api/useYaw";
 import useSpecificShelf from "@/api/useSpecificShelf";
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import {
-  MinusCircleOutlined,
-  PlusOutlined,
   QuestionCircleOutlined,
 } from "@ant-design/icons";
+import { editHalfPanelStyle, EDIT_TITLE_COLOR } from "../editModalStyle";
 
 const { Title } = Typography;
 
@@ -35,8 +32,10 @@ const CargoMissionForm: FC<{
   const { data: shelf } = useSpecificShelf(locId);
   const { t } = useTranslation();
 
+  // 這兩份選單是在下面的載入檢查「之前」算的:點位資料還沒載完時 loc 是 undefined,
+  // 先當成空清單,不然還沒走到載入畫面整頁就先壞了。
   const locationOption = useMemo(() => {
-    const info = loc as LocWithoutArr[];
+    const info = (loc ?? []) as LocWithoutArr[];
     const mixData = info
       .filter((v) => v.areaType === "Dispatch" && v.id !== locId)
       .sort((a, b) => Number(a.locationId) - Number(b.locationId))
@@ -48,21 +47,6 @@ const CargoMissionForm: FC<{
     return mixData;
   }, [loc, locId, t]);
 
-  const relationOption = useMemo(() => {
-    const info = loc as LocWithoutArr[];
-    const mixData = info
-      .filter(
-        (v) =>
-          (v.areaType === "STORAGE" || v.areaType === "CONVEYOR") &&
-          v.id !== locId,
-      )
-      .sort((a, b) => Number(a.locationId) - Number(b.locationId))
-      .map((v) => ({
-        label: v.locationId,
-        value: v.locationId,
-      }));
-    return mixData;
-  }, [loc, locId, t]);
 
   const taskOption = misTitle
     ?.filter((g) =>
@@ -74,13 +58,6 @@ const CargoMissionForm: FC<{
 
   const dirOption = yaw?.map((v) => ({ value: v.id, label: v.yaw }));
 
-  const relationshipTypeOption = [
-    { value: "fixed", label: t("shelf.cargo_mission.relationship_fixed") },
-    {
-      value: "non-fixed",
-      label: t("shelf.cargo_mission.relationship_non_fixed"),
-    },
-  ];
 
   useEffect(() => {
     if (!shelf || !loc) return;
@@ -96,40 +73,25 @@ const CargoMissionForm: FC<{
     const currentLoc = info.find((v) => v.locationId === locId);
     const defaultPreparedPoint = currentLoc?.prepare_point?.id || null;
 
-    const placement_priority = currentLoc?.placement_priority || 0;
-    const relationships = currentLoc?.relationships
-      ? Object.entries(currentLoc.relationships).map(
-          ([relatedLocId, type]) => ({
-            relatedLocId,
-            relationshipType: type,
-          }),
-        )
-      : [];
-
     form.setFieldsValue({
       load: loadTask,
       offload: offloadTask,
       yaw: shelf.Dir?.id,
       prepare_point_id: defaultPreparedPoint,
-      placement_priority,
-      relationships,
     });
   }, [form, shelf, loc, locId]);
 
-  if (!shelf || !loc) return <Skeleton active paragraph={{ rows: 5 }} />;
+  // 載入中也維持跟表單同一張卡片,右邊的樓層設定才不會被擠到變形
+  if (!shelf || !loc) {
+    return (
+      <div style={editHalfPanelStyle}>
+        <Skeleton active paragraph={{ rows: 5 }} />
+      </div>
+    );
+  }
 
   return (
-    <div
-      style={{
-        width: "50%",
-        background: "#fff",
-        padding: "24px",
-        borderRadius: 8,
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-        maxHeight: "70vh",
-        overflowY: "auto",
-      }}
-    >
+    <div style={editHalfPanelStyle}>
       <Form
         form={form}
         layout="vertical"
@@ -141,7 +103,7 @@ const CargoMissionForm: FC<{
           style={{
             textAlign: "center",
             marginBottom: "24px",
-            color: "#1890ff",
+            color: EDIT_TITLE_COLOR,
           }}
         >
           {t("shelf.cargo_mission.default_title")}
@@ -265,126 +227,6 @@ const CargoMissionForm: FC<{
           />
         </Form.Item> */}
 
-        <Form.Item
-          label={
-            <>
-              <Flex align="center" justify="center">
-                <Typography.Text>
-                  {t("shelf.cargo_mission.priority")}
-                </Typography.Text>
-                <Tooltip title={t("shelf.cargo_mission.priority_desc")}>
-                  <QuestionCircleOutlined style={{ marginLeft: 8 }} />
-                </Tooltip>
-              </Flex>
-            </>
-          }
-          name="placement_priority"
-          rules={[
-            {
-              required: true,
-              message: t("shelf.cargo_mission.priority_required"),
-            },
-            {
-              type: "number",
-              min: 0,
-              message: t("shelf.cargo_mission.priority_min"),
-            },
-          ]}
-        >
-          <InputNumber
-            min={0}
-            max={100}
-            style={{ width: "100%" }}
-            placeholder={"10"}
-          />
-        </Form.Item>
-
-        <Form.Item
-          label={
-            <>
-              <Flex align="center" justify="center">
-                <Typography.Text>
-                  {t("shelf.cargo_mission.relationships")}
-                </Typography.Text>
-                <Tooltip title={t("shelf.cargo_mission.relationships_desc")}>
-                  <QuestionCircleOutlined style={{ marginLeft: 8 }} />
-                </Tooltip>
-              </Flex>
-            </>
-          }
-        >
-          <Form.List name="relationships">
-            {(fields, { add, remove }) => (
-              <>
-                {fields.map(({ key, name, ...restField }) => (
-                  <div
-                    key={key}
-                    style={{ display: "flex", gap: 8, marginBottom: 8 }}
-                  >
-                    <Form.Item
-                      {...restField}
-                      name={[name, "relatedLocId"]}
-                      rules={[
-                        {
-                          required: true,
-                          message: t(
-                            "shelf.cargo_mission.related_loc_required",
-                          ),
-                        },
-                      ]}
-                      style={{ flex: 1 }}
-                    >
-                      <Select
-                        options={relationOption}
-                        placeholder={t("shelf.cargo_mission.select_location")}
-                        showSearch={{
-                          filterOption: (input, option) =>
-                            (option?.label ?? "")
-                              .toLowerCase()
-                              .includes(input.toLowerCase()),
-                        }}
-                      />
-                    </Form.Item>
-                    <Form.Item
-                      {...restField}
-                      name={[name, "relationshipType"]}
-                      rules={[
-                        {
-                          required: true,
-                          message: t(
-                            "shelf.cargo_mission.relationship_type_required",
-                          ),
-                        },
-                      ]}
-                      style={{ flex: 1 }}
-                    >
-                      <Select
-                        options={relationshipTypeOption}
-                        placeholder={t(
-                          "shelf.cargo_mission.select_relationship_type",
-                        )}
-                      />
-                    </Form.Item>
-                    <MinusCircleOutlined
-                      onClick={() => remove(name)}
-                      style={{ alignSelf: "center" }}
-                    />
-                  </div>
-                ))}
-                <Form.Item>
-                  <Button
-                    type="dashed"
-                    onClick={() => add()}
-                    block
-                    icon={<PlusOutlined />}
-                  >
-                    {t("shelf.cargo_mission.add_relationship")}
-                  </Button>
-                </Form.Item>
-              </>
-            )}
-          </Form.List>
-        </Form.Item>
       </Form>
     </div>
   );

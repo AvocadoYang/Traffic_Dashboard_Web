@@ -49,6 +49,7 @@ type FormType = {
   limitNum: number | undefined;
   all_forbidden: boolean | undefined;
   view_available: string | undefined;
+  elevator_id: string | undefined;
   forbidden: string[] | undefined;
   color: string;
 };
@@ -106,6 +107,7 @@ const EditZoneTable: FC<{
     { label: `${t("edit_zone_panel.restricted_zone")}`, value: "禁止區" },
     { label: `${t("edit_zone_panel.controlled_zone")}`, value: "限制區" },
     { label: `${t("edit_zone_panel.view_available_zone")}`, value: "查看區" },
+    { label: `${t("edit_zone_panel.elevator_zone")}`, value: "電梯區" },
   ];
 
   const AmrsID: SelectProps["options"] = allAmr?.amrs.map((amr) => {
@@ -120,6 +122,9 @@ const EditZoneTable: FC<{
   const hightLimit = Form.useWatch("hight_limit", editZoneForm);
   const limitNum = Form.useWatch("limitNum", editZoneForm);
   const viewAvailable = Form.useWatch("view_available", editZoneForm);
+  const elevatorId = Form.useWatch("elevator_id", editZoneForm) as
+    | string
+    | undefined;
   const allVehicleForbidden = Form.useWatch(
     "all_forbidden",
     editZoneForm,
@@ -140,6 +145,7 @@ const EditZoneTable: FC<{
     if (zoneTags.includes("限高區") && isUnset(hightLimit)) return true;
     if (zoneTags.includes("限制區") && isUnset(limitNum)) return true;
     if (zoneTags.includes("查看區") && isUnset(viewAvailable)) return true;
+    if (zoneTags.includes("電梯區") && isUnset(elevatorId?.trim())) return true;
     return false;
   }, [
     zoneTags,
@@ -147,6 +153,7 @@ const EditZoneTable: FC<{
     hightLimit,
     limitNum,
     viewAvailable,
+    elevatorId,
     allVehicleForbidden,
     forbiddenVehicles,
   ]);
@@ -219,6 +226,9 @@ const EditZoneTable: FC<{
       view_available: data.view_available
         ? data.view_available
         : (oldData?.tagSetting.view_available as string),
+      elevator_id: data.category?.includes("電梯區")
+        ? data.elevator_id?.trim()
+        : undefined,
       id: editingKey,
       color: data.color,
     };
@@ -261,6 +271,7 @@ const EditZoneTable: FC<{
       limitNum: oldData.tagSetting.limitNum,
       color: oldData.backgroundColor,
       view_available: oldData.tagSetting.view_available,
+      elevator_id: oldData.tagSetting.elevator_id ?? undefined,
     });
     oldData.layer == "none"
       ? setLayerOpt(undefined)
@@ -309,7 +320,7 @@ const EditZoneTable: FC<{
               // value={oldData.name}
               type="string"
               style={{ width: 150 }}
-              placeholder="請輸入區域名稱"
+              placeholder={t("edit_zone_panel.placeholder.zone_name")}
             />
           </Form.Item>
           <Space
@@ -391,13 +402,19 @@ const EditZoneTable: FC<{
                 label={t("edit_zone_panel.lidar_front")}
                 name="lidar_front"
               >
-                <Switch checkedChildren="On" unCheckedChildren="Off" />
+                <Switch
+                  checkedChildren={t("utils.on")}
+                  unCheckedChildren={t("utils.off")}
+                />
               </Form.Item>
               <Form.Item
                 label={t("edit_zone_panel.lidar_back")}
                 name="lidar_back"
               >
-                <Switch checkedChildren="On" unCheckedChildren="Off" />
+                <Switch
+                  checkedChildren={t("utils.on")}
+                  unCheckedChildren={t("utils.off")}
+                />
               </Form.Item>
             </Flex>
           </div>
@@ -408,7 +425,7 @@ const EditZoneTable: FC<{
           >
             <Select
               // value={oldData.category}
-              placeholder={"請選擇區域屬性"}
+              placeholder={t("edit_zone_panel.placeholder.zone_category")}
               mode="multiple"
               tagRender={tagRender}
               style={{ width: "100%" }}
@@ -485,7 +502,7 @@ const EditZoneTable: FC<{
                   <InputNumber
                     addonAfter="m"
                     type="number"
-                    placeholder="請輸入高度限制"
+                    placeholder={t("edit_zone_panel.placeholder.hight_limit")}
                     style={{ width: "50%" }}
                   />
                 </Form.Item>
@@ -510,7 +527,7 @@ const EditZoneTable: FC<{
                   ]}
                 >
                   <InputNumber
-                    addonAfter="car (s)"
+                    addonAfter={t("edit_zone_panel.cars_unit")}
                     type="number"
                     step={1}
                     placeholder={t("edit_zone_panel.placeholder.limit")}
@@ -537,6 +554,26 @@ const EditZoneTable: FC<{
                     )}
                     style={{ width: "50%" }}
                     options={viewAvailableOption}
+                  />
+                </Form.Item>
+              ) : null}
+
+              {zoneTags.includes("電梯區") ? (
+                <Form.Item
+                  name="elevator_id"
+                  label={`${t("edit_zone_panel.elevator_id")}: (${t("edit_zone_panel.necessary")})`}
+                  style={tagFieldStyle}
+                  rules={[
+                    {
+                      required: true,
+                      whitespace: true,
+                      message: t("edit_zone_panel.placeholder.elevator_id"),
+                    },
+                  ]}
+                >
+                  <Input
+                    placeholder={t("edit_zone_panel.placeholder.elevator_id")}
+                    style={{ width: "100%" }}
                   />
                 </Form.Item>
               ) : null}
@@ -573,7 +610,7 @@ const EditZoneTable: FC<{
                     ]}
                   >
                     <Select
-                      placeholder={"請選擇限制進入車輛"}
+                      placeholder={t("edit_zone_panel.placeholder.forbidden")}
                       disabled={allVehicleForbidden}
                       mode={"multiple"}
                       tagRender={tagRender}

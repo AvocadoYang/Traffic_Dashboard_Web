@@ -4,6 +4,7 @@ import { Mission_Switch } from "../MissionWrap";
 import styled from "styled-components";
 import { useAtomValue } from "jotai";
 import { darkMode } from "@/utils/gloable";
+import { useTranslation } from "react-i18next";
 
 const StyledButton = styled(Button)<{ $isActive: boolean; $isDark: boolean }>`
   font-family: "Roboto Mono", monospace;
@@ -19,26 +20,26 @@ const StyledButton = styled(Button)<{ $isActive: boolean; $isDark: boolean }>`
   ${({ $isActive, $isDark }) =>
     $isActive
       ? `
-    background: #1890ff;
-    border-color: #1890ff;
+    background: var(--c-header-accent);
+    border-color: var(--c-header-accent);
     color: #ffffff;
     box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
     
     &:hover {
-      background: #40a9ff;
-      border-color: #40a9ff;
+      background: var(--c-header-accent);
+      border-color: var(--c-header-accent);
       color: #ffffff;
     }
   `
       : `
-    background: ${$isDark ? "#0a0a0a" : "#ffffff"};
-    border: 1px solid ${$isDark ? "#2a2a2a" : "#d9d9d9"};
-    color: ${$isDark ? "#00ff41" : "#595959"};
+    background: var(--c-bg);
+    border: 1px solid var(--c-header-border);
+    color: var(--c-text-secondary);
     
     &:hover {
-      background: ${$isDark ? "#1a1a1a" : "#e6f7ff"};
-      border-color: #1890ff;
-      color: #1890ff;
+      background: var(--c-header-accent-soft);
+      border-color: var(--c-header-accent);
+      color: var(--c-header-accent);
     }
   `}
 `;
@@ -47,6 +48,7 @@ const MissionSwitch: FC<{
   setViewSwitch: Dispatch<SetStateAction<Mission_Switch>>;
   currentView: Mission_Switch;
 }> = ({ setViewSwitch, currentView }) => {
+  const { t } = useTranslation();
   const isDark = useAtomValue(darkMode);
 
   const hSelect = (s: Mission_Switch) => {
@@ -60,14 +62,14 @@ const MissionSwitch: FC<{
         $isDark={isDark}
         onClick={() => hSelect("mission")}
       >
-        Missions
+        {t("utils.missions")}
       </StyledButton>
       <StyledButton
         $isActive={currentView === "schedule"}
         $isDark={isDark}
         onClick={() => hSelect("schedule")}
       >
-        Schedule
+        {t("main.schedule.tab")}
       </StyledButton>
     </Flex>
   );

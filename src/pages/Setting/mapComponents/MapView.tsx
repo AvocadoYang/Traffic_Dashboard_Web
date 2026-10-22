@@ -18,6 +18,7 @@ import {
   isShowRoadTooltip,
   QuickEditLocationPanelSwitch,
   MirStyleLocationPlacerSwitch,
+  EditAnnotationSwitch,
 } from "@/utils/siderGloble";
 import MirStyleLocationPlacer from "../formComponent/forms/MirStyleLocationPlacer";
 import useMap from "@/api/useMap";
@@ -44,8 +45,10 @@ import {
   ZoneIconHint,
   DragFrame,
   AllZones,
+  AllAnnotations,
   LocationHoverCluster,
 } from "./components";
+import { annotationToolAtom } from "./components/AllAnnotations/annotationAtoms";
 import type { FrameColor } from "./components";
 import { LocationType } from "@/utils/jotai";
 import AllRoads from "./components/AllRoads/AllRoads";
@@ -54,29 +57,25 @@ import AllCargo from "./components/AllCargo/AllCargo";
 import ToolTip from "../components/ToolTip";
 import SudoCargo, { SudoBatchCargo } from "./components/AllCargo/SudoCargo";
 import { AllChargeStation } from "./components/AllChargeStation";
-import CargoDetail from "./components/AllCargo/CargoDetail";
-import { GlobalCargoInfoModal } from "./components/AllCargo/jotaiState";
 import CargoModal from "./components/AllCargo/CargoModal";
 import AllConveyor from "./components/AllConveyor/AllConveyor";
 import {
   IsEditPeripheralModal,
-  IsOpenCargoEditorModal,
   IsOpenPeripheralModal,
 } from "../formComponent/forms/peripheralModal/jotai";
 import EditPeripheralModal from "../formComponent/forms/peripheralModal/EditPeripheralModal";
-import CargoEditor from "../formComponent/forms/peripheralModal/CargoEditor";
+import CargoPanel from "@/components/CargoPanel/CargoPanel";
 import { SudoPeripheral } from "../formComponent/forms/other/editPeripheralIcon";
 import AllElevator from "./components/AllElevator/AllElevator";
-import { EBLM, ECSM, EEC, EEM, ESM, LDM } from "../utils/settingJotai";
+import { EBLM, ECSM, EEM, LDM } from "../utils/settingJotai";
 import EditElevatorModal from "./components/AllElevator/EditElevatorModal";
-import CargoEditorElevator from "./components/AllElevator/Form/CargoEditorElevator";
 import EditChargeStationConfigModal from "./components/AllChargeStation/EditChargeStationConfigModal";
 import AllGateWaitPoint from "./components/AllGateWaitPoint/AllGateWaitPoint";
 import AllLiftGate from "./components/AllGate/AllLiftGate";
 import AllStack from "./components/AllStack/AllStack";
 import YfyPackage from "./components/YFYPackage/YfyPackage";
 import EditStackModal from "./components/AllStack/EditStackModal";
-import CargoEditorStack from "./components/AllStack/CargoEditorStack";
+import EditPackageModal from "./components/YFYPackage/EditPackageModal";
 import BlindLocationMissionModal from "../components/BlindLocationMissionModal";
 import LocationDetectModal from "../components/LocationDetectModal";
 import useCenterMap from "@/hooks/useCenterMap";
@@ -130,18 +129,16 @@ const MapView: React.FC<{
   );
   const openMirStyleLocationPlacer = useAtomValue(MirStyleLocationPlacerSwitch);
   const openEditZone = useAtomValue(EditZoneSwitch);
+  const openEditAnnotation = useAtomValue(EditAnnotationSwitch);
+  const annotationTool = useAtomValue(annotationToolAtom);
   const shelfSelectedStyleId = useAtomValue(shelfSelectedStyleLocationId);
   const batchStyle = useAtomValue(batchCargoStyle);
   const showLocationToolTip = useAtomValue(isShowLocationTooltip);
   const showRoad = useAtomValue(isShowRoad);
   const showRoadToolTip = useAtomValue(isShowRoadTooltip);
-  const openCargoInfo = useAtomValue(GlobalCargoInfoModal);
   const openPeripheralModal = useAtomValue(IsOpenPeripheralModal);
-  const openPeripheralCargoEditorModal = useAtomValue(IsOpenCargoEditorModal);
   const openElevatorModal = useAtomValue(EEM);
-  const openModalElevatorCargoEditor = useAtomValue(EEC);
   const openEditChargeStationModal = useAtomValue(ECSM);
-  const openStackContainereditor = useAtomValue(ESM);
   const openBlindMission = useAtomValue(EBLM);
   const openLocationDetect = useAtomValue(LDM);
 
@@ -212,7 +209,9 @@ const MapView: React.FC<{
     openEditLocationPanel ||
     openQuickEditLocationPanelSwitch ||
     openEditZone ||
-    openMirStyleLocationPlacer;
+    openMirStyleLocationPlacer ||
+    // 新增文字 / 拉框時左鍵用來放標註; 選取模式照常拖曳地圖
+    (openEditAnnotation && annotationTool !== "select");
 
   // 控制地圖拖曳
   useDragPan(mapWrapRef, mapRef, mapImageRef, !isEditingOnMap);
@@ -253,6 +252,8 @@ const MapView: React.FC<{
     >
       <MapImage ref={mapImageRef} />
 
+      <AllAnnotations scale={scale} mapRef={mapRef} mapImageRef={mapImageRef} />
+
       <AllLocation
         setInitPoint={setInitPoint}
         handleMouseDown={handleMouseDown}
@@ -278,8 +279,6 @@ const MapView: React.FC<{
       <AllLiftGate />
 
       {openPeripheralModal ? <EditPeripheralModal /> : []}
-
-      {openPeripheralCargoEditorModal ? <CargoEditor /> : []}
 
       <AllConveyor />
 
@@ -339,17 +338,14 @@ const MapView: React.FC<{
 
       <SudoPeripheral />
 
-      {/* 只有for  儲位專用修改貨物資料的 modal */}
-      {openCargoInfo ? <CargoDetail /> : []}
-
-      {openModalElevatorCargoEditor ? <CargoEditorElevator /> : null}
+      {/* 貨架 / 輸送帶 / stack / 電梯的貨物,跟主畫面用同一個面板編輯 */}
+      <CargoPanel />
 
       <CargoModal />
 
       {/* stack編輯資料與貨物*/}
       <EditStackModal />
-
-      {openStackContainereditor.isOpen ? <CargoEditorStack /> : null}
+      <EditPackageModal />
 
       {openBlindMission.isOpen ? <BlindLocationMissionModal /> : null}
 

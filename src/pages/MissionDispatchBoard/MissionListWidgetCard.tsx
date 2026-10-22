@@ -18,20 +18,20 @@ import {
 } from "./gridConstants";
 
 const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-  executing: { bg: "#f6ffed", text: "#52c41a" },
-  assigned: { bg: "#e6f7ff", text: "#1890ff" },
-  pending: { bg: "#fff7e6", text: "#faad14" },
-  completed: { bg: "#fafafa", text: "#8c8c8c" },
-  aborting: { bg: "#fff1f0", text: "#ff4d4f" },
-  canceled: { bg: "#fff1f0", text: "#ff4d4f" },
+  executing: { bg: "var(--c-success-soft)", text: "var(--c-success)" },
+  assigned: { bg: "var(--c-header-accent-soft)", text: "var(--c-header-accent)" },
+  pending: { bg: "var(--c-warning-soft)", text: "var(--c-warning)" },
+  completed: { bg: "var(--c-bg-subtle)", text: "var(--c-text-muted)" },
+  aborting: { bg: "var(--c-danger-soft)", text: "var(--c-danger)" },
+  canceled: { bg: "var(--c-danger-soft)", text: "var(--c-danger)" },
 };
 
 const Card = styled.div<{ $width: number; $height: number }>`
   width: ${({ $width }) => $width}px;
   height: ${({ $height }) => $height}px;
   border-radius: 8px;
-  background: #ffffff;
-  border: 1px solid #f0f0f0;
+  background: var(--c-bg);
+  border: 1px solid var(--c-bg-muted);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
@@ -43,8 +43,8 @@ const TitleBar = styled.div`
   padding: 8px 12px;
   font-weight: 600;
   font-size: 13px;
-  border-bottom: 1px solid #f0f0f0;
-  background: #fafafa;
+  border-bottom: 1px solid var(--c-bg-muted);
+  background: var(--c-bg-subtle);
   flex-shrink: 0;
 `;
 
@@ -62,7 +62,7 @@ const Row = styled.div`
   font-size: 12px;
 
   & + & {
-    border-top: 1px solid #f5f5f5;
+    border-top: 1px solid var(--c-bg-subtle);
   }
 `;
 
@@ -90,23 +90,23 @@ const MissionLabel = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #595959;
+  color: var(--c-text-secondary);
 `;
 
 const DeleteMissionIcon = styled(DeleteOutlined)`
   flex-shrink: 0;
-  color: #bfbfbf;
+  color: var(--c-text-muted);
   cursor: pointer;
 
   &:hover {
-    color: #ff4d4f;
+    color: var(--c-danger);
   }
 `;
 
 const EmptyRow = styled.div`
   padding: 16px;
   text-align: center;
-  color: #bfbfbf;
+  color: var(--c-text-muted);
   font-size: 12px;
 `;
 

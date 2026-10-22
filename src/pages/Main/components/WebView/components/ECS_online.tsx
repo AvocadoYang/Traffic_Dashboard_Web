@@ -3,6 +3,7 @@ import { Tooltip, Tag } from "antd"; // Import Tag and Tooltip
 // import { useElevatorSignal } from "@/sockets/useElevatorSignal"; // Assuming this hook provides the status
 import styled from "styled-components";
 import useEcsAlive from "@/sockets/useEcsOnline";
+import { useTranslation } from "react-i18next";
 
 // --- Styled Component ---
 // Modified to remove conflicting inline styles and focus on the container
@@ -23,11 +24,12 @@ const MissionBtnWrap = styled.div`
 // --- Component ---
 const ECS_online: React.FC = () => {
   const isAlive = useEcsAlive();
+  const { t } = useTranslation();
 
   // Determine the display properties
   const statusColor = isAlive ? "success" : "error";
-  const statusText = isAlive ? "Online" : "Offline";
-  const tooltipTitle = `Third-Party Status: ${statusText}`;
+  const statusText = isAlive ? t("utils.online") : t("utils.offline");
+  const tooltipTitle = t("main.third_party_status", { status: statusText });
 
   return (
     <MissionBtnWrap>

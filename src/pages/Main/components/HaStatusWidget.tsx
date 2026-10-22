@@ -2,6 +2,7 @@ import { Button, Modal, Select, Tag, message } from "antd";
 import { CrownOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import client from "@/api/axiosClient";
 import useHaStatus from "@/api/useHaStatus";
@@ -17,9 +18,9 @@ const Wrap = styled.div`
 // 之後如果要加「任務資料」同步，往這裡加一個 value 就好，對應的後端
 // 路由是 POST /api/ha/sync/<value>——現在只有 cargo 真的有實作。
 const SYNC_ITEM_OPTIONS = [
-  { value: "cargo", label: "貨物 / 儲位資料" },
-  { value: "mission", label: "任務資料（尚未支援）", disabled: true },
-];
+  { value: "cargo", labelKey: "ha.sync_item_cargo" },
+  { value: "mission", labelKey: "ha.sync_item_mission", disabled: true },
+] as const;
 
 const takeOver = (role: "MASTER" | "BACKUP") =>
   client.post("/api/ha/take-over", { role });
@@ -31,7 +32,12 @@ const HaStatusWidget: React.FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const queryClient = useQueryClient();
   const { data } = useHaStatus();
-  const [syncItem, setSyncItem] = useState("cargo");
+  const [syncItem, setSyncItem] = useState<string>("cargo");
+  const { t } = useTranslation();
+  const syncItemOptions = SYNC_ITEM_OPTIONS.map(({ labelKey, ...o }) => ({
+    ...o,
+    label: t(labelKey),
+  }));
 
   const takeOverMutation = useMutation({
     mutationFn: takeOver,
@@ -47,13 +53,13 @@ const HaStatusWidget: React.FC = () => {
       // 要提醒操作者自己去確認，不然可能會兩邊同時是 MASTER。
       if (role === "MASTER" && peerNotified === false) {
         messageApi.warning(
-          `已接手，但無法通知對方降級為 BACKUP（${
-            peerNotifyError || "原因不明"
-          }），請自行確認對方目前的狀態，避免兩邊同時是 MASTER`,
+          t("ha.take_over_peer_notify_failed", {
+            reason: peerNotifyError || t("ha.unknown_reason"),
+          }),
           8,
         );
       } else {
-        messageApi.success("已送出切換指令");
+        messageApi.success(t("ha.switch_sent"));
       }
       queryClient.invalidateQueries(["ha-status"]);
     },
@@ -63,7 +69,7 @@ const HaStatusWidget: React.FC = () => {
   const syncMutation = useMutation({
     mutationFn: syncFromMaster,
     onSuccess: () => {
-      messageApi.success("已從 MASTER 同步完成");
+      messageApi.success(t("ha.sync_done"));
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
@@ -78,38 +84,35 @@ const HaStatusWidget: React.FC = () => {
   const confirmTakeOver = (role: "MASTER" | "BACKUP") => {
     const toMaster = role === "MASTER";
     Modal.confirm({
-      title: toMaster ? "確定要接手任務嗎？" : "確定要釋放主控權嗎？",
+      title: toMaster
+        ? t("ha.confirm_take_over_title")
+        : t("ha.confirm_release_title"),
       icon: <WarningOutlined />,
       content: toMaster ? (
         <div>
-          <p>請先確認「另一台主機」真的已經停機或斷線，不是只是連不到而已。</p>
-          <p>
-            如果另一台其實還活著、也還在對車輛下指令，兩邊同時是
-            MASTER會導致同一台車同時收到互相衝突的任務。
-          </p>
+          <p>{t("ha.take_over_warn_1")}</p>
+          <p>{t("ha.take_over_warn_2")}</p>
         </div>
       ) : (
-        <p>釋放後這台主機會停止派發任務，請確認已經有另一台準備好接手。</p>
+        <p>{t("ha.release_warn")}</p>
       ),
-      okText: "確定",
-      cancelText: "取消",
+      okText: t("utils.confirm"),
+      cancelText: t("utils.cancel"),
       onOk: () => takeOverMutation.mutate(role),
     });
   };
 
   const confirmSync = () => {
     const label =
-      SYNC_ITEM_OPTIONS.find((o) => o.value === syncItem)?.label ?? syncItem;
+      syncItemOptions.find((o) => o.value === syncItem)?.label ?? syncItem;
     Modal.confirm({
-      title: `確定要從 MASTER 同步「${label}」嗎？`,
+      title: t("ha.confirm_sync_title", { label }),
       icon: <WarningOutlined />,
       content: (
-        <p>
-          會用 MASTER 目前的資料整包覆蓋掉本機（BACKUP）的資料，方向不能反過來。
-        </p>
+        <p>{t("ha.sync_warn")}</p>
       ),
-      okText: "確定同步",
-      cancelText: "取消",
+      okText: t("ha.confirm_sync_ok"),
+      cancelText: t("utils.cancel"),
       onOk: () => syncMutation.mutate(syncItem),
     });
   };
@@ -126,14 +129,14 @@ const HaStatusWidget: React.FC = () => {
 
       {arbiterUnreachable ? (
         <Tag icon={<WarningOutlined />} color="error">
-          {data.arbiterError || "本機 HA 服務連不到"}
+          {data.arbiterError || t("ha.arbiter_unreachable")}
         </Tag>
       ) : peerHaDown ? (
         <Tag icon={<WarningOutlined />} color="warning">
-          對方主機斷線
+          {t("ha.peer_down")}
         </Tag>
       ) : (
-        <Tag color="success">對方連線正常</Tag>
+        <Tag color="success">{t("ha.peer_ok")}</Tag>
       )}
 
       {isMaster ? (
@@ -143,7 +146,7 @@ const HaStatusWidget: React.FC = () => {
           loading={takeOverMutation.isLoading}
           onClick={() => confirmTakeOver("BACKUP")}
         >
-          釋放主控
+          {t("ha.release")}
         </Button>
       ) : (
         <>
@@ -153,7 +156,7 @@ const HaStatusWidget: React.FC = () => {
             loading={takeOverMutation.isLoading}
             onClick={() => confirmTakeOver("MASTER")}
           >
-            接手任務
+            {t("ha.take_over")}
           </Button>
 
           {/* 只有 BACKUP 才看得到、能按這個——同步方向固定是「這台去跟
@@ -163,7 +166,7 @@ const HaStatusWidget: React.FC = () => {
             size="small"
             value={syncItem}
             onChange={setSyncItem}
-            options={SYNC_ITEM_OPTIONS}
+            options={syncItemOptions}
             style={{ width: 160 }}
           />
           <Button
@@ -172,7 +175,7 @@ const HaStatusWidget: React.FC = () => {
             loading={syncMutation.isLoading}
             onClick={confirmSync}
           >
-            從 MASTER 同步
+            {t("ha.sync_from_master")}
           </Button>
         </>
       )}

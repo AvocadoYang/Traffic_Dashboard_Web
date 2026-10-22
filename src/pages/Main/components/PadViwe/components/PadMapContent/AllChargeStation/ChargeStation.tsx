@@ -54,7 +54,9 @@ const SvgStyle = styled.svg<{
     const isAllConnected =
       $isMQTTConnect && $isStationCodeAlive && $isTCPConnect && $barOut === "0";
     if (!isAllConnected) return "2px solid #ff4d4f"; // 異常紅框
-    return $isDisable ? "2px solid #1890ff" : "1px dashed #727272";
+    return $isDisable
+      ? "2px solid #1890ff"
+      : "1px dashed var(--c-map-device-border)";
   }};
 
   box-shadow: ${({

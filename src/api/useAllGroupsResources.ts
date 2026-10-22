@@ -3,6 +3,10 @@ import { array, boolean, InferType, number, object, string } from "yup";
 import { locationSchema, roadSchema, zoneSchema } from "./schemas/mapEntities";
 import client from "./axiosClient";
 
+// 版本碼:只有這支列表 API 會給。編輯時原樣帶回後端,後端用它發現這筆資料
+// 在打開編輯之後被別人改過。
+const withRev = { rev: string().optional() };
+
 const schema = object({
   groups: array(
     object({
@@ -14,9 +18,9 @@ const schema = object({
           mapId: string().required(),
           fileName: string().required(),
           floor: number().required(),
-          locations: array(locationSchema).required(),
-          roads: array(roadSchema).required(),
-          zones: array(zoneSchema).required(),
+          locations: array(locationSchema.shape(withRev).required()).required(),
+          roads: array(roadSchema.shape(withRev).required()).required(),
+          zones: array(zoneSchema.shape(withRev)).required(),
         }),
       ).required(),
     }),

@@ -1,10 +1,12 @@
-import { Card, Col, Empty, Layout, List, Row, Typography } from "antd";
+import { Card, Col, Empty, Layout, List, Row, Tag, Typography } from "antd";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import { useIsMobile } from "@/hooks/useIsMoblie";
 import { useAllAmrStatus } from "@/sockets/useAMRInfo";
 import { useTranslation } from "react-i18next";
+import { useCarMaintenance } from "@/api/useMaintenance";
+import { STATUS_COLOR } from "./MaintenanceSection";
 import { RobotOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
@@ -14,8 +16,8 @@ const IndustrialContainer = styled.div`
   width: 100%;
   margin: 40px auto;
   padding: 24px;
-  background: #ffffff;
-  border: 2px solid #d9d9d9;
+  background: var(--c-bg);
+  border: 2px solid var(--c-header-border);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   font-family: "Roboto Mono", monospace;
 
@@ -30,9 +32,9 @@ const IndustrialContainer = styled.div`
 `;
 
 const PageHeader = styled.div`
-  background: #fafafa;
-  border: 1px solid #d9d9d9;
-  border-left: 4px solid #1890ff;
+  background: var(--c-bg-subtle);
+  border: 1px solid var(--c-header-border);
+  border-left: 4px solid var(--c-header-accent);
   padding: 16px 20px;
   margin-bottom: 32px;
   font-family: "Roboto Mono", monospace;
@@ -42,7 +44,7 @@ const PageHeader = styled.div`
 
   h2 {
     margin: 0;
-    color: #1890ff;
+    color: var(--c-header-accent);
     font-size: 18px;
     font-weight: 700;
     text-transform: uppercase;
@@ -52,7 +54,7 @@ const PageHeader = styled.div`
 
 const IndustrialCard = styled(Card)`
   width: 100%;
-  border: 2px solid #d9d9d9;
+  border: 2px solid var(--c-header-border);
   border-radius: 0;
   transition: all 0.2s;
   position: relative;
@@ -65,13 +67,13 @@ const IndustrialCard = styled(Card)`
     top: 0;
     bottom: 0;
     width: 0;
-    background: #1890ff;
+    background: var(--c-header-accent);
     transition: width 0.2s;
   }
 
   &:hover {
     box-shadow: 0 4px 16px rgba(24, 144, 255, 0.2);
-    border-color: #1890ff;
+    border-color: var(--c-header-accent);
     transform: translateY(-4px);
 
     &::before {
@@ -93,7 +95,7 @@ const IndustrialCard = styled(Card)`
 const AmrTitle = styled(Title)`
   &&& {
     margin: 0 0 16px 0;
-    color: #262626;
+    color: var(--c-text);
     font-family: "Roboto Mono", monospace;
     font-weight: 700;
     text-transform: uppercase;
@@ -123,7 +125,7 @@ const InfoRow = styled.div`
   }
 
   .label {
-    color: #8c8c8c;
+    color: var(--c-text-muted);
     font-weight: 600;
   }
 `;
@@ -134,35 +136,35 @@ const StatusBadge = styled.span<{ $status: string }>`
   padding: 4px 10px;
   background: ${({ $status }) =>
     $status === "Active"
-      ? "#f6ffed"
+      ? "var(--c-success-soft)"
       : $status === "Charging"
-        ? "#fffbe6"
+        ? "var(--c-warning-soft)"
         : $status === "Error"
-          ? "#fff7e6"
+          ? "var(--c-warning-soft)"
           : $status === "Offline"
-            ? "#fff1f0"
-            : "#fafafa"};
+            ? "var(--c-danger-soft)"
+            : "var(--c-bg-subtle)"};
   border: 1px solid
     ${({ $status }) =>
       $status === "Active"
-        ? "#52c41a"
+        ? "var(--c-success)"
         : $status === "Charging"
-          ? "#faad14"
+          ? "var(--c-warning)"
           : $status === "Error"
             ? "#ff9646"
             : $status === "Offline"
-              ? "#ff4d4f"
-              : "#d9d9d9"};
+              ? "var(--c-danger)"
+              : "var(--c-header-border)"};
   color: ${({ $status }) =>
     $status === "Active"
-      ? "#52c41a"
+      ? "var(--c-success)"
       : $status === "Charging"
-        ? "#faad14"
+        ? "var(--c-warning)"
         : $status === "Error"
           ? "#ff9646"
           : $status === "Offline"
-            ? "#ff4d4f"
-            : "#8c8c8c"};
+            ? "var(--c-danger)"
+            : "var(--c-text-muted)"};
   font-weight: 700;
   font-size: 10px;
   text-transform: uppercase;
@@ -173,9 +175,9 @@ const NetworkDelay = styled.span`
   display: inline-flex;
   align-items: center;
   padding: 4px 10px;
-  background: #e6f7ff;
-  border: 1px solid #1890ff;
-  color: #1890ff;
+  background: var(--c-header-accent-soft);
+  border: 1px solid var(--c-header-accent);
+  color: var(--c-header-accent);
   font-weight: 700;
   font-size: 10px;
 `;
@@ -184,12 +186,15 @@ const AmrList = () => {
   const { isMobile } = useIsMobile();
   const data = useAllAmrStatus();
   const { t } = useTranslation();
+  // 保養到期 / 即將到期 / 維修中 的標記 (設定頁 車輛 > 保養項目)
+  const { data: maintenance } = useCarMaintenance();
+  const carMaintenance = (id: string) => maintenance?.cars.find((c) => c.amrId === id);
 
   const columns = isMobile ? 1 : 2;
   const colSpan = isMobile ? 24 : 12;
 
   return (
-    <Layout style={{ minHeight: "100vh", background: "#f5f5f5" }}>
+    <Layout style={{ minHeight: "100vh", background: "var(--c-bg-subtle)" }}>
       <Header />
       <IndustrialContainer>
         <PageHeader>
@@ -222,7 +227,7 @@ const AmrList = () => {
                   <Link to={`/amr/${amrId}`} style={{ display: "block" }}>
                     <IndustrialCard hoverable>
                       <AmrTitle level={4}>
-                        <RobotOutlined style={{ color: "#1890ff" }} />
+                        <RobotOutlined style={{ color: "var(--c-header-accent)" }} />
                         {amr.amrId}
                       </AmrTitle>
 
@@ -249,6 +254,24 @@ const AmrList = () => {
                             : t("utils.offline")}
                         </StatusBadge>
                       </InfoRow>
+
+                      {(() => {
+                        const m = carMaintenance(amr.amrId);
+                        if (!m || (!m.hold && m.status === "ok")) return null;
+                        return (
+                          <InfoRow>
+                            <span className="label">{t("car_maintenance.title")}:</span>
+                            <span>
+                              {m.hold && <Tag color="red">{t("car_maintenance.on_hold")}</Tag>}
+                              {m.status !== "ok" && (
+                                <Tag color={STATUS_COLOR[m.status]}>
+                                  {t(`car_maintenance.status_${m.status}`)}
+                                </Tag>
+                              )}
+                            </span>
+                          </InfoRow>
+                        );
+                      })()}
 
                       <InfoRow>
                         <span className="label">

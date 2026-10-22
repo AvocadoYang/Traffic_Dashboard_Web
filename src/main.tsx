@@ -4,6 +4,10 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./i18n/i18n";
+import { initTheme } from "./theme";
+
+// React 掛載前先把主題的 CSS 變數寫上去,避免第一幀出現沒有變數的畫面。
+initTheme();
 
 // const currentHost = location.host.split(":")[0];
 

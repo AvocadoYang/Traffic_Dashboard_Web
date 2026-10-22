@@ -186,7 +186,7 @@ const ChargeStationModel: FC = () => {
                   </InfoWrapper>
                 </Box>
                 <TextWrapper>
-                  <H3>{`充電站標號： ${open.location.slice(-2)}`}</H3>
+                  <H3>{`${t("charge.station_label")}： ${open.location.slice(-2)}`}</H3>
                   <H3>
                     {t("charge.updateTime")}
                     {`: ${dayjs(info.responseTime).format("YYYY/M/D HH:mm:ss")}`}

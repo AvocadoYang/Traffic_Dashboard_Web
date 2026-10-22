@@ -29,7 +29,7 @@ const Option = styled.button<{ $active: boolean }>`
   cursor: pointer;
   transition: all 0.15s ease;
   background: ${({ $active }) => ($active ? c.accent : "transparent")};
-  color: ${({ $active }) => ($active ? "#ffffff" : c.textSecondary)};
+  color: ${({ $active }) => ($active ? c.onAccent : c.textSecondary)};
 
   &:last-child {
     border-right: none;
@@ -37,7 +37,7 @@ const Option = styled.button<{ $active: boolean }>`
 
   &:hover:not(:disabled) {
     background: ${({ $active }) => ($active ? c.accent : c.bgMuted)};
-    color: ${({ $active }) => ($active ? "#ffffff" : c.text)};
+    color: ${({ $active }) => ($active ? c.onAccent : c.text)};
   }
 
   &:disabled {

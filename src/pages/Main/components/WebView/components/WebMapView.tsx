@@ -4,7 +4,10 @@ import {
   LocationHoverCluster,
 } from "@/pages/Setting/mapComponents/components";
 import "../webview.css";
-import { AllZones } from "@/pages/Setting/mapComponents/components";
+import {
+  AllAnnotations,
+  AllZones,
+} from "@/pages/Setting/mapComponents/components";
 import AllLocation from "../../PadViwe/components/PadMapContent/component/AllLocation";
 import { useAtom, useAtomValue } from "jotai";
 import { AmrFilterCarCard, Scale, showZoneForbidden } from "@/utils/gloable";
@@ -37,6 +40,7 @@ import useMouseClick from "../hooks/useMouseClick";
 import AllGateWaitPoint from "../../PadViwe/components/PadMapContent/AllGateWaitPoint/AllGateWaitPoint";
 import AllLiftGate from "../../PadViwe/components/PadMapContent/AllGate/AllLiftGate";
 import AllStack from "../../PadViwe/components/PadMapContent/AllStack/AllStack";
+import YfyPackage from "../../PadViwe/components/PadMapContent/YFYPackage/YfyPackage";
 import AllPointCloud from "../../PadViwe/components/PadMapContent/component/AllPointCloud/AllPointCloud";
 import LocalizationCorrectionGhost from "../../PadViwe/components/PadMapContent/component/LocalizationCorrection/LocalizationCorrectionGhost";
 import useDragPan from "@/pages/Main/components/WebView/hooks/useDragPan";
@@ -129,11 +133,13 @@ const WebMapView: React.FC<{
       ) : (
         <>
           {/* <AllLocation mapRef={mapRef}></AllLocation> */}
+          <AllAnnotations scale={scale} />
           <AllAMRs></AllAMRs>
           <LocalizationCorrectionGhost></LocalizationCorrectionGhost>
           {showPointCloud ? <AllPointCloud></AllPointCloud> : null}
           <AllCargo></AllCargo>
           <AllStack></AllStack>
+          <YfyPackage></YfyPackage>
           <AllElevator></AllElevator>
           <AllConveyor></AllConveyor>
           <AllGateWaitPoint></AllGateWaitPoint>

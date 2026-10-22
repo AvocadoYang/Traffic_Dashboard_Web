@@ -770,12 +770,12 @@ const RoadList: React.FC<{
               {t("utils.edit")}
             </IndustrialButton>
             <Popconfirm
-              title="Delete the task"
-              description="Are you sure to delete this road?"
+              title={t("edit_road_panel.delete_title")}
+              description={t("edit_road_panel.delete_confirm")}
               onConfirm={() => deleteRoadMutation.mutate(record.roadId)}
               onCancel={cancel}
-              okText="Yes"
-              cancelText="No"
+              okText={t("utils.yes")}
+              cancelText={t("utils.no")}
             >
               <IndustrialButton className="danger" icon={<DeleteOutlined />}>
                 {t("utils.delete")}

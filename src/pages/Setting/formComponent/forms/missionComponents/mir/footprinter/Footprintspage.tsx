@@ -28,6 +28,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
+import { useTranslation } from "react-i18next";
 
 /* ------------------------------------------------------------------ */
 /*  Types & mock data                                                  */
@@ -201,6 +202,7 @@ const PAGE_SIZE = 8;
 const MIR_CREATED_BY = "MiR";
 
 export const FootprintsPage: React.FC = () => {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [current, setCurrent] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -218,7 +220,7 @@ export const FootprintsPage: React.FC = () => {
         payload,
       ),
     onSuccess: async (_res, variables) => {
-      messageApi.success(`已建立「${variables.name}」`);
+      messageApi.success(t("mir.created_named", { name: variables.name }));
       refetch();
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
@@ -228,7 +230,7 @@ export const FootprintsPage: React.FC = () => {
     mutationFn: (payload: FootprintRow) =>
       client.post("api/setting/edit-footprint", payload),
     onSuccess: async (_res, variables) => {
-      messageApi.success(`已儲存「${variables.name}」`);
+      messageApi.success(t("mir.saved_named", { name: variables.name }));
       refetch();
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
@@ -288,7 +290,7 @@ export const FootprintsPage: React.FC = () => {
 
   const handleEditorSave = async (next: FootprintRecord) => {
     if (!activeRow?.id) {
-      messageApi.error("找不到這筆 footprint 的 ID，無法儲存");
+      messageApi.error(t("mir.footprint.no_id_save"));
       return;
     }
     try {
@@ -329,7 +331,7 @@ export const FootprintsPage: React.FC = () => {
       align: "right",
       render: (_: unknown, row) => (
         <Flex>
-          <Tooltip title="檢視 / 編輯">
+          <Tooltip title={t("mir.view_edit")}>
             <ActionButton
               icon={<EyeOutlined />}
               onClick={() => openEditorFor(row)}
@@ -339,8 +341,8 @@ export const FootprintsPage: React.FC = () => {
           <Tooltip
             title={
               row.created_by === MIR_CREATED_BY
-                ? "MiR 內建資料不可刪除"
-                : "摧毀"
+                ? t("mir.builtin_no_delete")
+                : t("utils.delete")
             }
           >
             <ActionButton
@@ -393,7 +395,7 @@ export const FootprintsPage: React.FC = () => {
       <HeaderRow>
         <TitleGroup>
           <Title>Footprints</Title>
-          <Tooltip title="定義機器人外框的形狀">
+          <Tooltip title={t("mir.footprint.title_hint")}>
             <HelpIcon />
           </Tooltip>
         </TitleGroup>
@@ -494,7 +496,9 @@ export const FootprintsPage: React.FC = () => {
           <Form.Item
             name="name"
             label="Name"
-            rules={[{ required: true, message: "請輸入 footprint 名稱" }]}
+            rules={[
+              { required: true, message: t("mir.footprint.name_required") },
+            ]}
           >
             <Input placeholder="Enter a name for the footprint." />
           </Form.Item>

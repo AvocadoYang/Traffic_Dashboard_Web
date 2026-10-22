@@ -888,7 +888,7 @@ const MapManager: FC<{
                   pageSize: 10,
                   showTotal: (total, range) => (
                     <span style={{ fontFamily: "Roboto Mono, monospace" }}>
-                      {range[0]}-{range[1]} of {total}
+                      {range[0]}-{range[1]} {t("utils.of")} {total}
                     </span>
                   ),
                 }}

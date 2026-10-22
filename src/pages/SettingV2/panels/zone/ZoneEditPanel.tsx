@@ -72,6 +72,7 @@ const ZoneEditPanel: FC<Props> = ({ zonePanelForm }) => {
       limitNum,
       all_forbidden,
       view_available,
+      elevator_id,
     } = v as never as {
       name?: string;
       color?: Color;
@@ -89,6 +90,7 @@ const ZoneEditPanel: FC<Props> = ({ zonePanelForm }) => {
       limitNum?: number;
       all_forbidden?: boolean;
       view_available?: string;
+      elevator_id?: string;
     };
 
     if ((startX === endX && startY === endY) || !startX || !startY) {
@@ -141,6 +143,7 @@ const ZoneEditPanel: FC<Props> = ({ zonePanelForm }) => {
         hight_limit: has(ZONE_TAGS.height) ? Number(hight_limit) : undefined,
         limitNum: has(ZONE_TAGS.limit) ? Number(limitNum) : undefined,
         view_available: has(ZONE_TAGS.view) ? view_available : undefined,
+        elevator_id: has(ZONE_TAGS.elevator) ? elevator_id?.trim() : undefined,
       },
       startPoint: { startX, startY },
       layer: layer ? layer : "none",
@@ -176,25 +179,25 @@ const ZoneEditPanel: FC<Props> = ({ zonePanelForm }) => {
         >
           <FieldGrid $cols={2}>
             <Field>
-              <FieldLabel>START X</FieldLabel>
+              <FieldLabel>{t("edit_zone_panel.start_x")}</FieldLabel>
               <Form.Item name="startX" noStyle>
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>
             </Field>
             <Field>
-              <FieldLabel>START Y</FieldLabel>
+              <FieldLabel>{t("edit_zone_panel.start_y")}</FieldLabel>
               <Form.Item name="startY" noStyle>
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>
             </Field>
             <Field>
-              <FieldLabel>END X</FieldLabel>
+              <FieldLabel>{t("edit_zone_panel.end_x")}</FieldLabel>
               <Form.Item name="endX" noStyle>
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>
             </Field>
             <Field>
-              <FieldLabel>END Y</FieldLabel>
+              <FieldLabel>{t("edit_zone_panel.end_y")}</FieldLabel>
               <Form.Item name="endY" noStyle>
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>
@@ -226,7 +229,7 @@ const ZoneEditPanel: FC<Props> = ({ zonePanelForm }) => {
           </GhostButton>
         </Toolbar>
 
-        <Hint>在地圖上拖曳框選範圍,會自動帶入起訖座標。</Hint>
+        <Hint>{t("setting_v2.zone.edit_hint")}</Hint>
       </Section>
     </PanelShell>
   );

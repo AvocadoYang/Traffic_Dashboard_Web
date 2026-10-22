@@ -121,6 +121,7 @@ const EditZonePanel: React.FC<{
     { label: `${t("edit_zone_panel.restricted_zone")}`, value: "禁止區" },
     { label: `${t("edit_zone_panel.controlled_zone")}`, value: "限制區" },
     { label: `${t("edit_zone_panel.view_available_zone")}`, value: "查看區" },
+    { label: `${t("edit_zone_panel.elevator_zone")}`, value: "電梯區" },
   ];
 
   const layer: SelectProps["options"] = [
@@ -146,6 +147,9 @@ const EditZonePanel: React.FC<{
   const hightLimit = Form.useWatch("hight_limit", zonePanelForm);
   const limitNum = Form.useWatch("limitNum", zonePanelForm);
   const viewAvailable = Form.useWatch("view_available", zonePanelForm);
+  const elevatorId = Form.useWatch("elevator_id", zonePanelForm) as
+    | string
+    | undefined;
   const allVehicleForbidden = Form.useWatch(
     "all_forbidden",
     zonePanelForm,
@@ -169,6 +173,7 @@ const EditZonePanel: React.FC<{
     if (zoneTags.includes("限高區") && isUnset(hightLimit)) return true;
     if (zoneTags.includes("限制區") && isUnset(limitNum)) return true;
     if (zoneTags.includes("查看區") && isUnset(viewAvailable)) return true;
+    if (zoneTags.includes("電梯區") && isUnset(elevatorId?.trim())) return true;
     return false;
   }, [
     zoneTags,
@@ -176,6 +181,7 @@ const EditZonePanel: React.FC<{
     hightLimit,
     limitNum,
     viewAvailable,
+    elevatorId,
     allVehicleForbidden,
     forbiddenVehicles,
   ]);
@@ -214,6 +220,7 @@ const EditZonePanel: React.FC<{
       limitNum,
       all_forbidden,
       view_available,
+      elevator_id,
     } = zonePanelForm.getFieldsValue() as ZoneFormValue;
     if ((startX === endX && startY === endY) || !startX || !startY) {
       openNotificationWithIcon(
@@ -294,6 +301,9 @@ const EditZonePanel: React.FC<{
         limitNum: category?.includes("限制區") ? Number(limitNum) : undefined,
         view_available: category?.includes("查看區")
           ? view_available
+          : undefined,
+        elevator_id: category?.includes("電梯區")
+          ? elevator_id?.trim()
           : undefined,
       },
       startPoint: {
@@ -427,13 +437,19 @@ const EditZonePanel: React.FC<{
                 label={t("edit_zone_panel.lidar_front")}
                 name="lidar_front"
               >
-                <Switch checkedChildren="On" unCheckedChildren="Off" />
+                <Switch
+                  checkedChildren={t("utils.on")}
+                  unCheckedChildren={t("utils.off")}
+                />
               </Form.Item>
               <Form.Item
                 label={t("edit_zone_panel.lidar_back")}
                 name="lidar_back"
               >
-                <Switch checkedChildren="On" unCheckedChildren="Off" />
+                <Switch
+                  checkedChildren={t("utils.on")}
+                  unCheckedChildren={t("utils.off")}
+                />
               </Form.Item>
             </Flex>
             {layerIsHint ? (
@@ -553,7 +569,7 @@ const EditZonePanel: React.FC<{
                   ]}
                 >
                   <Input
-                    addonAfter="car (s)"
+                    addonAfter={t("edit_zone_panel.cars_unit")}
                     type="number"
                     min={0}
                     step={1}
@@ -581,6 +597,26 @@ const EditZonePanel: React.FC<{
                     )}
                     style={{ width: "50%" }}
                     options={viewAvailableOption}
+                  />
+                </Form.Item>
+              ) : null}
+
+              {zoneTags.includes("電梯區") ? (
+                <Form.Item
+                  name="elevator_id"
+                  label={`${t("edit_zone_panel.elevator_id")}: (${t("edit_zone_panel.necessary")})`}
+                  style={tagFieldStyle}
+                  rules={[
+                    {
+                      required: true,
+                      whitespace: true,
+                      message: t("edit_zone_panel.placeholder.elevator_id"),
+                    },
+                  ]}
+                >
+                  <Input
+                    placeholder={t("edit_zone_panel.placeholder.elevator_id")}
+                    style={{ width: "100%" }}
                   />
                 </Form.Item>
               ) : null}

@@ -22,6 +22,7 @@ import ElevatorIO from "./components/ElevatorIO";
 import TestBarcode from "./components/TestBarcode";
 import ECS_online from "./components/ECS_online";
 import DirectMove from "../missionModal/DirectMove";
+import CargoPanel from "@/components/CargoPanel/CargoPanel";
 import MissionDispatchPanel from "./components/MissionDispatchPanel";
 import useMap from "@/api/useMap";
 import JoystickPanelWrap from "../../Car_Card/JoystickPanelWrap";
@@ -31,6 +32,8 @@ import OpenPerformanceBtn from "@/components/Performance/OpenPerformanceBtn";
 import styled, { css } from "styled-components";
 import { mq } from "@/styles/responsive";
 import { useTranslation } from "react-i18next";
+import { themeAtom } from "@/theme";
+import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 
 const { Content } = Layout;
 
@@ -87,7 +90,7 @@ const MapPanelInner = styled.div`
   position: relative;
   height: 100%;
   overflow: hidden;
-  background-color: #e6e6e7;
+  background-color: var(--c-bg-muted);
   display: flex;
   flex-direction: column;
 `;
@@ -131,6 +134,8 @@ const BottomPanelSection = styled.div<{ $view: BottomView }>`
     $view === "car"
       ? css`
           flex: 0 0 auto;
+          /* 詳細模式的車輛卡片很高,不設上限會把地圖整個擠掉 */
+          max-height: 60%;
         `
       : css`
           flex: 0 1 auto;
@@ -145,15 +150,15 @@ const BottomPanelSection = styled.div<{ $view: BottomView }>`
 const BottomPanelTabs = styled.div<{ $isDark: boolean }>`
   flex: 0 0 auto;
   padding: var(--space-xs) var(--space-md);
-  background: ${({ $isDark }) => ($isDark ? "#1a1a1a" : "#f5f5f5")};
-  border-top: 1px solid ${({ $isDark }) => ($isDark ? "#333" : "#d9d9d9")};
+  background: var(--c-bg-subtle);
+  border-top: 1px solid var(--c-header-border);
 `;
 
 const BottomPanelBody = styled.div<{ $view: BottomView }>`
   flex: 1 1 auto;
   min-height: 0;
   overflow-x: ${({ $view }) => ($view === "car" ? "auto" : "hidden")};
-  overflow-y: ${({ $view }) => ($view === "car" ? "hidden" : "auto")};
+  overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.28) transparent;
 
@@ -183,7 +188,7 @@ const BottomPanelBody = styled.div<{ $view: BottomView }>`
   ${({ $view }) =>
     $view === "car" &&
     css`
-      && > * > .ant-flex {
+      && > * > .car-card-grid {
         flex-wrap: nowrap;
         justify-content: flex-start;
       }
@@ -205,15 +210,25 @@ const MapSelectorSlot = styled.div`
   z-index: 20;
 `;
 
+const ToggleSidebarBtn = styled(Button)`
+  position: absolute;
+  top: var(--space-sm);
+  right: 13rem;
+  z-index: 20;
+`;
+
 const WebView = () => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapWrapRef = useRef<HTMLDivElement>(null);
   const isDark = useAtomValue(darkMode);
+  // antd 的 token 不能吃 var(),要餵真實色碼,所以這裡直接拿 palette
+  const { colors } = useAtomValue(themeAtom);
   const currentMapInfo = useMap();
   const setScale = useSetAtom(Scale);
   const cm = useAtomValue(centerMap);
   const { t } = useTranslation();
   const [bottomView, setBottomView] = useState<BottomView>("car");
+  const [showSidebars, setShowSidebars] = useState(true);
 
   const mapScale = currentMapInfo?.data?.scale;
   useEffect(() => {
@@ -223,35 +238,39 @@ const WebView = () => {
 
   return (
     <WebViewContent>
+      {/* 點地圖上的貨架 / 輸送帶 / stack / 電梯,右側打開貨物面板 */}
+      <CargoPanel />
       <ConfigProvider
         theme={{
           components: {
             Splitter: {
-              colorFill: `${isDark ? "#ff8800" : "rgba(0,0,0,0.15)"}`,
-              controlItemBgActiveHover: `${isDark ? "#ffa00a" : "#bae0ff"}`,
-              controlItemBgHover: `${isDark ? "#262626" : "rgba(0,0,0,0.04)"}`,
+              colorFill: colors.borderStrong,
+              controlItemBgActiveHover: colors.headerAccent,
+              controlItemBgHover: colors.bgMuted,
             },
             Segmented: {
-              trackBg: `${isDark ? "#0a0a0a" : "#ffffff"}`,
-              itemColor: `${isDark ? "#8c8c8c" : "#595959"}`,
-              itemHoverColor: `${isDark ? "#00ff41" : "#262626"}`,
-              itemHoverBg: `${isDark ? "#262626" : "rgba(0,0,0,0.04)"}`,
-              itemSelectedBg: `${isDark ? "#262626" : "#e6f4ff"}`,
-              itemSelectedColor: `${isDark ? "#00ff41" : "#1890ff"}`,
+              trackBg: colors.bg,
+              itemColor: colors.textSecondary,
+              itemHoverColor: colors.text,
+              itemHoverBg: colors.bgMuted,
+              itemSelectedBg: colors.headerAccentSoft,
+              itemSelectedColor: colors.headerAccent,
             },
           },
         }}
       >
         <MapSplitter>
-          <Splitter.Panel
-            defaultSize="13%"
-            collapsible={true}
-            className={`${isDark ? "dark-mode-side" : ""}`}
-          >
-            <SidePanelInner>
-              <CarCardWrap></CarCardWrap>
-            </SidePanelInner>
-          </Splitter.Panel>
+          {showSidebars && (
+            <Splitter.Panel
+              defaultSize="13%"
+              collapsible={true}
+              className={`${isDark ? "dark-mode-side" : ""}`}
+            >
+              <SidePanelInner>
+                <CarCardWrap></CarCardWrap>
+              </SidePanelInner>
+            </Splitter.Panel>
+          )}
           <Splitter.Panel
             defaultSize="67%"
             className={`${isDark ? "dark-mode-map" : ""}`}
@@ -272,6 +291,11 @@ const WebView = () => {
                     面板讓開右上角的 MapSelectorSlot */}
                 <OpenPerformanceBtn top="72px" left="16px" />
                 <PerformancePanel top="64px" right="16px" />
+                <ToggleSidebarBtn
+                  type="primary"
+                  icon={showSidebars ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
+                  onClick={() => setShowSidebars(!showSidebars)}
+                />
                 {/* <MissionBtn></MissionBtn> */}
                 <DirectMove></DirectMove>
                 {/* <ECS_online />
@@ -313,15 +337,17 @@ const WebView = () => {
               </MapSelectorSlot>
             </MapPanelInner>
           </Splitter.Panel>
-          <Splitter.Panel
-            defaultSize="20%"
-            collapsible={true}
-            className={`${isDark ? "dark-mode-side" : ""}`}
-          >
-            <SidePanelInner>
-              <MissionWrap></MissionWrap>
-            </SidePanelInner>
-          </Splitter.Panel>
+          {showSidebars && (
+            <Splitter.Panel
+              defaultSize="20%"
+              collapsible={true}
+              className={`${isDark ? "dark-mode-side" : ""}`}
+            >
+              <SidePanelInner>
+                <MissionWrap></MissionWrap>
+              </SidePanelInner>
+            </Splitter.Panel>
+          )}
         </MapSplitter>
         <JoystickPanelWrap />
       </ConfigProvider>

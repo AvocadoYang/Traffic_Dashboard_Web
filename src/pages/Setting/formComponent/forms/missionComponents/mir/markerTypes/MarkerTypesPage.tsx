@@ -30,6 +30,7 @@ import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import F from "lodash/fp/F";
 import { useMarkerType } from "@/api/useMarkerType";
+import { useTranslation } from "react-i18next";
 
 
 
@@ -248,6 +249,7 @@ type EditMarkerTypePayload = MarkerTypePayload & {
   id: string;
 };
 export const MarkerTypesPage: React.FC = () => {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [current, setCurrent] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -261,7 +263,7 @@ export const MarkerTypesPage: React.FC = () => {
     mutationFn: (payload: CreateMarkerTypePayload) =>
       client.post(CREATE_URL, payload),
     onSuccess: () => {
-      messageApi.success(`已建立 marker type`);
+      messageApi.success(t("mir.marker_type.created"));
       refetch();
       setDrawerOpen(false);
       form.resetFields();
@@ -273,7 +275,7 @@ export const MarkerTypesPage: React.FC = () => {
     mutationFn: (payload: EditMarkerTypePayload) =>
       client.post(EDIT_URL, payload),
     onSuccess: () => {
-      messageApi.success(`已編輯 marker type`);
+      messageApi.success(t("mir.marker_type.edited"));
       refetch();
       setDrawerOpen(false);
       form.resetFields();
@@ -284,7 +286,7 @@ export const MarkerTypesPage: React.FC = () => {
   const deleteMutation = useMutation({
     mutationFn: (payload: { id: string }) => client.post(DELETE_URL, payload),
     onSuccess: () => {
-      messageApi.success(`已刪除 marker type`);
+      messageApi.success(t("mir.marker_type.deleted"));
       refetch();
     },
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
@@ -391,14 +393,14 @@ export const MarkerTypesPage: React.FC = () => {
         const readOnly = row.created_by === "MiR";
         return (
           <Flex gap="middle">
-            <Tooltip title={readOnly ? "檢視" : "編輯"}>
+            <Tooltip title={readOnly ? t("mir.view") : t("utils.edit")}>
               <ActionButton
                 icon={readOnly ? <EyeOutlined /> : <EditOutlined />}
                 onClick={() => openRow(row, readOnly)}
               />
             </Tooltip>
 
-            <Tooltip title="摧毀">
+            <Tooltip title={t("utils.delete")}>
               <ActionButton
                 onClick={() => deleteMutation.mutate({ id: row.id || "" })}
                 icon={<DeleteFilled />}
@@ -416,7 +418,7 @@ export const MarkerTypesPage: React.FC = () => {
       <HeaderRow>
         <TitleGroup>
           <Title>Marker Types</Title>
-          <Tooltip title="定義貨架 marker 的偵測形狀">
+          <Tooltip title={t("mir.marker_type.title_hint")}>
             <HelpIcon />
           </Tooltip>
         </TitleGroup>
@@ -537,7 +539,7 @@ export const MarkerTypesPage: React.FC = () => {
           <Form.Item
             name="name"
             label="Name"
-            rules={[{ required: true, message: "請輸入 marker type 名稱" }]}
+            rules={[{ required: true, message: t("mir.marker_type.name_required") }]}
           >
             <Input placeholder="my_test" />
           </Form.Item>
@@ -569,7 +571,7 @@ export const MarkerTypesPage: React.FC = () => {
                 type: "number",
                 min: 0.4,
                 max: 0.75,
-                message: "請輸入 0.4 到 0.75 之間的數值",
+                message: t("mir.marker_type.range_bar_length"),
               },
             ]}
             label={
@@ -597,7 +599,7 @@ export const MarkerTypesPage: React.FC = () => {
                 type: "number",
                 min: 0.75,
                 max: 1.5,
-                message: "請輸入 0.75 到 1.5 之間的數值",
+                message: t("mir.marker_type.range_bar_distance"),
               },
             ]}
             label={

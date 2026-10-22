@@ -116,7 +116,7 @@ const AutoMission = () => {
                   .includes(input.toLowerCase()),
             }}
             options={misOptions}
-            placeholder="Select a mission "
+            placeholder={t("main.queue_mir_task_modal.select_mission")}
             onMouseDown={(e) => e.preventDefault()}
             onPopupScroll={(e) => {
               e.stopPropagation();
@@ -143,7 +143,7 @@ const AutoMission = () => {
                   .toLowerCase()
                   .includes(input.toLowerCase()),
             }}
-            placeholder="Select an AMR"
+            placeholder={t("main.queue_mir_task_modal.select_amr")}
             options={AmrOption}
             onMouseDown={(e) => e.preventDefault()}
             onOpenChange={(open) => {

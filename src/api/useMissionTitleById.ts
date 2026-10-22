@@ -32,11 +32,19 @@ const getById = async (id: string) => {
 
 export type MTType = InferType<typeof schema>;
 
+/**
+ * query key 必須帶 id。之前 key 是固定的 ["mission-title-by-id"],
+ * 換一筆任務不會換 key,所以 React Query 直接回上一次的快取、不會重打;
+ * v1 是靠「Modal 關掉就整個 unmount」每次重新掛載才剛好繞過,
+ * 常駐掛載的元件(SettingV2 的 MissionMetaModal)就會一直拿到第一次的結果。
+ * 另外 id 是空字串時不該發請求,後端會回一筆過不了 schema 的東西。
+ */
 const useMissionTitleById = (id: string) => {
-  return useQuery(["mission-title-by-id"], {
+  return useQuery(["mission-title-by-id", id], {
     queryFn: () => {
       return getById(id);
     },
+    enabled: !!id,
   });
 };
 

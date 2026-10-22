@@ -13,7 +13,9 @@ import type { TableColumnsType } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
+  PoweroffOutlined,
   ReloadOutlined,
+  StopOutlined,
   SearchOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
@@ -24,7 +26,7 @@ import useAllGroupsResources from "@/api/useAllGroupsResources";
 import client from "@/api/axiosClient";
 import { currentMapIdAtom } from "@/utils/mapSelection";
 import { ErrorResponse } from "@/utils/globalType";
-import { errorHandler } from "@/utils/utils";
+import { editErrorHandler, errorHandler } from "@/utils/utils";
 import useIsNarrow from "../../ui/useIsNarrow";
 import GroupMapFilter from "../../ui/GroupMapFilter";
 import ZoneFields from "../../ui/zoneFields";
@@ -46,6 +48,9 @@ import {
   CardFacts,
   Tag,
 } from "../../ui/primitives";
+import { c } from "../../ui/tokens";
+import StatusTag from "../../ui/StatusTag";
+import useToggleZoneEnabled from "@/api/useToggleZoneEnabled";
 
 type ZoneRow = {
   id: string;
@@ -55,15 +60,18 @@ type ZoneRow = {
   layer: string;
   lidar_front: boolean;
   lidar_back: boolean;
+  disabled?: boolean;
   tagSetting?: {
     speed_limit?: number | null;
     hight_limit?: number | null;
     forbidden_car?: string[];
     limitNum?: number | null;
     view_available?: number | null;
+    elevator_id?: string | null;
   };
   startPoint: { startX: number; startY: number };
   endPoint: { endX: number; endY: number };
+  rev?: string;
   mapFileName: string;
   groupName: string;
 };
@@ -80,6 +88,38 @@ const ZoneListPanel: FC = () => {
 
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<ZoneRow | null>(null);
+  const {
+    setEnabled,
+    pendingId,
+    contextHolder: toggleHolder,
+  } = useToggleZoneEnabled();
+
+  const statusTag = (row: ZoneRow) => (
+    <StatusTag $on={!row.disabled}>
+      {t(row.disabled ? "zone_enable.disabled" : "zone_enable.enabled")}
+    </StatusTag>
+  );
+
+  const toggleButton = (row: ZoneRow, withText: boolean) =>
+    row.disabled ? (
+      <GhostButton
+        title={t("zone_enable.enable")}
+        disabled={pendingId === row.id}
+        onClick={() => setEnabled(row, true)}
+      >
+        <PoweroffOutlined />
+        {withText && t("zone_enable.enable")}
+      </GhostButton>
+    ) : (
+      <GhostButton
+        title={t("zone_enable.disable")}
+        disabled={pendingId === row.id}
+        onClick={() => setEnabled(row, false)}
+      >
+        <StopOutlined />
+        {withText && t("zone_enable.disable")}
+      </GhostButton>
+    );
 
   const activeGroupId = useMemo(
     () => resources?.groups.find((g) => g.isUsing)?.groupId ?? null,
@@ -109,12 +149,17 @@ const ZoneListPanel: FC = () => {
       invalidate();
       setEditing(null);
     },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+    onError: (e: ErrorResponse) =>
+      editErrorHandler(e, messageApi, () => {
+        invalidate();
+        setEditing(null);
+      }),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) =>
-      client.post("api/setting/delete-edit-zone", { id, map_id: currentMapId }),
+      // 後端收的是 zoneIds 陣列;送 { id } 的話它拿不到要刪哪一筆,每次都失敗
+      client.post("api/setting/delete-edit-zone", { zoneIds: [id] }),
     onSuccess: () => {
       void messageApi.success(t("utils.success"));
       invalidate();
@@ -181,6 +226,7 @@ const ZoneListPanel: FC = () => {
       hight_limit: row.tagSetting?.hight_limit ?? undefined,
       limitNum: row.tagSetting?.limitNum ?? undefined,
       view_available: row.tagSetting?.view_available ?? undefined,
+      elevator_id: row.tagSetting?.elevator_id ?? undefined,
       all_forbidden: isAll,
       forbidden: isAll ? [] : forbiddenCar,
       color: row.backgroundColor,
@@ -201,6 +247,7 @@ const ZoneListPanel: FC = () => {
     editMutation.mutate({
       ...v,
       id: editing.id,
+      rev: editing.rev,
       layer: v.layer ? v.layer : "none",
       lidar_back: v.layer ? v.lidar_back : false,
       lidar_front: v.layer ? v.lidar_front : false,
@@ -215,7 +262,7 @@ const ZoneListPanel: FC = () => {
         display: "inline-block",
         width: 14,
         height: 14,
-        border: "1px solid #c8c8c8",
+        border: `1px solid ${c.borderStrong}`,
         background: bg,
         verticalAlign: "middle",
       }}
@@ -223,6 +270,18 @@ const ZoneListPanel: FC = () => {
   );
 
   const columns: TableColumnsType<ZoneRow> = [
+    {
+      title: t("zone_enable.status"),
+      key: "status",
+      width: 90,
+      fixed: "left",
+      filters: [
+        { text: t("zone_enable.enabled"), value: "enabled" },
+        { text: t("zone_enable.disabled"), value: "disabled" },
+      ],
+      onFilter: (value, r) => (value === "disabled") === !!r.disabled,
+      render: (_, r) => statusTag(r),
+    },
     {
       title: t("zone_table_form.zone_name"),
       dataIndex: "name",
@@ -285,10 +344,11 @@ const ZoneListPanel: FC = () => {
     {
       title: "",
       key: "actions",
-      width: 110,
+      width: 150,
       fixed: "right",
       render: (_, row) => (
         <Toolbar>
+          {toggleButton(row, false)}
           <GhostButton onClick={() => openEdit(row)}>
             <EditOutlined />
           </GhostButton>
@@ -310,6 +370,7 @@ const ZoneListPanel: FC = () => {
   return (
     <PanelShell>
       {contextHolder}
+      {toggleHolder}
 
       <Section>
         <SectionTitle>
@@ -341,7 +402,7 @@ const ZoneListPanel: FC = () => {
         </Toolbar>
 
         {rows.length === 0 ? (
-          <EmptyState>NO ZONES</EmptyState>
+          <EmptyState>{t("setting_v2.empty.zones")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (
@@ -350,6 +411,7 @@ const ZoneListPanel: FC = () => {
                   <span>
                     {colorDot(row.backgroundColor)} {row.name}
                   </span>
+                  {statusTag(row)}
                 </CardTitleRow>
 
                 <CardFacts>
@@ -376,6 +438,7 @@ const ZoneListPanel: FC = () => {
                 </CardFacts>
 
                 <Toolbar>
+                  {toggleButton(row, true)}
                   <GhostButton onClick={() => openEdit(row)}>
                     <EditOutlined />
                     {t("utils.edit")}
@@ -407,7 +470,7 @@ const ZoneListPanel: FC = () => {
               pagination={{
                 pageSize: 15,
                 showSizeChanger: true,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>
@@ -427,25 +490,25 @@ const ZoneListPanel: FC = () => {
         <Form form={editForm} layout="vertical">
           <FieldGrid $cols={2}>
             <Field>
-              <FieldLabel>START X</FieldLabel>
+              <FieldLabel>{t("edit_zone_panel.start_x")}</FieldLabel>
               <Form.Item name="startX" noStyle>
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>
             </Field>
             <Field>
-              <FieldLabel>START Y</FieldLabel>
+              <FieldLabel>{t("edit_zone_panel.start_y")}</FieldLabel>
               <Form.Item name="startY" noStyle>
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>
             </Field>
             <Field>
-              <FieldLabel>END X</FieldLabel>
+              <FieldLabel>{t("edit_zone_panel.end_x")}</FieldLabel>
               <Form.Item name="endX" noStyle>
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>
             </Field>
             <Field>
-              <FieldLabel>END Y</FieldLabel>
+              <FieldLabel>{t("edit_zone_panel.end_y")}</FieldLabel>
               <Form.Item name="endY" noStyle>
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>

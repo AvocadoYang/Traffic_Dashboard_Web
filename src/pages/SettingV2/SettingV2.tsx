@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Layout, Form, Button, ConfigProvider, Drawer, Segmented } from "antd";
+import { Layout, Form, Button, Drawer, Segmented } from "antd";
 import { CloseOutlined, MenuOutlined } from "@ant-design/icons";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
@@ -7,11 +7,14 @@ import styled from "styled-components";
 import Header from "@/components/Header";
 import MapSelector from "@/components/MapSelector";
 import useMap from "@/api/useMap";
+import useEditRevisionSync from "@/api/useEditRevisionSync";
 import { centerMap, Scale } from "@/utils/gloable";
 import {
   EditLocationPanelSwitch,
   EditRoadPanelSwitch,
   EditZoneSwitch,
+  EditAnnotationSwitch,
+  QuickEditLocationPanelSwitch,
 } from "@/utils/siderGloble";
 import MapView from "@/pages/Setting/mapComponents/MapView";
 import { ZoomPad, BKBtn } from "@/pages/Setting/components";
@@ -19,10 +22,11 @@ import { useResetSiderSwitch } from "@/pages/Setting/hooks";
 import "@/pages/Setting/setting.css";
 import { activeSettingPanelAtom } from "./activePanelAtom";
 import { mapViewModeAtom, type MapViewMode } from "./mapViewModeAtom";
+import { navCollapsedAtom } from "./navCollapsedAtom";
 import { navCategories } from "./navItems";
 import SettingV2Nav from "./SettingV2Nav";
 import PanelRenderer from "./PanelRenderer";
-import { settingV2Theme } from "./ui/theme";
+import { ThemedConfigProvider } from "@/theme";
 import useIsNarrow from "./ui/useIsNarrow";
 import { c, font, mqNarrow, space } from "./ui/tokens";
 
@@ -77,8 +81,9 @@ const PanelColumn = styled.div<{ $mode: MapViewMode }>`
   ${({ $mode }) => {
     if ($mode === "full") return `display: none;`;
     if ($mode === "hidden") return `display: flex; flex: 1; min-width: 0;`;
-    return `display: flex; width: clamp(380px, 42%, 900px); flex-shrink: 0;`;
+    return `display: flex; width: var(--panel-width, clamp(380px, 42%, 900px)); flex-shrink: 0;`;
   }}
+  position: relative;
   height: 100%;
   flex-direction: column;
   background: ${c.bg};
@@ -93,6 +98,36 @@ const PanelColumn = styled.div<{ $mode: MapViewMode }>`
         : `display: flex; width: 100%; flex: 1;`}
   }
 `;
+
+const PanelResizeHandle = styled.div`
+  position: absolute;
+  top: 0;
+  right: -6px;
+  bottom: 0;
+  z-index: 2;
+  width: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: ew-resize;
+  touch-action: none;
+
+  &::before {
+    content: "";
+    width: 4px;
+    height: 48px;
+    border-radius: 2px;
+    background: ${c.borderStrong};
+  }
+
+  ${mqNarrow} {
+    display: none;
+  }
+`;
+
+const PANEL_MIN_WIDTH = 320;
+/** 拖到最寬時,地圖至少還留這麼多 */
+const MAP_MIN_WIDTH = 160;
 
 const PanelHeader = styled.div`
   display: flex;
@@ -163,11 +198,54 @@ const SettingV2: React.FC = () => {
   const [zonePanelForm] = Form.useForm();
   const [scale, setScale] = useAtom(Scale);
   const currentMapInfo = useMap();
+  // 別人改了地圖或任務,這邊的地圖和列表幾秒內跟著更新
+  useEditRevisionSync();
   const cm = useAtomValue(centerMap);
   const [activePanel, setActivePanel] = useAtom(activeSettingPanelAtom);
   const [mapMode, setMapMode] = useAtom(mapViewModeAtom);
   const isNarrow = useIsNarrow();
   const [navOpen, setNavOpen] = useState(false);
+  const [navCollapsed, setNavCollapsed] = useAtom(navCollapsedAtom);
+  const panelDragRef = useRef<{
+    startX: number;
+    startWidth: number;
+    maxWidth: number;
+    /** 寫 --panel-width 的那層。寫在 Body 而不是面板本身,關掉面板再開寬度還在 */
+    body: HTMLElement;
+  } | null>(null);
+
+  const handlePanelDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
+    const panel = e.currentTarget.parentElement;
+    const body = panel?.parentElement;
+    if (!panel || !body) return;
+    const panelRect = panel.getBoundingClientRect();
+    panelDragRef.current = {
+      startX: e.clientX,
+      startWidth: panelRect.width,
+      maxWidth:
+        body.getBoundingClientRect().right - panelRect.left - MAP_MIN_WIDTH,
+      body,
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const handlePanelDragMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const drag = panelDragRef.current;
+    if (!drag) return;
+    const next = drag.startWidth + (e.clientX - drag.startX);
+    drag.body.style.setProperty(
+      "--panel-width",
+      `${Math.min(Math.max(next, PANEL_MIN_WIDTH), drag.maxWidth)}px`,
+    );
+  };
+
+  const handlePanelDragEnd = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!panelDragRef.current) return;
+    panelDragRef.current = null;
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+  };
 
   // v1 也是這樣做的:進頁面先把幾顆地圖編輯模式的 atom 歸零。因為 v1/v2 共用同一份
   // atom,誰後進來誰負責重置,不會互相殘留狀態。
@@ -180,15 +258,23 @@ const SettingV2: React.FC = () => {
   const setEditLocationPanelSwitch = useSetAtom(EditLocationPanelSwitch);
   const setEditRoadPanelSwitch = useSetAtom(EditRoadPanelSwitch);
   const setEditZoneSwitch = useSetAtom(EditZoneSwitch);
+  const setEditAnnotationSwitch = useSetAtom(EditAnnotationSwitch);
+  const setQuickEditLocationPanelSwitch = useSetAtom(
+    QuickEditLocationPanelSwitch,
+  );
   useEffect(() => {
     setEditLocationPanelSwitch(activePanel === "location_panel");
     setEditRoadPanelSwitch(activePanel === "road_panel");
     setEditZoneSwitch(activePanel === "edit_zone");
+    setQuickEditLocationPanelSwitch(activePanel === "quick_location_panel");
+    setEditAnnotationSwitch(activePanel === "map_annotation");
   }, [
     activePanel,
     setEditLocationPanelSwitch,
     setEditRoadPanelSwitch,
     setEditZoneSwitch,
+    setEditAnnotationSwitch,
+    setQuickEditLocationPanelSwitch,
   ]);
 
   const mapScale = currentMapInfo?.data?.scale;
@@ -207,7 +293,7 @@ const SettingV2: React.FC = () => {
   }, [activePanel, t]);
 
   return (
-    <ConfigProvider theme={settingV2Theme}>
+    <ThemedConfigProvider>
       <Layout style={{ height: "var(--app-height)" }}>
         <Header />
         <Content>
@@ -226,10 +312,12 @@ const SettingV2: React.FC = () => {
                     <Segmented
                       size="small"
                       value={mapMode === "full" ? "map" : "panel"}
-                      onChange={(v) => setMapMode(v === "map" ? "full" : "half")}
+                      onChange={(v) =>
+                        setMapMode(v === "map" ? "full" : "half")
+                      }
                       options={[
-                        { value: "panel", label: "面板" },
-                        { value: "map", label: "地圖" },
+                        { value: "panel", label: t("setting_v2.view_panel") },
+                        { value: "map", label: t("setting_v2.view_map") },
                       ]}
                     />
                     {/* 窄螢幕的面板沒有自己的標題列,關閉鈕要放在這裡 */}
@@ -263,6 +351,8 @@ const SettingV2: React.FC = () => {
                 <SettingV2Nav
                   activePanel={activePanel}
                   onSelectPanel={setActivePanel}
+                  collapsed={navCollapsed}
+                  onToggleCollapse={() => setNavCollapsed(!navCollapsed)}
                 />
               )}
 
@@ -289,6 +379,15 @@ const SettingV2: React.FC = () => {
                       zonePanelForm={zonePanelForm}
                     />
                   </PanelBody>
+
+                  {mapMode === "half" && (
+                    <PanelResizeHandle
+                      onPointerDown={handlePanelDragStart}
+                      onPointerMove={handlePanelDragMove}
+                      onPointerUp={handlePanelDragEnd}
+                      onPointerCancel={handlePanelDragEnd}
+                    />
+                  )}
                 </PanelColumn>
               )}
 
@@ -314,7 +413,7 @@ const SettingV2: React.FC = () => {
           </Shell>
         </Content>
       </Layout>
-    </ConfigProvider>
+    </ThemedConfigProvider>
   );
 };
 

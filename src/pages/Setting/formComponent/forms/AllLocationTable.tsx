@@ -322,7 +322,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
   const rules =
     dataIndex === "ip"
       ? [{ validator: validateIpAddress }]
-      : [{ required: true, message: "REQUIRED!" }];
+      : [{ required: true, message: t("utils.required") }];
 
   return (
     <td {...restProps}>
@@ -590,7 +590,7 @@ const AllLocationTable: React.FC<{
 
   const deleteLocationInList = (id: string | undefined, locationId: string) => {
     if (!id) {
-      messageApi.error("ID IS MISSING");
+      messageApi.error(t("utils.id_missing"));
       return;
     }
     deleteLocationMutation.mutate({ id, locationId });
@@ -727,7 +727,7 @@ const AllLocationTable: React.FC<{
                 if (record.id && record.locationId) {
                   save(record.id, record.locationId);
                 } else {
-                  messageApi.warning("ID IS MISSING");
+                  messageApi.warning(t("utils.id_missing"));
                 }
               }}
               icon={<SaveOutlined />}

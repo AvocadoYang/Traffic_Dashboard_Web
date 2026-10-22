@@ -46,6 +46,7 @@ export const QuickMissionHoverCell = atom<{
 
 export const OpenChargeStationModal = atom<string | null>(null);
 
+
 export const OpenDirect = atom<{ open: boolean; locationId: string | null }>({
   open: false,
   locationId: null,

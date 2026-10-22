@@ -11,6 +11,9 @@ export type LocationType = {
   rotate: number;
   map_id?: string;
   ip?: string | null;
+  wait_area_id?: string | null;
+  wait_order?: number;
+  currentMapId?: string;
 };
 
 export type ZoneType = {
@@ -33,6 +36,7 @@ export type TagSettingType = {
   hight_limit: number;
   limitNum: number;
   view_available: string;
+  elevator_id: string;
 };
 
 export type RoadListType = {

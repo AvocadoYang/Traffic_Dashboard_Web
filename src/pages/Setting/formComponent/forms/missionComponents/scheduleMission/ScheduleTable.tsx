@@ -174,7 +174,7 @@ const ScheduleTable: FC<{
 
         return (
           <TimeStyle>
-            <span>{`星期: ${week}`}</span>
+            <span>{`${t("mission.schedule_mission.week")}: ${week}`}</span>
             <span>{`${hour}:${minus}`}</span>
           </TimeStyle>
         );
@@ -236,7 +236,7 @@ const ScheduleTable: FC<{
             </Button>
 
             <Popconfirm
-              title="Sure to delete?"
+              title={t("utils.delete_warn")}
               onConfirm={() => handleDelete(record.id)}
             >
               <Button color="danger" variant="filled">

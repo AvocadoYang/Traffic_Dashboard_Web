@@ -136,7 +136,7 @@ const RoadEditPanel: FC<Props> = ({ roadPanelForm }) => {
           </GhostButton>
         </Toolbar>
 
-        <Hint>在地圖上依序點兩個點位,會自動帶入起點與終點。</Hint>
+        <Hint>{t("setting_v2.road.edit_hint")}</Hint>
       </Section>
     </PanelShell>
   );

@@ -180,7 +180,7 @@ const CycleMissionTable: React.FC<{
               <div style={{ width: "100%", textAlign: "right" }}>
                 <Space>
                   <Popconfirm
-                    title="Sure to delete?"
+                    title={t("utils.delete_warn")}
                     onConfirm={() => deleteOne(record.cycle_relate_id)}
                   >
                     <Button color="danger" variant="filled">

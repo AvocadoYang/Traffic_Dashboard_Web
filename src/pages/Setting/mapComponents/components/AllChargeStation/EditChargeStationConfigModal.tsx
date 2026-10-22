@@ -12,6 +12,7 @@ import {
   Input,
   message,
   Modal,
+  Select,
   Skeleton,
   Space,
   Switch,
@@ -21,6 +22,11 @@ import { useAtom, useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { currentMapIdAtom } from "@/utils/mapSelection";
+import {
+  editModalBodyStyle,
+  editPanelStyle,
+  EDIT_TITLE_COLOR,
+} from "../editModalStyle";
 
 const { Title, Text } = Typography;
 
@@ -47,13 +53,6 @@ type DetectResponse = {
   message?: string;
 };
 
-const CARD_STYLE: React.CSSProperties = {
-  background: "#fff",
-  padding: "24px",
-  borderRadius: 8,
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-};
-
 const EditChargeStationConfigModal = () => {
   const [open, setOpen] = useAtom(ECSM);
   const [form] = Form.useForm<FormData>();
@@ -67,22 +66,15 @@ const EditChargeStationConfigModal = () => {
   const currentMapId = useAtomValue(currentMapIdAtom);
   const { data: mapData } = useMap();
 
-  const AmrOption: { value: string; label: string }[] | undefined =
-    useMemo(() => {
-      let options;
-      if (name?.isSim) {
-        options = name.amrs
-          .filter((a) => a.isReal === false)
-          .map((m) => ({ label: m.amrId, value: m.amrId }));
-      } else {
-        options = name?.amrs
-          .filter((a) => a.isReal === true)
-          .map((m) => ({ label: m.amrId, value: m.amrId }));
-      }
-      return options ? [...options] : undefined;
-    }, [name]);
+  const AmrOption = useMemo(() => {
+    return (
+      name?.amrs?.map((a) => ({
+        label: a.amrId,
+        value: a.amrId,
+      })) ?? []
+    );
+  }, [name]);
 
-  // 靠近充電站的偵測點位——從所有地點裡選,取代原本寫死的單一 6005
   const locationOptions = useMemo(
     () =>
       mapData?.locations.map((v) => ({
@@ -190,9 +182,7 @@ const EditChargeStationConfigModal = () => {
       <Modal
         title={null}
         width={560}
-        styles={{
-          body: { padding: "24px", background: "#fafafa" },
-        }}
+        styles={{ body: editModalBodyStyle }}
         open={open.isOpen}
         onCancel={handleCancel}
         onOk={handleOk}
@@ -200,7 +190,7 @@ const EditChargeStationConfigModal = () => {
         okText={t("utils.save")}
         cancelText={t("utils.cancel")}
       >
-        <div style={CARD_STYLE}>
+        <div style={editPanelStyle}>
           {open && open.locationId && socketConfig[open.locationId] ? (
             <Form form={form} layout="vertical" size="large">
               <Title
@@ -208,7 +198,7 @@ const EditChargeStationConfigModal = () => {
                 style={{
                   textAlign: "center",
                   marginBottom: "24px",
-                  color: "#1890ff",
+                  color: EDIT_TITLE_COLOR,
                 }}
               >
                 {t("charge.model.edit_charge_station_config")}
@@ -219,7 +209,10 @@ const EditChargeStationConfigModal = () => {
                 name="disable"
                 valuePropName="checked"
               >
-                <Switch checkedChildren="On" unCheckedChildren="Off" />
+                <Switch
+                  checkedChildren={t("utils.on")}
+                  unCheckedChildren={t("utils.off")}
+                />
               </Form.Item>
 
               <Form.Item label={t("charge.model.station_id")} name="stationId">
@@ -250,23 +243,30 @@ const EditChargeStationConfigModal = () => {
                 <Input />
               </Form.Item>
 
-              <Form.Item label="允許使用此充電站的 AMR" name="amrIds">
+              <Form.Item
+                label={t("charge.station_config.allowed_amr")}
+                name="amrIds"
+              >
                 <Select
                   mode="multiple"
                   options={AmrOption}
-                  placeholder="選擇可以使用這個充電座的 AMR"
+                  placeholder={t(
+                    "charge.station_config.allowed_amr_placeholder",
+                  )}
                   allowClear
                 />
               </Form.Item>
 
               <Form.Item
-                label="靠近充電站的偵測點位"
+                label={t("charge.station_config.near_points")}
                 name="nearPointLocationIds"
               >
                 <Select
                   mode="multiple"
                   options={locationOptions}
-                  placeholder="選擇靠近這個充電座的偵測點位"
+                  placeholder={t(
+                    "charge.station_config.near_points_placeholder",
+                  )}
                   allowClear
                 />
               </Form.Item>

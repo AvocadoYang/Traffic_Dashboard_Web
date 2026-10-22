@@ -164,13 +164,16 @@ const QuickEditRoadPanel: React.FC<{
             title={
               <>
                 <div>
-                  <b>A</b>: Start/Stop Editing
+                  <b>A</b>
+                  {t("quick_edit_road_panel.key_toggle")}
                 </div>
                 <div>
-                  <b>S</b>: Save
+                  <b>S</b>
+                  {t("quick_edit_road_panel.key_save")}
                 </div>
                 <div>
-                  <b>ESC</b>: Cancel
+                  <b>ESC</b>
+                  {t("quick_edit_road_panel.key_cancel")}
                 </div>
               </>
             }

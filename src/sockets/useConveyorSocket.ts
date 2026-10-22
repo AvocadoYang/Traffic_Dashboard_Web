@@ -1,8 +1,7 @@
-import { array, string, object, ValidationError, number, boolean } from "yup";
 import {
   from,
   fromEventPattern,
-  share,
+  shareReplay,
   switchMap,
   distinctUntilChanged,
 } from "rxjs";
@@ -11,25 +10,6 @@ import { io } from "./socketConnect";
 import { Conveyor_Info } from "@/types/peripheral";
 import { deepEqual } from "@/utils/deepEqual";
 
-const strSchema = string().optional().nullable();
-
-const relationshipSchema = object().test(
-  "relation-type",
-  "relationship has format error",
-  (value) => {
-    if (!value || Object.keys(value).length === 0) return true;
-
-    if (typeof value !== "object" || Array.isArray(value)) return false;
-
-    for (const key in value) {
-      const levelValue = value[key];
-      const valid = strSchema.isValidSync(levelValue);
-      if (!valid) return false;
-    }
-
-    return true;
-  },
-);
 
 const profiles$ = fromEventPattern(
   (next) => {
@@ -57,7 +37,9 @@ const profiles$ = fromEventPattern(
   distinctUntilChanged(
     (prev, curr) => deepEqual(prev, curr),
   ),
-  share(),
+  // 資料沒變時 distinctUntilChanged 不會再發,晚訂閱的元件(例如貨物面板)
+  // 會一直拿不到資料,所以要 replay 最新一筆
+  shareReplay({ bufferSize: 1, refCount: true }),
 );
 
 const useConveyorSocket = () => {

@@ -26,6 +26,17 @@ const Point = styled.div.attrs<{
   border-radius: 50%;
   z-index: 10;
   transition-duration: 200ms;
+
+  /* 底圖跟著深色主題變深時,深紫會看不到,換亮一點的紫。
+     「祖先 &」的區塊是套在元件共用的 class 上,裡面不能直接寫跟 props 有關的值,
+     所以先存成變數再取。 */
+  --dot-on-dark-map: ${(props) =>
+    props.canrotate === "true" ? "#ebac5b" : "#c58bff"};
+
+  [data-map-canvas="dark"] & {
+    background: var(--dot-on-dark-map);
+  }
+
   &:hover {
     background: red;
     scale: 1.8;

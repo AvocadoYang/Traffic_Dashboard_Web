@@ -96,7 +96,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
           rules={[
             {
               required: true,
-              message: "Please Input !",
+              message: t("utils.required"),
             },
           ]}
         >

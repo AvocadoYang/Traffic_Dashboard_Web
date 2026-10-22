@@ -277,7 +277,7 @@ const AmrConfigPanel: FC = () => {
                 name="name"
                 rules={[{ required: true, message: t("utils.required") }]}
               >
-                <Input placeholder="平衡式" />
+                <Input placeholder={t("setting_v2.amr.name_placeholder")} />
               </Form.Item>
             </Field>
 
@@ -371,7 +371,7 @@ const AmrConfigPanel: FC = () => {
         </SectionTitle>
 
         {rows.length === 0 ? (
-          <EmptyState>NO ROBOT TYPES</EmptyState>
+          <EmptyState>{t("setting_v2.empty.robot_types")}</EmptyState>
         ) : isNarrow ? (
           <CardList>
             {rows.map((row) => (
@@ -424,7 +424,7 @@ const AmrConfigPanel: FC = () => {
               }
               pagination={{
                 pageSize: 12,
-                showTotal: (total) => `TOTAL ${total}`,
+                showTotal: (total) => t("utils.total", { total }),
               }}
             />
           </TableWrap>
@@ -442,7 +442,7 @@ const AmrConfigPanel: FC = () => {
         destroyOnHidden
       >
         <WarnNote>
-          這個車種還被下列任務使用中,必須指定要改用哪一個車種才能刪除。
+          {t("setting_v2.amr.delete_in_use")}
         </WarnNote>
 
         <ul style={{ margin: "12px 0", paddingLeft: 20, fontSize: 12 }}>

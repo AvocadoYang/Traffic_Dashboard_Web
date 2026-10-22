@@ -24,7 +24,7 @@ const schema = () =>
     }),
   );
 
-const warningId$ = fromEventPattern(
+export const warningId$ = fromEventPattern(
   (next) => {
     io.on("car-error-info", next);
     return next;

@@ -108,7 +108,7 @@ const BackupPanel: FC<{
         return (
           <Flex gap="middle">
             <Popconfirm
-              title="you sure"
+              title={t("utils.are_you_sure")}
               onConfirm={() => deleteHandler(record.id)}
             >
               <Button color="danger" variant="filled">

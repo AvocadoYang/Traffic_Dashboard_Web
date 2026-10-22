@@ -563,14 +563,14 @@ const TaskFormFork: FC<{
     if (submittable) {
       return {
         status: "success" as const,
-        message: "[OK] CONFIGURATION VALID",
+        message: t("mission.task_form_fork.validation.ok"),
         icon: <CheckCircleOutlined />,
       };
     }
     if (controlClickOrder.length === 0) {
       return {
         status: "warning" as const,
-        message: "[WARN] NO CONTROL SEQUENCE DEFINED",
+        message: t("mission.task_form_fork.validation.warning"),
         icon: <WarningOutlined />,
       };
     }
@@ -582,13 +582,13 @@ const TaskFormFork: FC<{
     ) {
       return {
         status: "error" as const,
-        message: "[ERROR] LOCATION REQUIRED",
+        message: t("mission.task_form_fork.validation.error"),
         icon: <WarningOutlined />,
       };
     }
     return {
       status: "warning" as const,
-      message: "[WARN] INCOMPLETE CONFIGURATION",
+      message: t("mission.task_form_fork.validation.incomplete"),
       icon: <WarningOutlined />,
     };
   }, [submittable, controlClickOrder, selectLocationType, values]);
@@ -663,11 +663,30 @@ const TaskFormFork: FC<{
   );
 
   const peripheralActionOption = [
-    { label: "使用者確認", value: "USER_CONFORM_NEXT_TASK_STEP" },
-    { label: "開啟捲門", value: "OPEN_ROLLING_DOOR" },
-    { label: "關閉捲門", value: "CLOSE_ROLLING_DOOR" },
-    { label: "檢查門是否開啟起(維修開啟)", value: "READ_ROLLING_DOOR_OPEN" },
-    { label: "檢查門是否開關閉(維修關閉)", value: "READ_ROLLING_DOOR_CLOSE" },
+    {
+      label: t("mission.task_form_fork.peripheral_action.user_confirm"),
+      value: "USER_CONFORM_NEXT_TASK_STEP",
+    },
+    {
+      label: t("mission.task_form_fork.peripheral_action.open_rolling_door"),
+      value: "OPEN_ROLLING_DOOR",
+    },
+    {
+      label: t("mission.task_form_fork.peripheral_action.close_rolling_door"),
+      value: "CLOSE_ROLLING_DOOR",
+    },
+    {
+      label: t(
+        "mission.task_form_fork.peripheral_action.read_rolling_door_open",
+      ),
+      value: "READ_ROLLING_DOOR_OPEN",
+    },
+    {
+      label: t(
+        "mission.task_form_fork.peripheral_action.read_rolling_door_close",
+      ),
+      value: "READ_ROLLING_DOOR_CLOSE",
+    },
   ];
 
   return (
@@ -890,10 +909,14 @@ const TaskFormFork: FC<{
           <IndustrialCard>
             <SectionHeader>
               <SettingOutlined />
-              [07] 設備控制選項
+              {t("mission.task_form_fork.section_peripheral")}
             </SectionHeader>
             <Form.Item
-              label={<FieldLabel>選擇類別</FieldLabel>}
+              label={
+                <FieldLabel>
+                  {t("setting_v2.mission.select_category")}
+                </FieldLabel>
+              }
               name="peripheral_action_type"
             >
               <Select
@@ -910,10 +933,12 @@ const TaskFormFork: FC<{
             <IndustrialCard>
               <SectionHeader>
                 <SettingOutlined />
-                [08] 警告自訂內容
+                {t("mission.task_form_fork.section_confirm_message")}
               </SectionHeader>
               <Form.Item
-                label={<FieldLabel>內容</FieldLabel>}
+                label={
+                  <FieldLabel>{t("mission.task_form_fork.content")}</FieldLabel>
+                }
                 name="peripheral_action_message"
               >
                 <Input />

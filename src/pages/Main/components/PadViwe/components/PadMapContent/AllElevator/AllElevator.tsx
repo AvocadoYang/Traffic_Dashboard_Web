@@ -28,6 +28,12 @@ const PointDiv = styled.div.attrs<{
   z-index: 300000;
   box-shadow: 0 0 4px rgba(13, 91, 236, 0.6);
   transform: translate(-50%, -50%);
+
+  /* 底圖跟著深色主題變深時,深藍會看不到,換亮一點的藍 */
+  [data-map-canvas="dark"] & {
+    background: #7aa2ff;
+  }
+
   &:hover {
     background: red;
     width: 5px;
