@@ -25,6 +25,7 @@ import {
   MaintenanceLevel,
 } from "@/sockets/useAMRInfo";
 import { useTranslation } from "react-i18next";
+import OfflineReason from "./OfflineReason";
 import {
   CarryTag,
   ChargingTag,
@@ -35,6 +36,7 @@ import {
   MissionTag,
   PowerTag,
   StepWaitTag,
+  StepCheckTag,
 } from "./Tags";
 import useRoadConditions from "@/sockets/useAmrRoadConditions";
 import useMapList from "@/api/useMapList";
@@ -389,6 +391,7 @@ export const CardHeader: React.FC<{
             )}
           </HeadSub>
         )}
+        {!compact && <OfflineReason amrId={amrId} />}
       </Head>
     );
   },
@@ -813,6 +816,7 @@ export const CarTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   return (
     <TagWrap $offline={isOverdue}>
       <MissionTag amrId={amrId} />
+      {!isOverdue && <StepCheckTag amrId={amrId} />}
       {!isOverdue && <StepWaitTag amrId={amrId} />}
       <CarryTag amrId={amrId} />
       <ChargingTag amrId={amrId} />

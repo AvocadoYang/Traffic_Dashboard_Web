@@ -6,7 +6,7 @@ import useMissionDetail from "@/api/useMissionDetail";
 
 const { Text } = Typography;
 
-/** 任務執行中有人手動介入 (直接下一動) 的紀錄; 沒有就什麼都不顯示 */
+/** 任務執行中有人手動介入 (直接下一動 / 重送這一步) 的紀錄; 沒有就什麼都不顯示 */
 const MissionManualActions: FC<{ missionId: string }> = ({ missionId }) => {
   const { t } = useTranslation();
   const { data, isLoading } = useMissionDetail(missionId);
@@ -29,9 +29,12 @@ const MissionManualActions: FC<{ missionId: string }> = ({ missionId }) => {
             message={
               <Flex gap="small" wrap>
                 <Text strong>
-                  {t("mission_manual.force_next_step", {
-                    step: (a.step_idx ?? 0) + 1,
-                  })}
+                  {t(
+                    a.action === "RESEND_STEP"
+                      ? "mission_manual.resend_step"
+                      : "mission_manual.force_next_step",
+                    { step: (a.step_idx ?? 0) + 1 },
+                  )}
                 </Text>
                 {a.step_label && <Text code>{a.step_label}</Text>}
               </Flex>

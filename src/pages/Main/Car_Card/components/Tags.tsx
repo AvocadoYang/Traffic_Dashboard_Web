@@ -6,6 +6,7 @@ import {
   useIsPause,
   useIsWorking,
   usePosIsAccurate,
+  useStepCheck,
   useStepWaitMs,
 } from "@/sockets/useAMRInfo";
 import { STEP_WAIT_WARN_MS, formatWait } from "../stepWait";
@@ -126,6 +127,21 @@ export const StepWaitTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   return (
     <StatusChip $tone="warning" title={t("amr_card.step_wait_hint")}>
       {t("amr_card.step_wait", { time: formatWait(stepWaitMs) })}
+    </StatusChip>
+  );
+});
+
+/** 斷線重連後判斷不出這一動有沒有做完: 要人到現場確認, 再用卡片上的按鈕處理 */
+export const StepCheckTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
+  const stepCheck = useStepCheck(amrId);
+  const { t } = useTranslation();
+  if (!stepCheck) return null;
+  return (
+    <StatusChip
+      $tone="danger"
+      title={t("amr_card.step_check_hint", { reason: stepCheck.reason })}
+    >
+      {t("amr_card.step_check")}
     </StatusChip>
   );
 });

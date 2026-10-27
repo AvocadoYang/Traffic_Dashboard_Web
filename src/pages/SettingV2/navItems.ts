@@ -166,6 +166,10 @@ export const navCategories: NavCategory[] = [
     icon: ApartmentOutlined,
     children: [
       {
+        key: "dispatch_strategy",
+        labelKey: "toolbar.peripheral.dispatch_strategy",
+      },
+      {
         key: "conveyor_dispatch",
         labelKey: "toolbar.peripheral.conveyor_dispatch",
       },

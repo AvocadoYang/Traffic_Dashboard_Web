@@ -1,6 +1,7 @@
 import { memo } from "react";
 import Card from "./Card";
 import useName from "@/api/useAmrName";
+import useRegisterAmr from "@/api/useRegisterAmr";
 import { useMockInfo } from "@/sockets/useMockInfo";
 import styled from "styled-components";
 import { useAtomValue } from "jotai";
@@ -49,7 +50,16 @@ const byAmrNumber = (a: string, b: string) => {
 const Cards: React.FC<{}> = () => {
   const { data: names } = useName();
   const mockRobot = useMockInfo();
+  const { data: registered } = useRegisterAmr();
   const density = useAtomValue(carCardDensityAtom);
+
+  // 設定頁把註冊車輛「停用」後,首頁不顯示它的卡片;
+  // 註冊表還沒載入或對不到序號的車照常顯示。
+  const disabledSerials = new Set(
+    (registered ?? [])
+      .filter((r) => r && !r.is_enable)
+      .map((r) => r!.serialNum.toLowerCase()),
+  );
 
   if (!names || !names.amrs.length) return;
   if (mockRobot && mockRobot.isSimulate) {
@@ -69,6 +79,7 @@ const Cards: React.FC<{}> = () => {
     <CardGrid className="car-card-grid" $density={density}>
       {names.amrs
         .filter((v) => v.isReal)
+        .filter((v) => !disabledSerials.has(v.serialNumber.toLowerCase()))
         .map((item) => item.amrId)
         .sort(byAmrNumber)
         .map((amrId) => {
