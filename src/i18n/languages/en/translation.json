@@ -696,6 +696,7 @@
       "group_table": "Device Area Table",
       "stack_batch_edit": "Stack Batch Edit",
       "dispatch_strategy": "Dispatch Strategy",
+      "gate_interlock": "Rolling door interlock",
       "conveyor_dispatch": "Conveyor Dispatch",
       "transfer_rules": "Area Transfer",
       "work_areas": "Work Areas"
@@ -729,6 +730,7 @@
       "dispatch": "Dispatch Rules",
       "cargo": "Cargo",
       "alarm": "Alarms",
+      "corning_502": "Corning 502",
       "records": "Records"
     },
     "restart": {
@@ -3838,6 +3840,22 @@
     "swap_ok": "{{fromAmrId}} gave {{stationId}} to {{forAmrId}} and was sent to standby",
     "swap_failed": "Tried to swap {{fromAmrId}} out for {{forAmrId}}, did not: {{reason}}"
   },
+  "gate_interlock": {
+    "title": "Rolling door interlock",
+    "switch": "Pause the vehicle before the rolling door (interlock)",
+    "on": "On",
+    "off": "Off",
+    "desc": "On: a vehicle is stopped immediately when it reaches a rolling door / wait point and is released only after the door is confirmed open. Off: the vehicle is no longer paused; the rest of the flow (door status check, opening, alarms) is unchanged.",
+    "risk_title": "Risks of turning the interlock off",
+    "risk_1": "The vehicle does not wait for the door: if the door is not fully open (or not open at all) it keeps driving and can hit the door or be caught by it.",
+    "risk_2": "If opening fails or times out, only an alarm is raised and the vehicle is no longer held; it may already be in the doorway or stop in the middle and block the passage.",
+    "risk_3": "A door that is closing, or in maintenance-close (MAINTAIN_CLOSE), no longer stops the vehicle.",
+    "risk_4": "Vehicles from both directions may enter the same door at the same time; they are no longer separated by pausing, so protection relies on site layout and the door's own safety devices (light curtain, safety edge).",
+    "risk_5": "A vehicle that is already paused is not released automatically after switching, so it still needs a manual release; once off, the system also stops showing \"you can release vehicle X\".",
+    "risk_confirm": "Turn the rolling door interlock off?",
+    "risk_confirm_desc": "Make sure the door has physical safety protection and site staff have been told.",
+    "note": "Stored in the database and effective immediately; no restart needed. Every change is recorded in the setting change log."
+  },
   "dispatch_strategy": {
     "title": "Dispatch Strategy",
     "mode": "Dispatch mode",
@@ -3929,6 +3947,7 @@
       "mir": "MiR",
       "user": "Account",
       "maintenance": "Maintenance",
+      "corning_502": "Corning 502",
       "other": "Other"
     },
     "action": {

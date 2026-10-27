@@ -14,6 +14,7 @@ import {
   InboxOutlined,
   AlertOutlined,
   HistoryOutlined,
+  SafetyCertificateOutlined,
 } from "@ant-design/icons";
 import type { SettingV2PanelKey } from "./panelKeys";
 
@@ -240,6 +241,14 @@ export const navCategories: NavCategory[] = [
         key: "show_system_alarm",
         labelKey: "toolbar.file_setting.system_alarm",
       },
+    ],
+  },
+  {
+    key: "corning_502",
+    labelKey: "toolbar.category.corning_502",
+    icon: SafetyCertificateOutlined,
+    children: [
+      { key: "gate_interlock", labelKey: "toolbar.peripheral.gate_interlock" },
     ],
   },
   {

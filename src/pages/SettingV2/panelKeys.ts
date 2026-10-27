@@ -7,6 +7,7 @@ export type SettingV2OnlyKey =
   | "appearance"
   | "before_enter_charge_station_task"
   | "dispatch_strategy"
+  | "gate_interlock"
   | "conveyor_dispatch"
   | "transfer_rules"
   | "work_areas"

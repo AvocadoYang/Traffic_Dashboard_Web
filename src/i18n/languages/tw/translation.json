@@ -696,6 +696,7 @@
       "group_table": "設備群組表",
       "stack_batch_edit": "Stack 批次編輯",
       "dispatch_strategy": "派車策略",
+      "gate_interlock": "捲門 interlock",
       "conveyor_dispatch": "輸送帶派送",
       "transfer_rules": "區域搬運",
       "work_areas": "作業區"
@@ -729,6 +730,7 @@
       "dispatch": "調度規則",
       "cargo": "貨物",
       "alarm": "告警",
+      "corning_502": "康寧502",
       "records": "紀錄"
     },
     "restart": {
@@ -3839,6 +3841,22 @@
     "swap_ok": "{{fromAmrId}} 讓出 {{stationId}} 給 {{forAmrId}}, 已派回待命點",
     "swap_failed": "想讓 {{fromAmrId}} 讓位給 {{forAmrId}}, 沒換: {{reason}}"
   },
+  "gate_interlock": {
+    "title": "捲門 interlock",
+    "switch": "車到捲門前先暫停 (interlock)",
+    "on": "開啟",
+    "off": "關閉",
+    "desc": "開啟時: 車到捲門 / 等待點前會先立即暫停, 確認門已完全打開才放行。關閉時: 車到門前不再暫停, 其餘流程 (查門狀態、開門、告警) 照舊。",
+    "risk_title": "關閉 interlock 的風險",
+    "risk_1": "車子不會等門: 門還沒開完、或根本沒開, 車子照樣往前開, 可能撞上捲門或夾到門。",
+    "risk_2": "門開啟失敗或逾時只會跳告警, 不會再停住車子; 車子可能已經開進門裡, 或停在門中間擋住通道。",
+    "risk_3": "門正在關閉、維護關閉 (MAINTAIN_CLOSE) 時車子也不會被擋下。",
+    "risk_4": "兩個方向的車可能同時進出同一道門, 不再靠暫停錯開, 要靠現場動線和門的實體安全 (光柵、安全邊條) 保護。",
+    "risk_5": "已經被暫停的車不會自動解除, 切換後還是要人工解除一次; 關閉後系統也不會再提醒「可以把某車解除暫停」。",
+    "risk_confirm": "確定要關閉捲門 interlock?",
+    "risk_confirm_desc": "請先確認現場門有實體安全保護, 且已經跟現場人員說明。",
+    "note": "設定存在資料庫, 立即生效, 不需要重開系統。每次修改會記在設定變更紀錄。"
+  },
   "dispatch_strategy": {
     "title": "派車策略",
     "mode": "派車方式",
@@ -3930,6 +3948,7 @@
       "mir": "MiR",
       "user": "帳號",
       "maintenance": "保養",
+      "corning_502": "康寧502",
       "other": "其他"
     },
     "action": {
