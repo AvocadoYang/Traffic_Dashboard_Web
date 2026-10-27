@@ -1,4 +1,4 @@
-import { FC, PointerEvent as ReactPointerEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FC, PointerEvent as ReactPointerEvent, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button, Segmented, Spin, Tooltip } from "antd";
 import { CompressOutlined, FullscreenOutlined } from "@ant-design/icons";
 import { Layer, Shape, Stage } from "react-konva";
@@ -16,6 +16,10 @@ import { RunOutcome, mapModeAtom, playTimeAtom, presentAtom, replayFocusAtom, re
 import { STATE_ORDER, bucketOf, heatColor, isLoaded, stateColors } from "./colors";
 import { fmtMinutes } from "./format";
 import { drawDeadlock, drawHeat, drawHighlight, drawVehicles, posesAt, vehicleAt } from "./replayDraw";
+import type { CameraApi } from "@/components/Fleet3D/Scene3D";
+
+// three.js 很大, 切到 3D 才載
+const Replay3D = lazy(() => import("./Replay3D"));
 
 const Wrap = styled.div`
   position: absolute;
@@ -120,6 +124,10 @@ const ReplayCanvas: FC<{
   const colors = useMemo(() => stateColors(canvas.dark), [canvas.dark]);
   const [pan, setPan] = useState<{ sx: number; sy: number; view: View } | null>(null);
   const [pointer, setPointer] = useState<{ x: number; y: number } | null>(null);
+  const is3d = mode === "3d";
+  const is3dRef = useRef(is3d);
+  is3dRef.current = is3d;
+  const cameraRef = useRef<CameraApi | null>(null);
 
   // 第一次 (或換了結果) 縮放到全部看得到
   useEffect(() => {
@@ -141,6 +149,8 @@ const ReplayCanvas: FC<{
     const el = wrapRef.current;
     if (!el) return;
     const onWheel = (e: WheelEvent) => {
+      // 3D 的縮放由 3D 畫布自己處理
+      if (is3dRef.current) return;
       e.preventDefault();
       const rect = el.getBoundingClientRect();
       const factor = Math.exp(-e.deltaY * (e.deltaMode === 1 ? 0.05 : 0.0015));
@@ -204,16 +214,22 @@ const ReplayCanvas: FC<{
   return (
     <Wrap
       ref={wrapRef}
-      style={{ background: canvas.paper, cursor: pan ? "grabbing" : "grab" }}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
+      // 3D 的拖曳交給 3D 畫布; 這裡的 setPointerCapture 會把滑鼠事件從畫布搶走
+      style={{ background: canvas.paper, cursor: is3d ? undefined : pan ? "grabbing" : "grab" }}
+      onPointerDown={is3d ? undefined : onPointerDown}
+      onPointerMove={is3d ? undefined : onPointerMove}
       onPointerUp={() => setPan(null)}
       onPointerCancel={() => setPan(null)}
       onPointerLeave={() => setPointer(null)}
       onContextMenu={(e) => e.preventDefault()}
       data-testid="simv2-replay-canvas"
     >
-      {width > 0 && height > 0 && (
+      {is3d && (
+        <Suspense fallback={null}>
+          <Replay3D outcome={outcome} backgroundUrl={backgroundUrl} apiRef={cameraRef} />
+        </Suspense>
+      )}
+      {!is3d && width > 0 && height > 0 && (
         <Stage width={width} height={height} listening={false}>
           <Layer listening={false}>
             <Shape listening={false} sceneFunc={staticScene} />
@@ -222,18 +238,24 @@ const ReplayCanvas: FC<{
         </Stage>
       )}
       <Corner style={{ top: 10, left: 10 }} onPointerDown={(e) => e.stopPropagation()}>
-        <Segmented<"replay" | "heat">
+        <Segmented<"replay" | "heat" | "3d">
           size="small"
           value={mode}
           onChange={setMode}
           options={[
             { value: "replay", label: t("sim_v2.result.map_replay") },
             { value: "heat", label: t("sim_v2.result.map_heat") },
+            { value: "3d", label: t("sim_v2.result.map_3d") },
           ]}
           data-testid="simv2-map-mode"
         />
         <Tooltip title={t("sim_v2.result.fit")}>
-          <Button size="small" type="text" icon={<CompressOutlined />} onClick={() => setView(fitView(contentBounds(doc), width, height))} />
+          <Button
+            size="small"
+            type="text"
+            icon={<CompressOutlined />}
+            onClick={() => (is3d ? cameraRef.current?.reset() : setView(fitView(contentBounds(doc), width, height)))}
+          />
         </Tooltip>
         {!present && (
           <Tooltip title={t("sim_v2.present.enter")}>
@@ -247,14 +269,14 @@ const ReplayCanvas: FC<{
             />
           </Tooltip>
         )}
-        {outcome.trace === "loading" && mode === "replay" && (
+        {outcome.trace === "loading" && mode !== "heat" && (
           <span data-testid="simv2-trace-loading">
             <Spin size="small" /> {t("sim_v2.history.trace_loading")}
           </span>
         )}
       </Corner>
       <Corner style={{ bottom: 10, left: 10, maxWidth: "calc(100% - 20px)" }} onPointerDown={(e) => e.stopPropagation()} data-testid="simv2-map-legend">
-        {mode === "replay" ? (
+        {mode !== "heat" ? (
           <>
             {STATE_ORDER.map((s) => (
               <Key key={s}>
@@ -262,10 +284,13 @@ const ReplayCanvas: FC<{
                 {t(`sim_v2.state.${s}`)}
               </Key>
             ))}
-            <Key>
-              <i style={{ background: canvas.paper, border: "1px solid var(--c-text-muted)" }} />
-              {t("sim_v2.result.loaded_mark")}
-            </Key>
+            {/* 3D 的貨直接畫成棧板, 不用白色方塊 */}
+            {!is3d && (
+              <Key>
+                <i style={{ background: canvas.paper, border: "1px solid var(--c-text-muted)" }} />
+                {t("sim_v2.result.loaded_mark")}
+              </Key>
+            )}
           </>
         ) : maxHeat > 0 ? (
           <>

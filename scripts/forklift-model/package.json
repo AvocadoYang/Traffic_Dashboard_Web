@@ -1,0 +1,15 @@
+{
+  "name": "forklift-model",
+  "private": true,
+  "description": "把原廠叉車 GLB 轉成 public/models/forklift.glb, 見 build.mjs",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "@gltf-transform/core": "4.5.1",
+    "@gltf-transform/extensions": "4.5.1",
+    "@gltf-transform/functions": "4.5.1",
+    "meshoptimizer": "1.3.0"
+  }
+}

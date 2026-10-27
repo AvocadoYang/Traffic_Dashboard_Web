@@ -23,6 +23,10 @@ export type AmrLive = {
   hasCargo: boolean;
   /** 翻譯過的 rosStatus, 跟舊地圖的提示文字一樣 */
   status: string;
+  /** 沒翻譯的 rosStatus (3D 檢視用它認出車子正在取放貨) */
+  rawStatus: string;
+  /** 牙叉目前高度 (mm); 這次訊息沒帶就沿用上一次, 從沒帶過是 null */
+  forkHeight: number | null;
   destination: MissionDestination | null;
 };
 
@@ -109,6 +113,8 @@ export const createLiveStore = (): LiveStore => {
           isPause: info.isPause ?? prev?.isPause ?? false,
           hasCargo: info.hasCargo || false,
           status: rosStatus ? `${translate("normal", String(rosStatus))}` : "",
+          rawStatus: rosStatus ? String(rosStatus) : "",
+          forkHeight: info.IO?.fork?.current_height ?? prev?.forkHeight ?? null,
           destination: (info.destination as MissionDestination | null) ?? null,
         });
       }

@@ -439,7 +439,11 @@
     "road_tooltip": "Road Tooltip",
     "location_tooltip": "Road Tooltip",
     "point_cloud": "Point Cloud",
-    "annotation": "Map annotations"
+    "annotation": "Map annotations",
+    "view_2d": "2D",
+    "view_3d": "3D",
+    "following": "Following {{id}}",
+    "stop_follow": "Stop following"
   },
   "page_view": "View",
   "page_setting": "Setting",
@@ -4381,6 +4385,7 @@
       "note_no_standby": "{{count}} times an idle vehicle blocked others but no free standby point was available.",
       "map_replay": "Replay",
       "map_heat": "Congestion",
+      "map_3d": "3D",
       "fit": "Show everything",
       "loaded_mark": "White square = carrying a load",
       "loaded": "Loaded",

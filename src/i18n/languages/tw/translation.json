@@ -439,7 +439,11 @@
     "road_tooltip": "路徑提示",
     "location_tooltip": "地點提示",
     "point_cloud": "點雲",
-    "annotation": "地圖標註"
+    "annotation": "地圖標註",
+    "view_2d": "2D",
+    "view_3d": "3D",
+    "following": "跟著 {{id}}",
+    "stop_follow": "不跟了"
   },
   "page_view": "地圖",
   "page_setting": "設定",
@@ -4382,6 +4386,7 @@
       "note_no_standby": "有 {{count}} 次閒置的車擋到別人, 但沒有空的待命點可以讓開。",
       "map_replay": "回放",
       "map_heat": "塞車熱點",
+      "map_3d": "3D",
       "fit": "全部看得到",
       "loaded_mark": "白色方塊 = 載著貨",
       "loaded": "載著貨",
