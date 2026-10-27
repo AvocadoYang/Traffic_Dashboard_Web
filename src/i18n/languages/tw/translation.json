@@ -3250,7 +3250,33 @@
     "select_range_first": "請先選擇時間區間",
     "export_success": "匯出成功",
     "export_failed": "匯出失敗",
-    "empty": "沒有紀錄"
+    "empty": "沒有紀錄",
+    "estop": {
+      "title": "Emergency-stop 紀錄",
+      "recent": "最近 (本次啟動後)",
+      "amr": "車號",
+      "command": "指令",
+      "by": "誰送的",
+      "reason": "原因",
+      "mission": "任務",
+      "no_mission": "沒有任務",
+      "step": "步驟",
+      "carrier": "車上貨數",
+      "was_paused": "送之前已暫停",
+      "estop_flag": "e-stop 旗標",
+      "maintenance": "維護等級",
+      "mock": "模擬車",
+      "detail": "補充資料",
+      "machine_state": "狀態機狀態",
+      "caller": "呼叫堆疊",
+      "yes": "是",
+      "no": "否",
+      "cmd": {
+        "PAUSE_IMMEDIATELY": "立刻停車",
+        "FINISH_CURRENT_ACTION_THEN_PAUSE": "做完動作再停",
+        "RESUME": "解除暫停"
+      }
+    }
   },
   "login": {
     "title": "登入",

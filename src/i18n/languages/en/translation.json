@@ -3249,7 +3249,33 @@
     "select_range_first": "Select a date range first",
     "export_success": "Exported",
     "export_failed": "Export failed",
-    "empty": "No records"
+    "empty": "No records",
+    "estop": {
+      "title": "Emergency-stop history",
+      "recent": "Recent (since startup)",
+      "amr": "AMR",
+      "command": "Command",
+      "by": "Sent by",
+      "reason": "Reason",
+      "mission": "Mission",
+      "no_mission": "No mission",
+      "step": "Step",
+      "carrier": "Cargo on AMR",
+      "was_paused": "Already paused before",
+      "estop_flag": "e-stop flag",
+      "maintenance": "Maintenance level",
+      "mock": "Simulated AMR",
+      "detail": "Detail",
+      "machine_state": "Machine state",
+      "caller": "Call stack",
+      "yes": "Yes",
+      "no": "No",
+      "cmd": {
+        "PAUSE_IMMEDIATELY": "Stop immediately",
+        "FINISH_CURRENT_ACTION_THEN_PAUSE": "Pause after current action",
+        "RESUME": "Resume"
+      }
+    }
   },
   "login": {
     "title": "LOGIN",
