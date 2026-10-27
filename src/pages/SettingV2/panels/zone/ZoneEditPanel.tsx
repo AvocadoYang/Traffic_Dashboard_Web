@@ -1,6 +1,5 @@
 import { FC } from "react";
 import { ColorPicker, Form, FormInstance, InputNumber, message } from "antd";
-import type { Color } from "antd/es/color-picker";
 import { BorderOuterOutlined, SaveOutlined } from "@ant-design/icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -11,7 +10,7 @@ import { currentMapIdAtom } from "@/utils/mapSelection";
 import { initialZoneRectInfo, zoneRectInfo } from "@/utils/gloable";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import ZoneFields, { ZONE_TAGS } from "../../ui/zoneFields";
+import ZoneFields, { ZONE_TAGS, zoneColorFromPicker } from "../../ui/zoneFields";
 import {
   PanelShell,
   Section,
@@ -73,9 +72,10 @@ const ZoneEditPanel: FC<Props> = ({ zonePanelForm }) => {
       all_forbidden,
       view_available,
       elevator_id,
+      splice_id,
     } = v as never as {
       name?: string;
-      color?: Color;
+      color?: string;
       category?: string[];
       startX?: number;
       startY?: number;
@@ -91,6 +91,7 @@ const ZoneEditPanel: FC<Props> = ({ zonePanelForm }) => {
       all_forbidden?: boolean;
       view_available?: string;
       elevator_id?: string;
+      splice_id?: string;
     };
 
     if ((startX === endX && startY === endY) || !startX || !startY) {
@@ -115,7 +116,11 @@ const ZoneEditPanel: FC<Props> = ({ zonePanelForm }) => {
 
     try {
       await zonePanelForm.validateFields();
-    } catch {
+    } catch (e) {
+      // 欄位都是 noStyle 不會顯示錯誤, 至少把第一個原因講出來
+      const reason = (e as { errorFields?: { errors: string[] }[] }).errorFields?.[0]
+        ?.errors[0];
+      if (reason) void messageApi.warning(reason);
       return;
     }
 
@@ -129,12 +134,11 @@ const ZoneEditPanel: FC<Props> = ({ zonePanelForm }) => {
       return;
     }
 
-    const { r, g, b } = color.toRgb();
     const has = (tag: string) => category?.includes(tag);
 
     saveMutation.mutate({
       name,
-      backgroundColor: `rgba(${r}, ${g}, ${b} , 0.05)`,
+      backgroundColor: color,
       category: {
         tags: category || [],
         forbidden_car:
@@ -144,6 +148,7 @@ const ZoneEditPanel: FC<Props> = ({ zonePanelForm }) => {
         limitNum: has(ZONE_TAGS.limit) ? Number(limitNum) : undefined,
         view_available: has(ZONE_TAGS.view) ? view_available : undefined,
         elevator_id: has(ZONE_TAGS.elevator) ? elevator_id?.trim() : undefined,
+        splice_id: has(ZONE_TAGS.splice) ? splice_id?.trim() : undefined,
       },
       startPoint: { startX, startY },
       layer: layer ? layer : "none",
@@ -206,12 +211,16 @@ const ZoneEditPanel: FC<Props> = ({ zonePanelForm }) => {
 
           <Field>
             <FieldLabel>{t("zone_table_form.zone_color")}</FieldLabel>
-            <Form.Item name="color" noStyle>
+            <Form.Item name="color" noStyle getValueFromEvent={zoneColorFromPicker}>
               <ColorPicker />
             </Form.Item>
           </Field>
 
-          <ZoneFields form={zonePanelForm} />
+          <ZoneFields
+            form={zonePanelForm}
+            groupMaps={resources?.maps}
+            mapId={currentMapId}
+          />
         </Form>
 
         <Toolbar>
