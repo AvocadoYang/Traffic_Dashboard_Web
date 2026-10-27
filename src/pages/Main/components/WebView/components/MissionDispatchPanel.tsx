@@ -14,6 +14,7 @@ import QuickMissionWebView from "../../missionModal/QuickMissionWebView";
 import CycleMissionV2 from "../../missionModal/CycleMissionV2";
 import CycleMissionViewer from "../../missionModal/CycleMissionViewer";
 import UploadMission from "../../missionModal/UploadMission";
+import FavoriteMissionBar from "./FavoriteMissionBar";
 import { Cycle } from "@/sockets/useCycleMission";
 
 // 小螢幕(平板 / 手機)底部「任務派發」分頁的內容。
@@ -117,6 +118,7 @@ const MissionDispatchPanel = () => {
 
   return (
     <DispatchContainer>
+      <FavoriteMissionBar />
       <DispatchGrid>
         <DispatchAction
           icon={<ThunderboltOutlined />}

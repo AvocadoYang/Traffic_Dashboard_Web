@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import WarningTable from "./WarningTable";
 import AlarmTable from "./AlarmTable";
 import SystemAlarmTable from "./SystemAlarmTable";
+import EStopHistory from "@/components/EStopHistory/EStopHistory";
 import useIsWebMediaQuery from "@/hooks/useIsWebMediaQuery";
 import { mq } from "@/styles/responsive";
 import { themeAtom } from "@/theme";
@@ -51,10 +52,23 @@ const PanelGrid = styled.div`
 
   ${mq.web} {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
   }
 `;
 
-type RecordTab = "system" | "warning" | "alarm";
+// 桌機:emergency-stop 歷史獨佔下面一整列
+const EStopRow = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+
+  ${mq.web} {
+    grid-column: 1 / -1;
+  }
+`;
+
+type RecordTab = "system" | "warning" | "alarm" | "estop";
 
 const Record: FC = () => {
   const { t } = useTranslation();
@@ -91,6 +105,7 @@ const Record: FC = () => {
                   { label: t("records.system_alarm"), value: "system" },
                   { label: t("records.warning"), value: "warning" },
                   { label: t("records.alarm"), value: "alarm" },
+                  { label: t("records.estop.title"), value: "estop" },
                 ]}
               />
             </ConfigProvider>
@@ -100,6 +115,11 @@ const Record: FC = () => {
           {(isWeb || tab === "system") && <SystemAlarmTable />}
           {(isWeb || tab === "warning") && <WarningTable />}
           {(isWeb || tab === "alarm") && <AlarmTable />}
+          {(isWeb || tab === "estop") && (
+            <EStopRow>
+              <EStopHistory />
+            </EStopRow>
+          )}
         </PanelGrid>
       </StyledContent>
     </StyledLayout>

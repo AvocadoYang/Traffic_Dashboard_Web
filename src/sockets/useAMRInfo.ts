@@ -121,6 +121,12 @@ export type FleetInfo = {
     recovery: boolean;
   };
   doingTask: boolean;
+  /** 目前這一動已經做了多久 (ms), 沒有任務是 null */
+  stepWaitMs?: number | null;
+  /** 斷線重連後判斷不出這一動有沒有做完, 要人到現場確認; 沒有是 null */
+  stepCheck?: { reason: string; since: number } | null;
+  /** 這台車為什麼離線 / 還沒上線 (後端判斷); 正常是 null */
+  offline?: OfflineInfo | null;
   destination: MissionDestination | null;
   rosStatus: string;
   rosError: string;
@@ -224,6 +230,28 @@ const schema = () =>
 
       rosError: string().optional(),
       doingTask: boolean().optional(),
+      stepWaitMs: number().nullable().optional(),
+      // 預設 null: 不然 yup 會把缺的 object 補成 {} 而被當成「要確認」
+      offline: object({
+        code: string().required(),
+        level: string().oneOf(["error", "warn"]).required(),
+        title: string().required(),
+        hint: string().required(),
+        details: array(string().required()).required(),
+        lastSeenAt: number().nullable().defined(),
+        since: number().required(),
+        carUrl: string().nullable().defined(),
+      })
+        .nullable()
+        .optional()
+        .default(null),
+      stepCheck: object({
+        reason: string().required(),
+        since: number().required(),
+      })
+        .nullable()
+        .optional()
+        .default(null),
       isPause: boolean().optional(),
       rosStatus: string().optional(),
       arriveInit: boolean().optional().default(false),
@@ -965,6 +993,75 @@ export const useIsWorking = (amrId: string) => {
   }, [amrId]);
 
   return { isWorking };
+};
+
+/** 這一動已經等了多久 (ms); 沒有任務是 null。每 0.5 秒會更新一次 */
+export const useStepWaitMs = (amrId: string) => {
+  const [stepWaitMs, setStepWaitMs] = useState<number | null>(null);
+  useEffect(() => {
+    const sub = profiles$
+      .pipe(
+        map((p) => p.find((x) => x.amrId === amrId)),
+        filter(isDefined),
+        map((info) => info.stepWaitMs ?? null),
+        // 只在「秒」變的時候才更新畫面
+        distinctUntilChanged(
+          (pre, cur) =>
+            pre === cur ||
+            (pre !== null && cur !== null && Math.floor(pre / 1000) === Math.floor(cur / 1000)),
+        ),
+      )
+      .subscribe(setStepWaitMs);
+    return () => sub.unsubscribe();
+  }, [amrId]);
+  return stepWaitMs;
+};
+
+/** 車輛離線 / 還沒上線的最可能原因 (後端判斷), 給 FAE 看 */
+export type OfflineInfo = {
+  code: string;
+  level: "error" | "warn";
+  title: string;
+  hint: string;
+  details: string[];
+  lastSeenAt: number | null;
+  since: number;
+  carUrl: string | null;
+};
+
+export const useOfflineInfo = (amrId: string) => {
+  const [info, setInfo] = useState<OfflineInfo | null>(null);
+  useEffect(() => {
+    const sub = profiles$
+      .pipe(
+        map((p) => p.find((x) => x.amrId === amrId)),
+        filter(isDefined),
+        map((i) => (i.offline as OfflineInfo | null | undefined) ?? null),
+        distinctUntilChanged((pre, cur) => deepEqual(pre, cur)),
+      )
+      .subscribe(setInfo);
+    return () => sub.unsubscribe();
+  }, [amrId]);
+  return info;
+};
+
+/** 斷線重連後要人確認的這一動 (原因 + 從什麼時候開始); 沒有是 null */
+export const useStepCheck = (amrId: string) => {
+  const [stepCheck, setStepCheck] = useState<{ reason: string; since: number } | null>(null);
+  useEffect(() => {
+    const sub = profiles$
+      .pipe(
+        map((p) => p.find((x) => x.amrId === amrId)),
+        filter(isDefined),
+        map((info) => info.stepCheck ?? null),
+        distinctUntilChanged(
+          (pre, cur) => pre?.reason === cur?.reason && pre?.since === cur?.since,
+        ),
+      )
+      .subscribe(setStepCheck);
+    return () => sub.unsubscribe();
+  }, [amrId]);
+  return stepCheck;
 };
 
 export const useSpeed = (amrId: string, timeoutMs: number = 5000) => {

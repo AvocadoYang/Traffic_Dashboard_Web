@@ -213,7 +213,7 @@ const MapSelectorSlot = styled.div`
 const ToggleSidebarBtn = styled(Button)`
   position: absolute;
   top: var(--space-sm);
-  right: 7rem;
+  right: 13rem;
   z-index: 20;
 `;
 

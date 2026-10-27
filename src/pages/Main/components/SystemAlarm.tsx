@@ -11,6 +11,8 @@ import {
 import { useAtom, useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
 import { io } from "@/sockets/socketConnect";
+import { NotifyPrefs, useMyProfile } from "@/api/useProfile";
+import { DEFAULT_SOUND, DEFAULT_VOLUME, playAlarmTone } from "@/utils/alarmSound";
 import {
   AlarmType,
   SystemAlarmData,
@@ -172,6 +174,8 @@ export const SystemAlarmOverlay = () => {
   const { t } = useTranslation();
   const systemAlarm = useSystemAlarm();
   const [alarms, setAlarms] = useState<ActiveAlarm[]>([]);
+  const alarmsRef = useRef(alarms);
+  alarmsRef.current = alarms;
   const [position, setPosition] = useAtom(systemAlarmPosition);
   const previewTick = useAtomValue(systemAlarmPreviewTick);
   // 用 ref 讀設定頁的開關,避免把它放進下面 effect 的 deps —— 那會讓「切換開關」
@@ -182,6 +186,13 @@ export const SystemAlarmOverlay = () => {
   useEffect(() => {
     typeFilterRef.current = typeFilter;
   }, [typeFilter]);
+
+  // 個人設定的通知偏好 (哪些跳、哪些響、音量、多久內不重複跳); 沒登入就是空的
+  const { data: profile } = useMyProfile();
+  const notifyRef = useRef<NotifyPrefs>({});
+  notifyRef.current = profile?.preferences.notify ?? {};
+  /** 每則告警上次跳出來的時間, 算「多久內不再跳」用 */
+  const lastShownRef = useRef(new Map<string, number>());
 
   // 位置是整個案場共用的,後端連上時送一次,有人改了再送一次
   useEffect(() => {
@@ -218,8 +229,24 @@ export const SystemAlarmOverlay = () => {
     if (!systemAlarm.message) return;
     // 只擋「明確關掉」的類型;後端若送來沒看過的 alarmType 就照常顯示,不要靜靜吃掉告警。
     if (typeFilterRef.current[systemAlarm.alarmType] === false) return;
+    const notify = notifyRef.current;
+    if (notify.types?.[systemAlarm.alarmType] === false) return;
+    if (systemAlarm.code !== undefined && notify.mutedCodes?.includes(systemAlarm.code)) return;
 
     const key = `${systemAlarm.alarmType}|${systemAlarm.message}`;
+    // 同一則告警在設定的秒數內不再跳 (卡片還在畫面上的照舊累加次數)
+    const now = Date.now();
+    const dedupeMs = (notify.dedupeSeconds ?? 0) * 1000;
+    const lastShown = lastShownRef.current.get(key);
+    const visible = alarmsRef.current.some((a) => a.key === key);
+    if (!visible && dedupeMs > 0 && lastShown !== undefined && now - lastShown < dedupeMs) return;
+    lastShownRef.current.set(key, now);
+    if (lastShownRef.current.size > 500) lastShownRef.current.clear();
+
+    if (!visible && (notify.sound?.[systemAlarm.alarmType] ?? DEFAULT_SOUND[systemAlarm.alarmType])) {
+      playAlarmTone(systemAlarm.alarmType, notify.volume ?? DEFAULT_VOLUME);
+    }
+
     const expiresAt =
       Date.now() + Math.min(3000 + systemAlarm.level * 2000, 10000);
 

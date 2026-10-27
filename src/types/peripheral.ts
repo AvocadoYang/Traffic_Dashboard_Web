@@ -1,5 +1,4 @@
 import { Booker } from "@/api/type/useLocation";
-import { Relation } from "@/api/useLoc";
 
 export enum PeripheralMachineStatus {
   INIT = "INIT",
@@ -67,8 +66,6 @@ export type Conveyor_Info = {
   activeOffload: boolean;
   loadMissionId: string;
   offloadMissionId: string;
-  placement_priority: number;
-  relationships: Relation;
   loadPriority: number;
   offloadPriority: number;
 };

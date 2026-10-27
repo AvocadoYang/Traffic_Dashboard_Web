@@ -1,6 +1,6 @@
 /* eslint-disable no-void */
 
-import { message, Tooltip } from "antd";
+import { message, Modal, Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
 import { FC, useState } from "react";
 import client from "@/api/axiosClient";
@@ -22,8 +22,12 @@ import {
   CloudSyncOutlined,
   AimOutlined,
   RotateRightOutlined,
+  StepForwardOutlined,
+  ReloadOutlined,
 } from "@ant-design/icons";
 import { isFork } from "@/utils/globalFunction";
+import { useStepCheck, useStepWaitMs } from "@/sockets/useAMRInfo";
+import { STEP_WAIT_WARN_MS, formatWait } from "../stepWait";
 import MaintenancePanel from "./MaintenancePanel";
 import SpinModal from "./SpinModal";
 
@@ -170,6 +174,11 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
   const [isCarrierModalOpen, setIsCarrierModalOpen] = useState(false);
   const [isSpinModalOpen, setIsSpinModalOpen] = useState(false);
   const setLocalizationCorrection = useSetAtom(localizationCorrection);
+  const stepWaitMs = useStepWaitMs(amrId);
+  // 這一動等很久了, 車端可能其實做完了但沒回報: 把「直接下一動」標出來
+  const stepStuck = stepWaitMs !== null && stepWaitMs >= STEP_WAIT_WARN_MS;
+  // 斷線重連後判斷不出這一動有沒有做完: 要人確認後選直接下一動或重送這一步
+  const stepCheck = useStepCheck(amrId);
 
   const manualChargeMutation = useMutation({
     mutationFn: () => {
@@ -231,6 +240,26 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
     onError: (e: ErrorResponse) => errorHandler(e, messageApi),
   });
 
+  const forceNextStepMutation = useMutation({
+    mutationFn: () => {
+      return client.post("/api/amr/force-next-step", { amrId });
+    },
+    onSuccess: () => {
+      void messageApi.success(t("utils.success"));
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
+  const resendStepMutation = useMutation({
+    mutationFn: () => {
+      return client.post("/api/amr/resend-step", { amrId });
+    },
+    onSuccess: () => {
+      void messageApi.success(t("utils.success"));
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
   const updatePositionMutation = useMutation({
     mutationFn: () => {
       return client.post("api/amr/update-position", { amrId });
@@ -257,6 +286,26 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
 
   const handleDelMis = () => {
     deleteMissionMutation.mutate();
+  };
+
+  // 會略過車端完成訊號, 所以先跟操作員確認車子真的做完了
+  const handleForceNextStep = () => {
+    Modal.confirm({
+      title: t("amr_card.force_next_step_confirm_title"),
+      content: t("amr_card.force_next_step_confirm_content"),
+      okButtonProps: { danger: true },
+      onOk: () => forceNextStepMutation.mutateAsync().catch(() => undefined),
+    });
+  };
+
+  // 車會先放掉這一步再重做, 做過一半的動作 (例如已經叉起來) 會再做一次, 所以先確認
+  const handleResendStep = () => {
+    Modal.confirm({
+      title: t("amr_card.resend_step_confirm_title"),
+      content: t("amr_card.resend_step_confirm_content"),
+      okButtonProps: { danger: true },
+      onOk: () => resendStepMutation.mutateAsync().catch(() => undefined),
+    });
   };
 
   const handleForceDelMis = () => {
@@ -308,6 +357,42 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
               <FireOutlined />
               {t("amr_card.force_delete_mission")}
             </ActionButton>
+
+            <Tooltip
+              title={
+                stepCheck
+                  ? t("amr_card.force_next_step_check", { reason: stepCheck.reason })
+                  : stepStuck
+                    ? t("amr_card.force_next_step_stuck", {
+                        time: formatWait(stepWaitMs),
+                      })
+                    : t("amr_card.force_next_step_hint")
+              }
+              placement="bottom"
+            >
+              <ActionButton
+                type="button"
+                $tone={stepCheck || stepStuck ? "primary" : "warning"}
+                onClick={() => handleForceNextStep()}
+              >
+                <StepForwardOutlined />
+                {t("amr_card.force_next_step")}
+              </ActionButton>
+            </Tooltip>
+
+            {/* 只在系統要人確認、或這一動等很久時才給: 平常重做一個動作的風險比好處大 */}
+            {(stepCheck || stepStuck) && (
+              <Tooltip title={t("amr_card.resend_step_hint")} placement="bottom">
+                <ActionButton
+                  type="button"
+                  $tone="warning"
+                  onClick={() => handleResendStep()}
+                >
+                  <ReloadOutlined />
+                  {t("amr_card.resend_step")}
+                </ActionButton>
+              </Tooltip>
+            )}
 
             {isFork(amrId) && (
               <ActionButton

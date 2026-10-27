@@ -2,7 +2,6 @@ import { FC, memo } from "react";
 import useConfigFlags from "@/api/useConfigFlags";
 import { navCategories } from "./navItems";
 import { FormInstance } from "antd";
-import type { DraggableAttributes } from "@dnd-kit/core";
 import LocationEditPanel from "./panels/location/LocationEditPanel";
 import QuickLocationPanel from "./panels/location/QuickLocationPanel";
 import RoadEditPanel from "./panels/road/RoadEditPanel";
@@ -28,6 +27,7 @@ import PeripheralNamePanel from "./panels/peripheral/PeripheralNamePanel";
 import PeripheralGroupPanel from "./panels/peripheral/PeripheralGroupPanel";
 import StackBatchPanel from "./panels/peripheral/StackBatchPanel";
 import ConveyorDispatchPanel from "./panels/peripheral/ConveyorDispatchPanel";
+import DispatchStrategyPanel from "./panels/peripheral/DispatchStrategyPanel";
 import TransferRulePanel from "./panels/peripheral/TransferRulePanel";
 import WorkAreaPanel from "./panels/peripheral/WorkAreaPanel";
 import ChargeDockPanel from "./panels/peripheral/ChargeDockPanel";
@@ -50,13 +50,7 @@ import MirMissionPanel from "./panels/mir/MirMissionPanel";
 import EditMissionPanel from "./panels/mission/edit/EditMissionPanel";
 import AppearancePanel from "./panels/appearance/AppearancePanel";
 import type { SettingV2PanelKey } from "./panelKeys";
-import { BackupPanel } from "@/pages/Setting/formComponent/forms/file/backup";
-
-// v1 的面板都吃 dnd-kit 的 attributes/listeners,但它們只被展開到面板標題上當拖曳
-// 把手,沒有任何其他邏輯會讀它。v2 沒有拖曳,所以統一餵空值,面板照常渲染,
-// 也就不用去動那 39 個既有元件。
-const noopAttributes = {} as DraggableAttributes;
-const noopListeners = undefined;
+import BackupPanel from "./panels/file/BackupPanel";
 
 type Props = {
   activeKey: SettingV2PanelKey | null;
@@ -133,6 +127,8 @@ const PanelRenderer: FC<Props> = ({
       return <PeripheralGroupPanel />;
     case "stack_batch_edit":
       return <StackBatchPanel />;
+    case "dispatch_strategy":
+      return <DispatchStrategyPanel />;
     case "conveyor_dispatch":
       return <ConveyorDispatchPanel />;
     case "transfer_rules":
@@ -150,13 +146,7 @@ const PanelRenderer: FC<Props> = ({
     case "warning_id":
       return <WarningListPanel />;
     case "backup_file":
-      return (
-        <BackupPanel
-          sortableId={activeKey}
-          attributes={noopAttributes}
-          listeners={noopListeners}
-        />
-      );
+      return <BackupPanel />;
     case "container_table":
       return <ContainerTablePanel />;
     case "show_system_alarm":

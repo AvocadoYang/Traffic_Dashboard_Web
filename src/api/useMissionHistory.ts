@@ -53,6 +53,9 @@ const missionSchema = object({
       cancel_reason: number().optional().nullable(),
       info: string().nullable(),
       message: string().nullable(),
+      // 這個任務搬過幾筆貨 / 有幾次人工介入 (直接下一動)
+      cargoCount: number().default(0),
+      manualCount: number().default(0),
     }).required(),
   ),
 });
