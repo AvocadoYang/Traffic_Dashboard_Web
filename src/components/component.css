@@ -8,6 +8,11 @@
   background-position: center;
 }
 
+/* 深色主題下 logo 是深色字,會融進背景;轉成單色白字 */
+[data-theme-mode="dark"] .demo-logo {
+  filter: brightness(0) invert(1);
+}
+
 .light-mode-icon,
 .dark-mode-icon {
   color: blue;

@@ -6,6 +6,7 @@ import type { ToolBarItemType } from "@/pages/Setting/components/siderElement";
 export type SettingV2OnlyKey =
   | "appearance"
   | "before_enter_charge_station_task"
+  | "dispatch_strategy"
   | "conveyor_dispatch"
   | "transfer_rules"
   | "work_areas"
