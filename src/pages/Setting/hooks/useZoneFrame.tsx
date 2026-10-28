@@ -17,6 +17,8 @@ const useZoneFrame = (
   setEndPointRecord: React.Dispatch<MouseLocationForFrame>,
   setRectInfo: React.Dispatch<RectInfo>,
   zonePanelForm: FormInstance<unknown>,
+  /** 暫時停用 (例如地圖上正在重畫某個區域的邊界, 拖曳要留給那邊) */
+  disabled = false,
 ) => {
   const { data } = useMap();
   const openEditZone = useAtomValue(EditZoneSwitch);
@@ -27,7 +29,8 @@ const useZoneFrame = (
       !mapRef.current ||
       !mapImageRef.current ||
       !data ||
-      !openEditZone
+      !openEditZone ||
+      disabled
     )
       return;
     const mapPanel = mapRef.current;
@@ -133,7 +136,7 @@ const useZoneFrame = (
     return () => {
       subscription.unsubscribe();
     };
-  }, [mapRef, mapWrapRef, scale, openEditZone, data]);
+  }, [mapRef, mapWrapRef, scale, openEditZone, data, disabled]);
 
   return null;
 };

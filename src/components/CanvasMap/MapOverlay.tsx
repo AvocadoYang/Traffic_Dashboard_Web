@@ -90,7 +90,11 @@ const Centered = styled.div.attrs<{ $x: number; $y: number }>(({ $x, $y }) => ({
 `;
 
 /** 區域名稱: 位置、樣式同舊地圖的 Zone.tsx (眼睛在框的左上角上方, 名字在它右邊) */
-const ZoneLabel: FC<{ zone: SceneZone; info: Parameters<typeof ZoneHoverCard>[0]["info"] }> = ({ zone, info }) => {
+const ZoneLabel: FC<{
+  zone: SceneZone;
+  info: Parameters<typeof ZoneHoverCard>[0]["info"];
+  onEdit?: (zoneId: string) => void;
+}> = ({ zone, info, onEdit }) => {
   const { t } = useTranslation();
   const [hidden, setHidden] = useAtom(hiddenZoneIdsAtom);
   const [cardOpen, setCardOpen] = useState(false);
@@ -141,6 +145,14 @@ const ZoneLabel: FC<{ zone: SceneZone; info: Parameters<typeof ZoneHoverCard>[0]
               setCardOpen(false);
               setEnabled(info, enabled);
             }}
+            onEdit={
+              onEdit
+                ? () => {
+                    setCardOpen(false);
+                    onEdit(info.id);
+                  }
+                : undefined
+            }
           />
         }
         styles={{
@@ -181,7 +193,7 @@ const LinkedZoneOutlines: FC<{ scene: MapScene }> = ({ scene }) => {
   );
 };
 
-const ZoneLabels: FC<{ scene: MapScene }> = ({ scene }) => {
+const ZoneLabels: FC<{ scene: MapScene; onZoneEdit?: (zoneId: string) => void }> = ({ scene, onZoneEdit }) => {
   const { data } = useMap();
   if (!data) return null;
   const infoById = new Map(data.zones.map((z) => [z.id, z]));
@@ -190,7 +202,7 @@ const ZoneLabels: FC<{ scene: MapScene }> = ({ scene }) => {
       <LinkedZoneOutlines scene={scene} />
       {scene.zones.map((zone) => {
         const info = infoById.get(zone.id);
-        return info ? <ZoneLabel key={zone.id} zone={zone} info={info} /> : null;
+        return info ? <ZoneLabel key={zone.id} zone={zone} info={info} onEdit={onZoneEdit} /> : null;
       })}
     </>
   );
@@ -219,14 +231,18 @@ const PauseHint: FC = () => {
   );
 };
 
-const MapOverlay: FC<{ scene: MapScene }> = ({ scene }) => {
+const MapOverlay: FC<{
+  scene: MapScene;
+  /** 有給的話, 區域資訊卡會多一個編輯鈕 */
+  onZoneEdit?: (zoneId: string) => void;
+}> = ({ scene, onZoneEdit }) => {
   const showZones = useAtomValue(showAllZonesSwitch);
   const showLocationTooltip = useAtomValue(isShowLocationTooltip);
   const showRoad = useAtomValue(isShowRoad);
   const showRoadTooltip = useAtomValue(isShowRoadTooltip);
   return (
     <>
-      {showZones ? <ZoneLabels scene={scene} /> : null}
+      {showZones ? <ZoneLabels scene={scene} onZoneEdit={onZoneEdit} /> : null}
       {showLocationTooltip ? (
         <>
           <ToolTip />

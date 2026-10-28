@@ -3416,7 +3416,9 @@
       "edit_hint": "Click two locations on the map in order to fill in the start and end."
     },
     "zone": {
-      "edit_hint": "Drag on the map to select an area. The start and end coordinates are filled in automatically."
+      "edit_hint": "Drag on the map to select an area. The start and end coordinates are filled in automatically.",
+      "redraw_hint": "Drag on the map to draw a new boundary for \"{{name}}\" (Esc to cancel)",
+      "redraw_ready": "Save the new boundary for \"{{name}}\"? Drag again to redraw"
     },
     "shelf": {
       "edit_hint": "Changes show on the map immediately. Press Save to write them to the backend."

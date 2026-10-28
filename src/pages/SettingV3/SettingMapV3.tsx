@@ -4,6 +4,7 @@ import { Form, FormInstance } from "antd";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import Cookies from "js-cookie";
 import useMap from "@/api/useMap";
+import useAllGroupsResources from "@/api/useAllGroupsResources";
 import useVerityVersion from "@/api/useVerityVersion";
 import CanvasMap, { CanvasMapApi } from "@/components/CanvasMap/CanvasMap";
 import CargoPanel from "@/components/CargoPanel/CargoPanel";
@@ -74,6 +75,8 @@ import MirStyleLocationPlacer from "@/pages/Setting/formComponent/forms/MirStyle
 import LocationPointMenu, {
   LocationPointMenuTarget,
 } from "../SettingV2/panels/location/LocationPointMenu";
+import type { ZoneRow } from "../SettingV2/panels/zone/ZoneEditModal";
+import ZoneRedraw from "../SettingV2/panels/zone/ZoneRedraw";
 
 /**
  * 設定頁 (setting-v3) 的地圖: 舊 MapView 的畫布版。
@@ -141,12 +144,17 @@ const SettingMapV3: FC<Props> = ({
   const quickRoad = useAtomValue(IsEditingQuickRoads);
   const setQuickRoadArr = useSetAtom(QuickRoadsArray);
 
+  // 正在地圖上重畫哪個區域的邊界 (區域資訊卡的編輯鈕); 重畫時左鍵拖曳都留給它
+  const [redrawZone, setRedrawZone] = useState<ZoneRow | null>(null);
+  const isRedrawingZone = !!redrawZone;
+
   // 打點 / 框選 / 放標註時左鍵要留給地圖操作, 只保留中鍵拖曳 (同舊 MapView)
   const isEditingOnMap =
     openEditLocationPanel ||
     openQuickEditLocationPanel ||
     openEditZone ||
     openMirPlacer ||
+    isRedrawingZone ||
     (openEditAnnotation && annotationTool !== "select");
 
   // ---------------- 點位: 編輯點位 / 快速編輯點位時點地圖打點 (小紅點 + 表單的 x、y)
@@ -158,7 +166,7 @@ const SettingMapV3: FC<Props> = ({
     mapImageRef,
     scale,
     locationPanelForm,
-    openEditLocationPanel,
+    openEditLocationPanel && !isRedrawingZone,
   );
 
   // ---------------- 區域: 編輯區域時在地圖上拉框 (舊的 useZoneFrame 原封不動)
@@ -183,6 +191,7 @@ const SettingMapV3: FC<Props> = ({
     setZoneEnd,
     setRectInfo,
     zonePanelForm,
+    isRedrawingZone,
   );
 
   // ---------------- 路線: 從一個地點拉到另一個地點 (表單的起點 x、終點 to)
@@ -217,7 +226,8 @@ const SettingMapV3: FC<Props> = ({
     [mapData, roadPanelForm, setShowBlockId, setDragLineInfo],
   );
 
-  const roadDragEnabled = openEditRoadPanel && !openEditZone && !quickRoad;
+  const roadDragEnabled =
+    openEditRoadPanel && !openEditZone && !quickRoad && !isRedrawingZone;
   const onCanvasPointerDown = useCallback(
     (e: PointerEvent) => {
       if (!roadDragEnabled) return false;
@@ -331,6 +341,8 @@ const SettingMapV3: FC<Props> = ({
   const closePointMenu = useCallback(() => setPointMenu(null), []);
   const onPointClick = useCallback(
     (locationId: string) => {
+      // 重畫區域時拉框放開剛好在點位上, 不要當成點了點位
+      if (isRedrawingZone) return;
       if (quickRoad) {
         setQuickRoadArr((prev) => [...prev, locationId]);
         return;
@@ -341,8 +353,34 @@ const SettingMapV3: FC<Props> = ({
         setPointMenu({ locationId, ...pos });
       }
     },
-    [quickRoad, setQuickRoadArr, openEditRoadPanel, openEditZone],
+    [isRedrawingZone, quickRoad, setQuickRoadArr, openEditRoadPanel, openEditZone],
   );
+
+  // ---------------- 區域名稱的資訊卡多一個編輯鈕: 在地圖上重新拉框定義邊界
+  // 存檔要的是區域表那份資料 (有 rev, 後端拿來檢查有沒有被別人改過)
+  // 按下編輯當下拍一份快照, 重畫途中資料重抓也不會換掉
+  const { data: resources } = useAllGroupsResources();
+  const openZoneRedraw = useCallback(
+    (zoneId: string) => {
+      for (const g of resources?.groups ?? []) {
+        for (const m of g.maps) {
+          const zone = m.zones.find((z) => z.id === zoneId);
+          if (zone) {
+            setRedrawZone({
+              ...zone,
+              mapId: m.mapId,
+              mapFileName: m.fileName,
+              groupId: g.groupId,
+              groupName: g.groupName,
+            } as ZoneRow);
+            return;
+          }
+        }
+      }
+    },
+    [resources],
+  );
+  const closeZoneRedraw = useCallback(() => setRedrawZone(null), []);
 
   return (
     <>
@@ -360,10 +398,18 @@ const SettingMapV3: FC<Props> = ({
         onPointClick={onPointClick}
         apiRef={apiRef}
         onCanvasPointerDown={onCanvasPointerDown}
+        onZoneEdit={openZoneRedraw}
         // 編輯標註時改用 DOM 版 (點選、拖曳、旋轉), 畫布上就不畫, 免得畫兩份
         hideAnnotations={openEditAnnotation}
         overlay={
           <>
+            <ZoneRedraw
+              zone={redrawZone}
+              onClose={closeZoneRedraw}
+              wrapRef={wrapRef}
+              mapImageRef={mapImageRef}
+              scale={scale}
+            />
             {openEditAnnotation ? (
               <AllAnnotations
                 scale={scale}

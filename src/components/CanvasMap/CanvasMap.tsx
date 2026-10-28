@@ -144,6 +144,8 @@ type Props = {
   apiRef?: MutableRefObject<CanvasMapApi | null>;
   /** 左鍵在底層畫布上按下: 回傳 true 表示外面接手了 (例如從點位拉路線), 這次不拖地圖 */
   onCanvasPointerDown?: (e: PointerEvent) => boolean;
+  /** 有給的話, 區域資訊卡會多一個編輯鈕, 按了拿到區域 id */
+  onZoneEdit?: (zoneId: string) => void;
 };
 
 /** 游標附近沒有點位時用同一個空集合, 底層才不會每次移動都重畫 */
@@ -164,6 +166,7 @@ const CanvasMap: FC<Props> = ({
   wrapRef: wrapRefProp,
   apiRef,
   onCanvasPointerDown,
+  onZoneEdit,
 }) => {
   const { data, isLoading, isError } = useMap();
   const { data: names } = useName();
@@ -923,7 +926,7 @@ const CanvasMap: FC<Props> = ({
       <TransformLayer ref={deviceLayerRef}>{children}</TransformLayer>
       <Canvas ref={liveRef} $passive />
       <TransformLayer ref={overlayLayerRef}>
-        {scene ? <MapOverlay scene={scene} /> : null}
+        {scene ? <MapOverlay scene={scene} onZoneEdit={onZoneEdit} /> : null}
         {overlay}
         {focusMarker ? <FocusMarker key={focusMarker.key} x={focusMarker.x} y={focusMarker.y} scale={scale} /> : null}
       </TransformLayer>
