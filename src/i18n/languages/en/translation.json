@@ -1271,6 +1271,7 @@
       "fields_incomplete": "Please fill in all fields",
       "options_incomplete": "Please complete all options",
       "variable_missing": "This mission has variables that are not filled in",
+      "variable_must_be_number": "x / y / z must be a number",
       "click_to_choose": "Click to choose mission",
       "select_value": "Select a value",
       "enter_value": "Enter a value",

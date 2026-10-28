@@ -1271,6 +1271,7 @@
       "fields_incomplete": "欄位尚未填寫完整",
       "options_incomplete": "尚未完成選項",
       "variable_missing": "這個任務有變數尚未填寫",
+      "variable_must_be_number": "x / y / z 必須是數字",
       "click_to_choose": "點擊選擇任務",
       "select_value": "請選擇",
       "enter_value": "請輸入",

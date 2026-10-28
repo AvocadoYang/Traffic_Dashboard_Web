@@ -33,6 +33,19 @@ type MissionFrom = {
   variableValues?: Record<string, string>;
 };
 
+// 座標類變數先帶 0，使用者不用每次都手打
+const COORDINATE_VARIABLES = ["x", "y", "z"];
+
+const isCoordinateVariable = (name: string) =>
+  COORDINATE_VARIABLES.includes(name.toLowerCase());
+
+// gRPC 那邊是 map<string, string>，什麼字串都收，只能在這裡擋。
+// 不用 Number() 判斷：它會放過 "0x10"、"1e3"、" 3 " 這種 MiR 不一定吃的寫法，
+// 字串會原樣送出去，所以只收一般的十進位數字。
+const NUMERIC_STRING = /^-?(\d+(\.\d*)?|\.\d+)$/;
+const isNumericString = (value: string | undefined) =>
+  !!value && NUMERIC_STRING.test(value);
+
 // 值其實是 MiR 內部 GUID 的欄位名稱 -> 派發時要用哪種下拉選。
 // location_id/entry_position 存的是 QAMS 這邊的 location_id,要在 bridge
 // 那邊另外查表轉成 MiR marker GUID;footprint/marker_type/sound 這幾個欄位
@@ -414,7 +427,7 @@ const DialogMission = () => {
           if (kind) {
             kinds.set(varName, kind);
           }
-        }
+        },
       );
     });
     return { variableNames: [...names], variableFieldKinds: kinds };
@@ -476,6 +489,15 @@ const DialogMission = () => {
     );
     if (missingVariable) {
       void messageApi.error(t("main.mission_modal.variable_missing"));
+      return;
+    }
+
+    const invalidCoordinate = variableNames.some(
+      (name) =>
+        isCoordinateVariable(name) && !isNumericString(variableValues?.[name]),
+    );
+    if (invalidCoordinate) {
+      void messageApi.error(t("main.mission_modal.variable_must_be_number"));
       return;
     }
 
@@ -591,9 +613,14 @@ const DialogMission = () => {
               onSelect={(record) => {
                 missionForm.setFieldValue("titleId", record.id);
                 missionForm.setFieldValue("variableValues", undefined);
+                missionForm.resetFields(
+                  variableNames.map((n) => ["variableValues", n]),
+                );
                 setSelectedTitleId(record.id);
                 void messageApi.success(
-                  t("main.mission_modal.selected_mission", { name: record.name }),
+                  t("main.mission_modal.selected_mission", {
+                    name: record.name,
+                  }),
                 );
               }}
               placeholder={t("main.mission_modal.click_to_choose")}
@@ -626,7 +653,26 @@ const DialogMission = () => {
                     key={name}
                     label={name}
                     name={["variableValues", name]}
-                    rules={[{ required: true }]}
+                    initialValue={isCoordinateVariable(name) ? "0" : undefined}
+                    rules={[
+                      { required: true },
+                      ...(isCoordinateVariable(name)
+                        ? [
+                            {
+                              validator: (_: unknown, value?: string) =>
+                                !value || isNumericString(value)
+                                  ? Promise.resolve()
+                                  : Promise.reject(
+                                      new Error(
+                                        t(
+                                          "main.mission_modal.variable_must_be_number",
+                                        ),
+                                      ),
+                                    ),
+                            },
+                          ]
+                        : []),
+                    ]}
                     style={{ marginBottom: 12 }}
                   >
                     {kind ? (
@@ -636,7 +682,9 @@ const DialogMission = () => {
                         placeholder={t("main.mission_modal.select_value")}
                       />
                     ) : (
-                      <Input placeholder={t("main.mission_modal.enter_value")} />
+                      <Input
+                        placeholder={t("main.mission_modal.enter_value")}
+                      />
                     )}
                   </Form.Item>
                 );
