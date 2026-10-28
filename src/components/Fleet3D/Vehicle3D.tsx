@@ -3,6 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { Html, useCursor, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { ForkliftRig, rigForklift } from "./forkliftRig";
+import { ALERT_BODY, ALERT_BUMPER, ALERT_FORK, ALERT_SCAN_AROUND, ALERT_SCAN_FRONT, ALERT_SCAN_REAR } from "./alerts";
 import { VehicleSource, emptyFrame } from "./frame";
 import { CARTON_SIZE, PALLET_HEIGHT, PALLET_OFFSET } from "./dimensions";
 import { FORKLIFT_URL, MIR_URL, cartonMaterial, hitMaterial, palletMaterial, unitBox, usePalletGeometry } from "./models";
@@ -16,6 +17,15 @@ import { FORKLIFT_URL, MIR_URL, cartonMaterial, hitMaterial, palletMaterial, uni
 
 /** 點選範圍至少這麼大 (公尺): MiR 這類小車在全景只有十幾個像素, 太難點 */
 const MIN_HIT = 1.2;
+
+/** 告警閃的顏色、一秒閃幾次; 光達告警在車頭前 / 車尾後畫多長 (公尺) */
+const ALERT_COLOR = "#ff2d2d";
+const ALERT_HZ = 1.5;
+const SCAN_DEPTH = 1.2;
+/** 防撞邊條那一圈: 離車身多遠、多高 (公尺) */
+const BUMPER_GAP = 0.03;
+const BUMPER_HEIGHT = 0.12;
+const BUMPER_THICK = 0.04;
 
 let blobTexture: THREE.Texture | null = null;
 /** 車底下的柔和影子 (不用即時陰影: 地圖可能上百公尺, 陰影貼圖蓋不住) */
@@ -40,6 +50,8 @@ type Body = {
   rig: ForkliftRig | null;
   materials: THREE.Material[];
   box: THREE.Box3;
+  /** 牙叉上蓋的一層紅色 (跟著牙叉升降), 告警時閃; 沒有牙叉的車是空的 */
+  forkFlash: THREE.Object3D[];
   /** 貨放在哪 (模型座標) 和紙箱多大; 叉車的貨是棧板 + 紙箱, 會跟著牙叉升降; 盒子車是車頂上一箱 */
   cargo: { x: number; y: number; size: [number, number, number]; pallet: boolean };
 };
@@ -65,10 +77,33 @@ const VehicleShell: FC<Props & { body: Body }> = ({ id, source, body, fitLength,
   const palletGeometry = usePalletGeometry();
   const ringMaterial = useMemo(() => new THREE.MeshBasicMaterial({ color: "#888888", transparent: true, opacity: 0.75, depthWrite: false }), []);
   const frame = useMemo(emptyFrame, []);
-  const applied = useRef({ lift: Number.NaN, dim: false, ring: "" });
+  const applied = useRef({ lift: Number.NaN, dim: false, ring: "", alert: 0 });
+  const alertMaterial = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        color: ALERT_COLOR,
+        transparent: true,
+        opacity: 0.6,
+        depthWrite: false,
+        side: THREE.DoubleSide,
+        polygonOffset: true,
+        polygonOffsetFactor: -1,
+        polygonOffsetUnits: -4,
+      }),
+    [],
+  );
+  const bumperRef = useRef<THREE.Group>(null);
+  const bodyLit = useRef(false);
+  const scanFrontRef = useRef<THREE.Mesh>(null);
+  const scanRearRef = useRef<THREE.Mesh>(null);
+  const scanAroundRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
   useCursor(hovered);
   useEffect(() => () => ringMaterial.dispose(), [ringMaterial]);
+  useEffect(() => () => alertMaterial.dispose(), [alertMaterial]);
+  useEffect(() => {
+    for (const o of body.forkFlash) (o as THREE.Mesh).material = alertMaterial;
+  }, [body, alertMaterial]);
 
   const { box, cargo } = body;
   const length = box.max.x - box.min.x;
@@ -81,7 +116,7 @@ const VehicleShell: FC<Props & { body: Body }> = ({ id, source, body, fitLength,
   // 標籤在車頂或車上的貨上面 (牙叉升起來時就不管了)
   const labelY = Math.max(height, cargo.y + (cargo.pallet ? PALLET_HEIGHT : 0) + cargo.size[1]) * scale + 0.35;
 
-  useFrame(() => {
+  useFrame(({ clock }) => {
     const group = groupRef.current;
     if (!group) return;
     const shown = source(id, frame);
@@ -118,6 +153,27 @@ const VehicleShell: FC<Props & { body: Body }> = ({ id, source, body, fitLength,
       ringMaterial.opacity = frame.dim ? 0.2 : 0.75;
       done.dim = frame.dim;
     }
+
+    // 告警: 對應的部位一閃一閃 (沒有牙叉的車, 牙叉的告警閃整台)
+    let alert = frame.alert;
+    if (alert & ALERT_FORK && !body.forkFlash.length) alert = (alert & ~ALERT_FORK) | ALERT_BODY;
+    const pulse = alert ? 0.5 + 0.5 * Math.sin(clock.elapsedTime * ALERT_HZ * 2 * Math.PI) : 0;
+    if (alert !== done.alert) {
+      if (bumperRef.current) bumperRef.current.visible = !!(alert & ALERT_BUMPER);
+      if (scanFrontRef.current) scanFrontRef.current.visible = !!(alert & ALERT_SCAN_FRONT);
+      if (scanRearRef.current) scanRearRef.current.visible = !!(alert & ALERT_SCAN_REAR);
+      if (scanAroundRef.current) scanAroundRef.current.visible = !!(alert & ALERT_SCAN_AROUND);
+      for (const o of body.forkFlash) o.visible = !!(alert & ALERT_FORK);
+      done.alert = alert;
+    }
+    if (alert) alertMaterial.opacity = 0.15 + 0.65 * pulse;
+    if (alert & ALERT_BODY || bodyLit.current) {
+      bodyLit.current = !!(alert & ALERT_BODY);
+      for (const m of body.materials) {
+        const e = (m as THREE.MeshStandardMaterial).emissive;
+        if (e) e.setStyle(ALERT_COLOR).multiplyScalar(alert & ALERT_BODY ? 0.8 * pulse : 0);
+      }
+    }
   });
 
   return (
@@ -137,6 +193,53 @@ const VehicleShell: FC<Props & { body: Body }> = ({ id, source, body, fitLength,
             </group>
           </group>
         </group>
+        {/* 告警: 防撞邊條是車底一圈; 光達是車頭前、車尾後、四周的地上 (平常藏著) */}
+        <group ref={bumperRef} visible={false} position-x={offsetX}>
+          {[
+            [box.max.x + BUMPER_GAP, 0, BUMPER_THICK, halfW * 2 + BUMPER_GAP * 2],
+            [box.min.x - BUMPER_GAP, 0, BUMPER_THICK, halfW * 2 + BUMPER_GAP * 2],
+            [(box.min.x + box.max.x) / 2, halfW + BUMPER_GAP, length + BUMPER_GAP * 2, BUMPER_THICK],
+            [(box.min.x + box.max.x) / 2, -halfW - BUMPER_GAP, length + BUMPER_GAP * 2, BUMPER_THICK],
+          ].map(([x, z, sx, sz], i) => (
+            <mesh
+              key={i}
+              geometry={unitBox}
+              material={alertMaterial}
+              position={[x, BUMPER_HEIGHT / 2 + 0.02, z]}
+              scale={[sx, BUMPER_HEIGHT, sz]}
+            />
+          ))}
+        </group>
+        <mesh
+          ref={scanFrontRef}
+          visible={false}
+          material={alertMaterial}
+          position={[box.max.x + offsetX + SCAN_DEPTH / 2, 0.008, 0]}
+          rotation-x={-Math.PI / 2}
+          renderOrder={3}
+        >
+          <planeGeometry args={[SCAN_DEPTH, halfW * 2.4]} />
+        </mesh>
+        <mesh
+          ref={scanRearRef}
+          visible={false}
+          material={alertMaterial}
+          position={[box.min.x + offsetX - SCAN_DEPTH / 2, 0.008, 0]}
+          rotation-x={-Math.PI / 2}
+          renderOrder={3}
+        >
+          <planeGeometry args={[SCAN_DEPTH, halfW * 2.4]} />
+        </mesh>
+        <mesh
+          ref={scanAroundRef}
+          visible={false}
+          material={alertMaterial}
+          position={[centerX, 0.008, 0]}
+          rotation-x={-Math.PI / 2}
+          renderOrder={3}
+        >
+          <ringGeometry args={[footprint * 0.62, footprint * 0.62 + SCAN_DEPTH, 64]} />
+        </mesh>
         {/* 影子、色圈畫在車身範圍的中心 */}
         <mesh position={[centerX, 0.004, 0]} rotation-x={-Math.PI / 2} renderOrder={1}>
           <planeGeometry args={[length * 1.15, halfW * 2.4]} />
@@ -196,13 +299,31 @@ const cloneWithOwnMaterials = (scene: THREE.Object3D) => {
   return { object, materials: [...own.values()] };
 };
 
+/** 底下每個網格蓋一層一樣形狀的 (材質之後換成告警色), 跟著原本的網格動 */
+const addFlashOverlays = (root: THREE.Object3D) => {
+  const meshes: THREE.Mesh[] = [];
+  root.traverse((o) => {
+    if ((o as THREE.Mesh).isMesh) meshes.push(o as THREE.Mesh);
+  });
+  return meshes.map((m) => {
+    const overlay = new THREE.Mesh(m.geometry);
+    overlay.visible = false;
+    overlay.renderOrder = 4;
+    overlay.scale.setScalar(1.002);
+    m.add(overlay);
+    return overlay;
+  });
+};
+
 const ForkliftVehicle: FC<Props> = (props) => {
   const forklift = useGLTF(FORKLIFT_URL, false, true).scene;
   const body = useMemo<Body>(() => {
     const { object, materials } = cloneWithOwnMaterials(forklift);
+    const rig = rigForklift(object);
     return {
       object,
-      rig: rigForklift(object),
+      rig,
+      forkFlash: rig.forks.flatMap(addFlashOverlays),
       materials,
       box: new THREE.Box3().setFromObject(forklift),
       cargo: { x: -PALLET_OFFSET, y: 0, size: CARTON_SIZE, pallet: true },
@@ -223,6 +344,7 @@ const MirVehicle: FC<Props> = (props) => {
     return {
       object,
       rig: null,
+      forkFlash: [],
       materials,
       box,
       cargo: { x: (box.min.x + box.max.x) / 2, y: box.max.y, size: [Math.min(0.9, length * 0.8), 0.4, Math.min(0.9, width * 0.8)], pallet: false },

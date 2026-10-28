@@ -37,6 +37,8 @@ export type LiveState = {
   claimedRoads: Map<string, string>;
   /** 有警告的車 */
   warnings: Set<string>;
+  /** 每台車目前的告警說明 (3D 檢視照說明閃車上的部位) */
+  warningInfos: Map<string, string[]>;
   pointCloud: Map<string, Float32Array>;
   /** MiR 目前用的地圖 */
   mirMapId: Map<string, string>;
@@ -83,6 +85,7 @@ export const createLiveStore = (): LiveStore => {
     bbox: new Map(),
     claimedRoads: new Map(),
     warnings: new Set(),
+    warningInfos: new Map(),
     pointCloud: new Map(),
     mirMapId: new Map(),
     activeSubName: new Map(),
@@ -142,9 +145,9 @@ export const createLiveStore = (): LiveStore => {
     warningId$.subscribe((infos) => {
       // 跟 useWarningId 一樣: 空陣列不清掉上一次的警告
       if (!infos.length) return;
-      state.warnings = new Set(
-        infos.filter((i) => i && i.message.length > 0).map((i) => i!.amrId),
-      );
+      const active = infos.filter((i) => i && i.message.length > 0).map((i) => i!);
+      state.warnings = new Set(active.map((i) => i.amrId));
+      state.warningInfos = new Map(active.map((i) => [i.amrId, i.message.map((m) => m.info)]));
       notify();
     }),
   );

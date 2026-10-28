@@ -28,6 +28,8 @@ type Mover = { node: THREE.Object3D; rest: THREE.Vector3; up: THREE.Vector3 };
 export type ForkliftRig = {
   /** 牙叉升高到幾公尺 (0 = 最低) */
   setLift: (height: number) => void;
+  /** 牙叉 (貨叉架) 的節點, 告警時閃它 */
+  forks: THREE.Object3D[];
 };
 
 const partOf = (o: THREE.Object3D): Part | null => {
@@ -60,6 +62,7 @@ export function rigForklift(model: THREE.Object3D): ForkliftRig {
     for (const m of list) m.node.position.copy(m.rest).addScaledVector(m.up, offset);
   };
   return {
+    forks: movers.fork.map((m) => m.node),
     setLift: (height) => {
       const extend = Math.max(0, height - freeLift);
       move(movers.fork, height);

@@ -2,6 +2,7 @@ import type { AmrLive, LiveState } from "@/components/CanvasMap/liveStore";
 import { amrShownAt } from "@/components/CanvasMap/draw";
 import type { VehicleFrame } from "./frame";
 import { CARRY_LIFT } from "./forkliftRig";
+import { alertZones } from "./alerts";
 
 /**
  * 即時資料 -> 每一幀車子的樣子。
@@ -66,8 +67,7 @@ const poseAt = (t: Track, now: number, out: Pose) => {
   return out;
 };
 
-const actionOf = (status: string) =>
-  status.startsWith(PICKING_PREFIX) ? "pick" : status.startsWith(DROPPING_PREFIX) ? "drop" : null;
+const actionOf = (status: string) => (status.startsWith(PICKING_PREFIX) ? "pick" : status.startsWith(DROPPING_PREFIX) ? "drop" : null);
 
 export type LiveFilter = {
   currentMapId: string | null;
@@ -81,11 +81,23 @@ export type LiveFilter = {
 export class LiveTracks {
   private tracks = new Map<string, Track>();
   private state: LiveState | null = null;
-  filter: LiveFilter = { currentMapId: null, filterIds: new Set(), forbiddenIds: new Set(), color: () => "#888888" };
+  /** 告警換了才重算每台車要閃哪裡 */
+  private alertsOf: LiveState["warningInfos"] | null = null;
+  private alerts = new Map<string, number>();
+  filter: LiveFilter = {
+    currentMapId: null,
+    filterIds: new Set(),
+    forbiddenIds: new Set(),
+    color: () => "#888888",
+  };
 
   /** liveStore 有新資料時呼叫 */
   ingest(state: LiveState, now: number) {
     this.state = state;
+    if (state.warningInfos !== this.alertsOf) {
+      this.alertsOf = state.warningInfos;
+      this.alerts = new Map([...state.warningInfos].map(([id, infos]) => [id, alertZones(infos)]));
+    }
     for (const [id, a] of state.amrs) {
       let t = this.tracks.get(id);
       if (t?.src === a) continue;
@@ -95,7 +107,11 @@ export class LiveTracks {
         continue;
       }
       // SW15 的車頭在 2D 地圖上也是反過來畫的 (draw.ts)
-      const pose = { x: at.x, y: at.y, yaw: ((at.yaw + (id.includes("SW15") ? 180 : 0)) * Math.PI) / 180 };
+      const pose = {
+        x: at.x,
+        y: at.y,
+        yaw: ((at.yaw + (id.includes("SW15") ? 180 : 0)) * Math.PI) / 180,
+      };
       if (!t) {
         t = {
           src: a,
@@ -174,6 +190,7 @@ export class LiveTracks {
     const highlighted = filterIds.size ? filterIds.has(id) : forbiddenIds.has(id);
     out.dim = (filterIds.size > 0 || forbiddenIds.size > 0) && !highlighted;
     out.ring = this.filter.color(id);
+    out.alert = this.alerts.get(id) ?? 0;
     return true;
   };
 

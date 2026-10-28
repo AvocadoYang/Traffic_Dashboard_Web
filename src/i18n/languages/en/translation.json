@@ -2110,7 +2110,15 @@
       "title": "Simulated vehicles",
       "drag_hint": "Drag a vehicle onto the map; it is placed on the nearest point as its start. Click a vehicle to edit or delete it. Start the simulation with the Simulate button at the top.",
       "running": "Simulation running; stop it to change the simulated vehicles",
-      "no_car": "No simulated vehicles yet"
+      "no_car": "No simulated vehicles yet",
+      "settings_saved": "Saved",
+      "settings": {
+        "title": "Simulation settings",
+        "car_speed": "Car speed (m/s)",
+        "time_scale": "Time scale",
+        "mock_warnings": "Mock warnings",
+        "hint": "Applies on next simulation start"
+      }
     }
   },
   "cargo_history": {

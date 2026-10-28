@@ -2111,7 +2111,15 @@
       "title": "模擬車輛",
       "drag_hint": "把車拖到地圖上，會放在最近的點位當起始位置；點車輛可修改參數或刪除。開始模擬請按上方的「模擬」。",
       "running": "模擬進行中，停止模擬後才能調整模擬車輛",
-      "no_car": "尚未新增模擬車輛"
+      "no_car": "尚未新增模擬車輛",
+      "settings_saved": "已儲存",
+      "settings": {
+        "title": "模擬參數",
+        "car_speed": "車速 (m/s)",
+        "time_scale": "時間倍率",
+        "mock_warnings": "模擬車輪流發告警",
+        "hint": "下次開始模擬才生效"
+      }
     }
   },
   "cargo_history": {

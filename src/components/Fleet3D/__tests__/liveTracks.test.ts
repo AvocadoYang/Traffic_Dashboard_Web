@@ -21,6 +21,7 @@ const state = (amrs: Record<string, AmrLive>): LiveState => ({
   bbox: new Map(Object.keys(amrs).map((id) => [id, [[0, 0], [1, 0], [1, 1], [0, 0.5]]])),
   claimedRoads: new Map(),
   warnings: new Set(),
+  warningInfos: new Map(),
   pointCloud: new Map(),
   mirMapId: new Map(),
   activeSubName: new Map(),

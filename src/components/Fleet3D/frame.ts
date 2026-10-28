@@ -13,9 +13,11 @@ export type VehicleFrame = {
   ring: string;
   /** 淡化 (卡片篩選了別台車) */
   dim: boolean;
+  /** 告警要閃的部位 (alerts.ts 的 ALERT_* 加起來), 0 = 沒有 */
+  alert: number;
 };
 
 /** 回傳 false 表示這一幀不畫 */
 export type VehicleSource = (id: string, out: VehicleFrame) => boolean;
 
-export const emptyFrame = (): VehicleFrame => ({ x: 0, y: 0, yaw: 0, lift: 0, loaded: false, ring: "#888888", dim: false });
+export const emptyFrame = (): VehicleFrame => ({ x: 0, y: 0, yaw: 0, lift: 0, loaded: false, ring: "#888888", dim: false, alert: 0 });
