@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import {
   Alert,
@@ -6,15 +6,17 @@ import {
   Empty,
   Flex,
   Form,
+  InputNumber,
   message,
   Modal,
   Select,
+  Switch,
   Tooltip,
   Typography,
 } from "antd";
 import { CloseOutlined, PlusOutlined, SwapOutlined } from "@ant-design/icons";
 import { useAtom } from "jotai";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";
 import useScriptRobot from "@/api/useScriptRobot";
@@ -27,6 +29,15 @@ import AmrForm, { EditFormType } from "./AmrForm";
 import ScriptModal from "./ScriptModal";
 import { EditingSimCar, OpenSimCarPanel } from "./simCarAtoms";
 import { refetchSimCars, SIM_CAR_DRAG_TYPE } from "./useSimCarPlacement";
+
+type MockSettings = {
+  fps: number;
+  timeScale: number;
+  mockWarnings: boolean;
+  carSpeed: number;
+};
+
+const MOCK_SETTINGS_KEY = ["mock-settings"];
 
 const Btn = styled.div<{ $top: string; $left: string; $active: boolean }>`
   position: absolute;
@@ -152,9 +163,28 @@ const SimCarPanel: FC<{ top?: string; left?: string }> = ({
     [robotTypes],
   );
 
-  const cars = (robots ?? []).filter(
-    (r): r is NonNullable<typeof r> => !!r,
-  );
+  const [settingsForm] = Form.useForm<MockSettings>();
+  const { data: mockSettings } = useQuery(MOCK_SETTINGS_KEY, async () => {
+    const { data } = await client.get<MockSettings>(
+      "api/simulate/mock-settings",
+    );
+    return data;
+  });
+  useEffect(() => {
+    if (mockSettings) settingsForm.setFieldsValue(mockSettings);
+  }, [mockSettings, settingsForm]);
+
+  const settingsMutation = useMutation({
+    mutationFn: (payload: MockSettings) =>
+      client.post("api/simulate/mock-settings", payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries(MOCK_SETTINGS_KEY);
+      void messageApi.success(t("sim.car_panel.settings_saved"));
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
+  const cars = (robots ?? []).filter((r): r is NonNullable<typeof r> => !!r);
 
   return (
     <>
@@ -188,7 +218,9 @@ const SimCarPanel: FC<{ top?: string; left?: string }> = ({
           <Flex justify="space-between" align="center" gap={8}>
             <Typography.Text type="secondary" ellipsis>
               {t("sim.modal.current")}：
-              {noScript ? t("sim.select_script.no_scripts") : currentScript?.name}
+              {noScript
+                ? t("sim.select_script.no_scripts")
+                : currentScript?.name}
             </Typography.Text>
             <Tooltip title={t("sim.select_script.change")}>
               <Button
@@ -244,13 +276,78 @@ const SimCarPanel: FC<{ top?: string; left?: string }> = ({
                       type={placed ? undefined : "secondary"}
                       style={{ fontSize: 12 }}
                     >
-                      {placed ? r.script_placement_location : t("sim.robot.unset")}
+                      {placed
+                        ? r.script_placement_location
+                        : t("sim.robot.unset")}
                     </Typography.Text>
                   </CarRow>
                 );
               })
             )}
           </CarList>
+
+          <Form
+            form={settingsForm}
+            layout="horizontal"
+            size="small"
+            labelCol={{ span: 12 }}
+            disabled={running}
+            onFinish={(v) => settingsMutation.mutate(v)}
+            style={{ flex: "0 0 auto" }}
+          >
+            <Typography.Text strong>
+              {t("sim.car_panel.settings.title")}
+            </Typography.Text>
+            <Form.Item
+              name="carSpeed"
+              label={t("sim.car_panel.settings.car_speed")}
+              rules={[{ required: true }]}
+              style={{ margin: "4px 0" }}
+            >
+              <InputNumber min={0.1} step={0.1} style={{ width: "100%" }} />
+            </Form.Item>
+            <Form.Item
+              name="timeScale"
+              label={t("sim.car_panel.settings.time_scale")}
+              rules={[{ required: true }]}
+              style={{ margin: "4px 0" }}
+            >
+              <InputNumber min={0.1} step={0.5} style={{ width: "100%" }} />
+            </Form.Item>
+            <Form.Item
+              name="fps"
+              label="FPS"
+              rules={[{ required: true }]}
+              style={{ margin: "4px 0" }}
+            >
+              <InputNumber
+                min={1}
+                max={240}
+                precision={0}
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
+            <Form.Item
+              name="mockWarnings"
+              label={t("sim.car_panel.settings.mock_warnings")}
+              valuePropName="checked"
+              style={{ margin: "4px 0" }}
+            >
+              <Switch />
+            </Form.Item>
+            <Flex justify="space-between" align="center" gap={8}>
+              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                {t("sim.car_panel.settings.hint")}
+              </Typography.Text>
+              <Button
+                htmlType="submit"
+                size="small"
+                loading={settingsMutation.isLoading}
+              >
+                {t("utils.save")}
+              </Button>
+            </Flex>
+          </Form>
 
           <Button
             icon={<PlusOutlined />}

@@ -84,8 +84,8 @@ export const playTimeAtom = atom(0);
 export const playingAtom = atom(false);
 export const playSpeedAtom = atom(20);
 
-/** 地圖顯示: 回放 / 塞車熱點 */
-export const mapModeAtom = atom<"replay" | "heat">("replay");
+/** 地圖顯示: 回放 / 塞車熱點 / 3D 回放 */
+export const mapModeAtom = atom<"replay" | "heat" | "3d">("replay");
 
 /** 回放地圖自己的平移縮放 (跟佈局的分開) */
 export const replayViewAtom = atom<View | null>(null);

@@ -29,7 +29,8 @@ import { ErrorResponse } from "@/utils/globalType";
 import { editErrorHandler, errorHandler } from "@/utils/utils";
 import useIsNarrow from "../../ui/useIsNarrow";
 import GroupMapFilter from "../../ui/GroupMapFilter";
-import ZoneFields from "../../ui/zoneFields";
+import ZoneFields, { zoneColorFromPicker } from "../../ui/zoneFields";
+import { LinkMap, linkIdOf } from "../../ui/zoneLinks";
 import {
   PanelShell,
   Section,
@@ -68,11 +69,14 @@ type ZoneRow = {
     limitNum?: number | null;
     view_available?: number | null;
     elevator_id?: string | null;
+    splice_id?: string | null;
   };
   startPoint: { startX: number; startY: number };
   endPoint: { endX: number; endY: number };
   rev?: string;
+  mapId: string;
   mapFileName: string;
+  groupId: string;
   groupName: string;
 };
 
@@ -196,7 +200,9 @@ const ZoneListPanel: FC = () => {
       return maps.flatMap((m) =>
         m.zones.map((zone) => ({
           ...zone,
+          mapId: m.mapId,
           mapFileName: m.fileName,
+          groupId: g.groupId,
           groupName: g.groupName,
         })),
       );
@@ -206,6 +212,18 @@ const ZoneListPanel: FC = () => {
     if (!keyword) return all;
     return all.filter((z) => z.name.toLowerCase().includes(keyword));
   }, [resources, selectedGroupId, selectedMapId, search]);
+
+  // 編輯中區域所在群組的地圖, 給電梯 / 拼接 ID 找同組區域 (帶顏色、擋跨地圖拼接)
+  const editingGroupMaps = useMemo(
+    () =>
+      resources?.groups.find((g) => g.groupId === editing?.groupId)?.maps as
+        | LinkMap[]
+        | undefined,
+    [resources, editing?.groupId],
+  );
+
+  const linkIdText = (row: ZoneRow, kind: "elevator" | "splice") =>
+    linkIdOf(row, kind) ?? "—";
 
   const openEdit = (row: ZoneRow) => {
     const forbiddenCar = row.tagSetting?.forbidden_car ?? [];
@@ -227,6 +245,7 @@ const ZoneListPanel: FC = () => {
       limitNum: row.tagSetting?.limitNum ?? undefined,
       view_available: row.tagSetting?.view_available ?? undefined,
       elevator_id: row.tagSetting?.elevator_id ?? undefined,
+      splice_id: row.tagSetting?.splice_id ?? undefined,
       all_forbidden: isAll,
       forbidden: isAll ? [] : forbiddenCar,
       color: row.backgroundColor,
@@ -238,7 +257,11 @@ const ZoneListPanel: FC = () => {
     if (!editing) return;
     try {
       await editForm.validateFields();
-    } catch {
+    } catch (e) {
+      // 欄位都是 noStyle 不會顯示錯誤, 至少把第一個原因講出來
+      const reason = (e as { errorFields?: { errors: string[] }[] }).errorFields?.[0]
+        ?.errors[0];
+      if (reason) void messageApi.warning(reason);
       return;
     }
     const v = editForm.getFieldsValue() as Record<string, unknown>;
@@ -327,6 +350,22 @@ const ZoneListPanel: FC = () => {
       width: 160,
       render: (v: string[]) =>
         v?.length ? v.map((c) => <Tag key={c}>{c}</Tag>) : "—",
+    },
+    {
+      title: t("edit_zone_panel.elevator_id"),
+      key: "elevator_id",
+      width: 110,
+      sorter: (a, b) =>
+        linkIdText(a, "elevator").localeCompare(linkIdText(b, "elevator")),
+      render: (_, r) => linkIdText(r, "elevator"),
+    },
+    {
+      title: t("edit_zone_panel.splice_id"),
+      key: "splice_id",
+      width: 110,
+      sorter: (a, b) =>
+        linkIdText(a, "splice").localeCompare(linkIdText(b, "splice")),
+      render: (_, r) => linkIdText(r, "splice"),
     },
     {
       title: t("zone_table_form.zone_color"),
@@ -433,6 +472,18 @@ const ZoneListPanel: FC = () => {
                       ? row.category.map((c) => <Tag key={c}>{c}</Tag>)
                       : "—"}
                   </dd>
+                  {linkIdOf(row, "elevator") && (
+                    <>
+                      <dt>{t("edit_zone_panel.elevator_id")}</dt>
+                      <dd>{linkIdText(row, "elevator")}</dd>
+                    </>
+                  )}
+                  {linkIdOf(row, "splice") && (
+                    <>
+                      <dt>{t("edit_zone_panel.splice_id")}</dt>
+                      <dd>{linkIdText(row, "splice")}</dd>
+                    </>
+                  )}
                   <dt>{t("map_manager.map_group")}</dt>
                   <dd>{row.mapFileName}</dd>
                 </CardFacts>
@@ -517,12 +568,17 @@ const ZoneListPanel: FC = () => {
 
           <Field>
             <FieldLabel>{t("zone_table_form.zone_color")}</FieldLabel>
-            <Form.Item name="color" noStyle>
+            <Form.Item name="color" noStyle getValueFromEvent={zoneColorFromPicker}>
               <ColorPicker />
             </Form.Item>
           </Field>
 
-          <ZoneFields form={editForm} />
+          <ZoneFields
+            form={editForm}
+            groupMaps={editingGroupMaps}
+            mapId={editing?.mapId}
+            zoneId={editing?.id}
+          />
         </Form>
       </Modal>
     </PanelShell>

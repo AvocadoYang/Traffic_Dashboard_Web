@@ -98,7 +98,8 @@ const DRAG_THRESHOLD = 4;
 
 /** MiR 圖示寬度固定, 長度照車型; 查不到車型時的長度 (地圖像素) */
 const MIR_FALLBACK_LENGTH = 20;
-const robotTypeValueOf = (amrId: string) =>
+/** 車號 -> 車型 (useAMRsample 的 value) */
+export const robotTypeValueOf = (amrId: string) =>
   (amrId.includes("#") ? amrId.split("#")[1] : amrId).split("-").slice(0, 3).join("-");
 
 /** 給外面 (設定頁的編輯工具) 用的 hit-test, 座標是 clientX / clientY */

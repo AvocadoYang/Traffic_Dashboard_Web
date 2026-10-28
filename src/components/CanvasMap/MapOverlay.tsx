@@ -1,5 +1,5 @@
-import { FC, memo, useState } from "react";
-import { atom, useAtom, useAtomValue } from "jotai";
+import { FC, memo, useEffect, useState } from "react";
+import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Popover } from "antd";
 import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
@@ -17,8 +17,9 @@ import ToolTip from "@/pages/Setting/components/ToolTip";
 import { LocationHoverCluster } from "@/pages/Setting/mapComponents/components";
 import RoadHoverCluster from "@/pages/Setting/mapComponents/components/AllRoads/RoadHoverCluster";
 import { HoverLabel, TOOLTIP_Z_INDEX } from "@/pages/Setting/mapComponents/components/HoverLabel";
-import ZoneHoverCard from "@/pages/Setting/mapComponents/components/AllZones/components/ZoneHoverCard";
+import ZoneHoverCard, { toOpaque } from "@/pages/Setting/mapComponents/components/AllZones/components/ZoneHoverCard";
 import { c, font } from "@/pages/SettingV2/ui/tokens";
+import { useLinkedZones } from "@/pages/SettingV2/ui/zoneLinks";
 import type { MapScene, SceneZone } from "./scene";
 
 /**
@@ -30,6 +31,9 @@ import type { MapScene, SceneZone } from "./scene";
 
 /** 按了眼睛圖示藏起來的區域 (舊地圖是每個區域自己的 state, 換頁就重置; 這裡也只在記憶體裡) */
 export const hiddenZoneIdsAtom = atom<Set<string>>(new Set<string>());
+
+/** 打開資訊卡的區域 (實線框) 跟同地圖上跟它綁在一起的電梯 / 拼接區 (虛線框) */
+export const linkedZoneHighlightAtom = atom<{ sourceId: string; linkedIds: Set<string> } | null>(null);
 
 /** 游標停在暫停中的車的停止標誌上: 顯示「暫停」 */
 export const pauseHintAtom = atom<{ x: number; y: number } | null>(null);
@@ -66,6 +70,16 @@ const DisabledBadge = styled.span`
   background: rgba(110, 110, 110, 0.95);
 `;
 
+const Outline = styled.div.attrs<{ $x: number; $y: number; $w: number; $h: number }>(
+  ({ $x, $y, $w, $h }) => ({ style: { left: $x, top: $y, width: $w, height: $h } }),
+)<{ $x: number; $y: number; $w: number; $h: number; $color: string; $dashed: boolean }>`
+  position: absolute;
+  box-sizing: border-box;
+  pointer-events: none;
+  border: 3px ${({ $dashed }) => ($dashed ? "dashed" : "solid")} ${({ $color }) => $color};
+  background: color-mix(in srgb, ${({ $color }) => $color} 15%, transparent);
+`;
+
 const Centered = styled.div.attrs<{ $x: number; $y: number }>(({ $x, $y }) => ({
   style: { left: $x, top: $y },
 }))<{ $x: number; $y: number }>`
@@ -82,6 +96,18 @@ const ZoneLabel: FC<{ zone: SceneZone; info: Parameters<typeof ZoneHoverCard>[0]
   const [cardOpen, setCardOpen] = useState(false);
   // 放在這層而不是卡片裡: 對話框打開時游標離開卡片, 卡片關掉也不影響對話框
   const { setEnabled, pendingId, contextHolder } = useToggleZoneEnabled();
+  const linked = useLinkedZones(info);
+  const setHighlight = useSetAtom(linkedZoneHighlightAtom);
+  const linkedHere = [...linked.elevator, ...linked.splice]
+    .filter(({ map }) => map.mapId === linked.ownMapId)
+    .map(({ zone }) => zone.id)
+    .join(",");
+  useEffect(() => {
+    if (!cardOpen || !linkedHere) return;
+    setHighlight({ sourceId: zone.id, linkedIds: new Set(linkedHere.split(",")) });
+    // 只清自己設的, 游標直接移到別的區域時不要把人家的框清掉
+    return () => setHighlight((prev) => (prev?.sourceId === zone.id ? null : prev));
+  }, [cardOpen, linkedHere, zone.id, setHighlight]);
   const isHidden = hidden.has(zone.id);
   const toggleHidden = () =>
     setHidden((prev) => {
@@ -132,12 +158,36 @@ const ZoneLabel: FC<{ zone: SceneZone; info: Parameters<typeof ZoneHoverCard>[0]
   );
 };
 
+/** 資訊卡打開時, 在地圖上框出它跟同地圖的關聯區域 */
+const LinkedZoneOutlines: FC<{ scene: MapScene }> = ({ scene }) => {
+  const highlight = useAtomValue(linkedZoneHighlightAtom);
+  if (!highlight) return null;
+  return (
+    <>
+      {scene.zones
+        .filter((z) => z.id === highlight.sourceId || highlight.linkedIds.has(z.id))
+        .map((z) => (
+          <Outline
+            key={z.id}
+            $x={z.x}
+            $y={z.y}
+            $w={z.w}
+            $h={z.h}
+            $color={toOpaque(z.color)}
+            $dashed={z.id !== highlight.sourceId}
+          />
+        ))}
+    </>
+  );
+};
+
 const ZoneLabels: FC<{ scene: MapScene }> = ({ scene }) => {
   const { data } = useMap();
   if (!data) return null;
   const infoById = new Map(data.zones.map((z) => [z.id, z]));
   return (
     <>
+      <LinkedZoneOutlines scene={scene} />
       {scene.zones.map((zone) => {
         const info = infoById.get(zone.id);
         return info ? <ZoneLabel key={zone.id} zone={zone} info={info} /> : null;

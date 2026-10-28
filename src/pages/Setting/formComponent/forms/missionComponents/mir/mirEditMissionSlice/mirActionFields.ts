@@ -125,6 +125,8 @@ export const MIR_ACTION_FIELDS: Record<string, readonly MirEditableField[]> = {
   wait_for_io: ["module", "port", "value", "timeout"],
 };
 
+export const MIR_DEFAULT_SOUND = "mirconst-guid-0000-0001-sounds000000";
+
 const DEFAULTS: Record<MirEditableField, unknown> = {
   location_id: "",
   entry_position: "",
@@ -142,7 +144,7 @@ const DEFAULTS: Record<MirEditableField, unknown> = {
   collision_detection: true,
   option: "free",
   wait: "00:00:00",
-  sound: "",
+  sound: MIR_DEFAULT_SOUND,
   volume: 0,
   mode: "full",
   duration: "00:00:01.000000",
@@ -151,9 +153,9 @@ const DEFAULTS: Record<MirEditableField, unknown> = {
   color_1: "#ffffff",
   color_2: "#ffffff",
   intensity: 100,
-  front: "unmuted",
-  rear: "unmuted",
-  sides: "unmuted",
+  front: "muted",
+  rear: "muted",
+  sides: "muted",
   module: null,
   port: 0,
   value: "on",

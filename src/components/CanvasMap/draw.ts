@@ -403,6 +403,28 @@ export type AmrHit = {
   clickable: boolean;
 };
 
+/**
+ * 這台車要不要畫、畫在哪 (ROS 座標, 公尺; 3D 檢視也照這個規則): 離線、還沒收到車框、
+ * MiR 不在目前這張地圖上就不畫。yaw 是度, 沒有修正 (SW15 畫的時候自己轉 180 度)
+ */
+export const amrShownAt = (live: LiveState, id: string, currentMapId: string | null) => {
+  const a = live.amrs.get(id);
+  if (!a || !a.pose || a.isOverdue) return null;
+  // 舊地圖收到車框之前不畫車
+  const bbox = live.bbox.get(id);
+  if (!bbox || !bbox.length) return null;
+  if (id.includes("mi") && (live.mirMapId.get(id) ?? "") !== currentMapId) return null;
+  const { x, y, yaw } = a.pose;
+  if (!id.includes("SW15")) return { x, y, yaw };
+  // SW15 的座標要轉 270 度再位移 (照舊地圖 AMR.tsx)
+  const theta = (3 * Math.PI) / 2;
+  return {
+    x: x * Math.cos(theta) - y * Math.sin(theta) + 3.5,
+    y: x * Math.sin(theta) + y * Math.cos(theta) + 0.4,
+    yaw,
+  };
+};
+
 export function drawLive(f: Frame, scene: MapScene, live: LiveState, o: LiveOptions): AmrHit[] {
   const { ctx } = f;
   ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -410,23 +432,10 @@ export function drawLive(f: Frame, scene: MapScene, live: LiveState, o: LiveOpti
 
   const shown: Visible[] = [];
   for (const id of o.amrIds) {
-    const a = live.amrs.get(id);
-    if (!a || !a.pose || a.isOverdue) continue;
-    // 舊地圖收到車框之前不畫車
-    const bbox = live.bbox.get(id);
-    if (!bbox || !bbox.length) continue;
-    if (id.includes("mi") && (live.mirMapId.get(id) ?? "") !== o.currentMapId) continue;
-    // SW15 的座標要轉 270 度再位移 (照舊地圖 AMR.tsx)
-    let { x, y } = a.pose;
-    if (id.includes("SW15")) {
-      const theta = (3 * Math.PI) / 2;
-      const nx = a.pose.x * Math.cos(theta) - a.pose.y * Math.sin(theta) + 3.5;
-      const ny = a.pose.x * Math.sin(theta) + a.pose.y * Math.cos(theta) + 0.4;
-      x = nx;
-      y = ny;
-    }
-    const [px, py] = scene.toPx(x, y);
-    shown.push({ id, x: px, y: py, yaw: a.pose.yaw, color: amrColor(id) });
+    const at = amrShownAt(live, id, o.currentMapId);
+    if (!at) continue;
+    const [px, py] = scene.toPx(at.x, at.y);
+    shown.push({ id, x: px, y: py, yaw: at.yaw, color: amrColor(id) });
   }
 
   if (o.showPointCloud) drawPointClouds(f, scene, live, o);
@@ -635,16 +644,24 @@ const pickLoc = (value?: string | null) => {
   return trimmed && trimmed !== "0" ? trimmed : "";
 };
 
-/** 車上方的黑色提示框: 車號、在做什麼、要去哪裡 (規則同 useAmrMissionTip) */
-function drawTip(f: Frame, v: Visible, live: LiveState, o: LiveOptions) {
-  const a = live.amrs.get(v.id)!;
+/** 車的提示框內容 (3D 檢視的標籤也用): 正在做什麼、要去哪裡 */
+export const amrTip = (live: LiveState, id: string) => {
+  const a = live.amrs.get(id);
+  if (!a) return { tipText: "", dest: "" };
   const status = a.status.trim();
   const isIdle = !status || IDLE_STATUS.includes(status.toLowerCase());
-  const tipText = live.activeSubName.get(v.id) || (isIdle ? "" : status);
-  const dest =
-    pickLoc(a.destination?.name) ||
-    pickLoc(a.destination?.finalLocationId) ||
-    pickLoc(a.destination?.locationId);
+  return {
+    tipText: live.activeSubName.get(id) || (isIdle ? "" : status),
+    dest:
+      pickLoc(a.destination?.name) ||
+      pickLoc(a.destination?.finalLocationId) ||
+      pickLoc(a.destination?.locationId),
+  };
+};
+
+/** 車上方的黑色提示框: 車號、在做什麼、要去哪裡 (規則同 useAmrMissionTip) */
+function drawTip(f: Frame, v: Visible, live: LiveState, o: LiveOptions) {
+  const { tipText, dest } = amrTip(live, v.id);
   const forbidden = o.forbiddenIds.has(v.id);
   const show = o.filterIds.has(v.id) || o.hintId === v.id || forbidden || !!tipText || !!dest;
   if (!show) return;

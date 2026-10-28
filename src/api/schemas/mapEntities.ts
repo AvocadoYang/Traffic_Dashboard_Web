@@ -56,6 +56,7 @@ export const zoneSchema = object({
     limitNum: number().nullable(),
     view_available: number().nullable(),
     elevator_id: string().nullable(),
+    splice_id: string().nullable(),
   }).optional(),
   startPoint: object({
     startX: number().required(),
