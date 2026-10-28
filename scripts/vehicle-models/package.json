@@ -1,0 +1,13 @@
+{
+  "name": "vehicle-models",
+  "private": true,
+  "description": "把原廠 CAD 模型轉成 public/models 底下 3D 檢視用的輕量 GLB (叉車: forklift.mjs, MiR: mir.mjs)",
+  "type": "module",
+  "dependencies": {
+    "@gltf-transform/core": "4.5.1",
+    "@gltf-transform/extensions": "4.5.1",
+    "@gltf-transform/functions": "4.5.1",
+    "meshoptimizer": "1.3.0",
+    "occt-import-js": "0.0.23"
+  }
+}

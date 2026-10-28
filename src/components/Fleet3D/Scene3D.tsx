@@ -1,5 +1,6 @@
 import { FC, MutableRefObject, ReactNode, Suspense, useCallback, useEffect, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { ErrorBoundary } from "react-error-boundary";
 import { Grid, MapControls } from "@react-three/drei";
 import * as THREE from "three";
 import styled from "styled-components";
@@ -12,6 +13,16 @@ import styled from "styled-components";
  * 世界 x = ROS x、世界 z = -ROS y, 從上往下看時方向跟 2D 地圖一樣;
  * 車頭角度 (ROS 逆時針為正) 直接當繞 y 軸的旋轉。
  */
+
+/**
+ * 要載模型的東西 (車、設備) 包這個: 載入中先不畫; 載入失敗 (網路斷、檔案不見) 只少畫這一個,
+ * 不然錯誤會從畫布一路往外丟, 整個頁面都會白掉
+ */
+export const ModelBoundary: FC<{ children: ReactNode }> = ({ children }) => (
+  <ErrorBoundary fallback={null} onError={(e) => console.error("3D 模型載入失敗:", e)}>
+    <Suspense fallback={null}>{children}</Suspense>
+  </ErrorBoundary>
+);
 
 /** ROS 座標的範圍 (公尺) */
 export type Bounds = { minX: number; minY: number; maxX: number; maxY: number };

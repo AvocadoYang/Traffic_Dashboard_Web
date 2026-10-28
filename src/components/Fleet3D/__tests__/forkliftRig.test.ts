@@ -7,7 +7,7 @@ const worldY = (o: THREE.Object3D) => {
   return new THREE.Vector3().setFromMatrixPosition(o.matrixWorld).y;
 };
 
-/** 跟 scripts/forklift-model 產生的模型一樣: 根節點帶 freeLift, 組件本身不帶變換 */
+/** 跟 scripts/vehicle-models/forklift.mjs 產生的模型一樣: 根節點帶 freeLift, 組件本身不帶變換 */
 const model = (freeLift: number) => {
   const root = new THREE.Group();
   const rig = new THREE.Group();

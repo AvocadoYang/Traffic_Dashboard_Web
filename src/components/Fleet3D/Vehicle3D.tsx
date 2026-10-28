@@ -2,20 +2,18 @@ import { FC, ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html, useCursor, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
-import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { ForkliftRig, rigForklift } from "./forkliftRig";
 import { VehicleSource, emptyFrame } from "./frame";
 import { CARTON_SIZE, PALLET_HEIGHT, PALLET_OFFSET } from "./dimensions";
-import { FORKLIFT_URL, cartonMaterial, hitMaterial, palletMaterial, unitBox, usePalletGeometry } from "./models";
+import { FORKLIFT_URL, MIR_URL, cartonMaterial, hitMaterial, palletMaterial, unitBox, usePalletGeometry } from "./models";
 
 /**
- * 3D 場景裡的一台車: 叉車模型 (MiR 這類沒有牙叉的車畫成一個盒子)、貨、地上的影子和色圈、名稱標籤。
+ * 3D 場景裡的一台車: 叉車或 MiR 的模型、貨、地上的影子和色圈、名稱標籤。
  *
  * 位置不經過 React: 每一幀向 source 問一次這台車現在的樣子 (即時資料、模擬回放各自實作),
  * 直接改 three.js 物件。
  */
 
-const AMR_HEIGHT = 0.32;
 /** 點選範圍至少這麼大 (公尺): MiR 這類小車在全景只有十幾個像素, 太難點 */
 const MIN_HIT = 1.2;
 
@@ -181,26 +179,31 @@ const VehicleShell: FC<Props & { body: Body }> = ({ id, source, body, fitLength,
   );
 };
 
-/** 每台車複製一份模型: 幾何共用, 材質各自一份 */
+/** 每台車複製一份模型: 幾何共用, 材質各自一份 (淡化時改透明度, 不影響別台) */
+const cloneWithOwnMaterials = (scene: THREE.Object3D) => {
+  const object = scene.clone(true);
+  const own = new Map<THREE.Material, THREE.Material>();
+  object.traverse((o) => {
+    const mesh = o as THREE.Mesh;
+    if (!mesh.isMesh || Array.isArray(mesh.material)) return;
+    let m = own.get(mesh.material);
+    if (!m) {
+      m = mesh.material.clone();
+      own.set(mesh.material, m);
+    }
+    mesh.material = m;
+  });
+  return { object, materials: [...own.values()] };
+};
+
 const ForkliftVehicle: FC<Props> = (props) => {
   const forklift = useGLTF(FORKLIFT_URL, false, true).scene;
   const body = useMemo<Body>(() => {
-    const object = forklift.clone(true);
-    const own = new Map<THREE.Material, THREE.Material>();
-    object.traverse((o) => {
-      const mesh = o as THREE.Mesh;
-      if (!mesh.isMesh || Array.isArray(mesh.material)) return;
-      let m = own.get(mesh.material);
-      if (!m) {
-        m = mesh.material.clone();
-        own.set(mesh.material, m);
-      }
-      mesh.material = m;
-    });
+    const { object, materials } = cloneWithOwnMaterials(forklift);
     return {
       object,
       rig: rigForklift(object),
-      materials: [...own.values()],
+      materials,
       box: new THREE.Box3().setFromObject(forklift),
       cargo: { x: -PALLET_OFFSET, y: 0, size: CARTON_SIZE, pallet: true },
     };
@@ -209,46 +212,29 @@ const ForkliftVehicle: FC<Props> = (props) => {
   return <VehicleShell {...props} body={body} />;
 };
 
-/** 沒有牙叉的車 (MiR 之類): 盒子, 中心在車的位置 */
-const BoxVehicle: FC<Props & { length: number; width: number }> = ({ length, width, ...props }) => {
+/** MiR: 模型 (public/models/mir250.glb, 由 scripts/vehicle-models/mir.mjs 產生) 原點在車身中心、車頭朝 +x; 貨放車頂 */
+const MirVehicle: FC<Props> = (props) => {
+  const mir = useGLTF(MIR_URL, false, true).scene;
   const body = useMemo<Body>(() => {
-    // 車身、底下一圈深色防撞條、淺色頂板, 車頭 (+x) 一條白燈看得出方向; 不照哪一家的車型
-    const parts: [THREE.BufferGeometry, string, number][] = [
-      [new RoundedBoxGeometry(length, 0.24, width, 2, Math.min(0.06, width / 6)), "#5b6b7c", 0.14],
-      [new THREE.BoxGeometry(length + 0.02, 0.06, width + 0.02), "#2b2f36", 0.07],
-      [new THREE.BoxGeometry(length * 0.92, 0.04, width * 0.92), "#c8ced6", AMR_HEIGHT - 0.03],
-      [new THREE.BoxGeometry(0.02, 0.04, width * 0.6), "#ffffff", 0.18],
-    ];
-    const object = new THREE.Group();
-    const materials: THREE.Material[] = [];
-    parts.forEach(([geometry, color, y], i) => {
-      const material = new THREE.MeshStandardMaterial({ color, roughness: 0.6, metalness: 0.1 });
-      const mesh = new THREE.Mesh(geometry, material);
-      mesh.position.set(i === 3 ? length / 2 + 0.005 : 0, y, 0);
-      object.add(mesh);
-      materials.push(material);
-    });
+    const { object, materials } = cloneWithOwnMaterials(mir);
+    const box = new THREE.Box3().setFromObject(mir);
+    const length = box.max.x - box.min.x;
+    const width = box.max.z - box.min.z;
     return {
       object,
       rig: null,
       materials,
-      box: new THREE.Box3(new THREE.Vector3(-length / 2, 0, -width / 2), new THREE.Vector3(length / 2, AMR_HEIGHT, width / 2)),
-      cargo: { x: 0, y: AMR_HEIGHT, size: [Math.min(0.9, length * 0.8), 0.4, Math.min(0.9, width * 0.8)], pallet: false },
+      box,
+      cargo: { x: (box.min.x + box.max.x) / 2, y: box.max.y, size: [Math.min(0.9, length * 0.8), 0.4, Math.min(0.9, width * 0.8)], pallet: false },
     };
-  }, [length, width]);
-  useEffect(
-    () => () => {
-      body.object.traverse((o) => (o as THREE.Mesh).geometry?.dispose());
-      body.materials.forEach((m) => m.dispose());
-    },
-    [body],
-  );
+  }, [mir]);
+  useEffect(() => () => body.materials.forEach((m) => m.dispose()), [body]);
   return <VehicleShell {...props} body={body} />;
 };
 
-type VehicleProps = Props & ({ kind: "forklift" } | { kind: "box"; length: number; width: number });
+type VehicleProps = Props & { kind: "forklift" | "mir" };
 
-const Vehicle3D: FC<VehicleProps> = (props) =>
-  props.kind === "forklift" ? <ForkliftVehicle {...props} /> : <BoxVehicle {...props} />;
+const Vehicle3D: FC<VehicleProps> = ({ kind, ...props }) =>
+  kind === "forklift" ? <ForkliftVehicle {...props} /> : <MirVehicle {...props} />;
 
 export default Vehicle3D;

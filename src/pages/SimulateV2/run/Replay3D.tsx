@@ -1,7 +1,7 @@
 import { FC, MutableRefObject, useCallback, useMemo, useState } from "react";
 import { useAtomValue, useStore } from "jotai";
 import { themeAtom } from "@/theme";
-import Scene3D, { CameraApi } from "@/components/Fleet3D/Scene3D";
+import Scene3D, { CameraApi, ModelBoundary } from "@/components/Fleet3D/Scene3D";
 import MapGround from "@/components/Fleet3D/MapGround";
 import { Dot, Dots3D, Roads3D, Segment } from "@/components/Fleet3D/MapLayers3D";
 import Vehicle3D from "@/components/Fleet3D/Vehicle3D";
@@ -125,17 +125,18 @@ const Replay3D: FC<{
         <Dots3D dots={points} size={6} />
         <Dots3D dots={stations} size={12} />
         {trace?.vehicles.map((v, k) => (
-          <Vehicle3D
-            key={k}
-            id={String(k)}
-            kind="forklift"
-            anchor="center"
-            fitLength={v.length > 0 ? v.length : undefined}
-            source={source}
-            selected={follow === String(k)}
-            onSelect={setFollow}
-            label={<VehicleLabel name={v.name} selected={follow === String(k)} />}
-          />
+          <ModelBoundary key={k}>
+            <Vehicle3D
+              id={String(k)}
+              kind="forklift"
+              anchor="center"
+              fitLength={v.length > 0 ? v.length : undefined}
+              source={source}
+              selected={follow === String(k)}
+              onSelect={setFollow}
+              label={<VehicleLabel name={v.name} selected={follow === String(k)} />}
+            />
+          </ModelBoundary>
         ))}
       </Scene3D>
       {follow !== null && trace?.vehicles[Number(follow)] && (

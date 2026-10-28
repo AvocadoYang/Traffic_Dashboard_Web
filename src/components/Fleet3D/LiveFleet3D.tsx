@@ -1,4 +1,4 @@
-import { FC, MutableRefObject, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FC, MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAtomValue } from "jotai";
 import useMap from "@/api/useMap";
 import useName from "@/api/useAmrName";
@@ -11,7 +11,7 @@ import { isPointAreaType } from "@/pages/Setting/mapComponents/components/AllLoc
 import { createLiveStore, LiveStore } from "@/components/CanvasMap/liveStore";
 import { amrColor, amrTip } from "@/components/CanvasMap/draw";
 import { CanvasMapApi, robotTypeValueOf } from "@/components/CanvasMap/CanvasMap";
-import Scene3D, { Bounds, CameraApi } from "./Scene3D";
+import Scene3D, { Bounds, CameraApi, ModelBoundary } from "./Scene3D";
 import MapGround from "./MapGround";
 import { Dot, Dots3D, PointClouds3D, Roads3D, Segment } from "./MapLayers3D";
 import Devices3D from "./Devices3D";
@@ -29,8 +29,6 @@ import { LiveTracks } from "./liveTracks";
  * 點車: 鏡頭跟著那台車 (左鍵改成繞著車轉); 點空白處或按 Esc 取消。
  */
 
-/** MiR 這類盒子車的長寬 (公尺): 照車型設定, 查不到用這個 */
-const MIR_FALLBACK = { length: 0.9, width: 0.6 };
 /** 點位離游標多近 (公尺) 算點到 */
 const POINT_HIT_RADIUS = 0.6;
 
@@ -195,13 +193,11 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
     };
   }, [apiRef, map]);
 
-  const mirSize = useCallback(
+  /** MiR 模型縮放成車型設定的長度 (同 2D 地圖的 MiR 圖示); 沒設定就用模型原本的大小 */
+  const mirLength = useCallback(
     (amrId: string) => {
       const type = robotTypes?.find((r) => r.value === robotTypeValueOf(amrId));
-      return {
-        length: type && type.length > 0 ? type.length : MIR_FALLBACK.length,
-        width: type && type.width > 0 ? type.width : MIR_FALLBACK.width,
-      };
+      return type && type.length > 0 ? type.length : undefined;
     },
     [robotTypes],
   );
@@ -235,37 +231,40 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
         {showPointCloud && <PointClouds3D state={liveState} ids={amrIds} color={amrColor} currentMapId={currentMapId} />}
         {/* 設備跟 2D 一樣跟著「地點」開關 */}
         {showLocation && (
-          <Suspense fallback={null}>
+          <ModelBoundary>
             <Devices3D placements={placements} />
-          </Suspense>
+          </ModelBoundary>
         )}
-        <Suspense fallback={null}>
-          {amrIds.map((id) => {
-            const label = labels[id];
-            const lines = label ? [label.tip, label.dest && `→ ${label.dest}`].filter((l): l is string => !!l) : [];
-            const common = {
-              id,
-              source: tracks.read,
-              selected: follow === id,
-              onSelect: setFollow,
-              label: (
-                <VehicleLabel
-                  name={`${forbiddenIds.has(id) ? "🚫 " : ""}${id}`}
-                  color={amrColor(id)}
-                  lines={lines}
-                  paused={label?.paused}
-                  warning={label?.warning}
-                  selected={follow === id}
-                />
-              ),
-            };
-            return id.includes("mi") ? (
-              <Vehicle3D key={id} kind="box" {...mirSize(id)} {...common} />
-            ) : (
-              <Vehicle3D key={id} kind="forklift" {...common} />
-            );
-          })}
-        </Suspense>
+        {/* 每台車各自等模型: 第一次載 MiR 模型時, 已經在畫的叉車不會跟著消失 */}
+        {amrIds.map((id) => {
+          const label = labels[id];
+          const lines = label ? [label.tip, label.dest && `→ ${label.dest}`].filter((l): l is string => !!l) : [];
+          const common = {
+            id,
+            source: tracks.read,
+            selected: follow === id,
+            onSelect: setFollow,
+            label: (
+              <VehicleLabel
+                name={`${forbiddenIds.has(id) ? "🚫 " : ""}${id}`}
+                color={amrColor(id)}
+                lines={lines}
+                paused={label?.paused}
+                warning={label?.warning}
+                selected={follow === id}
+              />
+            ),
+          };
+          return (
+            <ModelBoundary key={id}>
+              {id.includes("mi") ? (
+                <Vehicle3D kind="mir" fitLength={mirLength(id)} {...common} />
+              ) : (
+                <Vehicle3D kind="forklift" {...common} />
+              )}
+            </ModelBoundary>
+          );
+        })}
       </Scene3D>
       {/* 首頁地圖上方中間是 2D / 3D 切換, 讓開它 */}
       {follow && <FollowChip name={follow} onStop={stopFollow} top="calc(var(--space-sm) + 44px)" />}

@@ -3,7 +3,7 @@ import * as THREE from "three";
 /**
  * 叉車模型裡會動的組件。
  *
- * 模型 (public/models/forklift.glb, 由 scripts/forklift-model 產生) 的約定: 單位公尺、y 朝上、
+ * 模型 (public/models/forklift.glb, 由 scripts/vehicle-models/forklift.mjs 產生) 的約定: 單位公尺、y 朝上、
  * 車頭朝 +x、原點在牙叉根部的地面 (跟 2D 地圖一樣, 車的位置就是叉臂根部)。
  * 會動的組件用節點名稱標出來, 也可以用同事 glb-editor 的「分群」(存在 userData.group):
  *  - fork: 貨叉架 + 牙叉, 升多少就移多少
