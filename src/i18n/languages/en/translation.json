@@ -362,6 +362,17 @@
     "force_next_step_stuck": "This step has been waiting {{time}}; the vehicle may have finished without reporting. Once you are sure it has, you can skip to the next step",
     "step_wait": "Waiting {{time}}",
     "step_wait_hint": "This step has been waiting a long time; the vehicle may have finished without reporting (you can use \"Skip to next step\")",
+    "offline_for": "In this state for {{time}}",
+    "offline_last_seen": "last seen {{time}} ago",
+    "offline_car_page": "Car diagnostics page",
+    "offline_basis": "Why we think so",
+    "step_check": "Needs check",
+    "step_check_hint": "{{reason}}. Check on site: if it finished, use \"Skip to next step\"; if not, use \"Resend this step\"; if the job is off, delete the mission",
+    "force_next_step_check": "{{reason}}. Once you are sure the vehicle finished this step, continue with the next one here",
+    "resend_step": "Resend this step",
+    "resend_step_hint": "Use when the vehicle did not finish this step: it drops the step first, then gets the same command again",
+    "resend_step_confirm_title": "Resend this step?",
+    "resend_step_confirm_content": "The vehicle cancels its current action and starts this step over. If the step was actually finished (cargo already picked up or put down), redoing it may cause a collision or a double pick/drop. Check on site that the vehicle really did not finish.",
     "charge_reset": "Charge reset",
     "spin": "Spin in place",
     "spin_hint": "The vehicle turns to the target yaw at the point it is standing on. It must be idle, and the point must be set as rotatable on the map.",
@@ -891,6 +902,9 @@
     "view_available": "View available",
     "elevator_zone": "Elevator zone",
     "elevator_id": "Elevator ID",
+    "splice_zone": "Splice zone",
+    "splice_id": "Splice ID",
+    "linked_color_applied": "Applied the color of \"{{zone}}\" so zones in the same group match",
     "placeholder": {
       "zone_name": "Please enter zone name",
       "zone_category": "Please select zone category (multiple selection allowed)",
@@ -899,7 +913,8 @@
       "hight_limit": "Please enter height limit",
       "speed_limit": "Please enter maximum speed limit",
       "view_available": "Please enter waiting point",
-      "elevator_id": "Enter the elevator ID (use the same ID for the same elevator on every floor)"
+      "elevator_id": "Enter the elevator ID (use the same ID for the same elevator on every floor)",
+      "splice_id": "Enter the splice ID (use the same ID for the rectangles that form one zone on this map)"
     },
     "waring": {
       "tag_not_yet_setting": "The tag setting is still not setting ",
@@ -909,7 +924,9 @@
       "invalid_frame": "Invalid selection",
       "non_negative": "Value cannot be less than 0",
       "need_to_be_within_range": "Value must be within the range of {{min}} ~ {{max}}",
-      "forbidden_empty": "Select forbidden vehicles or check 'All vehicle forbidden'"
+      "forbidden_empty": "Select forbidden vehicles or check 'All vehicle forbidden'",
+      "splice_cross_map_title": "Splice zones must be on one map",
+      "splice_cross_map": "Splice ID \"{{id}}\" is already used by zone \"{{zone}}\" on map \"{{map}}\". Splice zones cannot span maps (use an elevator zone across floors); pick another ID"
     },
     "cars_unit": "car (s)",
     "view_forbidden_amr": "- View restricted vehicles"
@@ -1258,6 +1275,7 @@
       "fields_incomplete": "Please fill in all fields",
       "options_incomplete": "Please complete all options",
       "variable_missing": "This mission has variables that are not filled in",
+      "variable_must_be_number": "x / y / z must be a number",
       "click_to_choose": "Click to choose mission",
       "select_value": "Select a value",
       "enter_value": "Enter a value",
@@ -3773,7 +3791,12 @@
     "amrs_in_zone": "Vehicles in zone",
     "no_amr": "No vehicles in this zone",
     "loading": "Loading…",
-    "highlight_forbidden": "Highlight {{count}} forbidden vehicles on map"
+    "highlight_forbidden": "Highlight {{count}} forbidden vehicles on map",
+    "linked_elevator": "Elevator {{id}} on other floors",
+    "linked_splice": "Zones in splice {{id}}",
+    "no_linked": "No other zone uses this ID",
+    "same_map": "This map",
+    "linked_on_map_hint": "Solid outline: this zone; dashed: zones in the same group"
   },
   "zone_enable": {
     "status": "Status",
@@ -4899,7 +4922,8 @@
   "mission_manual": {
     "title": "Manual intervention",
     "force_next_step": "Step {{step}} was skipped manually (skip to next step)",
-    "badge": "Manually skipped {{count}}×",
+    "resend_step": "Step {{step}} was resent manually (resend this step)",
+    "badge": "Manual interventions {{count}}×",
     "cargo_badge": "{{count}} cargo movements"
   }
 }

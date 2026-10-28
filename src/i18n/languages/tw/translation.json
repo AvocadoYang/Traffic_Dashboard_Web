@@ -362,6 +362,17 @@
     "force_next_step_stuck": "這一動已經等了 {{time}}, 車端可能其實做完了卻沒回報。確認車子真的做完後可以直接下一動",
     "step_wait": "等待 {{time}}",
     "step_wait_hint": "這一動等很久了, 車端可能已完成但沒回報 (可用「直接下一動」)",
+    "offline_for": "這個狀態已 {{time}}",
+    "offline_last_seen": "最後看到 {{time}}前",
+    "offline_car_page": "車上診斷頁",
+    "offline_basis": "判斷依據",
+    "step_check": "要人確認",
+    "step_check_hint": "{{reason}}。請到現場確認: 做完了按「直接下一動」, 沒做完按「重送這一步」, 不做了刪除任務",
+    "force_next_step_check": "{{reason}}。確認車子真的做完這一動後, 按這裡繼續下一動",
+    "resend_step": "重送這一步",
+    "resend_step_hint": "車子沒做完這一動時使用: 先叫車放掉這一步, 再把同一個指令重新送給車",
+    "resend_step_confirm_title": "確定要重送這一步嗎?",
+    "resend_step_confirm_content": "車子會先取消目前的動作, 再從頭重做這一步。如果這一步其實已經做完 (例如貨已經叉起來或放下), 重做可能撞到或重複取放貨。請先到現場確認車子確實沒做完。",
     "charge_reset": "校正充電",
     "spin": "原地旋轉",
     "spin_hint": "車子會在目前站的點轉到目標角度。車子要閒置，而且那個點要在地圖上設定成可旋轉。",
@@ -885,6 +896,9 @@
     "view_available": "查看區",
     "elevator_zone": "電梯區",
     "elevator_id": "電梯 ID",
+    "splice_zone": "拼接區",
+    "splice_id": "拼接 ID",
+    "linked_color_applied": "已套用「{{zone}}」的顏色，同一組區域顏色一致",
     "hint": "參數數設定尚未完成！",
     "placeholder": {
       "zone_name": "請輸入區域名稱",
@@ -894,7 +908,8 @@
       "hight_limit": "請輸入高度限制",
       "speed_limit": "請輸入最高速限",
       "view_available": "請輸入區域外等待點",
-      "elevator_id": "請輸入電梯 ID (不同樓層同一台電梯填一樣的 ID)"
+      "elevator_id": "請輸入電梯 ID (不同樓層同一台電梯填一樣的 ID)",
+      "splice_id": "請輸入拼接 ID (同一張地圖上要拼成一個區域的幾塊填一樣的 ID)"
     },
     "waring": {
       "tag_not_yet_setting": "尚未設定完成區域參數設定",
@@ -904,7 +919,9 @@
       "invalid_frame": "無效的點位框選",
       "non_negative": "數值不可小於 0",
       "need_to_be_within_range": "數值需在 {{min}} ~ {{max}} 範圍內",
-      "forbidden_empty": "請選擇禁止車輛，或勾選禁止所有車輛通行"
+      "forbidden_empty": "請選擇禁止車輛，或勾選禁止所有車輛通行",
+      "splice_cross_map_title": "拼接區只能在同一張地圖",
+      "splice_cross_map": "拼接 ID「{{id}}」已用在地圖「{{map}}」的區域「{{zone}}」，拼接區不能跨地圖 (跨樓層請用電梯區)，請換一個 ID"
     },
     "cars_unit": "台",
     "view_forbidden_amr": "- 查看限制車輛"
@@ -1258,6 +1275,7 @@
       "fields_incomplete": "欄位尚未填寫完整",
       "options_incomplete": "尚未完成選項",
       "variable_missing": "這個任務有變數尚未填寫",
+      "variable_must_be_number": "x / y / z 必須是數字",
       "click_to_choose": "點擊選擇任務",
       "select_value": "請選擇",
       "enter_value": "請輸入",
@@ -3774,7 +3792,12 @@
     "amrs_in_zone": "區域內車輛",
     "no_amr": "目前沒有車輛",
     "loading": "讀取中…",
-    "highlight_forbidden": "在地圖上標示 {{count}} 台禁止車輛"
+    "highlight_forbidden": "在地圖上標示 {{count}} 台禁止車輛",
+    "linked_elevator": "同電梯 {{id}} 的其他樓層",
+    "linked_splice": "同拼接 {{id}} 的區域",
+    "no_linked": "目前沒有其他區域用這個 ID",
+    "same_map": "此地圖",
+    "linked_on_map_hint": "地圖上實線框是這個區域，虛線框是同一組的區域"
   },
   "zone_enable": {
     "status": "狀態",
@@ -4900,7 +4923,8 @@
   "mission_manual": {
     "title": "人工介入",
     "force_next_step": "第 {{step}} 動被手動跳過 (直接下一動)",
-    "badge": "手動跳步 {{count}} 次",
+    "resend_step": "第 {{step}} 動被手動重送 (重送這一步)",
+    "badge": "人工介入 {{count}} 次",
     "cargo_badge": "搬貨異動 {{count}} 筆"
   }
 }
