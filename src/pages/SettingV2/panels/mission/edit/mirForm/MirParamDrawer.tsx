@@ -29,7 +29,10 @@ import {
   SolidButton,
   Toolbar,
 } from "../../../../ui/primitives";
-import { isCurrentPositionOperation } from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/mirActionFields";
+import {
+  MIR_DEFAULT_SOUND,
+  isCurrentPositionOperation,
+} from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/mirActionFields";
 import { ACTION_FIELDS, MirField, summarizeAction } from "./mirActionSpec";
 import useMirOptions from "./useMirOptions";
 
@@ -247,7 +250,7 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       collision_detection: operation.collision_detection ?? true,
       option: operation.option ?? "free",
       wait: toTime(operation.wait),
-      sound: operation.sound,
+      sound: operation.sound || MIR_DEFAULT_SOUND,
       volume: Number(operation.volume ?? 0),
       mode: operation.mode ?? "full",
       duration: toTime((operation.duration ?? "").split(".")[0]),
@@ -256,9 +259,9 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       color_1: operation.color_1 ?? "#ffffff",
       color_2: operation.color_2 ?? "#ffffff",
       intensity: Number(operation.intensity ?? 100),
-      front: operation.front ?? "unmuted",
-      rear: operation.rear ?? "unmuted",
-      sides: operation.sides ?? "unmuted",
+      front: operation.front ?? "muted",
+      rear: operation.rear ?? "muted",
+      sides: operation.sides ?? "muted",
       module: operation.module || null,
       port: Number(operation.port ?? 0),
       value: operation.value ?? "on",
@@ -322,7 +325,7 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       collision_detection: (raw.collision_detection as boolean) ?? true,
       option: (raw.option as string) || "free",
       wait: time("wait"),
-      sound: (raw.sound as string) ?? "",
+      sound: (raw.sound as string) || MIR_DEFAULT_SOUND,
       volume: num("volume", 0),
       mode: (raw.mode as string) || "full",
       duration: duration("duration"),
@@ -331,9 +334,9 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       color_1: (raw.color_1 as string) || "#ffffff",
       color_2: (raw.color_2 as string) || "#ffffff",
       intensity: num("intensity", 100),
-      front: (raw.front as string) ?? "unmuted",
-      rear: (raw.rear as string) ?? "unmuted",
-      sides: (raw.sides as string) ?? "unmuted",
+      front: (raw.front as string) ?? "muted",
+      rear: (raw.rear as string) ?? "muted",
+      sides: (raw.sides as string) ?? "muted",
       module: (raw.module as string) ?? "",
       port: num("port", 0),
       value: (raw.value as string) ?? "on",
