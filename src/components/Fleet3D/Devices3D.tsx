@@ -1,5 +1,5 @@
 import { FC, useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { ThreeEvent } from "@react-three/fiber";
+import { ThreeEvent, useFrame } from "@react-three/fiber";
 import { Html, useCursor } from "@react-three/drei";
 import { useSetAtom } from "jotai";
 import * as THREE from "three";
@@ -63,6 +63,9 @@ const InstancedPart: FC<{
 
 const frameMaterial = new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: 0.6, metalness: 0.2 });
 const lightMaterial = new THREE.MeshBasicMaterial({ color: "#ffffff", toneMapped: false });
+/** 設備訊號閃的: 一秒閃 1.5 次 (同車的告警) */
+const blinkMaterial = new THREE.MeshBasicMaterial({ color: "#ffffff", toneMapped: false, transparent: true, depthWrite: false });
+const BLINK_HZ = 1.5;
 
 const Devices3D: FC<{ placements: DevicePlacement[] }> = ({ placements }) => {
   const palletGeometry = usePalletGeometry();
@@ -90,6 +93,10 @@ const Devices3D: FC<{ placements: DevicePlacement[] }> = ({ placements }) => {
   const charger = useMemo(() => merge(of("CHARGING").map((d) => chargerParts(d, chargers[d.locationId]))), [placements, chargerKey]);
   const parts = useMemo(() => merge([storage, stack, conveyor, elevator, charger]), [storage, stack, conveyor, elevator, charger]);
 
+  useFrame(({ clock }) => {
+    if (parts.blinks.length) blinkMaterial.opacity = 0.1 + 0.8 * (0.5 + 0.5 * Math.sin(clock.elapsedTime * BLINK_HZ * 2 * Math.PI));
+  });
+
   const hitAt = (e: ThreeEvent<PointerEvent | MouseEvent>) => (e.instanceId === undefined ? null : parts.hits[e.instanceId] ?? null);
 
   return (
@@ -98,6 +105,7 @@ const Devices3D: FC<{ placements: DevicePlacement[] }> = ({ placements }) => {
       <InstancedPart geometry={palletGeometry} material={palletMaterial} items={parts.pallets} />
       <InstancedPart geometry={unitBox} material={cartonMaterial} items={parts.cartons} />
       <InstancedPart geometry={unitBox} material={lightMaterial} items={parts.lights} />
+      <InstancedPart geometry={unitBox} material={blinkMaterial} items={parts.blinks} />
       <InstancedPart
         geometry={unitBox}
         material={hitMaterial}

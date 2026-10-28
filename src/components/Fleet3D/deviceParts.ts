@@ -16,10 +16,13 @@ const RACK_POST = "#2f5d9a";
 const RACK_BEAM = "#e8862a";
 const STEEL = "#7d8794";
 const ROLLER = "#c3c9cf";
-const PLATFORM = "#a0aab4";
+const ROLLER_TABLE = "#2f7fd1";
 const CHARGER = "#dde1e5";
 const FLOOR_TAPE = "#f2c230";
 const DISABLED = "#9aa0a6";
+const SENSOR = "#2b2b2b";
+/** 電梯訊號閃的顏色: 滾筒在轉、手動模式、雷射感應到東西 */
+const BLINK = { running: "#faad14", manual: "#eb2f96", sensor: "#ff2d2d" };
 const LIGHT = { ok: "#52c41a", busy: "#faad14", booked: "#1890ff", off: "#8c8c8c" };
 
 /** 沒有層高 (舊資料) 時一層多高 (公尺) */
@@ -30,14 +33,16 @@ const DEFAULT_CONVEYOR_HEIGHT = 0.5;
 export type Item = { matrix: THREE.Matrix4; color?: string };
 /** 點選用的盒子: 點了打開哪個貨物面板, 滑過去顯示什麼, 標籤放哪 */
 export type Hit = { matrix: THREE.Matrix4; target: CargoPanelTarget; label: string; top: THREE.Vector3 };
-export type Parts = { frames: Item[]; pallets: Item[]; cartons: Item[]; lights: Item[]; hits: Hit[] };
+/** blinks: 一閃一閃的 (狀態訊號), 蓋在對應的零件上 */
+export type Parts = { frames: Item[]; pallets: Item[]; cartons: Item[]; lights: Item[]; blinks: Item[]; hits: Hit[] };
 
-const emptyParts = (): Parts => ({ frames: [], pallets: [], cartons: [], lights: [], hits: [] });
+const emptyParts = (): Parts => ({ frames: [], pallets: [], cartons: [], lights: [], blinks: [], hits: [] });
 export const merge = (list: Parts[]): Parts => ({
   frames: list.flatMap((p) => p.frames),
   pallets: list.flatMap((p) => p.pallets),
   cartons: list.flatMap((p) => p.cartons),
   lights: list.flatMap((p) => p.lights),
+  blinks: list.flatMap((p) => p.blinks),
   hits: list.flatMap((p) => p.hits),
 });
 
@@ -141,23 +146,59 @@ export const conveyorParts = (d: DevicePlacement, info: Conveyor_Info | undefine
   return p;
 };
 
-/** 電梯: 籠子 + 平台 (在對接高度), 上面一顆燈 */
-export const elevatorParts = (d: DevicePlacement, info: Elevator_Info | undefined): Parts => {
+/**
+ * 電梯 (現場是一台滾筒台): 藍色側框、橫在上面一排滾筒, 台面在對接高度;
+ * 四隻腳兩兩用橫撐連起來, 腳底有墊片。狀態燈在一個角上。
+ *
+ * 電梯的 IO (read-right-data / read-left-data, 後端轉成 elevator-info) 對應的零件會閃:
+ * 滾筒在轉 (isRunning) 閃滾筒、手動模式 (isManualMode) 閃側框、
+ * 滾筒旁的雷射感應到東西 (hasCargoSignal) 閃雷射頭和光束
+ */
+export const elevatorParts = (placement: DevicePlacement, info: Elevator_Info | undefined): Parts => {
   const p = emptyParts();
-  const HEIGHT = 3.2;
-  const HALF = 0.75;
-  const h = info?.forkHeight && info.forkHeight > 0 ? info.forkHeight / 1000 : 0;
-  const frame = info?.disable ? DISABLED : STEEL;
-  for (const x of [-HALF, HALF]) {
-    for (const z of [-HALF, HALF]) p.frames.push({ matrix: place(d, x, HEIGHT / 2, z, 0.08, HEIGHT, 0.08), color: frame });
-    p.frames.push({ matrix: place(d, x, HEIGHT, 0, 0.08, 0.08, HALF * 2), color: frame });
+  // 整台轉 90 度 (繞著放貨的位置): 滾筒的方向跟叉車進來的方向一樣
+  const d = { ...placement, yaw: placement.yaw + Math.PI / 2 };
+  const LENGTH = 1.6;
+  const WIDTH = 1.2;
+  const h = info?.forkHeight && info.forkHeight > 0 ? info.forkHeight / 1000 : DEFAULT_CONVEYOR_HEIGHT;
+  const frame = info?.disable ? DISABLED : ROLLER_TABLE;
+  const legX = LENGTH / 2 - 0.12;
+  const legZ = WIDTH / 2 - 0.05;
+  // 側框 (滾筒架在兩條側框中間, 稍微低於滾筒頂)
+  const running = !info?.disable && !!info?.isRunning;
+  const manual = !info?.disable && !!info?.isManualMode;
+  const sensed = !info?.disable && !!info?.hasCargoSignal;
+  for (const z of [-WIDTH / 2, WIDTH / 2]) {
+    p.frames.push({ matrix: place(d, 0, h - 0.06, z, LENGTH, 0.12, 0.05), color: frame });
+    if (manual) p.blinks.push({ matrix: place(d, 0, h - 0.06, z, LENGTH + 0.02, 0.14, 0.07), color: BLINK.manual });
   }
-  for (const z of [-HALF, HALF]) p.frames.push({ matrix: place(d, 0, HEIGHT, z, HALF * 2, 0.08, 0.08), color: frame });
-  p.frames.push({ matrix: place(d, 0, Math.max(0.02, h - 0.04), 0, HALF * 2 - 0.1, 0.08, HALF * 2 - 0.1), color: PLATFORM });
+  for (let x = -LENGTH / 2 + 0.08; x < LENGTH / 2; x += 0.16) {
+    p.frames.push({ matrix: place(d, x, h - 0.03, 0, 0.06, 0.06, WIDTH - 0.05), color: ROLLER });
+    if (running) p.blinks.push({ matrix: place(d, x, h - 0.03, 0, 0.07, 0.07, WIDTH - 0.04), color: BLINK.running });
+  }
+  // 雷射: 兩邊側框上各一顆頭, 光束橫過滾筒上方 (叉車那一端)
+  const laserX = LENGTH / 2 - 0.1;
+  for (const z of [-WIDTH / 2, WIDTH / 2]) {
+    p.frames.push({ matrix: place(d, laserX, h + 0.05, z, 0.06, 0.1, 0.06), color: SENSOR });
+    if (sensed) p.blinks.push({ matrix: place(d, laserX, h + 0.05, z, 0.08, 0.12, 0.08), color: BLINK.sensor });
+  }
+  if (sensed) p.blinks.push({ matrix: place(d, laserX, h + 0.06, 0, 0.015, 0.015, WIDTH), color: BLINK.sensor });
+  const legH = h - 0.12;
+  if (legH > 0.1) {
+    for (const x of [-legX, legX]) {
+      for (const z of [-legZ, legZ]) {
+        p.frames.push({ matrix: place(d, x, legH / 2, z, 0.07, legH, 0.07), color: frame });
+        p.frames.push({ matrix: place(d, x, 0.005, z, 0.14, 0.01, 0.14), color: STEEL });
+      }
+      // 同一端的兩隻腳用橫撐連起來, 側面上下各一根
+      p.frames.push({ matrix: place(d, x, legH * 0.35, 0, 0.06, 0.08, legZ * 2), color: frame });
+    }
+    for (const z of [-legZ, legZ]) p.frames.push({ matrix: place(d, 0, legH * 0.35, z, legX * 2, 0.08, 0.05), color: frame });
+  }
   if ((info?.cargo?.length ?? 0) > 0 || info?.hasCargoSignal) addLoad(p, d, h);
   const light = info?.disable ? LIGHT.off : info?.isRunning ? LIGHT.busy : info?.isManualMode ? LIGHT.booked : LIGHT.ok;
-  p.lights.push({ matrix: place(d, 0, HEIGHT + 0.1, 0, 0.18, 0.12, 0.18), color: light });
-  addHit(p, d, [0, HEIGHT / 2, 0, HALF * 2, HEIGHT, HALF * 2], { type: "ELEVATOR", locationId: d.locationId }, info?.name ?? d.locationId);
+  p.lights.push({ matrix: place(d, -LENGTH / 2 + 0.06, h + 0.06, WIDTH / 2, 0.1, 0.1, 0.1), color: light });
+  addHit(p, d, [0, (h + 0.4) / 2, 0, LENGTH, h + 0.4, WIDTH], { type: "ELEVATOR", locationId: d.locationId }, info?.name ?? d.locationId);
   return p;
 };
 

@@ -70,4 +70,14 @@ describe("deviceParts", () => {
     const elevator = { forkHeight: 1500, cargo: [], hasCargoSignal: true } as unknown as Elevator_Info;
     expect(ys(elevatorParts(placement("ELEVATOR"), elevator).pallets)).toEqual([1.5]);
   });
+
+  it("電梯的訊號: 滾筒在轉閃滾筒、手動閃側框、雷射感應到閃雷射; 都沒有就不閃", () => {
+    const at = (info: Partial<Elevator_Info>) => elevatorParts(placement("ELEVATOR"), { forkHeight: 600, cargo: [], ...info } as unknown as Elevator_Info).blinks;
+    const colors = (info: Partial<Elevator_Info>) => [...new Set(at(info).map((b) => b.color))];
+    expect(at({})).toEqual([]);
+    expect(colors({ isRunning: true })).toEqual(["#faad14"]);
+    expect(colors({ isManualMode: true })).toEqual(["#eb2f96"]);
+    expect(colors({ hasCargoSignal: true })).toEqual(["#ff2d2d"]);
+    expect(at({ isRunning: true, isManualMode: true, hasCargoSignal: true, disable: true })).toEqual([]);
+  });
 });
