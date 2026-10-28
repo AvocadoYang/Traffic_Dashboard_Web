@@ -450,7 +450,11 @@
     "road_tooltip": "路徑提示",
     "location_tooltip": "地點提示",
     "point_cloud": "點雲",
-    "annotation": "地圖標註"
+    "annotation": "地圖標註",
+    "view_2d": "2D",
+    "view_3d": "3D",
+    "following": "跟著 {{id}}",
+    "stop_follow": "不跟了"
   },
   "page_view": "地圖",
   "page_setting": "設定",
@@ -2125,7 +2129,15 @@
       "title": "模擬車輛",
       "drag_hint": "把車拖到地圖上，會放在最近的點位當起始位置；點車輛可修改參數或刪除。開始模擬請按上方的「模擬」。",
       "running": "模擬進行中，停止模擬後才能調整模擬車輛",
-      "no_car": "尚未新增模擬車輛"
+      "no_car": "尚未新增模擬車輛",
+      "settings_saved": "已儲存",
+      "settings": {
+        "title": "模擬參數",
+        "car_speed": "車速 (m/s)",
+        "time_scale": "時間倍率",
+        "mock_warnings": "模擬車輪流發告警",
+        "hint": "下次開始模擬才生效"
+      }
     }
   },
   "cargo_history": {
@@ -4407,6 +4419,7 @@
       "note_no_standby": "有 {{count}} 次閒置的車擋到別人, 但沒有空的待命點可以讓開。",
       "map_replay": "回放",
       "map_heat": "塞車熱點",
+      "map_3d": "3D",
       "fit": "全部看得到",
       "loaded_mark": "白色方塊 = 載著貨",
       "loaded": "載著貨",

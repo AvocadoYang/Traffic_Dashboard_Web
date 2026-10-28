@@ -450,7 +450,11 @@
     "road_tooltip": "Road Tooltip",
     "location_tooltip": "Road Tooltip",
     "point_cloud": "Point Cloud",
-    "annotation": "Map annotations"
+    "annotation": "Map annotations",
+    "view_2d": "2D",
+    "view_3d": "3D",
+    "following": "Following {{id}}",
+    "stop_follow": "Stop following"
   },
   "page_view": "View",
   "page_setting": "Setting",
@@ -2124,7 +2128,15 @@
       "title": "Simulated vehicles",
       "drag_hint": "Drag a vehicle onto the map; it is placed on the nearest point as its start. Click a vehicle to edit or delete it. Start the simulation with the Simulate button at the top.",
       "running": "Simulation running; stop it to change the simulated vehicles",
-      "no_car": "No simulated vehicles yet"
+      "no_car": "No simulated vehicles yet",
+      "settings_saved": "Saved",
+      "settings": {
+        "title": "Simulation settings",
+        "car_speed": "Car speed (m/s)",
+        "time_scale": "Time scale",
+        "mock_warnings": "Mock warnings",
+        "hint": "Applies on next simulation start"
+      }
     }
   },
   "cargo_history": {
@@ -4406,6 +4418,7 @@
       "note_no_standby": "{{count}} times an idle vehicle blocked others but no free standby point was available.",
       "map_replay": "Replay",
       "map_heat": "Congestion",
+      "map_3d": "3D",
       "fit": "Show everything",
       "loaded_mark": "White square = carrying a load",
       "loaded": "Loaded",

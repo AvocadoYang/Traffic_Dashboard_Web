@@ -7,7 +7,7 @@ import {
   Tooltip,
   message,
 } from "antd";
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, lazy, memo, useCallback, useEffect, useRef, useState } from "react";
 import { Layout } from "antd";
 import "@/pages/Main/components/WebView/webview.css";
 import ZoomPad from "@/pages/Main/components/WebView/components/ZoomPad";
@@ -19,7 +19,7 @@ import SimCarMarkers from "@/components/SimCars/SimCarMarkers";
 import useSimCarPlacement from "@/components/SimCars/useSimCarPlacement";
 import useUiConfig from "@/api/useUiConfig";
 import { OpenDirect } from "@/pages/Main/global/jotai";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import CarCardWrap from "@/pages/Main/Car_Card/CardWrap";
 import { centerMap, darkMode, Scale } from "@/utils/gloable";
 import MissionWrap from "@/pages/Main/Mission_Card/MissionWrap";
@@ -37,6 +37,7 @@ import { useTranslation } from "react-i18next";
 import { themeAtom } from "@/theme";
 import { MenuFoldOutlined, MenuUnfoldOutlined, PushpinOutlined } from "@ant-design/icons";
 import { useMyProfile, useSaveProfile } from "@/api/useProfile";
+import { mapViewModeAtom, MapViewMode } from "@/components/Fleet3D/viewMode";
 import {
   isShowAnnotation,
   isShowLocation,
@@ -46,6 +47,9 @@ import {
 } from "@/utils/siderGloble";
 
 const { Content } = Layout;
+
+// three.js 很大, 切到 3D 才載
+const LiveFleet3D = lazy(() => import("@/components/Fleet3D/LiveFleet3D"));
 
 const WebViewContent = styled(Content)`
   width: 100%;
@@ -207,6 +211,17 @@ const ToggleSidebarBtn = styled(Button)`
   z-index: 20;
 `;
 
+/** 2D / 3D 切換, 放在地圖上方中間 (各種螢幕寬度都看得到) */
+const ViewModeSlot = styled.div`
+  position: absolute;
+  top: var(--space-sm);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+`;
+
 const SaveViewBtn = styled(Button)`
   position: absolute;
   top: var(--space-sm);
@@ -233,6 +248,7 @@ const WebViewV2 = () => {
   const cm = useAtomValue(centerMap);
   const { t } = useTranslation();
   const [bottomView, setBottomView] = useState<BottomView>("car");
+  const [viewMode, setViewMode] = useAtom(mapViewModeAtom);
   const [showSidebars, setShowSidebars] = useState(true);
   // 點地圖上的點位: 打開「直接移動」(同舊首頁)
   const setOpenDirect = useSetAtom(OpenDirect);
@@ -333,11 +349,27 @@ const WebViewV2 = () => {
                 onDrop={simCarDrop.onDrop}
               >
                 {simCarDrop.contextHolder}
-                <CanvasMap onPointClick={openDirectMove} apiRef={mapApiRef} preferredView={preferredView}>
-                  <MainDevices />
-                  {showSimulationUi ? <SimCarMarkers /> : null}
-                </CanvasMap>
+                {viewMode === "3d" ? (
+                  <Suspense fallback={null}>
+                    <LiveFleet3D onPointClick={openDirectMove} apiRef={mapApiRef} />
+                  </Suspense>
+                ) : (
+                  <CanvasMap onPointClick={openDirectMove} apiRef={mapApiRef} preferredView={preferredView}>
+                    <MainDevices />
+                    {showSimulationUi ? <SimCarMarkers /> : null}
+                  </CanvasMap>
+                )}
               </MapArea>
+              <ViewModeSlot>
+                <Segmented<MapViewMode>
+                  value={viewMode}
+                  onChange={setViewMode}
+                  options={[
+                    { value: "2d", label: t("map_tool.view_2d") },
+                    { value: "3d", label: t("map_tool.view_3d") },
+                  ]}
+                />
+              </ViewModeSlot>
               <MapOverlay>
                 <ZoomPad></ZoomPad>
                 <ScalePad></ScalePad>
@@ -349,7 +381,7 @@ const WebViewV2 = () => {
                 <PerformancePanel top="64px" right="16px" />
                 {/* 模擬車輛: 取代舊的 /simulate 頁; 開始 / 停止模擬還是 Header 的按鈕 */}
                 {showSimulationUi ? <SimCarPanel top="128px" left="16px" /> : null}
-                {profile && (
+                {profile && viewMode === "2d" && (
                   <Tooltip title={t("profile.prefs.save_view")}>
                     <SaveViewBtn
                       icon={<PushpinOutlined />}
