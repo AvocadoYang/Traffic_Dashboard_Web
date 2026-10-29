@@ -7,7 +7,7 @@ import {
   Tooltip,
   message,
 } from "antd";
-import { Suspense, lazy, memo, useCallback, useEffect, useRef, useState } from "react";
+import { lazy, memo, useCallback, useEffect, useRef, useState } from "react";
 import { Layout } from "antd";
 import "@/pages/Main/components/WebView/webview.css";
 import ZoomPad from "@/pages/Main/components/WebView/components/ZoomPad";
@@ -38,6 +38,8 @@ import { themeAtom } from "@/theme";
 import { AimOutlined, MenuFoldOutlined, MenuUnfoldOutlined, PushpinOutlined, TagOutlined } from "@ant-design/icons";
 import { useMyProfile, useSaveProfile } from "@/api/useProfile";
 import { mapViewModeAtom, MapViewMode, patrolAtom, vehicleLabelsAtom } from "@/components/Fleet3D/viewMode";
+import { webglAvailable } from "@/components/Fleet3D/webgl";
+import Fleet3DBoundary from "@/components/Fleet3D/Fleet3DBoundary";
 import {
   isShowAnnotation,
   isShowLocation,
@@ -254,7 +256,10 @@ const WebViewV2 = () => {
   const cm = useAtomValue(centerMap);
   const { t } = useTranslation();
   const [bottomView, setBottomView] = useState<BottomView>("car");
-  const [viewMode, setViewMode] = useAtom(mapViewModeAtom);
+  const [storedViewMode, setViewMode] = useAtom(mapViewModeAtom);
+  // 這台電腦畫不了 3D (沒有 WebGL) 就只給 2D, 之前存的 3D 也不理
+  const can3d = webglAvailable();
+  const viewMode: MapViewMode = can3d ? storedViewMode : "2d";
   const [patrol, setPatrol] = useAtom(patrolAtom);
   const [vehicleLabels, setVehicleLabels] = useAtom(vehicleLabelsAtom);
   const [showSidebars, setShowSidebars] = useState(true);
@@ -358,9 +363,9 @@ const WebViewV2 = () => {
               >
                 {simCarDrop.contextHolder}
                 {viewMode === "3d" ? (
-                  <Suspense fallback={null}>
+                  <Fleet3DBoundary onUse2d={() => setViewMode("2d")}>
                     <LiveFleet3D onPointClick={openDirectMove} apiRef={mapApiRef} />
-                  </Suspense>
+                  </Fleet3DBoundary>
                 ) : (
                   <CanvasMap onPointClick={openDirectMove} apiRef={mapApiRef} preferredView={preferredView}>
                     <MainDevices />
@@ -374,7 +379,12 @@ const WebViewV2 = () => {
                   onChange={setViewMode}
                   options={[
                     { value: "2d", label: t("map_tool.view_2d") },
-                    { value: "3d", label: t("map_tool.view_3d") },
+                    {
+                      value: "3d",
+                      label: t("map_tool.view_3d"),
+                      disabled: !can3d,
+                      tooltip: can3d ? undefined : t("fleet3d.no_webgl"),
+                    },
                   ]}
                 />
                 {/* 3D 的巡視模式: 有告警時鏡頭自動飛過去 (Fleet3D/patrol.ts) */}

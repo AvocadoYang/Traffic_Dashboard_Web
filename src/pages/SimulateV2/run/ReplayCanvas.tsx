@@ -1,4 +1,4 @@
-import { FC, PointerEvent as ReactPointerEvent, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FC, PointerEvent as ReactPointerEvent, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button, Checkbox, Segmented, Spin, Tooltip } from "antd";
 import { CompressOutlined, FullscreenOutlined } from "@ant-design/icons";
 import { Layer, Shape, Stage } from "react-konva";
@@ -17,6 +17,8 @@ import { STATE_ORDER, bucketOf, heatColor, isLoaded, stateColors } from "./color
 import { fmtMinutes } from "./format";
 import { drawDeadlock, drawHeat, drawHighlight, drawVehicles, posesAt, vehicleAt } from "./replayDraw";
 import type { CameraApi } from "@/components/Fleet3D/Scene3D";
+import Fleet3DBoundary from "@/components/Fleet3D/Fleet3DBoundary";
+import { webglAvailable } from "@/components/Fleet3D/webgl";
 
 // three.js 很大, 切到 3D 才載
 const Replay3D = lazy(() => import("./Replay3D"));
@@ -227,9 +229,9 @@ const ReplayCanvas: FC<{
       data-testid="simv2-replay-canvas"
     >
       {is3d && (
-        <Suspense fallback={null}>
+        <Fleet3DBoundary onUse2d={() => setMode("replay")}>
           <Replay3D outcome={outcome} backgroundUrl={backgroundUrl} apiRef={cameraRef} heat={heat3d} />
-        </Suspense>
+        </Fleet3DBoundary>
       )}
       {!is3d && width > 0 && height > 0 && (
         <Stage width={width} height={height} listening={false}>
@@ -247,7 +249,12 @@ const ReplayCanvas: FC<{
           options={[
             { value: "replay", label: t("sim_v2.result.map_replay") },
             { value: "heat", label: t("sim_v2.result.map_heat") },
-            { value: "3d", label: t("sim_v2.result.map_3d") },
+            {
+              value: "3d",
+              label: t("sim_v2.result.map_3d"),
+              disabled: !webglAvailable(),
+              tooltip: webglAvailable() ? undefined : t("fleet3d.no_webgl"),
+            },
           ]}
           data-testid="simv2-map-mode"
         />

@@ -4975,6 +4975,12 @@
     "labels": {
       "label": "Vehicle labels",
       "tip": "Always show each vehicle's name, status, destination and warnings; when off, a label appears only while the pointer is over the vehicle"
+    },
+    "no_webgl": "This browser can't show 3D (WebGL is unavailable). Use 2D instead.",
+    "failed": {
+      "title": "The 3D view couldn't be shown",
+      "use_2d": "Switch to 2D",
+      "retry": "Retry"
     }
   }
 }

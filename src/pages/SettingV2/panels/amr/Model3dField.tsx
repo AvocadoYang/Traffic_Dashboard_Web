@@ -6,6 +6,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import styled from "styled-components";
 import { BUILTIN_MODELS, MODEL_YAWS, ModelChoice, VehicleModel, modelOfType } from "@/components/Fleet3D/vehicleModels";
 import type { OptimizeResult } from "@/components/Fleet3D/upload/optimizeModel";
+import { webglAvailable } from "@/components/Fleet3D/webgl";
 import { DangerButton, FieldLabel, GhostButton, Hint, Toolbar, WarnNote } from "../../ui/primitives";
 import { c, font, space } from "../../ui/tokens";
 
@@ -200,12 +201,12 @@ const Model3dField: FC<Props> = ({ typeId, uploaded, pending, onPending, onRemov
       </Column>
 
       <PreviewBox>
-        {/* 模型讀不了 (檔案壞了、網路斷了) 只有預覽不顯示, 不影響整個設定頁 */}
+        {/* 模型讀不了 (檔案壞了、網路斷了) 只有預覽不顯示, 不影響整個設定頁; 這台電腦畫不了 3D 就直接說 */}
         <ErrorBoundary
           resetKeys={[model.url]}
           fallback={
-            <div style={{ display: "grid", placeItems: "center", height: "100%", color: c.textMuted }}>
-              {t("fleet3d.model.preview_failed")}
+            <div style={{ display: "grid", placeItems: "center", height: "100%", padding: space.md, color: c.textMuted }}>
+              {webglAvailable() ? t("fleet3d.model.preview_failed") : t("fleet3d.no_webgl")}
             </div>
           }
         >
