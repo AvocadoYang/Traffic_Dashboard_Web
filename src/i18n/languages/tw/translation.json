@@ -4982,6 +4982,23 @@
       "title": "3D 畫面無法顯示",
       "use_2d": "切回 2D",
       "retry": "重試"
+    },
+    "gate": {
+      "opened": "開啟",
+      "opening": "開啟中",
+      "closing": "關閉中",
+      "closed": "關閉",
+      "e_stop": "急停",
+      "vfd_alarm": "變頻器異常",
+      "system_error": "系統異常"
+    },
+    "pick": {
+      "load": "點一下設為取貨點",
+      "offload": "點一下設為放貨點",
+      "blocked": "這裡不能選"
+    },
+    "package": {
+      "registered": "登記 {{n}} 筆"
     }
   }
 }

@@ -1,13 +1,8 @@
 import { useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
 import { useAtom, useAtomValue } from "jotai";
-import { Button, Modal, Typography } from "antd";
-import { CloseOutlined } from "@ant-design/icons";
-import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 
 import useMap from "@/api/useMap";
-import { useLocalizationCorrection } from "@/api/useLocalizationCorrection";
 import { useAmrPose } from "@/sockets/useAMRInfo";
 import { useAmrPointCloud } from "@/sockets/usePointCloud";
 import { localizationCorrection, Scale } from "@/utils/gloable";
@@ -20,6 +15,7 @@ import {
 } from "@/utils/utils";
 import { useMiRStatus } from "@/sockets/useMirStatus";
 import { currentMapIdAtom } from "@/utils/mapSelection";
+import LocalizationCorrectionPanel from "./LocalizationCorrectionPanel";
 
 // Position/rotation are set as inline styles via .attrs (rather than
 // interpolated into the CSS template) because they change on every drag
@@ -79,41 +75,6 @@ const RotateHandle = styled.div`
   }
 `;
 
-const Panel = styled.div`
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  z-index: 200002;
-  background: rgba(20, 20, 20, 0.88);
-  color: #fff;
-  border-radius: 8px;
-  padding: 12px 16px;
-  min-width: 280px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  font-size: 12px;
-`;
-
-const PanelHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-  font-weight: 700;
-`;
-
-const PanelRow = styled.div`
-  display: flex;
-  gap: 12px;
-  margin-bottom: 10px;
-  font-family: monospace;
-`;
-
-const PanelActions = styled.div`
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-`;
-
 // A single mutable ref keeps the mousemove/mouseup listeners stable across
 // renders (they're attached once) while still reading up-to-date pose/map/
 // scale values, avoiding constantly tearing down and re-adding document
@@ -129,7 +90,6 @@ type DragState = {
 };
 
 const LocalizationCorrectionGhost = () => {
-  const { t } = useTranslation();
   const [correction, setCorrection] = useAtom(localizationCorrection);
   const { data: map } = useMap();
   const scale = useAtomValue(Scale);
@@ -137,11 +97,6 @@ const LocalizationCorrectionGhost = () => {
   const points = useAmrPointCloud(correction?.amrId ?? "");
   const MiR_Status_IO = useMiRStatus(correction?.amrId ?? "");
   const mapId = useAtomValue(currentMapIdAtom);
-  const {
-    mutateAsync: submitCorrection,
-    isLoading: isSubmitting,
-    contextHolder,
-  } = useLocalizationCorrection();
 
   const bodyRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -278,29 +233,6 @@ const LocalizationCorrectionGhost = () => {
     };
   };
 
-  const reset = () => setCorrection({ amrId, dx: 0, dy: 0, dYaw: 0 });
-  const cancel = () => setCorrection(null);
-  const confirm = async () => {
-    try {
-      await submitCorrection({ amrId, x: ghostX, y: ghostY, yaw: ghostYaw });
-    } catch {
-      return;
-    }
-    Modal.info({
-      title: t("amr_card.localization_correction_result_title"),
-      content: (
-        <Typography.Paragraph copyable={{ text: `${ghostX.toFixed(3)}, ${ghostY.toFixed(3)}, ${ghostYaw.toFixed(1)}` }}>
-          x: {ghostX.toFixed(3)}
-          <br />
-          y: {ghostY.toFixed(3)}
-          <br />
-          yaw: {ghostYaw.toFixed(1)}°
-        </Typography.Paragraph>
-      ),
-      onOk: cancel,
-    });
-  };
-
   return (
     <>
       <canvas
@@ -327,40 +259,7 @@ const LocalizationCorrectionGhost = () => {
           <RotateHandle onMouseDown={startRotateDrag} />
         </GhostBody>
       </GhostWrapper>
-      {createPortal(
-        <Panel onClick={(e) => e.stopPropagation()}>
-          <PanelHeader>
-            <span>{`${t("amr_card.localization_correction")} - ${amrId}`}</span>
-            <CloseOutlined onClick={cancel} style={{ cursor: "pointer" }} />
-          </PanelHeader>
-          <div style={{ marginBottom: 8, opacity: 0.75 }}>
-            {t("amr_card.localization_correction_hint")}
-          </div>
-          <PanelRow>
-            <span>x: {ghostX.toFixed(3)}</span>
-            <span>y: {ghostY.toFixed(3)}</span>
-            <span>yaw: {ghostYaw.toFixed(1)}°</span>
-          </PanelRow>
-          <PanelActions>
-            <Button size="small" onClick={reset} disabled={isSubmitting}>
-              {t("amr_card.localization_correction_reset")}
-            </Button>
-            <Button size="small" onClick={cancel} disabled={isSubmitting}>
-              {t("amr_card.localization_correction_cancel")}
-            </Button>
-            <Button
-              size="small"
-              type="primary"
-              onClick={confirm}
-              loading={isSubmitting}
-            >
-              {t("amr_card.localization_correction_confirm")}
-            </Button>
-          </PanelActions>
-        </Panel>,
-        document.body,
-      )}
-      {contextHolder}
+      <LocalizationCorrectionPanel amrId={amrId} x={ghostX} y={ghostY} yaw={ghostYaw} />
     </>
   );
 };

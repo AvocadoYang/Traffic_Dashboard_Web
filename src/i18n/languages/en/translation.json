@@ -4981,6 +4981,23 @@
       "title": "The 3D view couldn't be shown",
       "use_2d": "Switch to 2D",
       "retry": "Retry"
+    },
+    "gate": {
+      "opened": "Open",
+      "opening": "Opening",
+      "closing": "Closing",
+      "closed": "Closed",
+      "e_stop": "Emergency stop",
+      "vfd_alarm": "Drive fault",
+      "system_error": "System error"
+    },
+    "pick": {
+      "load": "Click to set as the pick-up point",
+      "offload": "Click to set as the drop-off point",
+      "blocked": "Can't be selected here"
+    },
+    "package": {
+      "registered": "{{n}} registered"
     }
   }
 }

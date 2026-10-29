@@ -7,6 +7,12 @@ import type * as THREE from "three";
  */
 export type PickKind = "vehicle" | "device" | "point";
 const PICK_ORDER: PickKind[] = ["vehicle", "device", "point"];
+/**
+ * 按下到放開移動超過這麼多 (px) 是拖曳, 不算點擊: 從車 / 點位 / 設備上開始拖地圖時,
+ * 放開時它還在游標底下 (地圖跟著游標走), R3F 照樣會送 click
+ */
+const CLICK_SLOP = 4;
+export const isDrag = (e: { delta: number }) => e.delta > CLICK_SLOP;
 export const yieldsTo = (mine: PickKind, hits: { object: THREE.Object3D }[]) =>
   hits.some((h) => {
     const other = h.object.userData.pick as PickKind | undefined;

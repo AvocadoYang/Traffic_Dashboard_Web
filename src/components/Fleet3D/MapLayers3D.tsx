@@ -4,7 +4,7 @@ import { Line } from "@react-three/drei";
 import * as THREE from "three";
 import type { LiveState } from "@/components/CanvasMap/liveStore";
 import { amrShownAt } from "@/components/CanvasMap/draw";
-import { yieldsTo } from "./pick";
+import { isDrag, yieldsTo } from "./pick";
 
 /**
  * 畫在 3D 地面上的地圖圖層: 路線、點位、點雲、車框。座標是 ROS (公尺), 世界座標 (x, 高度, -y)。
@@ -122,7 +122,7 @@ export const Dots3D: FC<{
   useEffect(() => () => material.dispose(), [material]);
 
   const click = (e: ThreeEvent<MouseEvent>) => {
-    if (e.index === undefined || !onClick || yieldsTo("point", e.intersections)) return;
+    if (e.index === undefined || !onClick || isDrag(e) || yieldsTo("point", e.intersections)) return;
     e.stopPropagation();
     onClick(dots[e.index].id);
   };

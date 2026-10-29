@@ -26,6 +26,8 @@ import { CanvasMapApi } from "@/components/CanvasMap/CanvasMap";
 import { hiddenZoneIdsAtom, linkedZoneHighlightAtom } from "@/components/CanvasMap/MapOverlay";
 import { FOCUS_MARKER_MS, FOCUS_REQUEST_TTL_MS, focusLocationRequest } from "@/components/CanvasMap/focusLocation";
 import { HoverLabel } from "@/pages/Setting/mapComponents/components/HoverLabel";
+import { OpenChargeStationModal } from "@/pages/Main/global/jotai";
+import ChargeStationPanel from "@/pages/Main/components/PadViwe/components/PadMapContent/AllChargeStation/StatusPanel";
 import Scene3D, { Bounds, CameraApi, ModelBoundary } from "./Scene3D";
 import MapGround from "./MapGround";
 import { BBoxes3D, Dot, Dots3D, FocusMarker3D, PointClouds3D, Roads3D, Segment } from "./MapLayers3D";
@@ -41,12 +43,16 @@ import { LiveTracks } from "./liveTracks";
 import { FORKLIFT_MODEL, robotTypeFor, vehicleModelFor } from "./vehicleModels";
 import { Patrol } from "./patrol";
 import { patrolAtom, vehicleLabelsAtom } from "./viewMode";
+import CorrectionGhost3D, { CorrectionPanel3D } from "./CorrectionGhost3D";
+import SimCarMarkers3D from "./SimCarMarkers3D";
 
 /**
  * 首頁地圖的 3D 版: 現場地圖鋪在地上, 車用 3D 模型照 amr-profile 的位置跑, 取放貨時牙叉會升降;
  * 貨架、堆疊、輸送帶、電梯、充電站畫成 3D 設備 (Devices3D)。
  * 實車、模擬車 (後端的 MockAMR) 都一樣, 跟 2D 地圖看同一批資料、同一套規則 (哪些車要畫、哪條路被誰佔用)。
- * 2D 地圖上有的也都有: 區域 (名稱、眼睛、資訊卡)、地圖標註、車框、點位 / 路線提示、「在地圖上定位」。
+ * 2D 地圖上有的也都有: 區域 (名稱、眼睛、資訊卡)、地圖標註、車框、點位 / 路線提示、「在地圖上定位」,
+ * 捲門 / 包膜線 / 門前等待點、「任務派發」選點位、充電站控制 (Devices3D)、定位校正 (CorrectionGhost3D)、
+ * 模擬車的起始位置 (SimCarMarkers3D)。
  *
  * 點車: 鏡頭跟著那台車 (左鍵改成繞著車轉), 上面的資訊卡列出狀態和告警的處理方式; 點空白處或按 Esc 取消。
  * 巡視模式 (patrol.ts): 有車出現告警時鏡頭自動飛過去。
@@ -91,6 +97,7 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
   const linkedZones = useAtomValue(linkedZoneHighlightAtom);
   const patrolOn = useAtomValue(patrolAtom);
   const showVehicleLabels = useAtomValue(vehicleLabelsAtom);
+  const chargerPanel = useAtomValue(OpenChargeStationModal);
   const [focusReq, setFocusReq] = useAtom(focusLocationRequest);
   const { t } = useTranslation();
 
@@ -380,6 +387,7 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
             <Devices3D placements={placements} />
           </ModelBoundary>
         )}
+        <CorrectionGhost3D />
         {/* 每台車各自等模型: 第一次載 MiR / SW15 / 上傳的模型時, 已經在畫的叉車不會跟著消失 */}
         {amrIds.map((id) => {
           const label = labels[id];
@@ -412,7 +420,13 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
         })}
       </Scene3D>
       {/* 區域名稱要用 react-query / antd, 不能放 drei Html (另一個 React root), 放在畫布外面跟著投影 */}
-      <AnchorLayer>{map && showZones && <ZoneLabels3D map={map} anchors={anchors} />}</AnchorLayer>
+      <AnchorLayer>
+        {map && showZones && <ZoneLabels3D map={map} anchors={anchors} />}
+        <SimCarMarkers3D anchors={anchors} />
+      </AnchorLayer>
+      {/* 跟 2D 地圖同一套: 定位校正的面板、點充電站打開的控制面板 */}
+      <CorrectionPanel3D />
+      {chargerPanel ? <ChargeStationPanel locId={chargerPanel} /> : null}
       {/* 首頁地圖上方中間是 2D / 3D 切換, 讓開它 */}
       {follow && (
         <VehicleInfoCard

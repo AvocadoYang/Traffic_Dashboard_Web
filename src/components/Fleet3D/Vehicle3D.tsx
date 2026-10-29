@@ -9,6 +9,7 @@ import { CARTON_SIZE, PALLET_HEIGHT, PALLET_OFFSET } from "./dimensions";
 import { cartonMaterial, hitMaterial, palletMaterial, unitBox, usePalletGeometry } from "./models";
 import { VehicleModel } from "./vehicleModels";
 import { useBlinkFrames } from "./Scene3D";
+import { isDrag } from "./pick";
 
 /**
  * 3D 場景裡的一台車: 模型 (叉車、MiR、SW15 或車型上傳的, 見 vehicleModels)、貨、地上的影子和色圈、名稱標籤。
@@ -290,6 +291,7 @@ const VehicleShell: FC<Props & { body: Body; fitLength?: number }> = ({
           material={hitMaterial}
           userData={{ pick: "vehicle" }}
           onClick={(e) => {
+            if (isDrag(e)) return;
             e.stopPropagation();
             onSelect?.(id);
           }}
