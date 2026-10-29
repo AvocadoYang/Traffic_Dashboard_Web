@@ -1,5 +1,5 @@
 import type { AmrLive, LiveState } from "@/components/CanvasMap/liveStore";
-import { amrShownAt } from "@/components/CanvasMap/draw";
+import { amrShownAt, usesSW15Frame } from "@/components/CanvasMap/draw";
 import type { VehicleFrame } from "./frame";
 import { CARRY_LIFT } from "./forkliftRig";
 import { alertZones } from "./alerts";
@@ -76,6 +76,8 @@ export type LiveFilter = {
   /** 被區域禁止的車 */
   forbiddenIds: Set<string>;
   color: (id: string) => string;
+  /** 模擬模式: 畫的都是模擬車 (SW15 不用轉座標) */
+  simulated: boolean;
 };
 
 export class LiveTracks {
@@ -89,6 +91,7 @@ export class LiveTracks {
     filterIds: new Set(),
     forbiddenIds: new Set(),
     color: () => "#888888",
+    simulated: false,
   };
 
   /** liveStore 有新資料時呼叫 */
@@ -101,16 +104,16 @@ export class LiveTracks {
     for (const [id, a] of state.amrs) {
       let t = this.tracks.get(id);
       if (t?.src === a) continue;
-      const at = amrShownAt(state, id, this.filter.currentMapId);
+      const at = amrShownAt(state, id, this.filter.currentMapId, this.filter.simulated);
       if (!at) {
         if (t) t.src = a;
         continue;
       }
-      // SW15 的車頭在 2D 地圖上也是反過來畫的 (draw.ts)
+      // SW15 實車的車頭在 2D 地圖上也是反過來畫的 (draw.ts)
       const pose = {
         x: at.x,
         y: at.y,
-        yaw: ((at.yaw + (id.includes("SW15") ? 180 : 0)) * Math.PI) / 180,
+        yaw: ((at.yaw + (usesSW15Frame(id, this.filter.simulated) ? 180 : 0)) * Math.PI) / 180,
       };
       if (!t) {
         t = {
@@ -162,7 +165,7 @@ export class LiveTracks {
   read = (id: string, out: VehicleFrame, now = performance.now()): boolean => {
     const t = this.tracks.get(id);
     const state = this.state;
-    if (!t || !state || !amrShownAt(state, id, this.filter.currentMapId)) return false;
+    if (!t || !state || !amrShownAt(state, id, this.filter.currentMapId, this.filter.simulated)) return false;
     poseAt(t, now, out);
 
     const started = now - t.actionSince > ACTION_DELAY_MS;

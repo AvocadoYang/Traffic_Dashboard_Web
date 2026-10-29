@@ -105,7 +105,7 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
   const anchors = useMemo(() => new ScreenAnchors(), []);
 
   const tracks = useMemo(() => new LiveTracks(), []);
-  tracks.filter = { currentMapId, filterIds, forbiddenIds, color: amrColor };
+  tracks.filter = { currentMapId, filterIds, forbiddenIds, color: amrColor, simulated: !!names?.isSim };
 
   // 即時資料: 跟 2D 地圖一樣直接訂閱 socket, 位置不經過 React;
   // 只有標籤文字、被佔用的路線換了才 setState
@@ -226,7 +226,7 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
     const tick = () => {
       const state = storeRef.current?.state;
       if (!state) return;
-      const warned = amrIds.filter((id) => state.warnings.has(id) && amrShownAt(state, id, currentMapId));
+      const warned = amrIds.filter((id) => state.warnings.has(id) && amrShownAt(state, id, currentMapId, !!names?.isSim));
       const step = patrol.step(warned, performance.now());
       if (step?.kind === "follow") {
         setFollow(step.id);
@@ -240,7 +240,7 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
     tick();
     const timer = window.setInterval(tick, 1000);
     return () => window.clearInterval(timer);
-  }, [patrolOn, patrol, amrIds, currentMapId, tracks]);
+  }, [patrolOn, patrol, amrIds, currentMapId, tracks, names]);
 
   // 在地圖上定位 (貨物紀錄等頁面發的請求, 同 2D): 鏡頭飛過去, 箭頭指幾秒
   useEffect(() => {
@@ -355,7 +355,7 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
         {showRoad && <Roads3D segments={roads} color={colors.mapRoad} onHover={showRoadTooltip ? setHoverRoad : undefined} />}
         {showLocation && <Dots3D dots={points} onClick={onPointClick} onHover={showLocationTooltip ? setHoverPoint : undefined} />}
         {showPointCloud && <PointClouds3D state={liveState} ids={amrIds} color={amrColor} currentMapId={currentMapId} />}
-        <BBoxes3D state={liveState} ids={amrIds} color={amrColor} currentMapId={currentMapId} />
+        <BBoxes3D state={liveState} ids={amrIds} color={amrColor} currentMapId={currentMapId} simulated={!!names?.isSim} />
         {/* 點位 / 路線提示 (同 2D 的「地點提示」「路徑提示」) */}
         {hoverPoint && showLocation && showLocationTooltip && (
           <Html position={[hoverPoint.x, 0.4, -hoverPoint.y]} center style={{ pointerEvents: "none" }} zIndexRange={[30, 0]}>

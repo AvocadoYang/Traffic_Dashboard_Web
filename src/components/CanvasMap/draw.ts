@@ -382,9 +382,12 @@ export type LiveOptions = {
   forbiddenIds: Set<string>;
   /** MiR 圖示長度 (地圖像素), 照車型實際長度 */
   mirLength: (amrId: string) => number;
+  /** 模擬模式: 畫的都是模擬車 (SW15 不用轉座標, 見 usesSW15Frame) */
+  simulated?: boolean;
 };
 
-type Visible = { id: string; x: number; y: number; yaw: number; color: string };
+/** sw15Frame: SW15 實車, 車頭反過來畫 */
+type Visible = { id: string; x: number; y: number; yaw: number; color: string; sw15Frame: boolean };
 
 /**
  * 畫出來的車在地圖上佔的範圍 (地圖像素), 點選用:
@@ -405,10 +408,17 @@ export type AmrHit = {
 };
 
 /**
- * 這台車要不要畫、畫在哪 (ROS 座標, 公尺; 3D 檢視也照這個規則): 離線、還沒收到車框、
- * MiR 不在目前這張地圖上就不畫。yaw 是度, 沒有修正 (SW15 畫的時候自己轉 180 度)
+ * SW15 實車回報的座標要轉 270 度再位移、車頭反過來畫 (照舊地圖 AMR.tsx)。
+ * 模擬的 SW15 (後端的 MockAMR) 跟其他模擬車一樣就是地圖座標, 不用轉, 不然會畫到別的地方去
  */
-export const amrShownAt = (live: LiveState, id: string, currentMapId: string | null) => {
+export const usesSW15Frame = (id: string, simulated: boolean) => !simulated && id.includes("SW15");
+
+/**
+ * 這台車要不要畫、畫在哪 (ROS 座標, 公尺; 3D 檢視也照這個規則): 離線、還沒收到車框、
+ * MiR 不在目前這張地圖上就不畫。yaw 是度, 沒有修正 (SW15 實車畫的時候自己轉 180 度)。
+ * simulated: 模擬模式 (畫的都是模擬車)
+ */
+export const amrShownAt = (live: LiveState, id: string, currentMapId: string | null, simulated = false) => {
   const a = live.amrs.get(id);
   if (!a || !a.pose || a.isOverdue) return null;
   // 舊地圖收到車框之前不畫車
@@ -416,7 +426,7 @@ export const amrShownAt = (live: LiveState, id: string, currentMapId: string | n
   if (!bbox || !bbox.length) return null;
   if (id.includes("mi") && (live.mirMapId.get(id) ?? "") !== currentMapId) return null;
   const { x, y, yaw } = a.pose;
-  if (!id.includes("SW15")) return { x, y, yaw };
+  if (!usesSW15Frame(id, simulated)) return { x, y, yaw };
   // SW15 的座標要轉 270 度再位移 (照舊地圖 AMR.tsx)
   const theta = (3 * Math.PI) / 2;
   return {
@@ -433,10 +443,10 @@ export function drawLive(f: Frame, scene: MapScene, live: LiveState, o: LiveOpti
 
   const shown: Visible[] = [];
   for (const id of o.amrIds) {
-    const at = amrShownAt(live, id, o.currentMapId);
+    const at = amrShownAt(live, id, o.currentMapId, o.simulated);
     if (!at) continue;
     const [px, py] = scene.toPx(at.x, at.y);
-    shown.push({ id, x: px, y: py, yaw: at.yaw, color: amrColor(id) });
+    shown.push({ id, x: px, y: py, yaw: at.yaw, color: amrColor(id), sw15Frame: usesSW15Frame(id, !!o.simulated) });
   }
 
   if (o.showPointCloud) drawPointClouds(f, scene, live, o);
@@ -457,7 +467,7 @@ export function drawLive(f: Frame, scene: MapScene, live: LiveState, o: LiveOpti
       hits.push({ id: v.id, x: v.x, y: v.y, angle, left: -7.5, right: 7.5, top: -length / 2, bottom: length / 2, isPause: false, clickable: false });
     } else {
       drawForklift(f, v, a.hasCargo, a.isPause);
-      const deg = v.id.includes("SW15") ? 90 - v.yaw + 180 : 90 - v.yaw;
+      const deg = v.sw15Frame ? 90 - v.yaw + 180 : 90 - v.yaw;
       hits.push({ id: v.id, x: v.x, y: v.y, angle: (deg * Math.PI) / 180, left: -7.5, right: 7.5, top: -20, bottom: 0, isPause: a.isPause, clickable: true });
     }
     ctx.globalAlpha = 1;
@@ -529,7 +539,7 @@ function drawForklift(f: Frame, v: Visible, hasCargo: boolean, isPause: boolean)
   const alpha = ctx.globalAlpha;
   mapSpace(f);
   ctx.translate(v.x, v.y);
-  const deg = v.id.includes("SW15") ? 90 - v.yaw + 180 : 90 - v.yaw;
+  const deg = v.sw15Frame ? 90 - v.yaw + 180 : 90 - v.yaw;
   ctx.rotate((deg * Math.PI) / 180);
 
   // 叉臂

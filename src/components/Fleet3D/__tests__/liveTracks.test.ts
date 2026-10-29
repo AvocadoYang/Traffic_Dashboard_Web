@@ -138,4 +138,23 @@ describe("LiveTracks", () => {
     tracks.read("a", out, 100);
     expect(out.alert).toBe(0);
   });
+
+  it("SW15 實車的座標要轉 (同 2D); 模擬的 SW15 就是地圖座標, 不轉、車頭也不反過來", () => {
+    const st = state({ "#SW15-635": amr({ pose: { x: 51.9, y: -3.7, yaw: 90 } }) });
+    const real = new LiveTracks();
+    real.ingest(st, 0);
+    const out = emptyFrame();
+    real.read("#SW15-635", out, 0);
+    expect(out.x).toBeCloseTo(-3.7 + 3.5, 5);
+    expect(out.y).toBeCloseTo(-51.9 + 0.4, 5);
+    expect(out.yaw).toBeCloseTo((270 * Math.PI) / 180, 5);
+
+    const sim = new LiveTracks();
+    sim.filter = { ...sim.filter, simulated: true };
+    sim.ingest(st, 0);
+    sim.read("#SW15-635", out, 0);
+    expect(out.x).toBeCloseTo(51.9, 5);
+    expect(out.y).toBeCloseTo(-3.7, 5);
+    expect(out.yaw).toBeCloseTo(Math.PI / 2, 5);
+  });
 });
