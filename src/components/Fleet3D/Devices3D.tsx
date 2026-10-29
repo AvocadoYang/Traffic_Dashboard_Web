@@ -1,5 +1,5 @@
 import { FC, useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { ThreeEvent, useFrame } from "@react-three/fiber";
+import { ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 import { Html, useCursor } from "@react-three/drei";
 import { useSetAtom } from "jotai";
 import * as THREE from "three";
@@ -13,6 +13,7 @@ import { DevicePlacement } from "./devicePlacement";
 import { Hit, chargerParts, conveyorParts, elevatorParts, merge, stackParts, storageParts } from "./deviceParts";
 import { cartonMaterial, hitMaterial, palletMaterial, unitBox, usePalletGeometry } from "./models";
 import { yieldsTo } from "./pick";
+import { useBlinkFrames } from "./Scene3D";
 
 /**
  * 3D 地圖上的設備: 貨架 (各層照後端的層高, 有貨的層放棧板)、堆疊 (疊了幾板)、
@@ -34,6 +35,7 @@ const InstancedPart: FC<{
   onPointerMove?: (e: ThreeEvent<PointerEvent>) => void;
   onPointerOut?: () => void;
 }> = ({ geometry, material, items, pick, onClick, onPointerMove, onPointerOut }) => {
+  const invalidate = useThree((s) => s.invalidate);
   // 數量變了才重建 (instanceMatrix 的大小是建的時候決定的)
   const mesh = useMemo(() => new THREE.InstancedMesh(geometry, material, Math.max(1, items.length)), [geometry, material, items.length]);
   useEffect(
@@ -56,7 +58,8 @@ const InstancedPart: FC<{
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
     // 剔除、點選都看包圍球, 位置改了要重算
     mesh.computeBoundingSphere();
-  }, [mesh, items]);
+    invalidate();
+  }, [mesh, items, invalidate]);
   if (!items.length) return null;
   return <primitive object={mesh} onClick={onClick} onPointerMove={onPointerMove} onPointerOut={onPointerOut} />;
 };
@@ -93,8 +96,11 @@ const Devices3D: FC<{ placements: DevicePlacement[] }> = ({ placements }) => {
   const charger = useMemo(() => merge(of("CHARGING").map((d) => chargerParts(d, chargers[d.locationId]))), [placements, chargerKey]);
   const parts = useMemo(() => merge([storage, stack, conveyor, elevator, charger]), [storage, stack, conveyor, elevator, charger]);
 
+  const blink = useBlinkFrames();
   useFrame(({ clock }) => {
-    if (parts.blinks.length) blinkMaterial.opacity = 0.1 + 0.8 * (0.5 + 0.5 * Math.sin(clock.elapsedTime * BLINK_HZ * 2 * Math.PI));
+    if (!parts.blinks.length) return;
+    blinkMaterial.opacity = 0.1 + 0.8 * (0.5 + 0.5 * Math.sin(clock.elapsedTime * BLINK_HZ * 2 * Math.PI));
+    blink();
   });
 
   const hitAt = (e: ThreeEvent<PointerEvent | MouseEvent>) => (e.instanceId === undefined ? null : parts.hits[e.instanceId] ?? null);

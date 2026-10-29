@@ -3,6 +3,7 @@ import type { AmrLive, LiveState } from "@/components/CanvasMap/liveStore";
 import { CARRY_LIFT } from "../forkliftRig";
 import { LiveTracks } from "../liveTracks";
 import { emptyFrame } from "../frame";
+import { ALERT_BUMPER, ALERT_FORK } from "../alerts";
 
 const amr = (patch: Partial<AmrLive> = {}): AmrLive => ({
   pose: { x: 0, y: 0, yaw: 0 },
@@ -13,6 +14,10 @@ const amr = (patch: Partial<AmrLive> = {}): AmrLive => ({
   rawStatus: "",
   forkHeight: null,
   destination: null,
+  battery: null,
+  charging: false,
+  speed: null,
+  stepWaitMs: null,
   ...patch,
 });
 
@@ -115,5 +120,22 @@ describe("LiveTracks", () => {
     expect(out.dim).toBe(true);
     tracks.read("b", out, 0);
     expect(out.dim).toBe(false);
+  });
+
+  it("告警照說明文字對到要閃的部位; 告警換了才重算, 沒告警的車是 0", () => {
+    const tracks = new LiveTracks();
+    const st = state({ a: amr(), b: amr() });
+    st.warningInfos = new Map([["a", [{ warningId: "2004", info: "防撞邊條觸發" }, { warningId: "2010", info: "枒杈尖故障" }]]]);
+    tracks.ingest(st, 0);
+    const out = emptyFrame();
+    expect(tracks.read("a", out, 0)).toBe(true);
+    expect(out.alert).toBe(ALERT_BUMPER | ALERT_FORK);
+    tracks.read("b", out, 0);
+    expect(out.alert).toBe(0);
+
+    st.warningInfos = new Map();
+    tracks.ingest(st, 100);
+    tracks.read("a", out, 100);
+    expect(out.alert).toBe(0);
   });
 });

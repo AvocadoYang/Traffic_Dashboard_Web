@@ -207,8 +207,8 @@ function drawRoads(f: Frame, scene: MapScene, claimed: Map<string, string>, vis:
   }
 }
 
-/** 區域只畫框; 名稱、眼睛圖示、資訊卡是 DOM (CanvasMap 的 ZoneLabels), 才點得到 */
-function drawZones(f: Frame, scene: MapScene, hidden: Set<string>) {
+/** 區域只畫框; 名稱、眼睛圖示、資訊卡是 DOM (CanvasMap 的 ZoneLabels), 才點得到。3D 檢視也拿來畫地上的區域 */
+export function drawZones(f: Frame, scene: MapScene, hidden: Set<string>) {
   const { ctx } = f;
   mapSpace(f);
   for (const z of scene.zones) {
@@ -332,7 +332,8 @@ function drawAnnotationText(f: Frame, a: SceneAnnotation, x: number, y: number) 
   });
 }
 
-function drawAnnotations(f: Frame, list: SceneAnnotation[]) {
+/** 3D 檢視也拿來畫地上的標註 */
+export function drawAnnotations(f: Frame, list: SceneAnnotation[]) {
   const { ctx } = f;
   for (const a of list) {
     mapSpace(f);

@@ -4926,5 +4926,56 @@
     "resend_step": "第 {{step}} 動被手動重送 (重送這一步)",
     "badge": "人工介入 {{count}} 次",
     "cargo_badge": "搬貨異動 {{count}} 筆"
+  },
+  "fleet3d": {
+    "model": {
+      "label": "3D 模型",
+      "default": "預設 (依車名: MiR、SW15,其他是叉車)",
+      "default_short": "預設",
+      "forklift": "叉車",
+      "mir250": "MiR250",
+      "m68": "SW15 滾筒 AGV (M68)",
+      "custom": "上傳的模型",
+      "upload": "上傳 glb",
+      "replace": "重新上傳",
+      "remove": "刪除上傳的模型",
+      "remove_confirm": "刪掉之後這個車型改回預設模型",
+      "processing": "處理中 (減面、壓縮)…",
+      "pending": "{{name}}:{{before}} → {{after}} 個面,{{size}};按儲存才會上傳",
+      "uploaded": "已上傳:{{name}} ({{size}})",
+      "rotate": "車頭方向",
+      "hint": "只接受 glb,上傳前會自動減面壓縮 (只留顏色,貼圖不留),大小照車型的長度縮放。預覽的箭頭是車頭,不對就轉。節點名稱 (或 glb-editor 分群) 叫 fork 的會當牙叉升降、貨放在牙叉上。",
+      "front": "車頭",
+      "error_draco": "這個檔案用 Draco 壓縮,請匯出成一般的 glb",
+      "error_empty": "檔案裡沒有模型",
+      "error_format": "讀不了這個檔案:{{message}}",
+      "preview_failed": "預覽不了這個模型"
+    },
+    "info": {
+      "status": "狀態",
+      "battery": "電量",
+      "charging": "充電中",
+      "speed": "速度",
+      "fork": "牙叉高度",
+      "cargo": "載貨",
+      "yes": "有",
+      "no": "沒有",
+      "destination": "目的地",
+      "mission": "任務",
+      "step_wait": "這一動 {{time}}",
+      "solution": "處理方式"
+    },
+    "patrol": {
+      "label": "巡視",
+      "tip": "有車出現告警時,鏡頭自動飛過去跟著那台車;好幾台輪流看,告警都沒了回到全景。自己點車或取消跟車後,先停 30 秒。"
+    },
+    "sim": {
+      "heat": "熱點",
+      "heat_tip": "路線照塞車等待的時間上色 (同「熱點」頁)"
+    },
+    "labels": {
+      "label": "車輛標籤",
+      "tip": "車上一直顯示車號、狀態、要去哪和告警;關掉時游標移到車上才顯示"
+    }
   }
 }

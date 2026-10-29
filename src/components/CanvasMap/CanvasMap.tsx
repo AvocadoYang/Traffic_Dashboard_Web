@@ -30,6 +30,7 @@ import { currentMapIdAtom } from "@/utils/mapSelection";
 import { buildMapImageMatrix, getMapCanvas, mapImageModeAtom, resolveColors, themeAtom } from "@/theme";
 import { isDarkColor } from "@/theme/mapImage";
 import { buildScene } from "./scene";
+import { robotTypeValueOf } from "./robotType";
 import { createLiveStore, LiveStore } from "./liveStore";
 import { AmrHit, drawBase, drawLive, Frame } from "./draw";
 import { MapView, clampScale, initialView, wheelFactor, zoomTo } from "./view";
@@ -98,9 +99,8 @@ const DRAG_THRESHOLD = 4;
 
 /** MiR 圖示寬度固定, 長度照車型; 查不到車型時的長度 (地圖像素) */
 const MIR_FALLBACK_LENGTH = 20;
-/** 車號 -> 車型 (useAMRsample 的 value) */
-export const robotTypeValueOf = (amrId: string) =>
-  (amrId.includes("#") ? amrId.split("#")[1] : amrId).split("-").slice(0, 3).join("-");
+/** 車號 -> 車型 (useAMRsample 的 value); 搬到 robotType.ts (3D、設定頁也要用, 不用載整個畫布) */
+export { robotTypeValueOf };
 
 /** 給外面 (設定頁的編輯工具) 用的 hit-test, 座標是 clientX / clientY */
 export type CanvasMapApi = {

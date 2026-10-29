@@ -96,7 +96,7 @@ export class LiveTracks {
     this.state = state;
     if (state.warningInfos !== this.alertsOf) {
       this.alertsOf = state.warningInfos;
-      this.alerts = new Map([...state.warningInfos].map(([id, infos]) => [id, alertZones(infos)]));
+      this.alerts = new Map([...state.warningInfos].map(([id, list]) => [id, alertZones(list.map((m) => m.info))]));
     }
     for (const [id, a] of state.amrs) {
       let t = this.tracks.get(id);

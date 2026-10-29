@@ -28,7 +28,15 @@ export type AmrLive = {
   /** 牙叉目前高度 (mm); 這次訊息沒帶就沿用上一次, 從沒帶過是 null */
   forkHeight: number | null;
   destination: MissionDestination | null;
+  /** 電量 (%)、充電中、速度 (m/s)、這一動做了多久 (ms): 3D 檢視跟車時的資訊卡用; 沒帶就沿用上一次 */
+  battery: number | null;
+  charging: boolean;
+  speed: number | null;
+  stepWaitMs: number | null;
 };
+
+/** 一筆告警 (car-error-info): 說明、處理方式 (告警清單的 info / debug) */
+export type WarningMessage = { warningId: string; info: string; debug?: string };
 
 export type LiveState = {
   amrs: Map<string, AmrLive>;
@@ -37,8 +45,8 @@ export type LiveState = {
   claimedRoads: Map<string, string>;
   /** 有警告的車 */
   warnings: Set<string>;
-  /** 每台車目前的告警說明 (3D 檢視照說明閃車上的部位) */
-  warningInfos: Map<string, string[]>;
+  /** 每台車目前的告警 (3D 檢視照說明閃車上的部位, 資訊卡列出處理方式) */
+  warningInfos: Map<string, WarningMessage[]>;
   pointCloud: Map<string, Float32Array>;
   /** MiR 目前用的地圖 */
   mirMapId: Map<string, string>;
@@ -119,6 +127,10 @@ export const createLiveStore = (): LiveStore => {
           rawStatus: rosStatus ? String(rosStatus) : "",
           forkHeight: info.IO?.fork?.current_height ?? prev?.forkHeight ?? null,
           destination: (info.destination as MissionDestination | null) ?? null,
+          battery: info.IO?.battery_info?.battery ?? prev?.battery ?? null,
+          charging: info.IO?.battery_info?.charging ?? prev?.charging ?? false,
+          speed: info.IO?.linear_x ?? prev?.speed ?? null,
+          stepWaitMs: info.stepWaitMs !== undefined ? info.stepWaitMs : (prev?.stepWaitMs ?? null),
         });
       }
       notify();
@@ -147,7 +159,7 @@ export const createLiveStore = (): LiveStore => {
       if (!infos.length) return;
       const active = infos.filter((i) => i && i.message.length > 0).map((i) => i!);
       state.warnings = new Set(active.map((i) => i.amrId));
-      state.warningInfos = new Map(active.map((i) => [i.amrId, i.message.map((m) => m.info)]));
+      state.warningInfos = new Map(active.map((i) => [i.amrId, i.message]));
       notify();
     }),
   );

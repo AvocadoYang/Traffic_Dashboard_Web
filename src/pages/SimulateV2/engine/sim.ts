@@ -1979,7 +1979,12 @@ export class Simulator {
       trace = {
         dt: this.traceDt,
         count: this.traceCount,
-        vehicles: this.vehicles.map((v) => ({ name: v.name, length: v.length, width: v.width })),
+        vehicles: this.vehicles.map((v) => ({
+          name: v.name,
+          type: this.input.vehicleTypes[v.typeIdx].name,
+          length: v.length,
+          width: v.width,
+        })),
         pose: this.pose.slice(0, this.traceCount * n * 3),
         state: this.state.slice(0, this.traceCount * n),
       };

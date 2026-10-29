@@ -4925,5 +4925,56 @@
     "resend_step": "Step {{step}} was resent manually (resend this step)",
     "badge": "Manual interventions {{count}}×",
     "cargo_badge": "{{count}} cargo movements"
+  },
+  "fleet3d": {
+    "model": {
+      "label": "3D model",
+      "default": "Default (by name: MiR, SW15, otherwise forklift)",
+      "default_short": "Default",
+      "forklift": "Forklift",
+      "mir250": "MiR250",
+      "m68": "SW15 roller AGV (M68)",
+      "custom": "Uploaded model",
+      "upload": "Upload .glb",
+      "replace": "Replace file",
+      "remove": "Delete uploaded model",
+      "remove_confirm": "This robot type will go back to the default model",
+      "processing": "Processing (reducing and compressing)…",
+      "pending": "{{name}}: {{before}} → {{after}} triangles, {{size}}; uploaded when you save",
+      "uploaded": "Uploaded: {{name}} ({{size}})",
+      "rotate": "Front direction",
+      "hint": "Only .glb files. The model is simplified and compressed before upload (colors kept, textures dropped) and scaled to the robot type's length. The arrow in the preview marks the front; rotate if it is wrong. Nodes named fork (or the glb-editor group fork) move up and down as the forks and carry the pallet.",
+      "front": "Front",
+      "error_draco": "This file uses Draco compression; export a plain .glb instead",
+      "error_empty": "The file contains no model",
+      "error_format": "Cannot read this file: {{message}}",
+      "preview_failed": "Cannot preview this model"
+    },
+    "info": {
+      "status": "Status",
+      "battery": "Battery",
+      "charging": "charging",
+      "speed": "Speed",
+      "fork": "Fork height",
+      "cargo": "Cargo",
+      "yes": "Yes",
+      "no": "No",
+      "destination": "Destination",
+      "mission": "Mission",
+      "step_wait": "step {{time}}",
+      "solution": "What to do"
+    },
+    "patrol": {
+      "label": "Patrol",
+      "tip": "When a vehicle raises a warning, the camera flies to it and follows it; several warned vehicles take turns, and the view returns to the overview when the warnings clear. Pauses for 30 s after you pick or release a vehicle yourself."
+    },
+    "sim": {
+      "heat": "Hotspots",
+      "heat_tip": "Colour the roads by time spent waiting in traffic (same as the Hotspots view)"
+    },
+    "labels": {
+      "label": "Vehicle labels",
+      "tip": "Always show each vehicle's name, status, destination and warnings; when off, a label appears only while the pointer is over the vehicle"
+    }
   }
 }

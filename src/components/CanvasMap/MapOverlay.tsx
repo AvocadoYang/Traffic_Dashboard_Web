@@ -90,7 +90,21 @@ const Centered = styled.div.attrs<{ $x: number; $y: number }>(({ $x, $y }) => ({
 `;
 
 /** 區域名稱: 位置、樣式同舊地圖的 Zone.tsx (眼睛在框的左上角上方, 名字在它右邊) */
-const ZoneLabel: FC<{ zone: SceneZone; info: Parameters<typeof ZoneHoverCard>[0]["info"] }> = ({ zone, info }) => {
+const InlineRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+`;
+
+/**
+ * 區域名稱 + 眼睛圖示 (藏起來) + 資訊卡 (停用 / 啟用)。inline: 3D 檢視用, 不自己定位 (外面包 drei Html)
+ */
+export const ZoneLabel: FC<{ zone: SceneZone; info: Parameters<typeof ZoneHoverCard>[0]["info"]; inline?: boolean }> = ({
+  zone,
+  info,
+  inline = false,
+}) => {
   const { t } = useTranslation();
   const [hidden, setHidden] = useAtom(hiddenZoneIdsAtom);
   const [cardOpen, setCardOpen] = useState(false);
@@ -117,41 +131,60 @@ const ZoneLabel: FC<{ zone: SceneZone; info: Parameters<typeof ZoneHoverCard>[0]
       return next;
     });
 
+  const eye = isHidden ? (
+    <EyeInvisibleOutlined style={{ cursor: "pointer" }} onClick={toggleHidden} />
+  ) : (
+    <EyeOutlined style={{ cursor: "pointer" }} onClick={toggleHidden} />
+  );
+  const name = (
+    <NameText $disabled={zone.disabled}>
+      {zone.disabled && <DisabledBadge>{t("zone_enable.disabled")}</DisabledBadge>}
+      {zone.name}
+    </NameText>
+  );
+  const card = (
+    <ZoneHoverCard
+      info={info}
+      open={cardOpen}
+      toggling={pendingId === info.id}
+      onToggleEnabled={(enabled) => {
+        setCardOpen(false);
+        setEnabled(info, enabled);
+      }}
+    />
+  );
+  const cardStyles = {
+    container: { padding: 0, borderRadius: 2, border: `1px solid ${c.border}`, background: c.bg },
+  };
+
+  if (inline) {
+    return (
+      <InlineRow>
+        {contextHolder}
+        {eye}
+        <Popover open={cardOpen} onOpenChange={setCardOpen} placement="rightTop" arrow={false} content={card} styles={cardStyles}>
+          <span>{name}</span>
+        </Popover>
+      </InlineRow>
+    );
+  }
+
   return (
     <>
       {contextHolder}
       <At $x={zone.x} $y={zone.y - 18}>
-        {isHidden ? (
-          <EyeInvisibleOutlined style={{ cursor: "pointer" }} onClick={toggleHidden} />
-        ) : (
-          <EyeOutlined style={{ cursor: "pointer" }} onClick={toggleHidden} />
-        )}
+        {eye}
       </At>
       <Popover
         open={cardOpen}
         onOpenChange={setCardOpen}
         placement="rightTop"
         arrow={false}
-        content={
-          <ZoneHoverCard
-            info={info}
-            open={cardOpen}
-            toggling={pendingId === info.id}
-            onToggleEnabled={(enabled) => {
-              setCardOpen(false);
-              setEnabled(info, enabled);
-            }}
-          />
-        }
-        styles={{
-          container: { padding: 0, borderRadius: 2, border: `1px solid ${c.border}`, background: c.bg },
-        }}
+        content={card}
+        styles={cardStyles}
       >
         <At $x={zone.x + 22} $y={zone.y - 20}>
-          <NameText $disabled={zone.disabled}>
-            {zone.disabled && <DisabledBadge>{t("zone_enable.disabled")}</DisabledBadge>}
-            {zone.name}
-          </NameText>
+          {name}
         </At>
       </Popover>
     </>

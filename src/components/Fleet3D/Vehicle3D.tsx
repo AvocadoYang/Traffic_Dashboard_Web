@@ -1,15 +1,17 @@
 import { FC, ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { Html, useCursor, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { ForkliftRig, rigForklift } from "./forkliftRig";
 import { ALERT_BODY, ALERT_BUMPER, ALERT_FORK, ALERT_SCAN_AROUND, ALERT_SCAN_FRONT, ALERT_SCAN_REAR } from "./alerts";
 import { VehicleSource, emptyFrame } from "./frame";
 import { CARTON_SIZE, PALLET_HEIGHT, PALLET_OFFSET } from "./dimensions";
-import { FORKLIFT_URL, MIR_URL, cartonMaterial, hitMaterial, palletMaterial, unitBox, usePalletGeometry } from "./models";
+import { cartonMaterial, hitMaterial, palletMaterial, unitBox, usePalletGeometry } from "./models";
+import { VehicleModel } from "./vehicleModels";
+import { useBlinkFrames } from "./Scene3D";
 
 /**
- * 3D 場景裡的一台車: 叉車或 MiR 的模型、貨、地上的影子和色圈、名稱標籤。
+ * 3D 場景裡的一台車: 模型 (叉車、MiR、SW15 或車型上傳的, 見 vehicleModels)、貨、地上的影子和色圈、名稱標籤。
  *
  * 位置不經過 React: 每一幀向 source 問一次這台車現在的樣子 (即時資料、模擬回放各自實作),
  * 直接改 three.js 物件。
@@ -22,10 +24,11 @@ const MIN_HIT = 1.2;
 const ALERT_COLOR = "#ff2d2d";
 const ALERT_HZ = 1.5;
 const SCAN_DEPTH = 1.2;
-/** 防撞邊條那一圈: 離車身多遠、多高 (公尺) */
+/** 防撞邊條那一圈: 離車身多遠、多高 (公尺); 地上再一圈寬的, 從上面看也看得到 */
 const BUMPER_GAP = 0.03;
 const BUMPER_HEIGHT = 0.12;
 const BUMPER_THICK = 0.04;
+const BUMPER_GLOW = 0.25;
 
 let blobTexture: THREE.Texture | null = null;
 /** 車底下的柔和影子 (不用即時陰影: 地圖可能上百公尺, 陰影貼圖蓋不住) */
@@ -50,27 +53,37 @@ type Body = {
   rig: ForkliftRig | null;
   materials: THREE.Material[];
   box: THREE.Box3;
-  /** 牙叉上蓋的一層紅色 (跟著牙叉升降), 告警時閃; 沒有牙叉的車是空的 */
+  /** 牙叉 (SW15 是擋塊、側導) 上蓋的一層紅色 (跟著牙叉升降), 牙叉相關的告警時閃; 都沒有的車是空的 */
   forkFlash: THREE.Object3D[];
-  /** 貨放在哪 (模型座標) 和紙箱多大; 叉車的貨是棧板 + 紙箱, 會跟著牙叉升降; 盒子車是車頂上一箱 */
+  /** 貨放在哪 (模型座標) 和紙箱多大; 叉車的貨是棧板 + 紙箱, 會跟著牙叉升降; 其他車是車頂上一箱 */
   cargo: { x: number; y: number; size: [number, number, number]; pallet: boolean };
 };
 
 type Props = {
   id: string;
   source: VehicleSource;
-  /** 把模型等比例縮放成這個長度 (公尺): 模擬的車種長度跟模型不一樣時 */
-  fitLength?: number;
   /**
    * 車的位置在模型的哪裡: 即時資料是叉臂根部 (同 2D 地圖), 模擬的車位置是車身中心
    */
   anchor?: "root" | "center";
   label?: ReactNode;
+  /** 標籤只在游標指著車的時候顯示 (首頁 3D 預設不一直顯示標籤) */
+  labelOnHover?: boolean;
   selected?: boolean;
   onSelect?: (id: string) => void;
 };
 
-const VehicleShell: FC<Props & { body: Body }> = ({ id, source, body, fitLength, anchor = "root", label, selected = false, onSelect }) => {
+const VehicleShell: FC<Props & { body: Body; fitLength?: number }> = ({
+  id,
+  source,
+  body,
+  fitLength,
+  anchor = "root",
+  label,
+  labelOnHover = false,
+  selected = false,
+  onSelect,
+}) => {
   const groupRef = useRef<THREE.Group>(null);
   const cargoRef = useRef<THREE.Group>(null);
   const labelRef = useRef<HTMLDivElement>(null);
@@ -78,6 +91,10 @@ const VehicleShell: FC<Props & { body: Body }> = ({ id, source, body, fitLength,
   const ringMaterial = useMemo(() => new THREE.MeshBasicMaterial({ color: "#888888", transparent: true, opacity: 0.75, depthWrite: false }), []);
   const frame = useMemo(emptyFrame, []);
   const applied = useRef({ lift: Number.NaN, dim: false, ring: "", alert: 0 });
+  /** 上一幀的位置: 還在變 (車在走、牙叉在動) 就要求下一幀 */
+  const last = useRef({ x: Number.NaN, y: 0, yaw: 0, loaded: false });
+  const invalidate = useThree((s) => s.invalidate);
+  const blink = useBlinkFrames();
   const alertMaterial = useMemo(
     () =>
       new THREE.MeshBasicMaterial({
@@ -128,12 +145,21 @@ const VehicleShell: FC<Props & { body: Body }> = ({ id, source, body, fitLength,
     if (!shown) return;
     group.position.set(frame.x, 0, -frame.y);
     group.rotation.y = frame.yaw;
+    const prev = last.current;
+    if (frame.x !== prev.x || frame.y !== prev.y || frame.yaw !== prev.yaw || frame.loaded !== prev.loaded) {
+      prev.x = frame.x;
+      prev.y = frame.y;
+      prev.yaw = frame.yaw;
+      prev.loaded = frame.loaded;
+      invalidate();
+    }
 
     const done = applied.current;
     const lift = body.rig ? frame.lift : 0;
     if (!(Math.abs(lift - done.lift) < 0.0005)) {
       body.rig?.setLift(lift);
       done.lift = lift;
+      invalidate();
     }
     if (cargoRef.current) {
       cargoRef.current.visible = frame.loaded;
@@ -166,7 +192,10 @@ const VehicleShell: FC<Props & { body: Body }> = ({ id, source, body, fitLength,
       for (const o of body.forkFlash) o.visible = !!(alert & ALERT_FORK);
       done.alert = alert;
     }
-    if (alert) alertMaterial.opacity = 0.15 + 0.65 * pulse;
+    if (alert) {
+      alertMaterial.opacity = 0.15 + 0.65 * pulse;
+      blink();
+    }
     if (alert & ALERT_BODY || bodyLit.current) {
       bodyLit.current = !!(alert & ALERT_BODY);
       for (const m of body.materials) {
@@ -193,7 +222,7 @@ const VehicleShell: FC<Props & { body: Body }> = ({ id, source, body, fitLength,
             </group>
           </group>
         </group>
-        {/* 告警: 防撞邊條是車底一圈; 光達是車頭前、車尾後、四周的地上 (平常藏著) */}
+        {/* 告警: 防撞邊條是車底一圈 (車身外一圈矮牆 + 地上一圈寬的); 光達是車頭前、車尾後、四周的地上 (平常藏著) */}
         <group ref={bumperRef} visible={false} position-x={offsetX}>
           {[
             [box.max.x + BUMPER_GAP, 0, BUMPER_THICK, halfW * 2 + BUMPER_GAP * 2],
@@ -208,6 +237,14 @@ const VehicleShell: FC<Props & { body: Body }> = ({ id, source, body, fitLength,
               position={[x, BUMPER_HEIGHT / 2 + 0.02, z]}
               scale={[sx, BUMPER_HEIGHT, sz]}
             />
+          ))}
+          {[
+            [box.max.x + BUMPER_GLOW / 2, 0, BUMPER_GLOW, halfW * 2 + BUMPER_GLOW * 2],
+            [box.min.x - BUMPER_GLOW / 2, 0, BUMPER_GLOW, halfW * 2 + BUMPER_GLOW * 2],
+            [(box.min.x + box.max.x) / 2, halfW + BUMPER_GLOW / 2, length, BUMPER_GLOW],
+            [(box.min.x + box.max.x) / 2, -halfW - BUMPER_GLOW / 2, length, BUMPER_GLOW],
+          ].map(([x, z, sx, sz], i) => (
+            <mesh key={`glow${i}`} geometry={unitBox} material={alertMaterial} position={[x, 0.012, z]} scale={[sx, 0.004, sz]} renderOrder={3} />
           ))}
         </group>
         <mesh
@@ -265,7 +302,7 @@ const VehicleShell: FC<Props & { body: Body }> = ({ id, source, body, fitLength,
           <boxGeometry args={[Math.max(length, MIN_HIT), Math.max(height, MIN_HIT), Math.max(halfW * 2, MIN_HIT)]} />
         </mesh>
       </group>
-      {label && (
+      {label && (!labelOnHover || hovered) && (
         <Html
           ref={labelRef}
           // 第一幀還不知道車在哪, 先藏著 (之後每一幀照車有沒有畫)。
@@ -315,48 +352,86 @@ const addFlashOverlays = (root: THREE.Object3D) => {
   });
 };
 
-const ForkliftVehicle: FC<Props> = (props) => {
-  const forklift = useGLTF(FORKLIFT_URL, false, true).scene;
-  const body = useMemo<Body>(() => {
-    const { object, materials } = cloneWithOwnMaterials(forklift);
-    const rig = rigForklift(object);
-    return {
-      object,
-      rig,
-      forkFlash: rig.forks.flatMap(addFlashOverlays),
-      materials,
-      box: new THREE.Box3().setFromObject(forklift),
-      cargo: { x: -PALLET_OFFSET, y: 0, size: CARTON_SIZE, pallet: true },
-    };
-  }, [forklift]);
-  useEffect(() => () => body.materials.forEach((m) => m.dispose()), [body]);
-  return <VehicleShell {...props} body={body} />;
+/** 名稱 (或 glb-editor 的分群) 是 name 的節點, 不往裡面找 */
+const findParts = (model: THREE.Object3D, name: string) => {
+  const out: THREE.Object3D[] = [];
+  const visit = (o: THREE.Object3D) => {
+    if ((typeof o.userData.group === "string" ? o.userData.group : o.name) === name && o !== model) out.push(o);
+    else o.children.forEach(visit);
+  };
+  visit(model);
+  return out;
 };
 
-/** MiR: 模型 (public/models/mir250.glb, 由 scripts/vehicle-models/mir.mjs 產生) 原點在車身中心、車頭朝 +x; 貨放車頂 */
-const MirVehicle: FC<Props> = (props) => {
-  const mir = useGLTF(MIR_URL, false, true).scene;
-  const body = useMemo<Body>(() => {
-    const { object, materials } = cloneWithOwnMaterials(mir);
-    const box = new THREE.Box3().setFromObject(mir);
-    const length = box.max.x - box.min.x;
-    const width = box.max.z - box.min.z;
-    return {
-      object,
-      rig: null,
-      forkFlash: [],
-      materials,
-      box,
-      cargo: { x: (box.min.x + box.max.x) / 2, y: box.max.y, size: [Math.min(0.9, length * 0.8), 0.4, Math.min(0.9, width * 0.8)], pallet: false },
-    };
-  }, [mir]);
-  useEffect(() => () => body.materials.forEach((m) => m.dispose()), [body]);
-  return <VehicleShell {...props} body={body} />;
+const boxOf = (parts: THREE.Object3D[], space: THREE.Object3D) => {
+  const box = new THREE.Box3();
+  const toSpace = space.matrixWorld.clone().invert();
+  for (const p of parts) box.union(new THREE.Box3().setFromObject(p).applyMatrix4(toSpace));
+  return box;
 };
 
-type VehicleProps = Props & { kind: "forklift" | "mir" };
+/** M68 (SW15) 的貨放在車頂的滾筒上: 滾筒頂的高度、一箱貨多大 (公尺, 模型座標) */
+const M68_DECK_Y = 0.49;
+const M68_CARGO: [number, number, number] = [1.0, 0.45, 1.1];
 
-const Vehicle3D: FC<VehicleProps> = ({ kind, ...props }) =>
-  kind === "forklift" ? <ForkliftVehicle {...props} /> : <MirVehicle {...props} />;
+/**
+ * 模型 -> 車身。內建的模型照 scripts/vehicle-models 的約定 (原點、車頭朝 +x);
+ * 上傳的模型擺正: 有牙叉的原點放叉臂根部 (牙叉朝 -x, 同內建的叉車), 其他放車身中心, 底部貼地。
+ * yaw 是車型設定的「轉幾度才是車頭朝前」
+ */
+const buildBody = (scene: THREE.Object3D, kind: VehicleModel["kind"], yawDeg: number): Body => {
+  const { object, materials } = cloneWithOwnMaterials(scene);
+  const model = new THREE.Group();
+  model.add(object);
+  object.rotation.y = THREE.MathUtils.degToRad(yawDeg);
+  model.updateMatrixWorld(true);
+  const rig = rigForklift(object);
+  const guards = findParts(object, "guard");
+  if (kind === "custom") {
+    const all = new THREE.Box3().setFromObject(model);
+    const forks = rig.forks.length ? boxOf(rig.forks, model) : null;
+    const ax = forks ? forks.max.x : (all.min.x + all.max.x) / 2;
+    object.position.set(-ax, -all.min.y, -(all.min.z + all.max.z) / 2);
+    model.updateMatrixWorld(true);
+  }
+  const box = new THREE.Box3().setFromObject(model);
+  const length = box.max.x - box.min.x;
+  const width = box.max.z - box.min.z;
+  let cargo: Body["cargo"];
+  if (rig.forks.length) {
+    const forks = boxOf(rig.forks, model);
+    cargo = {
+      x: kind === "forklift" ? -PALLET_OFFSET : (forks.min.x + forks.max.x) / 2,
+      y: kind === "forklift" ? 0 : Math.max(0, forks.min.y),
+      size: CARTON_SIZE,
+      pallet: true,
+    };
+  } else if (kind === "m68") {
+    cargo = { x: (box.min.x + box.max.x) / 2, y: M68_DECK_Y, size: M68_CARGO, pallet: false };
+  } else {
+    cargo = {
+      x: (box.min.x + box.max.x) / 2,
+      y: box.max.y,
+      size: [Math.min(0.9, length * 0.8), 0.4, Math.min(0.9, width * 0.8)],
+      pallet: false,
+    };
+  }
+  return {
+    object: model,
+    rig: rig.forks.length ? rig : null,
+    forkFlash: [...rig.forks, ...guards].flatMap(addFlashOverlays),
+    materials,
+    box,
+    cargo,
+  };
+};
+
+/** 一台車; 模型載不到 (上傳的檔案壞了、網路斷了) 時外面的 ModelBoundary 可以改畫叉車 */
+const Vehicle3D: FC<Props & { model: VehicleModel }> = ({ model, ...props }) => {
+  const scene = useGLTF(model.url, false, true).scene;
+  const body = useMemo(() => buildBody(scene, model.kind, model.yaw), [scene, model.kind, model.yaw]);
+  useEffect(() => () => body.materials.forEach((m) => m.dispose()), [body]);
+  return <VehicleShell {...props} fitLength={model.fitLength} body={body} />;
+};
 
 export default Vehicle3D;

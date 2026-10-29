@@ -1,5 +1,5 @@
 import { FC, PointerEvent as ReactPointerEvent, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Button, Segmented, Spin, Tooltip } from "antd";
+import { Button, Checkbox, Segmented, Spin, Tooltip } from "antd";
 import { CompressOutlined, FullscreenOutlined } from "@ant-design/icons";
 import { Layer, Shape, Stage } from "react-konva";
 import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
@@ -125,6 +125,8 @@ const ReplayCanvas: FC<{
   const [pan, setPan] = useState<{ sx: number; sy: number; view: View } | null>(null);
   const [pointer, setPointer] = useState<{ x: number; y: number } | null>(null);
   const is3d = mode === "3d";
+  /** 3D 也可以看熱點 (路線照等待時間上色) */
+  const [heat3d, setHeat3d] = useState(false);
   const is3dRef = useRef(is3d);
   is3dRef.current = is3d;
   const cameraRef = useRef<CameraApi | null>(null);
@@ -226,7 +228,7 @@ const ReplayCanvas: FC<{
     >
       {is3d && (
         <Suspense fallback={null}>
-          <Replay3D outcome={outcome} backgroundUrl={backgroundUrl} apiRef={cameraRef} />
+          <Replay3D outcome={outcome} backgroundUrl={backgroundUrl} apiRef={cameraRef} heat={heat3d} />
         </Suspense>
       )}
       {!is3d && width > 0 && height > 0 && (
@@ -249,6 +251,13 @@ const ReplayCanvas: FC<{
           ]}
           data-testid="simv2-map-mode"
         />
+        {is3d && (
+          <Tooltip title={t("fleet3d.sim.heat_tip")}>
+            <Checkbox checked={heat3d} onChange={(e) => setHeat3d(e.target.checked)} data-testid="simv2-3d-heat">
+              {t("fleet3d.sim.heat")}
+            </Checkbox>
+          </Tooltip>
+        )}
         <Tooltip title={t("sim_v2.result.fit")}>
           <Button
             size="small"
@@ -289,6 +298,17 @@ const ReplayCanvas: FC<{
               <Key>
                 <i style={{ background: canvas.paper, border: "1px solid var(--c-text-muted)" }} />
                 {t("sim_v2.result.loaded_mark")}
+              </Key>
+            )}
+            {is3d && heat3d && maxHeat > 0 && (
+              <Key>
+                <i
+                  style={{
+                    width: 48,
+                    background: `linear-gradient(to right, ${[0, 0.5, 1].map((k) => heatColor(k, canvas.dark)).join(",")})`,
+                  }}
+                />
+                {t("sim_v2.result.heat_max", { min: fmtMinutes(maxHeat) })}
               </Key>
             )}
           </>

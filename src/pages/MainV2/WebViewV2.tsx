@@ -35,9 +35,9 @@ import styled, { css } from "styled-components";
 import { mq } from "@/styles/responsive";
 import { useTranslation } from "react-i18next";
 import { themeAtom } from "@/theme";
-import { MenuFoldOutlined, MenuUnfoldOutlined, PushpinOutlined } from "@ant-design/icons";
+import { AimOutlined, MenuFoldOutlined, MenuUnfoldOutlined, PushpinOutlined, TagOutlined } from "@ant-design/icons";
 import { useMyProfile, useSaveProfile } from "@/api/useProfile";
-import { mapViewModeAtom, MapViewMode } from "@/components/Fleet3D/viewMode";
+import { mapViewModeAtom, MapViewMode, patrolAtom, vehicleLabelsAtom } from "@/components/Fleet3D/viewMode";
 import {
   isShowAnnotation,
   isShowLocation,
@@ -218,8 +218,14 @@ const ViewModeSlot = styled.div`
   left: 50%;
   transform: translateX(-50%);
   z-index: 20;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  > * {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+  }
 `;
 
 const SaveViewBtn = styled(Button)`
@@ -249,6 +255,8 @@ const WebViewV2 = () => {
   const { t } = useTranslation();
   const [bottomView, setBottomView] = useState<BottomView>("car");
   const [viewMode, setViewMode] = useAtom(mapViewModeAtom);
+  const [patrol, setPatrol] = useAtom(patrolAtom);
+  const [vehicleLabels, setVehicleLabels] = useAtom(vehicleLabelsAtom);
   const [showSidebars, setShowSidebars] = useState(true);
   // 點地圖上的點位: 打開「直接移動」(同舊首頁)
   const setOpenDirect = useSetAtom(OpenDirect);
@@ -369,6 +377,34 @@ const WebViewV2 = () => {
                     { value: "3d", label: t("map_tool.view_3d") },
                   ]}
                 />
+                {/* 3D 的巡視模式: 有告警時鏡頭自動飛過去 (Fleet3D/patrol.ts) */}
+                {viewMode === "3d" && (
+                  <Tooltip title={t("fleet3d.patrol.tip")}>
+                    <Button
+                      type={patrol ? "primary" : "default"}
+                      icon={<AimOutlined />}
+                      onClick={() => setPatrol(!patrol)}
+                      aria-pressed={patrol}
+                      data-testid="fleet3d-patrol"
+                    >
+                      {t("fleet3d.patrol.label")}
+                    </Button>
+                  </Tooltip>
+                )}
+                {/* 3D 車上的標籤: 預設關掉 (游標移到車上才顯示) */}
+                {viewMode === "3d" && (
+                  <Tooltip title={t("fleet3d.labels.tip")}>
+                    <Button
+                      type={vehicleLabels ? "primary" : "default"}
+                      icon={<TagOutlined />}
+                      onClick={() => setVehicleLabels(!vehicleLabels)}
+                      aria-pressed={vehicleLabels}
+                      data-testid="fleet3d-vehicle-labels"
+                    >
+                      {t("fleet3d.labels.label")}
+                    </Button>
+                  </Tooltip>
+                )}
               </ViewModeSlot>
               <MapOverlay>
                 <ZoomPad></ZoomPad>

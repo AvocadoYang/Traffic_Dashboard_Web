@@ -2,18 +2,16 @@ import { useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { PALLET_HEIGHT } from "./dimensions";
+import { FORKLIFT_URL, PALLET_URL } from "./modelUrls";
 
 /**
- * 3D 檢視共用的模型和材質: 叉車、MiR、棧板、紙箱。
- * 模型放在 public/models (叉車、MiR 由 scripts/vehicle-models 產生, 棧板是同事 glb-editor 那包的原檔)。
+ * 3D 檢視共用的模型和材質: 叉車、MiR、M68 (SW15)、棧板、紙箱。
+ * 模型放在 public/models (車由 scripts/vehicle-models 產生, 棧板是同事 glb-editor 那包的原檔), 網址在 modelUrls.ts。
  */
 
-const MODEL_BASE = `${import.meta.env.BASE_URL}models/`;
-export const FORKLIFT_URL = `${MODEL_BASE}forklift.glb`;
-export const MIR_URL = `${MODEL_BASE}mir250.glb`;
-export const PALLET_URL = `${MODEL_BASE}pallet.glb`;
+export { FORKLIFT_URL, M68_URL, MIR_URL, PALLET_URL } from "./modelUrls";
 // 不用 Draco: 解碼器要從 CDN 抓, 工廠內網常常連不到; meshopt 解碼器是內建的。
-// MiR 不先載: 沒有 MiR 的現場用不到, 第一次畫 MiR 時才載
+// MiR、M68 不先載: 沒有這種車的現場用不到, 第一次畫的時候才載
 useGLTF.preload(FORKLIFT_URL, false, true);
 useGLTF.preload(PALLET_URL, false, true);
 

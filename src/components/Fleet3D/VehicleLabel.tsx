@@ -11,8 +11,10 @@ const VehicleLabel: FC<{
   paused?: boolean;
   /** 車子有警告 (2D 地圖上車旁邊的警告記號) */
   warning?: boolean;
+  /** 告警的說明, 一行一個 (大螢幕遠遠看得到是什麼問題) */
+  alerts?: string[];
   selected?: boolean;
-}> = ({ name, color, lines = [], paused = false, warning = false, selected = false }) => (
+}> = ({ name, color, lines = [], paused = false, warning = false, alerts = [], selected = false }) => (
   <div
     style={{
       padding: "2px 8px",
@@ -34,6 +36,11 @@ const VehicleLabel: FC<{
     </div>
     {lines.map((l) => (
       <div key={l}>{l}</div>
+    ))}
+    {alerts.map((a) => (
+      <div key={a} style={{ color: "#ffb340" }}>
+        ⚠ {a}
+      </div>
     ))}
   </div>
 );
