@@ -1,12 +1,14 @@
 import { FC, ReactNode, useMemo, useState } from "react";
-import { DatePicker, Descriptions, Empty, Table, Tag, Typography } from "antd";
+import { Button, DatePicker, Descriptions, Empty, Table, Tag, Tooltip, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { StopOutlined } from "@ant-design/icons";
+import { PlayCircleOutlined, StopOutlined } from "@ant-design/icons";
 import ReactJsonView from "@uiw/react-json-view";
 import dayjs, { Dayjs } from "dayjs";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import useEStopHistory, { EStopCommand, EStopRecord } from "@/api/useEStopHistory";
+import { webglAvailable } from "@/components/Fleet3D/webgl";
+import IncidentReplayModal from "./IncidentReplayModal";
 
 const { Text } = Typography;
 
@@ -157,6 +159,8 @@ const DetailBlock: FC<{ rec: EStopRecord }> = ({ rec }) => {
 const EStopHistory: FC<{ amrId?: string; compact?: boolean }> = ({ amrId, compact }) => {
   const { t } = useTranslation();
   const [date, setDate] = useState<Dayjs | null>(null);
+  /** 打開「3D 回放」的那一筆 */
+  const [replayOf, setReplayOf] = useState<EStopRecord | null>(null);
   const { data = [], isLoading } = useEStopHistory({
     amrId,
     date: date?.format("YYYY-MM-DD"),
@@ -202,6 +206,29 @@ const EStopHistory: FC<{ amrId?: string; compact?: boolean }> = ({ amrId, compac
               render: (_: unknown, r: EStopRecord) => r.context?.missionId ?? "-",
             },
           ]),
+      // 急停前後各台車怎麼走 (後端急停時存的現場)
+      {
+        title: "",
+        key: "replay",
+        width: 110,
+        render: (_: unknown, r: EStopRecord) =>
+          r.replayId ? (
+            <Tooltip title={webglAvailable() ? t("fleet3d.incident.open_tip") : t("fleet3d.no_webgl")}>
+              <Button
+                size="small"
+                icon={<PlayCircleOutlined />}
+                disabled={!webglAvailable()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setReplayOf(r);
+                }}
+                data-testid="estop-replay"
+              >
+                {t("fleet3d.incident.open")}
+              </Button>
+            </Tooltip>
+          ) : null,
+      },
     ],
     [t, amrId, compact],
   );
@@ -238,6 +265,7 @@ const EStopHistory: FC<{ amrId?: string; compact?: boolean }> = ({ amrId, compac
         )}
       </Head>
       {body}
+      <IncidentReplayModal id={replayOf?.replayId ?? null} amrId={replayOf?.amrId} onClose={() => setReplayOf(null)} />
     </Panel>
   );
 };

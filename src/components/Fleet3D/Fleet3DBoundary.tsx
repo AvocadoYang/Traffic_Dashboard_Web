@@ -35,7 +35,8 @@ const Failed = styled.div`
   }
 `;
 
-const Fleet3DBoundary: FC<{ children: ReactNode; onUse2d: () => void }> = ({ children, onUse2d }) => {
+/** onUse2d: 「切回 2D」要做什麼; 沒有 2D 可以切 (例如急停回放) 就不給, 只有重試 */
+const Fleet3DBoundary: FC<{ children: ReactNode; onUse2d?: () => void }> = ({ children, onUse2d }) => {
   const { t } = useTranslation();
   return (
     <ErrorBoundary
@@ -45,9 +46,11 @@ const Fleet3DBoundary: FC<{ children: ReactNode; onUse2d: () => void }> = ({ chi
           <strong>{t("fleet3d.failed.title")}</strong>
           {error instanceof Error && <div className="detail">{error.message}</div>}
           <div className="actions">
-            <Button type="primary" onClick={onUse2d}>
-              {t("fleet3d.failed.use_2d")}
-            </Button>
+            {onUse2d && (
+              <Button type="primary" onClick={onUse2d}>
+                {t("fleet3d.failed.use_2d")}
+              </Button>
+            )}
             <Button onClick={resetErrorBoundary}>{t("fleet3d.failed.retry")}</Button>
           </div>
         </Failed>

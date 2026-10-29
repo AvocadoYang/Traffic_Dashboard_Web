@@ -427,13 +427,13 @@ export const amrShownAt = (live: LiveState, id: string, currentMapId: string | n
   if (id.includes("mi") && (live.mirMapId.get(id) ?? "") !== currentMapId) return null;
   const { x, y, yaw } = a.pose;
   if (!usesSW15Frame(id, simulated)) return { x, y, yaw };
-  // SW15 的座標要轉 270 度再位移 (照舊地圖 AMR.tsx)
+  return { ...sw15ToMap(x, y), yaw };
+};
+
+/** SW15 實車回報的座標 -> 地圖座標: 轉 270 度再位移 (照舊地圖 AMR.tsx); yaw 不用轉, 畫的時候車頭反過來 */
+export const sw15ToMap = (x: number, y: number) => {
   const theta = (3 * Math.PI) / 2;
-  return {
-    x: x * Math.cos(theta) - y * Math.sin(theta) + 3.5,
-    y: x * Math.sin(theta) + y * Math.cos(theta) + 0.4,
-    yaw,
-  };
+  return { x: x * Math.cos(theta) - y * Math.sin(theta) + 3.5, y: x * Math.sin(theta) + y * Math.cos(theta) + 0.4 };
 };
 
 export function drawLive(f: Frame, scene: MapScene, live: LiveState, o: LiveOptions): AmrHit[] {

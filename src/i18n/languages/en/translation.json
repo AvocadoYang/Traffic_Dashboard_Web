@@ -5011,6 +5011,15 @@
     },
     "wait": {
       "label": "Waiting {{time}}"
+    },
+    "incident": {
+      "title": "E-stop replay · {{amrId}}",
+      "open": "3D replay",
+      "open_tip": "See how every vehicle moved from 60 s before to 20 s after the stop (on the current map)",
+      "pending": "Still recording after the stop; available in about {{sec}} s",
+      "missing": "No replay for this stop (the file was cleaned up, or recording hadn't started yet)",
+      "stop_mark": "Stop",
+      "stopped_car": "Stopped vehicle"
     }
   }
 }

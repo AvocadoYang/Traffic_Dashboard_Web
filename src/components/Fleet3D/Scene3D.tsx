@@ -258,6 +258,9 @@ const Scene3D: FC<Props> = ({ bounds, fitMargin = 4, background, gridColor, dark
       dpr={[1, 1.75]}
       camera={{ fov: FOV, near: 0.1, far: 2000, position: [0, 40, 40] }}
       gl={{ antialias: true }}
+      // 量大小用 offsetWidth/Height (不受 CSS transform 影響): 放在對話框裡時, 打開的放大動畫中量到的會是縮小的,
+      // 動畫結束版面大小沒變, ResizeObserver 不會再通知, 畫布就一直卡在錯的大小
+      resize={{ offsetSize: true }}
       onPointerMissed={onPointerMissed}
     >
       <color attach="background" args={[background]} />
