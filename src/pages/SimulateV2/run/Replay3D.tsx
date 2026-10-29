@@ -1,6 +1,6 @@
 import { FC, MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Html } from "@react-three/drei";
-import { useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useAtomValue, useStore } from "jotai";
 import { themeAtom } from "@/theme";
 import Scene3D, { CameraApi, ModelBoundary } from "@/components/Fleet3D/Scene3D";
@@ -17,7 +17,7 @@ import { contentBounds } from "../editor/viewMath";
 import { useCadGeometry, useHiddenMask } from "../io/dxf/cadLoader";
 import { nodeMap } from "../model/ops";
 import { projectAtom } from "../state/editorAtoms";
-import { RunOutcome, playTimeAtom, replayFocusAtom } from "../state/runAtoms";
+import { RunOutcome, playTimeAtom, replayFocusAtom, replayRecordingAtom } from "../state/runAtoms";
 import CadLines3D from "./CadLines3D";
 import { DEADLOCK_COLOR, bucketOf, heatColor, stateColors } from "./colors";
 import { forkAt, forkWorkOf } from "./forkTimeline";
@@ -36,6 +36,23 @@ const FOCUS_DISTANCE = 25;
 const PlayTimeFrames: FC<{ store: ReturnType<typeof useStore> }> = ({ store }) => {
   const invalidate = useThree((s) => s.invalidate);
   useEffect(() => store.sub(playTimeAtom, () => invalidate()), [store, invalidate]);
+  return null;
+};
+
+/**
+ * 錄影時 (replayRecorder): 每畫完一幀複製一份給錄影。WebGL 畫布只有剛畫完那一刻讀得到,
+ * 所以由這裡接手畫 (priority 1 的 useFrame 會讓 R3F 不自己畫), 畫完馬上複製
+ */
+const RecordFrames: FC<{ target: HTMLCanvasElement }> = ({ target }) => {
+  useFrame(({ gl, scene, camera }) => {
+    gl.render(scene, camera);
+    const src = gl.domElement;
+    if (target.width !== src.width || target.height !== src.height) {
+      target.width = src.width;
+      target.height = src.height;
+    }
+    target.getContext("2d")?.drawImage(src, 0, 0);
+  }, 1);
   return null;
 };
 
@@ -58,6 +75,7 @@ const Replay3D: FC<{
   const cadGeom = useCadGeometry(project?.id, doc.cad).geometry;
   const cadHidden = useHiddenMask(cadGeom, doc.cad?.hiddenLayers);
   const [follow, setFollow] = useState<string | null>(null);
+  const recording = useAtomValue(replayRecordingAtom);
   const stopFollow = useCallback(() => setFollow(null), []);
   const { data: robotTypes } = useRobotType();
   // 車種名稱跟哪個車型一樣就用那個車型的模型 (沒有就是叉車), 大小照模擬的車長
@@ -185,6 +203,7 @@ const Replay3D: FC<{
         apiRef={apiRef}
         onPointerMissed={stopFollow}
       >
+        {recording && <RecordFrames target={recording.frame3d} />}
         {doc.background && backgroundUrl && (
           <MapGround
             url={backgroundUrl}

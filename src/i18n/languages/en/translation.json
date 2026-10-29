@@ -4714,6 +4714,13 @@
       "waiting": "Waiting",
       "carrying": "In transit",
       "loads": "pallets"
+    },
+    "record": {
+      "start": "Record",
+      "stop": "Stop",
+      "tip": "Plays from the current time and records what's on screen (replay / heat / 3D, camera, speed) as a video, with the simulation time in the top-left corner. Saved when playback ends or you press Stop. Keep this tab in front while recording",
+      "unsupported": "This browser can't record video",
+      "saved": "Video saved"
     }
   },
   "page_disabled": {

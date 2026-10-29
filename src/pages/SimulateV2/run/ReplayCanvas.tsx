@@ -19,6 +19,7 @@ import { drawDeadlock, drawHeat, drawHighlight, drawVehicles, posesAt, vehicleAt
 import type { CameraApi } from "@/components/Fleet3D/Scene3D";
 import Fleet3DBoundary from "@/components/Fleet3D/Fleet3DBoundary";
 import { webglAvailable } from "@/components/Fleet3D/webgl";
+import RecordButton from "./RecordButton";
 
 // three.js 很大, 切到 3D 才載
 const Replay3D = lazy(() => import("./Replay3D"));
@@ -214,6 +215,11 @@ const ReplayCanvas: FC<{
   };
 
   const maxHeat = Math.max(0, ...Object.values(result.heat.paths), ...Object.values(result.heat.nodes));
+  // 錄成影片時壓在左下角的圖例 (熱點的色階不畫)
+  const legend = useMemo(
+    () => (mode === "heat" ? [] : STATE_ORDER.map((s) => ({ color: colors[s], label: t(`sim_v2.state.${s}`) }))),
+    [mode, colors, t],
+  );
 
   return (
     <Wrap
@@ -273,6 +279,7 @@ const ReplayCanvas: FC<{
             onClick={() => (is3d ? cameraRef.current?.reset() : setView(fitView(contentBounds(doc), width, height)))}
           />
         </Tooltip>
+        <RecordButton outcome={outcome} containerRef={wrapRef} background={canvas.paper} is3d={is3d} legend={legend} />
         {!present && (
           <Tooltip title={t("sim_v2.present.enter")}>
             <Button
