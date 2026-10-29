@@ -476,8 +476,54 @@ export function drawLive(f: Frame, scene: MapScene, live: LiveState, o: LiveOpti
   for (const v of shown) {
     if (live.warnings.has(v.id)) drawWarning(f, v);
   }
+  drawWaits(f, shown, live);
   for (const v of shown) drawTip(f, v, live, o);
   return hits;
+}
+
+/** 等待箭頭的顏色 (3D 也用這個) */
+export const WAIT_COLOR = "#fa8c16";
+
+/** 在等的車拉一條虛線箭頭到擋路的車 (交管拒絕路權, traffic-waits); 兩台都畫在地圖上才畫 */
+function drawWaits(f: Frame, shown: Visible[], live: LiveState) {
+  if (!live.waits.size) return;
+  const { ctx } = f;
+  const at = new Map(shown.map((v) => [v.id, v]));
+  screenSpace(f);
+  ctx.save();
+  ctx.strokeStyle = WAIT_COLOR;
+  ctx.fillStyle = WAIT_COLOR;
+  ctx.lineWidth = 2;
+  for (const w of live.waits.values()) {
+    const from = at.get(w.amrId);
+    if (!from) continue;
+    const [ax, ay] = toScreen(f, from.x, from.y);
+    for (const id of w.blockers) {
+      const to = at.get(id);
+      if (!to) continue;
+      const [bx, by] = toScreen(f, to.x, to.y);
+      const len = Math.hypot(bx - ax, by - ay);
+      if (len < 24) continue;
+      const ux = (bx - ax) / len;
+      const uy = (by - ay) / len;
+      // 停在擋路的車前面一點, 箭頭才不會蓋在車上
+      const ex = bx - ux * 14;
+      const ey = by - uy * 14;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.moveTo(ax, ay);
+      ctx.lineTo(ex, ey);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(ex + ux * 9, ey + uy * 9);
+      ctx.lineTo(ex - uy * 5, ey + ux * 5);
+      ctx.lineTo(ex + uy * 5, ey - ux * 5);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+  ctx.restore();
 }
 
 function drawPointClouds(f: Frame, scene: MapScene, live: LiveState, o: LiveOptions) {

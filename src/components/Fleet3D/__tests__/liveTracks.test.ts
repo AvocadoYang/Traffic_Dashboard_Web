@@ -30,6 +30,7 @@ const state = (amrs: Record<string, AmrLive>): LiveState => ({
   pointCloud: new Map(),
   mirMapId: new Map(),
   activeSubName: new Map(),
+  waits: new Map(),
 });
 
 describe("LiveTracks", () => {

@@ -4970,7 +4970,10 @@
       "destination": "目的地",
       "mission": "任務",
       "step_wait": "這一動 {{time}}",
-      "solution": "處理方式"
+      "solution": "處理方式",
+      "waiting": "等待",
+      "waiting_for": "等 {{ids}} 讓路 · {{time}}",
+      "waiting_road": "等路權 · {{time}}"
     },
     "patrol": {
       "label": "巡視",
@@ -5006,6 +5009,9 @@
     },
     "package": {
       "registered": "登記 {{n}} 筆"
+    },
+    "wait": {
+      "label": "等 {{time}}"
     }
   }
 }

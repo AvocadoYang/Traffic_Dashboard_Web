@@ -4,6 +4,8 @@ import { CloseOutlined, WarningFilled } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import type { LiveStore, WarningMessage } from "@/components/CanvasMap/liveStore";
+import type { TrafficWait } from "@/sockets/useTrafficWaits";
+import { waitedText } from "./WaitArrows3D";
 
 /**
  * 3D 檢視跟著某台車時的資訊卡: 狀態、電量、速度、牙叉、貨、要去哪、在做哪個任務, 還有告警和處理方式
@@ -109,6 +111,8 @@ type Snapshot = {
   stepWaitMs: number | null;
   paused: boolean;
   warnings: WarningMessage[];
+  /** 申請路權被拒、在等誰 */
+  wait: TrafficWait | null;
 };
 
 const snapshotOf = (store: LiveStore | null, id: string): Snapshot | null => {
@@ -126,6 +130,7 @@ const snapshotOf = (store: LiveStore | null, id: string): Snapshot | null => {
     stepWaitMs: a.stepWaitMs,
     paused: a.isPause,
     warnings: store.state.warningInfos.get(id) ?? [],
+    wait: store.state.waits.get(id) ?? null,
   };
 };
 
@@ -179,6 +184,16 @@ const VehicleInfoCard: FC<{
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
+  // 在等的時候每秒更新等了多久
+  const waiting = !!snap?.wait;
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!waiting) return;
+    setNow(Date.now());
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [waiting]);
+
   const dash = "—";
   return (
     <Card $top={top} data-testid="fleet3d-vehicle-card">
@@ -216,6 +231,19 @@ const VehicleInfoCard: FC<{
               {snap.mission || dash}
               {snap.stepWaitMs !== null && snap.mission && ` · ${t("fleet3d.info.step_wait", { time: duration(snap.stepWaitMs) })}`}
             </dd>
+            {snap.wait && (
+              <>
+                <dt>{t("fleet3d.info.waiting")}</dt>
+                <dd data-testid="fleet3d-vehicle-wait">
+                  <span style={{ color: "#fa8c16", fontWeight: 600 }}>
+                    {snap.wait.blockers.length
+                      ? t("fleet3d.info.waiting_for", { ids: snap.wait.blockers.join(", "), time: waitedText(now - snap.wait.since) })
+                      : t("fleet3d.info.waiting_road", { time: waitedText(now - snap.wait.since) })}
+                  </span>
+                  {snap.wait.reason && <div style={{ color: "var(--c-text-muted)" }}>{snap.wait.reason}</div>}
+                </dd>
+              </>
+            )}
           </Facts>
           {snap.warnings.length > 0 && (
             <Alerts>

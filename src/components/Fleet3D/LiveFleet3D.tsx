@@ -20,7 +20,7 @@ import { currentMapIdAtom } from "@/utils/mapSelection";
 import { buildMapImageMatrix, getMapCanvas, mapImageModeAtom, resolveColors, themeAtom } from "@/theme";
 import { isDarkColor } from "@/theme/mapImage";
 import { isPointAreaType } from "@/pages/Setting/mapComponents/components/AllLocation/pointAreaTypes";
-import { createLiveStore, LiveStore } from "@/components/CanvasMap/liveStore";
+import { createLiveStore, LiveState, LiveStore } from "@/components/CanvasMap/liveStore";
 import { amrColor, amrShownAt, amrTip } from "@/components/CanvasMap/draw";
 import { CanvasMapApi } from "@/components/CanvasMap/CanvasMap";
 import { hiddenZoneIdsAtom, linkedZoneHighlightAtom } from "@/components/CanvasMap/MapOverlay";
@@ -46,6 +46,7 @@ import { patrolAtom, vehicleLabelsAtom } from "./viewMode";
 import CorrectionGhost3D, { CorrectionPanel3D } from "./CorrectionGhost3D";
 import SimCarMarkers3D from "./SimCarMarkers3D";
 import Trail3D from "./Trail3D";
+import WaitArrows3D from "./WaitArrows3D";
 
 /**
  * 首頁地圖的 3D 版: 現場地圖鋪在地上, 車用 3D 模型照 amr-profile 的位置跑, 取放貨時牙叉會升降;
@@ -110,6 +111,7 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
   const [follow, setFollow] = useState<string | null>(null);
   const [labels, setLabels] = useState<Record<string, Label>>({});
   const [claimed, setClaimed] = useState<Map<string, string>>(new Map());
+  const [waits, setWaits] = useState<LiveState["waits"]>(new Map());
   const [hoverPoint, setHoverPoint] = useState<Dot | null>(null);
   const [hoverRoad, setHoverRoad] = useState<number | null>(null);
   const [marker, setMarker] = useState<{ x: number; y: number; key: number } | null>(null);
@@ -146,6 +148,8 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
         setLabels(next);
       }
       setClaimed((prev) => (prev === state.claimedRoads ? prev : state.claimedRoads));
+      // 誰在等誰: 有變才換成新的 Map (liveStore)
+      setWaits((prev) => (prev === state.waits ? prev : state.waits));
     });
     return () => {
       off();
@@ -159,6 +163,7 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
     () => (names ? names.amrs.filter((v) => (names.isSim ? v.isReal === false : v.isReal)).map((v) => v.amrId) : []),
     [names],
   );
+  const amrIdSet = useMemo(() => new Set(amrIds), [amrIds]);
 
   const colors = useMemo(() => resolveColors(theme, mapImageMode), [theme, mapImageMode]);
   const canvas = useMemo(() => getMapCanvas(theme, mapImageMode), [theme, mapImageMode]);
@@ -415,6 +420,8 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
         <CorrectionGhost3D />
         {/* 跟著的車後面拖最近 30 秒的軌跡 (定位跳動的那段是紅的) */}
         {follow && <Trail3D id={follow} tracks={tracks} color={amrColor(follow)} />}
+        {/* 在等的車拉箭頭到擋路的車 (交管拒絕路權) */}
+        <WaitArrows3D waits={waits} ids={amrIdSet} tracks={tracks} />
         {/* 每台車各自等模型: 第一次載 MiR / SW15 / 上傳的模型時, 已經在畫的叉車不會跟著消失 */}
         {amrIds.map((id) => {
           const label = labels[id];

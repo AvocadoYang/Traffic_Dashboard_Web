@@ -4969,7 +4969,10 @@
       "destination": "Destination",
       "mission": "Mission",
       "step_wait": "step {{time}}",
-      "solution": "What to do"
+      "solution": "What to do",
+      "waiting": "Waiting",
+      "waiting_for": "Waiting for {{ids}} · {{time}}",
+      "waiting_road": "Waiting for clearance · {{time}}"
     },
     "patrol": {
       "label": "Patrol",
@@ -5005,6 +5008,9 @@
     },
     "package": {
       "registered": "{{n}} registered"
+    },
+    "wait": {
+      "label": "Waiting {{time}}"
     }
   }
 }

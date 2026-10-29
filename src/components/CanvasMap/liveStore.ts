@@ -7,6 +7,7 @@ import { warningId$ } from "@/sockets/useWarning";
 import { pointCloud$ } from "@/sockets/usePointCloud";
 import { amrStatus$ } from "@/sockets/useMirStatus";
 import { missionReports$, type MissionInfo } from "@/sockets/useMissions";
+import { trafficWaits$, type TrafficWait } from "@/sockets/useTrafficWaits";
 
 /**
  * 地圖上會一直動的資料 (車的位置、佔用的路線、點雲…)。
@@ -52,6 +53,8 @@ export type LiveState = {
   mirMapId: Map<string, string>;
   /** 這台車正在做的任務的 sub_name */
   activeSubName: Map<string, string>;
+  /** 申請路權被拒、還在等的車 -> 在等誰 (traffic-waits) */
+  waits: Map<string, TrafficWait>;
 };
 
 // mission socket 會把車子佇列裡的任務 (含已結束的) 一起送來, 規則同 useActiveMission
@@ -97,6 +100,7 @@ export const createLiveStore = (): LiveStore => {
     pointCloud: new Map(),
     mirMapId: new Map(),
     activeSubName: new Map(),
+    waits: new Map(),
   };
   const listeners = new Set<() => void>();
   const notify = () => listeners.forEach((l) => l());
@@ -181,6 +185,18 @@ export const createLiveStore = (): LiveStore => {
   subs.add(
     missionReports$.subscribe(({ missions }) => {
       state.activeSubName = activeSubNames(missions as MissionInfo[]);
+      notify();
+    }),
+  );
+
+  // 沒變化時後端也每 2 秒送一次, 一樣就不用通知
+  let waitsKey = "";
+  subs.add(
+    trafficWaits$.subscribe((list) => {
+      const key = JSON.stringify(list);
+      if (key === waitsKey) return;
+      waitsKey = key;
+      state.waits = new Map(list.map((w) => [w.amrId, w]));
       notify();
     }),
   );
