@@ -45,6 +45,7 @@ import { Patrol } from "./patrol";
 import { patrolAtom, vehicleLabelsAtom } from "./viewMode";
 import CorrectionGhost3D, { CorrectionPanel3D } from "./CorrectionGhost3D";
 import SimCarMarkers3D from "./SimCarMarkers3D";
+import Trail3D from "./Trail3D";
 
 /**
  * 首頁地圖的 3D 版: 現場地圖鋪在地上, 車用 3D 模型照 amr-profile 的位置跑, 取放貨時牙叉會升降;
@@ -63,6 +64,9 @@ const POINT_HIT_RADIUS = 0.6;
 /** 定位點位、巡視飛到車上時, 鏡頭離那裡多遠 (公尺; 本來就比較近就不拉遠) */
 const FOCUS_DISTANCE = 14;
 const PATROL_DISTANCE = 18;
+/** 巡視看區域時: 區域的長邊乘上這個倍數 (鏡頭斜著看要多退一點), 最近這麼近 */
+const AREA_FIT = 1.7;
+const AREA_MIN_DISTANCE = 12;
 /** 標籤上最多列幾個告警 */
 const LABEL_ALERTS = 2;
 
@@ -227,6 +231,23 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
   }, [patrol]);
   const followTarget = useMemo(() => (follow ? () => tracks.positionOf(follow) : null), [follow, tracks]);
 
+  // 巡視沒有告警時輪流看的區域 (地圖上的區域, 藏起來的不看): 中心、鏡頭要退多遠才框得住
+  const tourAreas = useMemo(
+    () =>
+      (map?.zones ?? [])
+        .filter((z) => !hiddenZoneIds.has(z.id))
+        .map((z) => {
+          const w = Math.abs(z.endPoint.endX - z.startPoint.startX);
+          const h = Math.abs(z.endPoint.endY - z.startPoint.startY);
+          return {
+            x: (z.startPoint.startX + z.endPoint.endX) / 2,
+            y: (z.startPoint.startY + z.endPoint.endY) / 2,
+            distance: Math.max(AREA_MIN_DISTANCE, Math.max(w, h) * AREA_FIT),
+          };
+        }),
+    [map, hiddenZoneIds],
+  );
+
   useEffect(() => {
     if (!patrolOn) return;
     patrol.reset();
@@ -234,7 +255,7 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
       const state = storeRef.current?.state;
       if (!state) return;
       const warned = amrIds.filter((id) => state.warnings.has(id) && amrShownAt(state, id, currentMapId, !!names?.isSim));
-      const step = patrol.step(warned, performance.now());
+      const step = patrol.step(warned, performance.now(), tourAreas.length);
       if (step?.kind === "follow") {
         setFollow(step.id);
         const p = tracks.positionOf(step.id);
@@ -242,12 +263,16 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
       } else if (step?.kind === "overview") {
         setFollow(null);
         cameraRef.current?.reset();
+      } else if (step?.kind === "area") {
+        const area = tourAreas[step.index];
+        setFollow(null);
+        if (area) cameraRef.current?.flyTo(area.x, area.y, area.distance, true);
       }
     };
     tick();
     const timer = window.setInterval(tick, 1000);
     return () => window.clearInterval(timer);
-  }, [patrolOn, patrol, amrIds, currentMapId, tracks, names]);
+  }, [patrolOn, patrol, amrIds, currentMapId, tracks, names, tourAreas]);
 
   // 在地圖上定位 (貨物紀錄等頁面發的請求, 同 2D): 鏡頭飛過去, 箭頭指幾秒
   useEffect(() => {
@@ -388,6 +413,8 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
           </ModelBoundary>
         )}
         <CorrectionGhost3D />
+        {/* 跟著的車後面拖最近 30 秒的軌跡 (定位跳動的那段是紅的) */}
+        {follow && <Trail3D id={follow} tracks={tracks} color={amrColor(follow)} />}
         {/* 每台車各自等模型: 第一次載 MiR / SW15 / 上傳的模型時, 已經在畫的叉車不會跟著消失 */}
         {amrIds.map((id) => {
           const label = labels[id];

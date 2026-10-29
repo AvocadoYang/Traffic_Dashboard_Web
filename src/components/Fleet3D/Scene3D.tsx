@@ -53,8 +53,11 @@ export type CameraApi = {
   groundAt: (clientX: number, clientY: number) => { x: number; y: number } | null;
   /** 地面上的 ROS 座標 -> 螢幕上的位置 */
   toClient: (x: number, y: number) => { x: number; y: number } | null;
-  /** 鏡頭順順地移到某個地方 (ROS 座標); distance: 離那裡多遠 (本來就比較近就不拉遠) */
-  flyTo: (x: number, y: number, distance?: number) => void;
+  /**
+   * 鏡頭順順地移到某個地方 (ROS 座標); distance: 離那裡多遠 (本來就比較近就不拉遠;
+   * fit: 照這個距離, 要拉遠也拉遠, 例如框住整個區域)
+   */
+  flyTo: (x: number, y: number, distance?: number, fit?: boolean) => void;
   /** 資料變了, 要求畫下一幀 (畫布外面的人用) */
   invalidate: () => void;
 };
@@ -175,7 +178,7 @@ const CameraRig: FC<{
         if (p.z > 1) return null;
         return { x: rect.left + ((p.x + 1) / 2) * rect.width, y: rect.top + ((1 - p.y) / 2) * rect.height };
       },
-      flyTo: (x, y, distance) => {
+      flyTo: (x, y, distance, fit) => {
         if (!controls) return;
         const offset = camera.position.clone().sub(controls.target);
         const d0 = offset.length();
@@ -183,7 +186,7 @@ const CameraRig: FC<{
           from: controls.target.clone(),
           to: new THREE.Vector3(x, 0, -y),
           d0,
-          d1: distance ? Math.min(d0, distance) : d0,
+          d1: distance ? (fit ? THREE.MathUtils.clamp(distance, controls.minDistance, controls.maxDistance) : Math.min(d0, distance)) : d0,
           dir: offset.normalize(),
           start: performance.now(),
         };

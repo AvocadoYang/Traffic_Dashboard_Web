@@ -21,6 +21,23 @@ const REPORTED_LIFT_SPEED = 1.2;
 const ACTION_DELAY_MS = 1000;
 /** 一次跳超過這麼遠 (公尺) 就直接過去, 不走動畫 (重新定位、換地圖) */
 const TELEPORT_M = 5;
+/** 軌跡留多久 (ms): 跟著的車後面拖一條最近走過的路 */
+export const TRAIL_MS = 30_000;
+/** 兩筆位置之間快過這個速度 (公尺/秒) 而且跳超過 JUMP_M 就是定位跳了, 不是車真的開過去 */
+const JUMP_SPEED = 3;
+const JUMP_M = 0.5;
+
+/** t: 第一次在這個位置的時間 (越舊越淡), seen: 最後一次還回報這個位置的時間 */
+export type TrailPoint = { x: number; y: number; t: number; seen: number };
+
+/**
+ * 這一段 (a 到 b) 是不是定位跳動 (5001 定位異常常見的樣子)。時間從 a 最後一次還在原地算起:
+ * 車停著不動時不會多記點, 用 a.t 算的話停很久之後一跳也會被當成慢慢開過去
+ */
+export const isJump = (a: TrailPoint, b: TrailPoint) => {
+  const d = Math.hypot(b.x - a.x, b.y - a.y);
+  return d > JUMP_M && d / Math.max((b.t - a.seen) / 1000, 0.05) > JUMP_SPEED;
+};
 
 /**
  * 取放貨進行中的狀態文字: 後端 FleetAgent 取貨 / 放貨子狀態機 (customLoadMachine / customOffload)
@@ -50,6 +67,8 @@ type Track = {
   action: "pick" | "drop" | null;
   actionSince: number;
   loaded: boolean;
+  /** 收到的位置 (地圖上畫的座標), 只留最近 TRAIL_MS */
+  trail: TrailPoint[];
 };
 
 const shortAngle = (from: number, to: number) => {
@@ -131,6 +150,7 @@ export class LiveTracks {
           action: null,
           actionSince: now,
           loaded: false,
+          trail: [],
         };
         this.tracks.set(id, t);
       } else {
@@ -150,6 +170,10 @@ export class LiveTracks {
           t.duration = t.interval;
         }
       }
+      const last = t.trail[t.trail.length - 1];
+      if (last && last.x === at.x && last.y === at.y) last.seen = now;
+      else t.trail.push({ x: at.x, y: at.y, t: now, seen: now });
+      while (t.trail.length && now - t.trail[0].t > TRAIL_MS) t.trail.shift();
       if (a.forkHeight !== null && a.forkHeight !== 0) t.reportsHeight = true;
       t.height = (a.forkHeight ?? 0) / 1000;
       const action = actionOf(a.rawStatus);
@@ -201,5 +225,18 @@ export class LiveTracks {
   positionOf(id: string, now = performance.now()) {
     const t = this.tracks.get(id);
     return t ? poseAt(t, now, { x: 0, y: 0, yaw: 0 }) : null;
+  }
+
+  /** 這台車現在有沒有畫出來 (離線、不在這張地圖上就沒有) */
+  isShown(id: string) {
+    return !!this.state && !!amrShownAt(this.state, id, this.filter.currentMapId, this.filter.simulated);
+  }
+
+  /** 最近 TRAIL_MS 收到的位置, 舊的在前面 (車停著沒新資料時也照時間丟掉舊的) */
+  trailOf(id: string, now = performance.now()): readonly TrailPoint[] {
+    const t = this.tracks.get(id);
+    if (!t) return [];
+    while (t.trail.length && now - t.trail[0].t > TRAIL_MS) t.trail.shift();
+    return t.trail;
   }
 }
