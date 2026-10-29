@@ -5,6 +5,7 @@ import * as THREE from "three";
 import type { LiveState } from "@/components/CanvasMap/liveStore";
 import { amrShownAt } from "@/components/CanvasMap/draw";
 import { isDrag, yieldsTo } from "./pick";
+import { writeAttribute, writeSegmentDistances } from "./buffers";
 
 /**
  * 畫在 3D 地面上的地圖圖層: 路線、點位、點雲、車框。座標是 ROS (公尺), 世界座標 (x, 高度, -y)。
@@ -226,7 +227,7 @@ export const PointClouds3D: FC<{
         pos[j + 1] = CLOUD_Y;
         pos[j + 2] = -src[i + 1];
       }
-      cloud.points.geometry.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+      writeAttribute(cloud.points.geometry, "position", pos, 3);
     }
   });
 
@@ -292,8 +293,8 @@ export const BBoxes3D: FC<{
         const [bx, by] = src[(i + 1) % n];
         pos.push(ax, BBOX_Y, -ay, bx, BBOX_Y, -by, ax, BBOX_Y, -ay, cx, BBOX_Y, -cy);
       }
-      box.lines.geometry.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-      box.lines.computeLineDistances();
+      writeAttribute(box.lines.geometry, "position", pos, 3);
+      writeSegmentDistances(box.lines.geometry);
     }
   });
 

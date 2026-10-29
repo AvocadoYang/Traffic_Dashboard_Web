@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import type { TrafficWait } from "@/sockets/useTrafficWaits";
 import { WAIT_COLOR } from "@/components/CanvasMap/draw";
 import { LiveTracks } from "./liveTracks";
+import { writeLine2 } from "./buffers";
 
 /**
  * 誰在等誰 (交管拒絕路權、車停在原地等): 從在等的車拉一條弧線虛線箭頭到擋路的車, 弧線中間寫等了多久。
@@ -58,8 +59,7 @@ const WaitArrow: FC<{ pair: Pair; tracks: LiveTracks; now: number }> = ({ pair, 
       positions[i * 3 + 1] = p.y;
       positions[i * 3 + 2] = p.z;
     }
-    line.geometry.setPositions(positions);
-    line.computeLineDistances();
+    writeLine2(line, positions);
     const head = headRef.current;
     if (head) {
       curve.getPoint(END_T, head.position);
