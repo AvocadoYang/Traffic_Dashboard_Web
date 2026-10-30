@@ -36,6 +36,7 @@ const parseMatrix = (values: string | null) => {
 
 const MapGround: FC<Props> = ({ url, widthPx, heightPx, originX, originY, metersPerPx, recolor, opacity = 1 }) => {
   const gl = useThree((s) => s.gl);
+  const invalidate = useThree((s) => s.invalidate);
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
 
   useEffect(() => {
@@ -75,7 +76,8 @@ const MapGround: FC<Props> = ({ url, widthPx, heightPx, originX, originY, meters
     const { m, offset } = parseMatrix(recolor);
     uniforms.uRecolor.value.copy(m);
     uniforms.uRecolorOffset.value.copy(offset);
-  }, [recolor, uniforms]);
+    invalidate();
+  }, [recolor, uniforms, invalidate]);
 
   const material = useMemo(() => {
     const mat = new THREE.MeshBasicMaterial({ toneMapped: false, transparent: opacity < 1, opacity, depthWrite: opacity >= 1 });
@@ -94,7 +96,8 @@ const MapGround: FC<Props> = ({ url, widthPx, heightPx, originX, originY, meters
   useEffect(() => {
     material.map = texture;
     material.needsUpdate = true;
-  }, [material, texture]);
+    invalidate();
+  }, [material, texture, invalidate]);
   useEffect(() => () => material.dispose(), [material]);
 
   if (!texture) return null;

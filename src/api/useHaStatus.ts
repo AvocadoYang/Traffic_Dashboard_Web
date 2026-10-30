@@ -8,14 +8,27 @@ const connectivitySchema = object({
   ha: boolean().required(),
 }).required();
 
+// 對方的狀態是對方 arbiter 每秒送過來的; 舊版 arbiter 沒有後面這三個欄位,
+// status_known 是 false (連不到對方、或對方是舊版) 時 ecs / fleet / is_master / has_vip 都不能信
+const peerSchema = connectivitySchema.shape({
+  is_master: boolean().optional(),
+  has_vip: boolean().optional(),
+  status_known: boolean().optional(),
+});
+
 const schema = object({
   redundancy: boolean().required(),
   role: string().oneOf(["MASTER", "BACKUP"]).required(),
+  // false: arbiter 還沒告訴過交管角色 (開機後先當 BACKUP 不派車); 舊版後端沒有這個欄位
+  roleKnown: boolean().default(true),
   arbiter: object({
     is_master: boolean().required(),
+    // 新版 arbiter 才有
+    has_vip: boolean().optional(),
+    vip: string().optional(),
     maintenance: boolean().required(),
     self: connectivitySchema,
-    other: connectivitySchema,
+    other: peerSchema,
   })
     .nullable()
     .default(null),

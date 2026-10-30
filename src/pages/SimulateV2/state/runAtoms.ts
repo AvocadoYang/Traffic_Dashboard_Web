@@ -6,6 +6,7 @@ import { atom } from "jotai";
 import type { SimResult } from "../engine/types";
 import type { SimDoc, SweepSettings } from "../model/types";
 import type { SweepPlan, SweepRun } from "../run/sweep";
+import type { ReplayRecording } from "../run/replayRecorder";
 import type { View } from "./editorAtoms";
 
 /** 單次執行, 或車數掃描裡的某一次 (某個台數、某個種子) */
@@ -86,6 +87,9 @@ export const playSpeedAtom = atom(20);
 
 /** 地圖顯示: 回放 / 塞車熱點 / 3D 回放 */
 export const mapModeAtom = atom<"replay" | "heat" | "3d">("replay");
+
+/** 正在把回放錄成影片 (見 replayRecorder); 3D 畫布每畫完一幀要複製給它 */
+export const replayRecordingAtom = atom<ReplayRecording | null>(null);
 
 /** 回放地圖自己的平移縮放 (跟佈局的分開) */
 export const replayViewAtom = atom<View | null>(null);

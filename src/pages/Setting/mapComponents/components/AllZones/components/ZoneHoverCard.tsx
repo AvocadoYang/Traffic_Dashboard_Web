@@ -7,7 +7,12 @@ import { amrId2ColorRainbow } from "@/utils/utils";
 import useZoneOccupants from "@/api/useZoneOccupants";
 import { c, font, space } from "@/pages/SettingV2/ui/tokens";
 import { LinkedZone, useLinkedZones } from "@/pages/SettingV2/ui/zoneLinks";
-import { LinkOutlined, PoweroffOutlined, StopOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  LinkOutlined,
+  PoweroffOutlined,
+  StopOutlined,
+} from "@ant-design/icons";
 
 export type ZoneHoverInfo = {
   id: string;
@@ -98,6 +103,29 @@ const ToggleButton = styled.button<{ $enable: boolean }>`
   &:disabled {
     cursor: not-allowed;
     opacity: 0.45;
+  }
+`;
+
+const EditButton = styled.button`
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  font-family: ${font.mono};
+  font-size: ${font.xs};
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: ${c.text};
+  background: ${c.bg};
+  border: 1px solid ${c.borderStrong};
+
+  &:hover {
+    background: ${c.bgSubtle};
   }
 `;
 
@@ -281,7 +309,8 @@ const ZoneHoverCard: FC<{
   open: boolean;
   toggling?: boolean;
   onToggleEnabled?: (enabled: boolean) => void;
-}> = ({ info, open, toggling, onToggleEnabled }) => {
+  onEdit?: () => void;
+}> = ({ info, open, toggling, onToggleEnabled, onEdit }) => {
   const { t } = useTranslation();
   const setZoneForbidden = useSetAtom(showZoneForbidden);
   const { data: occupants, isLoading } = useZoneOccupants(open);
@@ -358,6 +387,18 @@ const ZoneHoverCard: FC<{
           $color={disabled ? c.textMuted : toOpaque(info.backgroundColor)}
         />
         <HeaderName>{info.name}</HeaderName>
+        {onEdit && (
+          <EditButton
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
+          >
+            <EditOutlined />
+            {t("utils.edit")}
+          </EditButton>
+        )}
         {onToggleEnabled && (
           <ToggleButton
             type="button"
@@ -386,8 +427,9 @@ const ZoneHoverCard: FC<{
         <Chips>
           {category.length ? (
             category.map((tag) => {
-              const type: (typeof ZONE_TYPES)[keyof typeof ZONE_TYPES] | undefined =
-                ZONE_TYPES[tag as keyof typeof ZONE_TYPES];
+              const type:
+                | (typeof ZONE_TYPES)[keyof typeof ZONE_TYPES]
+                | undefined = ZONE_TYPES[tag as keyof typeof ZONE_TYPES];
               return (
                 <Chip key={tag} $tone={type?.tone ?? "neutral"}>
                   {type ? t(type.labelKey) : tag}
@@ -408,7 +450,9 @@ const ZoneHoverCard: FC<{
 
       {has("電梯區") && tagSetting?.elevator_id && (
         <LinkedBlock
-          title={t("zone_hover.linked_elevator", { id: tagSetting.elevator_id })}
+          title={t("zone_hover.linked_elevator", {
+            id: tagSetting.elevator_id,
+          })}
           zones={linked.elevator}
           ownMapId={linked.ownMapId}
         />

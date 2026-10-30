@@ -4,10 +4,19 @@ import { Form, FormInstance } from "antd";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import Cookies from "js-cookie";
 import useMap from "@/api/useMap";
+import useAllGroupsResources from "@/api/useAllGroupsResources";
 import useVerityVersion from "@/api/useVerityVersion";
 import CanvasMap, { CanvasMapApi } from "@/components/CanvasMap/CanvasMap";
 import CargoPanel from "@/components/CargoPanel/CargoPanel";
-import { DragLineInfo, Scale, sameVersion, zoneRectInfo, shelfSelectedStyleLocationId, batchCargoStyle, showBlockId as ShowBlockId } from "@/utils/gloable";
+import {
+  DragLineInfo,
+  Scale,
+  sameVersion,
+  zoneRectInfo,
+  shelfSelectedStyleLocationId,
+  batchCargoStyle,
+  showBlockId as ShowBlockId,
+} from "@/utils/gloable";
 import {
   EditAnnotationSwitch,
   EditLocationPanelSwitch,
@@ -22,11 +31,19 @@ import { DraggableLine } from "@/pages/Setting/mapComponents/components/AllLocat
 import "@/pages/Setting/setting.css";
 import { draggableLineInitialPoint } from "@/pages/Setting/hooks/hook";
 import { getLocationInfoById } from "@/pages/Setting/utils/utils";
-import { EBLM, ECSM, EEM, IsEditingQuickRoads, LDM, QuickRoadsArray } from "@/pages/Setting/utils/settingJotai";
-import { isDetectableAreaType } from "@/pages/Setting/mapComponents/components/AllLocation/components/MirAreaTypeMarker";
+import {
+  EBLM,
+  ECSM,
+  EEM,
+  IsEditingQuickRoads,
+  LDM,
+  QuickRoadsArray,
+} from "@/pages/Setting/utils/settingJotai";
 import { annotationToolAtom } from "@/pages/Setting/mapComponents/components/AllAnnotations/annotationAtoms";
 import AllCargo from "@/pages/Setting/mapComponents/components/AllCargo/AllCargo";
-import SudoCargo, { SudoBatchCargo } from "@/pages/Setting/mapComponents/components/AllCargo/SudoCargo";
+import SudoCargo, {
+  SudoBatchCargo,
+} from "@/pages/Setting/mapComponents/components/AllCargo/SudoCargo";
 import CargoModal from "@/pages/Setting/mapComponents/components/AllCargo/CargoModal";
 import { AllChargeStation } from "@/pages/Setting/mapComponents/components/AllChargeStation";
 import EditChargeStationConfigModal from "@/pages/Setting/mapComponents/components/AllChargeStation/EditChargeStationConfigModal";
@@ -45,11 +62,21 @@ import { SudoPeripheral } from "@/pages/Setting/formComponent/forms/other/editPe
 import BlindLocationMissionModal from "@/pages/Setting/components/BlindLocationMissionModal";
 import LocationDetectModal from "@/pages/Setting/components/LocationDetectModal";
 import { useMousePoint, useZoneFrame } from "@/pages/Setting/hooks";
-import { AllAnnotations, DragFrame, MousePoint, ZoneIconHint } from "@/pages/Setting/mapComponents/components";
+import {
+  AllAnnotations,
+  DragFrame,
+  MousePoint,
+  ZoneIconHint,
+} from "@/pages/Setting/mapComponents/components";
 import type { FrameColor } from "@/pages/Setting/mapComponents/components";
 import { MouseLocationForFrame } from "@/pages/Setting/hooks/hook";
 import TempLocations from "@/pages/Setting/mapComponents/components/TempResources/TempLocations";
 import MirStyleLocationPlacer from "@/pages/Setting/formComponent/forms/MirStyleLocationPlacer";
+import LocationPointMenu, {
+  LocationPointMenuTarget,
+} from "../SettingV2/panels/location/LocationPointMenu";
+import type { ZoneRow } from "../SettingV2/panels/zone/ZoneEditModal";
+import ZoneRedraw from "../SettingV2/panels/zone/ZoneRedraw";
 
 /**
  * 設定頁 (setting-v3) 的地圖: 舊 MapView 的畫布版。
@@ -86,7 +113,11 @@ const useReloadOnNewVersion = () => {
   }, [currentVersion]);
 };
 
-const SettingMapV3: FC<Props> = ({ roadPanelForm, locationPanelForm, zonePanelForm }) => {
+const SettingMapV3: FC<Props> = ({
+  roadPanelForm,
+  locationPanelForm,
+  zonePanelForm,
+}) => {
   const { data: mapData } = useMap();
   const wrapRef = useRef<HTMLDivElement>(null);
   const mapImageRef = useRef<HTMLImageElement>(null);
@@ -112,7 +143,10 @@ const SettingMapV3: FC<Props> = ({ roadPanelForm, locationPanelForm, zonePanelFo
   const openLocationDetect = useAtomValue(LDM);
   const quickRoad = useAtomValue(IsEditingQuickRoads);
   const setQuickRoadArr = useSetAtom(QuickRoadsArray);
-  const setOpenLDM = useSetAtom(LDM);
+
+  // 正在地圖上重畫哪個區域的邊界 (區域資訊卡的編輯鈕); 重畫時左鍵拖曳都留給它
+  const [redrawZone, setRedrawZone] = useState<ZoneRow | null>(null);
+  const isRedrawingZone = !!redrawZone;
 
   // 打點 / 框選 / 放標註時左鍵要留給地圖操作, 只保留中鍵拖曳 (同舊 MapView)
   const isEditingOnMap =
@@ -120,17 +154,31 @@ const SettingMapV3: FC<Props> = ({ roadPanelForm, locationPanelForm, zonePanelFo
     openQuickEditLocationPanel ||
     openEditZone ||
     openMirPlacer ||
+    isRedrawingZone ||
     (openEditAnnotation && annotationTool !== "select");
 
   // ---------------- 點位: 編輯點位 / 快速編輯點位時點地圖打點 (小紅點 + 表單的 x、y)
   // 舊 hook 原封不動: 它拿底圖 <img> 的位置和 Scale 換算座標, 底圖在畫布跟著平移縮放的那一層
   const scale = useAtomValue(Scale);
-  useMousePoint(wrapRef, wrapRef, mapImageRef, scale, locationPanelForm, openEditLocationPanel);
+  useMousePoint(
+    wrapRef,
+    wrapRef,
+    mapImageRef,
+    scale,
+    locationPanelForm,
+    openEditLocationPanel && !isRedrawingZone,
+  );
 
   // ---------------- 區域: 編輯區域時在地圖上拉框 (舊的 useZoneFrame 原封不動)
   const [isDraggingZone, setIsDraggingZone] = useState(false);
-  const [, setZoneStart] = useState({ rvizX: 0, rvizY: 0 } as MouseLocationForFrame);
-  const [, setZoneEnd] = useState({ rvizX: 0, rvizY: 0 } as MouseLocationForFrame);
+  const [, setZoneStart] = useState({
+    rvizX: 0,
+    rvizY: 0,
+  } as MouseLocationForFrame);
+  const [, setZoneEnd] = useState({
+    rvizX: 0,
+    rvizY: 0,
+  } as MouseLocationForFrame);
   const [rectInfo, setRectInfo] = useAtom(zoneRectInfo);
   const zoneFrameColor = Form.useWatch("color", zonePanelForm) as FrameColor;
   useZoneFrame(
@@ -143,6 +191,7 @@ const SettingMapV3: FC<Props> = ({ roadPanelForm, locationPanelForm, zonePanelFo
     setZoneEnd,
     setRectInfo,
     zonePanelForm,
+    isRedrawingZone,
   );
 
   // ---------------- 路線: 從一個地點拉到另一個地點 (表單的起點 x、終點 to)
@@ -151,7 +200,10 @@ const SettingMapV3: FC<Props> = ({ roadPanelForm, locationPanelForm, zonePanelFo
   // 舊的 useDraggableLine 靠 mouseup 那個 DOM 元素的 id 找終點, 畫布上的點位沒有 DOM,
   // 所以拖曳、放開改在這裡做: 放在畫布上就問 CanvasMap 那裡是哪個點位, 放在設備上就用它的 id。
   const apiRef = useRef<CanvasMapApi | null>(null);
-  const initPointRef = useRef<draggableLineInitialPoint>({ clientX: 0, clientY: 0 });
+  const initPointRef = useRef<draggableLineInitialPoint>({
+    clientX: 0,
+    clientY: 0,
+  });
   const setInitPoint = useCallback((p: draggableLineInitialPoint) => {
     initPointRef.current = p;
   }, []);
@@ -163,7 +215,10 @@ const SettingMapV3: FC<Props> = ({ roadPanelForm, locationPanelForm, zonePanelFo
       if (!mapData) return;
       draggingRef.current = true;
       setShowBlockId(startId);
-      const result = getLocationInfoById(startId, mapData.locations as LocationType[]);
+      const result = getLocationInfoById(
+        startId,
+        mapData.locations as LocationType[],
+      );
       setDragLineInfo((pre) => ({ ...pre, width: 1 }));
       roadPanelForm.setFieldValue("x", result.locationId);
       roadPanelForm.setFieldValue("to", undefined);
@@ -171,7 +226,8 @@ const SettingMapV3: FC<Props> = ({ roadPanelForm, locationPanelForm, zonePanelFo
     [mapData, roadPanelForm, setShowBlockId, setDragLineInfo],
   );
 
-  const roadDragEnabled = openEditRoadPanel && !openEditZone && !quickRoad;
+  const roadDragEnabled =
+    openEditRoadPanel && !openEditZone && !quickRoad && !isRedrawingZone;
   const onCanvasPointerDown = useCallback(
     (e: PointerEvent) => {
       if (!roadDragEnabled) return false;
@@ -188,10 +244,17 @@ const SettingMapV3: FC<Props> = ({ roadPanelForm, locationPanelForm, zonePanelFo
 
   useEffect(() => {
     if (!showBlockId || !roadDragEnabled) return;
-    const locationIds = new Set(mapData?.locations.map((l) => String(l.locationId)) ?? []);
+    const locationIds = new Set(
+      mapData?.locations.map((l) => String(l.locationId)) ?? [],
+    );
     const reset = () => {
       setShowBlockId("");
-      setDragLineInfo({ deg: 90, endDisplayX1: initPointRef.current.clientX, endDisplayY1: initPointRef.current.clientY, width: 0 });
+      setDragLineInfo({
+        deg: 90,
+        endDisplayX1: initPointRef.current.clientX,
+        endDisplayY1: initPointRef.current.clientY,
+        width: 0,
+      });
     };
     const onMove = (e: MouseEvent) => {
       if (!draggingRef.current) return;
@@ -215,7 +278,11 @@ const SettingMapV3: FC<Props> = ({ roadPanelForm, locationPanelForm, zonePanelFo
         endId = apiRef.current?.pointAt(e.clientX, e.clientY) ?? null;
       } else {
         // 設備 (貨架、充電站…) 的 DOM: 往上找第一個 id 是地點編號的元素
-        for (let el: HTMLElement | null = target; el && el !== wrapRef.current; el = el.parentElement) {
+        for (
+          let el: HTMLElement | null = target;
+          el && el !== wrapRef.current;
+          el = el.parentElement
+        ) {
           if (el.id && locationIds.has(el.id)) {
             endId = el.id;
             break;
@@ -226,7 +293,10 @@ const SettingMapV3: FC<Props> = ({ roadPanelForm, locationPanelForm, zonePanelFo
         reset();
         return;
       }
-      const result = getLocationInfoById(endId, mapData?.locations as LocationType[]);
+      const result = getLocationInfoById(
+        endId,
+        mapData?.locations as LocationType[],
+      );
       roadPanelForm.setFieldValue("to", result.locationId);
     };
     window.addEventListener("mousemove", onMove);
@@ -235,12 +305,22 @@ const SettingMapV3: FC<Props> = ({ roadPanelForm, locationPanelForm, zonePanelFo
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mouseup", onUp);
     };
-  }, [showBlockId, roadDragEnabled, mapData, scale, roadPanelForm, setShowBlockId, setDragLineInfo]);
+  }, [
+    showBlockId,
+    roadDragEnabled,
+    mapData,
+    scale,
+    roadPanelForm,
+    setShowBlockId,
+    setDragLineInfo,
+  ]);
 
   // 拉線的起點 (充電站自己會畫, 其他地點畫在最上層)
   const dragStart = (() => {
     if (!showBlockId || !mapData) return null;
-    const loc = mapData.locations.find((l) => String(l.locationId) === showBlockId);
+    const loc = mapData.locations.find(
+      (l) => String(l.locationId) === showBlockId,
+    );
     if (!loc || loc.areaType === "CHARGING") return null;
     const [left, top] = rosCoord2DisplayCoord({
       x: loc.x,
@@ -253,78 +333,157 @@ const SettingMapV3: FC<Props> = ({ roadPanelForm, locationPanelForm, zonePanelFo
     return { left, top };
   })();
 
-  // ---------------- 點了點位 (照舊設定頁 AllLocation 的 handleClick)
+  // ---------------- 點了點位: 在點位旁邊跳下拉選單 (編輯、點位偵測)
+  // 拉路線、快速路線時點點位是在選點, 不跳選單 (照舊設定頁 AllLocation 的 handleClick)
+  const [pointMenu, setPointMenu] = useState<LocationPointMenuTarget | null>(
+    null,
+  );
+  const closePointMenu = useCallback(() => setPointMenu(null), []);
   const onPointClick = useCallback(
     (locationId: string) => {
+      // 重畫區域時拉框放開剛好在點位上, 不要當成點了點位
+      if (isRedrawingZone) return;
       if (quickRoad) {
         setQuickRoadArr((prev) => [...prev, locationId]);
         return;
       }
       if (!openEditRoadPanel || openEditZone) {
-        // 只有有實體 marker 的類型 (充電站、VL marker) 才開啟點位偵測
-        const loc = mapData?.locations.find((l) => String(l.locationId) === locationId);
-        if (!loc || !isDetectableAreaType(loc.areaType)) return;
-        setOpenLDM({ locationId, isOpen: true });
+        const pos = apiRef.current?.locationClientPos(locationId);
+        if (!pos) return;
+        setPointMenu({ locationId, ...pos });
       }
     },
-    [quickRoad, setQuickRoadArr, openEditRoadPanel, openEditZone, mapData, setOpenLDM],
+    [isRedrawingZone, quickRoad, setQuickRoadArr, openEditRoadPanel, openEditZone],
   );
 
-  return (
-    <CanvasMap
-      wrapRef={wrapRef}
-      mapImageRef={mapImageRef}
-      showAmrs={false}
-      alwaysShowAnnotations
-      leftButtonPans={!isEditingOnMap}
-      onPointClick={onPointClick}
-      apiRef={apiRef}
-      onCanvasPointerDown={onCanvasPointerDown}
-      // 編輯標註時改用 DOM 版 (點選、拖曳、旋轉), 畫布上就不畫, 免得畫兩份
-      hideAnnotations={openEditAnnotation}
-      overlay={
-        <>
-          {openEditAnnotation ? <AllAnnotations scale={scale} mapRef={wrapRef} mapImageRef={mapImageRef} /> : null}
-          {openEditZone ? (
-            <ZoneIconHint
-              mapWrapRef={wrapRef}
-              mapRef={wrapRef}
-              mapImageRef={mapImageRef as unknown as React.RefObject<HTMLDivElement>}
-              scale={scale}
-              isDragging={isDraggingZone}
-            />
-          ) : null}
-          {openEditZone ? <DragFrame rectInfo={rectInfo} color={zoneFrameColor} /> : null}
-          {dragStart ? <DraggableLine locId={showBlockId} left={dragStart.left} top={dragStart.top} /> : null}
-          {openQuickEditLocationPanel ? <TempLocations /> : null}
-          {/* 編輯點位跟快速編輯點位時的小紅點 */}
-          {openEditLocationPanel || openQuickEditLocationPanel ? <MousePoint /> : null}
-          {openMirPlacer ? <MirStyleLocationPlacer mapRef={wrapRef} mapImageRef={mapImageRef} scale={scale} /> : null}
-        </>
+  // ---------------- 區域名稱的資訊卡多一個編輯鈕: 在地圖上重新拉框定義邊界
+  // 存檔要的是區域表那份資料 (有 rev, 後端拿來檢查有沒有被別人改過)
+  // 按下編輯當下拍一份快照, 重畫途中資料重抓也不會換掉
+  const { data: resources } = useAllGroupsResources();
+  const openZoneRedraw = useCallback(
+    (zoneId: string) => {
+      for (const g of resources?.groups ?? []) {
+        for (const m of g.maps) {
+          const zone = m.zones.find((z) => z.id === zoneId);
+          if (zone) {
+            setRedrawZone({
+              ...zone,
+              mapId: m.mapId,
+              mapFileName: m.fileName,
+              groupId: g.groupId,
+              groupName: g.groupName,
+            } as ZoneRow);
+            return;
+          }
+        }
       }
-    >
-      <AllElevator />
-      <YfyPackage />
-      <AllStack />
-      <AllCargo setInitPoint={setInitPoint} handleMouseDown={handleMouseDown} />
-      <AllChargeStation setInitPoint={setInitPoint} handleMouseDown={handleMouseDown} />
-      <AllGateWaitPoint />
-      <AllLiftGate />
-      {openPeripheralModal ? <EditPeripheralModal /> : null}
-      <AllConveyor />
-      {openElevatorModal?.isOpen ? <EditElevatorModal /> : null}
-      {openEditChargeStationModal.isOpen ? <EditChargeStationConfigModal /> : null}
-      {shelfSelectedStyleId === "" ? null : <SudoCargo />}
-      {batchStyle ? <SudoBatchCargo /> : null}
-      <SudoPeripheral />
-      {/* 貨架 / 輸送帶 / stack / 電梯的貨物, 跟主畫面用同一個面板編輯 */}
-      <CargoPanel />
-      <CargoModal />
-      <EditStackModal />
-      <EditPackageModal />
-      {openBlindMission.isOpen ? <BlindLocationMissionModal /> : null}
-      {openLocationDetect.isOpen ? <LocationDetectModal /> : null}
-    </CanvasMap>
+    },
+    [resources],
+  );
+  const closeZoneRedraw = useCallback(() => setRedrawZone(null), []);
+
+  return (
+    <>
+      <LocationPointMenu
+        target={pointMenu}
+        onClose={closePointMenu}
+        wrapRef={wrapRef}
+      />
+      <CanvasMap
+        wrapRef={wrapRef}
+        mapImageRef={mapImageRef}
+        showAmrs={false}
+        alwaysShowAnnotations
+        leftButtonPans={!isEditingOnMap}
+        onPointClick={onPointClick}
+        apiRef={apiRef}
+        onCanvasPointerDown={onCanvasPointerDown}
+        onZoneEdit={openZoneRedraw}
+        // 編輯標註時改用 DOM 版 (點選、拖曳、旋轉), 畫布上就不畫, 免得畫兩份
+        hideAnnotations={openEditAnnotation}
+        overlay={
+          <>
+            <ZoneRedraw
+              zone={redrawZone}
+              onClose={closeZoneRedraw}
+              wrapRef={wrapRef}
+              mapImageRef={mapImageRef}
+              scale={scale}
+            />
+            {openEditAnnotation ? (
+              <AllAnnotations
+                scale={scale}
+                mapRef={wrapRef}
+                mapImageRef={mapImageRef}
+              />
+            ) : null}
+            {openEditZone ? (
+              <ZoneIconHint
+                mapWrapRef={wrapRef}
+                mapRef={wrapRef}
+                mapImageRef={
+                  mapImageRef as unknown as React.RefObject<HTMLDivElement>
+                }
+                scale={scale}
+                isDragging={isDraggingZone}
+              />
+            ) : null}
+            {openEditZone ? (
+              <DragFrame rectInfo={rectInfo} color={zoneFrameColor} />
+            ) : null}
+            {dragStart ? (
+              <DraggableLine
+                locId={showBlockId}
+                left={dragStart.left}
+                top={dragStart.top}
+              />
+            ) : null}
+            {openQuickEditLocationPanel ? <TempLocations /> : null}
+            {/* 編輯點位跟快速編輯點位時的小紅點 */}
+            {openEditLocationPanel || openQuickEditLocationPanel ? (
+              <MousePoint />
+            ) : null}
+            {openMirPlacer ? (
+              <MirStyleLocationPlacer
+                mapRef={wrapRef}
+                mapImageRef={mapImageRef}
+                scale={scale}
+              />
+            ) : null}
+          </>
+        }
+      >
+        <AllElevator />
+        <YfyPackage />
+        <AllStack />
+        <AllCargo
+          setInitPoint={setInitPoint}
+          handleMouseDown={handleMouseDown}
+        />
+        <AllChargeStation
+          setInitPoint={setInitPoint}
+          handleMouseDown={handleMouseDown}
+        />
+        <AllGateWaitPoint />
+        <AllLiftGate />
+        {openPeripheralModal ? <EditPeripheralModal /> : null}
+        <AllConveyor />
+        {openElevatorModal?.isOpen ? <EditElevatorModal /> : null}
+        {openEditChargeStationModal.isOpen ? (
+          <EditChargeStationConfigModal />
+        ) : null}
+        {shelfSelectedStyleId === "" ? null : <SudoCargo />}
+        {batchStyle ? <SudoBatchCargo /> : null}
+        <SudoPeripheral />
+        {/* 貨架 / 輸送帶 / stack / 電梯的貨物, 跟主畫面用同一個面板編輯 */}
+        <CargoPanel />
+        <CargoModal />
+        <EditStackModal />
+        <EditPackageModal />
+        {openBlindMission.isOpen ? <BlindLocationMissionModal /> : null}
+        {openLocationDetect.isOpen ? <LocationDetectModal /> : null}
+      </CanvasMap>
+    </>
   );
 };
 
