@@ -4882,7 +4882,6 @@
       "prefs": "Preferences",
       "notify": "Notifications",
       "favorites": "Pinned missions",
-      "shift": "Shift notes",
       "logins": "Login history",
       "accounts": "Accounts"
     },
@@ -5026,19 +5025,6 @@
       "name": "Mission",
       "empty": "No missions dispatched today"
     },
-    "shift": {
-      "write": "Write a note",
-      "hint": "For the next shift. One board for the whole site, kept 30 days. Unread notes pop up at login.",
-      "placeholder": "e.g. Vehicle 3 right wheel is noisy, avoid long runs",
-      "post": "Post",
-      "board": "Notes",
-      "mark_all_read": "Mark all read ({{count}})",
-      "mark_read": "Mark as read",
-      "popup_title": "Shift notes ({{count}} unread)",
-      "unread": "Unread",
-      "empty": "No notes",
-      "delete_confirm": "Delete this note?"
-    },
     "logins": {
       "title": "Login history",
       "hint": "Logins in the last 180 days, successful and failed",
@@ -5064,6 +5050,30 @@
       "password_mismatch": "The passwords don't match",
       "delete_confirm": "Delete account {{account}}?"
     }
+  },
+  "chat": {
+    "title": "Site chat",
+    "menu": "Chat",
+    "open": "Open chat",
+    "expand": "Expand",
+    "restore": "Restore size",
+    "minimize": "Minimize",
+    "placeholder": "Type a message, Enter to send",
+    "newline_hint": "Shift + Enter for a new line",
+    "send": "Send",
+    "send_failed": "The message was not sent. Please try again",
+    "delete": "Delete",
+    "delete_confirm": "Delete this message?",
+    "delete_failed": "The message was not deleted. Please try again",
+    "empty": "No messages yet. Leave a note for your colleagues or the next shift here. Messages are kept for 30 days.",
+    "keep_hint": "Messages are kept for 30 days",
+    "load_more": "Load earlier messages",
+    "unread_divider": "Unread messages",
+    "new_below": "New messages",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "no_client_name": "This computer has no name yet, so others only see the account.",
+    "set_client_name": "Set name"
   },
   "mission_manual": {
     "title": "Manual intervention",

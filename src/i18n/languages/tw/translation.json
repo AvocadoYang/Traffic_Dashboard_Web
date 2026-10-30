@@ -4883,7 +4883,6 @@
       "prefs": "偏好",
       "notify": "通知",
       "favorites": "常用任務",
-      "shift": "交班留言",
       "logins": "登入紀錄",
       "accounts": "帳號管理"
     },
@@ -5027,19 +5026,6 @@
       "name": "任務",
       "empty": "今天還沒派任務"
     },
-    "shift": {
-      "write": "留言",
-      "hint": "給下一班的人看, 全案場共用, 保留 30 天。登入時會跳出還沒看過的留言。",
-      "placeholder": "例如: 3 號車右輪異常, 先別派長程",
-      "post": "送出",
-      "board": "留言板",
-      "mark_all_read": "全部標為已讀 ({{count}})",
-      "mark_read": "已讀",
-      "popup_title": "交班留言 ({{count}} 則未讀)",
-      "unread": "未讀",
-      "empty": "沒有留言",
-      "delete_confirm": "刪除這則留言?"
-    },
     "logins": {
       "title": "登入紀錄",
       "hint": "最近 180 天的登入 (成功和失敗)",
@@ -5065,6 +5051,30 @@
       "password_mismatch": "兩次輸入的密碼不一樣",
       "delete_confirm": "刪除帳號 {{account}}?"
     }
+  },
+  "chat": {
+    "title": "全案場聊天室",
+    "menu": "聊天室",
+    "open": "開啟聊天室",
+    "expand": "放大",
+    "restore": "還原大小",
+    "minimize": "縮小",
+    "placeholder": "輸入訊息，Enter 送出",
+    "newline_hint": "Shift + Enter 換行",
+    "send": "送出",
+    "send_failed": "訊息沒有送出，請再試一次",
+    "delete": "刪除",
+    "delete_confirm": "刪除這則訊息？",
+    "delete_failed": "訊息沒有刪除，請再試一次",
+    "empty": "還沒有訊息，可以在這裡留話給同事或下一班。訊息保留 30 天。",
+    "keep_hint": "訊息保留 30 天",
+    "load_more": "載入更早的訊息",
+    "unread_divider": "以下是未讀訊息",
+    "new_below": "有新訊息",
+    "today": "今天",
+    "yesterday": "昨天",
+    "no_client_name": "這台電腦還沒有名稱，別人只看得到帳號。",
+    "set_client_name": "設定名稱"
   },
   "mission_manual": {
     "title": "人工介入",

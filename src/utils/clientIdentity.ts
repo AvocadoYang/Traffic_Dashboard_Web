@@ -1,6 +1,8 @@
 // 這台電腦 (這個瀏覽器) 的身分。同一個帳號會在好幾台電腦登入,
 // 後端靠這兩個值記下任務是哪一台派的 / 取消的 (Missions.send_source / cancel_source)。
 // 存在 localStorage: 跟著瀏覽器走, 換帳號登入不會變, 清掉瀏覽器資料才會重來。
+import { atom } from "jotai";
+
 const CLIENT_ID_KEY = "client_id";
 const CLIENT_NAME_KEY = "client_name";
 
@@ -46,6 +48,9 @@ export const setClientName = (name: string) => {
   }
   return trimmed;
 };
+
+/** 畫面上顯示的電腦名稱; 頁首和聊天室都能改, 一邊改了另一邊要跟著變 */
+export const clientNameAtom = atom(getClientName());
 
 /** 每個 request 都帶的來源 header; 名稱可能有中文, header 只能放 ASCII 所以先編碼 */
 export const clientIdentityHeaders = () => {

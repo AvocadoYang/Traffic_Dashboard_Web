@@ -188,26 +188,3 @@ export const useLoginLog = (query: { account?: string; from?: string; to?: strin
     queryFn: async () =>
       (await client.get<{ logs: LoginLogRow[] }>("api/logInAndOut/login-log", { params: query })).data.logs,
   });
-
-// ------------------------------------------------------------------ 交班留言
-
-export type ShiftNote = {
-  id: string;
-  time: string;
-  account: string;
-  content: string;
-  unread: boolean;
-  canDelete: boolean;
-};
-
-export const SHIFT_NOTES_KEY = ["shift-notes"] as const;
-
-export const useShiftNotes = () =>
-  useQuery({
-    queryKey: SHIFT_NOTES_KEY,
-    queryFn: async () =>
-      (await client.get<{ notes: ShiftNote[]; unread: number }>("api/profile/shift-notes")).data,
-    enabled: hasToken(),
-    refetchInterval: 60_000,
-    retry: false,
-  });
