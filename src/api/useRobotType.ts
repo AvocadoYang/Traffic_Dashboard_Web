@@ -10,6 +10,10 @@ const schema = array(
     width: number().required(),
     height: number().required(),
     length: number().required(),
+    // 模擬的 3D 回放照車型畫模型 (見 Fleet3D/vehicleModels); 舊後端沒有這幾個欄位
+    model_3d: string().nullable().optional().default(null),
+    model_3d_yaw: number().optional().default(0),
+    model_3d_file: object({ updated_at: string().required() }).nullable().optional().default(null),
   }).optional()
 ).required();
 

@@ -6,6 +6,7 @@ import {
   mirSaftySystemList,
   mirSoundLight,
 } from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/type";
+import { MIR_DEFAULT_SOUND } from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/mirActionFields";
 
 /** 可以把別的動作包在裡面的動作 */
 export const CONTAINER_TYPE = "reduce_protective_fields";
@@ -75,7 +76,7 @@ export const buildDefaultOperation = (type: string): Mir_Action => ({
   collision_detection: true,
   option: "free",
   wait: "00:00:00",
-  sound: "",
+  sound: MIR_DEFAULT_SOUND,
   volume: 0,
   mode: "full",
   duration: "00:00:01.000000",
@@ -84,9 +85,9 @@ export const buildDefaultOperation = (type: string): Mir_Action => ({
   color_1: "#ffffff",
   color_2: "#ffffff",
   intensity: 100,
-  front: "unmuted",
-  rear: "unmuted",
-  sides: "unmuted",
+  front: "muted",
+  rear: "muted",
+  sides: "muted",
   content: "",
   module: "",
   port: 0,

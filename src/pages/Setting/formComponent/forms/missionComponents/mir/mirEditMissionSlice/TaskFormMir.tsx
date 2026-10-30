@@ -54,6 +54,7 @@ import {
   useMirVariableFields,
 } from "./MirVariableContext";
 import {
+  MIR_DEFAULT_SOUND,
   buildMirOperationFields,
   isCurrentPositionOperation,
 } from "./mirActionFields";
@@ -393,11 +394,11 @@ const TaskFormMirContent: FC<{
         collision_detection: op.collision_detection ?? true,
         option: op.option ?? "free",
         wait: formattedWait,
-        sound: op.sound,
+        sound: op.sound || MIR_DEFAULT_SOUND,
         volume: op.volume ?? 0,
-        front: op.front ?? "unmuted",
-        rear: op.rear ?? "unmuted",
-        sides: op.sides ?? "unmuted",
+        front: op.front ?? "muted",
+        rear: op.rear ?? "muted",
+        sides: op.sides ?? "muted",
 
         module: op.module ?? null,
         port: op.port ?? 0,

@@ -6,7 +6,13 @@ import { showZoneForbidden } from "@/utils/gloable";
 import { amrId2ColorRainbow } from "@/utils/utils";
 import useZoneOccupants from "@/api/useZoneOccupants";
 import { c, font, space } from "@/pages/SettingV2/ui/tokens";
-import { PoweroffOutlined, StopOutlined } from "@ant-design/icons";
+import { LinkedZone, useLinkedZones } from "@/pages/SettingV2/ui/zoneLinks";
+import {
+  EditOutlined,
+  LinkOutlined,
+  PoweroffOutlined,
+  StopOutlined,
+} from "@ant-design/icons";
 
 export type ZoneHoverInfo = {
   id: string;
@@ -21,6 +27,7 @@ export type ZoneHoverInfo = {
     limitNum?: number | null;
     view_available?: number | string | null;
     elevator_id?: string | null;
+    splice_id?: string | null;
   };
 };
 
@@ -34,6 +41,7 @@ const ZONE_TYPES = {
   限制區: { labelKey: "edit_zone_panel.controlled_zone", tone: "neutral" },
   查看區: { labelKey: "edit_zone_panel.view_available_zone", tone: "neutral" },
   電梯區: { labelKey: "edit_zone_panel.elevator_zone", tone: "neutral" },
+  拼接區: { labelKey: "edit_zone_panel.splice_zone", tone: "neutral" },
 } as const satisfies Record<string, { labelKey: string; tone: Tone }>;
 
 const toneColors: Record<Tone, { fg: string; bg: string; border: string }> = {
@@ -42,7 +50,7 @@ const toneColors: Record<Tone, { fg: string; bg: string; border: string }> = {
   danger: { fg: c.danger, bg: c.dangerSoft, border: c.danger },
 };
 
-const toOpaque = (color: string) => {
+export const toOpaque = (color: string) => {
   const rgb = color.match(/rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)/i);
   if (!rgb) return color;
   const [, r, g, b] = rgb;
@@ -95,6 +103,29 @@ const ToggleButton = styled.button<{ $enable: boolean }>`
   &:disabled {
     cursor: not-allowed;
     opacity: 0.45;
+  }
+`;
+
+const EditButton = styled.button`
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  font-family: ${font.mono};
+  font-size: ${font.xs};
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: ${c.text};
+  background: ${c.bg};
+  border: 1px solid ${c.borderStrong};
+
+  &:hover {
+    background: ${c.bgSubtle};
   }
 `;
 
@@ -220,6 +251,48 @@ const Dot = styled.span<{ $color: string }>`
   background: ${({ $color }) => $color};
 `;
 
+const LinkList = styled.ul`
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: ${space.xs};
+  max-height: 160px;
+  overflow-y: auto;
+`;
+
+/** 關聯區域一列: 色塊用虛線框, 跟地圖上標示關聯區域的虛線框對得起來 */
+const LinkItem = styled.li`
+  display: flex;
+  align-items: center;
+  gap: ${space.sm};
+  padding: ${space.xs} ${space.sm};
+  font-size: ${font.sm};
+  background: ${c.bgSubtle};
+  border: 1px dashed ${c.borderStrong};
+
+  > b {
+    flex: 1;
+    min-width: 0;
+    word-break: break-all;
+  }
+`;
+
+const LinkSwatch = styled.span<{ $color: string }>`
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border: 2px dashed ${({ $color }) => $color};
+`;
+
+const LinkWhere = styled.span<{ $here: boolean }>`
+  flex-shrink: 0;
+  font-size: ${font.xs};
+  color: ${({ $here }) => ($here ? c.text : c.textMuted)};
+  font-weight: ${({ $here }) => ($here ? 700 : 400)};
+`;
+
 const Muted = styled.div`
   font-size: ${font.sm};
   color: ${c.textMuted};
@@ -236,10 +309,12 @@ const ZoneHoverCard: FC<{
   open: boolean;
   toggling?: boolean;
   onToggleEnabled?: (enabled: boolean) => void;
-}> = ({ info, open, toggling, onToggleEnabled }) => {
+  onEdit?: () => void;
+}> = ({ info, open, toggling, onToggleEnabled, onEdit }) => {
   const { t } = useTranslation();
   const setZoneForbidden = useSetAtom(showZoneForbidden);
   const { data: occupants, isLoading } = useZoneOccupants(open);
+  const linked = useLinkedZones(info);
 
   const { category, tagSetting } = info;
   const disabled = !!info.disabled;
@@ -278,6 +353,12 @@ const ZoneHoverCard: FC<{
       tagSetting?.elevator_id ?? "-",
     ]);
   }
+  if (has("拼接區")) {
+    settings.push([
+      t("edit_zone_panel.splice_id"),
+      tagSetting?.splice_id ?? "-",
+    ]);
+  }
   if (has("禁止區")) {
     settings.push([
       t("edit_zone_panel.forbidden_vehicle"),
@@ -306,6 +387,18 @@ const ZoneHoverCard: FC<{
           $color={disabled ? c.textMuted : toOpaque(info.backgroundColor)}
         />
         <HeaderName>{info.name}</HeaderName>
+        {onEdit && (
+          <EditButton
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
+          >
+            <EditOutlined />
+            {t("utils.edit")}
+          </EditButton>
+        )}
         {onToggleEnabled && (
           <ToggleButton
             type="button"
@@ -334,8 +427,9 @@ const ZoneHoverCard: FC<{
         <Chips>
           {category.length ? (
             category.map((tag) => {
-              const type: (typeof ZONE_TYPES)[keyof typeof ZONE_TYPES] | undefined =
-                ZONE_TYPES[tag as keyof typeof ZONE_TYPES];
+              const type:
+                | (typeof ZONE_TYPES)[keyof typeof ZONE_TYPES]
+                | undefined = ZONE_TYPES[tag as keyof typeof ZONE_TYPES];
               return (
                 <Chip key={tag} $tone={type?.tone ?? "neutral"}>
                   {type ? t(type.labelKey) : tag}
@@ -353,6 +447,23 @@ const ZoneHoverCard: FC<{
           </Row>
         ))}
       </Block>
+
+      {has("電梯區") && tagSetting?.elevator_id && (
+        <LinkedBlock
+          title={t("zone_hover.linked_elevator", {
+            id: tagSetting.elevator_id,
+          })}
+          zones={linked.elevator}
+          ownMapId={linked.ownMapId}
+        />
+      )}
+      {has("拼接區") && tagSetting?.splice_id && (
+        <LinkedBlock
+          title={t("zone_hover.linked_splice", { id: tagSetting.splice_id })}
+          zones={linked.splice}
+          ownMapId={linked.ownMapId}
+        />
+      )}
 
       <Block>
         <BlockTitle>
@@ -379,6 +490,45 @@ const ZoneHoverCard: FC<{
         )}
       </Block>
     </Card>
+  );
+};
+
+/** 跟這個區域綁在一起 (整組一起佔用 / 釋放) 的其他區域, 同地圖的在地圖上另外用虛線框標出來 */
+const LinkedBlock: FC<{
+  title: string;
+  zones: LinkedZone[];
+  ownMapId: string | null;
+}> = ({ title, zones, ownMapId }) => {
+  const { t } = useTranslation();
+  const anyHere = zones.some(({ map }) => map.mapId === ownMapId);
+  return (
+    <Block>
+      <BlockTitle>
+        <span>
+          <LinkOutlined /> {title}
+        </span>
+        <span>{zones.length}</span>
+      </BlockTitle>
+      {zones.length ? (
+        <LinkList>
+          {zones.map(({ zone, map }) => {
+            const here = map.mapId === ownMapId;
+            return (
+              <LinkItem key={zone.id}>
+                <LinkSwatch $color={toOpaque(zone.backgroundColor)} />
+                <b>{zone.name}</b>
+                <LinkWhere $here={here}>
+                  {here ? t("zone_hover.same_map") : map.fileName}
+                </LinkWhere>
+              </LinkItem>
+            );
+          })}
+        </LinkList>
+      ) : (
+        <Muted>{t("zone_hover.no_linked")}</Muted>
+      )}
+      {anyHere && <Muted>{t("zone_hover.linked_on_map_hint")}</Muted>}
+    </Block>
   );
 };
 

@@ -4,7 +4,6 @@ import styled from "styled-components";
 import WebView from "./components/WebView/WebView";
 import Header from "../../components/Header";
 
-// import { Scene } from './3D'
 // import CarCardWrap from './Car_Card/CardWrap'
 // import MissionWrap from './Mission_Card/MissionWrap'
 

@@ -1,5 +1,8 @@
 import { colorKeys, cssVar, type PaletteColors } from "@/theme";
 
+/** 巢狀容器依深度的分層色(var() 參照),值在 palettes.ts 的 scopeTints */
+export { scopeTintVar as scopeTint } from "@/theme";
+
 // 設定頁 v2 的配色。
 //
 // 這裡每個值都是 CSS 變數的參照(例如 `var(--c-bg)`),真正的顏色定義在

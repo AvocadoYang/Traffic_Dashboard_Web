@@ -1015,6 +1015,40 @@ export const resolveColors = (
     ? { ...theme.colors, ...theme.mapCanvas.colors }
     : theme.colors;
 
+export type ScopeTint = { bg: string; border: string };
+
+export const scopeTints: Record<ThemeMode, ScopeTint[]> = {
+  light: [
+    { bg: "#f0f4f8", border: "#b8c7d6" }, // 灰藍
+    { bg: "#f1f6f1", border: "#b9cfb9" }, // 灰綠
+    { bg: "#f4f1f8", border: "#c9bdd9" }, // 灰紫
+    { bg: "#f8f3ec", border: "#d9c6aa" }, // 灰杏
+    { bg: "#eef6f6", border: "#b0d0cf" }, // 灰青
+    { bg: "#f8f0f2", border: "#d9b8c0" }, // 灰玫
+  ],
+  dark: [
+    { bg: "#1c222a", border: "#3a4a5c" },
+    { bg: "#1c241e", border: "#3c5440" },
+    { bg: "#221e2a", border: "#4a4060" },
+    { bg: "#26211a", border: "#5a4a34" },
+    { bg: "#1a2526", border: "#365658" },
+    { bg: "#261d20", border: "#5a3c44" },
+  ],
+};
+
+export const SCOPE_TINT_COUNT = scopeTints.light.length;
+
+export const scopeTintVarName = (i: number, part: keyof ScopeTint): string =>
+  `--c-scope-${i}-${part}`;
+
+export const scopeTintVar = (depth: number): ScopeTint => {
+  const i = depth % SCOPE_TINT_COUNT;
+  return {
+    bg: `var(${scopeTintVarName(i, "bg")})`,
+    border: `var(${scopeTintVarName(i, "border")})`,
+  };
+};
+
 /** bgSubtle -> --c-bg-subtle */
 export const cssVarName = (key: keyof PaletteColors): string =>
   `--c-${key.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)}`;

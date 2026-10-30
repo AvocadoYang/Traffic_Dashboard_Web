@@ -1,14 +1,5 @@
 import { FC, useEffect, useMemo, useRef, useState } from "react";
-import {
-  ColorPicker,
-  Form,
-  Input,
-  InputNumber,
-  Modal,
-  Popconfirm,
-  Table,
-  message,
-} from "antd";
+import { Input, Popconfirm, Table, message } from "antd";
 import type { TableColumnsType } from "antd";
 import {
   DeleteOutlined,
@@ -20,23 +11,18 @@ import {
   UnorderedListOutlined,
 } from "@ant-design/icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
 import useAllGroupsResources from "@/api/useAllGroupsResources";
 import client from "@/api/axiosClient";
-import { currentMapIdAtom } from "@/utils/mapSelection";
 import { ErrorResponse } from "@/utils/globalType";
-import { editErrorHandler, errorHandler } from "@/utils/utils";
+import { errorHandler } from "@/utils/utils";
 import useIsNarrow from "../../ui/useIsNarrow";
 import GroupMapFilter from "../../ui/GroupMapFilter";
-import ZoneFields from "../../ui/zoneFields";
+import { linkIdOf } from "../../ui/zoneLinks";
 import {
   PanelShell,
   Section,
   SectionTitle,
-  FieldGrid,
-  Field,
-  FieldLabel,
   Toolbar,
   GhostButton,
   DangerButton,
@@ -51,40 +37,15 @@ import {
 import { c } from "../../ui/tokens";
 import StatusTag from "../../ui/StatusTag";
 import useToggleZoneEnabled from "@/api/useToggleZoneEnabled";
-
-type ZoneRow = {
-  id: string;
-  name: string;
-  backgroundColor: string;
-  category: string[];
-  layer: string;
-  lidar_front: boolean;
-  lidar_back: boolean;
-  disabled?: boolean;
-  tagSetting?: {
-    speed_limit?: number | null;
-    hight_limit?: number | null;
-    forbidden_car?: string[];
-    limitNum?: number | null;
-    view_available?: number | null;
-    elevator_id?: string | null;
-  };
-  startPoint: { startX: number; startY: number };
-  endPoint: { endX: number; endY: number };
-  rev?: string;
-  mapFileName: string;
-  groupName: string;
-};
+import ZoneEditModal, { ZoneRow } from "./ZoneEditModal";
 
 const ZoneListPanel: FC = () => {
   const { t } = useTranslation();
   const isNarrow = useIsNarrow();
   const queryClient = useQueryClient();
   const [messageApi, contextHolder] = message.useMessage();
-  const [editForm] = Form.useForm();
 
   const { data: resources, refetch, isFetching } = useAllGroupsResources();
-  const currentMapId = useAtomValue(currentMapIdAtom);
 
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<ZoneRow | null>(null);
@@ -141,21 +102,6 @@ const ZoneListPanel: FC = () => {
     queryClient.refetchQueries({ queryKey: ["all-groups-resources"] });
   };
 
-  const editMutation = useMutation({
-    mutationFn: (payload: Record<string, unknown>) =>
-      client.post("api/setting/edit-edit-zone", payload),
-    onSuccess: () => {
-      void messageApi.success(t("utils.success"));
-      invalidate();
-      setEditing(null);
-    },
-    onError: (e: ErrorResponse) =>
-      editErrorHandler(e, messageApi, () => {
-        invalidate();
-        setEditing(null);
-      }),
-  });
-
   const deleteMutation = useMutation({
     mutationFn: (id: string) =>
       // 後端收的是 zoneIds 陣列;送 { id } 的話它拿不到要刪哪一筆,每次都失敗
@@ -196,7 +142,9 @@ const ZoneListPanel: FC = () => {
       return maps.flatMap((m) =>
         m.zones.map((zone) => ({
           ...zone,
+          mapId: m.mapId,
           mapFileName: m.fileName,
+          groupId: g.groupId,
           groupName: g.groupName,
         })),
       );
@@ -207,54 +155,10 @@ const ZoneListPanel: FC = () => {
     return all.filter((z) => z.name.toLowerCase().includes(keyword));
   }, [resources, selectedGroupId, selectedMapId, search]);
 
-  const openEdit = (row: ZoneRow) => {
-    const forbiddenCar = row.tagSetting?.forbidden_car ?? [];
-    // forbidden_car 存 ["*"] 代表當初勾的是「禁止所有車輛」,不是一台叫 "*" 的車
-    const isAll = forbiddenCar.includes("*");
+  const linkIdText = (row: ZoneRow, kind: "elevator" | "splice") =>
+    linkIdOf(row, kind) ?? "—";
 
-    editForm.setFieldsValue({
-      name: row.name,
-      category: row.category ?? [],
-      layer: row.layer === "none" ? undefined : row.layer,
-      lidar_front: row.lidar_front,
-      lidar_back: row.lidar_back,
-      startX: row.startPoint.startX,
-      startY: row.startPoint.startY,
-      endX: row.endPoint.endX,
-      endY: row.endPoint.endY,
-      speed_limit: row.tagSetting?.speed_limit ?? undefined,
-      hight_limit: row.tagSetting?.hight_limit ?? undefined,
-      limitNum: row.tagSetting?.limitNum ?? undefined,
-      view_available: row.tagSetting?.view_available ?? undefined,
-      elevator_id: row.tagSetting?.elevator_id ?? undefined,
-      all_forbidden: isAll,
-      forbidden: isAll ? [] : forbiddenCar,
-      color: row.backgroundColor,
-    });
-    setEditing(row);
-  };
-
-  const submitEdit = async () => {
-    if (!editing) return;
-    try {
-      await editForm.validateFields();
-    } catch {
-      return;
-    }
-    const v = editForm.getFieldsValue() as Record<string, unknown>;
-    const allForbidden = v.all_forbidden as boolean;
-
-    editMutation.mutate({
-      ...v,
-      id: editing.id,
-      rev: editing.rev,
-      layer: v.layer ? v.layer : "none",
-      lidar_back: v.layer ? v.lidar_back : false,
-      lidar_front: v.layer ? v.lidar_front : false,
-      forbidden: allForbidden ? ["*"] : ((v.forbidden as string[]) ?? []),
-      map_id: currentMapId,
-    });
-  };
+  const openEdit = (row: ZoneRow) => setEditing(row);
 
   const colorDot = (bg: string) => (
     <span
@@ -327,6 +231,22 @@ const ZoneListPanel: FC = () => {
       width: 160,
       render: (v: string[]) =>
         v?.length ? v.map((c) => <Tag key={c}>{c}</Tag>) : "—",
+    },
+    {
+      title: t("edit_zone_panel.elevator_id"),
+      key: "elevator_id",
+      width: 110,
+      sorter: (a, b) =>
+        linkIdText(a, "elevator").localeCompare(linkIdText(b, "elevator")),
+      render: (_, r) => linkIdText(r, "elevator"),
+    },
+    {
+      title: t("edit_zone_panel.splice_id"),
+      key: "splice_id",
+      width: 110,
+      sorter: (a, b) =>
+        linkIdText(a, "splice").localeCompare(linkIdText(b, "splice")),
+      render: (_, r) => linkIdText(r, "splice"),
     },
     {
       title: t("zone_table_form.zone_color"),
@@ -433,6 +353,18 @@ const ZoneListPanel: FC = () => {
                       ? row.category.map((c) => <Tag key={c}>{c}</Tag>)
                       : "—"}
                   </dd>
+                  {linkIdOf(row, "elevator") && (
+                    <>
+                      <dt>{t("edit_zone_panel.elevator_id")}</dt>
+                      <dd>{linkIdText(row, "elevator")}</dd>
+                    </>
+                  )}
+                  {linkIdOf(row, "splice") && (
+                    <>
+                      <dt>{t("edit_zone_panel.splice_id")}</dt>
+                      <dd>{linkIdText(row, "splice")}</dd>
+                    </>
+                  )}
                   <dt>{t("map_manager.map_group")}</dt>
                   <dd>{row.mapFileName}</dd>
                 </CardFacts>
@@ -477,54 +409,7 @@ const ZoneListPanel: FC = () => {
         )}
       </Section>
 
-      <Modal
-        open={!!editing}
-        title={`${t("utils.edit")} — ${editing?.name ?? ""}`}
-        onCancel={() => setEditing(null)}
-        onOk={submitEdit}
-        confirmLoading={editMutation.isLoading}
-        okText={t("utils.save")}
-        cancelText={t("utils.cancel")}
-        destroyOnHidden
-      >
-        <Form form={editForm} layout="vertical">
-          <FieldGrid $cols={2}>
-            <Field>
-              <FieldLabel>{t("edit_zone_panel.start_x")}</FieldLabel>
-              <Form.Item name="startX" noStyle>
-                <InputNumber style={{ width: "100%" }} />
-              </Form.Item>
-            </Field>
-            <Field>
-              <FieldLabel>{t("edit_zone_panel.start_y")}</FieldLabel>
-              <Form.Item name="startY" noStyle>
-                <InputNumber style={{ width: "100%" }} />
-              </Form.Item>
-            </Field>
-            <Field>
-              <FieldLabel>{t("edit_zone_panel.end_x")}</FieldLabel>
-              <Form.Item name="endX" noStyle>
-                <InputNumber style={{ width: "100%" }} />
-              </Form.Item>
-            </Field>
-            <Field>
-              <FieldLabel>{t("edit_zone_panel.end_y")}</FieldLabel>
-              <Form.Item name="endY" noStyle>
-                <InputNumber style={{ width: "100%" }} />
-              </Form.Item>
-            </Field>
-          </FieldGrid>
-
-          <Field>
-            <FieldLabel>{t("zone_table_form.zone_color")}</FieldLabel>
-            <Form.Item name="color" noStyle>
-              <ColorPicker />
-            </Form.Item>
-          </Field>
-
-          <ZoneFields form={editForm} />
-        </Form>
-      </Modal>
+      <ZoneEditModal zone={editing} onClose={() => setEditing(null)} />
     </PanelShell>
   );
 };

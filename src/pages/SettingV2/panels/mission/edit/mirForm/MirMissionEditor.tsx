@@ -40,7 +40,7 @@ import {
   Toolbar,
 } from "../../../../ui/primitives";
 import styled from "styled-components";
-import { c, font, space } from "../../../../ui/tokens";
+import { c, font, scopeTint, space } from "../../../../ui/tokens";
 import { NestedEmpty, NestedList } from "../steps/stepPrimitives";
 import { useIncludeMissionOptions } from "../steps/includeMission";
 import useMirMissionTitleVariables from "@/api/useMirMissionTitleVariables";
@@ -84,8 +84,15 @@ const SlotHeader = styled.div`
   color: ${c.text};
 `;
 
-/** 拖曳經過時把整個區塊框起來,讓人知道放開會進到哪裡 */
-const ZoneFrame = styled.div<{ $over: boolean }>`
+/**
+ * 區塊依巢狀深度上不同的淡底色,多層容器才分得出誰是誰。
+ * 拖曳經過時再把整個區塊框起來,讓人知道放開會進到哪裡。
+ */
+const ZoneFrame = styled.div<{ $over: boolean; $depth: number }>`
+  margin-top: ${space.xs};
+  padding: ${space.sm};
+  background: ${({ $depth }) => scopeTint($depth).bg};
+  border: 1px solid ${({ $depth }) => scopeTint($depth).border};
   outline: 2px dashed ${({ $over }) => ($over ? c.accent : "transparent")};
   outline-offset: 2px;
 `;
@@ -113,15 +120,16 @@ type SlotZoneData = {
 const SlotDropZone: FC<{
   parentClientId: string;
   slot: ParentSlot;
+  depth: number;
   children: React.ReactNode;
-}> = ({ parentClientId, slot, children }) => {
+}> = ({ parentClientId, slot, depth, children }) => {
   const data: SlotZoneData = { type: SLOT_ZONE, parentClientId, slot };
   const { setNodeRef, isOver } = useDroppable({
     id: `zone-${slotKey(parentClientId, slot)}`,
     data,
   });
   return (
-    <ZoneFrame ref={setNodeRef} $over={isOver}>
+    <ZoneFrame ref={setNodeRef} $over={isOver} $depth={depth}>
       {children}
     </ZoneFrame>
   );
@@ -590,7 +598,12 @@ const MirMissionEditorContent: FC<Props> = ({ missionId, robotValue }) => {
    * 卡片本身加上(容器展開時)底下的區塊。子動作也可能是容器,所以會遞迴,
    * 跟 v1 的 SliceNode 一樣。
    */
-  const node = (slice: EditorSlice, index: number, siblingCount: number) => (
+  const node = (
+    slice: EditorSlice,
+    index: number,
+    siblingCount: number,
+    depth = 0,
+  ) => (
     <div key={slice.clientId}>
       <MirActionCard
         slice={slice}
@@ -610,12 +623,12 @@ const MirMissionEditorContent: FC<Props> = ({ missionId, robotValue }) => {
       />
       {isContainerOperation(slice.operation) &&
       expanded.includes(slice.clientId)
-        ? containerBody(slice)
+        ? containerBody(slice, depth)
         : null}
     </div>
   );
 
-  const containerBody = (slice: EditorSlice) => {
+  const containerBody = (slice: EditorSlice, depth: number) => {
     const slots = containerSlots(slice.operation);
     return slots.map((slot) => {
       const children = childrenBySlot.get(slotKey(slice.clientId, slot)) ?? [];
@@ -628,12 +641,18 @@ const MirMissionEditorContent: FC<Props> = ({ missionId, robotValue }) => {
             items={children.map((s) => s.clientId)}
             strategy={verticalListSortingStrategy}
           >
-            <SlotDropZone parentClientId={slice.clientId} slot={slot}>
+            <SlotDropZone
+              parentClientId={slice.clientId}
+              slot={slot}
+              depth={depth}
+            >
               {children.length === 0 ? (
                 <NestedEmpty>{t("setting_v2.mir.nested_empty")}</NestedEmpty>
               ) : (
                 <NestedList>
-                  {children.map((child, i) => node(child, i, children.length))}
+                  {children.map((child, i) =>
+                    node(child, i, children.length, depth + 1),
+                  )}
                 </NestedList>
               )}
             </SlotDropZone>

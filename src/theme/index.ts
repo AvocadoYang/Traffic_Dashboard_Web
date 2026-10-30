@@ -7,6 +7,8 @@ export {
   DEFAULT_THEME_ID,
   getMapCanvas,
   resolveColors,
+  scopeTintVar,
+  type ScopeTint,
   type Theme,
   type ThemeId,
   type ThemeMode,

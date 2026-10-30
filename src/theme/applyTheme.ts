@@ -6,6 +6,8 @@ import {
   getMapCanvas,
   getTheme,
   resolveColors,
+  scopeTints,
+  scopeTintVarName,
   type MapImageMode,
   type Theme,
   type ThemeId,
@@ -53,6 +55,11 @@ export const applyTheme = (theme: Theme, mapImage: MapImageMode): void => {
   const colors = resolveColors(theme, mapImage);
   colorKeys.forEach((key) => {
     root.style.setProperty(cssVarName(key), colors[key]);
+  });
+
+  scopeTints[theme.mode].forEach((tint, i) => {
+    root.style.setProperty(scopeTintVarName(i, "bg"), tint.bg);
+    root.style.setProperty(scopeTintVarName(i, "border"), tint.border);
   });
 
   // 底圖現在的白 / 黑實際上是什麼顏色。直接寫在地圖上的字(區域名稱…)用 ink 才看得到。
