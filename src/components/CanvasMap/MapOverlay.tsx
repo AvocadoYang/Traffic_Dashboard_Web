@@ -100,10 +100,16 @@ const InlineRow = styled.div`
 /**
  * 區域名稱 + 眼睛圖示 (藏起來) + 資訊卡 (停用 / 啟用)。inline: 3D 檢視用, 不自己定位 (外面包 drei Html)
  */
-export const ZoneLabel: FC<{ zone: SceneZone; info: Parameters<typeof ZoneHoverCard>[0]["info"]; inline?: boolean }> = ({
+export const ZoneLabel: FC<{
+  zone: SceneZone;
+  info: Parameters<typeof ZoneHoverCard>[0]["info"];
+  inline?: boolean;
+  onEdit?: (zoneId: string) => void;
+}> = ({
   zone,
   info,
   inline = false,
+  onEdit,
 }) => {
   const { t } = useTranslation();
   const [hidden, setHidden] = useAtom(hiddenZoneIdsAtom);
@@ -151,6 +157,14 @@ export const ZoneLabel: FC<{ zone: SceneZone; info: Parameters<typeof ZoneHoverC
         setCardOpen(false);
         setEnabled(info, enabled);
       }}
+      onEdit={
+        onEdit
+          ? () => {
+              setCardOpen(false);
+              onEdit(info.id);
+            }
+          : undefined
+      }
     />
   );
   const cardStyles = {
@@ -214,7 +228,7 @@ const LinkedZoneOutlines: FC<{ scene: MapScene }> = ({ scene }) => {
   );
 };
 
-const ZoneLabels: FC<{ scene: MapScene }> = ({ scene }) => {
+const ZoneLabels: FC<{ scene: MapScene; onZoneEdit?: (zoneId: string) => void }> = ({ scene, onZoneEdit }) => {
   const { data } = useMap();
   if (!data) return null;
   const infoById = new Map(data.zones.map((z) => [z.id, z]));
@@ -223,7 +237,7 @@ const ZoneLabels: FC<{ scene: MapScene }> = ({ scene }) => {
       <LinkedZoneOutlines scene={scene} />
       {scene.zones.map((zone) => {
         const info = infoById.get(zone.id);
-        return info ? <ZoneLabel key={zone.id} zone={zone} info={info} /> : null;
+        return info ? <ZoneLabel key={zone.id} zone={zone} info={info} onEdit={onZoneEdit} /> : null;
       })}
     </>
   );
@@ -252,14 +266,18 @@ const PauseHint: FC = () => {
   );
 };
 
-const MapOverlay: FC<{ scene: MapScene }> = ({ scene }) => {
+const MapOverlay: FC<{
+  scene: MapScene;
+  /** 有給的話, 區域資訊卡會多一個編輯鈕 */
+  onZoneEdit?: (zoneId: string) => void;
+}> = ({ scene, onZoneEdit }) => {
   const showZones = useAtomValue(showAllZonesSwitch);
   const showLocationTooltip = useAtomValue(isShowLocationTooltip);
   const showRoad = useAtomValue(isShowRoad);
   const showRoadTooltip = useAtomValue(isShowRoadTooltip);
   return (
     <>
-      {showZones ? <ZoneLabels scene={scene} /> : null}
+      {showZones ? <ZoneLabels scene={scene} onZoneEdit={onZoneEdit} /> : null}
       {showLocationTooltip ? (
         <>
           <ToolTip />
