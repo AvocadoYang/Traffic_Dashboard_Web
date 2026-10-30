@@ -41,7 +41,7 @@
     "no_transfer_rule": "There are no manual or scheduled area transfer rules yet. Create one under Settings > Area Transfer first.",
     "group_options": "Groups",
     "location_options": "Locations",
-    "group_hint": "Groups can be selected, for example pickup PU_G2 and drop-off PU_G1, moving one load per press. With a group, the slot is chosen by the group placement rules and pick order under Settings > Conveyor dispatch.",
+    "group_hint": "Groups can be selected, for example pickup PU_G2 and drop-off PU_G1, moving one load per press. With a group, the slot is chosen by the group pick & place rules under Settings.",
     "fired_waiting": "Mission created, but no slot is free right now. It is kept as Waiting for location and will be sent out once a slot frees up",
     "delete_button_confirm_title": "Delete this button?",
     "add_widget_card": "Add Mission Status List",
@@ -702,6 +702,7 @@
       "dispatch_strategy": "Dispatch Strategy",
       "conveyor_dispatch": "Conveyor Dispatch",
       "transfer_rules": "Area Transfer",
+      "group_pick_place": "Group Pick & Place Rules",
       "work_areas": "Work Areas"
     },
     "others": {
@@ -2817,37 +2818,7 @@
     "priority": "Mission priority",
     "move_up": "Move up",
     "move_down": "Move down",
-    "policy_title": "Group Placement Rules",
-    "only_stack_note": "Placement rules apply to STACK members only. Groups without rules accept any free slot as before. Rules also apply when WCS targets the group or one of its locations.",
-    "no_stack_group": "No group contains a STACK",
-    "no_policy": "Not set",
-    "max_levels": "Max levels",
-    "prefer_stacking": "Stack first",
-    "prefer_stacking_hint": "On: stack onto an existing slot when possible, open a new slot only when nothing can be stacked",
-    "stack_match_keys": "Stack only when these fields match",
-    "stack_match_hint": "Leave empty to allow any cargo to stack together",
-    "height_limit": "Height limit",
-    "height_key": "Height field",
-    "max_height": "Max total height",
-    "height_hint": "Total stacked height (same unit as the cargo field) must stay within the limit; cargo without a readable height is not stacked",
-    "pick_order": "Pick order",
-    "pick_order_NEAREST": "Nearest first",
-    "pick_order_FEWEST_LEVELS": "Fewest cargo first",
-    "pick_order_hint_NEAREST": "Lane rules apply first; among reachable slots, take from the one closest to the vehicle or drop-off point",
-    "pick_order_hint_FEWEST_LEVELS": "Lane rules apply first; among reachable slots, take from the stack holding the least cargo so it empties sooner and frees space for drop-offs. Ties go to the closest",
-    "pick_order_OLDEST_FIRST": "Oldest first",
-    "pick_order_hint_OLDEST_FIRST": "Lane rules apply first; among reachable slots, compare when each top cargo was placed on its stack and take the oldest. Only the top of a stack can be taken, so older cargo underneath waits until the cargo above is gone. Cargo placed before this feature has no time and counts as oldest",
-    "lanes": "Lanes",
-    "lanes_hint": "Pick each row from the innermost slot to the aisle. Only one vehicle works in a lane at a time; inner slots are blocked while an outer slot has cargo, and slots are filled from the inside out.",
-    "lane_n": "Lane {{n}}",
-    "lane_placeholder": "Select from inner to outer",
-    "lane_inner": "Inner",
-    "lane_outer": "Aisle",
-    "add_lane": "Add lane",
-    "unassigned": "Slots not in any lane (no lane restrictions)",
-    "unassigned_hint": "These slots are treated as always directly reachable. When placing cargo the system picks the slot closest to the conveyor, and lane slots get no extra priority. If these slots also sit in a row, add the whole row as a lane.",
-    "remove_policy": "Remove placement rules",
-    "remove_policy_warn": "Any free slot in this group will be used after removal. Continue?",
+    "placement_moved": "Which slot of a group is used (lanes, levels, pick order) is set under Dispatch Rules > Group Pick & Place Rules.",
     "help": {
       "open": "How to use",
       "runtime": {
@@ -2912,97 +2883,10 @@
           {
             "title": "Which slot in the group",
             "items": [
-              "Dispatch rules only choose the group; the slot inside the group is decided by the group placement rules below."
+              "Dispatch rules only choose the group; the slot inside the group is decided under Dispatch Rules > Group Pick & Place Rules."
             ]
           }
         ]
-      },
-      "policy": {
-        "title": "Setting up group placement rules",
-        "sections": [
-          {
-            "title": "Where they apply",
-            "items": [
-              "Only the stacks in a group are covered, with one set of rules per group.",
-              "They apply whenever the pickup or drop-off point is this group or one of its stacks: conveyor dispatch, WCS, fast missions and mission dispatch board buttons alike.",
-              "Groups without rules keep the old behaviour and use the closest slot."
-            ]
-          },
-          {
-            "title": "Placing cargo",
-            "items": [
-              "Max levels: how many cargo each stack may hold.",
-              "Stack first: when on, cargo is stacked onto an existing slot if possible, and a new slot is used only when nothing can be stacked.",
-              "Stack only when these fields match: for example batchNo, so only cargo from the same batch is stacked together; leave empty to allow any cargo.",
-              "Height limit: pick the cargo field that holds the height; the total stacked height must stay within the limit, and cargo without a readable height is not stacked."
-            ]
-          },
-          {
-            "title": "Picking cargo",
-            "items": [
-              "Pick order decides which reachable slot is picked first: nearest first, fewest cargo first, or oldest first.",
-              "Whichever you choose, lane rules apply first, so blocked slots are never picked."
-            ]
-          },
-          {
-            "title": "Lanes",
-            "items": [
-              "A row of stacks that vehicles can only enter from one end must be set up as a lane, so cargo is placed from the inside out and picked from the outside in. See the question mark next to Lanes for details.",
-              "Stacks that are in no lane are treated as always reachable and are listed in a yellow warning."
-            ]
-          },
-          {
-            "title": "Remember to save",
-            "items": [
-              "Changes take effect only after Save; Remove placement rules returns the group to having no rules."
-            ]
-          }
-        ]
-      },
-      "lanes": {
-        "title": "Setting up lanes",
-        "sections": [
-          {
-            "title": "What a lane is",
-            "items": [
-              "A row of stacks that vehicles can only enter from one end (a dead end): reaching an inner slot always means passing the outer ones.",
-              "The picture above shows a three-slot lane entered from the aisle on the right."
-            ]
-          },
-          {
-            "title": "How to set it up",
-            "items": [
-              "Create one lane per row and select its slots from the innermost to the aisle.",
-              "The direction must follow the roads on the map: seen from where vehicles enter, the farthest slot is the innermost. When unsure, check on the map which end of the row connects to the aisle rather than going by how the slots are laid out.",
-              "Set up every row in the group; stacks left out are not restricted and are treated as always reachable."
-            ]
-          },
-          {
-            "title": "What the system does",
-            "items": [
-              "Places from the inside out: the next slot is used only after the inner one holds cargo or is disabled.",
-              "Picks from the outside in: only the occupied slot nearest the aisle can be picked.",
-              "While an outer slot holds cargo, inner slots can be neither picked nor filled.",
-              "Only one vehicle works in a lane at a time, counting both picking and placing, so vehicles do not block each other inside."
-            ]
-          },
-          {
-            "title": "Common problems",
-            "items": [
-              "Path planning errors saying the start and end are not fully connected: the aisle point of this row is not linked to other roads on the map, so vehicles cannot drive in. Add the missing road on the map.",
-              "The system keeps picking stacks outside any lane: some stacks in the group are not in any lane yet."
-            ]
-          }
-        ]
-      },
-      "lane_diagram": {
-        "alt": "Lane diagram: three slots in a row entered from the aisle; cargo is placed from the innermost slot outward and picked from the aisle inward",
-        "inner": "Innermost",
-        "middle": "Middle",
-        "outer": "Aisle side",
-        "aisle": "Aisle (vehicles enter)",
-        "place": "Place order",
-        "pick": "Pick order"
       }
     }
   },
@@ -3129,7 +3013,7 @@
     "runtime_title": "Live status",
     "no_runtime": "No area transfer rules yet",
     "rules_title": "Transfer rules",
-    "rules_hint": "Each rule moves cargo from one group to another with one trigger. The exact slots are chosen by the placement rules and pick order of the two groups (set under Conveyor Dispatch).",
+    "rules_hint": "Each rule moves cargo from one group to another with one trigger. The exact slots are chosen by the placement rules and pick order of the two groups (set under Group Pick & Place Rules).",
     "no_rule": "No rules yet. Click Add rule to create one",
     "add_rule": "Add rule",
     "edit_rule": "Edit rule",
@@ -3231,7 +3115,7 @@
             "title": "Basics",
             "items": [
               "Pick a source group and a destination group, for example PU_G2 → PU_G1.",
-              "Slots are chosen by the placement rules and pick order of both groups, so set up lanes and other rules under Conveyor Dispatch first.",
+              "Slots are chosen by the placement rules and pick order of both groups, so set up lanes and other rules under Group Pick & Place Rules first.",
               "Max missions at once includes missions waiting for a location. 1 is the safest; raise it to move faster at the cost of tying up more vehicles."
             ]
           },
@@ -3259,6 +3143,211 @@
             ]
           }
         ]
+      }
+    }
+  },
+  "group_pick_place": {
+    "title": "Group Pick & Place Rules",
+    "schema_not_ready": "The tables do not exist yet. Run yarn pdp in mission-control.",
+    "intro": "Decides which slot of a group cargo goes to and which slot it is taken from. The rules apply whenever the pickup or drop-off point is this group or one of its points: conveyor dispatch, area transfer, WCS and the mission dispatch board. Groups without rules keep the old behaviour: point priority first, then the closest slot.",
+    "no_group": "No group contains a STACK or a storage location. Create one under Device > Device Area Table first.",
+    "member_count": "{{stack}} STACK slots, {{storage}} storage slots",
+    "no_policy": "No rules yet",
+    "unsaved": "Unsaved changes",
+    "preset": "Apply a preset",
+    "preset_hint": "A preset only fills in the pick and place order; lanes and fields are still up to you. Changes take effect after Save.",
+    "preset_applied": "Applied \"{{name}}\". Press Save to put it into effect",
+    "preset_GENERAL": "General: nearest pick, nearest place",
+    "preset_FIFO": "First in, first out: oldest first",
+    "preset_STACKING": "Stacking area: stack first, fewest cargo first",
+    "preset_RACK": "Multi-level rack: lowest level first",
+    "order_title": "Picking and placing",
+    "order_hint": "The pick / drop-off priority of each point always comes first (higher first); the order below only breaks ties, and distance comes last.",
+    "pick_order": "Pick order",
+    "pick_order_NEAREST": "Nearest first",
+    "pick_order_FEWEST_LEVELS": "Fewest cargo first",
+    "pick_order_OLDEST_FIRST": "Oldest first",
+    "pick_order_hint_NEAREST": "Lane rules apply first; among reachable slots, take from the one closest to the vehicle or drop-off point.",
+    "pick_order_hint_FEWEST_LEVELS": "Lane rules apply first; among reachable slots, take from the stack holding the least cargo so it empties sooner. A storage slot holds one cargo; ties go to the closest.",
+    "pick_order_hint_OLDEST_FIRST": "Lane rules apply first; among reachable slots, take the cargo that has been there longest. Stacks compare their top cargo (older cargo underneath waits until the cargo above is gone); storage slots compare their own cargo. Cargo placed before this feature has no time and counts as oldest.",
+    "offload_order": "Place order",
+    "offload_order_NEAREST": "Nearest first",
+    "offload_order_LOWEST_LEVEL": "Lowest level first",
+    "offload_order_hint_NEAREST": "Among slots that can take the cargo, use the one closest to the pickup point.",
+    "offload_order_hint_LOWEST_LEVEL": "Fill the lowest level of multi-level storage first, then the closest slot on that level; stacks have no levels.",
+    "stacking_title": "Stacking (STACK only)",
+    "max_levels": "Max levels",
+    "prefer_stacking": "Stack first",
+    "prefer_stacking_hint": "On: stack onto an existing slot when possible, open a new slot only when nothing can be stacked",
+    "stack_match_keys": "Stack only when these fields match",
+    "stack_match_hint": "Leave empty to allow any cargo to stack together",
+    "height_limit": "Height limit",
+    "height_key": "Height field",
+    "max_height": "Max total height",
+    "height_hint": "Total stacked height (same unit as the cargo field) must stay within the limit; cargo without a readable height is not stacked",
+    "lanes": "Lanes",
+    "lanes_hint": "Pick each row from the innermost slot to the aisle; stacks and storage slots both work. Only one vehicle works in a lane at a time; inner slots are blocked while an outer slot has cargo, and slots are filled from the inside out.",
+    "lane_n": "Lane {{n}}",
+    "lane_placeholder": "Select from inner to outer",
+    "lane_inner": "Inner",
+    "lane_outer": "Aisle",
+    "add_lane": "Add lane",
+    "lane_match_keys": "One lane holds cargo with matching fields only",
+    "lane_match_hint": "For example batchNo: each lane holds a single batch, so reaching inner cargo never means moving another batch first. An empty lane takes anything; leave empty for no restriction.",
+    "unassigned": "Points not in any lane (no lane restrictions)",
+    "unassigned_hint": "These points are treated as always directly reachable. If they also sit in a row, add the whole row as a lane.",
+    "remove_policy": "Remove rules",
+    "remove_policy_warn": "The group goes back to having no rules. Continue?",
+    "points_title": "Points",
+    "points_hint": "Select points to disable them or change their priority in one go. Changes apply immediately, no Save needed. This is the same data as Edit Locations and Stack Batch Edit.",
+    "selected": "{{count}} selected",
+    "disable": "Disable",
+    "enable": "Enable",
+    "disable_confirm": "Disable these {{count}} points? No new missions will pick or place there; missions already created finish as usual.",
+    "enable_confirm": "Enable these {{count}} points?",
+    "load_priority": "Pick priority",
+    "offload_priority": "Drop-off priority",
+    "apply": "Apply",
+    "priority_confirm": "Set {{field}} of these {{count}} points to {{value}}?",
+    "col_name": "Point",
+    "col_type": "Type",
+    "col_lane": "Lane",
+    "col_priority": "Pick / drop-off priority",
+    "col_cargo": "Cargo",
+    "type_STACK": "STACK",
+    "type_STORAGE": "Storage",
+    "type_STORAGE_level": "Storage, level {{n}}",
+    "lane_pos": "Lane {{lane}}, slot {{pos}}",
+    "state_disabled": "Disabled",
+    "state_booked": "In use",
+    "cargo_n": "{{n}}",
+    "no_points": "This group has no STACK or storage points",
+    "help": {
+      "open": "How to use",
+      "policy": {
+        "title": "Setting up group pick & place rules",
+        "sections": [
+          {
+            "title": "Where they apply",
+            "items": [
+              "One set of rules per group, covering its stacks and storage slots (each storage level counts as one slot).",
+              "They apply whenever the pickup or drop-off point is this group or one of its points: conveyor dispatch, area transfer, WCS, fast missions and mission dispatch board buttons alike.",
+              "Groups without rules keep the old behaviour: point priority first, then the closest slot."
+            ]
+          },
+          {
+            "title": "What comes first",
+            "items": [
+              "Slots blocked by a lane, disabled or in use are ruled out first, whatever the order.",
+              "The rest are compared by the pick / drop-off priority of each point, higher first.",
+              "Equal priorities are settled by the pick / place order, and distance comes last."
+            ]
+          },
+          {
+            "title": "Picking cargo",
+            "items": [
+              "Nearest first, fewest cargo first, or oldest first.",
+              "Oldest first compares the top cargo of a stack and the cargo of a storage slot; cargo placed before this feature has no time and counts as oldest."
+            ]
+          },
+          {
+            "title": "Placing cargo",
+            "items": [
+              "Nearest first: the slot closest to the pickup point.",
+              "Lowest level first: the lowest level of multi-level storage first, then the closest.",
+              "Stacking settings (max levels, stack first, matching fields, height limit) only affect stacks; a storage slot holds one cargo."
+            ]
+          },
+          {
+            "title": "Lanes",
+            "items": [
+              "A row that vehicles can only enter from one end (stacks or floor storage) must be set up as a lane, so cargo is placed from the inside out and picked from the outside in. See the question mark next to Lanes for details.",
+              "One lane holds cargo with matching fields only: for example batchNo, so each lane holds one batch; a different batch can go in once the whole lane is empty.",
+              "Points that are in no lane are treated as always reachable and are listed in a yellow warning."
+            ]
+          },
+          {
+            "title": "Remember to save",
+            "items": [
+              "Changes to picking, placing, stacking and lanes take effect only after Save; Remove rules returns the group to having no rules.",
+              "Disabling points and changing priorities in the point list below applies immediately, no Save needed."
+            ]
+          }
+        ]
+      },
+      "lanes": {
+        "title": "Setting up lanes",
+        "sections": [
+          {
+            "title": "What a lane is",
+            "items": [
+              "A row of points that vehicles can only enter from one end (a dead end): reaching an inner slot always means passing the outer ones. Stacks and floor storage both qualify.",
+              "The picture above shows a three-slot lane entered from the aisle on the right."
+            ]
+          },
+          {
+            "title": "How to set it up",
+            "items": [
+              "Create one lane per row and select its slots from the innermost to the aisle.",
+              "The direction must follow the roads on the map: seen from where vehicles enter, the farthest slot is the innermost. When unsure, check on the map which end of the row connects to the aisle rather than going by how the slots are laid out.",
+              "Set up every row in the group; points left out are not restricted and are treated as always reachable."
+            ]
+          },
+          {
+            "title": "What the system does",
+            "items": [
+              "Places from the inside out: the next slot is used only after the inner one holds cargo or is disabled.",
+              "Picks from the outside in: only the occupied slot nearest the aisle can be picked.",
+              "While an outer slot holds cargo, inner slots can be neither picked nor filled.",
+              "Only one vehicle works in a lane at a time, counting both picking and placing, so vehicles do not block each other inside."
+            ]
+          },
+          {
+            "title": "Common problems",
+            "items": [
+              "Path planning errors saying the start and end are not fully connected: the aisle point of this row is not linked to other roads on the map, so vehicles cannot drive in. Add the missing road on the map.",
+              "The system keeps picking points outside any lane: some points in the group are not in any lane yet.",
+              "Deep lanes already ordered with point priorities can do without lanes; with both, lanes first rule out unreachable slots and priorities decide among the rest."
+            ]
+          }
+        ]
+      },
+      "points": {
+        "title": "Using the point list",
+        "sections": [
+          {
+            "title": "What you see",
+            "items": [
+              "Every slot of the group (one per stack, one per storage level) with its cargo, state and pick / drop-off priority, refreshed every 5 seconds.",
+              "The Lane column shows the position from the lane settings above, including unsaved ones.",
+              "The Cargo column shows the values of the fields used by lane and stacking rules, so you can see which batch sits in which row."
+            ]
+          },
+          {
+            "title": "Moving work elsewhere on site",
+            "items": [
+              "To stop using some slots for a while, select them and press Disable; press Enable to bring them back.",
+              "To fill some slots first, raise their drop-off priority (higher first); to empty some slots first, raise their pick priority.",
+              "Disabling does not cancel missions already created; vehicles finish what they have."
+            ]
+          },
+          {
+            "title": "Good to know",
+            "items": [
+              "This is the same data as Edit Locations and Stack Batch Edit; changes apply immediately and are recorded in the setting change log.",
+              "On sites connected to QAMS (corning), disabling or enabling storage notifies QAMS the same way Edit Locations does."
+            ]
+          }
+        ]
+      },
+      "lane_diagram": {
+        "alt": "Lane diagram: three slots in a row entered from the aisle; cargo is placed from the innermost slot outward and picked from the aisle inward",
+        "inner": "Innermost",
+        "middle": "Middle",
+        "outer": "Aisle side",
+        "aisle": "Aisle (vehicles enter)",
+        "place": "Place order",
+        "pick": "Pick order"
       }
     }
   },
