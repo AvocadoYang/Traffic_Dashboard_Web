@@ -3013,7 +3013,7 @@
     "runtime_title": "Live status",
     "no_runtime": "No area transfer rules yet",
     "rules_title": "Transfer rules",
-    "rules_hint": "Each rule moves cargo from one group to another with one trigger. The exact slots are chosen by the placement rules and pick order of the two groups (set under Group Pick & Place Rules).",
+    "rules_hint": "Each rule moves cargo from one group to others with one trigger. Several destination groups can be set (the next one is used only when the previous one is full), and a rule can be limited to matching cargo or to certain times. The exact slots are chosen by the placement rules and pick order of the groups (set under Group Pick & Place Rules).",
     "no_rule": "No rules yet. Click Add rule to create one",
     "add_rule": "Add rule",
     "edit_rule": "Edit rule",
@@ -3023,8 +3023,15 @@
     "enabled": "Enabled",
     "source": "Source group",
     "dest": "Destination group",
+    "dest_hint": "Several allowed, tried in the order picked: the next group is used only when the previous one has no room.",
     "same_group": "Source and destination must be different groups",
+    "conditions": "Cargo conditions",
+    "conditions_hint": "Only moves matching cargo, judged by the cargo a pickup would take (top of a stack, the cargo in a shelf slot); every condition must match. No conditions = any cargo.",
+    "add_condition": "Add condition",
+    "key": "Field",
+    "value": "Value",
     "route": "Route",
+    "route_fallback": " (then {{groups}} when full)",
     "trigger": "Trigger",
     "trigger_MANUAL": "Manual",
     "trigger_SOURCE_HAS_CARGO": "When source has cargo",
@@ -3048,12 +3055,16 @@
     "trips_UNTIL_EMPTY": "Until the source is empty or the destination is full",
     "trip_unit": "trips",
     "trips_hint": "One trip is one mission moving one cargo. Click Stop in the live status to end early.",
+    "time_window": "Time window for automatic triggers",
+    "time_window_hint": "Applies to automatic triggers only: nothing starts outside the window, scheduled times outside it are skipped, and a scheduled run stops when the window ends. Manual runs (Run now, dispatch board buttons) ignore it; missions already created (including those waiting for a location) still finish.",
+    "out_of_window": "Outside window",
     "priority": "Mission priority",
     "max_concurrent": "Max missions at once",
     "max_concurrent_hint": "Includes missions waiting for a location; higher moves faster but ties up more vehicles",
     "run_now": "Run now",
     "stop": "Stop",
     "source_stock": "Source cargo",
+    "source_stock_matching": "Source cargo (matching)",
     "dest_free": "Destination free",
     "in_flight": "Missions in progress",
     "progress": "Progress",
@@ -3061,6 +3072,7 @@
     "detail": "Detail",
     "stock_text": "{{cargo}} ({{pickable}} available)",
     "free_text": "{{free}} slots",
+    "free_text_split": "{{free}} slots ({{split}})",
     "progress_n": "{{done}} / {{total}} trips",
     "progress_until": "{{done}} trips sent",
     "trips_n": "{{n}} trips each time",
@@ -3084,8 +3096,8 @@
             "title": "What this shows",
             "items": [
               "One card per rule, refreshed every 3 seconds.",
-              "Source cargo: how much cargo the source group holds; available means not booked by another mission.",
-              "Destination free: how much more the destination group can hold (stacks up to their max levels, shelves up to capacity); disabled slots are not counted.",
+              "Source cargo: how much cargo the source group holds; available means not booked by another mission. With cargo conditions only matching cargo that can be taken is counted (for a stack, the matching run from the top).",
+              "Destination free: how much more the destination group can hold (stacks up to their max levels, one per shelf slot); disabled slots are not counted. With several destination groups this is the total, with each group in brackets.",
               "Missions in progress: missions created by this rule that have not finished, including those waiting for a location."
             ]
           },
@@ -3117,6 +3129,15 @@
               "Pick a source group and a destination group, for example PU_G2 → PU_G1.",
               "Slots are chosen by the placement rules and pick order of both groups, so set up lanes and other rules under Group Pick & Place Rules first.",
               "Max missions at once includes missions waiting for a location. 1 is the safest; raise it to move faster at the cost of tying up more vehicles."
+            ]
+          },
+          {
+            "title": "Several destinations, cargo conditions, time window",
+            "items": [
+              "Several destination groups can be picked: a mission first looks for room in the first group and moves on to the next only when it is full (like Conveyor Dispatch). Destination free in the live status is the total of all of them.",
+              "Cargo conditions, e.g. trayType = A, limit the rule to matching cargo. They are checked against the cargo a pickup would take: only the top of a stack can be taken, so an A under a B waits until the B is moved; a shelf slot is judged by its cargo. Field names can be picked from the custom cargo formats.",
+              "Time window: weekdays and a time range (same as idle rules). It only applies to automatic triggers: When source has cargo and Refill by free slots do not start outside it, scheduled times outside it are skipped, and a scheduled run stops at the end of the window. Manual runs ignore it.",
+              "When the window ends, missions already created (including those waiting for a location) still finish; cancel them in the mission list to stop at once."
             ]
           },
           {
