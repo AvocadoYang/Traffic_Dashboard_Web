@@ -207,8 +207,8 @@ function drawRoads(f: Frame, scene: MapScene, claimed: Map<string, string>, vis:
   }
 }
 
-/** 區域只畫框; 名稱、眼睛圖示、資訊卡是 DOM (CanvasMap 的 ZoneLabels), 才點得到 */
-function drawZones(f: Frame, scene: MapScene, hidden: Set<string>) {
+/** 區域只畫框; 名稱、眼睛圖示、資訊卡是 DOM (CanvasMap 的 ZoneLabels), 才點得到。3D 檢視也拿來畫地上的區域 */
+export function drawZones(f: Frame, scene: MapScene, hidden: Set<string>) {
   const { ctx } = f;
   mapSpace(f);
   for (const z of scene.zones) {
@@ -332,7 +332,8 @@ function drawAnnotationText(f: Frame, a: SceneAnnotation, x: number, y: number) 
   });
 }
 
-function drawAnnotations(f: Frame, list: SceneAnnotation[]) {
+/** 3D 檢視也拿來畫地上的標註 */
+export function drawAnnotations(f: Frame, list: SceneAnnotation[]) {
   const { ctx } = f;
   for (const a of list) {
     mapSpace(f);
@@ -381,9 +382,12 @@ export type LiveOptions = {
   forbiddenIds: Set<string>;
   /** MiR 圖示長度 (地圖像素), 照車型實際長度 */
   mirLength: (amrId: string) => number;
+  /** 模擬模式: 畫的都是模擬車 (SW15 不用轉座標, 見 usesSW15Frame) */
+  simulated?: boolean;
 };
 
-type Visible = { id: string; x: number; y: number; yaw: number; color: string };
+/** sw15Frame: SW15 實車, 車頭反過來畫 */
+type Visible = { id: string; x: number; y: number; yaw: number; color: string; sw15Frame: boolean };
 
 /**
  * 畫出來的車在地圖上佔的範圍 (地圖像素), 點選用:
@@ -403,6 +407,35 @@ export type AmrHit = {
   clickable: boolean;
 };
 
+/**
+ * SW15 實車回報的座標要轉 270 度再位移、車頭反過來畫 (照舊地圖 AMR.tsx)。
+ * 模擬的 SW15 (後端的 MockAMR) 跟其他模擬車一樣就是地圖座標, 不用轉, 不然會畫到別的地方去
+ */
+export const usesSW15Frame = (id: string, simulated: boolean) => !simulated && id.includes("SW15");
+
+/**
+ * 這台車要不要畫、畫在哪 (ROS 座標, 公尺; 3D 檢視也照這個規則): 離線、還沒收到車框、
+ * MiR 不在目前這張地圖上就不畫。yaw 是度, 沒有修正 (SW15 實車畫的時候自己轉 180 度)。
+ * simulated: 模擬模式 (畫的都是模擬車)
+ */
+export const amrShownAt = (live: LiveState, id: string, currentMapId: string | null, simulated = false) => {
+  const a = live.amrs.get(id);
+  if (!a || !a.pose || a.isOverdue) return null;
+  // 舊地圖收到車框之前不畫車
+  const bbox = live.bbox.get(id);
+  if (!bbox || !bbox.length) return null;
+  if (id.includes("mi") && (live.mirMapId.get(id) ?? "") !== currentMapId) return null;
+  const { x, y, yaw } = a.pose;
+  if (!usesSW15Frame(id, simulated)) return { x, y, yaw };
+  return { ...sw15ToMap(x, y), yaw };
+};
+
+/** SW15 實車回報的座標 -> 地圖座標: 轉 270 度再位移 (照舊地圖 AMR.tsx); yaw 不用轉, 畫的時候車頭反過來 */
+export const sw15ToMap = (x: number, y: number) => {
+  const theta = (3 * Math.PI) / 2;
+  return { x: x * Math.cos(theta) - y * Math.sin(theta) + 3.5, y: x * Math.sin(theta) + y * Math.cos(theta) + 0.4 };
+};
+
 export function drawLive(f: Frame, scene: MapScene, live: LiveState, o: LiveOptions): AmrHit[] {
   const { ctx } = f;
   ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -410,23 +443,10 @@ export function drawLive(f: Frame, scene: MapScene, live: LiveState, o: LiveOpti
 
   const shown: Visible[] = [];
   for (const id of o.amrIds) {
-    const a = live.amrs.get(id);
-    if (!a || !a.pose || a.isOverdue) continue;
-    // 舊地圖收到車框之前不畫車
-    const bbox = live.bbox.get(id);
-    if (!bbox || !bbox.length) continue;
-    if (id.includes("mi") && (live.mirMapId.get(id) ?? "") !== o.currentMapId) continue;
-    // SW15 的座標要轉 270 度再位移 (照舊地圖 AMR.tsx)
-    let { x, y } = a.pose;
-    if (id.includes("SW15")) {
-      const theta = (3 * Math.PI) / 2;
-      const nx = a.pose.x * Math.cos(theta) - a.pose.y * Math.sin(theta) + 3.5;
-      const ny = a.pose.x * Math.sin(theta) + a.pose.y * Math.cos(theta) + 0.4;
-      x = nx;
-      y = ny;
-    }
-    const [px, py] = scene.toPx(x, y);
-    shown.push({ id, x: px, y: py, yaw: a.pose.yaw, color: amrColor(id) });
+    const at = amrShownAt(live, id, o.currentMapId, o.simulated);
+    if (!at) continue;
+    const [px, py] = scene.toPx(at.x, at.y);
+    shown.push({ id, x: px, y: py, yaw: at.yaw, color: amrColor(id), sw15Frame: usesSW15Frame(id, !!o.simulated) });
   }
 
   if (o.showPointCloud) drawPointClouds(f, scene, live, o);
@@ -447,7 +467,7 @@ export function drawLive(f: Frame, scene: MapScene, live: LiveState, o: LiveOpti
       hits.push({ id: v.id, x: v.x, y: v.y, angle, left: -7.5, right: 7.5, top: -length / 2, bottom: length / 2, isPause: false, clickable: false });
     } else {
       drawForklift(f, v, a.hasCargo, a.isPause);
-      const deg = v.id.includes("SW15") ? 90 - v.yaw + 180 : 90 - v.yaw;
+      const deg = v.sw15Frame ? 90 - v.yaw + 180 : 90 - v.yaw;
       hits.push({ id: v.id, x: v.x, y: v.y, angle: (deg * Math.PI) / 180, left: -7.5, right: 7.5, top: -20, bottom: 0, isPause: a.isPause, clickable: true });
     }
     ctx.globalAlpha = 1;
@@ -456,8 +476,54 @@ export function drawLive(f: Frame, scene: MapScene, live: LiveState, o: LiveOpti
   for (const v of shown) {
     if (live.warnings.has(v.id)) drawWarning(f, v);
   }
+  drawWaits(f, shown, live);
   for (const v of shown) drawTip(f, v, live, o);
   return hits;
+}
+
+/** 等待箭頭的顏色 (3D 也用這個) */
+export const WAIT_COLOR = "#fa8c16";
+
+/** 在等的車拉一條虛線箭頭到擋路的車 (交管拒絕路權, traffic-waits); 兩台都畫在地圖上才畫 */
+function drawWaits(f: Frame, shown: Visible[], live: LiveState) {
+  if (!live.waits.size) return;
+  const { ctx } = f;
+  const at = new Map(shown.map((v) => [v.id, v]));
+  screenSpace(f);
+  ctx.save();
+  ctx.strokeStyle = WAIT_COLOR;
+  ctx.fillStyle = WAIT_COLOR;
+  ctx.lineWidth = 2;
+  for (const w of live.waits.values()) {
+    const from = at.get(w.amrId);
+    if (!from) continue;
+    const [ax, ay] = toScreen(f, from.x, from.y);
+    for (const id of w.blockers) {
+      const to = at.get(id);
+      if (!to) continue;
+      const [bx, by] = toScreen(f, to.x, to.y);
+      const len = Math.hypot(bx - ax, by - ay);
+      if (len < 24) continue;
+      const ux = (bx - ax) / len;
+      const uy = (by - ay) / len;
+      // 停在擋路的車前面一點, 箭頭才不會蓋在車上
+      const ex = bx - ux * 14;
+      const ey = by - uy * 14;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.moveTo(ax, ay);
+      ctx.lineTo(ex, ey);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(ex + ux * 9, ey + uy * 9);
+      ctx.lineTo(ex - uy * 5, ey + ux * 5);
+      ctx.lineTo(ex + uy * 5, ey - ux * 5);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+  ctx.restore();
 }
 
 function drawPointClouds(f: Frame, scene: MapScene, live: LiveState, o: LiveOptions) {
@@ -519,7 +585,7 @@ function drawForklift(f: Frame, v: Visible, hasCargo: boolean, isPause: boolean)
   const alpha = ctx.globalAlpha;
   mapSpace(f);
   ctx.translate(v.x, v.y);
-  const deg = v.id.includes("SW15") ? 90 - v.yaw + 180 : 90 - v.yaw;
+  const deg = v.sw15Frame ? 90 - v.yaw + 180 : 90 - v.yaw;
   ctx.rotate((deg * Math.PI) / 180);
 
   // 叉臂
@@ -635,16 +701,24 @@ const pickLoc = (value?: string | null) => {
   return trimmed && trimmed !== "0" ? trimmed : "";
 };
 
-/** 車上方的黑色提示框: 車號、在做什麼、要去哪裡 (規則同 useAmrMissionTip) */
-function drawTip(f: Frame, v: Visible, live: LiveState, o: LiveOptions) {
-  const a = live.amrs.get(v.id)!;
+/** 車的提示框內容 (3D 檢視的標籤也用): 正在做什麼、要去哪裡 */
+export const amrTip = (live: LiveState, id: string) => {
+  const a = live.amrs.get(id);
+  if (!a) return { tipText: "", dest: "" };
   const status = a.status.trim();
   const isIdle = !status || IDLE_STATUS.includes(status.toLowerCase());
-  const tipText = live.activeSubName.get(v.id) || (isIdle ? "" : status);
-  const dest =
-    pickLoc(a.destination?.name) ||
-    pickLoc(a.destination?.finalLocationId) ||
-    pickLoc(a.destination?.locationId);
+  return {
+    tipText: live.activeSubName.get(id) || (isIdle ? "" : status),
+    dest:
+      pickLoc(a.destination?.name) ||
+      pickLoc(a.destination?.finalLocationId) ||
+      pickLoc(a.destination?.locationId),
+  };
+};
+
+/** 車上方的黑色提示框: 車號、在做什麼、要去哪裡 (規則同 useAmrMissionTip) */
+function drawTip(f: Frame, v: Visible, live: LiveState, o: LiveOptions) {
+  const { tipText, dest } = amrTip(live, v.id);
   const forbidden = o.forbiddenIds.has(v.id);
   const show = o.filterIds.has(v.id) || o.hintId === v.id || forbidden || !!tipText || !!dest;
   if (!show) return;

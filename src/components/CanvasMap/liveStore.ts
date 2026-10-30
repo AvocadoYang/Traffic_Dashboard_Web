@@ -7,6 +7,7 @@ import { warningId$ } from "@/sockets/useWarning";
 import { pointCloud$ } from "@/sockets/usePointCloud";
 import { amrStatus$ } from "@/sockets/useMirStatus";
 import { missionReports$, type MissionInfo } from "@/sockets/useMissions";
+import { trafficWaits$, type TrafficWait } from "@/sockets/useTrafficWaits";
 
 /**
  * 地圖上會一直動的資料 (車的位置、佔用的路線、點雲…)。
@@ -23,8 +24,20 @@ export type AmrLive = {
   hasCargo: boolean;
   /** 翻譯過的 rosStatus, 跟舊地圖的提示文字一樣 */
   status: string;
+  /** 沒翻譯的 rosStatus (3D 檢視用它認出車子正在取放貨) */
+  rawStatus: string;
+  /** 牙叉目前高度 (mm); 這次訊息沒帶就沿用上一次, 從沒帶過是 null */
+  forkHeight: number | null;
   destination: MissionDestination | null;
+  /** 電量 (%)、充電中、速度 (m/s)、這一動做了多久 (ms): 3D 檢視跟車時的資訊卡用; 沒帶就沿用上一次 */
+  battery: number | null;
+  charging: boolean;
+  speed: number | null;
+  stepWaitMs: number | null;
 };
+
+/** 一筆告警 (car-error-info): 說明、處理方式 (告警清單的 info / debug) */
+export type WarningMessage = { warningId: string; info: string; debug?: string };
 
 export type LiveState = {
   amrs: Map<string, AmrLive>;
@@ -33,11 +46,15 @@ export type LiveState = {
   claimedRoads: Map<string, string>;
   /** 有警告的車 */
   warnings: Set<string>;
+  /** 每台車目前的告警 (3D 檢視照說明閃車上的部位, 資訊卡列出處理方式) */
+  warningInfos: Map<string, WarningMessage[]>;
   pointCloud: Map<string, Float32Array>;
   /** MiR 目前用的地圖 */
   mirMapId: Map<string, string>;
   /** 這台車正在做的任務的 sub_name */
   activeSubName: Map<string, string>;
+  /** 申請路權被拒、還在等的車 -> 在等誰 (traffic-waits) */
+  waits: Map<string, TrafficWait>;
 };
 
 // mission socket 會把車子佇列裡的任務 (含已結束的) 一起送來, 規則同 useActiveMission
@@ -79,9 +96,11 @@ export const createLiveStore = (): LiveStore => {
     bbox: new Map(),
     claimedRoads: new Map(),
     warnings: new Set(),
+    warningInfos: new Map(),
     pointCloud: new Map(),
     mirMapId: new Map(),
     activeSubName: new Map(),
+    waits: new Map(),
   };
   const listeners = new Set<() => void>();
   const notify = () => listeners.forEach((l) => l());
@@ -109,7 +128,13 @@ export const createLiveStore = (): LiveStore => {
           isPause: info.isPause ?? prev?.isPause ?? false,
           hasCargo: info.hasCargo || false,
           status: rosStatus ? `${translate("normal", String(rosStatus))}` : "",
+          rawStatus: rosStatus ? String(rosStatus) : "",
+          forkHeight: info.IO?.fork?.current_height ?? prev?.forkHeight ?? null,
           destination: (info.destination as MissionDestination | null) ?? null,
+          battery: info.IO?.battery_info?.battery ?? prev?.battery ?? null,
+          charging: info.IO?.battery_info?.charging ?? prev?.charging ?? false,
+          speed: info.IO?.linear_x ?? prev?.speed ?? null,
+          stepWaitMs: info.stepWaitMs !== undefined ? info.stepWaitMs : (prev?.stepWaitMs ?? null),
         });
       }
       notify();
@@ -136,9 +161,9 @@ export const createLiveStore = (): LiveStore => {
     warningId$.subscribe((infos) => {
       // 跟 useWarningId 一樣: 空陣列不清掉上一次的警告
       if (!infos.length) return;
-      state.warnings = new Set(
-        infos.filter((i) => i && i.message.length > 0).map((i) => i!.amrId),
-      );
+      const active = infos.filter((i) => i && i.message.length > 0).map((i) => i!);
+      state.warnings = new Set(active.map((i) => i.amrId));
+      state.warningInfos = new Map(active.map((i) => [i.amrId, i.message]));
       notify();
     }),
   );
@@ -160,6 +185,18 @@ export const createLiveStore = (): LiveStore => {
   subs.add(
     missionReports$.subscribe(({ missions }) => {
       state.activeSubName = activeSubNames(missions as MissionInfo[]);
+      notify();
+    }),
+  );
+
+  // 沒變化時後端也每 2 秒送一次, 一樣就不用通知
+  let waitsKey = "";
+  subs.add(
+    trafficWaits$.subscribe((list) => {
+      const key = JSON.stringify(list);
+      if (key === waitsKey) return;
+      waitsKey = key;
+      state.waits = new Map(list.map((w) => [w.amrId, w]));
       notify();
     }),
   );

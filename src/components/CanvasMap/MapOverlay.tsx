@@ -1,5 +1,5 @@
-import { FC, memo, useState } from "react";
-import { atom, useAtom, useAtomValue } from "jotai";
+import { FC, memo, useEffect, useState } from "react";
+import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Popover } from "antd";
 import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
@@ -17,8 +17,9 @@ import ToolTip from "@/pages/Setting/components/ToolTip";
 import { LocationHoverCluster } from "@/pages/Setting/mapComponents/components";
 import RoadHoverCluster from "@/pages/Setting/mapComponents/components/AllRoads/RoadHoverCluster";
 import { HoverLabel, TOOLTIP_Z_INDEX } from "@/pages/Setting/mapComponents/components/HoverLabel";
-import ZoneHoverCard from "@/pages/Setting/mapComponents/components/AllZones/components/ZoneHoverCard";
+import ZoneHoverCard, { toOpaque } from "@/pages/Setting/mapComponents/components/AllZones/components/ZoneHoverCard";
 import { c, font } from "@/pages/SettingV2/ui/tokens";
+import { useLinkedZones } from "@/pages/SettingV2/ui/zoneLinks";
 import type { MapScene, SceneZone } from "./scene";
 
 /**
@@ -30,6 +31,9 @@ import type { MapScene, SceneZone } from "./scene";
 
 /** 按了眼睛圖示藏起來的區域 (舊地圖是每個區域自己的 state, 換頁就重置; 這裡也只在記憶體裡) */
 export const hiddenZoneIdsAtom = atom<Set<string>>(new Set<string>());
+
+/** 打開資訊卡的區域 (實線框) 跟同地圖上跟它綁在一起的電梯 / 拼接區 (虛線框) */
+export const linkedZoneHighlightAtom = atom<{ sourceId: string; linkedIds: Set<string> } | null>(null);
 
 /** 游標停在暫停中的車的停止標誌上: 顯示「暫停」 */
 export const pauseHintAtom = atom<{ x: number; y: number } | null>(null);
@@ -66,6 +70,16 @@ const DisabledBadge = styled.span`
   background: rgba(110, 110, 110, 0.95);
 `;
 
+const Outline = styled.div.attrs<{ $x: number; $y: number; $w: number; $h: number }>(
+  ({ $x, $y, $w, $h }) => ({ style: { left: $x, top: $y, width: $w, height: $h } }),
+)<{ $x: number; $y: number; $w: number; $h: number; $color: string; $dashed: boolean }>`
+  position: absolute;
+  box-sizing: border-box;
+  pointer-events: none;
+  border: 3px ${({ $dashed }) => ($dashed ? "dashed" : "solid")} ${({ $color }) => $color};
+  background: color-mix(in srgb, ${({ $color }) => $color} 15%, transparent);
+`;
+
 const Centered = styled.div.attrs<{ $x: number; $y: number }>(({ $x, $y }) => ({
   style: { left: $x, top: $y },
 }))<{ $x: number; $y: number }>`
@@ -76,12 +90,44 @@ const Centered = styled.div.attrs<{ $x: number; $y: number }>(({ $x, $y }) => ({
 `;
 
 /** 區域名稱: 位置、樣式同舊地圖的 Zone.tsx (眼睛在框的左上角上方, 名字在它右邊) */
-const ZoneLabel: FC<{ zone: SceneZone; info: Parameters<typeof ZoneHoverCard>[0]["info"] }> = ({ zone, info }) => {
+const InlineRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+`;
+
+/**
+ * 區域名稱 + 眼睛圖示 (藏起來) + 資訊卡 (停用 / 啟用)。inline: 3D 檢視用, 不自己定位 (外面包 drei Html)
+ */
+export const ZoneLabel: FC<{
+  zone: SceneZone;
+  info: Parameters<typeof ZoneHoverCard>[0]["info"];
+  inline?: boolean;
+  onEdit?: (zoneId: string) => void;
+}> = ({
+  zone,
+  info,
+  inline = false,
+  onEdit,
+}) => {
   const { t } = useTranslation();
   const [hidden, setHidden] = useAtom(hiddenZoneIdsAtom);
   const [cardOpen, setCardOpen] = useState(false);
   // 放在這層而不是卡片裡: 對話框打開時游標離開卡片, 卡片關掉也不影響對話框
   const { setEnabled, pendingId, contextHolder } = useToggleZoneEnabled();
+  const linked = useLinkedZones(info);
+  const setHighlight = useSetAtom(linkedZoneHighlightAtom);
+  const linkedHere = [...linked.elevator, ...linked.splice]
+    .filter(({ map }) => map.mapId === linked.ownMapId)
+    .map(({ zone }) => zone.id)
+    .join(",");
+  useEffect(() => {
+    if (!cardOpen || !linkedHere) return;
+    setHighlight({ sourceId: zone.id, linkedIds: new Set(linkedHere.split(",")) });
+    // 只清自己設的, 游標直接移到別的區域時不要把人家的框清掉
+    return () => setHighlight((prev) => (prev?.sourceId === zone.id ? null : prev));
+  }, [cardOpen, linkedHere, zone.id, setHighlight]);
   const isHidden = hidden.has(zone.id);
   const toggleHidden = () =>
     setHidden((prev) => {
@@ -91,56 +137,107 @@ const ZoneLabel: FC<{ zone: SceneZone; info: Parameters<typeof ZoneHoverCard>[0]
       return next;
     });
 
+  const eye = isHidden ? (
+    <EyeInvisibleOutlined style={{ cursor: "pointer" }} onClick={toggleHidden} />
+  ) : (
+    <EyeOutlined style={{ cursor: "pointer" }} onClick={toggleHidden} />
+  );
+  const name = (
+    <NameText $disabled={zone.disabled}>
+      {zone.disabled && <DisabledBadge>{t("zone_enable.disabled")}</DisabledBadge>}
+      {zone.name}
+    </NameText>
+  );
+  const card = (
+    <ZoneHoverCard
+      info={info}
+      open={cardOpen}
+      toggling={pendingId === info.id}
+      onToggleEnabled={(enabled) => {
+        setCardOpen(false);
+        setEnabled(info, enabled);
+      }}
+      onEdit={
+        onEdit
+          ? () => {
+              setCardOpen(false);
+              onEdit(info.id);
+            }
+          : undefined
+      }
+    />
+  );
+  const cardStyles = {
+    container: { padding: 0, borderRadius: 2, border: `1px solid ${c.border}`, background: c.bg },
+  };
+
+  if (inline) {
+    return (
+      <InlineRow>
+        {contextHolder}
+        {eye}
+        <Popover open={cardOpen} onOpenChange={setCardOpen} placement="rightTop" arrow={false} content={card} styles={cardStyles}>
+          <span>{name}</span>
+        </Popover>
+      </InlineRow>
+    );
+  }
+
   return (
     <>
       {contextHolder}
       <At $x={zone.x} $y={zone.y - 18}>
-        {isHidden ? (
-          <EyeInvisibleOutlined style={{ cursor: "pointer" }} onClick={toggleHidden} />
-        ) : (
-          <EyeOutlined style={{ cursor: "pointer" }} onClick={toggleHidden} />
-        )}
+        {eye}
       </At>
       <Popover
         open={cardOpen}
         onOpenChange={setCardOpen}
         placement="rightTop"
         arrow={false}
-        content={
-          <ZoneHoverCard
-            info={info}
-            open={cardOpen}
-            toggling={pendingId === info.id}
-            onToggleEnabled={(enabled) => {
-              setCardOpen(false);
-              setEnabled(info, enabled);
-            }}
-          />
-        }
-        styles={{
-          container: { padding: 0, borderRadius: 2, border: `1px solid ${c.border}`, background: c.bg },
-        }}
+        content={card}
+        styles={cardStyles}
       >
         <At $x={zone.x + 22} $y={zone.y - 20}>
-          <NameText $disabled={zone.disabled}>
-            {zone.disabled && <DisabledBadge>{t("zone_enable.disabled")}</DisabledBadge>}
-            {zone.name}
-          </NameText>
+          {name}
         </At>
       </Popover>
     </>
   );
 };
 
-const ZoneLabels: FC<{ scene: MapScene }> = ({ scene }) => {
+/** 資訊卡打開時, 在地圖上框出它跟同地圖的關聯區域 */
+const LinkedZoneOutlines: FC<{ scene: MapScene }> = ({ scene }) => {
+  const highlight = useAtomValue(linkedZoneHighlightAtom);
+  if (!highlight) return null;
+  return (
+    <>
+      {scene.zones
+        .filter((z) => z.id === highlight.sourceId || highlight.linkedIds.has(z.id))
+        .map((z) => (
+          <Outline
+            key={z.id}
+            $x={z.x}
+            $y={z.y}
+            $w={z.w}
+            $h={z.h}
+            $color={toOpaque(z.color)}
+            $dashed={z.id !== highlight.sourceId}
+          />
+        ))}
+    </>
+  );
+};
+
+const ZoneLabels: FC<{ scene: MapScene; onZoneEdit?: (zoneId: string) => void }> = ({ scene, onZoneEdit }) => {
   const { data } = useMap();
   if (!data) return null;
   const infoById = new Map(data.zones.map((z) => [z.id, z]));
   return (
     <>
+      <LinkedZoneOutlines scene={scene} />
       {scene.zones.map((zone) => {
         const info = infoById.get(zone.id);
-        return info ? <ZoneLabel key={zone.id} zone={zone} info={info} /> : null;
+        return info ? <ZoneLabel key={zone.id} zone={zone} info={info} onEdit={onZoneEdit} /> : null;
       })}
     </>
   );
@@ -169,14 +266,18 @@ const PauseHint: FC = () => {
   );
 };
 
-const MapOverlay: FC<{ scene: MapScene }> = ({ scene }) => {
+const MapOverlay: FC<{
+  scene: MapScene;
+  /** 有給的話, 區域資訊卡會多一個編輯鈕 */
+  onZoneEdit?: (zoneId: string) => void;
+}> = ({ scene, onZoneEdit }) => {
   const showZones = useAtomValue(showAllZonesSwitch);
   const showLocationTooltip = useAtomValue(isShowLocationTooltip);
   const showRoad = useAtomValue(isShowRoad);
   const showRoadTooltip = useAtomValue(isShowRoadTooltip);
   return (
     <>
-      {showZones ? <ZoneLabels scene={scene} /> : null}
+      {showZones ? <ZoneLabels scene={scene} onZoneEdit={onZoneEdit} /> : null}
       {showLocationTooltip ? (
         <>
           <ToolTip />

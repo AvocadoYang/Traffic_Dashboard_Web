@@ -134,7 +134,8 @@ export interface Trace {
   dt: number;
   /** 幾筆 */
   count: number;
-  vehicles: { name: string; length: number; width: number }[];
+  /** type: 車種名稱 (3D 回放照它找車型的模型) */
+  vehicles: { name: string; type?: string; length: number; width: number }[];
   /** [筆][車][x, y, 車頭方向 (弧度)] */
   pose: Float32Array;
   /** [筆][車]: 低 4 bit 是 TIME_BUCKETS 的索引, 0x10 = 載著貨 */
