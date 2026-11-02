@@ -31,6 +31,9 @@ export type MissionDetail = {
   info: string | null;
   message: string | null;
   manual_actions: MissionManualAction[];
+  /** 放貨端「車開到才預約」拆成兩筆: 另一半的任務編號 */
+  splitFrom?: string | null;
+  splitTo?: string | null;
 };
 
 // data 為 null 代表任務紀錄已不存在 (被清掉), 不是錯誤

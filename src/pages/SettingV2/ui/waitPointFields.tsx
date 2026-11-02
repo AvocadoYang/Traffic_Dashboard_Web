@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { Form, InputNumber, Select } from "antd";
+import { Form, InputNumber, Select, Switch } from "antd";
 import { useTranslation } from "react-i18next";
 import { WAIT_POINT_AREA_TYPES, useWorkAreaConfig } from "@/api/useWorkAreas";
 import { Field, FieldLabel, Hint } from "./primitives";
@@ -21,6 +21,35 @@ export const waitPointPayload = (
     wait_area_id: waitAreaId,
     wait_order: waitAreaId ? Number(values.wait_order ?? 0) : 0,
   };
+};
+
+/** 只有待命區有「允許載貨的車進入」 */
+export const isStandbyArea = (areaType?: string) => areaType === "STANDBY";
+
+/** 送出時一定帶明確的值; 換成別的類型時送 false, 後端才會把舊設定清掉 */
+export const standbyCargoPayload = (
+  areaType: string | undefined,
+  values: { standby_accept_cargo?: boolean },
+) => ({
+  standby_accept_cargo: isStandbyArea(areaType) ? !!values.standby_accept_cargo : false,
+});
+
+/**
+ * 待命區點位的「允許載貨的車進入」開關, 其他類型不顯示。
+ * 放貨端等不到位置時, 載著貨的車只會退到開著這個的待命點。
+ */
+export const StandbyCargoField: FC<{ areaType?: string }> = ({ areaType }) => {
+  const { t } = useTranslation();
+  if (!isStandbyArea(areaType)) return null;
+  return (
+    <Field>
+      <FieldLabel>{t("edit_location_panel.standby_cargo")}</FieldLabel>
+      <Form.Item name="standby_accept_cargo" valuePropName="checked" noStyle>
+        <Switch size="small" />
+      </Form.Item>
+      <Hint>{t("edit_location_panel.standby_cargo_hint")}</Hint>
+    </Field>
+  );
 };
 
 /**

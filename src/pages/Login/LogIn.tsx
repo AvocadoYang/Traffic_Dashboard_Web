@@ -8,8 +8,9 @@ import {
 } from "@ant-design/icons";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { HOME_PAGES, MyProfile, PROFILE_KEY, SHIFT_NOTES_KEY } from "@/api/useProfile";
-import { SHIFT_NOTE_CHECK_KEY } from "@/utils/session";
+import { HOME_PAGES, MyProfile, PROFILE_KEY } from "@/api/useProfile";
+import { CHAT_KEY } from "@/api/useSiteChat";
+import { CHAT_CHECK_KEY } from "@/utils/session";
 import client from "@/api/axiosClient";
 import { Err } from "@/utils/responseErr";
 import { useTranslation } from "react-i18next";
@@ -281,13 +282,13 @@ const Login: React.FC = () => {
       client.post("api/logInAndOut/login", payload),
     onSuccess: async (res) => {
       localStorage.setItem("token", res.data.token);
-      // 上一個帳號的個人設定 / 交班留言不要留給這個帳號
+      // 上一個帳號的個人設定 / 聊天室不要留給這個帳號
       queryClient.removeQueries({ queryKey: ["profile"] });
-      queryClient.removeQueries({ queryKey: SHIFT_NOTES_KEY });
+      queryClient.removeQueries({ queryKey: CHAT_KEY });
       try {
-        sessionStorage.setItem(SHIFT_NOTE_CHECK_KEY, "1");
+        sessionStorage.setItem(CHAT_CHECK_KEY, "1");
       } catch {
-        /* 跳不出交班留言而已 */
+        /* 聊天室不會自動打開而已 */
       }
       messageApi.success(t("utils.success"));
       // 個人設定的預設首頁; 讀不到 (舊後端) 就回首頁

@@ -34,6 +34,7 @@ import {
   CardFacts,
   Tag,
 } from "../../ui/primitives";
+import MapDataTransfer from "../map/MapDataTransfer";
 
 type RoadRow = {
   id: string;
@@ -155,6 +156,18 @@ const RoadListPanel: FC = () => {
           count: m.roads.length,
         })),
       })) ?? [],
+    [resources],
+  );
+
+  const mapOptions = useMemo(
+    () =>
+      resources?.groups.flatMap((g) =>
+        g.maps.map((m) => ({
+          mapId: m.mapId,
+          label: `${g.groupName} / ${m.fileName}`,
+          active: g.isUsing,
+        })),
+      ) ?? [],
     [resources],
   );
 
@@ -334,6 +347,14 @@ const RoadListPanel: FC = () => {
             <ReloadOutlined />
             {t("utils.reload")}
           </GhostButton>
+          <MapDataTransfer
+            maps={mapOptions}
+            defaultMapId={selectedMapId}
+            onDone={() => {
+              invalidate();
+              void refetch();
+            }}
+          />
 
           <Popconfirm
             title={t("edit_location_panel.table_notify.are_you_sure")}

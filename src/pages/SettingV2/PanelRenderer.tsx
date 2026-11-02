@@ -29,6 +29,8 @@ import StackBatchPanel from "./panels/peripheral/StackBatchPanel";
 import ConveyorDispatchPanel from "./panels/peripheral/ConveyorDispatchPanel";
 import DispatchStrategyPanel from "./panels/peripheral/DispatchStrategyPanel";
 import TransferRulePanel from "./panels/peripheral/TransferRulePanel";
+import GroupPickPlacePanel from "./panels/peripheral/GroupPickPlacePanel";
+import BookingTimingPanel from "./panels/peripheral/BookingTimingPanel";
 import WorkAreaPanel from "./panels/peripheral/WorkAreaPanel";
 import ChargeDockPanel from "./panels/peripheral/ChargeDockPanel";
 import PeripheralStylePanel from "./panels/peripheral/PeripheralStylePanel";
@@ -136,6 +138,10 @@ const PanelRenderer: FC<Props> = ({
       return <ConveyorDispatchPanel />;
     case "transfer_rules":
       return <TransferRulePanel />;
+    case "group_pick_place":
+      return <GroupPickPlacePanel />;
+    case "booking_timing":
+      return <BookingTimingPanel />;
     case "work_areas":
       return <WorkAreaPanel />;
     case "peripheral_charge_dock_config":

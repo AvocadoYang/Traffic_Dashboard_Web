@@ -196,7 +196,7 @@ const DispatchButtonFormModal: FC<{
       .filter((r) => TRIGGERS_WITH_TRIPS.includes(r.triggerType))
       .map((r) => ({
         value: r.id,
-        label: `${r.name} (${groupName(r.sourceGroupId)} → ${groupName(r.destGroupId)})`,
+        label: `${r.name} (${groupName(r.sourceGroupId)} → ${r.destGroupIds.map(groupName).join(" / ")})`,
       }));
   }, [transferConfig]);
 

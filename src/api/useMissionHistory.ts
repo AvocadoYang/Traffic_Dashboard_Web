@@ -56,6 +56,9 @@ const missionSchema = object({
       // 這個任務搬過幾筆貨 / 有幾次人工介入 (直接下一動)
       cargoCount: number().default(0),
       manualCount: number().default(0),
+      // 放貨端「車開到才預約」拆成兩筆: 後半 / 前半是哪一筆任務
+      splitTo: string().nullable().optional(),
+      splitFrom: string().nullable().optional(),
     }).required(),
   ),
 });

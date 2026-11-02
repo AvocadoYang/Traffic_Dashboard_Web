@@ -112,6 +112,8 @@ export type CanvasMapApi = {
   nearestPointAt: (clientX: number, clientY: number) => string | null;
   /** 目前視角: 畫面中心在底圖上的位置 (像素) + 縮放; 個人設定的「預設視角」存這個 */
   currentView: () => { mapId: string; scale: number; cx: number; cy: number } | null;
+  /** 3D 畫面目前的鏡頭 (只有 3D 有); 個人設定的「3D 預設視角」存這個 */
+  currentView3d?: () => { mapId: string; tx: number; ty: number; dx: number; dy: number; dz: number } | null;
 };
 
 type Props = {
