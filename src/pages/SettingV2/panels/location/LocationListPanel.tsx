@@ -204,6 +204,13 @@ const LocationListPanel: FC = () => {
       width: 150,
       render: (_, row) => waitPointText(row) ?? "—",
     },
+    {
+      title: t("edit_location_panel.standby_cargo"),
+      key: "standbyCargo",
+      width: 130,
+      render: (_, row) =>
+        row.areaType !== "STANDBY" ? "—" : row.standby_accept_cargo ? t("utils.yes", "是") : t("utils.no", "否"),
+    },
     { title: "IP", dataIndex: "ip", key: "ip", width: 130, render: (v) => v || "—" },
     {
       title: t("map_manager.map_group"),
@@ -327,6 +334,12 @@ const LocationListPanel: FC = () => {
                     <>
                       <dt>{t("edit_location_panel.wait_point")}</dt>
                       <dd>{waitPointText(row)}</dd>
+                    </>
+                  ) : null}
+                  {row.areaType === "STANDBY" && row.standby_accept_cargo ? (
+                    <>
+                      <dt>{t("edit_location_panel.standby_cargo")}</dt>
+                      <dd>{t("utils.yes", "是")}</dd>
                     </>
                   ) : null}
                   {row.ip ? (
