@@ -99,6 +99,7 @@ const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 
 /** drei MapControls (three-stdlib) 用到的部分 */
 type Controls = {
+  enabled: boolean;
   target: THREE.Vector3;
   mouseButtons: { LEFT?: THREE.MOUSE; MIDDLE?: THREE.MOUSE; RIGHT?: THREE.MOUSE };
   minDistance: number;
@@ -106,12 +107,22 @@ type Controls = {
   update: () => void;
 };
 
+/** 駕駛視角: 鏡頭在車後多遠、多高, 看車前多遠 (公尺) */
+const DRIVE_BACK = 3.2;
+const DRIVE_HEIGHT = 1.9;
+const DRIVE_AHEAD = 5;
+/** 駕駛視角轉向跟上車頭的快慢 (越大越快) */
+const DRIVE_TURN_RATE = 5;
+
+export type FollowPose = { x: number; y: number; yaw?: number };
+
 const CameraRig: FC<{
   bounds: Bounds | null;
   fitMargin: number;
-  follow: (() => { x: number; y: number } | null) | null;
+  follow: (() => FollowPose | null) | null;
+  drive: boolean;
   apiRef?: MutableRefObject<CameraApi | null>;
-}> = ({ bounds, fitMargin, follow, apiRef }) => {
+}> = ({ bounds, fitMargin, follow, drive, apiRef }) => {
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
   const controls = useThree((s) => s.controls) as unknown as Controls | null;
   const gl = useThree((s) => s.gl);
@@ -200,8 +211,51 @@ const CameraRig: FC<{
   }, [apiRef, reset, controls, camera, gl, invalidate]);
 
   const followed = useRef(new THREE.Vector3());
+  /** 駕駛視角看的方向 (弧度, 順著車頭、慢慢轉過去) */
+  const driveYaw = useRef<number | null>(null);
+
+  // 離開駕駛視角: 回到從斜上方看著車 (不然鏡頭會留在車後低低的地方)
+  const wasDriving = useRef(false);
+  useEffect(() => {
+    if (!controls) return;
+    controls.enabled = !drive;
+    if (drive) {
+      wasDriving.current = true;
+      driveYaw.current = null;
+      flight.current = null;
+    } else if (wasDriving.current) {
+      wasDriving.current = false;
+      const p = follow?.();
+      const target = p ? new THREE.Vector3(p.x, 0, -p.y) : controls.target.clone();
+      controls.target.copy(target);
+      camera.position.set(target.x, 14 * Math.sin(VIEW_ELEVATION), target.z + 14 * Math.cos(VIEW_ELEVATION));
+      controls.update();
+      invalidate();
+    }
+  }, [drive, controls, camera, follow, invalidate]);
+
   useFrame((_, dt) => {
     if (!controls) return;
+    if (drive) {
+      const p = follow?.();
+      if (p) {
+        const yaw = p.yaw ?? 0;
+        if (driveYaw.current === null) driveYaw.current = yaw;
+        let diff = yaw - driveYaw.current;
+        diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+        const k = 1 - Math.exp(-Math.min(dt, 0.1) * DRIVE_TURN_RATE);
+        driveYaw.current += diff * k;
+        // ROS 的 yaw 逆時針, three 的地面是 x / -y: 車頭方向 = (cos, 0, -sin)
+        const dx = Math.cos(driveYaw.current);
+        const dz = -Math.sin(driveYaw.current);
+        camera.position.set(p.x - dx * DRIVE_BACK, DRIVE_HEIGHT, -p.y - dz * DRIVE_BACK);
+        controls.target.set(p.x + dx * DRIVE_AHEAD, 0.4, -p.y + dz * DRIVE_AHEAD);
+        camera.lookAt(controls.target);
+        // 還在轉、車還在動, 下一幀接著畫
+        invalidate();
+      }
+      return;
+    }
     const f = flight.current;
     if (f) {
       // 慢慢停下來 (ease-out); 距離用倍率內插, 拉近拉遠看起來速度一樣
@@ -244,14 +298,16 @@ type Props = {
   /** 地面格線的顏色 */
   gridColor: string;
   dark: boolean;
-  follow?: (() => { x: number; y: number } | null) | null;
+  follow?: (() => FollowPose | null) | null;
+  /** 駕駛視角: 鏡頭在 follow 的車後面、順著車頭看 (要有 follow) */
+  drive?: boolean;
   apiRef?: MutableRefObject<CameraApi | null>;
   /** 點了空白處 (沒拖曳) */
   onPointerMissed?: () => void;
   children: ReactNode;
 };
 
-const Scene3D: FC<Props> = ({ bounds, fitMargin = 4, background, gridColor, dark, follow = null, apiRef, onPointerMissed, children }) => (
+const Scene3D: FC<Props> = ({ bounds, fitMargin = 4, background, gridColor, dark, follow = null, drive = false, apiRef, onPointerMissed, children }) => (
   <Wrap onContextMenu={(e) => e.preventDefault()}>
     <Canvas
       frameloop="demand"
@@ -275,7 +331,7 @@ const Scene3D: FC<Props> = ({ bounds, fitMargin = 4, background, gridColor, dark
         minDistance={1.5}
         maxPolarAngle={Math.PI / 2 - 0.05}
       />
-      <CameraRig bounds={bounds} fitMargin={fitMargin} follow={follow} apiRef={apiRef} />
+      <CameraRig bounds={bounds} fitMargin={fitMargin} follow={follow} drive={drive && !!follow} apiRef={apiRef} />
       <Grid
         position={[0, -0.02, 0]}
         infiniteGrid

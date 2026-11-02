@@ -1,3 +1,4 @@
+import { reportFeatureUse } from "@/api/useAchievements";
 import { FC, MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAtom, useAtomValue } from "jotai";
 import { message } from "antd";
@@ -109,6 +110,9 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
   const cameraRef = useRef<CameraApi | null>(null);
   const storeRef = useRef<LiveStore | null>(null);
   const [follow, setFollow] = useState<string | null>(null);
+  /** 跟車時用駕駛視角 (換車或不跟了就回到一般視角) */
+  const [drive, setDrive] = useState(false);
+  useEffect(() => setDrive(false), [follow]);
   const [labels, setLabels] = useState<Record<string, Label>>({});
   const [claimed, setClaimed] = useState<Map<string, string>>(new Map());
   const [waits, setWaits] = useState<LiveState["waits"]>(new Map());
@@ -364,6 +368,7 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
         gridColor={theme.colors.border}
         dark={theme.mode === "dark"}
         follow={followTarget}
+        drive={drive}
         apiRef={cameraRef}
         onPointerMissed={stopFollow}
       >
@@ -470,6 +475,11 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
           typeName={robotTypeFor(follow, robotTypes)?.name}
           store={() => storeRef.current}
           onClose={stopFollow}
+          drive={drive}
+          onToggleDrive={() => {
+            if (!drive) reportFeatureUse("drive_view");
+            setDrive((d) => !d);
+          }}
           top="calc(var(--space-sm) + 44px)"
         />
       )}

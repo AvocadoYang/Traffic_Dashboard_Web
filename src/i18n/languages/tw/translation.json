@@ -463,6 +463,150 @@
   "page_simulate_v2": "任務模擬",
   "page_record": "告警紀錄",
   "page_mission_dispatch": "任務看板",
+  "page_fleet_replay": "車隊回放",
+  "fleet_replay": {
+    "mode_replay": "回放",
+    "mode_heat": "熱度圖",
+    "last_15m": "最近 15 分鐘",
+    "last_1h": "最近 1 小時",
+    "last_6h": "最近 6 小時",
+    "metric_dwell": "停留時間",
+    "metric_passes": "通過次數",
+    "cell": "格子 {{m}} 公尺",
+    "hint": "資料是每 2 秒記一次的車輛位置,保留 7 天,一次最多看 6 小時。回放可以調播放速度;熱度圖看哪裡最常有車待著或開過。",
+    "no_webgl": "這台電腦的瀏覽器不支援 3D (WebGL),無法顯示回放與熱度圖",
+    "load_failed": "讀取失敗,請稍後再試",
+    "empty": "這段時間沒有車輛位置紀錄",
+    "legend_dwell": "車停留的時間 (所有車加總)",
+    "legend_passes": "車開進格子的次數",
+    "cold": "少",
+    "hot": "多",
+    "near_point": "點位 {{id}} 附近",
+    "times": "{{n}} 次"
+  },
+  "page_achievements": "成就與戰報",
+  "achievements": {
+    "title": "成就",
+    "hint": "車隊成就是全案場一起達成的;個人成就看你自己的操作。每 5 分鐘結算一次。",
+    "tab_fleet": "車隊成就",
+    "tab_user": "我的成就",
+    "unlocked_count": "已解鎖 {{done}} / {{total}}",
+    "locked": "未解鎖",
+    "unlocked_at": "{{time}} 解鎖",
+    "progress": "{{value}} / {{target}}",
+    "tier": {
+      "bronze": "銅",
+      "silver": "銀",
+      "gold": "金"
+    },
+    "disabled": "資料庫還沒有成就的表,請執行 prisma/manual-migrations/20261102_achievements.sql 或 yarn pdp",
+    "report": {
+      "title": "今日戰報",
+      "today": "今天",
+      "yesterday": "昨天",
+      "completed": "完成任務",
+      "canceled": "取消任務",
+      "cargo": "搬運貨物",
+      "distance": "行駛距離",
+      "alarms": "警報次數",
+      "top_vehicle": "最忙的車",
+      "top_vehicle_value": "{{amrId}} ({{n}} 個任務)",
+      "none": "—"
+    },
+    "recent": "最近解鎖",
+    "fleet_name": "車隊",
+    "toast": {
+      "fleet": "車隊解鎖了成就",
+      "user": "你解鎖了成就"
+    },
+    "menu": "成就",
+    "items": {
+      "first_mission": {
+        "name": "初出茅廬",
+        "desc": "完成第 1 個任務"
+      },
+      "cargo_100": {
+        "name": "百件達人",
+        "desc": "累計搬運 100 件貨"
+      },
+      "cargo_1000": {
+        "name": "千件大師",
+        "desc": "累計搬運 1,000 件貨"
+      },
+      "cargo_10000": {
+        "name": "萬件傳說",
+        "desc": "累計搬運 10,000 件貨"
+      },
+      "distance_1500": {
+        "name": "環島一圈",
+        "desc": "車隊累計行駛 1,500 公里"
+      },
+      "distance_384400": {
+        "name": "登月計畫",
+        "desc": "車隊累計行駛 384,400 公里 (地球到月球)"
+      },
+      "quiet_24": {
+        "name": "無風無浪",
+        "desc": "連續 24 小時沒有任何警報"
+      },
+      "quiet_72": {
+        "name": "風平浪靜",
+        "desc": "連續 72 小時沒有任何警報"
+      },
+      "quiet_168": {
+        "name": "一週太平",
+        "desc": "連續 168 小時 (一週) 沒有任何警報"
+      },
+      "battery_day": {
+        "name": "電力滿滿",
+        "desc": "有一整天所有實車的電量都沒低於 20%"
+      },
+      "night_owl": {
+        "name": "夜貓子",
+        "desc": "凌晨 0–5 點間累計完成 50 個任務"
+      },
+      "lightning": {
+        "name": "閃電俠",
+        "desc": "5 分鐘內完成一個超過 100 公尺的任務"
+      },
+      "marathon_day": {
+        "name": "馬拉松日",
+        "desc": "單日完成 500 個任務"
+      },
+      "zero_manual": {
+        "name": "零人工介入",
+        "desc": "有一天完成 100 個以上任務而且沒有任何人工介入"
+      },
+      "dispatch_10": {
+        "name": "派工新手",
+        "desc": "自己派發 10 個任務"
+      },
+      "dispatch_500": {
+        "name": "派工老手",
+        "desc": "自己派發 500 個任務"
+      },
+      "first_cancel": {
+        "name": "及時止損",
+        "desc": "第一次取消任務"
+      },
+      "first_estop": {
+        "name": "手動煞車",
+        "desc": "第一次按下急停"
+      },
+      "chat_50": {
+        "name": "話匣子",
+        "desc": "在聊天室發言 50 則 (聊天室只保留 30 天)"
+      },
+      "chat_streak_7": {
+        "name": "交班達人",
+        "desc": "連續 7 天都在聊天室發言"
+      },
+      "observer": {
+        "name": "觀察家",
+        "desc": "用過駕駛視角、車隊回放、熱度圖各一次"
+      }
+    }
+  },
   "page_report": "營運報表",
   "report": {
     "hint": "任務、車輛時間和告警的統計, 可以匯出 xlsx",
@@ -5108,6 +5252,8 @@
       "preview_failed": "預覽不了這個模型"
     },
     "info": {
+      "drive_view": "駕駛視角",
+      "exit_drive_view": "退出駕駛視角",
       "status": "狀態",
       "battery": "電量",
       "charging": "充電中",

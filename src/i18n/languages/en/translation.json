@@ -463,6 +463,150 @@
   "page_simulate_v2": "Simulation v2",
   "page_record": "warn and alarm records",
   "page_mission_dispatch": "Mission Dispatch Board",
+  "page_fleet_replay": "Fleet replay",
+  "fleet_replay": {
+    "mode_replay": "Replay",
+    "mode_heat": "Heatmap",
+    "last_15m": "Last 15 min",
+    "last_1h": "Last hour",
+    "last_6h": "Last 6 hours",
+    "metric_dwell": "Dwell time",
+    "metric_passes": "Pass count",
+    "cell": "{{m}} m cells",
+    "hint": "Vehicle positions are recorded every 2 seconds and kept for 7 days; you can view up to 6 hours at a time. Replay supports faster playback; the heatmap shows where vehicles stay or pass most.",
+    "no_webgl": "This browser does not support 3D (WebGL), so replay and heatmap cannot be shown",
+    "load_failed": "Failed to load, please try again later",
+    "empty": "No vehicle position records in this period",
+    "legend_dwell": "Time vehicles stayed (all vehicles)",
+    "legend_passes": "Times vehicles entered a cell",
+    "cold": "Low",
+    "hot": "High",
+    "near_point": "Near point {{id}}",
+    "times": "{{n}} times"
+  },
+  "page_achievements": "Achievements",
+  "achievements": {
+    "title": "Achievements",
+    "hint": "Fleet achievements are earned by the whole site together; personal ones depend on what you do. Evaluated every 5 minutes.",
+    "tab_fleet": "Fleet",
+    "tab_user": "Mine",
+    "unlocked_count": "{{done}} / {{total}} unlocked",
+    "locked": "Locked",
+    "unlocked_at": "Unlocked {{time}}",
+    "progress": "{{value}} / {{target}}",
+    "tier": {
+      "bronze": "Bronze",
+      "silver": "Silver",
+      "gold": "Gold"
+    },
+    "disabled": "The database has no achievement tables yet; run prisma/manual-migrations/20261102_achievements.sql or yarn pdp",
+    "report": {
+      "title": "Daily report",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "completed": "Missions done",
+      "canceled": "Missions canceled",
+      "cargo": "Cargo moved",
+      "distance": "Distance",
+      "alarms": "Alarms",
+      "top_vehicle": "Busiest vehicle",
+      "top_vehicle_value": "{{amrId}} ({{n}} missions)",
+      "none": "—"
+    },
+    "recent": "Recently unlocked",
+    "fleet_name": "Fleet",
+    "toast": {
+      "fleet": "The fleet unlocked an achievement",
+      "user": "You unlocked an achievement"
+    },
+    "menu": "Achievements",
+    "items": {
+      "first_mission": {
+        "name": "First Mission",
+        "desc": "Complete the first mission"
+      },
+      "cargo_100": {
+        "name": "Hundred Club",
+        "desc": "Move 100 cargo items in total"
+      },
+      "cargo_1000": {
+        "name": "Thousand Master",
+        "desc": "Move 1,000 cargo items in total"
+      },
+      "cargo_10000": {
+        "name": "Ten-Thousand Legend",
+        "desc": "Move 10,000 cargo items in total"
+      },
+      "distance_1500": {
+        "name": "Around the Island",
+        "desc": "The fleet drives 1,500 km in total"
+      },
+      "distance_384400": {
+        "name": "Moon Shot",
+        "desc": "The fleet drives 384,400 km in total (Earth to Moon)"
+      },
+      "quiet_24": {
+        "name": "Smooth Sailing",
+        "desc": "24 hours in a row without any alarm"
+      },
+      "quiet_72": {
+        "name": "Dead Calm",
+        "desc": "72 hours in a row without any alarm"
+      },
+      "quiet_168": {
+        "name": "A Peaceful Week",
+        "desc": "168 hours (a full week) in a row without any alarm"
+      },
+      "battery_day": {
+        "name": "Fully Charged",
+        "desc": "A whole day with every real vehicle staying above 20% battery"
+      },
+      "night_owl": {
+        "name": "Night Owl",
+        "desc": "Complete 50 missions between 0:00 and 5:00"
+      },
+      "lightning": {
+        "name": "Lightning",
+        "desc": "Finish a mission over 100 m within 5 minutes"
+      },
+      "marathon_day": {
+        "name": "Marathon Day",
+        "desc": "Complete 500 missions in a single day"
+      },
+      "zero_manual": {
+        "name": "Hands Off",
+        "desc": "A day with 100+ missions completed and no manual intervention"
+      },
+      "dispatch_10": {
+        "name": "Dispatcher",
+        "desc": "Dispatch 10 missions yourself"
+      },
+      "dispatch_500": {
+        "name": "Veteran Dispatcher",
+        "desc": "Dispatch 500 missions yourself"
+      },
+      "first_cancel": {
+        "name": "Cut Your Losses",
+        "desc": "Cancel a mission for the first time"
+      },
+      "first_estop": {
+        "name": "Hit the Brakes",
+        "desc": "Press the emergency stop for the first time"
+      },
+      "chat_50": {
+        "name": "Chatterbox",
+        "desc": "Post 50 chat messages (chat keeps 30 days)"
+      },
+      "chat_streak_7": {
+        "name": "Shift Handover Pro",
+        "desc": "Post in the chat 7 days in a row"
+      },
+      "observer": {
+        "name": "Observer",
+        "desc": "Try the driver view, fleet replay and heatmap once each"
+      }
+    }
+  },
   "page_report": "Operations report",
   "report": {
     "hint": "Missions, vehicle time and alarms; can be exported to xlsx",
@@ -5107,6 +5251,8 @@
       "preview_failed": "Cannot preview this model"
     },
     "info": {
+      "drive_view": "Driver view",
+      "exit_drive_view": "Exit driver view",
       "status": "Status",
       "battery": "Battery",
       "charging": "charging",

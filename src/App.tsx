@@ -17,6 +17,9 @@ import { SystemAlarmOverlay } from "./pages/Main/components/SystemAlarm";
 import { UserConformOverlay } from "./pages/Main/components/UserConformTaskStep";
 import MissionDispatchBoard from "./pages/MissionDispatchBoard/MissionDispatchBoard";
 import OperationReport from "./pages/OperationReport/OperationReport";
+import FleetReplay from "./pages/FleetReplay/FleetReplay";
+import Achievements from "./pages/Achievements/Achievements";
+import AchievementToaster from "./components/Achievements/AchievementToaster";
 import SimulateV2Gate from "./pages/SimulateV2/SimulateV2Gate";
 import MainV2 from "./pages/MainV2/MainV2";
 import SettingV3 from "./pages/SettingV3/SettingV3";
@@ -53,6 +56,7 @@ function App() {
         <Outlet />
         {/* 放在頁面後面: 跟頁面裡同一層的元件比, 聊天室要在上面 (見 CHAT_Z_INDEX) */}
         <SiteChat />
+        <AchievementToaster />
       </>
     );
   };
@@ -108,6 +112,8 @@ function App() {
                 <Route path="/amr" element={<AmrList />} />
                 <Route path="/amr/:amrId" element={<AmrDetail />} />
                 <Route path="/report" element={<OperationReport />} />
+                <Route path="/fleet-replay" element={<FleetReplay />} />
+                <Route path="/achievements" element={<Achievements />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="*" element={<h1>{t("utils.not_found")}</h1>} />
               </Route>

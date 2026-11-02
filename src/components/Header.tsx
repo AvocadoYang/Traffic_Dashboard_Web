@@ -550,7 +550,9 @@ const Header: React.FC = () => {
       : []),
     { key: "/records", label: t("page_record") },
     { key: "/mission-dispatch", label: t("page_mission_dispatch") },
+    { key: "/fleet-replay", label: t("page_fleet_replay") },
     { key: "/report", label: t("page_report") },
+    { key: "/achievements", label: t("page_achievements") },
   ];
 
   const handleMenuClick = (e: { key: string }) => {
