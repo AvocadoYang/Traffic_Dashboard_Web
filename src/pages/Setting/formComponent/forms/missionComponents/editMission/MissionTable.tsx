@@ -227,6 +227,8 @@ const MissionTable: FC<{
       await queryClient.refetchQueries({
         queryKey: ["all-mission-title-detail"],
       });
+      // 選擇任務的資料夾篩選看的是這份
+      await queryClient.refetchQueries({ queryKey: ["all-mission-title"] });
     },
     onError(error: Err) {
       messageApi.error(error.response.data.message);

@@ -298,7 +298,7 @@ const MissionTableSelect = ({
           if (selectFolder === "") return true;
           return m.mission_folder?.id === selectFolder;
         }) || [],
-    [search, data, handleFilterFolder]
+    [search, data, selectFolder]
   );
   const columns = [
     {
