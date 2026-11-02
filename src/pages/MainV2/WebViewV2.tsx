@@ -36,7 +36,7 @@ import { mq } from "@/styles/responsive";
 import { useTranslation } from "react-i18next";
 import { themeAtom } from "@/theme";
 import { AimOutlined, MenuFoldOutlined, MenuUnfoldOutlined, PushpinOutlined, TagOutlined } from "@ant-design/icons";
-import { useMyProfile, useSaveProfile } from "@/api/useProfile";
+import { MapView3dPref, MapViewPref, useMyProfile, useSaveProfile } from "@/api/useProfile";
 import { mapViewModeAtom, MapViewMode, patrolAtom, vehicleLabelsAtom } from "@/components/Fleet3D/viewMode";
 import { webglAvailable } from "@/components/Fleet3D/webgl";
 import Fleet3DBoundary from "@/components/Fleet3D/Fleet3DBoundary";
@@ -281,6 +281,7 @@ const WebViewV2 = () => {
   const saveProfile = useSaveProfile();
   const [messageApi, messageHolder] = message.useMessage();
   const preferredView = profile?.preferences.map?.view ?? null;
+  const preferredView3d = profile?.preferences.map?.view3d ?? null;
   const setShowLocation = useSetAtom(isShowLocation);
   const setShowRoad = useSetAtom(isShowRoad);
   const setShowPointCloud = useSetAtom(isShowPointCloud);
@@ -299,10 +300,11 @@ const WebViewV2 = () => {
   }, [profile, setShowLocation, setShowRoad, setShowPointCloud, setShowAnnotation, setShowZones]);
 
   const saveCurrentView = () => {
-    const view = mapApiRef.current?.currentView();
+    const is3d = viewMode === "3d";
+    const view = is3d ? mapApiRef.current?.currentView3d?.() : mapApiRef.current?.currentView();
     if (!view) return;
     saveProfile.mutate(
-      { preferences: { map: { view } } },
+      { preferences: { map: is3d ? { view3d: view as MapView3dPref } : { view: view as MapViewPref } } },
       {
         onSuccess: () => void messageApi.success(t("profile.prefs.view_saved_toast")),
         onError: () => void messageApi.error(t("profile.save_failed")),
@@ -364,7 +366,7 @@ const WebViewV2 = () => {
                 {simCarDrop.contextHolder}
                 {viewMode === "3d" ? (
                   <Fleet3DBoundary onUse2d={() => setViewMode("2d")}>
-                    <LiveFleet3D onPointClick={openDirectMove} apiRef={mapApiRef} />
+                    <LiveFleet3D onPointClick={openDirectMove} apiRef={mapApiRef} preferredView={preferredView3d} />
                   </Fleet3DBoundary>
                 ) : (
                   <CanvasMap onPointClick={openDirectMove} apiRef={mapApiRef} preferredView={preferredView}>
@@ -427,7 +429,7 @@ const WebViewV2 = () => {
                 <PerformancePanel top="64px" right="16px" />
                 {/* 模擬車輛: 取代舊的 /simulate 頁; 開始 / 停止模擬還是 Header 的按鈕 */}
                 {showSimulationUi ? <SimCarPanel top="128px" left="16px" /> : null}
-                {profile && viewMode === "2d" && (
+                {profile && (
                   <Tooltip title={t("profile.prefs.save_view")}>
                     <SaveViewBtn
                       icon={<PushpinOutlined />}

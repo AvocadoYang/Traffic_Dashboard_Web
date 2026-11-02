@@ -58,6 +58,10 @@ export type CameraApi = {
    * fit: 照這個距離, 要拉遠也拉遠, 例如框住整個區域)
    */
   flyTo: (x: number, y: number, distance?: number, fit?: boolean) => void;
+  /** 目前鏡頭: 看的地面位置 (ROS 座標) + 鏡頭相對那裡的位移 (three 座標) */
+  getView: () => { tx: number; ty: number; dx: number; dy: number; dz: number } | null;
+  /** 直接切到某個鏡頭 (getView 的格式) */
+  setView: (v: { tx: number; ty: number; dx: number; dy: number; dz: number }) => void;
   /** 資料變了, 要求畫下一幀 (畫布外面的人用) */
   invalidate: () => void;
 };
@@ -201,6 +205,19 @@ const CameraRig: FC<{
           dir: offset.normalize(),
           start: performance.now(),
         };
+        invalidate();
+      },
+      getView: () => {
+        if (!controls) return null;
+        const o = camera.position.clone().sub(controls.target);
+        return { tx: controls.target.x, ty: -controls.target.z, dx: o.x, dy: o.y, dz: o.z };
+      },
+      setView: (v) => {
+        if (!controls) return;
+        flight.current = null;
+        controls.target.set(v.tx, 0, -v.ty);
+        camera.position.set(v.tx + v.dx, v.dy, -v.ty + v.dz);
+        controls.update();
         invalidate();
       },
       invalidate,
