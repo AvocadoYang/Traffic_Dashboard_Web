@@ -35,6 +35,7 @@ import {
   CardFacts,
   Tag,
 } from "../../ui/primitives";
+import MapDataTransfer from "../map/MapDataTransfer";
 import LocationEditModal, { LocationRow } from "./LocationEditModal";
 
 const LocationListPanel: FC = () => {
@@ -129,6 +130,18 @@ const LocationListPanel: FC = () => {
           count: m.locations.length,
         })),
       })) ?? [],
+    [resources],
+  );
+
+  const mapOptions = useMemo(
+    () =>
+      resources?.groups.flatMap((g) =>
+        g.maps.map((m) => ({
+          mapId: m.mapId,
+          label: `${g.groupName} / ${m.fileName}`,
+          active: g.isUsing,
+        })),
+      ) ?? [],
     [resources],
   );
 
@@ -276,6 +289,14 @@ const LocationListPanel: FC = () => {
             <ReloadOutlined />
             {t("utils.reload")}
           </GhostButton>
+          <MapDataTransfer
+            maps={mapOptions}
+            defaultMapId={selectedMapId}
+            onDone={() => {
+              invalidate();
+              void refetch();
+            }}
+          />
 
           <Popconfirm
             title={t("edit_location_panel.table_notify.are_you_sure")}
