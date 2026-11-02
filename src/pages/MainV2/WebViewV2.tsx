@@ -35,9 +35,9 @@ import styled, { css } from "styled-components";
 import { mq } from "@/styles/responsive";
 import { useTranslation } from "react-i18next";
 import { themeAtom } from "@/theme";
-import { AimOutlined, MenuFoldOutlined, MenuUnfoldOutlined, PushpinOutlined, TagOutlined } from "@ant-design/icons";
+import { AimOutlined, BorderOutlined, MenuFoldOutlined, MenuUnfoldOutlined, PushpinOutlined, TagOutlined } from "@ant-design/icons";
 import { MapView3dPref, MapViewPref, useMyProfile, useSaveProfile } from "@/api/useProfile";
-import { mapViewModeAtom, MapViewMode, patrolAtom, vehicleLabelsAtom } from "@/components/Fleet3D/viewMode";
+import { mapViewModeAtom, MapViewMode, patrolAtom, vehicleLabelsAtom, wallsAtom } from "@/components/Fleet3D/viewMode";
 import { webglAvailable } from "@/components/Fleet3D/webgl";
 import Fleet3DBoundary from "@/components/Fleet3D/Fleet3DBoundary";
 import {
@@ -262,6 +262,7 @@ const WebViewV2 = () => {
   const viewMode: MapViewMode = can3d ? storedViewMode : "2d";
   const [patrol, setPatrol] = useAtom(patrolAtom);
   const [vehicleLabels, setVehicleLabels] = useAtom(vehicleLabelsAtom);
+  const [walls, setWalls] = useAtom(wallsAtom);
   const [showSidebars, setShowSidebars] = useState(true);
   // 點地圖上的點位: 打開「直接移動」(同舊首頁)
   const setOpenDirect = useSetAtom(OpenDirect);
@@ -414,6 +415,20 @@ const WebViewV2 = () => {
                       data-testid="fleet3d-vehicle-labels"
                     >
                       {t("fleet3d.labels.label")}
+                    </Button>
+                  </Tooltip>
+                )}
+                {/* 3D 的牆: 地圖上的黑色障礙物拉成立體的牆, 可以關掉 */}
+                {viewMode === "3d" && (
+                  <Tooltip title={t("fleet3d.walls.tip")}>
+                    <Button
+                      type={walls ? "primary" : "default"}
+                      icon={<BorderOutlined />}
+                      onClick={() => setWalls(!walls)}
+                      aria-pressed={walls}
+                      data-testid="fleet3d-walls"
+                    >
+                      {t("fleet3d.walls.label")}
                     </Button>
                   </Tooltip>
                 )}

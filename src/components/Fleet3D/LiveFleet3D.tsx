@@ -44,7 +44,8 @@ import VehicleInfoCard from "./VehicleInfoCard";
 import { LiveTracks } from "./liveTracks";
 import { FORKLIFT_MODEL, robotTypeFor, vehicleModelFor } from "./vehicleModels";
 import { Patrol } from "./patrol";
-import { patrolAtom, vehicleLabelsAtom } from "./viewMode";
+import { patrolAtom, vehicleLabelsAtom, wallsAtom } from "./viewMode";
+import MapWalls3D from "./MapWalls3D";
 import CorrectionGhost3D, { CorrectionPanel3D } from "./CorrectionGhost3D";
 import SimCarMarkers3D from "./SimCarMarkers3D";
 import Trail3D from "./Trail3D";
@@ -106,6 +107,7 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef, preferredView }) => {
   const linkedZones = useAtomValue(linkedZoneHighlightAtom);
   const patrolOn = useAtomValue(patrolAtom);
   const showVehicleLabels = useAtomValue(vehicleLabelsAtom);
+  const showWalls = useAtomValue(wallsAtom);
   const chargerPanel = useAtomValue(OpenChargeStationModal);
   const [focusReq, setFocusReq] = useAtom(focusLocationRequest);
   const { t } = useTranslation();
@@ -416,6 +418,16 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef, preferredView }) => {
             originY={map.mapOriginY}
             metersPerPx={map.mapResolution}
             recolor={recolor}
+          />
+        )}
+        {map?.imageUrl && showWalls && (
+          <MapWalls3D
+            url={map.imageUrl}
+            heightPx={map.mapHeight}
+            originX={map.mapOriginX}
+            originY={map.mapOriginY}
+            metersPerPx={map.mapResolution}
+            color={theme.mode === "dark" ? "#5f6b7a" : "#8c97a6"}
           />
         )}
         {map && (

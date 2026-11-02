@@ -5351,6 +5351,10 @@
       "heat": "Hotspots",
       "heat_tip": "Colour the roads by time spent waiting in traffic (same as the Hotspots view)"
     },
+    "walls": {
+      "label": "Walls",
+      "tip": "Raise the dark obstacles on the map into 3D walls; off shows only the flat map"
+    },
     "labels": {
       "label": "Vehicle labels",
       "tip": "Always show each vehicle's name, status, destination and warnings; when off, a label appears only while the pointer is over the vehicle"
