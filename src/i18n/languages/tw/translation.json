@@ -847,6 +847,7 @@
       "conveyor_dispatch": "輸送帶派送",
       "transfer_rules": "區域搬運",
       "group_pick_place": "群組取放規則",
+      "booking_timing": "群組預約時機",
       "work_areas": "作業區"
     },
     "others": {
@@ -3311,6 +3312,36 @@
         ]
       }
     }
+  },
+  "booking_timing": {
+    "title": "群組預約時機",
+    "schema_not_ready": "資料表還沒建立，請重新啟動後端（會自動建立），或在 mission-control 執行 yarn pdp。",
+    "intro": "決定這個群組的位置「什麼時候」挑好並預約給車子。預設是任務一建立就挑好、預約好；也可以改成車開到那一步才挑，這樣車還在路上時，位置不會被提早占住。沒有設定的群組照舊，在任務建立時預約。",
+    "no_group": "目前的場景沒有任何設備群組，請先到「設備 > 設備群組表」建立群組。",
+    "member_count": "群組裡有 {{count}} 個設備",
+    "not_configured": "尚未設定（照舊）",
+    "unsaved": "有變更還沒儲存",
+    "pick_title": "車子從這個群組「取貨」時",
+    "pick_hint": "例如區域搬運的來源群組、輸送帶派送的取貨端。",
+    "offload_title": "車子把貨「放進」這個群組時",
+    "offload_hint": "例如區域搬運的目的群組、輸送帶派送的放貨端。",
+    "timing_label": "位置什麼時候預約",
+    "timing_AT_CREATE": "任務建立時就預約（預設）",
+    "timing_AT_ARRIVAL": "車開到才預約",
+    "timing_hint_AT_CREATE": "任務一派出去，就先把位置挑好、留給這台車。不會有人搶位置，但車還在路上時，位置就已經被占住了。",
+    "timing_hint_AT_ARRIVAL": "任務建立時先不占位置，車開到這一步才挑。位置不會被提早占住，其他任務可以先用；但車到了可能發現沒有位置，所以要選下面的處理方式。",
+    "blocked_label": "車到了卻挑不到位置時",
+    "blocked_STAY": "留在原地等",
+    "blocked_STANDBY": "退到最近的待命點等",
+    "blocked_RETURN_TO_POOL": "任務先收回去重新排隊",
+    "blocked_hint_STAY": "車停在原地，一有位置就繼續做。設定最簡單，但車會停在通道上，可能擋到別的車。",
+    "blocked_hint_STANDBY": "車先離開去最近的待命點，有位置再回來。不會擋路，但會多跑一趟。需要場景裡有設定待命點。",
+    "blocked_hint_RETURN_TO_POOL": "這筆任務先取消派車、回到任務列表中的「等待中」，車子空出來去做別的事；等有位置時，系統會重新派一台車。只有車上還沒載貨時才能這樣做。",
+    "offload_no_pool": "放貨時車上已經載著貨，任務不能收回去排隊，所以這裡沒有這個選項。",
+    "not_enforced": "提醒：派車流程還沒有讀取這項設定，現在選了「車開到才預約」不會改變行為，設定只會先被儲存起來。",
+    "save": "儲存",
+    "reset": "恢復預設",
+    "reset_confirm": "恢復成「任務建立時就預約」？"
   },
   "group_pick_place": {
     "title": "群組取放規則",

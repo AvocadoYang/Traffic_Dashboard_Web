@@ -847,6 +847,7 @@
       "conveyor_dispatch": "Conveyor Dispatch",
       "transfer_rules": "Area Transfer",
       "group_pick_place": "Group Pick & Place Rules",
+      "booking_timing": "Group Booking Timing",
       "work_areas": "Work Areas"
     },
     "others": {
@@ -3310,6 +3311,36 @@
         ]
       }
     }
+  },
+  "booking_timing": {
+    "title": "Group Booking Timing",
+    "schema_not_ready": "The table has not been created. Restart the backend (it creates it automatically) or run yarn pdp in mission-control.",
+    "intro": "Decides WHEN a slot in this group is picked and reserved for a vehicle. By default it is picked and reserved as soon as the mission is created. You can instead pick it when the vehicle reaches that step, so the slot is not held while the vehicle is still on its way. Groups without a setting behave as before.",
+    "no_group": "The current scene has no device groups. Create one under Devices > Device Groups first.",
+    "member_count": "{{count}} devices in this group",
+    "not_configured": "Not set (as before)",
+    "unsaved": "Unsaved changes",
+    "pick_title": "When a vehicle PICKS UP from this group",
+    "pick_hint": "For example the source group of an area transfer, or the pick side of conveyor dispatch.",
+    "offload_title": "When a vehicle DROPS OFF into this group",
+    "offload_hint": "For example the destination group of an area transfer, or the drop side of conveyor dispatch.",
+    "timing_label": "When to reserve the slot",
+    "timing_AT_CREATE": "When the mission is created (default)",
+    "timing_AT_ARRIVAL": "When the vehicle arrives",
+    "timing_hint_AT_CREATE": "The slot is picked and held for this vehicle as soon as the mission is sent out. Nobody can take it, but it stays occupied while the vehicle is still on its way.",
+    "timing_hint_AT_ARRIVAL": "No slot is held at creation; it is picked when the vehicle reaches this step. The slot is not blocked early and other missions may use it, but the vehicle may find no slot on arrival, so choose how to handle that below.",
+    "blocked_label": "If no slot is available on arrival",
+    "blocked_STAY": "Wait in place",
+    "blocked_STANDBY": "Back off to the nearest standby point",
+    "blocked_RETURN_TO_POOL": "Put the mission back in the queue",
+    "blocked_hint_STAY": "The vehicle stops where it is and continues as soon as a slot frees up. Simplest, but it may block the aisle and other vehicles.",
+    "blocked_hint_STANDBY": "The vehicle leaves for the nearest standby point and comes back when a slot is free. It does not block traffic but makes an extra trip. Needs standby points on the map.",
+    "blocked_hint_RETURN_TO_POOL": "The mission is taken off the vehicle and goes back to \"Waiting\" in the mission list; the vehicle is free for other work and a vehicle is dispatched again when a slot is available. Only possible while the vehicle carries no cargo.",
+    "offload_no_pool": "The vehicle already carries the cargo when dropping off, so the mission cannot be put back in the queue.",
+    "not_enforced": "Note: dispatching does not read this setting yet. Choosing \"when the vehicle arrives\" changes nothing for now; the setting is only stored.",
+    "save": "Save",
+    "reset": "Reset to default",
+    "reset_confirm": "Reset to \"reserve when the mission is created\"?"
   },
   "group_pick_place": {
     "title": "Group Pick & Place Rules",

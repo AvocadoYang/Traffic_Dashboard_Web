@@ -182,6 +182,10 @@ export const navCategories: NavCategory[] = [
         labelKey: "toolbar.peripheral.group_pick_place",
       },
       {
+        key: "booking_timing",
+        labelKey: "toolbar.peripheral.booking_timing",
+      },
+      {
         key: "work_areas",
         labelKey: "toolbar.peripheral.work_areas",
       },
