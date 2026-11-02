@@ -10,6 +10,8 @@ export type SettingV2OnlyKey =
   | "gate_interlock"
   | "conveyor_dispatch"
   | "transfer_rules"
+  | "group_pick_place"
+  | "booking_timing"
   | "work_areas"
   | "map_annotation"
   | "setting_change_log"

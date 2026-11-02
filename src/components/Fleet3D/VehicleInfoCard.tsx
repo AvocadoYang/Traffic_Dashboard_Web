@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { Button } from "antd";
-import { CloseOutlined, WarningFilled } from "@ant-design/icons";
+import { CloseOutlined, EyeOutlined, WarningFilled } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import type { LiveStore, WarningMessage } from "@/components/CanvasMap/liveStore";
@@ -149,8 +149,11 @@ const VehicleInfoCard: FC<{
   typeName?: string;
   store: () => LiveStore | null;
   onClose: () => void;
+  /** 駕駛視角 (鏡頭在車後面順著車頭看) 開著嗎, 沒給就沒有這個按鈕 */
+  drive?: boolean;
+  onToggleDrive?: () => void;
   top?: string;
-}> = ({ id, color, typeName, store, onClose, top = "10px" }) => {
+}> = ({ id, color, typeName, store, onClose, drive = false, onToggleDrive, top = "10px" }) => {
   const { t } = useTranslation();
   const [snap, setSnap] = useState<Snapshot | null>(() => snapshotOf(store(), id));
 
@@ -203,6 +206,17 @@ const VehicleInfoCard: FC<{
           {t("map_tool.following", { id })}
           {typeName && <span className="sub"> · {typeName}</span>}
         </span>
+        {onToggleDrive && (
+          <Button
+            size="small"
+            type={drive ? "primary" : "text"}
+            icon={<EyeOutlined />}
+            onClick={onToggleDrive}
+            title={drive ? t("fleet3d.info.exit_drive_view") : t("fleet3d.info.drive_view")}
+            aria-label={drive ? t("fleet3d.info.exit_drive_view") : t("fleet3d.info.drive_view")}
+            aria-pressed={drive}
+          />
+        )}
         <Button size="small" type="text" icon={<CloseOutlined />} onClick={onClose} aria-label={t("map_tool.stop_follow")} />
       </Head>
       {snap && (

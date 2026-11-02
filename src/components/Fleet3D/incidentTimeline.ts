@@ -2,17 +2,17 @@ import type { IncidentReplay } from "@/api/useEStopHistory";
 
 /** 急停回放的時間軸: 某一台車在某個時間 (ms, 相對急停, 之前是負的) 在哪、有沒有載貨 */
 
-type Vehicle = IncidentReplay["vehicles"][number];
+type Vehicle = Pick<IncidentReplay["vehicles"][number], "samples" | "cargo">;
 
 /** 最後一筆之後超過這麼久沒資料就當作不在了 (離線) */
 export const GONE_MS = 2000;
 
 const shortDeg = (from: number, to: number) => ((((to - from) % 360) + 540) % 360) - 180;
 
-/** 這台車在 t 的位置 (前後兩筆之間插值, 角度走近的那一邊); 還沒出現或已經離線回傳 null */
-export const incidentPoseAt = (v: Vehicle, t: number) => {
+/** 這台車在 t 的位置 (前後兩筆之間插值, 角度走近的那一邊); 還沒出現或已經離線回傳 null (goneMs: 最後一筆之後多久算離線) */
+export const incidentPoseAt = (v: Vehicle, t: number, goneMs = GONE_MS) => {
   const s = v.samples;
-  if (!s.length || t < s[0][0] || t > s[s.length - 1][0] + GONE_MS) return null;
+  if (!s.length || t < s[0][0] || t > s[s.length - 1][0] + goneMs) return null;
   let lo = 0;
   let hi = s.length - 1;
   while (lo < hi) {

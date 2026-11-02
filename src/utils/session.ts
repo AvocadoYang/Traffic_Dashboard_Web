@@ -6,8 +6,8 @@ import { jwtDecode } from "jwt-decode";
  */
 export type LogoutReason = "idle" | "expired" | "disabled";
 
-/** 登入後要不要跳交班留言 (登入頁設, UserSession 看完清掉) */
-export const SHIFT_NOTE_CHECK_KEY = "shift-note-check";
+/** 剛登入, 要看聊天室有沒有未讀 (登入頁設, 聊天室看完清掉) */
+export const CHAT_CHECK_KEY = "chat-unread-check";
 
 export const getToken = (): string | null => {
   try {
@@ -41,7 +41,7 @@ export const tokenAccount = (token: string | null): string => {
 export const logout = (reason?: LogoutReason) => {
   try {
     localStorage.removeItem("token");
-    sessionStorage.removeItem(SHIFT_NOTE_CHECK_KEY);
+    sessionStorage.removeItem(CHAT_CHECK_KEY);
   } catch {
     /* storage 被擋就只能靠重新載入 */
   }

@@ -9,3 +9,6 @@ export const patrolAtom = atomWithStorage<boolean>("fleet-3d-patrol", false);
 
 /** 3D 車上一直顯示標籤 (車號、狀態、要去哪、告警); 關掉時 (預設) 游標移到車上才顯示 */
 export const vehicleLabelsAtom = atomWithStorage<boolean>("fleet-3d-vehicle-labels", false);
+
+/** 3D 把地圖上的黑色障礙物拉成立體的牆; 預設開, 不想要的人可以關掉 (存 localStorage) */
+export const wallsAtom = atomWithStorage<boolean>("fleet-3d-walls", true);

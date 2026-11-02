@@ -1,5 +1,7 @@
 import { FC, useState } from "react";
 import {
+  AutoComplete,
+  Checkbox,
   Form,
   Input,
   InputNumber,
@@ -9,13 +11,17 @@ import {
   Select,
   Skeleton,
   Switch,
+  Tag,
+  TimePicker,
   message,
 } from "antd";
+import type { Dayjs } from "dayjs";
 import type { MessageInstance } from "antd/es/message/interface";
 import {
   DashboardOutlined,
   DeleteOutlined,
   EditOutlined,
+  MinusCircleOutlined,
   PauseCircleOutlined,
   PlayCircleOutlined,
   PlusOutlined,
@@ -27,6 +33,7 @@ import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import client from "@/api/axiosClient";
 import {
+  CargoCondition,
   TRANSFER_CONFIG_KEY,
   TRANSFER_TRIGGERS,
   TRIGGERS_WITH_TRIPS,
@@ -43,6 +50,13 @@ import MissionRejectHint, { rejectEntries } from "@/components/MissionRejectHint
 import { errorHandler } from "@/utils/utils";
 import StatusTag from "../../ui/StatusTag";
 import HelpButton from "../../ui/HelpButton";
+import {
+  TIME_FORMAT,
+  describeTimeWindow,
+  toDayjs,
+  toHhmm,
+  weekdayOptions,
+} from "../../ui/timeCondition";
 import {
   PanelShell,
   Section,
@@ -66,6 +80,7 @@ import {
 /**
  * 區域搬運規則: 從來源群組搬到目的群組, 觸發條件四選一
  * (手動 / 來源有貨就搬 / 依空位數補貨 / 定時)。
+ * 目的可以有好幾個群組 (依序嘗試), 可以只搬符合條件的貨, 自動觸發可以限定星期 / 時段。
  * 任務走一般 dynamic mission 流程, 兩邊群組的擺放規則與取貨順序都會套用。
  */
 const TransferRulePanel: FC = () => {
@@ -129,6 +144,28 @@ const triggerSummary = (t: TFunction, rule: TransferRule) => {
   }
 };
 
+/** 「PU_G2 → PU_G1」; 有後備的目的群組時加上「（放不下依序改放 PU_G3）」 */
+const routeText = (t: TFunction, source: string, dests: string[]) =>
+  `${source} → ${dests[0] ?? "—"}${
+    dests.length > 1
+      ? t("transfer_rules.route_fallback", { groups: dests.slice(1).join("、") })
+      : ""
+  }`;
+
+// 比對區分大小寫, 不能沿用 Tag 預設的全大寫
+const conditionTags = (conditions: CargoCondition[]) =>
+  conditions.map((c) => (
+    <Tag key={c.key} style={{ textTransform: "none" }}>
+      {`${c.key} = ${c.value}`}
+    </Tag>
+  ));
+
+/** 自動觸發的星期 / 時段; 手動規則和沒設時段回 null */
+const windowText = (t: TFunction, rule: TransferRule) =>
+  rule.triggerType === "MANUAL"
+    ? null
+    : describeTimeWindow(t, rule.activeDays, rule.timeFrom, rule.timeTo);
+
 const formatTime = (iso: string | null) =>
   iso
     ? new Date(iso).toLocaleString(undefined, {
@@ -189,10 +226,33 @@ const RuntimeSection: FC<{ config: TransferConfig; messageApi: MessageInstance }
                 </CardTitleRow>
                 <CardFacts>
                   <dt>{t("transfer_rules.route")}</dt>
-                  <dd>{`${r.sourceGroup} → ${r.destGroup}`}</dd>
+                  <dd>{routeText(t, r.sourceGroup, r.destGroups)}</dd>
+                  {!!rule?.cargoConditions.length && (
+                    <>
+                      <dt>{t("transfer_rules.conditions")}</dt>
+                      <dd>{conditionTags(rule.cargoConditions)}</dd>
+                    </>
+                  )}
                   <dt>{t("transfer_rules.trigger")}</dt>
                   <dd>{rule ? triggerSummary(t, rule) : "—"}</dd>
-                  <dt>{t("transfer_rules.source_stock")}</dt>
+                  {rule && windowText(t, rule) && (
+                    <>
+                      <dt>{t("transfer_rules.time_window")}</dt>
+                      <dd>
+                        {windowText(t, rule)}
+                        {!r.inTimeWindow && (
+                          <StatusTag $on={false} style={{ marginLeft: 8 }}>
+                            {t("transfer_rules.out_of_window")}
+                          </StatusTag>
+                        )}
+                      </dd>
+                    </>
+                  )}
+                  <dt>
+                    {rule?.cargoConditions.length
+                      ? t("transfer_rules.source_stock_matching")
+                      : t("transfer_rules.source_stock")}
+                  </dt>
                   <dd>
                     {r.source
                       ? t("transfer_rules.stock_text", {
@@ -202,7 +262,16 @@ const RuntimeSection: FC<{ config: TransferConfig; messageApi: MessageInstance }
                       : "—"}
                   </dd>
                   <dt>{t("transfer_rules.dest_free")}</dt>
-                  <dd>{r.dest ? t("transfer_rules.free_text", { free: r.dest.free }) : "—"}</dd>
+                  <dd>
+                    {!r.dest
+                      ? "—"
+                      : r.destFree.length > 1
+                        ? t("transfer_rules.free_text_split", {
+                            free: r.dest.free,
+                            split: r.destFree.map((d) => `${d.group} ${d.free}`).join("、"),
+                          })
+                        : t("transfer_rules.free_text", { free: r.dest.free })}
+                  </dd>
                   <dt>{t("transfer_rules.in_flight")}</dt>
                   <dd>{r.missionIds.length ? r.missionIds.join(", ") : "—"}</dd>
                   {r.job && (
@@ -273,7 +342,8 @@ type RuleForm = {
   name: string;
   isEnable: boolean;
   sourceGroupId: string;
-  destGroupId: string;
+  destGroupIds: string[];
+  conditions: CargoCondition[];
   priority: number;
   triggerType: TransferTriggerType;
   startAt?: number;
@@ -284,6 +354,10 @@ type RuleForm = {
   tripsMode?: "COUNT" | "UNTIL_EMPTY";
   trips?: number;
   maxConcurrent: number;
+  activeDays: number[];
+  /** 表單裡的時段用 dayjs (TimePicker), 送出前轉回 "HH:mm" */
+  timeFrom: Dayjs | null;
+  timeTo: Dayjs | null;
 };
 
 const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)$/;
@@ -294,7 +368,8 @@ const toForm = (rule: TransferRule | null): RuleForm =>
         name: rule.name,
         isEnable: rule.isEnable,
         sourceGroupId: rule.sourceGroupId,
-        destGroupId: rule.destGroupId,
+        destGroupIds: rule.destGroupIds,
+        conditions: rule.cargoConditions,
         priority: rule.priority,
         triggerType: rule.triggerType,
         startAt: rule.freeSlots?.startAt ?? 3,
@@ -305,12 +380,16 @@ const toForm = (rule: TransferRule | null): RuleForm =>
         tripsMode: rule.trips === null ? "UNTIL_EMPTY" : "COUNT",
         trips: rule.trips ?? 1,
         maxConcurrent: rule.maxConcurrent,
+        activeDays: rule.activeDays,
+        timeFrom: toDayjs(rule.timeFrom),
+        timeTo: toDayjs(rule.timeTo),
       }
     : {
         name: "",
         isEnable: true,
         sourceGroupId: undefined as unknown as string,
-        destGroupId: undefined as unknown as string,
+        destGroupIds: [],
+        conditions: [],
         priority: 1,
         triggerType: "MANUAL",
         startAt: 3,
@@ -321,13 +400,18 @@ const toForm = (rule: TransferRule | null): RuleForm =>
         tripsMode: "COUNT",
         trips: 1,
         maxConcurrent: 1,
+        activeDays: [],
+        timeFrom: null,
+        timeTo: null,
       };
 
 const toPayload = (v: RuleForm) => ({
   name: v.name,
   isEnable: v.isEnable,
   sourceGroupId: v.sourceGroupId,
-  destGroupId: v.destGroupId,
+  destGroupIds: v.destGroupIds,
+  destGroupId: v.destGroupIds[0],
+  cargoConditions: (v.conditions ?? []).filter((c) => c?.key && c?.value),
   priority: v.priority,
   triggerType: v.triggerType,
   freeSlots:
@@ -343,6 +427,10 @@ const toPayload = (v: RuleForm) => ({
       ? v.trips ?? 1
       : null,
   maxConcurrent: v.maxConcurrent,
+  // 手動規則只靠人按, 不帶時段
+  activeDays: v.triggerType === "MANUAL" ? [] : v.activeDays ?? [],
+  timeFrom: v.triggerType === "MANUAL" ? null : toHhmm(v.timeFrom),
+  timeTo: v.triggerType === "MANUAL" ? null : toHhmm(v.timeTo),
 });
 
 const RuleSection: FC<{
@@ -402,7 +490,12 @@ const RuleSection: FC<{
     } catch {
       return;
     }
-    saveMutation.mutate({ ...toPayload(values), id: editing?.id });
+    const payload = toPayload(values);
+    if (!!payload.timeFrom !== !!payload.timeTo || (payload.timeFrom && payload.timeFrom === payload.timeTo)) {
+      void messageApi.error(t("time_condition.need_both"));
+      return;
+    }
+    saveMutation.mutate({ ...payload, id: editing?.id });
   };
 
   const hasTrips = TRIGGERS_WITH_TRIPS.includes(triggerType);
@@ -441,9 +534,21 @@ const RuleSection: FC<{
               </CardTitleRow>
               <CardFacts>
                 <dt>{t("transfer_rules.route")}</dt>
-                <dd>{`${groupName(r.sourceGroupId)} → ${groupName(r.destGroupId)}`}</dd>
+                <dd>{routeText(t, groupName(r.sourceGroupId), r.destGroupIds.map(groupName))}</dd>
+                {r.cargoConditions.length > 0 && (
+                  <>
+                    <dt>{t("transfer_rules.conditions")}</dt>
+                    <dd>{conditionTags(r.cargoConditions)}</dd>
+                  </>
+                )}
                 <dt>{t("transfer_rules.trigger")}</dt>
                 <dd>{triggerSummary(t, r)}</dd>
+                {windowText(t, r) && (
+                  <>
+                    <dt>{t("transfer_rules.time_window")}</dt>
+                    <dd>{windowText(t, r)}</dd>
+                  </>
+                )}
                 <dt>{t("transfer_rules.priority")}</dt>
                 <dd>{priorityLabel(r.priority)}</dd>
                 <dt>{t("transfer_rules.max_concurrent")}</dt>
@@ -502,28 +607,75 @@ const RuleSection: FC<{
                 name="sourceGroupId"
                 rules={[{ required: true, message: t("utils.required") }]}
               >
-                <Select options={groupOptions} />
+                <Select showSearch options={groupOptions} optionFilterProp="label" />
               </Form.Item>
             </Field>
             <Field>
               <FieldLabel>{t("transfer_rules.dest")}</FieldLabel>
               <Form.Item
-                name="destGroupId"
+                name="destGroupIds"
                 dependencies={["sourceGroupId"]}
+                extra={t("transfer_rules.dest_hint")}
                 rules={[
-                  { required: true, message: t("utils.required") },
+                  { required: true, type: "array", min: 1, message: t("utils.required") },
                   ({ getFieldValue }) => ({
-                    validator: (_, value) =>
-                      value && value === getFieldValue("sourceGroupId")
+                    validator: (_, value: string[] = []) =>
+                      value.includes(getFieldValue("sourceGroupId"))
                         ? Promise.reject(new Error(t("transfer_rules.same_group")))
                         : Promise.resolve(),
                   }),
                 ]}
               >
-                <Select options={groupOptions} />
+                <Select mode="multiple" options={groupOptions} optionFilterProp="label" />
               </Form.Item>
             </Field>
           </FieldGrid>
+
+          <FieldLabel>{t("transfer_rules.conditions")}</FieldLabel>
+          <Form.List name="conditions">
+            {(fields, { add, remove }) => (
+              <>
+                {fields.map((field) => (
+                  <Toolbar key={field.key} style={{ marginTop: 8 }}>
+                    <Form.Item
+                      name={[field.name, "key"]}
+                      rules={[{ required: true, message: t("utils.required") }]}
+                      style={{ marginBottom: 0, flex: 1 }}
+                    >
+                      <AutoComplete
+                        placeholder={t("transfer_rules.key")}
+                        options={config.cargoKeys.map((k) => ({ value: k }))}
+                      />
+                    </Form.Item>
+                    <span>=</span>
+                    <Form.Item
+                      name={[field.name, "value"]}
+                      rules={[{ required: true, message: t("utils.required") }]}
+                      style={{ marginBottom: 0, flex: 1 }}
+                    >
+                      <Input placeholder={t("transfer_rules.value")} />
+                    </Form.Item>
+                    <GhostButton
+                      type="button"
+                      title={t("utils.delete")}
+                      onClick={() => remove(field.name)}
+                    >
+                      <MinusCircleOutlined />
+                    </GhostButton>
+                  </Toolbar>
+                ))}
+                <GhostButton
+                  type="button"
+                  style={{ marginTop: 8 }}
+                  onClick={() => add({ key: "", value: "" })}
+                >
+                  <PlusOutlined />
+                  {t("transfer_rules.add_condition")}
+                </GhostButton>
+              </>
+            )}
+          </Form.List>
+          <Hint style={{ marginBottom: 16 }}>{t("transfer_rules.conditions_hint")}</Hint>
 
           <FieldLabel>{t("transfer_rules.trigger")}</FieldLabel>
           <Form.Item name="triggerType" extra={t(`transfer_rules.trigger_hint_${triggerType ?? "MANUAL"}`)}>
@@ -599,6 +751,35 @@ const RuleSection: FC<{
                   <Select mode="tags" placeholder="08:00" tokenSeparators={[",", " "]} />
                 </Form.Item>
               )}
+            </>
+          )}
+
+          {triggerType && triggerType !== "MANUAL" && (
+            <>
+              <FieldLabel>{t("transfer_rules.time_window")}</FieldLabel>
+              <Form.Item name="activeDays" extra={t("time_condition.days_hint")}>
+                <Checkbox.Group options={weekdayOptions(t)} />
+              </Form.Item>
+              <FieldGrid $cols={2}>
+                <Form.Item name="timeFrom">
+                  <TimePicker
+                    format={TIME_FORMAT}
+                    minuteStep={5}
+                    placeholder={t("time_condition.from")}
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
+                <Form.Item name="timeTo">
+                  <TimePicker
+                    format={TIME_FORMAT}
+                    minuteStep={5}
+                    placeholder={t("time_condition.to")}
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
+              </FieldGrid>
+              <Hint>{t("time_condition.time_range_hint")}</Hint>
+              <Hint style={{ marginBottom: 16 }}>{t("transfer_rules.time_window_hint")}</Hint>
             </>
           )}
 
