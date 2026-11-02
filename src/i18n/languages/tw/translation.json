@@ -5290,6 +5290,10 @@
     "no_client_name": "這台電腦還沒有名稱，別人只看得到帳號。",
     "set_client_name": "設定名稱"
   },
+  "mission_split": {
+    "first_half": "取貨這一半，放貨在任務 {{id}}",
+    "second_half": "放貨這一半，取貨在任務 {{id}}"
+  },
   "mission_manual": {
     "title": "人工介入",
     "force_next_step": "第 {{step}} 動被手動跳過 (直接下一動)",

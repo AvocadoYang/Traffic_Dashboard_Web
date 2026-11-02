@@ -5289,6 +5289,10 @@
     "no_client_name": "This computer has no name yet, so others only see the account.",
     "set_client_name": "Set name"
   },
+  "mission_split": {
+    "first_half": "Pick half; the offload is mission {{id}}",
+    "second_half": "Offload half; the pick is mission {{id}}"
+  },
   "mission_manual": {
     "title": "Manual intervention",
     "force_next_step": "Step {{step}} was skipped manually (skip to next step)",
