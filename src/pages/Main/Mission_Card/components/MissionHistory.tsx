@@ -92,6 +92,9 @@ interface Mission {
   /** 搬過幾筆貨 / 人工介入 (直接下一動) 幾次 */
   cargoCount: number;
   manualCount: number;
+  /** 分段任務: 後半 / 前半是哪一筆 */
+  splitTo?: string | null;
+  splitFrom?: string | null;
 }
 
 enum Send_By {
@@ -870,6 +873,16 @@ const MissionHistory: FC<{
             {record.cargoCount > 0 && (
               <MutedText>
                 {t("mission_manual.cargo_badge", { count: record.cargoCount })}
+              </MutedText>
+            )}
+            {record.splitTo && (
+              <MutedText>
+                {t("mission_split.first_half", { id: record.splitTo })}
+              </MutedText>
+            )}
+            {record.splitFrom && (
+              <MutedText>
+                {t("mission_split.second_half", { id: record.splitFrom })}
               </MutedText>
             )}
             {status === MissionStatus.WAITING && record.message && (

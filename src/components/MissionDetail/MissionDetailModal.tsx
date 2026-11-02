@@ -122,6 +122,18 @@ const MissionDetailModal: FC<{
               },
             ]}
           />
+          {(mission.splitTo || mission.splitFrom) && (
+            <Alert
+              style={{ marginTop: 8 }}
+              type="info"
+              showIcon
+              message={
+                mission.splitTo
+                  ? t("mission_split.first_half", { id: mission.splitTo })
+                  : t("mission_split.second_half", { id: mission.splitFrom })
+              }
+            />
+          )}
           {mission.message && (
             <Alert
               style={{ marginTop: 8 }}

@@ -1,3 +1,5 @@
+import { MapView3dPref } from "@/api/useProfile";
+import { reportFeatureUse } from "@/api/useAchievements";
 import { FC, MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAtom, useAtomValue } from "jotai";
 import { message } from "antd";
@@ -42,7 +44,8 @@ import VehicleInfoCard from "./VehicleInfoCard";
 import { LiveTracks } from "./liveTracks";
 import { FORKLIFT_MODEL, robotTypeFor, vehicleModelFor } from "./vehicleModels";
 import { Patrol } from "./patrol";
-import { patrolAtom, vehicleLabelsAtom } from "./viewMode";
+import { patrolAtom, vehicleLabelsAtom, wallsAtom } from "./viewMode";
+import MapWalls3D from "./MapWalls3D";
 import CorrectionGhost3D, { CorrectionPanel3D } from "./CorrectionGhost3D";
 import SimCarMarkers3D from "./SimCarMarkers3D";
 import Trail3D from "./Trail3D";
@@ -78,9 +81,11 @@ type Props = {
   onPointClick?: (locationId: string) => void;
   /** 給外面用的 hit-test (把模擬車拖到地圖上時找最近的點位) */
   apiRef?: MutableRefObject<CanvasMapApi | null>;
+  /** 個人設定的 3D 預設視角: 進來 / 換地圖 / 按「地圖置中」時回到這裡 (沒有就看整張地圖) */
+  preferredView?: MapView3dPref | null;
 };
 
-const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
+const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef, preferredView }) => {
   const { data: map } = useMap();
   const { data: names } = useName();
   const { data: robotTypes } = useAMRsample();
@@ -102,6 +107,7 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
   const linkedZones = useAtomValue(linkedZoneHighlightAtom);
   const patrolOn = useAtomValue(patrolAtom);
   const showVehicleLabels = useAtomValue(vehicleLabelsAtom);
+  const showWalls = useAtomValue(wallsAtom);
   const chargerPanel = useAtomValue(OpenChargeStationModal);
   const [focusReq, setFocusReq] = useAtom(focusLocationRequest);
   const { t } = useTranslation();
@@ -109,6 +115,9 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
   const cameraRef = useRef<CameraApi | null>(null);
   const storeRef = useRef<LiveStore | null>(null);
   const [follow, setFollow] = useState<string | null>(null);
+  /** 跟車時用駕駛視角 (換車或不跟了就回到一般視角) */
+  const [drive, setDrive] = useState(false);
+  useEffect(() => setDrive(false), [follow]);
   const [labels, setLabels] = useState<Record<string, Label>>({});
   const [claimed, setClaimed] = useState<Map<string, string>>(new Map());
   const [waits, setWaits] = useState<LiveState["waits"]>(new Map());
@@ -210,9 +219,36 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
 
   // 工具列: 回原位、放大縮小 (同一組 atom, 2D 地圖也是聽這個)
   const firstCm = useRef(cm);
+  const preferredRef = useRef(preferredView);
+  preferredRef.current = preferredView;
+  const mapIdRef = useRef(currentMapId);
+  mapIdRef.current = currentMapId;
+  /** 回到預設視角; 沒存或存的是別張地圖就看整張地圖 */
+  const goHome = useCallback(() => {
+    const v = preferredRef.current;
+    if (v && v.mapId === mapIdRef.current) cameraRef.current?.setView(v);
+    else cameraRef.current?.reset();
+  }, []);
   useEffect(() => {
-    if (cm !== firstCm.current) cameraRef.current?.reset();
-  }, [cm]);
+    if (cm !== firstCm.current) goHome();
+  }, [cm, goHome]);
+  // 預設視角通常比畫布晚到 (要等 /api/profile/me), 或換了地圖: 到了套一次
+  const homeKey = preferredView && preferredView.mapId === currentMapId ? `${currentMapId}` : "";
+  useEffect(() => {
+    if (!homeKey) return;
+    let tries = 0;
+    let timer = 0;
+    const run = () => {
+      if (!cameraRef.current) {
+        if (++tries < 20) timer = window.setTimeout(run, 100);
+        return;
+      }
+      goHome();
+    };
+    // 先等一下: 畫布剛量好大小時會先對準整張地圖
+    timer = window.setTimeout(run, 300);
+    return () => window.clearTimeout(timer);
+  }, [homeKey, goHome]);
   const lastScale = useRef(scale);
   useEffect(() => {
     const prev = lastScale.current;
@@ -348,6 +384,11 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
         return loc ? (cameraRef.current?.toClient(loc.x, loc.y) ?? null) : null;
       },
       currentView: () => null,
+      currentView3d: () => {
+        const v = cameraRef.current?.getView();
+        const mapId = mapIdRef.current;
+        return v && mapId ? { mapId, ...v } : null;
+      },
     };
     return () => {
       apiRef.current = null;
@@ -364,6 +405,7 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
         gridColor={theme.colors.border}
         dark={theme.mode === "dark"}
         follow={followTarget}
+        drive={drive}
         apiRef={cameraRef}
         onPointerMissed={stopFollow}
       >
@@ -376,6 +418,16 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
             originY={map.mapOriginY}
             metersPerPx={map.mapResolution}
             recolor={recolor}
+          />
+        )}
+        {map?.imageUrl && showWalls && (
+          <MapWalls3D
+            url={map.imageUrl}
+            heightPx={map.mapHeight}
+            originX={map.mapOriginX}
+            originY={map.mapOriginY}
+            metersPerPx={map.mapResolution}
+            color={theme.mode === "dark" ? "#5f6b7a" : "#8c97a6"}
           />
         )}
         {map && (
@@ -470,6 +522,11 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef }) => {
           typeName={robotTypeFor(follow, robotTypes)?.name}
           store={() => storeRef.current}
           onClose={stopFollow}
+          drive={drive}
+          onToggleDrive={() => {
+            if (!drive) reportFeatureUse("drive_view");
+            setDrive((d) => !d);
+          }}
           top="calc(var(--space-sm) + 44px)"
         />
       )}

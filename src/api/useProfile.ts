@@ -18,6 +18,9 @@ export type MapLayerPrefs = {
 /** 地圖預設視角: 畫面中心在底圖上的位置 (像素) + 縮放 */
 export type MapViewPref = { mapId: string; scale: number; cx: number; cy: number };
 
+/** 3D 預設視角: 鏡頭看的地面位置 (ROS 座標) + 鏡頭相對那裡的位移 */
+export type MapView3dPref = { mapId: string; tx: number; ty: number; dx: number; dy: number; dz: number };
+
 export type NotifyPrefs = {
   types?: Partial<Record<AlarmType, boolean>>;
   mutedCodes?: number[];
@@ -39,7 +42,7 @@ export type UserPreferences = {
   theme?: string;
   language?: "en" | "tw";
   fontScale?: number;
-  map?: { layers?: MapLayerPrefs; view?: MapViewPref | null };
+  map?: { layers?: MapLayerPrefs; view?: MapViewPref | null; view3d?: MapView3dPref | null };
   notify?: NotifyPrefs;
   favorites?: FavoriteMission[];
   idleLogoutMinutes?: number;
@@ -187,27 +190,4 @@ export const useLoginLog = (query: { account?: string; from?: string; to?: strin
     queryKey: ["login-log", query],
     queryFn: async () =>
       (await client.get<{ logs: LoginLogRow[] }>("api/logInAndOut/login-log", { params: query })).data.logs,
-  });
-
-// ------------------------------------------------------------------ 交班留言
-
-export type ShiftNote = {
-  id: string;
-  time: string;
-  account: string;
-  content: string;
-  unread: boolean;
-  canDelete: boolean;
-};
-
-export const SHIFT_NOTES_KEY = ["shift-notes"] as const;
-
-export const useShiftNotes = () =>
-  useQuery({
-    queryKey: SHIFT_NOTES_KEY,
-    queryFn: async () =>
-      (await client.get<{ notes: ShiftNote[]; unread: number }>("api/profile/shift-notes")).data,
-    enabled: hasToken(),
-    refetchInterval: 60_000,
-    retry: false,
   });

@@ -44,9 +44,10 @@ import dayjs from "dayjs";
 import MissionBtn from "@/pages/Main/components/WebView/components/MissionBtn";
 import HaStatusWidget from "@/pages/Main/components/HaStatusWidget";
 import ClientNameModal from "./ClientNameModal";
-import { getClientName } from "@/utils/clientIdentity";
+import { clientNameAtom } from "@/utils/clientIdentity";
 import { UserAvatar as ProfileAvatar } from "@/components/UserAvatar/UserAvatar";
-import { useMyProfile, useShiftNotes } from "@/api/useProfile";
+import { useMyProfile } from "@/api/useProfile";
+import { chatOpenAtom, useSiteChat } from "@/api/useSiteChat";
 import { getToken, logout, tokenAccount } from "@/utils/session";
 import SimTime from "./SimTime";
 import DirectMove from "@/pages/Main/components/missionModal/DirectMove";
@@ -468,10 +469,11 @@ const Header: React.FC = () => {
     location.pathname === "/" || location.pathname === "/main-v1";
   const activeRow: HeaderRow = hasToolsRow ? headerRow : "nav";
   const [openClientName, setOpenClientName] = useState(false);
-  const [clientName, setClientNameState] = useState(getClientName);
+  const [clientName, setClientNameState] = useAtom(clientNameAtom);
   const username = tokenAccount(getToken());
   const { data: profile } = useMyProfile();
-  const { data: shiftNotes } = useShiftNotes();
+  const { data: chat } = useSiteChat();
+  const setChatOpen = useSetAtom(chatOpenAtom);
   const currentMapInfo = useMap();
   const setScale = useSetAtom(Scale);
   const cm = useAtomValue(centerMap);
@@ -548,7 +550,9 @@ const Header: React.FC = () => {
       : []),
     { key: "/records", label: t("page_record") },
     { key: "/mission-dispatch", label: t("page_mission_dispatch") },
+    { key: "/fleet-replay", label: t("page_fleet_replay") },
     { key: "/report", label: t("page_report") },
+    { key: "/achievements", label: t("page_achievements") },
   ];
 
   const handleMenuClick = (e: { key: string }) => {
@@ -582,8 +586,8 @@ const Header: React.FC = () => {
       case "profile":
         navigate("/profile");
         break;
-      case "shift":
-        navigate("/profile?tab=shift");
+      case "chat":
+        setChatOpen(true);
         break;
       case "client-name":
         setOpenClientName(true);
@@ -596,7 +600,7 @@ const Header: React.FC = () => {
     }
   };
 
-  const unreadNotes = shiftNotes?.unread ?? 0;
+  const unreadChat = chat?.unread ?? 0;
   const menuProps: MenuProps = {
     items: [
       {
@@ -616,12 +620,12 @@ const Header: React.FC = () => {
       { type: "divider" },
       { key: "profile", icon: <SettingOutlined />, label: t("profile.title") },
       {
-        key: "shift",
+        key: "chat",
         icon: <MessageOutlined />,
         label: (
           <Space size={6}>
-            {t("profile.tab.shift")}
-            {unreadNotes > 0 && <Badge count={unreadNotes} size="small" />}
+            {t("chat.menu")}
+            {unreadChat > 0 && <Badge count={unreadChat} size="small" />}
           </Space>
         ),
       },
@@ -639,9 +643,7 @@ const Header: React.FC = () => {
   const userButton = (
     <Dropdown menu={menuProps} placement="bottomRight" trigger={["click"]}>
       <UserButton type="button" aria-label={t("profile.title")}>
-        <Badge count={unreadNotes} size="small" offset={[-2, 2]}>
-          <ProfileAvatar avatar={profile?.avatar} account={username} size={30} />
-        </Badge>
+        <ProfileAvatar avatar={profile?.avatar} account={username} size={30} />
       </UserButton>
     </Dropdown>
   );

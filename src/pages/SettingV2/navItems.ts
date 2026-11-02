@@ -36,7 +36,8 @@ export type NavCategory = {
 // 跟 v1 的選單不再一一對應(v1 的「設備」「其它」「檔案設定」塞了不少不相干的東西):
 //   - 充電: 充電任務、離站強制任務原本在「任務」,充電站停車容忍值原本在「設備」
 //   - 調度規則: 輸送帶派送、區域搬運、作業區原本在「設備」,但它們管的是
-//     車怎麼派、怎麼進場,不是設備本身
+//     車怎麼派、怎麼進場,不是設備本身。群組取放規則原本是輸送帶派送底下的「群組擺放規則」,
+//     輸送帶派送、區域搬運、WCS 都會套用, 所以獨立一項
 //   - 貨物: 自定義貨物資訊、貨物表格原本在「其它」
 //   - 告警: 原本叫「檔案設定」,實際上只剩告警相關的兩個面板
 //   - 標籤設定是任務的分類標籤,從「其它」併進「任務」,「其它」就此清空
@@ -175,6 +176,14 @@ export const navCategories: NavCategory[] = [
       {
         key: "transfer_rules",
         labelKey: "toolbar.peripheral.transfer_rules",
+      },
+      {
+        key: "group_pick_place",
+        labelKey: "toolbar.peripheral.group_pick_place",
+      },
+      {
+        key: "booking_timing",
+        labelKey: "toolbar.peripheral.booking_timing",
       },
       {
         key: "work_areas",
