@@ -13,6 +13,7 @@ export type LocationType = {
   ip?: string | null;
   wait_area_id?: string | null;
   wait_order?: number;
+  is_mir_waiting_point?: boolean | null;
   currentMapId?: string;
 };
 

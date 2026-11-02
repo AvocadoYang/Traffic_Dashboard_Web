@@ -812,6 +812,7 @@
     "wait_area_not_allowed": "Only path points and standby points can be wait points.",
     "wait_order": "Queue order",
     "wait_order_hint": "Lower numbers queue first. Use 1 for the point closest to the work area entrance.",
+    "is_mir_waiting_point": "Passing wait point",
     "change_type": {
       "title": "Change location {{id}} from \"{{from}}\" to \"{{to}}\"?",
       "content": "The location ID, position, angle and roads stay the same. The current device settings (name, group, and the dispatch rules and simulation settings that point to it) are removed, and the new type starts from defaults.",
