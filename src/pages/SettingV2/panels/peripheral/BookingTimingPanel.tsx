@@ -1,5 +1,5 @@
 import { FC, useEffect, useMemo, useState } from "react";
-import { Radio, Select, Skeleton, message } from "antd";
+import { Checkbox, Radio, Select, Skeleton, message } from "antd";
 import type { MessageInstance } from "antd/es/message/interface";
 import { ClockCircleOutlined, DeleteOutlined, SaveOutlined } from "@ant-design/icons";
 import { Popconfirm } from "antd";
@@ -13,6 +13,8 @@ import {
   BookingTimingConfig,
   BookingTimingSetting,
   OFFLOAD_BLOCKED_ACTIONS,
+  PICK_READY_ACTIONS,
+  WAIT_KINDS,
   useBookingTimingConfig,
 } from "@/api/useBookingTiming";
 import { ErrorResponse } from "@/utils/globalType";
@@ -163,6 +165,35 @@ const Editor: FC<{ config: BookingTimingConfig; messageApi: MessageInstance }> =
               <Hint>{t(`booking_timing.blocked_hint_${blocked}`)}</Hint>
               {end === "offload" && <Hint>{t("booking_timing.offload_no_pool")}</Hint>}
             </Field>
+          )}
+          {late && end === "pick" && (
+            <>
+              <Field as="div">
+                <FieldLabel>{t("booking_timing.wait_kinds_label")}</FieldLabel>
+                <Checkbox.Group
+                  value={draft.pickWaitKinds}
+                  onChange={(v) => v.length > 0 && patch({ pickWaitKinds: v })}
+                  options={WAIT_KINDS.map((o) => ({
+                    label: t(`booking_timing.wait_kind_${o}`),
+                    value: o,
+                  }))}
+                />
+                <Hint>{t("booking_timing.wait_kinds_hint")}</Hint>
+              </Field>
+              <Field as="div">
+                <FieldLabel>{t("booking_timing.ready_label")}</FieldLabel>
+                <Radio.Group
+                  optionType="button"
+                  value={draft.pickReadyAction}
+                  onChange={(e) => patch({ pickReadyAction: e.target.value })}
+                  options={PICK_READY_ACTIONS.map((o) => ({
+                    label: t(`booking_timing.ready_${o}`),
+                    value: o,
+                  }))}
+                />
+                <Hint>{t(`booking_timing.ready_hint_${draft.pickReadyAction}`)}</Hint>
+              </Field>
+            </>
           )}
           {late && !config.enforced[end] && (
             <WarnNote>{t("booking_timing.not_enforced")}</WarnNote>

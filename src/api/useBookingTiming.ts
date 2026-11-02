@@ -12,9 +12,19 @@ export type BlockedAction = (typeof BLOCKED_ACTIONS)[number];
 /** 放貨端車上已經有貨, 不能把任務收回去 */
 export const OFFLOAD_BLOCKED_ACTIONS: readonly BlockedAction[] = ["STAY", "STANDBY"];
 
+/** 取貨端車先去哪裡等: WAIT_POINT 作業區的等待點 / STANDBY 待命點 */
+export const WAIT_KINDS = ["WAIT_POINT", "STANDBY"] as const;
+export type WaitKind = (typeof WAIT_KINDS)[number];
+
+/** 取貨端已經能取貨、車又不在等待位置時: BIND_NOW 直接預約去取 / STAGE_FIRST 先去等待位置, 到了再預約 */
+export const PICK_READY_ACTIONS = ["BIND_NOW", "STAGE_FIRST"] as const;
+export type PickReadyAction = (typeof PICK_READY_ACTIONS)[number];
+
 export type BookingTimingSetting = {
   pickTiming: BookingTiming;
   pickBlocked: BlockedAction;
+  pickWaitKinds: WaitKind[];
+  pickReadyAction: PickReadyAction;
   offloadTiming: BookingTiming;
   offloadBlocked: BlockedAction;
 };
