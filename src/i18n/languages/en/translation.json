@@ -960,6 +960,7 @@
     "standby_cargo": "Accept cars with cargo",
     "standby_cargo_hint": "Can a car that is carrying cargo park on this standby point? When the drop-off side has no free slot, a loaded car only backs off to standby points with this turned on; if none is on, the car waits where it is. Off by default.",
     "wait_order_hint": "Lower numbers queue first. Use 1 for the point closest to the work area entrance.",
+    "is_mir_waiting_point": "Passing wait point",
     "change_type": {
       "title": "Change location {{id}} from \"{{from}}\" to \"{{to}}\"?",
       "content": "The location ID, position, angle and roads stay the same. The current device settings (name, group, and the dispatch rules and simulation settings that point to it) are removed, and the new type starts from defaults.",
