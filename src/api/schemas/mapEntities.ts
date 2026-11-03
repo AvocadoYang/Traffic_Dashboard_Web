@@ -15,6 +15,8 @@ export const locationSchema = object({
   wait_area_id: string().nullable().optional(),
   wait_order: number().optional(),
   is_mir_waiting_point: boolean().nullable().optional(),
+  // 待命區: 載著貨的車可不可以停進來
+  standby_accept_cargo: boolean().optional(),
 }).required();
 
 export const roadSchema = object({

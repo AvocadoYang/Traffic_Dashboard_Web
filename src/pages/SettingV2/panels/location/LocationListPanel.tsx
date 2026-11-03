@@ -35,6 +35,7 @@ import {
   CardFacts,
   Tag,
 } from "../../ui/primitives";
+import MapDataTransfer from "../map/MapDataTransfer";
 import LocationEditModal, { LocationRow } from "./LocationEditModal";
 
 const LocationListPanel: FC = () => {
@@ -132,6 +133,18 @@ const LocationListPanel: FC = () => {
     [resources],
   );
 
+  const mapOptions = useMemo(
+    () =>
+      resources?.groups.flatMap((g) =>
+        g.maps.map((m) => ({
+          mapId: m.mapId,
+          label: `${g.groupName} / ${m.fileName}`,
+          active: g.isUsing,
+        })),
+      ) ?? [],
+    [resources],
+  );
+
   const rows: LocationRow[] = useMemo(() => {
     if (!resources) return [];
     const groups = selectedGroupId
@@ -204,6 +217,13 @@ const LocationListPanel: FC = () => {
       width: 150,
       render: (_, row) => waitPointText(row) ?? "—",
     },
+    {
+      title: t("edit_location_panel.standby_cargo"),
+      key: "standbyCargo",
+      width: 130,
+      render: (_, row) =>
+        row.areaType !== "STANDBY" ? "—" : row.standby_accept_cargo ? t("utils.yes", "是") : t("utils.no", "否"),
+    },
     { title: "IP", dataIndex: "ip", key: "ip", width: 130, render: (v) => v || "—" },
     {
       title: t("map_manager.map_group"),
@@ -269,6 +289,14 @@ const LocationListPanel: FC = () => {
             <ReloadOutlined />
             {t("utils.reload")}
           </GhostButton>
+          <MapDataTransfer
+            maps={mapOptions}
+            defaultMapId={selectedMapId}
+            onDone={() => {
+              invalidate();
+              void refetch();
+            }}
+          />
 
           <Popconfirm
             title={t("edit_location_panel.table_notify.are_you_sure")}
@@ -327,6 +355,12 @@ const LocationListPanel: FC = () => {
                     <>
                       <dt>{t("edit_location_panel.wait_point")}</dt>
                       <dd>{waitPointText(row)}</dd>
+                    </>
+                  ) : null}
+                  {row.areaType === "STANDBY" && row.standby_accept_cargo ? (
+                    <>
+                      <dt>{t("edit_location_panel.standby_cargo")}</dt>
+                      <dd>{t("utils.yes", "是")}</dd>
                     </>
                   ) : null}
                   {row.ip ? (

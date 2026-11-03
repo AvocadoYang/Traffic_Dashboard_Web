@@ -3,20 +3,28 @@ import client from "./axiosClient";
 
 /**
  * 取貨順序: 巷道規則先篩掉拿不到的位置, 這裡決定拿得到的位置之間誰先拿。
- * NEAREST 最近的先拿 / FEWEST_LEVELS 貨最少的 stack 先拿 / OLDEST_FIRST 最上層放最久的先拿
+ * NEAREST 最近的先拿 / FEWEST_LEVELS 貨最少的先拿 / OLDEST_FIRST 放最久的先拿
  */
 export const PICK_ORDERS = ["NEAREST", "FEWEST_LEVELS", "OLDEST_FIRST"] as const;
 export type PickOrder = (typeof PICK_ORDERS)[number];
 
+/** 放貨順序: NEAREST 最近的先放 / LOWEST_LEVEL 多層儲位先放低層 */
+export const OFFLOAD_ORDERS = ["NEAREST", "LOWEST_LEVEL"] as const;
+export type OffloadOrder = (typeof OFFLOAD_ORDERS)[number];
+
 export type PlacementPolicy = {
-  /** 每條巷道是一串 peripheral_name.id, 由內 (最深) 到外 */
+  /** 每條巷道是一串 peripheral_name.id (STACK 或儲位的層), 由內 (最深) 到外 */
   lanes: string[][];
   maxLevels: number;
   heightKey: string | null;
   maxHeight: number | null;
   stackMatchKeys: string[];
+  /** 同一條巷道只放這些欄位相同的貨; 舊版後端不會送 */
+  laneMatchKeys?: string[];
   preferStacking: boolean;
   pickOrder: PickOrder;
+  /** 舊版後端不會送, 當成 NEAREST */
+  offloadOrder?: OffloadOrder;
 };
 
 export type PlacementGroup = {
@@ -24,6 +32,23 @@ export type PlacementGroup = {
   name: string;
   members: { id: string; name: string; type: string }[];
   policy: PlacementPolicy | null;
+};
+
+/** 群組取放規則的點位列表: 一個 STACK 或儲位的一層 */
+export type GroupPoint = {
+  /** peripheral_name.id */
+  id: string;
+  name: string;
+  type: "STACK" | "STORAGE";
+  locationId: string | null;
+  /** 儲位的第幾層 (0 是最下層); stack 是 null */
+  level: number | null;
+  /** 由下往上的貨物資料 */
+  cargo: Record<string, unknown>[];
+  booked: boolean;
+  disable: boolean;
+  loadPriority: number;
+  offloadPriority: number;
 };
 
 export type RouteCondition = { key: string; value: string };
@@ -96,6 +121,22 @@ export const usePlacementConfig = () =>
       );
       return data;
     },
+  });
+
+export const groupPointsKey = (groupId?: string) => ["placement-group-points", groupId];
+
+/** 群組裡每一格現在的貨、預約、停用、優先度; 幾秒刷新一次 */
+export const useGroupPoints = (groupId?: string) =>
+  useQuery({
+    queryKey: groupPointsKey(groupId),
+    enabled: !!groupId,
+    queryFn: async () => {
+      const { data } = await client.get<{ points: GroupPoint[] }>(
+        `api/placement/group-points/${groupId}`,
+      );
+      return data.points;
+    },
+    refetchInterval: 5000,
   });
 
 /** 每條輸送帶目前派送到哪、卡在哪; 幾秒刷新一次 */

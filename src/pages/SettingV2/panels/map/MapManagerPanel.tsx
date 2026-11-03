@@ -1,3 +1,4 @@
+import { pgmFileToPng } from "@/utils/pgm";
 import { FC, useMemo, useState } from "react";
 import {
   Form,
@@ -265,15 +266,16 @@ const MapManagerPanel: FC = () => {
   };
 
   const uploadProps: UploadProps = {
-    accept: "image/png",
+    accept: "image/png,.pgm",
     multiple: false,
     fileList: file ? ([file] as unknown as UploadProps["fileList"]) : [],
-    beforeUpload: (newFile) => {
-      if (!/^[a-zA-Z0-9-_]+\.png$/i.test(newFile.name)) {
+    beforeUpload: async (newFile) => {
+      const isPgm = /\.pgm$/i.test(newFile.name);
+      if (!/^[a-zA-Z0-9-_]+\.(png|pgm)$/i.test(newFile.name)) {
         void messageApi.error(t("upload.invalid_filename"));
         return false;
       }
-      if (newFile.type !== "image/png") {
+      if (!isPgm && newFile.type !== "image/png") {
         void messageApi.error(t("upload.invalid_file_type", { name: newFile.name }));
         return false;
       }
@@ -281,7 +283,16 @@ const MapManagerPanel: FC = () => {
         void messageApi.warning(t("upload.only_one_file"));
         return false;
       }
-      setFile(newFile);
+      if (!isPgm) {
+        setFile(newFile);
+        return false;
+      }
+      // PGM 在瀏覽器裡轉成 PNG, 後端照原本的 PNG 流程收
+      try {
+        setFile(await pgmFileToPng(newFile));
+      } catch (e) {
+        void messageApi.error(t("upload.pgm_convert_failed", { name: newFile.name, reason: (e as Error).message }));
+      }
       return false;
     },
     onRemove: () => setFile(null),

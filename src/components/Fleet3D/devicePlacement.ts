@@ -7,10 +7,32 @@ import { PALLET_OFFSET } from "./dimensions";
  * 取放貨站通常是路線的盡頭, 叉車沿路開過來、倒車把牙叉伸進去, 所以「從相連的點指向站點」
  * 就是牙叉伸進去的方向。車停在站點時 (車的位置 = 叉臂根部) 棧板在後面 PALLET_OFFSET,
  * 設備就以那裡為中心、開口朝路。沒接路線的站點開口朝南 (預設鏡頭看得到)。
+ * 捲門、門前等待點是車會開過去的地方, 直接放在點位上, yaw 是路的方向。
  */
 
-export type DeviceKind = "STORAGE" | "STACK" | "CONVEYOR" | "ELEVATOR" | "CHARGING";
-export const DEVICE_KINDS: DeviceKind[] = ["STORAGE", "STACK", "CONVEYOR", "ELEVATOR", "CHARGING"];
+export type DeviceKind =
+  | "STORAGE"
+  | "STACK"
+  | "CONVEYOR"
+  | "ELEVATOR"
+  | "CHARGING"
+  | "PACKAGE_IN"
+  | "PACKAGE_OUT"
+  | "LIFT_GATE"
+  | "GATE_WAIT_POINT";
+export const DEVICE_KINDS: DeviceKind[] = [
+  "STORAGE",
+  "STACK",
+  "CONVEYOR",
+  "ELEVATOR",
+  "CHARGING",
+  "PACKAGE_IN",
+  "PACKAGE_OUT",
+  "LIFT_GATE",
+  "GATE_WAIT_POINT",
+];
+/** 在路上的 (車開過去, 不是倒車進去取放貨): 不用往後退一個棧板 */
+const ON_ROAD: DeviceKind[] = ["LIFT_GATE", "GATE_WAIT_POINT"];
 
 export type DevicePlacement = {
   locationId: string;
@@ -49,11 +71,12 @@ export function devicePlacements(locations: Loc[], roads: Road[]): DevicePlaceme
       out.push({ locationId: loc.locationId, kind, x: loc.x, y: loc.y, yaw: -Math.PI / 2 });
       continue;
     }
+    const offset = ON_ROAD.includes(kind) ? 0 : PALLET_OFFSET;
     out.push({
       locationId: loc.locationId,
       kind,
-      x: loc.x - face[0] * PALLET_OFFSET,
-      y: loc.y - face[1] * PALLET_OFFSET,
+      x: loc.x - face[0] * offset,
+      y: loc.y - face[1] * offset,
       yaw: Math.atan2(face[1], face[0]),
     });
   }

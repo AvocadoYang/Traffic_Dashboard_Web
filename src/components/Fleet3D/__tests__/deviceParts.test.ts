@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 import * as THREE from "three";
 import type { CargoInfo } from "@/sockets/useCargoInfo";
-import type { Conveyor_Info, Elevator_Info, Stack_Info } from "@/types/peripheral";
+import { Lift_Gate_Status } from "@/types/peripheral";
+import type { Conveyor_Info, Elevator_Info, Lift_Gate_Info, Package_Info, Stack_Info } from "@/types/peripheral";
 import type { DevicePlacement } from "../devicePlacement";
-import { conveyorParts, elevatorParts, stackParts, storageParts } from "../deviceParts";
+import { PackageText, chargerParts, conveyorParts, elevatorParts, liftGateParts, packageParts, stackParts, storageParts } from "../deviceParts";
 import { LOAD_HEIGHT } from "../dimensions";
 
 const at = (m: THREE.Matrix4) => new THREE.Vector3().setFromMatrixPosition(m);
@@ -79,5 +80,99 @@ describe("deviceParts", () => {
     expect(colors({ isManualMode: true })).toEqual(["#eb2f96"]);
     expect(colors({ hasCargoSignal: true })).toEqual(["#ff2d2d"]);
     expect(at({ isRunning: true, isManualMode: true, hasCargoSignal: true, disable: true })).toEqual([]);
+  });
+});
+
+describe("deviceParts: 派車選點位 (同 2D 的規則)", () => {
+  it("貨架: 取貨要有貨、放貨要是空的, 停用的層都不能選; 名稱去掉最後一段 (同 2D)", () => {
+    const info = { name: "A", layer: { 1: { ...level(0, 1), levelName: "A-01-1" }, 2: level(1200, 0), 3: level(2400, 1, true) } } as unknown as CargoInfo;
+    const picks = storageParts(placement("STORAGE"), info).hits.map((h) => h.pick);
+    expect(picks.map((p) => [p?.load, p?.offload])).toEqual([
+      [true, false],
+      [false, true],
+      [false, false],
+    ]);
+    expect(picks[0]).toMatchObject({ locationId: "L1", columnName: "A-01", level: 1 });
+  });
+
+  it("堆疊: 有貨能取、沒滿 (3 板) 能放; 還沒收到資料不能選", () => {
+    const pick = (n: number, disable = false) =>
+      stackParts(placement("STACK"), { name: "K", cargo: Array.from({ length: n }, () => ({})), disable } as unknown as Stack_Info).hits[0].pick;
+    expect([pick(0)?.load, pick(0)?.offload]).toEqual([false, true]);
+    expect([pick(3)?.load, pick(3)?.offload]).toEqual([true, false]);
+    expect([pick(1, true)?.load, pick(1, true)?.offload]).toEqual([false, false]);
+    expect(stackParts(placement("STACK"), undefined).hits[0].pick).toBeUndefined();
+  });
+
+  it("充電站點了打開充電站控制, 不能當取放貨點", () => {
+    const [hit] = chargerParts(placement("CHARGING"), undefined).hits;
+    expect(hit).toMatchObject({ charger: "L1" });
+    expect(hit.pick).toBeUndefined();
+  });
+});
+
+describe("deviceParts: 捲門", () => {
+  const gate = (status: Lift_Gate_Status | undefined) =>
+    liftGateParts(placement("LIFT_GATE"), status ? ({ name: "G", status, disable: false } as Lift_Gate_Info) : undefined, "G");
+  /** 門簾 (淺灰的那些片) 從多高放到多低 */
+  const curtainBottom = (status: Lift_Gate_Status | undefined) => {
+    const slats = gate(status).frames.filter((f) => f.color === "#c3cad2");
+    if (!slats.length) return null;
+    return Math.min(...slats.map((f) => at(f.matrix).y - new THREE.Vector3().setFromMatrixScale(f.matrix).y / 2));
+  };
+
+  it("關著門簾放到底, 開著捲上去, 開關中停一半", () => {
+    expect(curtainBottom(Lift_Gate_Status.CLOSED)).toBeLessThan(0.05);
+    expect(curtainBottom(Lift_Gate_Status.OPENED)).toBeNull();
+    expect(curtainBottom(Lift_Gate_Status.OPENING)).toBeCloseTo(1.5, 1);
+  });
+
+  it("異常整片門簾閃紅, 開關中狀態燈閃, 平常不閃; 只有滑過去的說明, 不擋點位的點擊", () => {
+    expect(gate(Lift_Gate_Status.E_STOP).blinks.some((b) => b.color === "#ff4d4f" && new THREE.Vector3().setFromMatrixScale(b.matrix).y > 1)).toBe(true);
+    expect(gate(Lift_Gate_Status.CLOSING).blinks.map((b) => b.color)).toEqual(["#faad14", "#faad14"]);
+    expect(gate(Lift_Gate_Status.CLOSED).blinks).toEqual([]);
+    const p = gate(Lift_Gate_Status.OPENED);
+    expect(p.hits).toEqual([]);
+    expect(p.tips.map((t) => t.label)).toEqual(["G"]);
+  });
+
+  it("門簾橫跨路: 路往東時門簾沿著南北", () => {
+    const slat = gate(Lift_Gate_Status.CLOSED).frames.find((f) => f.color === "#c3cad2")!;
+    const box = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(), new THREE.Vector3(1, 1, 1)).applyMatrix4(slat.matrix);
+    const size = box.getSize(new THREE.Vector3());
+    expect(size.z).toBeGreaterThan(2.5);
+    expect(size.x).toBeLessThan(0.1);
+  });
+});
+
+describe("deviceParts: 包膜線", () => {
+  const text: PackageText = { entry: (n) => `入口 ${n}`, exit: (n) => `出口 ${n}`, registered: (n) => `登記 ${n}` };
+  const entry: DevicePlacement = { locationId: "IN", kind: "PACKAGE_IN", x: 0, y: 0, yaw: Math.PI };
+  const exit: DevicePlacement = { locationId: "OUT", kind: "PACKAGE_OUT", x: 6, y: 0, yaw: 0 };
+  const info = (over: Partial<Package_Info> = {}) =>
+    ({ name: "P", locationId: "IN", disable: false, capacity: 3, cargo: [{}], forkHeight: 600, lamps: [true, false, null, true], ...over }) as unknown as Package_Info;
+
+  it("入口到出口一整條, 亮著的感測燈位置放貨 (沿線平均排), 台面在對接高度", () => {
+    const p = packageParts(entry, exit, info(), info({ locationId: "OUT", name: "Q" }), text);
+    expect(p.pallets.map((x) => Number(at(x.matrix).x.toFixed(2)))).toEqual([0, 6]);
+    expect(ys(p.pallets)).toEqual([0.6, 0.6]);
+    expect(p.lights.filter((l) => l.color === "#52c41a" || l.color === "#3a3f45" || l.color === "#9aa0a6").length).toBeGreaterThanOrEqual(4);
+  });
+
+  it("入口能放 (還沒滿), 出口能取 (有登記的貨); 滿了入口就不能放", () => {
+    const p = packageParts(entry, exit, info(), info({ locationId: "OUT", name: "Q" }), text);
+    expect(p.hits.map((h) => [h.target?.locationId, h.pick?.load, h.pick?.offload])).toEqual([
+      ["IN", false, true],
+      ["OUT", true, false],
+    ]);
+    expect(p.hits[0].label).toBe("入口 P · 登記 1");
+    const full = packageParts(entry, exit, info({ cargo: [{}, {}, {}] } as Partial<Package_Info>), info({ locationId: "OUT" }), text);
+    expect(full.hits[0].pick?.offload).toBe(false);
+  });
+
+  it("沒配對的入口只畫一小段, 不畫感測燈的貨", () => {
+    const p = packageParts(entry, null, info(), undefined, text);
+    expect(p.pallets).toEqual([]);
+    expect(p.hits.map((h) => h.target?.locationId)).toEqual(["IN"]);
   });
 });

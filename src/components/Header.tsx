@@ -44,9 +44,10 @@ import dayjs from "dayjs";
 import MissionBtn from "@/pages/Main/components/WebView/components/MissionBtn";
 import HaStatusWidget from "@/pages/Main/components/HaStatusWidget";
 import ClientNameModal from "./ClientNameModal";
-import { getClientName } from "@/utils/clientIdentity";
+import { clientNameAtom } from "@/utils/clientIdentity";
 import { UserAvatar as ProfileAvatar } from "@/components/UserAvatar/UserAvatar";
-import { useMyProfile, useShiftNotes } from "@/api/useProfile";
+import { useMyProfile } from "@/api/useProfile";
+import { chatOpenAtom, useSiteChat } from "@/api/useSiteChat";
 import { getToken, logout, tokenAccount } from "@/utils/session";
 import SimTime from "./SimTime";
 import DirectMove from "@/pages/Main/components/missionModal/DirectMove";
@@ -104,8 +105,8 @@ const DesktopBar = styled.div`
   }
 `;
 
-// HaStatusWidget/MissionBtn/模擬控制/語言切換/頭像這一整排,內容量會隨功能增加
-// (例如 HA 開啟時多出兩個 Tag + 按鈕)超出可視寬度。原本沒有 min-width:0,
+// MissionBtn/模擬控制/語言切換/頭像這一整排,內容量會隨功能增加
+// 超出可視寬度。原本沒有 min-width:0,
 // flex-shrink 對這個 flex item 不生效(預設 min-width:auto 讓它撐開),
 // 於是右側的語言切換/頭像被擠到看不到的地方,中間留一片空白。
 // 這裡讓它可以真的縮小、縮不下的部分改成自己橫向捲動,不去擠壓整條 header。
@@ -462,16 +463,17 @@ const Header: React.FC = () => {
   // 模擬正在跑時照樣顯示「停止模擬」和模擬時間, 才停得掉
   // 「任務模擬 v2」選單也一樣看 YAML (SHOW_SIMULATE_V2)
   const { showSimulationUi, showSimulateV2 } = useUiConfig();
-  // 任務列(HA 狀態 / 任務派發)只有首頁才有內容。其他頁面一律顯示導覽、也不給切換,
+  // 任務列(任務派發)只有首頁才有內容。其他頁面一律顯示導覽、也不給切換,
   // 不然上次停在任務列的人換到別頁會看到一排空白,連導覽都不見。
   const hasToolsRow =
     location.pathname === "/" || location.pathname === "/main-v1";
   const activeRow: HeaderRow = hasToolsRow ? headerRow : "nav";
   const [openClientName, setOpenClientName] = useState(false);
-  const [clientName, setClientNameState] = useState(getClientName);
+  const [clientName, setClientNameState] = useAtom(clientNameAtom);
   const username = tokenAccount(getToken());
   const { data: profile } = useMyProfile();
-  const { data: shiftNotes } = useShiftNotes();
+  const { data: chat } = useSiteChat();
+  const setChatOpen = useSetAtom(chatOpenAtom);
   const currentMapInfo = useMap();
   const setScale = useSetAtom(Scale);
   const cm = useAtomValue(centerMap);
@@ -548,7 +550,9 @@ const Header: React.FC = () => {
       : []),
     { key: "/records", label: t("page_record") },
     { key: "/mission-dispatch", label: t("page_mission_dispatch") },
+    { key: "/fleet-replay", label: t("page_fleet_replay") },
     { key: "/report", label: t("page_report") },
+    { key: "/achievements", label: t("page_achievements") },
   ];
 
   const handleMenuClick = (e: { key: string }) => {
@@ -582,8 +586,8 @@ const Header: React.FC = () => {
       case "profile":
         navigate("/profile");
         break;
-      case "shift":
-        navigate("/profile?tab=shift");
+      case "chat":
+        setChatOpen(true);
         break;
       case "client-name":
         setOpenClientName(true);
@@ -596,7 +600,7 @@ const Header: React.FC = () => {
     }
   };
 
-  const unreadNotes = shiftNotes?.unread ?? 0;
+  const unreadChat = chat?.unread ?? 0;
   const menuProps: MenuProps = {
     items: [
       {
@@ -616,12 +620,12 @@ const Header: React.FC = () => {
       { type: "divider" },
       { key: "profile", icon: <SettingOutlined />, label: t("profile.title") },
       {
-        key: "shift",
+        key: "chat",
         icon: <MessageOutlined />,
         label: (
           <Space size={6}>
-            {t("profile.tab.shift")}
-            {unreadNotes > 0 && <Badge count={unreadNotes} size="small" />}
+            {t("chat.menu")}
+            {unreadChat > 0 && <Badge count={unreadChat} size="small" />}
           </Space>
         ),
       },
@@ -639,9 +643,7 @@ const Header: React.FC = () => {
   const userButton = (
     <Dropdown menu={menuProps} placement="bottomRight" trigger={["click"]}>
       <UserButton type="button" aria-label={t("profile.title")}>
-        <Badge count={unreadNotes} size="small" offset={[-2, 2]}>
-          <ProfileAvatar avatar={profile?.avatar} account={username} size={30} />
-        </Badge>
+        <ProfileAvatar avatar={profile?.avatar} account={username} size={30} />
       </UserButton>
     </Dropdown>
   );
@@ -670,6 +672,7 @@ const Header: React.FC = () => {
               { value: "ch.tw", label: "中文" },
             ]}
           />
+          <HaStatusWidget compact />
           <ControlButton
             icon={<MenuOutlined />}
             onClick={() => setDrawerOpen(true)}
@@ -722,7 +725,6 @@ const Header: React.FC = () => {
 
           {activeRow === "tools" && (
             <ActionsBar gap="middle" align="center">
-              <HaStatusWidget />
               <MissionBtn />
             </ActionsBar>
           )}
@@ -732,6 +734,9 @@ const Header: React.FC = () => {
             align="center"
             style={{ flexShrink: 0, marginLeft: "auto" }}
           >
+            {/* HA 主備: 哪一頁都看得到這台是 MASTER 還是 BACKUP (沒開 HA 不畫) */}
+            <HaStatusWidget />
+
             {script?.isSimulate ? (
               <SimulationStatus>
                 <ClockCircleOutlined />

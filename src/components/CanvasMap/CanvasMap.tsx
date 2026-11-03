@@ -30,6 +30,7 @@ import { currentMapIdAtom } from "@/utils/mapSelection";
 import { buildMapImageMatrix, getMapCanvas, mapImageModeAtom, resolveColors, themeAtom } from "@/theme";
 import { isDarkColor } from "@/theme/mapImage";
 import { buildScene } from "./scene";
+import { robotTypeValueOf } from "./robotType";
 import { createLiveStore, LiveStore } from "./liveStore";
 import { AmrHit, drawBase, drawLive, Frame } from "./draw";
 import { MapView, clampScale, initialView, wheelFactor, zoomTo } from "./view";
@@ -98,9 +99,8 @@ const DRAG_THRESHOLD = 4;
 
 /** MiR 圖示寬度固定, 長度照車型; 查不到車型時的長度 (地圖像素) */
 const MIR_FALLBACK_LENGTH = 20;
-/** 車號 -> 車型 (useAMRsample 的 value) */
-export const robotTypeValueOf = (amrId: string) =>
-  (amrId.includes("#") ? amrId.split("#")[1] : amrId).split("-").slice(0, 3).join("-");
+/** 車號 -> 車型 (useAMRsample 的 value); 搬到 robotType.ts (3D、設定頁也要用, 不用載整個畫布) */
+export { robotTypeValueOf };
 
 /** 給外面 (設定頁的編輯工具) 用的 hit-test, 座標是 clientX / clientY */
 export type CanvasMapApi = {
@@ -112,6 +112,8 @@ export type CanvasMapApi = {
   nearestPointAt: (clientX: number, clientY: number) => string | null;
   /** 目前視角: 畫面中心在底圖上的位置 (像素) + 縮放; 個人設定的「預設視角」存這個 */
   currentView: () => { mapId: string; scale: number; cx: number; cy: number } | null;
+  /** 3D 畫面目前的鏡頭 (只有 3D 有); 個人設定的「3D 預設視角」存這個 */
+  currentView3d?: () => { mapId: string; tx: number; ty: number; dx: number; dy: number; dz: number } | null;
 };
 
 type Props = {
@@ -268,6 +270,7 @@ const CanvasMap: FC<Props> = ({
     robotTypes,
     hiddenZoneIds,
     showRoadTooltip,
+    simulated: !!names?.isSim,
   });
   optsRef.current = {
     scene,
@@ -286,6 +289,7 @@ const CanvasMap: FC<Props> = ({
     robotTypes,
     hiddenZoneIds,
     showRoadTooltip,
+    simulated: !!names?.isSim,
   };
 
   const render = useCallback(() => {
@@ -349,6 +353,7 @@ const CanvasMap: FC<Props> = ({
         filterIds: o.filterIds,
         hintId: o.hintId,
         forbiddenIds: o.forbiddenIds,
+        simulated: o.simulated,
         mirLength: (amrId) => {
           const value = robotTypeValueOf(amrId);
           const type = o.robotTypes?.find((r) => r.value === value);

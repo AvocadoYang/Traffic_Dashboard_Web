@@ -6,7 +6,6 @@ import client from "@/api/axiosClient";
 import { useMyProfile, useSaveProfile, UserPreferences } from "@/api/useProfile";
 import { currentThemeIdAtom, fontScaleAtom, getTheme, setThemeAtom } from "@/theme";
 import { getToken, logout, tokenExpiresAt } from "@/utils/session";
-import ShiftNotePopup from "./ShiftNotePopup";
 
 /** 離過期剩多久時去換新 token */
 const REFRESH_BEFORE_MS = 15 * 60_000;
@@ -31,7 +30,6 @@ const isUnauthorized = (e: unknown) => (e as AxiosError | null)?.response?.statu
  * - 套用個人偏好 (主題、語言、字體), 之後在別的地方改了 (header 的語言、外觀設定) 也存回帳號
  * - 登入續期: token 快過期就換新的; 有設閒置登出的帳號, 閒置期間不續期, 時間到就登出
  * - token 真的過期、帳號被停用 / 刪掉: 回登入頁
- * - 登入後有未讀的交班留言就跳出來
  */
 const UserSession: FC = () => {
   const { i18n } = useTranslation();
@@ -123,7 +121,7 @@ const UserSession: FC = () => {
     };
   }, []);
 
-  return <ShiftNotePopup />;
+  return null;
 };
 
 export default UserSession;

@@ -24,7 +24,11 @@ import {
   GhostButton,
   Hint,
 } from "../../ui/primitives";
-import WaitPointFields, { waitPointPayload } from "../../ui/waitPointFields";
+import WaitPointFields, {
+  StandbyCargoField,
+  standbyCargoPayload,
+  waitPointPayload,
+} from "../../ui/waitPointFields";
 
 type Props = {
   /** 與地圖共用的 form:在地圖上點一下,座標會直接寫進這份 form */
@@ -90,6 +94,7 @@ const LocationEditPanel: FC<Props> = ({ locationPanelForm }) => {
       rotation: Number(values.rotation ?? 0),
       map_id: currentMapId,
       ...waitPointPayload(values.areaType, values),
+      ...standbyCargoPayload(values.areaType, values),
     });
   }, [currentMapId, locationPanelForm, messageApi, saveMutation, t]);
 
@@ -181,6 +186,7 @@ const LocationEditPanel: FC<Props> = ({ locationPanelForm }) => {
             </Field>
 
             <WaitPointFields areaType={areaType} />
+            <StandbyCargoField areaType={areaType} />
           </FieldGrid>
         </Form>
 

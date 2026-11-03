@@ -1,10 +1,8 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import {
-  Alert,
   AutoComplete,
   Form,
   Input,
-  InputNumber,
   Modal,
   Popconfirm,
   Select,
@@ -16,7 +14,6 @@ import type { MessageInstance } from "antd/es/message/interface";
 import {
   ArrowDownOutlined,
   ArrowUpOutlined,
-  BranchesOutlined,
   DeleteOutlined,
   DashboardOutlined,
   EditOutlined,
@@ -33,11 +30,9 @@ import {
   ConveyorRouteRule,
   PLACEMENT_CONFIG_KEY,
   PlacementConfig,
-  PlacementPolicy,
   RouteCondition,
   useConveyorDispatchRuntime,
   usePlacementConfig,
-  PICK_ORDERS,
 } from "@/api/usePlacementConfig";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
@@ -68,7 +63,7 @@ import {
  * 輸送帶自動派送的設定頁:
  *  - 即時狀態: 每條輸送帶隊首的貨符合哪條規則、派到哪、卡在哪
  *  - 派送規則: 隊首的貨依屬性決定要送去哪些群組 (依序嘗試)
- *  - 群組擺放規則: 巷道、層數、高度、同屬性才能疊
+ * 群組裡放哪一格 (巷道、層數、取貨順序) 搬到「群組取放規則」(GroupPickPlacePanel)。
  */
 const ConveyorDispatchPanel: FC = () => {
   const { t } = useTranslation();
@@ -97,7 +92,7 @@ const ConveyorDispatchPanel: FC = () => {
         reloading={isFetching}
         onReload={() => void refetch()}
       />
-      <PolicySection config={config} messageApi={messageApi} />
+      <Hint>{t("conveyor_dispatch.placement_moved")}</Hint>
     </PanelShell>
   );
 };
@@ -509,246 +504,6 @@ const RuleSection: FC<{
           </FieldGrid>
         </Form>
       </Modal>
-    </Section>
-  );
-};
-
-// ------------------------------------------------------------------ 群組擺放規則
-
-const defaultPolicy = (maxLevels: number): PlacementPolicy => ({
-  lanes: [],
-  maxLevels,
-  heightKey: null,
-  maxHeight: null,
-  stackMatchKeys: [],
-  preferStacking: true,
-  pickOrder: "NEAREST",
-});
-
-const PolicySection: FC<{
-  config: PlacementConfig;
-  messageApi: MessageInstance;
-}> = ({ config, messageApi }) => {
-  const { t } = useTranslation();
-  const queryClient = useQueryClient();
-
-  // 預設選第一個有 STACK 的群組, 擺放規則只管 STACK
-  const stackGroups = config.groups.filter((g) =>
-    g.members.some((m) => m.type === "STACK"),
-  );
-  const [groupId, setGroupId] = useState<string | undefined>(stackGroups[0]?.id);
-  const group = config.groups.find((g) => g.id === groupId);
-  const [draft, setDraft] = useState<PlacementPolicy>(defaultPolicy(config.maxLevels));
-
-  useEffect(() => {
-    if (!groupId && stackGroups[0]) setGroupId(stackGroups[0].id);
-  }, [groupId, stackGroups]);
-
-  // 換群組或重新讀取設定後, 用後端的值重設草稿
-  useEffect(() => {
-    setDraft(group?.policy ?? defaultPolicy(config.maxLevels));
-  }, [group, config.maxLevels]);
-
-  const stacks = (group?.members ?? []).filter((m) => m.type === "STACK");
-  const stackName = (id: string) => stacks.find((s) => s.id === id)?.name ?? id;
-  const usedInLanes = new Set(draft.lanes.flat());
-  const unassigned = stacks.filter((s) => !usedInLanes.has(s.id));
-
-  const onDone = () => {
-    void messageApi.success(t("utils.success"));
-    void queryClient.invalidateQueries({ queryKey: PLACEMENT_CONFIG_KEY });
-  };
-  const onError = (e: ErrorResponse) => errorHandler(e, messageApi);
-
-  const saveMutation = useMutation({
-    mutationFn: (policy: PlacementPolicy) =>
-      client.put(`/api/placement/group-policy/${groupId}`, {
-        ...policy,
-        lanes: policy.lanes.filter((l) => l.length > 0),
-      }),
-    onSuccess: onDone,
-    onError,
-  });
-
-  const removeMutation = useMutation({
-    mutationFn: () => client.delete(`/api/placement/group-policy/${groupId}`),
-    onSuccess: onDone,
-    onError,
-  });
-
-  const patch = (next: Partial<PlacementPolicy>) => setDraft((d) => ({ ...d, ...next }));
-  const setLane = (i: number, ids: string[]) =>
-    patch({ lanes: draft.lanes.map((l, j) => (j === i ? ids : l)) });
-
-  return (
-    <Section>
-      <SectionTitle>
-        <BranchesOutlined />
-        {t("conveyor_dispatch.policy_title")}
-        <HelpButton topic="policy" />
-      </SectionTitle>
-      <Hint>{t("conveyor_dispatch.only_stack_note")}</Hint>
-
-      {stackGroups.length === 0 ? (
-        <EmptyState>{t("conveyor_dispatch.no_stack_group")}</EmptyState>
-      ) : (
-        <>
-          <Toolbar>
-            <Select
-              style={{ minWidth: 160 }}
-              value={groupId}
-              onChange={setGroupId}
-              options={stackGroups.map((g) => ({ label: g.name, value: g.id }))}
-            />
-            {!group?.policy && <Tag>{t("conveyor_dispatch.no_policy")}</Tag>}
-          </Toolbar>
-
-          <FieldGrid $cols={2}>
-            <Field>
-              <FieldLabel>{t("conveyor_dispatch.max_levels")}</FieldLabel>
-              <InputNumber
-                min={1}
-                max={config.maxLevels}
-                value={draft.maxLevels}
-                onChange={(v) => patch({ maxLevels: v ?? config.maxLevels })}
-              />
-            </Field>
-            <Field>
-              <FieldLabel>{t("conveyor_dispatch.prefer_stacking")}</FieldLabel>
-              <Switch
-                checked={draft.preferStacking}
-                onChange={(v) => patch({ preferStacking: v })}
-                style={{ alignSelf: "flex-start" }}
-              />
-              <Hint>{t("conveyor_dispatch.prefer_stacking_hint")}</Hint>
-            </Field>
-            <Field>
-              <FieldLabel>{t("conveyor_dispatch.stack_match_keys")}</FieldLabel>
-              <Select
-                mode="tags"
-                value={draft.stackMatchKeys}
-                onChange={(v: string[]) => patch({ stackMatchKeys: v })}
-                options={config.cargoKeys.map((k) => ({ label: k, value: k }))}
-              />
-              <Hint>{t("conveyor_dispatch.stack_match_hint")}</Hint>
-            </Field>
-            <Field>
-              <FieldLabel>{t("conveyor_dispatch.height_limit")}</FieldLabel>
-              <Toolbar>
-                <Select
-                  allowClear
-                  style={{ minWidth: 140 }}
-                  placeholder={t("conveyor_dispatch.height_key")}
-                  value={draft.heightKey ?? undefined}
-                  onChange={(v?: string) =>
-                    patch({ heightKey: v ?? null, maxHeight: v ? draft.maxHeight : null })
-                  }
-                  options={config.cargoKeys.map((k) => ({ label: k, value: k }))}
-                />
-                <InputNumber
-                  min={1}
-                  disabled={!draft.heightKey}
-                  placeholder={t("conveyor_dispatch.max_height")}
-                  value={draft.maxHeight ?? undefined}
-                  onChange={(v) => patch({ maxHeight: v ?? null })}
-                />
-              </Toolbar>
-              <Hint>{t("conveyor_dispatch.height_hint")}</Hint>
-            </Field>
-            <Field>
-              <FieldLabel>{t("conveyor_dispatch.pick_order")}</FieldLabel>
-              <Select
-                style={{ minWidth: 160 }}
-                value={draft.pickOrder ?? "NEAREST"}
-                onChange={(v) => patch({ pickOrder: v })}
-                options={PICK_ORDERS.map((o) => ({
-                  label: t(`conveyor_dispatch.pick_order_${o}`),
-                  value: o,
-                }))}
-              />
-              <Hint>
-                {t(`conveyor_dispatch.pick_order_hint_${draft.pickOrder ?? "NEAREST"}`)}
-              </Hint>
-            </Field>
-          </FieldGrid>
-
-          <FieldLabel style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-            {t("conveyor_dispatch.lanes")}
-            <HelpButton topic="lanes" />
-          </FieldLabel>
-          <Hint>{t("conveyor_dispatch.lanes_hint")}</Hint>
-          {draft.lanes.map((lane, i) => (
-            <Toolbar key={i}>
-              <span style={{ minWidth: 64 }}>{t("conveyor_dispatch.lane_n", { n: i + 1 })}</span>
-              <Select
-                mode="multiple"
-                style={{ flex: 1, minWidth: 240 }}
-                placeholder={t("conveyor_dispatch.lane_placeholder")}
-                value={lane}
-                onChange={(ids: string[]) => setLane(i, ids)}
-                options={stacks.map((s) => ({
-                  label: s.name,
-                  value: s.id,
-                  // 一個點位只能在一條巷道
-                  disabled: usedInLanes.has(s.id) && !lane.includes(s.id),
-                }))}
-              />
-              <GhostButton
-                type="button"
-                onClick={() => patch({ lanes: draft.lanes.filter((_, j) => j !== i) })}
-              >
-                <MinusCircleOutlined />
-              </GhostButton>
-              {lane.length > 0 && (
-                <Hint style={{ flexBasis: "100%" }}>
-                  {t("conveyor_dispatch.lane_inner")} {lane.map(stackName).join(" › ")}{" "}
-                  {t("conveyor_dispatch.lane_outer")}
-                </Hint>
-              )}
-            </Toolbar>
-          ))}
-          <Toolbar>
-            <GhostButton type="button" onClick={() => patch({ lanes: [...draft.lanes, []] })}>
-              <PlusOutlined />
-              {t("conveyor_dispatch.add_lane")}
-            </GhostButton>
-          </Toolbar>
-          {/* 不在巷道裡的 stack 會被當成隨時能直接取放, 而且挑離輸送帶最近的,
-              只設一部分巷道時很容易以為巷道沒作用, 所以用警告明講 */}
-          {unassigned.length > 0 && (
-            <Alert
-              type={draft.lanes.some((l) => l.length > 0) ? "warning" : "info"}
-              showIcon
-              message={`${t("conveyor_dispatch.unassigned")}: ${unassigned
-                .map((s) => s.name)
-                .join(", ")}`}
-              description={t("conveyor_dispatch.unassigned_hint")}
-            />
-          )}
-
-          <Toolbar>
-            <SolidButton
-              disabled={saveMutation.isLoading || (!!draft.heightKey && !draft.maxHeight)}
-              onClick={() => saveMutation.mutate(draft)}
-            >
-              {t("utils.save")}
-            </SolidButton>
-            {group?.policy && (
-              <Popconfirm
-                title={t("conveyor_dispatch.remove_policy_warn")}
-                okText={t("utils.confirm")}
-                cancelText={t("utils.cancel")}
-                onConfirm={() => removeMutation.mutate()}
-              >
-                <DangerButton>
-                  <DeleteOutlined />
-                  {t("conveyor_dispatch.remove_policy")}
-                </DangerButton>
-              </Popconfirm>
-            )}
-          </Toolbar>
-        </>
-      )}
     </Section>
   );
 };

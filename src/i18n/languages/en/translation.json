@@ -41,7 +41,7 @@
     "no_transfer_rule": "There are no manual or scheduled area transfer rules yet. Create one under Settings > Area Transfer first.",
     "group_options": "Groups",
     "location_options": "Locations",
-    "group_hint": "Groups can be selected, for example pickup PU_G2 and drop-off PU_G1, moving one load per press. With a group, the slot is chosen by the group placement rules and pick order under Settings > Conveyor dispatch.",
+    "group_hint": "Groups can be selected, for example pickup PU_G2 and drop-off PU_G1, moving one load per press. With a group, the slot is chosen by the group pick & place rules under Settings.",
     "fired_waiting": "Mission created, but no slot is free right now. It is kept as Waiting for location and will be sent out once a slot frees up",
     "delete_button_confirm_title": "Delete this button?",
     "add_widget_card": "Add Mission Status List",
@@ -463,6 +463,150 @@
   "page_simulate_v2": "Simulation v2",
   "page_record": "warn and alarm records",
   "page_mission_dispatch": "Mission Dispatch Board",
+  "page_fleet_replay": "Fleet replay",
+  "fleet_replay": {
+    "mode_replay": "Replay",
+    "mode_heat": "Heatmap",
+    "last_15m": "Last 15 min",
+    "last_1h": "Last hour",
+    "last_6h": "Last 6 hours",
+    "metric_dwell": "Dwell time",
+    "metric_passes": "Pass count",
+    "cell": "{{m}} m cells",
+    "hint": "Vehicle positions are recorded every 2 seconds and kept for 7 days; you can view up to 6 hours at a time. Replay supports faster playback; the heatmap shows where vehicles stay or pass most.",
+    "no_webgl": "This browser does not support 3D (WebGL), so replay and heatmap cannot be shown",
+    "load_failed": "Failed to load, please try again later",
+    "empty": "No vehicle position records in this period",
+    "legend_dwell": "Time vehicles stayed (all vehicles)",
+    "legend_passes": "Times vehicles entered a cell",
+    "cold": "Low",
+    "hot": "High",
+    "near_point": "Near point {{id}}",
+    "times": "{{n}} times"
+  },
+  "page_achievements": "Achievements",
+  "achievements": {
+    "title": "Achievements",
+    "hint": "Fleet achievements are earned by the whole site together; personal ones depend on what you do. Evaluated every 5 minutes.",
+    "tab_fleet": "Fleet",
+    "tab_user": "Mine",
+    "unlocked_count": "{{done}} / {{total}} unlocked",
+    "locked": "Locked",
+    "unlocked_at": "Unlocked {{time}}",
+    "progress": "{{value}} / {{target}}",
+    "tier": {
+      "bronze": "Bronze",
+      "silver": "Silver",
+      "gold": "Gold"
+    },
+    "disabled": "The database has no achievement tables yet; run prisma/manual-migrations/20261102_achievements.sql or yarn pdp",
+    "report": {
+      "title": "Daily report",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "completed": "Missions done",
+      "canceled": "Missions canceled",
+      "cargo": "Cargo moved",
+      "distance": "Distance",
+      "alarms": "Alarms",
+      "top_vehicle": "Busiest vehicle",
+      "top_vehicle_value": "{{amrId}} ({{n}} missions)",
+      "none": "—"
+    },
+    "recent": "Recently unlocked",
+    "fleet_name": "Fleet",
+    "toast": {
+      "fleet": "The fleet unlocked an achievement",
+      "user": "You unlocked an achievement"
+    },
+    "menu": "Achievements",
+    "items": {
+      "first_mission": {
+        "name": "First Mission",
+        "desc": "Complete the first mission"
+      },
+      "cargo_100": {
+        "name": "Hundred Club",
+        "desc": "Move 100 cargo items in total"
+      },
+      "cargo_1000": {
+        "name": "Thousand Master",
+        "desc": "Move 1,000 cargo items in total"
+      },
+      "cargo_10000": {
+        "name": "Ten-Thousand Legend",
+        "desc": "Move 10,000 cargo items in total"
+      },
+      "distance_1500": {
+        "name": "Around the Island",
+        "desc": "The fleet drives 1,500 km in total"
+      },
+      "distance_384400": {
+        "name": "Moon Shot",
+        "desc": "The fleet drives 384,400 km in total (Earth to Moon)"
+      },
+      "quiet_24": {
+        "name": "Smooth Sailing",
+        "desc": "24 hours in a row without any alarm"
+      },
+      "quiet_72": {
+        "name": "Dead Calm",
+        "desc": "72 hours in a row without any alarm"
+      },
+      "quiet_168": {
+        "name": "A Peaceful Week",
+        "desc": "168 hours (a full week) in a row without any alarm"
+      },
+      "battery_day": {
+        "name": "Fully Charged",
+        "desc": "A whole day with every real vehicle staying above 20% battery"
+      },
+      "night_owl": {
+        "name": "Night Owl",
+        "desc": "Complete 50 missions between 0:00 and 5:00"
+      },
+      "lightning": {
+        "name": "Lightning",
+        "desc": "Finish a mission over 100 m within 5 minutes"
+      },
+      "marathon_day": {
+        "name": "Marathon Day",
+        "desc": "Complete 500 missions in a single day"
+      },
+      "zero_manual": {
+        "name": "Hands Off",
+        "desc": "A day with 100+ missions completed and no manual intervention"
+      },
+      "dispatch_10": {
+        "name": "Dispatcher",
+        "desc": "Dispatch 10 missions yourself"
+      },
+      "dispatch_500": {
+        "name": "Veteran Dispatcher",
+        "desc": "Dispatch 500 missions yourself"
+      },
+      "first_cancel": {
+        "name": "Cut Your Losses",
+        "desc": "Cancel a mission for the first time"
+      },
+      "first_estop": {
+        "name": "Hit the Brakes",
+        "desc": "Press the emergency stop for the first time"
+      },
+      "chat_50": {
+        "name": "Chatterbox",
+        "desc": "Post 50 chat messages (chat keeps 30 days)"
+      },
+      "chat_streak_7": {
+        "name": "Shift Handover Pro",
+        "desc": "Post in the chat 7 days in a row"
+      },
+      "observer": {
+        "name": "Observer",
+        "desc": "Try the driver view, fleet replay and heatmap once each"
+      }
+    }
+  },
   "page_report": "Operations report",
   "report": {
     "hint": "Missions, vehicle time and alarms; can be exported to xlsx",
@@ -702,6 +846,8 @@
       "dispatch_strategy": "Dispatch Strategy",
       "conveyor_dispatch": "Conveyor Dispatch",
       "transfer_rules": "Area Transfer",
+      "group_pick_place": "Group Pick & Place Rules",
+      "booking_timing": "Group Booking Timing",
       "work_areas": "Work Areas"
     },
     "others": {
@@ -811,6 +957,8 @@
     "wait_area_none": "No work area yet. Add one under Device → Work Areas first.",
     "wait_area_not_allowed": "Only path points and standby points can be wait points.",
     "wait_order": "Queue order",
+    "standby_cargo": "Accept cars with cargo",
+    "standby_cargo_hint": "Can a car that is carrying cargo park on this standby point? When the drop-off side has no free slot, a loaded car only backs off to standby points with this turned on; if none is on, the car waits where it is. Off by default.",
     "wait_order_hint": "Lower numbers queue first. Use 1 for the point closest to the work area entrance.",
     "is_mir_waiting_point": "Passing wait point",
     "change_type": {
@@ -2182,7 +2330,8 @@
     "success": "Map uploaded successfully!",
     "no_file": "Please upload a file.",
     "validation_error": "Please complete all required fields.",
-    "invalid_filename": "Filename must be in English, contain no spaces, and end with .png",
+    "invalid_filename": "Filename must be in English, contain no spaces, and end with .png or .pgm",
+    "pgm_convert_failed": "Could not convert {{name}} to PNG: {{reason}}",
     "invalid_filename_when_edit": "Filename must be in English, contain no spaces.",
     "invalid_file_type": "{{name}} is not a PNG file",
     "only_one_file": "Only one file can be uploaded at a time.",
@@ -2411,6 +2560,30 @@
     "no_backups": "No backup files found.",
     "note": "Note: Backups ensure system data safety. Use the download link to secure the file locally."
   },
+  "map_transfer": {
+      "export": "Export points & roads",
+      "import": "Import from file",
+      "export_title": "Export points and roads",
+      "import_title": "Import points and roads from file",
+      "pick_map": "Pick a map",
+      "pick_target_map": "Import into map",
+      "format_xlsx": "Excel (.xlsx), editable in bulk",
+      "format_json": "JSON (.json)",
+      "export_hint": "Exports every point and road of this map. Device settings (conveyor, charger, storage layers...) are not included and come back as defaults.",
+      "download": "Download",
+      "import_hint": "Pick an .xlsx or .json exported from points and roads",
+      "not_active": "This map is not in the active group, so it cannot be imported into. Switch groups first.",
+      "summary": "Will add {{locations}} points and {{roads}} roads; {{skipped}} skipped",
+      "wait_area_missing": "These work areas do not exist on this site: {{names}}. The points are imported without a wait-point setting.",
+      "import_confirm": "Import ({{locations}} points / {{roads}} roads)",
+      "import_done": "Added {{locations}} points and {{roads}} roads",
+      "partial_failed": "{{count}} items failed",
+      "kind_location": "Point",
+      "kind_road": "Road",
+      "col_kind": "Type",
+      "col_target": "Item",
+      "col_skip_reason": "Skipped because"
+  },
   "mission_transfer": {
     "export": "Export missions",
     "import": "Import from file",
@@ -2510,7 +2683,7 @@
     "enter_x_coord": "Enter X coordinate",
     "enter_y_coord": "Enter Y coordinate",
     "drag_file_text": "Click or drag file to this area",
-    "png_hint": "Support PNG format only. File name must be alphanumeric.",
+    "png_hint": "PNG and PGM (ROS map) are supported; PGM is converted to PNG automatically. File name must be alphanumeric.",
     "file_required": "Required",
     "map_group": "Map Group",
     "floor": "Floor",
@@ -2818,37 +2991,7 @@
     "priority": "Mission priority",
     "move_up": "Move up",
     "move_down": "Move down",
-    "policy_title": "Group Placement Rules",
-    "only_stack_note": "Placement rules apply to STACK members only. Groups without rules accept any free slot as before. Rules also apply when WCS targets the group or one of its locations.",
-    "no_stack_group": "No group contains a STACK",
-    "no_policy": "Not set",
-    "max_levels": "Max levels",
-    "prefer_stacking": "Stack first",
-    "prefer_stacking_hint": "On: stack onto an existing slot when possible, open a new slot only when nothing can be stacked",
-    "stack_match_keys": "Stack only when these fields match",
-    "stack_match_hint": "Leave empty to allow any cargo to stack together",
-    "height_limit": "Height limit",
-    "height_key": "Height field",
-    "max_height": "Max total height",
-    "height_hint": "Total stacked height (same unit as the cargo field) must stay within the limit; cargo without a readable height is not stacked",
-    "pick_order": "Pick order",
-    "pick_order_NEAREST": "Nearest first",
-    "pick_order_FEWEST_LEVELS": "Fewest cargo first",
-    "pick_order_hint_NEAREST": "Lane rules apply first; among reachable slots, take from the one closest to the vehicle or drop-off point",
-    "pick_order_hint_FEWEST_LEVELS": "Lane rules apply first; among reachable slots, take from the stack holding the least cargo so it empties sooner and frees space for drop-offs. Ties go to the closest",
-    "pick_order_OLDEST_FIRST": "Oldest first",
-    "pick_order_hint_OLDEST_FIRST": "Lane rules apply first; among reachable slots, compare when each top cargo was placed on its stack and take the oldest. Only the top of a stack can be taken, so older cargo underneath waits until the cargo above is gone. Cargo placed before this feature has no time and counts as oldest",
-    "lanes": "Lanes",
-    "lanes_hint": "Pick each row from the innermost slot to the aisle. Only one vehicle works in a lane at a time; inner slots are blocked while an outer slot has cargo, and slots are filled from the inside out.",
-    "lane_n": "Lane {{n}}",
-    "lane_placeholder": "Select from inner to outer",
-    "lane_inner": "Inner",
-    "lane_outer": "Aisle",
-    "add_lane": "Add lane",
-    "unassigned": "Slots not in any lane (no lane restrictions)",
-    "unassigned_hint": "These slots are treated as always directly reachable. When placing cargo the system picks the slot closest to the conveyor, and lane slots get no extra priority. If these slots also sit in a row, add the whole row as a lane.",
-    "remove_policy": "Remove placement rules",
-    "remove_policy_warn": "Any free slot in this group will be used after removal. Continue?",
+    "placement_moved": "Which slot of a group is used (lanes, levels, pick order) is set under Dispatch Rules > Group Pick & Place Rules.",
     "help": {
       "open": "How to use",
       "runtime": {
@@ -2913,97 +3056,10 @@
           {
             "title": "Which slot in the group",
             "items": [
-              "Dispatch rules only choose the group; the slot inside the group is decided by the group placement rules below."
+              "Dispatch rules only choose the group; the slot inside the group is decided under Dispatch Rules > Group Pick & Place Rules."
             ]
           }
         ]
-      },
-      "policy": {
-        "title": "Setting up group placement rules",
-        "sections": [
-          {
-            "title": "Where they apply",
-            "items": [
-              "Only the stacks in a group are covered, with one set of rules per group.",
-              "They apply whenever the pickup or drop-off point is this group or one of its stacks: conveyor dispatch, WCS, fast missions and mission dispatch board buttons alike.",
-              "Groups without rules keep the old behaviour and use the closest slot."
-            ]
-          },
-          {
-            "title": "Placing cargo",
-            "items": [
-              "Max levels: how many cargo each stack may hold.",
-              "Stack first: when on, cargo is stacked onto an existing slot if possible, and a new slot is used only when nothing can be stacked.",
-              "Stack only when these fields match: for example batchNo, so only cargo from the same batch is stacked together; leave empty to allow any cargo.",
-              "Height limit: pick the cargo field that holds the height; the total stacked height must stay within the limit, and cargo without a readable height is not stacked."
-            ]
-          },
-          {
-            "title": "Picking cargo",
-            "items": [
-              "Pick order decides which reachable slot is picked first: nearest first, fewest cargo first, or oldest first.",
-              "Whichever you choose, lane rules apply first, so blocked slots are never picked."
-            ]
-          },
-          {
-            "title": "Lanes",
-            "items": [
-              "A row of stacks that vehicles can only enter from one end must be set up as a lane, so cargo is placed from the inside out and picked from the outside in. See the question mark next to Lanes for details.",
-              "Stacks that are in no lane are treated as always reachable and are listed in a yellow warning."
-            ]
-          },
-          {
-            "title": "Remember to save",
-            "items": [
-              "Changes take effect only after Save; Remove placement rules returns the group to having no rules."
-            ]
-          }
-        ]
-      },
-      "lanes": {
-        "title": "Setting up lanes",
-        "sections": [
-          {
-            "title": "What a lane is",
-            "items": [
-              "A row of stacks that vehicles can only enter from one end (a dead end): reaching an inner slot always means passing the outer ones.",
-              "The picture above shows a three-slot lane entered from the aisle on the right."
-            ]
-          },
-          {
-            "title": "How to set it up",
-            "items": [
-              "Create one lane per row and select its slots from the innermost to the aisle.",
-              "The direction must follow the roads on the map: seen from where vehicles enter, the farthest slot is the innermost. When unsure, check on the map which end of the row connects to the aisle rather than going by how the slots are laid out.",
-              "Set up every row in the group; stacks left out are not restricted and are treated as always reachable."
-            ]
-          },
-          {
-            "title": "What the system does",
-            "items": [
-              "Places from the inside out: the next slot is used only after the inner one holds cargo or is disabled.",
-              "Picks from the outside in: only the occupied slot nearest the aisle can be picked.",
-              "While an outer slot holds cargo, inner slots can be neither picked nor filled.",
-              "Only one vehicle works in a lane at a time, counting both picking and placing, so vehicles do not block each other inside."
-            ]
-          },
-          {
-            "title": "Common problems",
-            "items": [
-              "Path planning errors saying the start and end are not fully connected: the aisle point of this row is not linked to other roads on the map, so vehicles cannot drive in. Add the missing road on the map.",
-              "The system keeps picking stacks outside any lane: some stacks in the group are not in any lane yet."
-            ]
-          }
-        ]
-      },
-      "lane_diagram": {
-        "alt": "Lane diagram: three slots in a row entered from the aisle; cargo is placed from the innermost slot outward and picked from the aisle inward",
-        "inner": "Innermost",
-        "middle": "Middle",
-        "outer": "Aisle side",
-        "aisle": "Aisle (vehicles enter)",
-        "place": "Place order",
-        "pick": "Pick order"
       }
     }
   },
@@ -3130,7 +3186,7 @@
     "runtime_title": "Live status",
     "no_runtime": "No area transfer rules yet",
     "rules_title": "Transfer rules",
-    "rules_hint": "Each rule moves cargo from one group to another with one trigger. The exact slots are chosen by the placement rules and pick order of the two groups (set under Conveyor Dispatch).",
+    "rules_hint": "Each rule moves cargo from one group to others with one trigger. Several destination groups can be set (the next one is used only when the previous one is full), and a rule can be limited to matching cargo or to certain times. The exact slots are chosen by the placement rules and pick order of the groups (set under Group Pick & Place Rules).",
     "no_rule": "No rules yet. Click Add rule to create one",
     "add_rule": "Add rule",
     "edit_rule": "Edit rule",
@@ -3140,8 +3196,15 @@
     "enabled": "Enabled",
     "source": "Source group",
     "dest": "Destination group",
+    "dest_hint": "Several allowed, tried in the order picked: the next group is used only when the previous one has no room.",
     "same_group": "Source and destination must be different groups",
+    "conditions": "Cargo conditions",
+    "conditions_hint": "Only moves matching cargo, judged by the cargo a pickup would take (top of a stack, the cargo in a shelf slot); every condition must match. No conditions = any cargo.",
+    "add_condition": "Add condition",
+    "key": "Field",
+    "value": "Value",
     "route": "Route",
+    "route_fallback": " (then {{groups}} when full)",
     "trigger": "Trigger",
     "trigger_MANUAL": "Manual",
     "trigger_SOURCE_HAS_CARGO": "When source has cargo",
@@ -3165,12 +3228,16 @@
     "trips_UNTIL_EMPTY": "Until the source is empty or the destination is full",
     "trip_unit": "trips",
     "trips_hint": "One trip is one mission moving one cargo. Click Stop in the live status to end early.",
+    "time_window": "Time window for automatic triggers",
+    "time_window_hint": "Applies to automatic triggers only: nothing starts outside the window, scheduled times outside it are skipped, and a scheduled run stops when the window ends. Manual runs (Run now, dispatch board buttons) ignore it; missions already created (including those waiting for a location) still finish.",
+    "out_of_window": "Outside window",
     "priority": "Mission priority",
     "max_concurrent": "Max missions at once",
     "max_concurrent_hint": "Includes missions waiting for a location; higher moves faster but ties up more vehicles",
     "run_now": "Run now",
     "stop": "Stop",
     "source_stock": "Source cargo",
+    "source_stock_matching": "Source cargo (matching)",
     "dest_free": "Destination free",
     "in_flight": "Missions in progress",
     "progress": "Progress",
@@ -3178,6 +3245,7 @@
     "detail": "Detail",
     "stock_text": "{{cargo}} ({{pickable}} available)",
     "free_text": "{{free}} slots",
+    "free_text_split": "{{free}} slots ({{split}})",
     "progress_n": "{{done}} / {{total}} trips",
     "progress_until": "{{done}} trips sent",
     "trips_n": "{{n}} trips each time",
@@ -3201,8 +3269,8 @@
             "title": "What this shows",
             "items": [
               "One card per rule, refreshed every 3 seconds.",
-              "Source cargo: how much cargo the source group holds; available means not booked by another mission.",
-              "Destination free: how much more the destination group can hold (stacks up to their max levels, shelves up to capacity); disabled slots are not counted.",
+              "Source cargo: how much cargo the source group holds; available means not booked by another mission. With cargo conditions only matching cargo that can be taken is counted (for a stack, the matching run from the top).",
+              "Destination free: how much more the destination group can hold (stacks up to their max levels, one per shelf slot); disabled slots are not counted. With several destination groups this is the total, with each group in brackets.",
               "Missions in progress: missions created by this rule that have not finished, including those waiting for a location."
             ]
           },
@@ -3232,8 +3300,17 @@
             "title": "Basics",
             "items": [
               "Pick a source group and a destination group, for example PU_G2 → PU_G1.",
-              "Slots are chosen by the placement rules and pick order of both groups, so set up lanes and other rules under Conveyor Dispatch first.",
+              "Slots are chosen by the placement rules and pick order of both groups, so set up lanes and other rules under Group Pick & Place Rules first.",
               "Max missions at once includes missions waiting for a location. 1 is the safest; raise it to move faster at the cost of tying up more vehicles."
+            ]
+          },
+          {
+            "title": "Several destinations, cargo conditions, time window",
+            "items": [
+              "Several destination groups can be picked: a mission first looks for room in the first group and moves on to the next only when it is full (like Conveyor Dispatch). Destination free in the live status is the total of all of them.",
+              "Cargo conditions, e.g. trayType = A, limit the rule to matching cargo. They are checked against the cargo a pickup would take: only the top of a stack can be taken, so an A under a B waits until the B is moved; a shelf slot is judged by its cargo. Field names can be picked from the custom cargo formats.",
+              "Time window: weekdays and a time range (same as idle rules). It only applies to automatic triggers: When source has cargo and Refill by free slots do not start outside it, scheduled times outside it are skipped, and a scheduled run stops at the end of the window. Manual runs ignore it.",
+              "When the window ends, missions already created (including those waiting for a location) still finish; cancel them in the mission list to stop at once."
             ]
           },
           {
@@ -3260,6 +3337,250 @@
             ]
           }
         ]
+      }
+    }
+  },
+  "booking_timing": {
+    "title": "Group Booking Timing",
+    "schema_not_ready": "The table has not been created. Restart the backend (it creates it automatically) or run yarn pdp in mission-control.",
+    "intro": "Decides WHEN a slot in this group is picked and reserved for a vehicle. By default it is picked and reserved as soon as the mission is created. You can instead pick it when the vehicle reaches that step, so the slot is not held while the vehicle is still on its way. Groups without a setting behave as before.",
+    "no_group": "The current scene has no device groups. Create one under Devices > Device Groups first.",
+    "member_count": "{{count}} devices in this group",
+    "not_configured": "Not set (as before)",
+    "unsaved": "Unsaved changes",
+    "pick_title": "When a vehicle PICKS UP from this group",
+    "pick_hint": "For example the source group of an area transfer, or the pick side of conveyor dispatch.",
+    "offload_title": "When a vehicle DROPS OFF into this group",
+    "offload_hint": "For example the destination group of an area transfer, or the drop side of conveyor dispatch.",
+    "timing_label": "When to reserve the slot",
+    "timing_AT_CREATE": "When the mission is created (default)",
+    "timing_AT_ARRIVAL": "When the vehicle arrives",
+    "timing_hint_AT_CREATE": "The slot is picked and held for this vehicle as soon as the mission is sent out. Nobody can take it, but it stays occupied while the vehicle is still on its way.",
+    "timing_hint_AT_ARRIVAL": "No slot is held at creation; it is picked when the vehicle reaches this step. The slot is not blocked early and other missions may use it, but the vehicle may find no slot on arrival, so choose how to handle that below.",
+    "wait_kinds_label": "Where the vehicle waits first",
+    "wait_kind_WAIT_POINT": "Work area wait points",
+    "wait_kind_STANDBY": "Nearby standby points",
+    "wait_kinds_hint": "Choose one or both (with both, work area wait points are tried first, then standby points). Work area wait points must be set up on the group's work area; standby points must have the Standby area type.",
+    "ready_label": "When the pick side is ready but the vehicle is not at a waiting position",
+    "ready_BIND_NOW": "Reserve now and go pick up",
+    "ready_STAGE_FIRST": "Still go to a waiting position first, reserve on arrival",
+    "ready_hint_BIND_NOW": "The pick side already has cargo and a slot, so the vehicle goes straight there, same as reserving at creation. The vehicle only waits first when the pick side is not ready.",
+    "ready_hint_STAGE_FIRST": "The vehicle always goes to a waiting position first and the slot is picked on arrival, whether or not the pick side is ready. The slot is not held while the vehicle is on its way, but the vehicle takes a detour.",
+    "blocked_label": "If no slot is available on arrival",
+    "blocked_STAY": "Wait in place",
+    "blocked_STANDBY": "Back off to the nearest standby point",
+    "blocked_RETURN_TO_POOL": "Put the mission back in the queue",
+    "blocked_hint_STAY": "The vehicle stops where it is and continues as soon as a slot frees up. Simplest, but it may block the aisle and other vehicles.",
+    "blocked_hint_STANDBY": "The vehicle leaves for the nearest standby point and comes back when a slot is free. It does not block traffic but makes an extra trip. Needs standby points on the map.",
+    "blocked_hint_RETURN_TO_POOL": "The mission is taken off the vehicle and goes back to \"Waiting\" in the mission list; the vehicle is free for other work and a vehicle is dispatched again when a slot is available. Only possible while the vehicle carries no cargo.",
+    "offload_no_pool": "The vehicle already carries the cargo when dropping off, so the mission cannot be put back in the queue.",
+    "not_enforced": "Note: dispatching does not read this setting yet. Choosing \"when the vehicle arrives\" changes nothing for now; the setting is only stored.",
+    "save": "Save",
+    "reset": "Reset to default",
+    "reset_confirm": "Reset to \"reserve when the mission is created\"?"
+  },
+  "group_pick_place": {
+    "title": "Group Pick & Place Rules",
+    "schema_not_ready": "The tables do not exist yet. Run yarn pdp in mission-control.",
+    "intro": "Decides which slot of a group cargo goes to and which slot it is taken from. The rules apply whenever the pickup or drop-off point is this group or one of its points: conveyor dispatch, area transfer, WCS and the mission dispatch board. Groups without rules keep the old behaviour: point priority first, then the closest slot.",
+    "no_group": "No group contains a STACK or a storage location. Create one under Device > Device Area Table first.",
+    "member_count": "{{stack}} STACK slots, {{storage}} storage slots",
+    "no_policy": "No rules yet",
+    "unsaved": "Unsaved changes",
+    "preset": "Apply a preset",
+    "preset_hint": "A preset only fills in the pick and place order; lanes and fields are still up to you. Changes take effect after Save.",
+    "preset_applied": "Applied \"{{name}}\". Press Save to put it into effect",
+    "preset_GENERAL": "General: nearest pick, nearest place",
+    "preset_FIFO": "First in, first out: oldest first",
+    "preset_STACKING": "Stacking area: stack first, fewest cargo first",
+    "preset_RACK": "Multi-level rack: lowest level first",
+    "order_title": "Picking and placing",
+    "order_hint": "The pick / drop-off priority of each point always comes first (higher first); the order below only breaks ties, and distance comes last.",
+    "pick_order": "Pick order",
+    "pick_order_NEAREST": "Nearest first",
+    "pick_order_FEWEST_LEVELS": "Fewest cargo first",
+    "pick_order_OLDEST_FIRST": "Oldest first",
+    "pick_order_hint_NEAREST": "Lane rules apply first; among reachable slots, take from the one closest to the vehicle or drop-off point.",
+    "pick_order_hint_FEWEST_LEVELS": "Lane rules apply first; among reachable slots, take from the stack holding the least cargo so it empties sooner. A storage slot holds one cargo; ties go to the closest.",
+    "pick_order_hint_OLDEST_FIRST": "Lane rules apply first; among reachable slots, take the cargo that has been there longest. Stacks compare their top cargo (older cargo underneath waits until the cargo above is gone); storage slots compare their own cargo. Cargo placed before this feature has no time and counts as oldest.",
+    "offload_order": "Place order",
+    "offload_order_NEAREST": "Nearest first",
+    "offload_order_LOWEST_LEVEL": "Lowest level first",
+    "offload_order_hint_NEAREST": "Among slots that can take the cargo, use the one closest to the pickup point.",
+    "offload_order_hint_LOWEST_LEVEL": "Fill the lowest level of multi-level storage first, then the closest slot on that level; stacks have no levels.",
+    "stacking_title": "Stacking (STACK only)",
+    "max_levels": "Max levels",
+    "prefer_stacking": "Stack first",
+    "prefer_stacking_hint": "On: stack onto an existing slot when possible, open a new slot only when nothing can be stacked",
+    "stack_match_keys": "Stack only when these fields match",
+    "stack_match_hint": "Leave empty to allow any cargo to stack together",
+    "height_limit": "Height limit",
+    "height_key": "Height field",
+    "max_height": "Max total height",
+    "height_hint": "Total stacked height (same unit as the cargo field) must stay within the limit; cargo without a readable height is not stacked",
+    "lanes": "Lanes",
+    "lanes_hint": "Pick each row from the innermost slot to the aisle; stacks and storage slots both work. Only one vehicle works in a lane at a time; inner slots are blocked while an outer slot has cargo, and slots are filled from the inside out.",
+    "lane_n": "Lane {{n}}",
+    "lane_placeholder": "Select from inner to outer",
+    "lane_inner": "Inner",
+    "lane_outer": "Aisle",
+    "add_lane": "Add lane",
+    "lane_match_keys": "One lane holds cargo with matching fields only",
+    "lane_match_hint": "For example batchNo: each lane holds a single batch, so reaching inner cargo never means moving another batch first. An empty lane takes anything; leave empty for no restriction.",
+    "unassigned": "Points not in any lane (no lane restrictions)",
+    "unassigned_hint": "These points are treated as always directly reachable. If they also sit in a row, add the whole row as a lane.",
+    "remove_policy": "Remove rules",
+    "remove_policy_warn": "The group goes back to having no rules. Continue?",
+    "points_title": "Points",
+    "points_hint": "Select points to disable them or change their priority in one go. Changes apply immediately, no Save needed. This is the same data as Edit Locations and Stack Batch Edit.",
+    "selected": "{{count}} selected",
+    "disable": "Disable",
+    "enable": "Enable",
+    "disable_confirm": "Disable these {{count}} points? No new missions will pick or place there; missions already created finish as usual.",
+    "enable_confirm": "Enable these {{count}} points?",
+    "load_priority": "Pick priority",
+    "offload_priority": "Drop-off priority",
+    "apply": "Apply",
+    "priority_confirm": "Set {{field}} of these {{count}} points to {{value}}?",
+    "col_name": "Point",
+    "col_type": "Type",
+    "col_lane": "Lane",
+    "col_priority": "Pick / drop-off priority",
+    "col_cargo": "Cargo",
+    "type_STACK": "STACK",
+    "type_STORAGE": "Storage",
+    "type_STORAGE_level": "Storage, level {{n}}",
+    "lane_pos": "Lane {{lane}}, slot {{pos}}",
+    "state_disabled": "Disabled",
+    "state_booked": "In use",
+    "cargo_n": "{{n}}",
+    "no_points": "This group has no STACK or storage points",
+    "help": {
+      "open": "How to use",
+      "policy": {
+        "title": "Setting up group pick & place rules",
+        "sections": [
+          {
+            "title": "Where they apply",
+            "items": [
+              "One set of rules per group, covering its stacks and storage slots (each storage level counts as one slot).",
+              "They apply whenever the pickup or drop-off point is this group or one of its points: conveyor dispatch, area transfer, WCS, fast missions and mission dispatch board buttons alike.",
+              "Groups without rules keep the old behaviour: point priority first, then the closest slot."
+            ]
+          },
+          {
+            "title": "What comes first",
+            "items": [
+              "Slots blocked by a lane, disabled or in use are ruled out first, whatever the order.",
+              "The rest are compared by the pick / drop-off priority of each point, higher first.",
+              "Equal priorities are settled by the pick / place order, and distance comes last."
+            ]
+          },
+          {
+            "title": "Picking cargo",
+            "items": [
+              "Nearest first, fewest cargo first, or oldest first.",
+              "Oldest first compares the top cargo of a stack and the cargo of a storage slot; cargo placed before this feature has no time and counts as oldest."
+            ]
+          },
+          {
+            "title": "Placing cargo",
+            "items": [
+              "Nearest first: the slot closest to the pickup point.",
+              "Lowest level first: the lowest level of multi-level storage first, then the closest.",
+              "Stacking settings (max levels, stack first, matching fields, height limit) only affect stacks; a storage slot holds one cargo."
+            ]
+          },
+          {
+            "title": "Lanes",
+            "items": [
+              "A row that vehicles can only enter from one end (stacks or floor storage) must be set up as a lane, so cargo is placed from the inside out and picked from the outside in. See the question mark next to Lanes for details.",
+              "One lane holds cargo with matching fields only: for example batchNo, so each lane holds one batch; a different batch can go in once the whole lane is empty.",
+              "Points that are in no lane are treated as always reachable and are listed in a yellow warning."
+            ]
+          },
+          {
+            "title": "Remember to save",
+            "items": [
+              "Changes to picking, placing, stacking and lanes take effect only after Save; Remove rules returns the group to having no rules.",
+              "Disabling points and changing priorities in the point list below applies immediately, no Save needed."
+            ]
+          }
+        ]
+      },
+      "lanes": {
+        "title": "Setting up lanes",
+        "sections": [
+          {
+            "title": "What a lane is",
+            "items": [
+              "A row of points that vehicles can only enter from one end (a dead end): reaching an inner slot always means passing the outer ones. Stacks and floor storage both qualify.",
+              "The picture above shows a three-slot lane entered from the aisle on the right."
+            ]
+          },
+          {
+            "title": "How to set it up",
+            "items": [
+              "Create one lane per row and select its slots from the innermost to the aisle.",
+              "The direction must follow the roads on the map: seen from where vehicles enter, the farthest slot is the innermost. When unsure, check on the map which end of the row connects to the aisle rather than going by how the slots are laid out.",
+              "Set up every row in the group; points left out are not restricted and are treated as always reachable."
+            ]
+          },
+          {
+            "title": "What the system does",
+            "items": [
+              "Places from the inside out: the next slot is used only after the inner one holds cargo or is disabled.",
+              "Picks from the outside in: only the occupied slot nearest the aisle can be picked.",
+              "While an outer slot holds cargo, inner slots can be neither picked nor filled.",
+              "Only one vehicle works in a lane at a time, counting both picking and placing, so vehicles do not block each other inside."
+            ]
+          },
+          {
+            "title": "Common problems",
+            "items": [
+              "Path planning errors saying the start and end are not fully connected: the aisle point of this row is not linked to other roads on the map, so vehicles cannot drive in. Add the missing road on the map.",
+              "The system keeps picking points outside any lane: some points in the group are not in any lane yet.",
+              "Deep lanes already ordered with point priorities can do without lanes; with both, lanes first rule out unreachable slots and priorities decide among the rest."
+            ]
+          }
+        ]
+      },
+      "points": {
+        "title": "Using the point list",
+        "sections": [
+          {
+            "title": "What you see",
+            "items": [
+              "Every slot of the group (one per stack, one per storage level) with its cargo, state and pick / drop-off priority, refreshed every 5 seconds.",
+              "The Lane column shows the position from the lane settings above, including unsaved ones.",
+              "The Cargo column shows the values of the fields used by lane and stacking rules, so you can see which batch sits in which row."
+            ]
+          },
+          {
+            "title": "Moving work elsewhere on site",
+            "items": [
+              "To stop using some slots for a while, select them and press Disable; press Enable to bring them back.",
+              "To fill some slots first, raise their drop-off priority (higher first); to empty some slots first, raise their pick priority.",
+              "Disabling does not cancel missions already created; vehicles finish what they have."
+            ]
+          },
+          {
+            "title": "Good to know",
+            "items": [
+              "This is the same data as Edit Locations and Stack Batch Edit; changes apply immediately and are recorded in the setting change log.",
+              "On sites connected to QAMS (corning), disabling or enabling storage notifies QAMS the same way Edit Locations does."
+            ]
+          }
+        ]
+      },
+      "lane_diagram": {
+        "alt": "Lane diagram: three slots in a row entered from the aisle; cargo is placed from the innermost slot outward and picked from the aisle inward",
+        "inner": "Innermost",
+        "middle": "Middle",
+        "outer": "Aisle side",
+        "aisle": "Aisle (vehicles enter)",
+        "place": "Place order",
+        "pick": "Pick order"
       }
     }
   },
@@ -3350,25 +3671,52 @@
   },
   "ha": {
     "sync_item_cargo": "Cargo / storage data",
-    "sync_item_mission": "Mission data (not supported yet)",
     "take_over_peer_notify_failed": "Took over, but failed to notify the peer to step down to BACKUP ({{reason}}). Check the peer's current state yourself so both hosts are not MASTER at the same time",
     "unknown_reason": "unknown reason",
     "switch_sent": "Switch command sent",
     "sync_done": "Synced from MASTER",
     "confirm_take_over_title": "Take over as MASTER?",
     "confirm_release_title": "Release MASTER control?",
-    "take_over_warn_1": "First make sure the other host is really down or disconnected, not just unreachable from here.",
     "take_over_warn_2": "If the other host is actually still alive and still commanding vehicles, two MASTERs will make the same vehicle receive conflicting missions.",
     "release_warn": "After releasing, this host stops dispatching missions. Make sure another host is ready to take over.",
     "confirm_sync_title": "Sync \"{{label}}\" from MASTER?",
     "sync_warn": "This overwrites all local (BACKUP) data with the MASTER's current data. The direction cannot be reversed.",
     "confirm_sync_ok": "Sync",
     "arbiter_unreachable": "Local HA service unreachable",
-    "peer_down": "Peer host disconnected",
-    "peer_ok": "Peer connected",
+    "peer_down": "Cannot reach the other host's HA service (host down or link broken)",
     "release": "Release control",
     "take_over": "Take over",
-    "sync_from_master": "Sync from MASTER"
+    "sync_from_master": "Sync storage from MASTER",
+    "panel_title": "High availability",
+    "role_unknown": "Role pending",
+    "role_unknown_hint": "Mission control is waiting for the HA service to report this host's role and does not dispatch until then",
+    "arbiter_unreachable_hint": ". The role shown may be out of date and switching is unavailable",
+    "role_mismatch": "Mission control says this host is {{mc}} but the HA service has {{arbiter}}",
+    "dual_master": "Both hosts are MASTER! Vehicles may get commands from both. Release control on one of them now",
+    "no_master": "Both hosts are BACKUP, nobody is dispatching",
+    "master_without_vip": "This host is MASTER but does not hold the VIP: vehicles and ECS may still be connected to the other host",
+    "backup_with_vip": "This host holds the VIP but is BACKUP: vehicles connected here get no missions",
+    "peer_fleet_down": "Mission control on the other host is not running",
+    "maintenance": "This host's HA service is in maintenance mode",
+    "this_host": "This host",
+    "peer_host": "Other host",
+    "row_role": "Role",
+    "row_arbiter": "HA service",
+    "row_link": "HA link",
+    "row_peer_fleet": "Mission control",
+    "ok": "OK",
+    "unreachable": "Unreachable",
+    "disconnected": "Disconnected",
+    "running": "Running",
+    "stopped": "Stopped",
+    "unknown": "Unknown",
+    "vip_here": "On this host",
+    "vip_not_here": "Not on this host",
+    "connected": "Connected",
+    "not_connected": "Not connected",
+    "take_over_peer_alive": "The other host is reachable and will be told to step down to BACKUP.",
+    "take_over_peer_unreachable": "The other host cannot be reached, so it cannot be told to step down. First make sure it is really down or disconnected, not just unreachable from here.",
+    "take_over_missions": "Missions the previous MASTER dispatched: each vehicle is paused once it connects to this host, then its remaining steps go back to the same vehicle. Vehicles that do not connect within 60 seconds raise an alarm and need manual handling."
   },
   "setting_v2": {
     "view_panel": "Panel",
@@ -4717,6 +5065,13 @@
       "waiting": "Waiting",
       "carrying": "In transit",
       "loads": "pallets"
+    },
+    "record": {
+      "start": "Record",
+      "stop": "Stop",
+      "tip": "Plays from the current time and records what's on screen (replay / heat / 3D, camera, speed) as a video, with the simulation time in the top-left corner. Saved when playback ends or you press Stop. Keep this tab in front while recording",
+      "unsupported": "This browser can't record video",
+      "saved": "Video saved"
     }
   },
   "page_disabled": {
@@ -4739,7 +5094,6 @@
       "prefs": "Preferences",
       "notify": "Notifications",
       "favorites": "Pinned missions",
-      "shift": "Shift notes",
       "logins": "Login history",
       "accounts": "Accounts"
     },
@@ -4826,6 +5180,10 @@
       "view_saved": "Saved (zoom {{scale}}%)",
       "view_none": "Not saved (map's initial view)",
       "view_clear": "Clear",
+      "default_view_3d": "3D default view",
+      "default_view_3d_help": "In 3D, press the pin button at the top right of the map to save the current camera position and angle as the 3D default; \"Center map\" also returns here",
+      "view_3d_saved": "Saved",
+      "view_3d_none": "Not saved (whole map)",
       "save_view": "Save this view as my default",
       "view_saved_toast": "Saved as your default view",
       "session": "Login",
@@ -4883,19 +5241,6 @@
       "name": "Mission",
       "empty": "No missions dispatched today"
     },
-    "shift": {
-      "write": "Write a note",
-      "hint": "For the next shift. One board for the whole site, kept 30 days. Unread notes pop up at login.",
-      "placeholder": "e.g. Vehicle 3 right wheel is noisy, avoid long runs",
-      "post": "Post",
-      "board": "Notes",
-      "mark_all_read": "Mark all read ({{count}})",
-      "mark_read": "Mark as read",
-      "popup_title": "Shift notes ({{count}} unread)",
-      "unread": "Unread",
-      "empty": "No notes",
-      "delete_confirm": "Delete this note?"
-    },
     "logins": {
       "title": "Login history",
       "hint": "Logins in the last 180 days, successful and failed",
@@ -4922,11 +5267,134 @@
       "delete_confirm": "Delete account {{account}}?"
     }
   },
+  "chat": {
+    "title": "Site chat",
+    "menu": "Chat",
+    "open": "Open chat",
+    "expand": "Expand",
+    "restore": "Restore size",
+    "minimize": "Minimize",
+    "placeholder": "Type a message, Enter to send",
+    "newline_hint": "Shift + Enter for a new line",
+    "send": "Send",
+    "send_failed": "The message was not sent. Please try again",
+    "delete": "Delete",
+    "delete_confirm": "Delete this message?",
+    "delete_failed": "The message was not deleted. Please try again",
+    "empty": "No messages yet. Leave a note for your colleagues or the next shift here. Messages are kept for 30 days.",
+    "keep_hint": "Messages are kept for 30 days",
+    "load_more": "Load earlier messages",
+    "unread_divider": "Unread messages",
+    "new_below": "New messages",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "no_client_name": "This computer has no name yet, so others only see the account.",
+    "set_client_name": "Set name"
+  },
+  "mission_split": {
+    "first_half": "Pick half; the offload is mission {{id}}",
+    "second_half": "Offload half; the pick is mission {{id}}"
+  },
   "mission_manual": {
     "title": "Manual intervention",
     "force_next_step": "Step {{step}} was skipped manually (skip to next step)",
     "resend_step": "Step {{step}} was resent manually (resend this step)",
     "badge": "Manual interventions {{count}}×",
     "cargo_badge": "{{count}} cargo movements"
+  },
+  "fleet3d": {
+    "model": {
+      "label": "3D model",
+      "default": "Default (by name: MiR, SW15, otherwise forklift)",
+      "default_short": "Default",
+      "forklift": "Forklift",
+      "mir250": "MiR250",
+      "m68": "SW15 roller AGV (M68)",
+      "custom": "Uploaded model",
+      "upload": "Upload .glb",
+      "replace": "Replace file",
+      "remove": "Delete uploaded model",
+      "remove_confirm": "This robot type will go back to the default model",
+      "processing": "Processing (reducing and compressing)…",
+      "pending": "{{name}}: {{before}} → {{after}} triangles, {{size}}; uploaded when you save",
+      "uploaded": "Uploaded: {{name}} ({{size}})",
+      "rotate": "Front direction",
+      "hint": "Only .glb files. The model is simplified and compressed before upload (colors kept, textures dropped) and scaled to the robot type's length. The arrow in the preview marks the front; rotate if it is wrong. Nodes named fork (or the glb-editor group fork) move up and down as the forks and carry the pallet.",
+      "front": "Front",
+      "error_draco": "This file uses Draco compression; export a plain .glb instead",
+      "error_empty": "The file contains no model",
+      "error_format": "Cannot read this file: {{message}}",
+      "preview_failed": "Cannot preview this model"
+    },
+    "info": {
+      "drive_view": "Driver view",
+      "exit_drive_view": "Exit driver view",
+      "status": "Status",
+      "battery": "Battery",
+      "charging": "charging",
+      "speed": "Speed",
+      "fork": "Fork height",
+      "cargo": "Cargo",
+      "yes": "Yes",
+      "no": "No",
+      "destination": "Destination",
+      "mission": "Mission",
+      "step_wait": "step {{time}}",
+      "solution": "What to do",
+      "waiting": "Waiting",
+      "waiting_for": "Waiting for {{ids}} · {{time}}",
+      "waiting_road": "Waiting for clearance · {{time}}"
+    },
+    "patrol": {
+      "label": "Patrol",
+      "tip": "When a vehicle raises a warning, the camera flies to it and follows it; several warned vehicles take turns, and the view returns to the overview when the warnings clear. Pauses for 30 s after you pick or release a vehicle yourself."
+    },
+    "sim": {
+      "heat": "Hotspots",
+      "heat_tip": "Colour the roads by time spent waiting in traffic (same as the Hotspots view)"
+    },
+    "walls": {
+      "label": "Walls",
+      "tip": "Raise the dark obstacles on the map into 3D walls; off shows only the flat map"
+    },
+    "labels": {
+      "label": "Vehicle labels",
+      "tip": "Always show each vehicle's name, status, destination and warnings; when off, a label appears only while the pointer is over the vehicle"
+    },
+    "no_webgl": "This browser can't show 3D (WebGL is unavailable). Use 2D instead.",
+    "failed": {
+      "title": "The 3D view couldn't be shown",
+      "use_2d": "Switch to 2D",
+      "retry": "Retry"
+    },
+    "gate": {
+      "opened": "Open",
+      "opening": "Opening",
+      "closing": "Closing",
+      "closed": "Closed",
+      "e_stop": "Emergency stop",
+      "vfd_alarm": "Drive fault",
+      "system_error": "System error"
+    },
+    "pick": {
+      "load": "Click to set as the pick-up point",
+      "offload": "Click to set as the drop-off point",
+      "blocked": "Can't be selected here"
+    },
+    "package": {
+      "registered": "{{n}} registered"
+    },
+    "wait": {
+      "label": "Waiting {{time}}"
+    },
+    "incident": {
+      "title": "E-stop replay · {{amrId}}",
+      "open": "3D replay",
+      "open_tip": "See how every vehicle moved from 60 s before to 20 s after the stop (on the current map)",
+      "pending": "Still recording after the stop; available in about {{sec}} s",
+      "missing": "No replay for this stop (the file was cleaned up, or recording hadn't started yet)",
+      "stop_mark": "Stop",
+      "stopped_car": "Stopped vehicle"
+    }
   }
 }

@@ -11,7 +11,11 @@ import { currentMapIdAtom } from "@/utils/mapSelection";
 import { ErrorResponse } from "@/utils/globalType";
 import { editErrorHandler } from "@/utils/utils";
 import { Field, FieldLabel, FieldGrid, Hint } from "../../ui/primitives";
-import WaitPointFields, { waitPointPayload } from "../../ui/waitPointFields";
+import WaitPointFields, {
+  StandbyCargoField,
+  standbyCargoPayload,
+  waitPointPayload,
+} from "../../ui/waitPointFields";
 
 /** 有設備設定 (名稱、群組、規則…) 的點位類型; 從這些類型換走, 設定會被清掉 */
 const DEVICE_AREA_TYPES = [
@@ -41,6 +45,7 @@ export type LocationRow = {
   wait_area_id?: string | null;
   wait_order?: number;
   is_mir_waiting_point?: boolean | null;
+  standby_accept_cargo?: boolean;
   rev?: string;
   mapFileName: string;
   groupName: string;
@@ -93,6 +98,7 @@ const LocationEditModal: FC<Props> = ({ location, onClose }) => {
       wait_area_id: location.wait_area_id ?? undefined,
       wait_order: location.wait_order ?? 0,
       is_mir_waiting_point: location.is_mir_waiting_point ?? false,
+      standby_accept_cargo: location.standby_accept_cargo ?? false,
     });
   }, [location, editForm]);
 
@@ -135,6 +141,7 @@ const LocationEditModal: FC<Props> = ({ location, onClose }) => {
         currentMapId,
         // 能不能當等待點看的是換完之後的類型
         ...waitPointPayload(areaType, values),
+        ...standbyCargoPayload(areaType, values),
       });
 
     // 原本的類型沒有設備設定 (路徑點、待命區…), 換類型不會丟東西, 直接存
@@ -248,6 +255,7 @@ const LocationEditModal: FC<Props> = ({ location, onClose }) => {
           </FieldGrid>
           <FieldGrid $cols={2} style={{ marginTop: 16 }}>
             <WaitPointFields areaType={editingAreaType} />
+            <StandbyCargoField areaType={editingAreaType} />
           </FieldGrid>
         </Form>
       </Modal>

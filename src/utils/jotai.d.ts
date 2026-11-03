@@ -14,6 +14,7 @@ export type LocationType = {
   wait_area_id?: string | null;
   wait_order?: number;
   is_mir_waiting_point?: boolean | null;
+  standby_accept_cargo?: boolean;
   currentMapId?: string;
 };
 

@@ -41,6 +41,7 @@ const PreferencesTab: FC = () => {
   const prefs = profile?.preferences ?? {};
   const layers = { ...DEFAULT_LAYERS, ...prefs.map?.layers };
   const view = prefs.map?.view ?? null;
+  const view3d = prefs.map?.view3d ?? null;
 
   const savePrefs = (patch: Parameters<typeof save.mutate>[0]) =>
     save.mutate(patch, {
@@ -130,6 +131,18 @@ const PreferencesTab: FC = () => {
             </Space>
           ) : (
             <Tag>{t("profile.prefs.view_none")}</Tag>
+          )}
+        </SettingRow>
+        <SettingRow label={t("profile.prefs.default_view_3d")} help={t("profile.prefs.default_view_3d_help")}>
+          {view3d ? (
+            <Space wrap>
+              <Tag color="blue">{t("profile.prefs.view_3d_saved")}</Tag>
+              <Button size="small" onClick={() => savePrefs({ preferences: { map: { view3d: null } } })}>
+                {t("profile.prefs.view_clear")}
+              </Button>
+            </Space>
+          ) : (
+            <Tag>{t("profile.prefs.view_3d_none")}</Tag>
           )}
         </SettingRow>
       </Section>

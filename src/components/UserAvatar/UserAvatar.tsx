@@ -242,7 +242,7 @@ export const UserAvatar: FC<Props> = memo(({ avatar, account, size = 28, title }
   );
 });
 
-/** 依帳號名稱查頭像 (設定變更紀錄、任務歷史、交班留言用) */
+/** 依帳號名稱查頭像 (設定變更紀錄、任務歷史、聊天室用) */
 export const AccountAvatar: FC<{ account?: string | null; size?: number }> = ({ account, size = 20 }) => {
   const { data } = useAvatars();
   if (!account) return null;

@@ -30,4 +30,11 @@ describe("devicePlacements", () => {
     const [d] = devicePlacements([loc("9", 3, 4, "CONVEYOR")], [{ x1: 0, y1: 0, x2: 1, y2: 0 }]);
     expect(d).toMatchObject({ x: 3, y: 4, yaw: -Math.PI / 2 });
   });
+
+  it("捲門、門前等待點在路上: 就放在點位上, yaw 是路的方向", () => {
+    const [g, w] = devicePlacements([loc("G", 5, 0, "LIFT_GATE"), loc("W", 0, 0, "GATE_WAIT_POINT")], [{ x1: 0, y1: 0, x2: 5, y2: 0 }]);
+    expect(g).toMatchObject({ kind: "LIFT_GATE", x: 5, y: 0 });
+    expect(g.yaw).toBeCloseTo(Math.PI);
+    expect(w).toMatchObject({ kind: "GATE_WAIT_POINT", x: 0, y: 0, yaw: 0 });
+  });
 });

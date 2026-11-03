@@ -7,7 +7,7 @@ import {
   Tooltip,
   message,
 } from "antd";
-import { Suspense, lazy, memo, useCallback, useEffect, useRef, useState } from "react";
+import { lazy, memo, useCallback, useEffect, useRef, useState } from "react";
 import { Layout } from "antd";
 import "@/pages/Main/components/WebView/webview.css";
 import ZoomPad from "@/pages/Main/components/WebView/components/ZoomPad";
@@ -35,9 +35,11 @@ import styled, { css } from "styled-components";
 import { mq } from "@/styles/responsive";
 import { useTranslation } from "react-i18next";
 import { themeAtom } from "@/theme";
-import { MenuFoldOutlined, MenuUnfoldOutlined, PushpinOutlined } from "@ant-design/icons";
-import { useMyProfile, useSaveProfile } from "@/api/useProfile";
-import { mapViewModeAtom, MapViewMode } from "@/components/Fleet3D/viewMode";
+import { AimOutlined, BorderOutlined, MenuFoldOutlined, MenuUnfoldOutlined, PushpinOutlined, TagOutlined } from "@ant-design/icons";
+import { MapView3dPref, MapViewPref, useMyProfile, useSaveProfile } from "@/api/useProfile";
+import { mapViewModeAtom, MapViewMode, patrolAtom, vehicleLabelsAtom, wallsAtom } from "@/components/Fleet3D/viewMode";
+import { webglAvailable } from "@/components/Fleet3D/webgl";
+import Fleet3DBoundary from "@/components/Fleet3D/Fleet3DBoundary";
 import {
   isShowAnnotation,
   isShowLocation,
@@ -218,8 +220,14 @@ const ViewModeSlot = styled.div`
   left: 50%;
   transform: translateX(-50%);
   z-index: 20;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  > * {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+  }
 `;
 
 const SaveViewBtn = styled(Button)`
@@ -248,7 +256,13 @@ const WebViewV2 = () => {
   const cm = useAtomValue(centerMap);
   const { t } = useTranslation();
   const [bottomView, setBottomView] = useState<BottomView>("car");
-  const [viewMode, setViewMode] = useAtom(mapViewModeAtom);
+  const [storedViewMode, setViewMode] = useAtom(mapViewModeAtom);
+  // 這台電腦畫不了 3D (沒有 WebGL) 就只給 2D, 之前存的 3D 也不理
+  const can3d = webglAvailable();
+  const viewMode: MapViewMode = can3d ? storedViewMode : "2d";
+  const [patrol, setPatrol] = useAtom(patrolAtom);
+  const [vehicleLabels, setVehicleLabels] = useAtom(vehicleLabelsAtom);
+  const [walls, setWalls] = useAtom(wallsAtom);
   const [showSidebars, setShowSidebars] = useState(true);
   // 點地圖上的點位: 打開「直接移動」(同舊首頁)
   const setOpenDirect = useSetAtom(OpenDirect);
@@ -268,6 +282,7 @@ const WebViewV2 = () => {
   const saveProfile = useSaveProfile();
   const [messageApi, messageHolder] = message.useMessage();
   const preferredView = profile?.preferences.map?.view ?? null;
+  const preferredView3d = profile?.preferences.map?.view3d ?? null;
   const setShowLocation = useSetAtom(isShowLocation);
   const setShowRoad = useSetAtom(isShowRoad);
   const setShowPointCloud = useSetAtom(isShowPointCloud);
@@ -286,10 +301,11 @@ const WebViewV2 = () => {
   }, [profile, setShowLocation, setShowRoad, setShowPointCloud, setShowAnnotation, setShowZones]);
 
   const saveCurrentView = () => {
-    const view = mapApiRef.current?.currentView();
+    const is3d = viewMode === "3d";
+    const view = is3d ? mapApiRef.current?.currentView3d?.() : mapApiRef.current?.currentView();
     if (!view) return;
     saveProfile.mutate(
-      { preferences: { map: { view } } },
+      { preferences: { map: is3d ? { view3d: view as MapView3dPref } : { view: view as MapViewPref } } },
       {
         onSuccess: () => void messageApi.success(t("profile.prefs.view_saved_toast")),
         onError: () => void messageApi.error(t("profile.save_failed")),
@@ -350,9 +366,9 @@ const WebViewV2 = () => {
               >
                 {simCarDrop.contextHolder}
                 {viewMode === "3d" ? (
-                  <Suspense fallback={null}>
-                    <LiveFleet3D onPointClick={openDirectMove} apiRef={mapApiRef} />
-                  </Suspense>
+                  <Fleet3DBoundary onUse2d={() => setViewMode("2d")}>
+                    <LiveFleet3D onPointClick={openDirectMove} apiRef={mapApiRef} preferredView={preferredView3d} />
+                  </Fleet3DBoundary>
                 ) : (
                   <CanvasMap onPointClick={openDirectMove} apiRef={mapApiRef} preferredView={preferredView}>
                     <MainDevices />
@@ -366,9 +382,56 @@ const WebViewV2 = () => {
                   onChange={setViewMode}
                   options={[
                     { value: "2d", label: t("map_tool.view_2d") },
-                    { value: "3d", label: t("map_tool.view_3d") },
+                    {
+                      value: "3d",
+                      label: t("map_tool.view_3d"),
+                      disabled: !can3d,
+                      tooltip: can3d ? undefined : t("fleet3d.no_webgl"),
+                    },
                   ]}
                 />
+                {/* 3D 的巡視模式: 有告警時鏡頭自動飛過去 (Fleet3D/patrol.ts) */}
+                {viewMode === "3d" && (
+                  <Tooltip title={t("fleet3d.patrol.tip")}>
+                    <Button
+                      type={patrol ? "primary" : "default"}
+                      icon={<AimOutlined />}
+                      onClick={() => setPatrol(!patrol)}
+                      aria-pressed={patrol}
+                      data-testid="fleet3d-patrol"
+                    >
+                      {t("fleet3d.patrol.label")}
+                    </Button>
+                  </Tooltip>
+                )}
+                {/* 3D 車上的標籤: 預設關掉 (游標移到車上才顯示) */}
+                {viewMode === "3d" && (
+                  <Tooltip title={t("fleet3d.labels.tip")}>
+                    <Button
+                      type={vehicleLabels ? "primary" : "default"}
+                      icon={<TagOutlined />}
+                      onClick={() => setVehicleLabels(!vehicleLabels)}
+                      aria-pressed={vehicleLabels}
+                      data-testid="fleet3d-vehicle-labels"
+                    >
+                      {t("fleet3d.labels.label")}
+                    </Button>
+                  </Tooltip>
+                )}
+                {/* 3D 的牆: 地圖上的黑色障礙物拉成立體的牆, 可以關掉 */}
+                {viewMode === "3d" && (
+                  <Tooltip title={t("fleet3d.walls.tip")}>
+                    <Button
+                      type={walls ? "primary" : "default"}
+                      icon={<BorderOutlined />}
+                      onClick={() => setWalls(!walls)}
+                      aria-pressed={walls}
+                      data-testid="fleet3d-walls"
+                    >
+                      {t("fleet3d.walls.label")}
+                    </Button>
+                  </Tooltip>
+                )}
               </ViewModeSlot>
               <MapOverlay>
                 <ZoomPad></ZoomPad>
@@ -381,7 +444,7 @@ const WebViewV2 = () => {
                 <PerformancePanel top="64px" right="16px" />
                 {/* 模擬車輛: 取代舊的 /simulate 頁; 開始 / 停止模擬還是 Header 的按鈕 */}
                 {showSimulationUi ? <SimCarPanel top="128px" left="16px" /> : null}
-                {profile && viewMode === "2d" && (
+                {profile && (
                   <Tooltip title={t("profile.prefs.save_view")}>
                     <SaveViewBtn
                       icon={<PushpinOutlined />}

@@ -24,6 +24,8 @@ import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";
 import useAMRsample from "@/api/useAMRsample";
 import { Err } from "@/utils/responseErr";
+import type { OptimizeResult } from "@/components/Fleet3D/upload/optimizeModel";
+import Model3dField, { UploadedModelFile } from "./Model3dField";
 import useIsNarrow from "../../ui/useIsNarrow";
 import {
   PanelShell,
@@ -53,9 +55,22 @@ type RobotType = {
   width: number;
   length: number;
   height: number;
+  /** 3D 檢視的模型 (null = 預設, 照車名), 上傳的模型要轉幾度 */
+  model_3d: string | null;
+  model_3d_yaw: number;
+  model_3d_file: UploadedModelFile;
 };
 
-type FormValues = Omit<RobotType, "id">;
+type FormValues = Omit<RobotType, "id" | "model_3d_file">;
+
+/** 車型的 3D 模型 glb 送到後端 (檔名另外用文字欄位送, multer 收中文檔名會變亂碼) */
+const uploadModel = (id: string, file: File) => {
+  const body = new FormData();
+  body.append("id", id);
+  body.append("fileName", file.name);
+  body.append("model", file);
+  return client.post("api/setting/upload-robot-type-model", body);
+};
 
 type RelatedMission = { id: string; name: string };
 
@@ -73,6 +88,8 @@ const AmrConfigPanel: FC = () => {
   /** 刪除車種時後端回報有任務還在用,這裡存那些任務,非空就跳出改派 Modal */
   const [blockingMissions, setBlockingMissions] = useState<RelatedMission[]>([]);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  /** 選好、處理好的 3D 模型, 按新增 / 儲存時才上傳 */
+  const [pendingModel, setPendingModel] = useState<OptimizeResult | null>(null);
 
   const rows = (data ?? []) as RobotType[];
 
@@ -87,24 +104,42 @@ const AmrConfigPanel: FC = () => {
     [rows, deletingId],
   );
 
+  // 有選 3D 模型檔的話, 車型存好之後接著上傳 (新增的車型要等後端給 id)
   const createMutation = useMutation({
-    mutationFn: (payload: FormValues) =>
-      client.post("api/setting/create-robot-type", payload),
+    mutationFn: async (payload: FormValues) => {
+      const resp = await client.post<{ data: { id: string } }>("api/setting/create-robot-type", payload);
+      if (pendingModel) await uploadModel(resp.data.data.id, pendingModel.file);
+      return resp;
+    },
     onSuccess: () => {
       void messageApi.success(t("utils.success"));
       void queryClient.refetchQueries({ queryKey: ["amr-sample"] });
       form.resetFields();
+      setPendingModel(null);
     },
     onError,
   });
 
   const editMutation = useMutation({
-    mutationFn: (payload: RobotType) =>
-      client.post("api/setting/edit-robot-type", payload),
+    mutationFn: async (payload: FormValues & { id: string }) => {
+      const resp = await client.post("api/setting/edit-robot-type", payload);
+      if (pendingModel) await uploadModel(payload.id, pendingModel.file);
+      return resp;
+    },
     onSuccess: () => {
       void messageApi.success(t("utils.success"));
       void queryClient.refetchQueries({ queryKey: ["amr-sample"] });
       cancelEdit();
+    },
+    onError,
+  });
+
+  const removeModelMutation = useMutation({
+    mutationFn: (id: string) => client.post("api/setting/delete-robot-type-model", { id }),
+    onSuccess: () => {
+      void messageApi.success(t("utils.success"));
+      void queryClient.refetchQueries({ queryKey: ["amr-sample"] });
+      form.setFieldValue("model_3d", null);
     },
     onError,
   });
@@ -154,12 +189,22 @@ const AmrConfigPanel: FC = () => {
   const cancelEdit = () => {
     setEditingId(null);
     form.resetFields();
+    setPendingModel(null);
   };
 
   const startEdit = (row: RobotType) => {
     form.setFieldsValue(row);
     setEditingId(row.id);
+    setPendingModel(null);
   };
+
+  const editingRow = rows.find((r) => r.id === editingId) ?? null;
+  const modelLabel = (row: RobotType) =>
+    row.model_3d === "custom" && row.model_3d_file
+      ? row.model_3d_file.file_name
+      : row.model_3d && row.model_3d !== "custom"
+        ? t(`fleet3d.model.${row.model_3d}` as "fleet3d.model.forklift")
+        : t("fleet3d.model.default_short");
 
   const submit = async () => {
     let values: FormValues;
@@ -231,6 +276,12 @@ const AmrConfigPanel: FC = () => {
       render: (v: number) => `${v} M`,
     },
     {
+      title: t("fleet3d.model.label"),
+      key: "model_3d",
+      width: 160,
+      render: (_, row) => modelLabel(row),
+    },
+    {
       title: "",
       key: "actions",
       width: 110,
@@ -269,7 +320,7 @@ const AmrConfigPanel: FC = () => {
             : t("toolbar.amr_setting.amr_config")}
         </SectionTitle>
 
-        <Form form={form} layout="vertical" autoComplete="off">
+        <Form form={form} layout="vertical" autoComplete="off" initialValues={{ model_3d: null, model_3d_yaw: 0 }}>
           <FieldGrid $cols={2}>
             <Field>
               <FieldLabel>{t("toolbar.amr_setting.amr_name")}</FieldLabel>
@@ -344,6 +395,15 @@ const AmrConfigPanel: FC = () => {
               </Form.Item>
             </Field>
           </FieldGrid>
+
+          <Model3dField
+            typeId={editingId}
+            uploaded={editingRow?.model_3d_file ?? null}
+            pending={pendingModel}
+            onPending={setPendingModel}
+            onRemoveUploaded={() => editingId && removeModelMutation.mutate(editingId)}
+            removing={removeModelMutation.isLoading}
+          />
         </Form>
 
         <Toolbar>
@@ -388,6 +448,8 @@ const AmrConfigPanel: FC = () => {
                   <dd>{row.width} M</dd>
                   <dt>{t("toolbar.amr_setting.height")}</dt>
                   <dd>{row.height} M</dd>
+                  <dt>{t("fleet3d.model.label")}</dt>
+                  <dd>{modelLabel(row)}</dd>
                 </CardFacts>
 
                 <Toolbar>

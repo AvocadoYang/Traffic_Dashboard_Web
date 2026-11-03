@@ -1,10 +1,9 @@
 import { FC, ReactNode, useMemo } from "react";
-import { Badge, Spin, Tabs } from "antd";
+import { Spin, Tabs } from "antd";
 import {
   BellOutlined,
   HistoryOutlined,
   IdcardOutlined,
-  MessageOutlined,
   SlidersOutlined,
   StarOutlined,
   TeamOutlined,
@@ -14,7 +13,7 @@ import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
-import { useMyProfile, useShiftNotes } from "@/api/useProfile";
+import { useMyProfile } from "@/api/useProfile";
 import { UserAvatar } from "@/components/UserAvatar/UserAvatar";
 import { mq } from "@/styles/responsive";
 import { getToken, tokenAccount } from "@/utils/session";
@@ -22,7 +21,6 @@ import AccountTab from "./AccountTab";
 import PreferencesTab from "./PreferencesTab";
 import NotifyTab from "./NotifyTab";
 import FavoritesTab from "./FavoritesTab";
-import ShiftTab from "./ShiftTab";
 import LoginLogTab from "./LoginLogTab";
 import AccountsTab from "./AccountsTab";
 
@@ -84,14 +82,13 @@ const TabsCard = styled.section`
   }
 `;
 
-export type ProfileTabKey = "account" | "prefs" | "notify" | "favorites" | "shift" | "logins" | "accounts";
+export type ProfileTabKey = "account" | "prefs" | "notify" | "favorites" | "logins" | "accounts";
 
-/** 個人設定頁 (/profile): 個人資料、偏好、通知、常用任務、交班留言、登入紀錄、帳號管理 (ADMIN) */
+/** 個人設定頁 (/profile): 個人資料、偏好、通知、常用任務、登入紀錄、帳號管理 (ADMIN) */
 const Profile: FC = () => {
   const { t } = useTranslation();
   const [params, setParams] = useSearchParams();
   const { data: profile, isLoading } = useMyProfile();
-  const { data: notes } = useShiftNotes();
   const account = profile?.account ?? tokenAccount(getToken());
   const isAdmin = profile?.role === "ADMIN";
 
@@ -101,23 +98,13 @@ const Profile: FC = () => {
       { key: "prefs", icon: <SlidersOutlined />, label: t("profile.tab.prefs"), body: <PreferencesTab /> },
       { key: "notify", icon: <BellOutlined />, label: t("profile.tab.notify"), body: <NotifyTab /> },
       { key: "favorites", icon: <StarOutlined />, label: t("profile.tab.favorites"), body: <FavoritesTab /> },
-      {
-        key: "shift",
-        icon: <MessageOutlined />,
-        label: (
-          <Badge count={notes?.unread ?? 0} size="small" offset={[8, -2]}>
-            {t("profile.tab.shift")}
-          </Badge>
-        ),
-        body: <ShiftTab />,
-      },
       { key: "logins", icon: <HistoryOutlined />, label: t("profile.tab.logins"), body: <LoginLogTab /> },
     ];
     if (isAdmin) {
       list.push({ key: "accounts", icon: <TeamOutlined />, label: t("profile.tab.accounts"), body: <AccountsTab /> });
     }
     return list;
-  }, [t, notes?.unread, isAdmin]);
+  }, [t, isAdmin]);
 
   const asked = params.get("tab") as ProfileTabKey | null;
   const active = tabs.some((x) => x.key === asked) ? (asked as ProfileTabKey) : "account";
