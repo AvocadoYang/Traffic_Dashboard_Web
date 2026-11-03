@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { boolean, InferType, object, string } from "yup";
+import { boolean, InferType, number, object, string } from "yup";
 import api from "./axiosClient";
 
 const connectivitySchema = object({
@@ -33,6 +33,14 @@ const schema = object({
     .nullable()
     .default(null),
   arbiterError: string().optional().nullable(),
+  // VIP 跟角色對不上 (MASTER 沒有 VIP / BACKUP 拿著 VIP): since 是開始的時間, alarmed = 滿 10 秒,
+  // 後端已經告警 (正常切換時 VIP 要幾秒才移過去, 那幾秒不算); 舊版後端沒有這個欄位
+  vipMismatch: object({
+    since: number().nullable().default(null),
+    alarmed: boolean().default(false),
+  })
+    .nullable()
+    .default(null),
 }).required();
 
 export type HaStatus = InferType<typeof schema>;
