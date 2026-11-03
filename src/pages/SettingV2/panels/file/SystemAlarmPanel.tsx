@@ -11,6 +11,7 @@ import {
   systemAlarmTypeFilter,
 } from "@/utils/systemAlarmFilter";
 import AlarmPositionPicker from "./AlarmPositionPicker";
+import HealthMonitorSection from "./HealthMonitorSection";
 import useIsNarrow from "../../ui/useIsNarrow";
 import StatusTag from "../../ui/StatusTag";
 import { c, font, space } from "../../ui/tokens";
@@ -173,6 +174,8 @@ const SystemAlarmPanel: FC = () => {
 
         <AlarmPositionPicker />
       </Section>
+
+      <HealthMonitorSection />
 
       <Section>
         <SectionTitle>

@@ -2880,6 +2880,25 @@
     "description": "Description",
     "enable": "Enable"
   },
+  "health_monitor": {
+    "title": "Host and software health",
+    "hint": "Checks disk, memory, backend stalls, the database and Redis every 15 seconds and raises a system alarm when one is over its limit. Each host checks itself; this is the host that answered ({{host}}). A reading has to stay over the limit for a while before it counts, so brief spikes do not keep ringing.",
+    "level": {
+      "ok": "OK",
+      "warning": "Minor",
+      "alarm": "Severe"
+    },
+    "current": "Now",
+    "not_measured": "Not measured yet",
+    "since": "Since",
+    "warn_at": "Minor at",
+    "alarm_at": "Severe at",
+    "sustain": "Must last",
+    "sustain_unit": "s",
+    "enable": "Enable",
+    "report_ecs": "Report to Corning",
+    "report_ecs_hint": "Report to Corning: severe items go as AL, minor ones as WN, with codes 0060 to 0065 (disk, host memory, backend memory, backend stall, database, Redis) and an empty a_agv_id. Confirm with Corning that they accept these codes before turning it on. On recovery the updated list is sent (an empty list when nothing is left)."
+  },
   "stack_batch": {
     "title": "Stack Batch Edit",
     "hint": "Select stacks in the table, choose which fields to change, then preview and apply. Unchecked fields are left untouched.",

@@ -2881,6 +2881,25 @@
     "description": "說明",
     "enable": "啟用"
   },
+  "health_monitor": {
+    "title": "主機與程式健康檢查",
+    "hint": "每 15 秒檢查一次磁碟、記憶體、後端卡頓、資料庫和 Redis,超標會在系統告警跳出來。每台主機各查各的,這裡是目前回應的這台 ({{host}})。門檻超過一段時間才算數,避免瞬間尖峰一直響。",
+    "level": {
+      "ok": "正常",
+      "warning": "輕微",
+      "alarm": "嚴重"
+    },
+    "current": "目前",
+    "not_measured": "還沒量到",
+    "since": "從",
+    "warn_at": "輕微門檻",
+    "alarm_at": "嚴重門檻",
+    "sustain": "超標要持續",
+    "sustain_unit": "秒",
+    "enable": "啟用",
+    "report_ecs": "回報給 Corning",
+    "report_ecs_hint": "回報給 Corning:嚴重的項目走 AL,輕微的走 WN,代碼是 0060 到 0065 (磁碟、主機記憶體、後端記憶體、後端卡頓、資料庫、Redis),a_agv_id 為空字串。請先跟 Corning 確認他們認得這些代碼再開。恢復正常時會送出更新後的清單 (沒有項目就是空清單)。"
+  },
   "stack_batch": {
     "title": "Stack 批次編輯",
     "hint": "在表格勾選要改的 stack,勾選要修改的欄位,預覽後套用。沒勾的欄位不會被改動。",
