@@ -3638,6 +3638,7 @@
     "password_required": "Password required",
     "password_placeholder": "Enter password",
     "forgot_tooltip": "Sorry, you cannot recover your account. This function is still in beta 😣",
+    "caps_lock": "Caps Lock is on",
     "forgot_password": "Forgot password?",
     "authenticating": "AUTHENTICATING...",
     "system_online": "System Online"

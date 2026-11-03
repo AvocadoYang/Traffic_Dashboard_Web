@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Alert, Col, message, Row, Tooltip, Form, Input, Button, Space } from "antd";
 import {
   EyeInvisibleOutlined,
   EyeTwoTone,
   UserOutlined,
   LockOutlined,
+  WarningOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -273,6 +274,7 @@ const Login: React.FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const { t } = useTranslation();
 
+  const [capsLock, setCapsLock] = useState(false);
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const logoutReason = searchParams.get("reason");
@@ -343,10 +345,20 @@ const Login: React.FC = () => {
               label={t("login.password")}
               name="password"
               rules={[{ required: true, message: t("login.password_required") }]}
+              extra={
+                capsLock ? (
+                  <span style={{ color: "var(--c-warning)" }}>
+                    <WarningOutlined /> {t("login.caps_lock")}
+                  </span>
+                ) : undefined
+              }
             >
               <Input.Password
                 placeholder={t("login.password_placeholder")}
                 prefix={<LockOutlined />}
+                onKeyDown={(e) => setCapsLock(e.getModifierState("CapsLock"))}
+                onKeyUp={(e) => setCapsLock(e.getModifierState("CapsLock"))}
+                onBlur={() => setCapsLock(false)}
                 iconRender={(visible) =>
                   visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
                 }

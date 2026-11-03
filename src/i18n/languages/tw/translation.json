@@ -3639,6 +3639,7 @@
     "password_required": "請輸入密碼",
     "password_placeholder": "輸入密碼",
     "forgot_tooltip": "抱歉，目前無法找回帳號，這個功能還在測試中 😣",
+    "caps_lock": "大寫鎖定 (Caps Lock) 已開啟",
     "forgot_password": "忘記密碼？",
     "authenticating": "驗證中...",
     "system_online": "系統運作中"
