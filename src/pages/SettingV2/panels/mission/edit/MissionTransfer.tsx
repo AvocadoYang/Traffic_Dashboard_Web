@@ -178,6 +178,7 @@ const MissionTransfer: FC<{ missions: MTType }> = ({ missions }) => {
       setImportOpen(false);
       resetImport();
       await queryClient.refetchQueries({ queryKey: ["all-mission-title-detail"] });
+      await queryClient.refetchQueries({ queryKey: ["all-mission-title"] });
       await queryClient.refetchQueries({ queryKey: ["all-relate-task"] });
       await queryClient.refetchQueries({ queryKey: ["mission-folder"] });
     },

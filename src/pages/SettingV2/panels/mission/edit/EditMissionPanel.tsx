@@ -124,6 +124,8 @@ const EditMissionPanel: FC = () => {
       await queryClient.refetchQueries({
         queryKey: ["all-mission-title-detail"],
       });
+      // 選擇任務的資料夾篩選看的是這份
+      await queryClient.refetchQueries({ queryKey: ["all-mission-title"] });
     },
     onError,
   });

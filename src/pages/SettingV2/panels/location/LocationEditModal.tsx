@@ -44,6 +44,7 @@ export type LocationRow = {
   ip?: string | null;
   wait_area_id?: string | null;
   wait_order?: number;
+  is_mir_waiting_point?: boolean | null;
   standby_accept_cargo?: boolean;
   rev?: string;
   mapFileName: string;
@@ -96,6 +97,7 @@ const LocationEditModal: FC<Props> = ({ location, onClose }) => {
       ip: location.ip ?? "",
       wait_area_id: location.wait_area_id ?? undefined,
       wait_order: location.wait_order ?? 0,
+      is_mir_waiting_point: location.is_mir_waiting_point ?? false,
       standby_accept_cargo: location.standby_accept_cargo ?? false,
     });
   }, [location, editForm]);
@@ -236,6 +238,18 @@ const LocationEditModal: FC<Props> = ({ location, onClose }) => {
               <FieldLabel>IP</FieldLabel>
               <Form.Item name="ip" noStyle>
                 <Input />
+              </Form.Item>
+            </Field>
+            <Field>
+              <FieldLabel>
+                {t("edit_location_panel.is_mir_waiting_point")}
+              </FieldLabel>
+              <Form.Item
+                name="is_mir_waiting_point"
+                valuePropName="checked"
+                noStyle
+              >
+                <Switch size="small" />
               </Form.Item>
             </Field>
           </FieldGrid>

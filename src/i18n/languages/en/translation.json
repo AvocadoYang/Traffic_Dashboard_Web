@@ -962,6 +962,7 @@
     "standby_cargo": "Accept cars with cargo",
     "standby_cargo_hint": "Can a car that is carrying cargo park on this standby point? When the drop-off side has no free slot, a loaded car only backs off to standby points with this turned on; if none is on, the car waits where it is. Off by default.",
     "wait_order_hint": "Lower numbers queue first. Use 1 for the point closest to the work area entrance.",
+    "is_mir_waiting_point": "Passing wait point",
     "change_type": {
       "title": "Change location {{id}} from \"{{from}}\" to \"{{to}}\"?",
       "content": "The location ID, position, angle and roads stay the same. The current device settings (name, group, and the dispatch rules and simulation settings that point to it) are removed, and the new type starts from defaults.",
@@ -2881,6 +2882,25 @@
     "description": "Description",
     "enable": "Enable"
   },
+  "health_monitor": {
+    "title": "Host and software health",
+    "hint": "Checks disk, memory, backend stalls, the database and Redis every 15 seconds and raises a system alarm when one is over its limit. Each host checks itself; this is the host that answered ({{host}}). A reading has to stay over the limit for a while before it counts, so brief spikes do not keep ringing.",
+    "level": {
+      "ok": "OK",
+      "warning": "Minor",
+      "alarm": "Severe"
+    },
+    "current": "Now",
+    "not_measured": "Not measured yet",
+    "since": "Since",
+    "warn_at": "Minor at",
+    "alarm_at": "Severe at",
+    "sustain": "Must last",
+    "sustain_unit": "s",
+    "enable": "Enable",
+    "report_ecs": "Report to Corning",
+    "report_ecs_hint": "Report to Corning: severe items go as AL, minor ones as WN, with codes 0060 to 0065 (disk, host memory, backend memory, backend stall, database, Redis) and an empty a_agv_id. Confirm with Corning that they accept these codes before turning it on. On recovery the updated list is sent (an empty list when nothing is left)."
+  },
   "stack_batch": {
     "title": "Stack Batch Edit",
     "hint": "Select stacks in the table, choose which fields to change, then preview and apply. Unchecked fields are left untouched.",
@@ -3640,6 +3660,7 @@
     "password_required": "Password required",
     "password_placeholder": "Enter password",
     "forgot_tooltip": "Sorry, you cannot recover your account. This function is still in beta 😣",
+    "caps_lock": "Caps Lock is on",
     "forgot_password": "Forgot password?",
     "authenticating": "AUTHENTICATING...",
     "system_online": "System Online"
@@ -3695,8 +3716,8 @@
     "role_mismatch": "Mission control says this host is {{mc}} but the HA service has {{arbiter}}",
     "dual_master": "Both hosts are MASTER! Vehicles may get commands from both. Release control on one of them now",
     "no_master": "Both hosts are BACKUP, nobody is dispatching",
-    "master_without_vip": "This host is MASTER but does not hold the VIP: vehicles and ECS may still be connected to the other host",
-    "backup_with_vip": "This host holds the VIP but is BACKUP: vehicles connected here get no missions",
+    "master_without_vip": "This host is MASTER but does not hold the VIP: vehicles cannot reach it and missions stall. Check keepalived on this host, or whether the other host took the VIP",
+    "backup_with_vip": "This host holds the VIP but is BACKUP: vehicles connecting here are refused and all go offline. Check the arbiter / keepalived on the other host (MASTER); if that host is down, press Take over here",
     "peer_fleet_down": "Mission control on the other host is not running",
     "maintenance": "This host's HA service is in maintenance mode",
     "this_host": "This host",

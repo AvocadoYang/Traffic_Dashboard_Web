@@ -97,11 +97,14 @@ const issuesOf = (data: HaStatus, t: TFunction): Issue[] => {
   if (peerKnown && !arb.is_master && other.is_master === false) {
     issues.push({ level: "warning", text: t("ha.no_master") });
   }
+  // BACKUP 不接車子的註冊, VIP 跟角色對不上 = 車子連不上 MASTER; 切換時 VIP 要幾秒才移過去,
+  // 持續 10 秒 (後端已告警) 才算錯誤
+  const vipLevel = data.vipMismatch?.alarmed ? "error" : "warning";
   if (arb.is_master && arb.has_vip === false) {
-    issues.push({ level: "warning", text: t("ha.master_without_vip") });
+    issues.push({ level: vipLevel, text: t("ha.master_without_vip") });
   }
   if (!arb.is_master && arb.has_vip === true) {
-    issues.push({ level: "warning", text: t("ha.backup_with_vip") });
+    issues.push({ level: vipLevel, text: t("ha.backup_with_vip") });
   }
   if (!other.ha) {
     issues.push({ level: "warning", text: t("ha.peer_down") });
