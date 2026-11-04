@@ -34,6 +34,7 @@ import BookingTimingPanel from "./panels/peripheral/BookingTimingPanel";
 import WorkAreaPanel from "./panels/peripheral/WorkAreaPanel";
 import ChargeDockPanel from "./panels/peripheral/ChargeDockPanel";
 import PeripheralStylePanel from "./panels/peripheral/PeripheralStylePanel";
+import AdvantechPanel from "./panels/peripheral/AdvantechPanel";
 import TagPanel from "./panels/other/TagPanel";
 import CustomCargoInfoPanel from "./panels/other/CustomCargoInfoPanel";
 import ContainerTablePanel from "./panels/other/ContainerTablePanel";
@@ -61,9 +62,13 @@ type Props = {
   zonePanelForm: FormInstance<unknown>;
 };
 
-/** MIR 分類底下的面板; HAS_MIR: false 時就算 activeKey 指到也不畫 */
+/** MIR 分類底下的面板和其他分類裡標了 mirOnly 的; HAS_MIR: false 時就算 activeKey 指到也不畫 */
 const MIR_PANEL_KEYS = new Set<string>(
-  navCategories.find((c) => c.key === "mir")?.children.map((c) => c.key) ?? [],
+  navCategories.flatMap((cat) =>
+    cat.children
+      .filter((leaf) => cat.key === "mir" || leaf.mirOnly)
+      .map((leaf) => leaf.key),
+  ),
 );
 
 const PanelRenderer: FC<Props> = ({
@@ -147,6 +152,8 @@ const PanelRenderer: FC<Props> = ({
       return <TagPanel />;
     case "edit_icon_style":
       return <PeripheralStylePanel />;
+    case "advantech_serial":
+      return <AdvantechPanel />;
     case "custom_cargo_info":
       return <CustomCargoInfoPanel />;
     case "warning_id":

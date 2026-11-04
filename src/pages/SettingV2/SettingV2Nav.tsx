@@ -166,7 +166,9 @@ const SettingV2Nav: FC<Props> = ({
           key: category.key,
           icon: createElement(category.icon),
           label: category.rawLabel ?? t(category.labelKey as never),
-          children: category.children.map((leaf) => ({
+          children: category.children
+            .filter((leaf) => hasMir || !leaf.mirOnly)
+            .map((leaf) => ({
             key: leaf.key,
             label: leaf.rawLabel ?? t(leaf.labelKey as never),
           })),
