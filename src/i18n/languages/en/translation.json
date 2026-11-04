@@ -5397,5 +5397,16 @@
       "stop_mark": "Stop",
       "stopped_car": "Stopped vehicle"
     }
+  },
+  "advantech": {
+    "hint": "Connection info for Advantech ADAM-4000 serial IO modules. Give each one a name and IP; its IO icon appears below once created.",
+    "empty": "No Advantech devices yet",
+    "add": "Add Advantech device",
+    "edit": "Edit Advantech device",
+    "name": "Name",
+    "ip": "Device IP",
+    "ip_invalid": "Invalid IP, e.g. 192.168.1.100",
+    "outputs": "Outputs",
+    "inputs": "Inputs"
   }
 }

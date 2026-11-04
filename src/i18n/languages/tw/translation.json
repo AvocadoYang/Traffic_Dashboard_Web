@@ -5398,5 +5398,16 @@
       "stop_mark": "急停",
       "stopped_car": "被暫停的車"
     }
+  },
+  "advantech": {
+    "hint": "研華 ADAM-4000 序列 IO 模組的連線資訊。每台設定一個名稱和 IP, 建立後下面會出現它的 IO 圖示。",
+    "empty": "還沒有任何 Advantech 設備",
+    "add": "新增 Advantech 設備",
+    "edit": "編輯 Advantech 設備",
+    "name": "名稱",
+    "ip": "設備 IP",
+    "ip_invalid": "IP 格式不對, 例如 192.168.1.100",
+    "outputs": "Outputs",
+    "inputs": "Inputs"
   }
 }
