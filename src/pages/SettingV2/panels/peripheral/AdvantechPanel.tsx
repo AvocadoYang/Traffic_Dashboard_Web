@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, Fragment, useState } from "react";
 import { Form, Input, Modal, Popconfirm, Skeleton, message } from "antd";
 import {
   ApiOutlined,
@@ -9,14 +9,17 @@ import {
 } from "@ant-design/icons";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import styled from "styled-components";
 import client from "@/api/axiosClient";
 import {
   AdvantechRow,
+  IoLabels,
   useAdvantech,
   useAdvantechGroups,
 } from "@/api/useAdvantech";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
+import { c, font, space } from "../../ui/tokens";
 import {
   PanelShell,
   Section,
@@ -36,10 +39,42 @@ import AdvantechIo, {
   DeviceGrid,
   DeviceName,
   DeviceSub,
+  IO_COUNT,
+  OfflineBadge,
 } from "./AdvantechIo";
 import AdvantechGroupSection from "./AdvantechGroupSection";
 
-type DeviceForm = { name: string; ip: string };
+type DeviceForm = { name: string; ip: string; ioLabels: IoLabels };
+
+const emptyLabels = (): IoLabels => ({
+  di: Array.from({ length: IO_COUNT }, () => ({ code: "", name: "" })),
+  do: Array.from({ length: IO_COUNT }, () => ({ code: "", name: "" })),
+});
+
+/** IO 名稱表: 一列一個 IO, 代號 (例如 FALL) + 名稱 (例如 電梯故障) */
+const LabelTable = styled.div`
+  display: grid;
+  grid-template-columns: 48px 120px 1fr;
+  gap: ${space.xs} ${space.sm};
+  align-items: center;
+  margin-bottom: ${space.md};
+
+  .ant-form-item {
+    margin: 0;
+  }
+`;
+
+const LabelHead = styled.span`
+  font-size: ${font.xs};
+  color: ${c.textMuted};
+  text-transform: uppercase;
+`;
+
+const LabelChannel = styled.span`
+  font-family: ${font.mono};
+  font-size: ${font.sm};
+  color: ${c.textSecondary};
+`;
 
 const IPV4 =
   /^((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$/;
@@ -95,8 +130,19 @@ const AdvantechPanel: FC = () => {
 
   const openEdit = (device: AdvantechRow | null) => {
     setEditing(device);
+    const base = emptyLabels();
     form.setFieldsValue(
-      device ? { name: device.name, ip: device.ip } : { name: "", ip: "" },
+      device
+        ? {
+            name: device.name,
+            ip: device.ip,
+            // 舊資料可能不滿 4 格, 補齊
+            ioLabels: {
+              di: base.di.map((b, i) => device.ioLabels?.di[i] ?? b),
+              do: base.do.map((b, i) => device.ioLabels?.do[i] ?? b),
+            },
+          }
+        : { name: "", ip: "", ioLabels: base },
     );
     setOpen(true);
   };
@@ -111,6 +157,7 @@ const AdvantechPanel: FC = () => {
     saveMutation.mutate({
       name: values.name.trim(),
       ip: values.ip.trim(),
+      ioLabels: values.ioLabels,
       id: editing?.id,
     });
   };
@@ -162,6 +209,7 @@ const AdvantechPanel: FC = () => {
                     ? (groupNameById.get(device.groupId) ?? "—")
                     : t("advantech.group.standalone")}
                 </Tag>
+                <OfflineBadge moduleIds={[device.id]} />
                 <AdvantechIo modules={[device]} />
                 <Toolbar>
                   <GhostButton onClick={() => openEdit(device)}>
@@ -194,6 +242,7 @@ const AdvantechPanel: FC = () => {
         confirmLoading={saveMutation.isLoading}
         okText={t("utils.save")}
         cancelText={t("utils.cancel")}
+        width={640}
         forceRender
       >
         <Form form={form} layout="vertical" autoComplete="off">
@@ -224,6 +273,36 @@ const AdvantechPanel: FC = () => {
               <Input placeholder="192.168.1.100" maxLength={64} />
             </Form.Item>
           </Field>
+
+          <Hint>{t("advantech.labels_hint")}</Hint>
+          {(["do", "di"] as const).map((side) => (
+            <div key={side}>
+              <FieldLabel>
+                {side === "do" ? t("advantech.outputs") : t("advantech.inputs")}
+              </FieldLabel>
+              <LabelTable>
+                <span />
+                <LabelHead>{t("advantech.label_code")}</LabelHead>
+                <LabelHead>{t("advantech.label_name")}</LabelHead>
+                {Array.from({ length: IO_COUNT }, (_, i) => (
+                  <Fragment key={i}>
+                    <LabelChannel>
+                      {side === "do" ? `RL${i}` : `DI${i}`}
+                    </LabelChannel>
+                    <Form.Item name={["ioLabels", side, i, "code"]}>
+                      <Input maxLength={32} placeholder="FALL" />
+                    </Form.Item>
+                    <Form.Item name={["ioLabels", side, i, "name"]}>
+                      <Input
+                        maxLength={100}
+                        placeholder={t("advantech.label_name_placeholder")}
+                      />
+                    </Form.Item>
+                  </Fragment>
+                ))}
+              </LabelTable>
+            </div>
+          ))}
         </Form>
       </Modal>
     </PanelShell>
