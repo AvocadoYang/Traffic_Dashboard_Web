@@ -5408,6 +5408,25 @@
     "ip": "設備 IP",
     "ip_invalid": "IP 格式不對, 例如 192.168.1.100",
     "outputs": "Outputs",
-    "inputs": "Inputs"
+    "inputs": "Inputs",
+    "group": {
+      "title": "模組群組",
+      "hint": "好幾台模組合成一個設備, 例如電梯 8 IN 8 OUT = 兩台 4 IN 4 OUT。一台模組只能在一個群組, 每台模組的 IO 還是各自的 0–3, 群組裡的順序就是畫面上排的順序。刪除群組不會刪掉模組。",
+      "add": "新增群組",
+      "edit": "編輯群組",
+      "empty": "還沒有群組, 模組都是獨立的",
+      "name": "群組名稱",
+      "name_placeholder": "例如 1 號電梯",
+      "modules": "模組",
+      "order": "排列順序",
+      "order_hint": "用箭頭調整模組在群組卡上的先後。",
+      "note": "備註",
+      "in_group": "目前在 {{name}}",
+      "move_warn": "{{names}} 目前在別的群組, 存檔後會搬到這個群組。",
+      "delete_warn": "確定刪除這個群組? 裡面的模組會變回獨立的。",
+      "io_summary": "{{n}} 台模組 · {{io}} IN {{io}} OUT",
+      "no_modules": "這個群組沒有模組了",
+      "standalone": "獨立"
+    }
   }
 }
