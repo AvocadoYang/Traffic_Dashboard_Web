@@ -7,6 +7,7 @@ import client from "@/api/axiosClient";
 import {
   ADVANTECH_IO_KEY,
   IoLabels,
+  offlineOf,
   useAdvantechIoStatus,
 } from "@/api/useAdvantech";
 import { ErrorResponse } from "@/utils/globalType";
@@ -137,14 +138,10 @@ type Props = {
 /** 連不上的模組; 卡片上標「離線」用 */
 export const useOfflineModules = (ids: string[]) => {
   const { data: status } = useAdvantechIoStatus();
-  return ids
-    .map((id) => status?.get(id))
-    .filter(
-      (s): s is Extract<NonNullable<typeof s>, { ok: false }> => !!s && !s.ok,
-    );
+  return offlineOf(status, ids);
 };
 
-/** MiR internal IOs 風格的 IO 圖示; 狀態每秒從模組讀一次 */
+/** MiR internal IOs 風格的 IO 圖示; 狀態由橋接服務回報, socket 推過來 */
 const AdvantechIo: FC<Props> = ({ modules, showModuleNames }) => {
   const { t } = useTranslation();
   const [messageApi, contextHolder] = message.useMessage();
@@ -163,7 +160,7 @@ const AdvantechIo: FC<Props> = ({ modules, showModuleNames }) => {
     <IoSegments>
       {modules.map((m) => {
         const io = status?.get(m.id);
-        const values = io?.ok ? (kind === "out" ? io.do : io.di) : null;
+        const values = io?.connected ? (kind === "out" ? io.do : io.di) : null;
         return (
           <IoSegment key={m.id}>
             {showModuleNames && (
@@ -243,10 +240,18 @@ const OfflineTag = styled.span`
 /** 有模組連不上就標「離線」, 滑上去看是哪台、什麼錯 */
 export const OfflineBadge: FC<{ moduleIds: string[] }> = ({ moduleIds }) => {
   const { t } = useTranslation();
-  const offline = useOfflineModules(moduleIds);
+  const { data: status } = useAdvantechIoStatus();
+  // 狀態還沒拿到時先不標, 免得每次打開面板都閃一下離線
+  const offline = status ? offlineOf(status, moduleIds) : [];
   if (!offline.length) return null;
   return (
-    <Tooltip title={offline.map((o) => o.error).join("\n")}>
+    <Tooltip
+      title={
+        <div style={{ whiteSpace: "pre-line" }}>
+          {offline.map((o) => o.error || t("advantech.offline")).join("\n")}
+        </div>
+      }
+    >
       <OfflineTag>{t("advantech.offline")}</OfflineTag>
     </Tooltip>
   );

@@ -5431,7 +5431,8 @@
       "action_PULSE": "Pulse",
       "action_ON": "On",
       "action_OFF": "Off",
-      "action_WAIT": "Wait"
+      "action_WAIT": "Wait",
+      "offline_disabled": "{{names}} is offline, so this group's buttons are disabled for now."
     },
     "group": {
       "title": "Module groups",

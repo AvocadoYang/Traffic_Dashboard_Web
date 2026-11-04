@@ -18,6 +18,8 @@ import {
   AdvantechGroupRow,
   AdvantechRow,
   ButtonStep,
+  offlineOf,
+  useAdvantechIoStatus,
 } from "@/api/useAdvantech";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
@@ -162,6 +164,7 @@ const AdvantechGroupSection: FC<Props> = ({ devices, groups, onChanged }) => {
     null,
   );
   const [running, setRunning] = useState<Set<string>>(() => new Set());
+  const { data: ioStatus } = useAdvantechIoStatus();
 
   const deviceById = new Map(devices.map((d) => [d.id, d]));
   const groupNameById = new Map(groups.map((g) => [g.id, g.name]));
@@ -308,6 +311,18 @@ const AdvantechGroupSection: FC<Props> = ({ devices, groups, onChanged }) => {
         <DeviceGrid $min={420}>
           {groups.map((group) => {
             const ioTotal = group.modules.length * IO_COUNT;
+            // 群組裡任何一台沒連線, 整個群組的按鈕都不給按 (後端也會擋)
+            const offline = offlineOf(
+              ioStatus,
+              group.modules.map((m) => m.id),
+            );
+            const offlineHint = offline.length
+              ? t("advantech.button.offline_disabled", {
+                  names: offline
+                    .map((o) => group.modules.find((m) => m.id === o.id)?.name)
+                    .join(", "),
+                })
+              : "";
             return (
               <DeviceCard key={group.id}>
                 <DeviceName>{group.name}</DeviceName>
@@ -344,6 +359,7 @@ const AdvantechGroupSection: FC<Props> = ({ devices, groups, onChanged }) => {
                             title={
                               <div style={{ whiteSpace: "pre-line" }}>
                                 {[
+                                  offlineHint,
                                   button.note,
                                   ...describeSteps(group, button.steps),
                                 ]
@@ -355,7 +371,7 @@ const AdvantechGroupSection: FC<Props> = ({ devices, groups, onChanged }) => {
                           >
                             <SolidButton
                               onClick={() => triggerMutation.mutate(button)}
-                              disabled={isRunning}
+                              disabled={isRunning || offline.length > 0}
                             >
                               {isRunning && <LoadingOutlined />}
                               {button.name}
@@ -378,8 +394,10 @@ const AdvantechGroupSection: FC<Props> = ({ devices, groups, onChanged }) => {
                       {t("advantech.button.add_short")}
                     </GhostButton>
                   </ButtonWrap>
-                  {group.buttons.length === 0 && (
+                  {group.buttons.length === 0 ? (
                     <Hint>{t("advantech.button.empty")}</Hint>
+                  ) : (
+                    offlineHint && <Hint>{offlineHint}</Hint>
                   )}
                 </ButtonArea>
                 <Toolbar>

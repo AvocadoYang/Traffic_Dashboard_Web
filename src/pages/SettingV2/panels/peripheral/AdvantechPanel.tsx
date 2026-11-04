@@ -15,6 +15,7 @@ import {
   AdvantechRow,
   IoLabels,
   useAdvantech,
+  useAdvantechIoSocket,
   useAdvantechGroups,
 } from "@/api/useAdvantech";
 import { ErrorResponse } from "@/utils/globalType";
@@ -92,6 +93,8 @@ const AdvantechPanel: FC = () => {
   const [open, setOpen] = useState(false);
 
   const { data: devices, isLoading, isFetching, refetch } = useAdvantech();
+  // IO / 連線狀態的 socket 整個面板聽一次就好, 底下的 IO 圖示和按鈕都讀同一份
+  useAdvantechIoSocket();
   const {
     data: groups,
     isLoading: groupsLoading,

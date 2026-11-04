@@ -1,5 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
+import { io } from "@/sockets/socketConnect";
 
 export type IoLabel = { code: string; name: string };
 /** 每個 IO 的代號和名稱, 例如 DI0 = FALL 電梯故障; 固定 4 + 4 格 */
@@ -50,10 +52,20 @@ export const ADVANTECH_KEY = ["all-advantech"];
 export const ADVANTECH_GROUP_KEY = ["all-advantech-group"];
 export const ADVANTECH_IO_KEY = ["advantech-io-status"];
 
-/** 一台模組現在的 IO; 連不上時 ok = false */
-export type ModuleIoStatus =
-  | { id: string; ok: true; di: boolean[]; do: boolean[] }
-  | { id: string; ok: false; error: string };
+/**
+ * 一台模組現在的 IO 和連線狀態 (MiR_BRIDGE 回報, 經 mission-control 轉來)。
+ * connected = false 時 di / do 是最後一次讀到的值, 不可靠; error 是原因
+ * (模組連不上, 或橋接服務本身沒在回報)。
+ */
+export type ModuleIoStatus = {
+  id: string;
+  connected: boolean;
+  di: boolean[];
+  do: boolean[];
+  error: string;
+};
+
+export type IoStatusMap = Map<string, ModuleIoStatus>;
 
 export const useAdvantech = () =>
   useQuery({
@@ -75,15 +87,58 @@ export const useAdvantechGroups = () =>
     },
   });
 
-/** 每秒讀一次全部模組的 IO; 好幾個元件一起用也只會打一支 (同一個 query key) */
+/**
+ * 全部模組的 IO 和連線狀態: 先打一次 API 拿全部, 之後靠 useAdvantechIoSocket 收到的變化更新,
+ * 不輪詢。好幾個元件一起用也只有一份 (同一個 query key)。
+ */
 export const useAdvantechIoStatus = () =>
   useQuery({
     queryKey: ADVANTECH_IO_KEY,
-    queryFn: async () => {
+    queryFn: async (): Promise<IoStatusMap> => {
       const res = await client.get<ModuleIoStatus[]>(
         "api/setting/advantech-io-status",
       );
       return new Map(res.data.map((m) => [m.id, m]));
     },
-    refetchInterval: 1000,
+    staleTime: Infinity,
   });
+
+/**
+ * 聽 socket 的 advantech-io-status (只送有變的那幾台) 併進 useAdvantechIoStatus 的資料。
+ * 整頁掛一次就好 (Advantech 面板); socket 斷線重連後重抓一次全部, 免得漏掉中間的變化。
+ */
+export const useAdvantechIoSocket = () => {
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    const onStatus = (changed: ModuleIoStatus[]) => {
+      queryClient.setQueryData<IoStatusMap>(ADVANTECH_IO_KEY, (prev) => {
+        const next = new Map(prev ?? []);
+        changed.forEach((s) => next.set(s.id, s));
+        return next;
+      });
+    };
+    const onReconnect = () =>
+      void queryClient.invalidateQueries({ queryKey: ADVANTECH_IO_KEY });
+    io.on("advantech-io-status", onStatus);
+    io.on("connect", onReconnect);
+    return () => {
+      io.off("advantech-io-status", onStatus);
+      io.off("connect", onReconnect);
+    };
+  }, [queryClient]);
+};
+
+/** 這幾台裡沒連線的; 還沒拿到狀態的也算沒連線 (不知道就不給按) */
+export const offlineOf = (status: IoStatusMap | undefined, ids: string[]) =>
+  ids
+    .map(
+      (id): ModuleIoStatus =>
+        status?.get(id) ?? {
+          id,
+          connected: false,
+          di: [],
+          do: [],
+          error: "",
+        },
+    )
+    .filter((s) => !s.connected);

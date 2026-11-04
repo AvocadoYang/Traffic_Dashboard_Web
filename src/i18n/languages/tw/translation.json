@@ -5432,7 +5432,8 @@
       "action_PULSE": "脈衝",
       "action_ON": "打開",
       "action_OFF": "關掉",
-      "action_WAIT": "等待"
+      "action_WAIT": "等待",
+      "offline_disabled": "{{names}} 沒有連線, 這個群組的按鈕暫時不能按。"
     },
     "group": {
       "title": "模組群組",
