@@ -12,7 +12,7 @@ import {
 import CargoHistory from "./pages/CargoHistory/CargoHistory";
 import AmrDetail from "./pages/AmrDetail/AmrDetail";
 import AmrList from "./pages/AmrDetail/AmrList";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { SystemAlarmOverlay } from "./pages/Main/components/SystemAlarm";
 import { UserConformOverlay } from "./pages/Main/components/UserConformTaskStep";
 import MissionDispatchBoard from "./pages/MissionDispatchBoard/MissionDispatchBoard";
@@ -25,6 +25,7 @@ import MainV2 from "./pages/MainV2/MainV2";
 import SettingV3 from "./pages/SettingV3/SettingV3";
 import Profile from "./pages/Profile/Profile";
 import UserSession from "./components/UserSession/UserSession";
+import PageGate from "./components/PermissionGate/PageGate";
 import SiteChat from "./components/SiteChat/SiteChat";
 import { ThemeVarsProvider, ThemedAppConfigProvider } from "./theme";
 import { useTranslation } from "react-i18next";
@@ -53,7 +54,8 @@ function App() {
     return (
       <>
         <UserSession />
-        <Outlet />
+        {/* 功能權限: 沒有這一頁的權限就不顯示 */}
+        <PageGate />
         {/* 放在頁面後面: 跟頁面裡同一層的元件比, 聊天室要在上面 (見 CHAT_Z_INDEX) */}
         <SiteChat />
         <AchievementToaster />

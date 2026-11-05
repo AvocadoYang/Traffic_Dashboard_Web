@@ -1,4 +1,5 @@
 import client from "@/api/axiosClient";
+import { usePermission } from "@/utils/permissions";
 import useMissionDispatchPages, {
   DISPATCH_PAGE_QUERY_KEY,
   DispatchButton,
@@ -121,6 +122,8 @@ const EmptyHint = styled.div`
 
 const MissionDispatchBoard: React.FC = () => {
   const { t } = useTranslation();
+  // 功能權限: 沒有「編輯派車看板」的帳號只能用, 不能進編輯模式
+  const canEdit = usePermission()("mission.dispatch_board_edit");
   const [messageApi, contextHolder] = message.useMessage();
   const queryClient = useQueryClient();
   const { data: pages } = useMissionDispatchPages();
@@ -205,10 +208,12 @@ const MissionDispatchBoard: React.FC = () => {
         <Header />
         <HeaderBar>
           <Title>{t("mission_dispatch_board.title")}</Title>
-          <EditModeToggle>
-            <span>{t("mission_dispatch_board.edit_mode")}</span>
-            <Switch checked={editMode} onChange={setEditMode} />
-          </EditModeToggle>
+          {canEdit && (
+            <EditModeToggle>
+              <span>{t("mission_dispatch_board.edit_mode")}</span>
+              <Switch checked={editMode} onChange={setEditMode} />
+            </EditModeToggle>
+          )}
         </HeaderBar>
       </ChromeWrap>
       <ChromeToggle

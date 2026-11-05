@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import client from "@/api/axiosClient";
+import { usePermission } from "@/utils/permissions";
 import { useMutation } from "@tanstack/react-query";
 import MaintenancePanel from "../Main/Car_Card/components/MaintenancePanel";
 
@@ -317,6 +318,7 @@ const Divider = styled.div`
 
 const DPad: FC<{ amrId: string }> = ({ amrId }) => {
   const { t } = useTranslation();
+  const can = usePermission();
   const [messageApi, contextHolder] = message.useMessage();
 
   const forceIdleMutation = useMutation({
@@ -397,68 +399,82 @@ const DPad: FC<{ amrId: string }> = ({ amrId }) => {
       <IndustrialContainer justify="center" align="center" vertical gap="none">
         <ButtonGroup>
           {/* Charge Section */}
-          <IndustrialButton
-            className="charge-btn"
-            onClick={() => manualChargeMutation.mutate()}
-            icon={<ThunderboltOutlined />}
-          >
-            {t("charge.charge")}
-          </IndustrialButton>
+          {can("amr.charge") && (
+            <IndustrialButton
+              className="charge-btn"
+              onClick={() => manualChargeMutation.mutate()}
+              icon={<ThunderboltOutlined />}
+            >
+              {t("charge.charge")}
+            </IndustrialButton>
+          )}
 
           <Divider />
 
           {/* Mission Management */}
-          <IndustrialButton
-            className="delete-btn"
-            onClick={() => handleDelMis()}
-            icon={<DeleteOutlined />}
-          >
-            {t("amr_card.delete_current_mission")}
-          </IndustrialButton>
+          {can("mission.cancel") && (
+            <>
+              <IndustrialButton
+                className="delete-btn"
+                onClick={() => handleDelMis()}
+                icon={<DeleteOutlined />}
+              >
+                {t("amr_card.delete_current_mission")}
+              </IndustrialButton>
 
-          <IndustrialButton
-            className="force-delete-btn"
-            onClick={() => handleForceDelMis()}
-            icon={<FireOutlined />}
-          >
-            {t("amr_card.force_delete_mission")}
-          </IndustrialButton>
+              <IndustrialButton
+                className="force-delete-btn"
+                onClick={() => handleForceDelMis()}
+                icon={<FireOutlined />}
+              >
+                {t("amr_card.force_delete_mission")}
+              </IndustrialButton>
+            </>
+          )}
 
           <Divider />
 
           {/* Maintenance Level */}
-          <MaintenancePanel amrId={amrId} />
+          {can("amr.maintenance") && (
+            <MaintenancePanel amrId={amrId} />
+          )}
 
           <Divider />
 
           {/* Emergency Controls */}
-          <IndustrialButton
-            className="emergency-btn"
-            onClick={() => handleEmergencyStop(true)}
-            icon={<WarningOutlined />}
-          >
-            {t("amr_card.emergency_stop")}
-          </IndustrialButton>
+          {can("amr.emergency_stop") && (
+            <>
+              <IndustrialButton
+                className="emergency-btn"
+                onClick={() => handleEmergencyStop(true)}
+                icon={<WarningOutlined />}
+              >
+                {t("amr_card.emergency_stop")}
+              </IndustrialButton>
 
-          <IndustrialButton
-            className="continue-btn"
-            onClick={() => handleEmergencyStop(false)}
-            icon={<PlayCircleOutlined />}
-          >
-            {t("amr_card.continue_move")}
-          </IndustrialButton>
+              <IndustrialButton
+                className="continue-btn"
+                onClick={() => handleEmergencyStop(false)}
+                icon={<PlayCircleOutlined />}
+              >
+                {t("amr_card.continue_move")}
+              </IndustrialButton>
+            </>
+          )}
 
           <Divider />
 
           {/* Update Actions */}
 
-          <IndustrialButton
-            className="reset-btn"
-            onClick={() => resetMutation.mutate()}
-            icon={<RedoOutlined />}
-          >
-            {t("amr_detail.reset")}
-          </IndustrialButton>
+          {can("amr.power") && (
+            <IndustrialButton
+              className="reset-btn"
+              onClick={() => resetMutation.mutate()}
+              icon={<RedoOutlined />}
+            >
+              {t("amr_detail.reset")}
+            </IndustrialButton>
+          )}
         </ButtonGroup>
       </IndustrialContainer>
     </>

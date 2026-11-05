@@ -53,6 +53,7 @@ import EditMissionPanel from "./panels/mission/edit/EditMissionPanel";
 import AppearancePanel from "./panels/appearance/AppearancePanel";
 import type { SettingV2PanelKey } from "./panelKeys";
 import BackupPanel from "./panels/file/BackupPanel";
+import { SETTING_NAV_VIEW_PERMISSION, usePermission } from "@/utils/permissions";
 
 type Props = {
   activeKey: SettingV2PanelKey | null;
@@ -66,6 +67,9 @@ const MIR_PANEL_KEYS = new Set<string>(
   navCategories.find((c) => c.key === "mir")?.children.map((c) => c.key) ?? [],
 );
 
+/** 面板 key -> 左側分類 key */
+const categoryOfPanel = (key: string) => navCategories.find((c) => c.children.some((l) => l.key === key))?.key;
+
 const PanelRenderer: FC<Props> = ({
   activeKey,
   locationPanelForm,
@@ -73,8 +77,12 @@ const PanelRenderer: FC<Props> = ({
   zonePanelForm,
 }) => {
   const { data: configFlags } = useConfigFlags();
+  const can = usePermission();
   if (!activeKey) return null;
   if (MIR_PANEL_KEYS.has(activeKey) && !configFlags?.hasMir) return null;
+  // 功能權限: 沒有這個分類「看」的權限 (例如上次開著的面板, 之後被管理員關掉) 就不畫
+  const viewNeed = SETTING_NAV_VIEW_PERMISSION[categoryOfPanel(activeKey) ?? ""];
+  if (viewNeed && !can(viewNeed)) return null;
 
   switch (activeKey) {
     // ✅ 已改用 v2 重新設計的版本(灰黑白 + RWD)

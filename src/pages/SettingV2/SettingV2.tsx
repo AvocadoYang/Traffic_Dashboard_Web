@@ -27,6 +27,7 @@ import { navCategories } from "./navItems";
 import SettingV2Nav from "./SettingV2Nav";
 import PanelRenderer from "./PanelRenderer";
 import { ThemedConfigProvider } from "@/theme";
+import { usePermission } from "@/utils/permissions";
 import useIsNarrow from "./ui/useIsNarrow";
 import { c, font, mqNarrow, space } from "./ui/tokens";
 
@@ -193,6 +194,7 @@ const SettingV2: React.FC = () => {
   const mapRef = useRef(null);
   const mapWrapRef = useRef(null);
   const { t } = useTranslation();
+  const canBackup = usePermission()("setting.system.edit");
   const [locationPanelForm] = Form.useForm();
   const [roadPanelForm] = Form.useForm();
   const [zonePanelForm] = Form.useForm();
@@ -407,7 +409,8 @@ const SettingV2: React.FC = () => {
                   />
                 </MapScroll>
                 <ZoomPad setScale={setScale} />
-                <BKBtn />
+                {/* 備份 / 還原: 系統維護的權限 */}
+                {canBackup && <BKBtn />}
               </MapColumn>
             </Body>
           </Shell>
