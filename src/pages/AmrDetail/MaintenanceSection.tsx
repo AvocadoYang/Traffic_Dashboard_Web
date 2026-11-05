@@ -1,4 +1,5 @@
 import { FC, useState } from "react";
+import { usePermission } from "@/utils/permissions";
 import { Button, Card, DatePicker, Empty, Input, Modal, Progress, Space, Switch, Table, Tag, Typography, message } from "antd";
 import { CheckOutlined, ToolOutlined } from "@ant-design/icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -32,6 +33,7 @@ const fmt = (v: number) => (v >= 100 ? Math.round(v).toString() : (Math.round(v 
  */
 const MaintenanceSection: FC<{ amrId: string }> = ({ amrId }) => {
   const { t } = useTranslation();
+  const canMaintain = usePermission()("amr.maintenance");
   const queryClient = useQueryClient();
   const [messageApi, contextHolder] = message.useMessage();
   const { data } = useCarMaintenance(amrId);
@@ -93,6 +95,8 @@ const MaintenanceSection: FC<{ amrId: string }> = ({ amrId }) => {
           <Text>{t("car_maintenance.hold")}</Text>
           <Switch
             checked={!!car?.hold}
+            // 功能權限: 沒有「保養」的帳號只能看
+            disabled={!canMaintain}
             loading={holdMutation.isLoading}
             onChange={(v) => {
               if (v) {
@@ -158,7 +162,7 @@ const MaintenanceSection: FC<{ amrId: string }> = ({ amrId }) => {
             {
               title: "",
               key: "act",
-              render: (_, s) => (
+              render: (_, s) => canMaintain && (
                 <Button
                   size="small"
                   icon={<CheckOutlined />}

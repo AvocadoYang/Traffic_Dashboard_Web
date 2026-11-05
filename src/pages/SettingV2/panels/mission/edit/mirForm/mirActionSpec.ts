@@ -468,9 +468,17 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
   ],
 };
 
+/** operation 裡存的是 id,摘要要顯示名稱得靠這些查詢;查不到就回傳原本的 id */
+export type ActionNames = {
+  moduleNameOf: (guid: string) => string;
+  footprintNameOf: (id: string) => string;
+  soundNameOf: (guid: string) => string;
+};
+
 /** 卡片上那一行摘要 */
 export const summarizeAction = (
   op: Mir_Action,
+  { moduleNameOf, footprintNameOf, soundNameOf }: ActionNames,
 ): { verb: string; chip?: string } => {
   switch (op.type) {
     case "move":
@@ -486,7 +494,10 @@ export const summarizeAction = (
         verb: `Move to X:${op.x ?? 0} Y:${op.y ?? 0} Orientation:${op.orientation ?? 0}`,
       };
     case "set_footprint":
-      return { verb: "Set footprint to", chip: op.footprint || "-" };
+      return {
+        verb: "Set footprint to",
+        chip: op.footprint ? footprintNameOf(op.footprint) : "-",
+      };
     case "switch_map":
       return { verb: "Switch map" };
     case "adjust_localization":
@@ -494,7 +505,10 @@ export const summarizeAction = (
     case "wait":
       return { verb: `Wait ${op.wait || "00:00:00"}` };
     case "sound":
-      return { verb: "Play sound", chip: op.sound || "-" };
+      return {
+        verb: "Play sound",
+        chip: op.sound ? soundNameOf(op.sound) : "-",
+      };
     case "sound_stop":
       return { verb: "Stop sound" };
     case "light":
@@ -519,11 +533,11 @@ export const summarizeAction = (
       };
     case "set_io":
       return {
-        verb: `Set IO ${op.module ?? ""} port ${op.port ?? 0} to ${op.operation ?? ""}`,
+        verb: `Set IO ${moduleNameOf(op.module ?? "")} port ${op.port ?? 0} to ${op.operation ?? ""}`,
       };
     case "wait_for_io":
       return {
-        verb: `Wait for IO ${op.module ?? ""} port ${op.port ?? 0} to be ${op.value ?? ""}`,
+        verb: `Wait for IO ${moduleNameOf(op.module ?? "")} port ${op.port ?? 0} to be ${op.value ?? ""}`,
       };
     default:
       return { verb: op.type || "Unknown action" };

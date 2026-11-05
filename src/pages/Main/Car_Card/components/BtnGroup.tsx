@@ -30,6 +30,7 @@ import { useStepCheck, useStepWaitMs } from "@/sockets/useAMRInfo";
 import { STEP_WAIT_WARN_MS, formatWait } from "../stepWait";
 import MaintenancePanel from "./MaintenancePanel";
 import SpinModal from "./SpinModal";
+import { usePermission } from "@/utils/permissions";
 
 // 選單外觀跟著全站主題走:一般動作是中性的描邊按鈕,
 // 只有「會出事」的動作才上狀態色,而且顏色只分三種:
@@ -170,6 +171,7 @@ const ActionButton = styled.button<{ $tone?: ActionTone }>`
 
 const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
   const { t } = useTranslation();
+  const can = usePermission();
   const [messageApi, contextHolder] = message.useMessage();
   const [isCarrierModalOpen, setIsCarrierModalOpen] = useState(false);
   const [isSpinModalOpen, setIsSpinModalOpen] = useState(false);
@@ -316,72 +318,80 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
     <>
       {contextHolder}
       <MenuContainer>
-        <Section>
-          <SectionLabel>{t("amr_card.section_charge")}</SectionLabel>
-          <ButtonGroup>
-            <ActionButton
-              type="button"
-              onClick={() => manualChargeMutation.mutate()}
-            >
-              <ThunderboltOutlined />
-              {t("charge.charge")}
-            </ActionButton>
+        {can("amr.charge") && (
+          <Section>
+            <SectionLabel>{t("amr_card.section_charge")}</SectionLabel>
+            <ButtonGroup>
+              <ActionButton
+                type="button"
+                onClick={() => manualChargeMutation.mutate()}
+              >
+                <ThunderboltOutlined />
+                {t("charge.charge")}
+              </ActionButton>
 
-            <ActionButton
-              type="button"
-              onClick={() => resetChargeMutation.mutate()}
-            >
-              <ThunderboltOutlined />
-              {t("amr_card.charge_reset")}
-            </ActionButton>
-          </ButtonGroup>
-        </Section>
+              <ActionButton
+                type="button"
+                onClick={() => resetChargeMutation.mutate()}
+              >
+                <ThunderboltOutlined />
+                {t("amr_card.charge_reset")}
+              </ActionButton>
+            </ButtonGroup>
+          </Section>
+        )}
 
         <Section>
           <SectionLabel>{t("amr_card.section_mission")}</SectionLabel>
           <ButtonGroup>
-            <ActionButton
-              type="button"
-              $tone="danger"
-              onClick={() => handleDelMis()}
-            >
-              <DeleteOutlined />
-              {t("amr_card.delete_current_mission")}
-            </ActionButton>
+            {can("mission.cancel") && (
+              <>
+                <ActionButton
+                  type="button"
+                  $tone="danger"
+                  onClick={() => handleDelMis()}
+                >
+                  <DeleteOutlined />
+                  {t("amr_card.delete_current_mission")}
+                </ActionButton>
 
-            <ActionButton
-              type="button"
-              $tone="dangerSolid"
-              onClick={() => handleForceDelMis()}
-            >
-              <FireOutlined />
-              {t("amr_card.force_delete_mission")}
-            </ActionButton>
+                <ActionButton
+                  type="button"
+                  $tone="dangerSolid"
+                  onClick={() => handleForceDelMis()}
+                >
+                  <FireOutlined />
+                  {t("amr_card.force_delete_mission")}
+                </ActionButton>
+              </>
+            )}
 
-            <Tooltip
-              title={
-                stepCheck
-                  ? t("amr_card.force_next_step_check", { reason: stepCheck.reason })
-                  : stepStuck
-                    ? t("amr_card.force_next_step_stuck", {
-                        time: formatWait(stepWaitMs),
-                      })
-                    : t("amr_card.force_next_step_hint")
-              }
-              placement="bottom"
-            >
-              <ActionButton
-                type="button"
-                $tone={stepCheck || stepStuck ? "primary" : "warning"}
-                onClick={() => handleForceNextStep()}
+            {can("amr.step") && (
+              <Tooltip
+                title={
+                  stepCheck
+                    ? t("amr_card.force_next_step_check", { reason: stepCheck.reason })
+                    : stepStuck
+                      ? t("amr_card.force_next_step_stuck", {
+                          time: formatWait(stepWaitMs),
+                        })
+                      : t("amr_card.force_next_step_hint")
+                }
+                placement="bottom"
               >
-                <StepForwardOutlined />
-                {t("amr_card.force_next_step")}
-              </ActionButton>
-            </Tooltip>
+                <ActionButton
+                  type="button"
+                  $tone={stepCheck || stepStuck ? "primary" : "warning"}
+                  onClick={() => handleForceNextStep()}
+                >
+                  <StepForwardOutlined />
+                  {t("amr_card.force_next_step")}
+                </ActionButton>
+              </Tooltip>
+            )}
 
             {/* 只在系統要人確認、或這一動等很久時才給: 平常重做一個動作的風險比好處大 */}
-            {(stepCheck || stepStuck) && (
+            {(stepCheck || stepStuck) && can("amr.step") && (
               <Tooltip title={t("amr_card.resend_step_hint")} placement="bottom">
                 <ActionButton
                   type="button"
@@ -394,7 +404,7 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
               </Tooltip>
             )}
 
-            {isFork(amrId) && (
+            {isFork(amrId) && can("amr.position") && (
               <ActionButton
                 type="button"
                 onClick={() => setIsSpinModalOpen(true)}
@@ -406,90 +416,104 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
           </ButtonGroup>
         </Section>
 
-        <Section>
-          <SectionLabel>{t("amr_card.section_motion")}</SectionLabel>
-          <ButtonGroup>
-            <ActionButton
-              type="button"
-              $tone="dangerSolid"
-              onClick={() => handleEmergencyStop(true)}
-            >
-              <WarningOutlined />
-              {t("amr_card.emergency_stop")}
-            </ActionButton>
+        {can("amr.emergency_stop") && (
+          <Section>
+            <SectionLabel>{t("amr_card.section_motion")}</SectionLabel>
+            <ButtonGroup>
+              <ActionButton
+                type="button"
+                $tone="dangerSolid"
+                onClick={() => handleEmergencyStop(true)}
+              >
+                <WarningOutlined />
+                {t("amr_card.emergency_stop")}
+              </ActionButton>
 
-            <ActionButton
-              type="button"
-              $tone="primary"
-              onClick={() => handleEmergencyStop(false)}
-            >
-              <PlayCircleOutlined />
-              {t("amr_card.continue_move")}
-            </ActionButton>
-          </ButtonGroup>
-        </Section>
+              <ActionButton
+                type="button"
+                $tone="primary"
+                onClick={() => handleEmergencyStop(false)}
+              >
+                <PlayCircleOutlined />
+                {t("amr_card.continue_move")}
+              </ActionButton>
+            </ButtonGroup>
+          </Section>
+        )}
 
-        <Section>
-          <SectionLabel>{t("utils.maintenance_level")}</SectionLabel>
-          <MaintenancePanel amrId={amrId} />
-        </Section>
+        {can("amr.maintenance") && (
+          <Section>
+            <SectionLabel>{t("utils.maintenance_level")}</SectionLabel>
+            <MaintenancePanel amrId={amrId} />
+          </Section>
+        )}
 
         <Section>
           <SectionLabel>{t("amr_card.section_system")}</SectionLabel>
           <ButtonGroup>
-            <ActionButton
-              type="button"
-              onClick={() => setIsCarrierModalOpen(true)}
-            >
-              <EditOutlined />
-              {t("amr_card.update_cargo")}
-            </ActionButton>
-
-            <Tooltip title={t("amr_card.update_position_hint")} placement="bottom">
+            {can("amr.cargo") && (
               <ActionButton
                 type="button"
-                onClick={() => updatePositionMutation.mutate()}
+                onClick={() => setIsCarrierModalOpen(true)}
               >
-                <CloudSyncOutlined />
-                {t("amr_detail.update_position")}
+                <EditOutlined />
+                {t("amr_card.update_cargo")}
               </ActionButton>
-            </Tooltip>
+            )}
 
-            <ActionButton
-              type="button"
-              onClick={() =>
-                setLocalizationCorrection({ amrId, dx: 0, dy: 0, dYaw: 0 })
-              }
-            >
-              <AimOutlined />
-              {t("amr_card.localization_correction")}
-            </ActionButton>
+            {can("amr.position") && (
+              <>
+                <Tooltip title={t("amr_card.update_position_hint")} placement="bottom">
+                  <ActionButton
+                    type="button"
+                    onClick={() => updatePositionMutation.mutate()}
+                  >
+                    <CloudSyncOutlined />
+                    {t("amr_detail.update_position")}
+                  </ActionButton>
+                </Tooltip>
 
-            <ActionButton
-              type="button"
-              $tone="warning"
-              onClick={() => resetMutation.mutate()}
-            >
-              <RedoOutlined />
-              {t("amr_detail.reset")}
-            </ActionButton>
+                <ActionButton
+                  type="button"
+                  onClick={() =>
+                    setLocalizationCorrection({ amrId, dx: 0, dy: 0, dYaw: 0 })
+                  }
+                >
+                  <AimOutlined />
+                  {t("amr_card.localization_correction")}
+                </ActionButton>
+              </>
+            )}
 
-            <ActionButton
-              type="button"
-              $tone="danger"
-              onClick={() => shutdownMutation.mutate()}
-            >
-              <svg
-                width={15}
-                height={15}
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-              >
-                <title>power</title>
-                <path d="M16.56,5.44L15.11,6.89C16.84,7.94 18,9.83 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12C6,9.83 7.16,7.94 8.88,6.88L7.44,5.44C5.36,6.88 4,9.28 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12C20,9.28 18.64,6.88 16.56,5.44M13,3H11V13H13" />
-              </svg>
-              {t("amr_detail.force_shutdown")}
-            </ActionButton>
+            {can("amr.power") && (
+              <>
+                <ActionButton
+                  type="button"
+                  $tone="warning"
+                  onClick={() => resetMutation.mutate()}
+                >
+                  <RedoOutlined />
+                  {t("amr_detail.reset")}
+                </ActionButton>
+
+                <ActionButton
+                  type="button"
+                  $tone="danger"
+                  onClick={() => shutdownMutation.mutate()}
+                >
+                  <svg
+                    width={15}
+                    height={15}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                  >
+                    <title>power</title>
+                    <path d="M16.56,5.44L15.11,6.89C16.84,7.94 18,9.83 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12C6,9.83 7.16,7.94 8.88,6.88L7.44,5.44C5.36,6.88 4,9.28 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12C20,9.28 18.64,6.88 16.56,5.44M13,3H11V13H13" />
+                  </svg>
+                  {t("amr_detail.force_shutdown")}
+                </ActionButton>
+              </>
+            )}
           </ButtonGroup>
         </Section>
       </MenuContainer>

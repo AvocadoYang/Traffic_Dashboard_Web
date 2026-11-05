@@ -1,4 +1,5 @@
 import client from "@/api/axiosClient";
+import { usePermission } from "@/utils/permissions";
 import { DispatchWidget } from "@/api/useMissionDispatchBoard";
 import { MissionInfo, useMissions } from "@/sockets/useMissions";
 import { ErrorResponse } from "@/utils/globalType";
@@ -121,6 +122,7 @@ const MissionListWidgetCard: FC<{
   onResizeEnd: (width: number, height: number) => void;
 }> = ({ widget, editMode, onEdit, onDelete, onResizeEnd }) => {
   const { t } = useTranslation();
+  const canCancel = usePermission()("mission.cancel");
   const [messageApi, contextHolder] = message.useMessage();
   const { missions } = useMissions();
 
@@ -187,10 +189,12 @@ const MissionListWidgetCard: FC<{
                   </StatusTag>
                   {m.amrId && <AmrLabel>{m.amrId}</AmrLabel>}
                   <MissionLabel>{missionLabel(m)}</MissionLabel>
-                  <DeleteMissionIcon
-                    onPointerDown={(e) => e.stopPropagation()}
-                    onClick={(e) => handleDeleteMission(e, m)}
-                  />
+                  {canCancel && (
+                    <DeleteMissionIcon
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={(e) => handleDeleteMission(e, m)}
+                    />
+                  )}
                 </Row>
               ))}
             </List>

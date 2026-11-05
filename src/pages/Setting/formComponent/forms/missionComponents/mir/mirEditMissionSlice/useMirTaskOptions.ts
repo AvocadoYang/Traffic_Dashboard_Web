@@ -82,6 +82,22 @@ const useMirTaskOptions = () => {
   };
 };
 
+/** 車上的音檔、IO module 可能同名,同名時用 guid 尾碼分開 */
+const toGuidOptions = (items: { guid: string; name: string }[]) => {
+  const nameCount = new Map<string, number>();
+  items.forEach((item) => {
+    nameCount.set(item.name, (nameCount.get(item.name) ?? 0) + 1);
+  });
+
+  return items.map((item) => ({
+    value: item.guid,
+    label:
+      (nameCount.get(item.name) ?? 0) > 1
+        ? `${item.name} (…${item.guid.slice(-4)})`
+        : item.name,
+  }));
+};
+
 const useFirstAvailableAmrId = () => {
   const { data: amrName } = useAmrName();
   const amrStatus = useAllAmrStatus();
@@ -101,33 +117,22 @@ export const useMirIoModuleOptions = () => {
   const amrId = useFirstAvailableAmrId();
   const { data, isFetching, error, refetch } = useMirIoModules(amrId);
 
-  const ioModuleOption = useMemo(
-    () => data?.map((m) => ({ label: m.name, value: m.guid })) ?? [],
-    [data],
-  );
+  const ioModuleOption = useMemo(() => toGuidOptions(data ?? []), [data]);
 
-  return { ioModuleOption, amrId, isFetching, error, refetch };
+  /** guid 換成顯示名稱;清單裡沒有(沒車在線、模組被移除)就直接顯示 guid */
+  const ioModuleNameOf = useMemo(() => {
+    const labelByGuid = new Map(ioModuleOption.map((o) => [o.value, o.label]));
+    return (guid: string) => labelByGuid.get(guid) ?? guid;
+  }, [ioModuleOption]);
+
+  return { ioModuleOption, ioModuleNameOf, amrId, isFetching, error, refetch };
 };
 
 export const useMirSoundOptions = () => {
   const amrId = useFirstAvailableAmrId();
   const { data, isFetching, error, refetch } = useMirSounds(amrId);
 
-  const soundOption = useMemo(() => {
-    const sounds = data ?? [];
-    const nameCount = new Map<string, number>();
-    sounds.forEach((s) => {
-      nameCount.set(s.name, (nameCount.get(s.name) ?? 0) + 1);
-    });
-
-    return sounds.map((s) => ({
-      value: s.guid,
-      label:
-        (nameCount.get(s.name) ?? 0) > 1
-          ? `${s.name} (…${s.guid.slice(-4)})`
-          : s.name,
-    }));
-  }, [data]);
+  const soundOption = useMemo(() => toGuidOptions(data ?? []), [data]);
 
   return { soundOption, amrId, isFetching, error, refetch };
 };

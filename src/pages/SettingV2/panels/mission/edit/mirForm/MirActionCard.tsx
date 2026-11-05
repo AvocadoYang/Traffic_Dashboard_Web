@@ -17,6 +17,7 @@ import { c, font, space } from "../../../../ui/tokens";
 import { IconBar, IconButton } from "../steps/stepPrimitives";
 import StepMoveButtons from "../steps/StepMoveButtons";
 import {
+  ActionNames,
   ParentSlot,
   isContainerOperation,
   summarizeAction,
@@ -110,6 +111,7 @@ type Props = {
   onDuplicate: () => void;
   onDelete: () => void;
   unfilledVariables?: number;
+  actionNames: ActionNames;
 };
 
 const MirActionCard: FC<Props> = ({
@@ -125,6 +127,7 @@ const MirActionCard: FC<Props> = ({
   onDuplicate,
   onDelete,
   unfilledVariables = 0,
+  actionNames,
 }) => {
   const { t } = useTranslation();
   const {
@@ -140,7 +143,7 @@ const MirActionCard: FC<Props> = ({
   const isContainer = isContainerOperation(slice.operation);
   const { verb, chip } = slice.includeTitleId
     ? { verb: "Mission", chip: slice.includeTitleName || "-" }
-    : summarizeAction(slice.operation);
+    : summarizeAction(slice.operation, actionNames);
 
   return (
     <div

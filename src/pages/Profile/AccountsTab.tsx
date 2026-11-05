@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from "react";
 import { Button, Form, Input, Modal, Popconfirm, Select, Space, Switch, Table, Tag, message } from "antd";
 import type { TableColumnsType } from "antd";
-import { DeleteOutlined, KeyOutlined, UserAddOutlined } from "@ant-design/icons";
+import { DeleteOutlined, KeyOutlined, SafetyOutlined, UserAddOutlined } from "@ant-design/icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
@@ -10,13 +10,15 @@ import { AccountRow, Role, useAccounts, useMyProfile } from "@/api/useProfile";
 import { UserAvatar } from "@/components/UserAvatar/UserAvatar";
 import CreateUserModel from "@/components/CreateUserModel";
 import { Section } from "./parts";
+import PermissionModal from "./PermissionModal";
+import { ALL_PERMISSION_KEYS } from "@/utils/permissions";
 
 type ApiError = { response?: { data?: { message?: string } } };
 
 const ASSIGNABLE: Role[] = ["GENERALLY", "ENGINEER"];
 
 /**
- * 帳號管理 (只有 ADMIN 看得到): 列表、改角色、停用、重設密碼、刪除。
+ * 帳號管理 (只有 ADMIN 看得到): 列表、改角色、停用、功能權限、重設密碼、刪除。
  * ADMIN 帳號和自己不能在這裡改 (後端也擋), 自己的密碼在「個人資料」改。
  */
 const AccountsTab: FC = () => {
@@ -27,6 +29,7 @@ const AccountsTab: FC = () => {
   const { data: accounts, isLoading } = useAccounts(true);
   const [openCreate, setOpenCreate] = useState(false);
   const [resetFor, setResetFor] = useState<AccountRow | null>(null);
+  const [permFor, setPermFor] = useState<AccountRow | null>(null);
 
   // 新增使用者的視窗關掉後重新抓一次列表
   useEffect(() => {
@@ -41,9 +44,18 @@ const AccountsTab: FC = () => {
   };
 
   const update = useMutation({
-    mutationFn: ({ id, ...body }: { id: string; role?: Role; disabled?: boolean }) =>
+    mutationFn: ({ id, ...body }: { id: string; role?: Role; disabled?: boolean; permissions?: string[] | null }) =>
       client.patch(`api/logInAndOut/users/${encodeURIComponent(id)}`, body),
     onSuccess: done,
+    onError,
+  });
+  const savePermissions = useMutation({
+    mutationFn: ({ id, permissions }: { id: string; permissions: string[] | null }) =>
+      client.patch(`api/logInAndOut/users/${encodeURIComponent(id)}`, { permissions }),
+    onSuccess: () => {
+      done();
+      setPermFor(null);
+    },
     onError,
   });
   const remove = useMutation({
@@ -96,6 +108,20 @@ const AccountsTab: FC = () => {
       ),
     },
     {
+      title: t("permission.column"),
+      width: 150,
+      render: (_, r) =>
+        locked(r) ? (
+          t("permission.all")
+        ) : (
+          <Button size="small" icon={<SafetyOutlined />} onClick={() => setPermFor(r)}>
+            {r.permissions === null
+              ? t("permission.all")
+              : t("permission.count", { n: r.permissions.length, total: ALL_PERMISSION_KEYS.length })}
+          </Button>
+        ),
+    },
+    {
       title: t("profile.accounts.last_login"),
       dataIndex: "lastLoginAt",
       width: 170,
@@ -145,6 +171,12 @@ const AccountsTab: FC = () => {
         />
       </Section>
       <CreateUserModel open={openCreate} setOpen={setOpenCreate} />
+      <PermissionModal
+        account={permFor}
+        saving={savePermissions.isLoading}
+        onClose={() => setPermFor(null)}
+        onSave={(permissions) => permFor && savePermissions.mutate({ id: permFor.id, permissions })}
+      />
       <ResetPasswordModal account={resetFor} onClose={() => setResetFor(null)} onDone={done} onError={onError} />
     </>
   );

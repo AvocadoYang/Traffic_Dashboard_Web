@@ -35,6 +35,7 @@ import BookingTimingPanel from "./panels/peripheral/BookingTimingPanel";
 import WorkAreaPanel from "./panels/peripheral/WorkAreaPanel";
 import ChargeDockPanel from "./panels/peripheral/ChargeDockPanel";
 import PeripheralStylePanel from "./panels/peripheral/PeripheralStylePanel";
+import AdvantechPanel from "./panels/peripheral/AdvantechPanel";
 import TagPanel from "./panels/other/TagPanel";
 import CustomCargoInfoPanel from "./panels/other/CustomCargoInfoPanel";
 import ContainerTablePanel from "./panels/other/ContainerTablePanel";
@@ -54,6 +55,7 @@ import EditMissionPanel from "./panels/mission/edit/EditMissionPanel";
 import AppearancePanel from "./panels/appearance/AppearancePanel";
 import type { SettingV2PanelKey } from "./panelKeys";
 import BackupPanel from "./panels/file/BackupPanel";
+import { SETTING_NAV_VIEW_PERMISSION, usePermission } from "@/utils/permissions";
 
 type Props = {
   activeKey: SettingV2PanelKey | null;
@@ -62,10 +64,17 @@ type Props = {
   zonePanelForm: FormInstance<unknown>;
 };
 
-/** MIR 分類底下的面板; HAS_MIR: false 時就算 activeKey 指到也不畫 */
+/** MIR 分類底下的面板和其他分類裡標了 mirOnly 的; HAS_MIR: false 時就算 activeKey 指到也不畫 */
 const MIR_PANEL_KEYS = new Set<string>(
-  navCategories.find((c) => c.key === "mir")?.children.map((c) => c.key) ?? [],
+  navCategories.flatMap((cat) =>
+    cat.children
+      .filter((leaf) => cat.key === "mir" || leaf.mirOnly)
+      .map((leaf) => leaf.key),
+  ),
 );
+
+/** 面板 key -> 左側分類 key */
+const categoryOfPanel = (key: string) => navCategories.find((c) => c.children.some((l) => l.key === key))?.key;
 
 const PanelRenderer: FC<Props> = ({
   activeKey,
@@ -74,8 +83,12 @@ const PanelRenderer: FC<Props> = ({
   zonePanelForm,
 }) => {
   const { data: configFlags } = useConfigFlags();
+  const can = usePermission();
   if (!activeKey) return null;
   if (MIR_PANEL_KEYS.has(activeKey) && !configFlags?.hasMir) return null;
+  // 功能權限: 沒有這個分類「看」的權限 (例如上次開著的面板, 之後被管理員關掉) 就不畫
+  const viewNeed = SETTING_NAV_VIEW_PERMISSION[categoryOfPanel(activeKey) ?? ""];
+  if (viewNeed && !can(viewNeed)) return null;
 
   switch (activeKey) {
     // ✅ 已改用 v2 重新設計的版本(灰黑白 + RWD)
@@ -150,6 +163,8 @@ const PanelRenderer: FC<Props> = ({
       return <TagPanel />;
     case "edit_icon_style":
       return <PeripheralStylePanel />;
+    case "advantech_serial":
+      return <AdvantechPanel />;
     case "custom_cargo_info":
       return <CustomCargoInfoPanel />;
     case "warning_id":

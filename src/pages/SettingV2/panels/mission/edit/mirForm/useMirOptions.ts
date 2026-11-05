@@ -9,7 +9,7 @@ import {
   useMirIoModuleOptions,
   useMirSoundOptions,
 } from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/useMirTaskOptions";
-import { OptionSource } from "./mirActionSpec";
+import { ActionNames, OptionSource } from "./mirActionSpec";
 
 export type Option = { label: string; value: string };
 
@@ -38,7 +38,8 @@ const useMirOptions = () => {
   const { data: markerTypes } = useMarkerType();
   const { data: shelfData } = useShelf();
   const { soundOption, ...soundsLive } = useMirSoundOptions();
-  const { ioModuleOption, ...ioModulesLive } = useMirIoModuleOptions();
+  const { ioModuleOption, ioModuleNameOf, ...ioModulesLive } =
+    useMirIoModuleOptions();
 
   const locations = useMemo(
     () =>
@@ -53,6 +54,19 @@ const useMirOptions = () => {
     () => (footprints ?? []).map((v) => ({ label: v.name, value: v.id })),
     [footprints],
   );
+
+  const actionNames = useMemo<ActionNames>(() => {
+    const footprintNames = new Map(
+      footprintOptions.map((o) => [o.value, o.label]),
+    );
+    const soundNames = new Map(soundOption.map((o) => [o.value, o.label]));
+    return {
+      moduleNameOf: ioModuleNameOf,
+      footprintNameOf: (id) => footprintNames.get(id) ?? id,
+      // 音檔的 name 可能是空字串,這時也要退回 guid
+      soundNameOf: (guid) => soundNames.get(guid) || guid,
+    };
+  }, [footprintOptions, soundOption, ioModuleNameOf]);
 
   const markerTypeOptions = useMemo(
     () => (markerTypes ?? []).map((v) => ({ label: v.name, value: v.id })),
@@ -101,6 +115,7 @@ const useMirOptions = () => {
     markerTypeLocationIds,
     bySource,
     liveStateOf,
+    actionNames,
   };
 };
 

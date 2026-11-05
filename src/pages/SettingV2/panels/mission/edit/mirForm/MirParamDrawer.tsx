@@ -212,6 +212,7 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
     markerTypeLocationIds,
     bySource,
     liveStateOf,
+    actionNames,
   } = useMirOptions();
   const { fields: variableFields, setAllFields } = useMirVariableFields();
   const fields = operation ? (ACTION_FIELDS[operation.type] ?? []) : [];
@@ -596,7 +597,7 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       onClose={onClose}
       width={460}
       destroyOnHidden
-      title={operation ? summarizeAction(operation).verb : ""}
+      title={operation ? summarizeAction(operation, actionNames).verb : ""}
     >
       {operation ? (
         <Stack>

@@ -50,6 +50,7 @@ import IncludeMissionDialog, {
 } from "./IncludeMissionDialog";
 import MirActionCard, { EditorSlice, slotKey } from "./MirActionCard";
 import MirParamDrawer from "./MirParamDrawer";
+import useMirOptions from "./useMirOptions";
 import {
   ACTION_CATEGORIES,
   INCLUDE_TYPE,
@@ -144,6 +145,7 @@ const MirMissionEditorContent: FC<Props> = ({ missionId, robotValue }) => {
 
   const { data, isLoading } = useTaskMir(missionId);
   const includeOptions = useIncludeMissionOptions(missionId, robotValue);
+  const { actionNames } = useMirOptions();
 
   const [slices, setSlices] = useState<EditorSlice[]>([]);
   const [expanded, setExpanded] = useState<string[]>([]);
@@ -618,6 +620,7 @@ const MirMissionEditorContent: FC<Props> = ({ missionId, robotValue }) => {
         }
         onEdit={() => openEdit(slice)}
         unfilledVariables={unfilledCount(slice)}
+        actionNames={actionNames}
         onDuplicate={() => duplicate(slice.clientId)}
         onDelete={() => remove(slice.clientId)}
       />
@@ -733,7 +736,7 @@ const MirMissionEditorContent: FC<Props> = ({ missionId, robotValue }) => {
             {activeSlice ? (
               <DragPreview>
                 <HolderOutlined />
-                {summarizeAction(activeSlice.operation).verb}
+                {summarizeAction(activeSlice.operation, actionNames).verb}
               </DragPreview>
             ) : null}
           </DragOverlay>
