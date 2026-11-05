@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Alert, Col, message, Row, Tooltip, Form, Input, Button, Space } from "antd";
 import {
   EyeInvisibleOutlined,
   EyeTwoTone,
   UserOutlined,
   LockOutlined,
+  WarningOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -273,6 +274,7 @@ const Login: React.FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const { t } = useTranslation();
 
+  const [capsLock, setCapsLock] = useState(false);
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const logoutReason = searchParams.get("reason");
@@ -343,10 +345,32 @@ const Login: React.FC = () => {
               label={t("login.password")}
               name="password"
               rules={[{ required: true, message: t("login.password_required") }]}
+              extra={
+                capsLock ? (
+                  <span style={{ color: "var(--c-warning)" }}>
+                    <WarningOutlined /> {t("login.caps_lock")}
+                  </span>
+                ) : undefined
+              }
             >
               <Input.Password
                 placeholder={t("login.password_placeholder")}
                 prefix={<LockOutlined />}
+                onKeyDown={(e) => {
+                  if (e.key !== "CapsLock") return setCapsLock(e.getModifierState("CapsLock"));
+                  // 按 Caps Lock 本身時, Windows / Linux 回報的是切換前的狀態, 直接反轉; Mac 只會在開啟時送 keydown
+                  if (e.repeat) return;
+                  if (/Mac/i.test(navigator.platform)) setCapsLock(e.getModifierState("CapsLock"));
+                  else setCapsLock((v) => !v);
+                }}
+                onKeyUp={(e) => {
+                  if (e.key === "CapsLock") {
+                    if (/Mac/i.test(navigator.platform)) setCapsLock(false);
+                    return;
+                  }
+                  setCapsLock(e.getModifierState("CapsLock"));
+                }}
+                onBlur={() => setCapsLock(false)}
                 iconRender={(visible) =>
                   visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
                 }

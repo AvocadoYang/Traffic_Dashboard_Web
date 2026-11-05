@@ -14,6 +14,7 @@ export const locationSchema = object({
   // 等待點: 屬於哪個作業區、排第幾個; 不是等待點時 wait_area_id 是 null
   wait_area_id: string().nullable().optional(),
   wait_order: number().optional(),
+  is_mir_waiting_point: boolean().nullable().optional(),
   // 待命區: 載著貨的車可不可以停進來
   standby_accept_cargo: boolean().optional(),
 }).required();

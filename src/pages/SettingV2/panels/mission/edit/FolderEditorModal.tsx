@@ -84,6 +84,7 @@ const FolderEditorModal: FC<Props> = ({ open, onClose }) => {
       await queryClient.refetchQueries({
         queryKey: ["all-mission-title-detail"],
       });
+      await queryClient.refetchQueries({ queryKey: ["all-mission-title"] });
       void messageApi.success(t("folder_editor.delete_success"));
     },
     onError,

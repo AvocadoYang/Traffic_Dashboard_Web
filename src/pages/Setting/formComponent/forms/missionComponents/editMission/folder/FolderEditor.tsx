@@ -360,6 +360,7 @@ const FolderEditor: FC<{
         await queryClient.refetchQueries({
           queryKey: ["all-mission-title-detail"],
         });
+        await queryClient.refetchQueries({ queryKey: ["all-mission-title"] });
         messageApi.success(t("folder_editor.delete_success"));
       },
       onError: (error: any) => {

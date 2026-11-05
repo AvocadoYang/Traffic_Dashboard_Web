@@ -960,6 +960,7 @@
     "standby_cargo": "允許載貨的車進入",
     "standby_cargo_hint": "這個待命點可以讓載著貨的車停進來嗎？放貨端等不到位置時，載著貨的車只會退到開啟這項的待命點；沒有任何一個開啟，車就留在原地等。預設關閉。",
     "wait_order_hint": "數字小的排前面，最靠近作業區入口的填 1。",
+    "is_mir_waiting_point": "會車等待點",
     "change_type": {
       "title": "把點位 {{id}} 從「{{from}}」換成「{{to}}」？",
       "content": "點位的編號、座標、角度和路線都不變。原本的設備設定（名稱、群組，以及指到它的派送規則、模擬設定）會被清掉，新類型從預設值開始。",
@@ -2880,6 +2881,25 @@
     "description": "說明",
     "enable": "啟用"
   },
+  "health_monitor": {
+    "title": "主機與程式健康檢查",
+    "hint": "每 15 秒檢查一次磁碟、記憶體、後端卡頓、資料庫和 Redis,超標會在系統告警跳出來。每台主機各查各的,這裡是目前回應的這台 ({{host}})。門檻超過一段時間才算數,避免瞬間尖峰一直響。",
+    "level": {
+      "ok": "正常",
+      "warning": "輕微",
+      "alarm": "嚴重"
+    },
+    "current": "目前",
+    "not_measured": "還沒量到",
+    "since": "從",
+    "warn_at": "輕微門檻",
+    "alarm_at": "嚴重門檻",
+    "sustain": "超標要持續",
+    "sustain_unit": "秒",
+    "enable": "啟用",
+    "report_ecs": "回報給 Corning",
+    "report_ecs_hint": "回報給 Corning:嚴重的項目走 AL,輕微的走 WN,代碼是 0060 到 0065 (磁碟、主機記憶體、後端記憶體、後端卡頓、資料庫、Redis),a_agv_id 為空字串。請先跟 Corning 確認他們認得這些代碼再開。恢復正常時會送出更新後的清單 (沒有項目就是空清單)。"
+  },
   "stack_batch": {
     "title": "Stack 批次編輯",
     "hint": "在表格勾選要改的 stack,勾選要修改的欄位,預覽後套用。沒勾的欄位不會被改動。",
@@ -3639,6 +3659,7 @@
     "password_required": "請輸入密碼",
     "password_placeholder": "輸入密碼",
     "forgot_tooltip": "抱歉，目前無法找回帳號，這個功能還在測試中 😣",
+    "caps_lock": "大寫鎖定 (Caps Lock) 已開啟",
     "forgot_password": "忘記密碼？",
     "authenticating": "驗證中...",
     "system_online": "系統運作中"
@@ -3694,8 +3715,8 @@
     "role_mismatch": "交管認為這台是 {{mc}}，HA 服務記錄的是 {{arbiter}}，兩邊不一致",
     "dual_master": "兩台都是 MASTER！同一台車可能收到兩邊的指令，請立刻把其中一台釋放主控",
     "no_master": "兩台都是 BACKUP，沒有人在派車",
-    "master_without_vip": "這台是 MASTER，但 VIP 不在這台：車和 ECS 可能還連在另一台",
-    "backup_with_vip": "VIP 在這台，但這台是 BACKUP：連到這台的車不會被派任務",
+    "master_without_vip": "這台是 MASTER，但 VIP 不在這台：車子連不上這台，任務會停住。請確認這台的 keepalived，或另一台是不是拿走了 VIP",
+    "backup_with_vip": "VIP 在這台，但這台是 BACKUP：車子連到這台會被拒絕，全部離線。請確認另一台（MASTER）的 arbiter / keepalived；那台已經停了的話，在這台按「接手任務」",
     "peer_fleet_down": "對方主機的交管沒有在跑",
     "maintenance": "這台的 HA 服務在維修模式",
     "this_host": "這台",
