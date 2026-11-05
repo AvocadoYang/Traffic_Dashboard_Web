@@ -1,4 +1,5 @@
 import { FC, useMemo } from "react";
+import { usePermission } from "@/utils/permissions";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import client from "@/api/axiosClient";
@@ -18,11 +19,13 @@ const AmrCargoPanel: FC<{
   onClose: () => void;
 }> = ({ amrId, open, onClose }) => {
   const { t } = useTranslation();
+  const can = usePermission();
   const { cargo } = useIsCarry(amrId);
   const sorted = useMemo(() => sortCargo(cargo ?? []), [cargo]);
 
   return (
     <CargoEditorDrawer
+      readOnly={!can("amr.cargo")}
       open={open}
       onClose={onClose}
       resetKey={amrId}

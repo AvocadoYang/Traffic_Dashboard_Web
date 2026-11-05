@@ -42,6 +42,7 @@ import useRoadConditions from "@/sockets/useAmrRoadConditions";
 import useMapList from "@/api/useMapList";
 import { useMiRStatus } from "@/sockets/useMirStatus";
 import { useSetAtom } from "jotai";
+import { usePermission } from "@/utils/permissions";
 import { JoystickAmrId } from "../../global/jotai";
 import MapSwitchModal from "./MapSwitchModal";
 import { MaintenanceBadge } from "./MaintenancePanel";
@@ -311,6 +312,7 @@ export const CardHeader: React.FC<{
     const { networkDelay, isOverdue, hasServiceInterruption } =
       useIsLogIn(amrId);
     const { t } = useTranslation();
+    const can = usePermission();
     const AmrID = useMemo(() => {
       return {
         num: amrId.split("-")[amrId.split("-").length - 1],
@@ -352,7 +354,7 @@ export const CardHeader: React.FC<{
                 {!compact && warnCount}
               </WarnBtn>
             )}
-            {isMiR(amrId) && (
+            {isMiR(amrId) && can("amr.manual") && (
               <IconBtn
                 as="span"
                 title={t("mission_dispatch_board.amr_joystick") as string}

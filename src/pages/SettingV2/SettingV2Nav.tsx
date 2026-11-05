@@ -37,6 +37,7 @@ import ImportMapConfigModal from "@/pages/Setting/components/importMap/ImportMap
 import UploadWarningModal from "@/pages/Setting/components/UploadWarningModal";
 import { navCategories } from "./navItems";
 import useConfigFlags from "@/api/useConfigFlags";
+import { SETTING_NAV_VIEW_PERMISSION, usePermission } from "@/utils/permissions";
 import { mapViewModeAtom, type MapViewMode } from "./mapViewModeAtom";
 import { c, font, mqNarrow } from "./ui/tokens";
 
@@ -148,6 +149,7 @@ const SettingV2Nav: FC<Props> = ({
   const { data: configFlags } = useConfigFlags();
   // 還沒拿到 (或拿失敗) 時當成沒有 MiR, 沒有 MiR 的案場不會先閃出 MiR 選單
   const hasMir = configFlags?.hasMir ?? false;
+  const can = usePermission();
 
   const restartMutate = useMutation({
     mutationFn: () => client.post("api/setting/restart"),
@@ -162,6 +164,11 @@ const SettingV2Nav: FC<Props> = ({
     () =>
       navCategories
         .filter((category) => hasMir || category.key !== "mir")
+        // 功能權限: 沒有「看」的分類不列
+        .filter((category) => {
+          const need = SETTING_NAV_VIEW_PERMISSION[category.key];
+          return !need || can(need);
+        })
         .map((category) => ({
           key: category.key,
           icon: createElement(category.icon),
@@ -171,7 +178,7 @@ const SettingV2Nav: FC<Props> = ({
             label: leaf.rawLabel ?? t(leaf.labelKey as never),
           })),
         })),
-    [t, hasMir],
+    [t, hasMir, can],
   );
 
   const uploadWarningLabel = t("toolbar.file_setting.upload_warning_file");
@@ -280,32 +287,40 @@ const SettingV2Nav: FC<Props> = ({
       <ActionList>
         {/* 收起來時只留圖示,文字改掛 title:這幾顆被 Popconfirm 包著,
             再包一層 Tooltip 會把 Popconfirm 塞進來的 onClick 卡掉。 */}
-        <ActionButton
-          $collapsed={collapsed}
-          title={collapsed ? uploadWarningLabel : undefined}
-          onClick={() => setOpenUploadWarning(true)}
-        >
-          <UploadOutlined />
-          {!collapsed && uploadWarningLabel}
-        </ActionButton>
-        <ActionButton
-          $collapsed={collapsed}
-          title={collapsed ? startPointLabel : undefined}
-          onClick={() => setOpenStartPoint(true)}
-        >
-          <BorderOuterOutlined />
-          {!collapsed && startPointLabel}
-        </ActionButton>
-        <ActionButton
-          $collapsed={collapsed}
-          title={collapsed ? importMapLabel : undefined}
-          onClick={() => setImportMapConfig(true)}
-        >
-          <DeliveredProcedureOutlined />
-          {!collapsed && importMapLabel}
-        </ActionButton>
+        {/* 功能權限: 這幾顆是寫入, 沒有那個分類「改」的權限就不放 */}
+        {can("setting.alarm.edit") && (
+          <ActionButton
+            $collapsed={collapsed}
+            title={collapsed ? uploadWarningLabel : undefined}
+            onClick={() => setOpenUploadWarning(true)}
+          >
+            <UploadOutlined />
+            {!collapsed && uploadWarningLabel}
+          </ActionButton>
+        )}
+        {can("setting.point.edit") && (
+          <ActionButton
+            $collapsed={collapsed}
+            title={collapsed ? startPointLabel : undefined}
+            onClick={() => setOpenStartPoint(true)}
+          >
+            <BorderOuterOutlined />
+            {!collapsed && startPointLabel}
+          </ActionButton>
+        )}
+        {can("setting.map.edit") && (
+          <ActionButton
+            $collapsed={collapsed}
+            title={collapsed ? importMapLabel : undefined}
+            onClick={() => setImportMapConfig(true)}
+          >
+            <DeliveredProcedureOutlined />
+            {!collapsed && importMapLabel}
+          </ActionButton>
+        )}
         {/* v1 是直接點下去就重啟,這裡加一層確認:單選選單比開關更容易誤點,
             而重啟會讓整個系統中斷再 reload。 */}
+        {can("setting.system.edit") && (
         <Popconfirm
           title={t("toolbar.restart.restart")}
           onConfirm={() => {
@@ -324,6 +339,7 @@ const SettingV2Nav: FC<Props> = ({
             {!collapsed && restartLabel}
           </ActionButton>
         </Popconfirm>
+        )}
       </ActionList>
 
       <StartPoint

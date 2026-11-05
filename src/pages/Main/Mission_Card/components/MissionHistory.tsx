@@ -1,4 +1,5 @@
 import { AccountAvatar, AccountTag } from "@/components/UserAvatar/UserAvatar";
+import { usePermission } from "@/utils/permissions";
 import {
   Drawer,
   Table,
@@ -555,6 +556,7 @@ const MissionHistory: FC<{
   setIsOpenMissionHistory: Dispatch<SetStateAction<boolean>>;
 }> = ({ isOpenMissionHistory, setIsOpenMissionHistory }) => {
   const { t, i18n } = useTranslation();
+  const canRedispatch = usePermission()("mission.redispatch");
   const isDark = useAtomValue(darkMode);
   // antd 的 token 不能吃 var(),要餵真實色碼,所以這裡直接拿 palette
   const { colors } = useAtomValue(themeAtom);
@@ -1021,7 +1023,7 @@ const MissionHistory: FC<{
       align: "center",
       // 只有從畫面派的設定任務、而且任務還在, 後端才會給 redispatch
       render: (_, record) =>
-        record.redispatch ? (
+        record.redispatch && canRedispatch ? (
           <Tooltip title={t("mission_history.redispatch")}>
             <Button
               type="text"

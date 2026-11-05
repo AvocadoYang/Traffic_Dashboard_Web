@@ -3,6 +3,7 @@ import {
   MissionInfo,
   useMissions,
 } from "../../../../sockets/useMissions";
+import { usePermission } from "@/utils/permissions";
 import {
   TableColumnsType,
   Table,
@@ -318,6 +319,7 @@ const defaultOpenColumn = ["amrId", "missionStatus", "taskInfo"];
 
 const MissionTable = () => {
   const { t } = useTranslation();
+  const can = usePermission();
   const isDark = useAtomValue(darkMode);
   // antd 的 token 不能吃 var(),要餵真實色碼,所以這裡直接拿 palette
   const { colors } = useAtomValue(themeAtom);
@@ -592,15 +594,17 @@ const MissionTable = () => {
 
       <ButtonWrapper>
         <Flex gap="middle" align="flex-start">
-          <IndustrialButton
-            className="delete-btn"
-            onClick={handleDeleteMission}
-            disabled={!selectInfo.length}
-            loading={deleteMissionMutation.isPending}
-            icon={<DeleteOutlined />}
-          >
-            {t("utils.delete")} ({selectInfo.length})
-          </IndustrialButton>
+          {can("mission.cancel") && (
+            <IndustrialButton
+              className="delete-btn"
+              onClick={handleDeleteMission}
+              disabled={!selectInfo.length}
+              loading={deleteMissionMutation.isPending}
+              icon={<DeleteOutlined />}
+            >
+              {t("utils.delete")} ({selectInfo.length})
+            </IndustrialButton>
+          )}
           <IndustrialButton
             className="history-btn"
             onClick={openHistory}
