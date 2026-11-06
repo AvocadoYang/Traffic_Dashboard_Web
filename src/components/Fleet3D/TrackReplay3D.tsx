@@ -6,11 +6,10 @@ import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import styled from "styled-components";
 import useMap from "@/api/useMap";
-import useName from "@/api/useAmrName";
 import useAMRsample from "@/api/useAMRsample";
 import type { TrackHeatData, TrackReplayData, TrackVehicle } from "@/api/useTrackArchive";
 import { buildMapImageMatrix, getMapCanvas, mapImageModeAtom, resolveColors, themeAtom } from "@/theme";
-import { amrColor, sw15ToMap, usesSW15Frame } from "@/components/CanvasMap/draw";
+import { amrColor } from "@/components/CanvasMap/draw";
 import { isPointAreaType } from "@/pages/Setting/mapComponents/components/AllLocation/pointAreaTypes";
 import Scene3D, { Bounds, CameraApi, ModelBoundary } from "./Scene3D";
 import MapGround from "./MapGround";
@@ -76,7 +75,6 @@ type Props = {
 const TrackReplay3D: FC<Props> = ({ mode, replay, heat, metric }) => {
   const { t } = useTranslation();
   const { data: map } = useMap();
-  const { data: names } = useName();
   const { data: robotTypes } = useAMRsample();
   const theme = useAtomValue(themeAtom);
   const mapImageMode = useAtomValue(mapImageModeAtom);
@@ -112,11 +110,6 @@ const TrackReplay3D: FC<Props> = ({ mode, replay, heat, metric }) => {
     );
   }, [replay]);
 
-  // 實車才要轉 SW15 的座標; 後端查不到時看現在的車輛清單, 再查不到看名稱 (模擬車是 # 開頭)
-  const simulated = useCallback(
-    (v: TrackVehicle) => (v.isReal ?? names?.amrs.find((a) => a.amrId === v.amrId)?.isReal ?? !v.amrId.startsWith("#")) === false,
-    [names],
-  );
 
   const source = useCallback(
     (id: string, out: VehicleFrame) => {
@@ -124,11 +117,9 @@ const TrackReplay3D: FC<Props> = ({ mode, replay, heat, metric }) => {
       const now = timeRef.current;
       const p = v && incidentPoseAt(v, now, GONE_MS);
       if (!v || !p) return false;
-      const sw15 = usesSW15Frame(id, simulated(v));
-      const at = sw15 ? sw15ToMap(p.x, p.y) : p;
-      out.x = at.x;
-      out.y = at.y;
-      out.yaw = ((p.yaw + (sw15 ? 180 : 0)) * Math.PI) / 180;
+      out.x = p.x;
+      out.y = p.y;
+      out.yaw = (p.yaw * Math.PI) / 180;
       out.loaded = incidentLoadedAt(v, now);
       out.lift = out.loaded ? CARRY_LIFT : 0;
       out.ring = amrColor(id);
@@ -136,7 +127,7 @@ const TrackReplay3D: FC<Props> = ({ mode, replay, heat, metric }) => {
       out.alert = 0;
       return true;
     },
-    [vehicles, simulated],
+    [vehicles],
   );
 
   useEffect(() => {

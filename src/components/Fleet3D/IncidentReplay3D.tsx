@@ -6,11 +6,10 @@ import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import styled from "styled-components";
 import useMap from "@/api/useMap";
-import useName from "@/api/useAmrName";
 import useAMRsample from "@/api/useAMRsample";
 import type { IncidentReplay } from "@/api/useEStopHistory";
 import { buildMapImageMatrix, getMapCanvas, mapImageModeAtom, resolveColors, themeAtom } from "@/theme";
-import { amrColor, sw15ToMap, usesSW15Frame } from "@/components/CanvasMap/draw";
+import { amrColor } from "@/components/CanvasMap/draw";
 import { isPointAreaType } from "@/pages/Setting/mapComponents/components/AllLocation/pointAreaTypes";
 import Scene3D, { Bounds, CameraApi, ModelBoundary } from "./Scene3D";
 import MapGround from "./MapGround";
@@ -72,7 +71,6 @@ type Vehicle = IncidentReplay["vehicles"][number];
 const IncidentReplay3D: FC<{ replay: IncidentReplay }> = ({ replay }) => {
   const { t } = useTranslation();
   const { data: map } = useMap();
-  const { data: names } = useName();
   const { data: robotTypes } = useAMRsample();
   const theme = useAtomValue(themeAtom);
   const mapImageMode = useAtomValue(mapImageModeAtom);
@@ -86,11 +84,6 @@ const IncidentReplay3D: FC<{ replay: IncidentReplay }> = ({ replay }) => {
   const [playing, setPlaying] = useState(true);
   const [speed, setSpeed] = useState(1);
 
-  // 實車才要轉 SW15 的座標; 後端查不到時看現在的車輛清單, 再查不到看名稱 (模擬車是 # 開頭)
-  const simulated = useCallback(
-    (v: Vehicle) => (v.isReal ?? names?.amrs.find((a) => a.amrId === v.amrId)?.isReal ?? !v.amrId.startsWith("#")) === false,
-    [names],
-  );
   const vehicles = useMemo(() => new Map(replay.vehicles.map((v) => [v.amrId, v])), [replay]);
 
   const source = useCallback(
@@ -99,11 +92,9 @@ const IncidentReplay3D: FC<{ replay: IncidentReplay }> = ({ replay }) => {
       const now = timeRef.current;
       const p = v && incidentPoseAt(v, now);
       if (!v || !p) return false;
-      const sw15 = usesSW15Frame(id, simulated(v));
-      const at = sw15 ? sw15ToMap(p.x, p.y) : p;
-      out.x = at.x;
-      out.y = at.y;
-      out.yaw = ((p.yaw + (sw15 ? 180 : 0)) * Math.PI) / 180;
+      out.x = p.x;
+      out.y = p.y;
+      out.yaw = (p.yaw * Math.PI) / 180;
       out.loaded = incidentLoadedAt(v, now);
       out.lift = out.loaded ? CARRY_LIFT : 0;
       const stopped = id === replay.amrId && now >= 0;
@@ -112,7 +103,7 @@ const IncidentReplay3D: FC<{ replay: IncidentReplay }> = ({ replay }) => {
       out.alert = stopped ? ALERT_BODY : 0;
       return true;
     },
-    [vehicles, simulated, replay.amrId],
+    [vehicles, replay.amrId],
   );
 
   // 播放: 照實際經過的時間 x 速度往前走; 時間軸一秒更新十次
@@ -151,8 +142,7 @@ const IncidentReplay3D: FC<{ replay: IncidentReplay }> = ({ replay }) => {
     const v = vehicles.get(replay.amrId);
     const p = v && (incidentPoseAt(v, 0) ?? incidentPoseAt(v, v.samples[v.samples.length - 1]?.[0] ?? 0));
     if (v && p) {
-      const at = usesSW15Frame(v.amrId, simulated(v)) ? sw15ToMap(p.x, p.y) : p;
-      return { minX: at.x - FOCUS_MARGIN, minY: at.y - FOCUS_MARGIN, maxX: at.x + FOCUS_MARGIN, maxY: at.y + FOCUS_MARGIN };
+      return { minX: p.x - FOCUS_MARGIN, minY: p.y - FOCUS_MARGIN, maxX: p.x + FOCUS_MARGIN, maxY: p.y + FOCUS_MARGIN };
     }
     return map
       ? {
@@ -162,7 +152,7 @@ const IncidentReplay3D: FC<{ replay: IncidentReplay }> = ({ replay }) => {
           maxY: map.mapOriginY + map.mapHeight * map.mapResolution,
         }
       : null;
-  }, [vehicles, replay.amrId, simulated, map]);
+  }, [vehicles, replay.amrId, map]);
   const roads = useMemo<Segment[]>(
     () => (map?.roads ?? []).map((r) => ({ x1: r.x1, y1: r.y1, x2: r.x2, y2: r.y2, color: r.priority === 1 ? colors.mapRoadPriority : colors.mapRoad })),
     [map, colors],

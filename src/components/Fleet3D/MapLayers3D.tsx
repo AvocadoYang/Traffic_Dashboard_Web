@@ -279,8 +279,7 @@ export const BBoxes3D: FC<{
   color: (id: string) => string;
   currentMapId: string | null;
   /** 模擬模式 (見 amrShownAt) */
-  simulated: boolean;
-}> = ({ state, ids, color, currentMapId, simulated }) => {
+}> = ({ state, ids, color, currentMapId }) => {
   const groupRef = useRef<THREE.Group>(null);
   const boxes = useRef(new Map<string, { lines: THREE.LineSegments; src: number[][] | null }>());
 
@@ -304,7 +303,7 @@ export const BBoxes3D: FC<{
     for (const id of ids) {
       let box = boxes.current.get(id);
       const src = live.bbox.get(id) ?? null;
-      const hidden = id.includes("mi") || !src || src.length < 3 || !amrShownAt(live, id, currentMapId, simulated);
+      const hidden = id.includes("mi") || !src || src.length < 3 || !amrShownAt(live, id, currentMapId);
       if (!box) {
         if (hidden) continue;
         const lines = new THREE.LineSegments(
