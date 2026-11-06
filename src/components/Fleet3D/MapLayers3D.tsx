@@ -1,6 +1,6 @@
-import { FC, useEffect, useMemo, useRef } from "react";
+import { FC, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { ThreeEvent, useFrame, useThree } from "@react-three/fiber";
-import { Line } from "@react-three/drei";
+import { LineMaterial, LineSegments2, LineSegmentsGeometry } from "three-stdlib";
 import * as THREE from "three";
 import type { LiveState } from "@/components/CanvasMap/liveStore";
 import { amrShownAt } from "@/components/CanvasMap/draw";
@@ -23,7 +23,12 @@ const DOT_RENDER_ORDER = -0.5;
 
 export type Segment = { x1: number; y1: number; x2: number; y2: number; color?: string };
 
-/** 一組路線, 一次畫完 (線寬是螢幕像素, 拉遠也看得到); onHover: 游標指著第幾條 (離開是 null) */
+/**
+ * 一組路線, 一次畫完 (線寬是螢幕像素, 拉遠也看得到); onHover: 游標指著第幾條 (離開是 null)。
+ *
+ * 不用 drei 的 Line: 它的點或顏色一變就整個重建, 還會把材質 dispose 掉 (shader 要重新編譯);
+ * 路線被佔用一直在換顏色, 慢的電腦每換一次就卡一下。這裡位置只在地圖變的時候重建, 換顏色是原地改。
+ */
 export const Roads3D: FC<{
   segments: Segment[];
   color: string;
@@ -31,33 +36,63 @@ export const Roads3D: FC<{
   opacity?: number;
   onHover?: (index: number | null) => void;
 }> = ({ segments, color, width = 2, opacity = 1, onHover }) => {
-  const { points, colors } = useMemo(() => {
-    const pts: [number, number, number][] = [];
-    const cols: [number, number, number][] = [];
-    const c = new THREE.Color();
-    for (const s of segments) {
-      pts.push([s.x1, ROAD_Y, -s.y1], [s.x2, ROAD_Y, -s.y2]);
-      c.set(s.color ?? color);
-      cols.push([c.r, c.g, c.b], [c.r, c.g, c.b]);
+  const size = useThree((s) => s.size);
+  const invalidate = useThree((s) => s.invalidate);
+  const material = useMemo(() => new LineMaterial({ color: 0xffffff, vertexColors: true, depthWrite: false }), []);
+  const line = useMemo(() => new LineSegments2(new LineSegmentsGeometry(), material), [material]);
+  const lastPositions = useRef<Float32Array | null>(null);
+  useEffect(
+    () => () => {
+      line.geometry.dispose();
+      material.dispose();
+    },
+    [line, material],
+  );
+  useLayoutEffect(() => {
+    material.linewidth = width;
+    material.opacity = opacity;
+    if (material.transparent !== opacity < 1) {
+      material.transparent = opacity < 1;
+      material.needsUpdate = true;
     }
-    return { points: pts, colors: cols };
-  }, [segments, color]);
-  if (!points.length) return null;
+    material.resolution.set(size.width, size.height);
+    invalidate();
+  }, [material, width, opacity, size, invalidate]);
+
+  useLayoutEffect(() => {
+    if (!segments.length) return;
+    const positions = new Float32Array(segments.length * 6);
+    const colors = new Float32Array(segments.length * 6);
+    const c = new THREE.Color();
+    segments.forEach((s, i) => {
+      positions.set([s.x1, ROAD_Y, -s.y1, s.x2, ROAD_Y, -s.y2], i * 6);
+      c.set(s.color ?? color);
+      colors.set([c.r, c.g, c.b, c.r, c.g, c.b], i * 6);
+    });
+    const geometry = line.geometry;
+    const prev = lastPositions.current;
+    const colorAttr = geometry.getAttribute("instanceColorStart") as THREE.InterleavedBufferAttribute | undefined;
+    const samePlace = !!prev && !!colorAttr && prev.length === positions.length && prev.every((v, i) => v === positions[i]);
+    if (samePlace) {
+      (colorAttr.data.array as Float32Array).set(colors);
+      colorAttr.data.needsUpdate = true;
+    } else {
+      geometry.dispose();
+      geometry.setPositions(positions);
+      geometry.setColors(colors);
+      lastPositions.current = positions;
+    }
+    invalidate();
+  }, [segments, color, line, invalidate]);
+
+  if (!segments.length) return null;
   return (
-    <Line
-      points={points}
-      // 顏色在 vertexColors (會乘上 color, 所以 color 要白色)
-      color="#ffffff"
-      vertexColors={colors}
-      segments
-      lineWidth={width}
-      transparent={opacity < 1}
-      opacity={opacity}
-      depthWrite={false}
+    <primitive
+      object={line}
       renderOrder={3}
       onPointerMove={
         onHover
-          ? (e) => {
+          ? (e: ThreeEvent<PointerEvent>) => {
               if (e.faceIndex === undefined) return;
               e.stopPropagation();
               onHover(e.faceIndex);
