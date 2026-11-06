@@ -121,6 +121,8 @@ type Props = {
   children?: ReactNode;
   /** 點了點位 (首頁: 打開直接移動; 設定頁: 點位偵測) */
   onPointClick?: (locationId: string) => void;
+  /** 點了路徑 (設定頁: 開路徑參數的編輯視窗); 點位疊在路徑上時算點位 */
+  onRoadClick?: (roadId: string) => void;
   /** 疊在最上層的 DOM (設定頁的編輯工具: 打點的小紅點、拉線、框選…), 座標是底圖像素 */
   overlay?: ReactNode;
   /** 左鍵在空白處拖曳地圖; 設定頁打點 / 框選時左鍵要留給編輯工具 (中鍵、觸控照樣拖) */
@@ -159,6 +161,7 @@ const sameIds = (a: string[], b: Set<string>) => a.length === b.size && a.every(
 const CanvasMap: FC<Props> = ({
   children,
   onPointClick,
+  onRoadClick,
   overlay,
   leftButtonPans = true,
   showAmrs = true,
@@ -749,10 +752,13 @@ const CanvasMap: FC<Props> = ({
    *  - 任何點擊都取消區域禁行的標示
    *  - 點到車: 在上面的 click capture 就處理掉了 (車可能疊在設備上)
    *  - 點到點位: onPointClick (首頁打開直接移動)
+   *  - 點到路徑: onRoadClick (設定頁編輯路徑參數)
    *  - 點到空白處: 取消車卡片的選取
    */
   const onPointClickRef = useRef(onPointClick);
   onPointClickRef.current = onPointClick;
+  const onRoadClickRef = useRef(onRoadClick);
+  onRoadClickRef.current = onRoadClick;
   const onBaseClick = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       const view = viewRef.current;
@@ -766,6 +772,11 @@ const CanvasMap: FC<Props> = ({
       const point = optsRef.current.showLocation ? pointAt(scene, view, x, y) : null;
       if (point) {
         onPointClickRef.current?.(point.id);
+        return;
+      }
+      const roadId = onRoadClickRef.current && optsRef.current.showRoad ? roadAt(scene, view, x, y) : null;
+      if (roadId) {
+        onRoadClickRef.current?.(roadId);
         return;
       }
       setFilterIds((prev) => (prev.size ? new Set() : prev));
