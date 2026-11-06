@@ -116,7 +116,7 @@
     "count": "數量",
     "detail": "詳情",
     "confirm": "確認",
-    "passwordMin": "至少 6 個字元",
+    "passwordMin": "至少 8 個字元",
     "is_registered": "已註冊",
     "not_registered": "未註冊",
     "search": "搜尋",
@@ -2713,7 +2713,9 @@
     "oldPassword": "原密碼",
     "newPassword": "新密碼",
     "confirmPassword": "確認密碼",
-    "passwordNotMatch": "密碼不相符"
+    "passwordNotMatch": "密碼不相符",
+    "forcedTitle": "請先修改預設密碼",
+    "forcedHint": "這個帳號還在用預設密碼, 任何人都猜得到。改成新密碼後才能繼續使用 (至少 8 碼, 要有大寫和小寫英文)。"
   },
   "client_name": {
     "title": "電腦名稱",
@@ -5272,7 +5274,8 @@
       "reason": {
         "no_account": "沒有這個帳號",
         "wrong_password": "密碼錯誤",
-        "disabled": "帳號已停用"
+        "disabled": "帳號已停用",
+        "locked": "失敗太多次, 暫時鎖定"
       }
     },
     "accounts": {

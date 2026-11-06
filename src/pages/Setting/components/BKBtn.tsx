@@ -234,7 +234,22 @@ const BKBtn = () => {
   const handleClose = () => {
     setOpen(false);
   };
-  const baseURL = `${window.location.origin.replace("5173", "4000")}`;
+  // 用 client 下載 (帶登入 token), 直接開網址的話後端要登入時會被擋
+  const downloadBackup = async (file: string) => {
+    try {
+      const res = await client.get(`api/setting/backup/${encodeURIComponent(file)}`, {
+        responseType: "blob",
+      });
+      const url = URL.createObjectURL(res.data as Blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = file;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      messageApi.error(t("backup.download_file"));
+    }
+  };
   // --- Backup List Table Columns ---
   const backupColumns = [
     {
@@ -284,9 +299,7 @@ const BKBtn = () => {
             <IndustrialButton
               type="primary"
               icon={<DownloadOutlined />}
-              href={`${baseURL}/api/setting/backup/${record.file}`}
-              target="_blank"
-              download={record.file}
+              onClick={() => void downloadBackup(record.file)}
             />
           </Tooltip>
         </Space>

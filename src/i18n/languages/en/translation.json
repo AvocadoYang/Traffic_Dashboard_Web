@@ -116,7 +116,7 @@
     "open": "Open",
     "detail": "Detail",
     "confirm": "Confirm",
-    "passwordMin": "At least 6 characters",
+    "passwordMin": "At least 8 characters",
     "location": "Location",
     "search": "search",
     "reset": "reset",
@@ -2712,7 +2712,9 @@
     "oldPassword": "Old Password",
     "newPassword": "New Password",
     "confirmPassword": "Confirm Password",
-    "passwordNotMatch": "Passwords do not match"
+    "passwordNotMatch": "Passwords do not match",
+    "forcedTitle": "Change the default password first",
+    "forcedHint": "This account still uses a default password that anyone can guess. Set a new one to continue (at least 8 characters, with upper and lower case letters)."
   },
   "client_name": {
     "title": "Computer name",
@@ -5271,7 +5273,8 @@
       "reason": {
         "no_account": "No such account",
         "wrong_password": "Wrong password",
-        "disabled": "Account disabled"
+        "disabled": "Account disabled",
+        "locked": "Too many failures, locked"
       }
     },
     "accounts": {
