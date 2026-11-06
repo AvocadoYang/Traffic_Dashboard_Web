@@ -6,6 +6,8 @@ import { memo } from "react";
 import { useAtom } from "jotai";
 import { isOpenUploadWarningIDModal } from "@/utils/siderGloble";
 import { useTranslation } from "react-i18next";
+import client from "@/api/axiosClient";
+import { getToken } from "@/utils/session";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,10 +34,10 @@ const UploadWarningModal = () => {
   const props: UploadProps = {
     name: "file",
     multiple: false,
-    // eslint-disable-next-line no-restricted-globals
-    action: `http://${location.host.split(":")[0]}:4000/api/test/update/warning`,
+    // 跟其他 API 一樣的位址 (http / https 跟著網頁) 和登入 token; 後端要登入時才不會被擋
+    action: `${client.defaults.baseURL}/api/test/update/warning`,
     headers: {
-      authorization: localStorage.getItem("_KMT") as string,
+      Authorization: `Bearer ${getToken() ?? ""}`,
     },
     onChange(info) {
       const { status } = info.file;
