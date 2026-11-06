@@ -116,7 +116,7 @@
     "open": "Open",
     "detail": "Detail",
     "confirm": "Confirm",
-    "passwordMin": "At least 6 characters",
+    "passwordMin": "At least 8 characters",
     "location": "Location",
     "search": "search",
     "reset": "reset",
@@ -2712,7 +2712,9 @@
     "oldPassword": "Old Password",
     "newPassword": "New Password",
     "confirmPassword": "Confirm Password",
-    "passwordNotMatch": "Passwords do not match"
+    "passwordNotMatch": "Passwords do not match",
+    "forcedTitle": "Change the default password first",
+    "forcedHint": "This account still uses a default password that anyone can guess. Set a new one to continue (at least 8 characters, with upper and lower case letters)."
   },
   "client_name": {
     "title": "Computer name",
@@ -5271,7 +5273,8 @@
       "reason": {
         "no_account": "No such account",
         "wrong_password": "Wrong password",
-        "disabled": "Account disabled"
+        "disabled": "Account disabled",
+        "locked": "Too many failures, locked"
       }
     },
     "accounts": {
@@ -5481,6 +5484,62 @@
       "mir": "MIR",
       "system": "Maintenance (backup / restore / restart)",
       "change_log": "Setting change log"
+    }
+  },
+  "advantech": {
+    "hint": "Connection info for Advantech ADAM-4000 serial IO modules. Give each one a name and IP; its IO icon appears below once created.",
+    "empty": "No Advantech devices yet",
+    "add": "Add Advantech device",
+    "edit": "Edit Advantech device",
+    "name": "Name",
+    "ip": "Device IP",
+    "ip_invalid": "Invalid IP, e.g. 192.168.1.100",
+    "outputs": "Outputs",
+    "inputs": "Inputs",
+    "offline": "Offline",
+    "labels_hint": "Give each IO a code and name (e.g. DI0 = FALL Elevator fault). They show under the IO icons and in the button editor. Optional.",
+    "label_code": "Code",
+    "label_name": "Name",
+    "label_name_placeholder": "e.g. Elevator fault",
+    "button": {
+      "title": "Buttons",
+      "add": "Add button for {{group}}",
+      "edit": "Edit button for {{group}}",
+      "add_short": "Add button",
+      "empty": "No buttons yet. A button runs its steps in order to drive the IOs, e.g. \"Go to 6F\" = pulse RL1 (02FCL).",
+      "name": "Button name",
+      "name_placeholder": "e.g. Go to 6F",
+      "steps": "Steps",
+      "steps_hint": "Runs one step after another. Pulse = turn on, wait the given time, turn off (like pressing an elevator button); On / Off = stays that way; Wait = pause before the next step.",
+      "need_step": "Add at least one step",
+      "add_step": "Add step",
+      "target": "Select output",
+      "note": "Note",
+      "done": "{{name}} finished",
+      "action_PULSE": "Pulse",
+      "action_ON": "On",
+      "action_OFF": "Off",
+      "action_WAIT": "Wait",
+      "offline_disabled": "{{names}} is offline, so this group's buttons are disabled for now."
+    },
+    "group": {
+      "title": "Module groups",
+      "hint": "Combine several modules into one device, e.g. an 8 IN 8 OUT elevator = two 4 IN 4 OUT modules. A module can be in only one group; each module keeps its own IO 0–3, and the group order is the order they are shown in. Deleting a group keeps its modules.",
+      "add": "Add group",
+      "edit": "Edit group",
+      "empty": "No groups yet; every module is standalone",
+      "name": "Group name",
+      "name_placeholder": "e.g. Elevator 1",
+      "modules": "Modules",
+      "order": "Order",
+      "order_hint": "Use the arrows to set the order modules appear in on the group card.",
+      "note": "Note",
+      "in_group": "in {{name}}",
+      "move_warn": "{{names}} is in another group and will move to this one when you save.",
+      "delete_warn": "Delete this group? Its modules become standalone and its buttons are deleted.",
+      "io_summary": "{{n}} modules · {{io}} IN {{io}} OUT",
+      "no_modules": "This group has no modules",
+      "standalone": "Standalone"
     }
   }
 }

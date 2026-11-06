@@ -22,6 +22,8 @@ export type NavLeaf = {
   /** i18n key;沒有對應翻譯的(MIR 那幾個)直接用 rawLabel */
   labelKey?: string;
   rawLabel?: string;
+  /** 只有 HAS_MIR 的案場才列出來 */
+  mirOnly?: boolean;
 };
 
 export type NavCategory = {
@@ -211,6 +213,11 @@ export const navCategories: NavCategory[] = [
       {
         key: "edit_icon_style",
         labelKey: "toolbar.others.edit_peripheral_style",
+      },
+      {
+        key: "advantech_serial",
+        rawLabel: "Advantech 4000 serial",
+        mirOnly: true,
       },
     ],
   },
