@@ -58,9 +58,15 @@ export enum MaintenanceLevel {
 }
 
 export type MissionDestination = {
+  /** 這一動要去的點位 */
   locationId: string;
+  /** 整趟任務的終點 */
   finalLocationId: string;
   name: string;
+  /** 這趟任務從哪個點位出發 (派任務當下車子所在的點位); 舊後端沒送是 undefined */
+  startLocationId?: string;
+  /** 出發點名稱 (第一組 ept_s), 沒有是空字串 */
+  startName?: string;
 };
 
 export type FleetInfo = {
@@ -276,6 +282,8 @@ const schema = () =>
         locationId: string().optional().nullable(),
         finalLocationId: string().optional().nullable(),
         name: string().optional().nullable(),
+        startLocationId: string().optional().nullable(),
+        startName: string().optional().nullable(),
       })
         .optional()
         .nullable(),
