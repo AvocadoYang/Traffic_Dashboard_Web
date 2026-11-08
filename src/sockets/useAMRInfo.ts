@@ -149,7 +149,6 @@ const schema = () =>
         x: number().optional(),
         y: number().optional(),
         yaw: number().optional(),
-        rawYaw: number().optional(),
         closeLoc: string(),
       }).optional(),
       IO: object({
@@ -795,8 +794,10 @@ export const useYaw = (amrId: string) => {
     );
     const yaw$ = profile$
       .pipe(
-        map((info) => info.pose?.rawYaw ?? info.pose?.yaw),
-        filter((v) => v !== undefined),
+        // 後端的 yaw 正規化成 0~360 給地圖轉車頭用; 卡片照 ROS 的 -180~180 顯示
+        map((info) => info.pose?.yaw),
+        filter((v): v is number => v !== undefined),
+        map(sanitizeDegree),
         distinctUntilChanged(),
       )
       .subscribe((yaw) => {

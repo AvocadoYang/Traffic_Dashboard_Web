@@ -13,7 +13,6 @@ import {
 } from "@ant-design/icons";
 import Icon from "@ant-design/icons";
 import {
-  useAmrDestination,
   useAmrStatus,
   useBattery,
   useCloseLoc,
@@ -46,6 +45,7 @@ import { JoystickAmrId } from "../../global/jotai";
 import MapSwitchModal from "./MapSwitchModal";
 import { MaintenanceBadge } from "./MaintenancePanel";
 import { mq } from "@/styles/responsive";
+import useAmrMissionTip from "@/hooks/useAmrMissionTip";
 
 const GamepadSvg = () => (
   <svg
@@ -640,14 +640,21 @@ const RosStatusRow: React.FC<RowProps> = memo(({ amrId, isOffline }) => {
   );
 });
 
-const DestinationRow: React.FC<RowProps> = memo(({ amrId, isOffline }) => {
-  const { destination } = useAmrDestination(amrId);
+/** 原本畫在地圖車頭上的提示 (在做什麼、要去哪裡), 改放在卡片 */
+const MissionTipRows: React.FC<RowProps> = memo(({ amrId, isOffline }) => {
+  const { tipText, destinationText } = useAmrMissionTip(amrId);
   const { t } = useTranslation();
   return (
-    <TextRow
-      label={t("mission_dispatch_board.amr_destination")}
-      value={isOffline || !destination?.name ? NO_DATA : destination.name}
-    />
+    <>
+      <TextRow
+        label={t("fleet3d.info.mission")}
+        value={isOffline || !tipText ? NO_DATA : tipText}
+      />
+      <TextRow
+        label={t("mission_dispatch_board.amr_destination")}
+        value={isOffline || !destinationText ? NO_DATA : destinationText}
+      />
+    </>
   );
 });
 
@@ -762,7 +769,7 @@ const MiRMapRow: React.FC<RowProps> = memo(({ amrId, isOffline }) => {
 });
 
 /**
- * 正常大小只列每天會看的那幾列;detailed 再加上原始狀態、目的地、座標。
+ * 正常大小只列每天會看的那幾列 (含任務、目的地);detailed 再加上原始狀態、座標。
  */
 export const InfoRows: React.FC<{ amrId: string; detailed: boolean }> = memo(
   ({ amrId, detailed }) => {
@@ -770,6 +777,7 @@ export const InfoRows: React.FC<{ amrId: string; detailed: boolean }> = memo(
     const mir = isMiR(amrId);
     return (
       <RowList>
+        <MissionTipRows amrId={amrId} isOffline={isOverdue} />
         {mir ? (
           <>
             <MiRRunningRow amrId={amrId} isOffline={isOverdue} />
@@ -782,12 +790,7 @@ export const InfoRows: React.FC<{ amrId: string; detailed: boolean }> = memo(
             <MaintenanceRow amrId={amrId} isOffline={isOverdue} />
           </>
         )}
-        {detailed && (
-          <>
-            <DestinationRow amrId={amrId} isOffline={isOverdue} />
-            <CoordinateRow amrId={amrId} isOffline={isOverdue} />
-          </>
-        )}
+        {detailed && <CoordinateRow amrId={amrId} isOffline={isOverdue} />}
       </RowList>
     );
   },

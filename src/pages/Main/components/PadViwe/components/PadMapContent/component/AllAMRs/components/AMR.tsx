@@ -13,7 +13,6 @@ import { useWarningId } from "@/sockets/useWarning";
 import ForkLiftIcon from "./amrs/ForkliftIcon";
 import { useAmrBBox } from "@/sockets/useBBox";
 import BBox from "./amrs/BBox";
-import useAmrMissionTip from "@/hooks/useAmrMissionTip";
 import { useMiRStatus } from "@/sockets/useMirStatus";
 import { currentMapIdAtom } from "@/utils/mapSelection";
 
@@ -87,11 +86,6 @@ const ErrorTip = styled.div.attrs<{
   font-weight: bold;
 `;
 
-const TipDetail = styled.span`
-  font-weight: normal;
-  opacity: 0.85;
-`;
-
 const agvFormate = (x1: number, y1: number) => {
   const theta = (3 * Math.PI) / 2;
   const x = x1 * Math.cos(theta) - y1 * Math.sin(theta);
@@ -116,17 +110,12 @@ const AMR: FC<{
     return zoneForbidden.has(amrId);
   }, [zoneForbidden]);
 
-  const { tipText, destinationText } = useAmrMissionTip(amrId);
-
+  // 任務 / 目的地改放在車輛卡片, 車頭上只在選取 / hover / 禁行時顯示車號
   const showTooltip = useMemo(() => {
     return (
-      hintAmrId2.has(amrId) ||
-      hintAmrId === amrId ||
-      zoneForbidden.has(amrId) ||
-      !!tipText ||
-      !!destinationText
+      hintAmrId2.has(amrId) || hintAmrId === amrId || zoneForbidden.has(amrId)
     );
-  }, [hintAmrId2, hintAmrId, zoneForbidden, tipText, destinationText]);
+  }, [hintAmrId2, hintAmrId, zoneForbidden]);
 
   const { pose } = useAmrPose(amrId);
   const bbox = useAmrBBox(amrId);
@@ -155,10 +144,6 @@ const AMR: FC<{
       {showTooltip ? (
         <Tip left={left} top={top}>
           <p>{`${isForbidden ? "🚫 " : ""}${amrId}`}</p>
-          {tipText ? <TipDetail>{tipText}</TipDetail> : null}
-          {destinationText ? (
-            <TipDetail>{`→ ${destinationText}`}</TipDetail>
-          ) : null}
           {/* <ArrowDownOutlined className="hint-icon" /> */}
         </Tip>
       ) : (

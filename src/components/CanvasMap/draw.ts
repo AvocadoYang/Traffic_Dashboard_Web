@@ -477,7 +477,7 @@ export function drawLive(f: Frame, scene: MapScene, live: LiveState, o: LiveOpti
     if (live.warnings.has(v.id)) drawWarning(f, v);
   }
   drawWaits(f, shown, live);
-  for (const v of shown) drawTip(f, v, live, o);
+  for (const v of shown) drawTip(f, v, o);
   return hits;
 }
 
@@ -695,32 +695,10 @@ function drawWarning(f: Frame, v: Visible) {
   ctx.fillText("❗", x, y + 2);
 }
 
-const IDLE_STATUS = ["standby"];
-const pickLoc = (value?: string | null) => {
-  const trimmed = value?.trim() ?? "";
-  return trimmed && trimmed !== "0" ? trimmed : "";
-};
-
-/** 車的提示框內容 (3D 檢視的標籤也用): 正在做什麼、要去哪裡 */
-export const amrTip = (live: LiveState, id: string) => {
-  const a = live.amrs.get(id);
-  if (!a) return { tipText: "", dest: "" };
-  const status = a.status.trim();
-  const isIdle = !status || IDLE_STATUS.includes(status.toLowerCase());
-  return {
-    tipText: live.activeSubName.get(id) || (isIdle ? "" : status),
-    dest:
-      pickLoc(a.destination?.name) ||
-      pickLoc(a.destination?.finalLocationId) ||
-      pickLoc(a.destination?.locationId),
-  };
-};
-
-/** 車上方的黑色提示框: 車號、在做什麼、要去哪裡 (規則同 useAmrMissionTip) */
-function drawTip(f: Frame, v: Visible, live: LiveState, o: LiveOptions) {
-  const { tipText, dest } = amrTip(live, v.id);
+/** 車上方的黑色提示框: 車號 (選取 / 卡片 hover / 區域禁行時); 在做什麼、要去哪裡改放在車輛卡片 */
+function drawTip(f: Frame, v: Visible, o: LiveOptions) {
   const forbidden = o.forbiddenIds.has(v.id);
-  const show = o.filterIds.has(v.id) || o.hintId === v.id || forbidden || !!tipText || !!dest;
+  const show = o.filterIds.has(v.id) || o.hintId === v.id || forbidden;
   if (!show) return;
 
   const { ctx } = f;
@@ -728,8 +706,6 @@ function drawTip(f: Frame, v: Visible, live: LiveState, o: LiveOptions) {
   const lines: { text: string; bold: boolean }[] = [
     { text: `${forbidden ? "🚫 " : ""}${v.id}`, bold: true },
   ];
-  if (tipText) lines.push({ text: tipText, bold: false });
-  if (dest) lines.push({ text: `→ ${dest}`, bold: false });
 
   const fontSize = 11;
   const lineH = 14;
