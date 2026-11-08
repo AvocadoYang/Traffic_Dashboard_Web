@@ -9,6 +9,7 @@
 import { amrId2ColorRainbow } from "@/utils/utils";
 import type { PaletteColors } from "@/theme";
 import type { MapScene, SceneAnnotation } from "./scene";
+import type { RouteHighlight } from "./routeHighlight";
 import type { LiveState } from "./liveStore";
 import { MapView, visibleRect } from "./view";
 
@@ -384,6 +385,10 @@ export type LiveOptions = {
   mirLength: (amrId: string) => number;
   /** 模擬模式: 畫的都是模擬車 (SW15 不用轉座標, 見 usesSW15Frame) */
   simulated?: boolean;
+  /** 動畫用的時間 (ms, performance.now()); 沒給就畫成靜止的 (例如使用者關了動態效果) */
+  now?: number;
+  /** 車輛卡片 hover「起點 → 終點」時要標出來的點位 */
+  routeHighlight?: RouteHighlight | null;
 };
 
 /** sw15Frame: SW15 實車, 車頭反過來畫 */
@@ -436,7 +441,16 @@ export const sw15ToMap = (x: number, y: number) => {
   return { x: x * Math.cos(theta) - y * Math.sin(theta) + 3.5, y: x * Math.sin(theta) + y * Math.cos(theta) + 0.4 };
 };
 
-export function drawLive(f: Frame, scene: MapScene, live: LiveState, o: LiveOptions): AmrHit[] {
+/**
+ * hits: 車子在地圖上佔的範圍 (點選用);
+ * animating: 畫面上有會動的東西 (目的地記號的微光), 外面要再排下一幀
+ */
+export function drawLive(
+  f: Frame,
+  scene: MapScene,
+  live: LiveState,
+  o: LiveOptions,
+): { hits: AmrHit[]; animating: boolean } {
   const { ctx } = f;
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -450,6 +464,7 @@ export function drawLive(f: Frame, scene: MapScene, live: LiveState, o: LiveOpti
   }
 
   if (o.showPointCloud) drawPointClouds(f, scene, live, o);
+  const animating = drawDestinations(f, scene, live, shown, o) && o.now !== undefined;
   for (const v of shown) {
     if (!v.id.includes("mi")) drawBBox(f, scene, live.bbox.get(v.id)!, v.color);
   }
@@ -477,8 +492,174 @@ export function drawLive(f: Frame, scene: MapScene, live: LiveState, o: LiveOpti
     if (live.warnings.has(v.id)) drawWarning(f, v);
   }
   drawWaits(f, shown, live);
-  for (const v of shown) drawTip(f, v, live, o);
-  return hits;
+  const fading = drawRouteHighlight(f, scene, o);
+  for (const v of shown) drawTip(f, v, o);
+  return { hits, animating: animating || fading };
+}
+
+/** "rgb(r, g, b)" -> "rgba(r, g, b, a)" (toOpaque 出來的格式) */
+const withAlpha = (rgb: string, alpha: number) =>
+  rgb.replace(/^rgb\((.*)\)$/, `rgba($1, ${alpha})`);
+
+/** 目的地圈外的微光: 一次多久 (ms)、往外飄幾個螢幕像素 */
+const DEST_PULSE_MS = 2400;
+const DEST_PULSE_SPREAD = 4;
+
+/**
+ * 循軌車 (非 MiR) 移動任務期間, 在它這一動要去的地點畫一個小記號: 車子顏色的空心細圈,
+ * 圈外有一道很淡的細光環慢慢往外飄幾個像素就消失。
+ * 圈比點位大一點、中間空心, 不會蓋住點位本身; 大小固定, 放大縮小都一樣小。
+ * 車已經在目的地上 (例如正在取放貨) 就不畫。選到 / hover 卡片的那台再拉一條淡淡的虛線過去。
+ * 回傳有沒有畫任何記號 (有的話外面要繼續排動畫)。
+ */
+function drawDestinations(f: Frame, scene: MapScene, live: LiveState, shown: Visible[], o: LiveOptions) {
+  const { ctx } = f;
+  const dimOthers = o.filterIds.size > 0 || o.forbiddenIds.size > 0;
+  let drew = false;
+  screenSpace(f);
+  ctx.save();
+  for (const v of shown) {
+    if (v.id.includes("mi")) continue;
+    const d = live.amrs.get(v.id)?.destination;
+    const targetId = [d?.locationId, d?.finalLocationId]
+      .map((x) => x?.trim() ?? "")
+      .find((x) => x && x !== "0");
+    if (!targetId) continue;
+    const at = scene.locationPx.get(targetId);
+    if (!at) continue;
+    const [tx, ty] = toScreen(f, at[0], at[1]);
+    const [cx, cy] = toScreen(f, v.x, v.y);
+    // 車已經到了 (12 螢幕像素內) 就不用標
+    if (Math.hypot(tx - cx, ty - cy) < 12) continue;
+    // 不在畫面裡就不畫 (也不用為它跑動畫)
+    if (tx < -40 || ty < -40 || tx > f.width + 40 || ty > f.height + 40) continue;
+    drew = true;
+
+    const focused = o.filterIds.has(v.id) || o.hintId === v.id;
+    const highlighted = o.filterIds.size ? o.filterIds.has(v.id) : o.forbiddenIds.has(v.id);
+    const alpha = dimOthers && !highlighted ? 0.15 : focused ? 1 : 0.85;
+    const color = toOpaque(v.color);
+    const r = 5;
+
+    if (focused) {
+      ctx.globalAlpha = alpha * 0.6;
+      ctx.setLineDash([4, 4]);
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(tx, ty);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    ctx.globalAlpha = alpha;
+
+    // 圈外一道很淡的細光環, 慢慢往外飄幾個像素就消失
+    if (o.now !== undefined) {
+      const t = (o.now % DEST_PULSE_MS) / DEST_PULSE_MS;
+      const rr = r + 1.5 + t * DEST_PULSE_SPREAD;
+      ctx.lineWidth = 1.2 * (1 - t) + 0.4;
+      ctx.strokeStyle = withAlpha(color, 0.35 * (1 - t));
+      ctx.beginPath();
+      ctx.arc(tx, ty, rr, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // 空心細圈 (外面一圈白邊, 深色底圖上也看得到)
+    ctx.lineWidth = 2.75;
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
+    ctx.beginPath();
+    ctx.arc(tx, ty, r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.arc(tx, ty, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.restore();
+  return drew;
+}
+
+/** hover 起點 / 終點時標記淡入多久 (ms) */
+const ROUTE_FADE_MS = 180;
+
+/**
+ * 車輛卡片 hover「起點 → 終點」時, 把那幾個點位標出來:
+ * 一圈很淡的車色光暈 + 細圈 (白邊), 上方一個小膠囊標籤寫「起點 101」「終點 205」。
+ * 終點的標籤是實心車色、起點 / 前往是白底車色字, 一眼分得出來; 淡入、圈稍微放大一點點, 不會突然跳出來。
+ * 兩個標籤疊在一起時, 後面那個改放到點位下方。回傳是不是還在淡入 (要繼續排動畫)。
+ */
+function drawRouteHighlight(f: Frame, scene: MapScene, o: LiveOptions) {
+  const hl = o.routeHighlight;
+  if (!hl || !hl.points.length) return false;
+  const { ctx } = f;
+  const elapsed = o.now === undefined ? ROUTE_FADE_MS : o.now - hl.since;
+  const t = Math.min(1, Math.max(0, elapsed / ROUTE_FADE_MS));
+  const k = 1 - (1 - t) * (1 - t);
+  const color = toOpaque(amrColor(hl.amrId));
+  const placed: { x: number; y: number; w: number; h: number }[] = [];
+  const overlaps = (r: { x: number; y: number; w: number; h: number }) =>
+    placed.some((p) => r.x < p.x + p.w && r.x + r.w > p.x && r.y < p.y + p.h && r.y + r.h > p.y);
+
+  screenSpace(f);
+  ctx.save();
+  ctx.font = `600 11px ${FONT}`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  for (const p of hl.points) {
+    const at = scene.locationPx.get(p.locationId);
+    if (!at) continue;
+    const [x, y] = toScreen(f, at[0], at[1]);
+    const soft = p.kind === "next" ? 0.75 : 1;
+
+    // 很淡的光暈
+    ctx.globalAlpha = k * soft;
+    ctx.fillStyle = withAlpha(color, 0.16);
+    ctx.beginPath();
+    ctx.arc(x, y, 12, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 細圈: 淡入時從 4px 長到 6px
+    const r = 4 + 2 * k;
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.lineWidth = 1.75;
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // 膠囊標籤 (上方; 跟別的標籤疊到就放下方), 淡入時往上滑 3px
+    const w = ctx.measureText(p.label).width + 14;
+    const h = 18;
+    let rect = { x: x - w / 2, y: y - 14 - h + (1 - k) * 3, w, h };
+    if (overlaps(rect)) rect = { ...rect, y: y + 14 };
+    placed.push(rect);
+    const solid = p.kind === "end";
+    ctx.shadowColor = "rgba(0, 0, 0, 0.18)";
+    ctx.shadowBlur = 6;
+    ctx.shadowOffsetY = 1;
+    ctx.fillStyle = solid ? color : "rgba(255, 255, 255, 0.96)";
+    roundRect(ctx, rect.x, rect.y, w, h, h / 2);
+    ctx.fill();
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+    if (!solid) {
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = withAlpha(color, 0.6);
+      roundRect(ctx, rect.x + 0.5, rect.y + 0.5, w - 1, h - 1, (h - 1) / 2);
+      ctx.stroke();
+    }
+    ctx.fillStyle = solid ? "#fff" : color;
+    ctx.fillText(p.label, x, rect.y + h / 2 + 0.5);
+  }
+  ctx.restore();
+  return o.now !== undefined && t < 1;
 }
 
 /** 等待箭頭的顏色 (3D 也用這個) */
@@ -695,32 +876,10 @@ function drawWarning(f: Frame, v: Visible) {
   ctx.fillText("❗", x, y + 2);
 }
 
-const IDLE_STATUS = ["standby"];
-const pickLoc = (value?: string | null) => {
-  const trimmed = value?.trim() ?? "";
-  return trimmed && trimmed !== "0" ? trimmed : "";
-};
-
-/** 車的提示框內容 (3D 檢視的標籤也用): 正在做什麼、要去哪裡 */
-export const amrTip = (live: LiveState, id: string) => {
-  const a = live.amrs.get(id);
-  if (!a) return { tipText: "", dest: "" };
-  const status = a.status.trim();
-  const isIdle = !status || IDLE_STATUS.includes(status.toLowerCase());
-  return {
-    tipText: live.activeSubName.get(id) || (isIdle ? "" : status),
-    dest:
-      pickLoc(a.destination?.name) ||
-      pickLoc(a.destination?.finalLocationId) ||
-      pickLoc(a.destination?.locationId),
-  };
-};
-
-/** 車上方的黑色提示框: 車號、在做什麼、要去哪裡 (規則同 useAmrMissionTip) */
-function drawTip(f: Frame, v: Visible, live: LiveState, o: LiveOptions) {
-  const { tipText, dest } = amrTip(live, v.id);
+/** 車上方的黑色提示框: 車號 (選取 / 卡片 hover / 區域禁行時); 在做什麼、要去哪裡改放在車輛卡片 */
+function drawTip(f: Frame, v: Visible, o: LiveOptions) {
   const forbidden = o.forbiddenIds.has(v.id);
-  const show = o.filterIds.has(v.id) || o.hintId === v.id || forbidden || !!tipText || !!dest;
+  const show = o.filterIds.has(v.id) || o.hintId === v.id || forbidden;
   if (!show) return;
 
   const { ctx } = f;
@@ -728,8 +887,6 @@ function drawTip(f: Frame, v: Visible, live: LiveState, o: LiveOptions) {
   const lines: { text: string; bold: boolean }[] = [
     { text: `${forbidden ? "🚫 " : ""}${v.id}`, bold: true },
   ];
-  if (tipText) lines.push({ text: tipText, bold: false });
-  if (dest) lines.push({ text: `→ ${dest}`, bold: false });
 
   const fontSize = 11;
   const lineH = 14;
