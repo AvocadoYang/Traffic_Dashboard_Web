@@ -1,4 +1,5 @@
 import { ReactNode, useState } from "react";
+import { usePermission } from "@/utils/permissions";
 import { Button, DatePicker, Pagination, Popconfirm, Table, message } from "antd";
 import { DeleteOutlined, DownloadOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
@@ -264,6 +265,7 @@ const RecordPanel = <T extends { id: string }>({
   exportFileName,
 }: RecordPanelProps<T>) => {
   const { t } = useTranslation();
+  const can = usePermission();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
@@ -354,19 +356,21 @@ const RecordPanel = <T extends { id: string }>({
             >
               {t("records.export_excel")}
             </Button>
-            <Popconfirm
-              onConfirm={() => deleteMutation.mutate()}
-              title={t("records.delete_all_confirm")}
-              okButtonProps={{ danger: true }}
-            >
-              <Button
-                danger
-                icon={<DeleteOutlined />}
-                loading={deleteMutation.isLoading}
+            {can("system.records_delete") && (
+              <Popconfirm
+                onConfirm={() => deleteMutation.mutate()}
+                title={t("records.delete_all_confirm")}
+                okButtonProps={{ danger: true }}
               >
-                {t("records.delete_all")}
-              </Button>
-            </Popconfirm>
+                <Button
+                  danger
+                  icon={<DeleteOutlined />}
+                  loading={deleteMutation.isLoading}
+                >
+                  {t("records.delete_all")}
+                </Button>
+              </Popconfirm>
+            )}
           </ToolbarButtons>
         </Toolbar>
       </PanelHead>

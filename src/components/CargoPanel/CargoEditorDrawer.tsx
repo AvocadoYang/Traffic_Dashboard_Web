@@ -146,6 +146,8 @@ const CargoEditorDrawer: FC<{
   notices?: ReactNode;
   /** 儲存整份清單;knownCargoIds 是組清單當下看到的貨,後端只移除這裡面被拿掉的 */
   save: (cargo: CargoPayload[], knownCargoIds: string[]) => Promise<unknown>;
+  /** 只能看 (功能權限沒有貨物編輯): 按鈕都停用, 不給新增 / 清空 */
+  readOnly?: boolean;
 }> = ({
   open,
   onClose,
@@ -157,6 +159,7 @@ const CargoEditorDrawer: FC<{
   order,
   notices,
   save,
+  readOnly,
 }) => {
   const { t } = useTranslation();
   const { data } = useCustomCargoFormat();
@@ -184,6 +187,7 @@ const CargoEditorDrawer: FC<{
   }, [signature, syncingFrom]);
 
   const busy = saving || syncingFrom !== null;
+  const locked = busy || !!readOnly;
 
   /** 用按下去當下最新的貨物清單組出要送的內容 */
   const run = async (
@@ -257,7 +261,7 @@ const CargoEditorDrawer: FC<{
                   displayIndex={i}
                   formats={formats}
                   badge={i === 0 ? firstBadge : undefined}
-                  busy={busy}
+                  busy={locked}
                   canMoveUp={canReorder ? i > 0 : null}
                   canMoveDown={canReorder ? i < display.length - 1 : null}
                   // 畫面上往上移:fifo 是提早取出(順序變小),lifo 是往上疊(順序變大)
@@ -289,35 +293,37 @@ const CargoEditorDrawer: FC<{
           )}
         </Scroll>
 
-        <ListFooter>
-          <Button
-            type="dashed"
-            block
-            icon={<PlusOutlined />}
-            disabled={busy || full || formats.length === 0}
-            onClick={() => setView({ mode: "add" })}
-          >
-            {t("cargo_panel.add")}
-          </Button>
-          {full && <div className="hint">{t("cargo_panel.full")}</div>}
-          {formats.length === 0 && (
-            <div className="hint">{t("cargo_panel.no_formats")}</div>
-          )}
-          {live.length > 0 && (
-            <Popconfirm
-              title={t("cargo_panel.clear_confirm", { count: live.length })}
-              okText={t("cargo_panel.clear_all")}
-              cancelText={t("utils.cancel")}
-              okButtonProps={{ danger: true, size: "large" }}
-              cancelButtonProps={{ size: "large" }}
-              onConfirm={() => run(() => [], "cargo_panel.removed")}
+        {!readOnly && (
+          <ListFooter>
+            <Button
+              type="dashed"
+              block
+              icon={<PlusOutlined />}
+              disabled={busy || full || formats.length === 0}
+              onClick={() => setView({ mode: "add" })}
             >
-              <Button danger type="text" block disabled={busy}>
-                {t("cargo_panel.clear_all")}
-              </Button>
-            </Popconfirm>
-          )}
-        </ListFooter>
+              {t("cargo_panel.add")}
+            </Button>
+            {full && <div className="hint">{t("cargo_panel.full")}</div>}
+            {formats.length === 0 && (
+              <div className="hint">{t("cargo_panel.no_formats")}</div>
+            )}
+            {live.length > 0 && (
+              <Popconfirm
+                title={t("cargo_panel.clear_confirm", { count: live.length })}
+                okText={t("cargo_panel.clear_all")}
+                cancelText={t("utils.cancel")}
+                okButtonProps={{ danger: true, size: "large" }}
+                cancelButtonProps={{ size: "large" }}
+                onConfirm={() => run(() => [], "cargo_panel.removed")}
+              >
+                <Button danger type="text" block disabled={busy}>
+                  {t("cargo_panel.clear_all")}
+                </Button>
+              </Popconfirm>
+            )}
+          </ListFooter>
+        )}
       </>
     );
   };

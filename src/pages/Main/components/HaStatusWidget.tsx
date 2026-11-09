@@ -1,4 +1,5 @@
 import { Alert, Badge, Button, Modal, Popover, Tag, message } from "antd";
+import { usePermission } from "@/utils/permissions";
 import {
   CloudServerOutlined,
   CrownOutlined,
@@ -133,6 +134,7 @@ const HaStatusWidget: React.FC<{ compact?: boolean }> = ({ compact }) => {
   const { data } = useHaStatus();
   const [open, setOpen] = useState(false);
   const { t } = useTranslation();
+  const can = usePermission();
 
   const takeOverMutation = useMutation({
     mutationFn: takeOver,
@@ -290,39 +292,41 @@ const HaStatusWidget: React.FC<{ compact?: boolean }> = ({ compact }) => {
         )}
       </Section>
 
-      <Actions>
-        {isMaster ? (
-          <Button
-            danger
-            size="small"
-            disabled={!arb}
-            loading={takeOverMutation.isLoading}
-            onClick={confirmRelease}
-          >
-            {t("ha.release")}
-          </Button>
-        ) : (
-          <>
+      {can("system.ha") && (
+        <Actions>
+          {isMaster ? (
             <Button
-              type="primary"
+              danger
               size="small"
               disabled={!arb}
               loading={takeOverMutation.isLoading}
-              onClick={confirmTakeOver}
+              onClick={confirmRelease}
             >
-              {t("ha.take_over")}
+              {t("ha.release")}
             </Button>
-            <Button
-              size="small"
-              icon={<SyncOutlined />}
-              loading={syncMutation.isLoading}
-              onClick={confirmSync}
-            >
-              {t("ha.sync_from_master")}
-            </Button>
-          </>
-        )}
-      </Actions>
+          ) : (
+            <>
+              <Button
+                type="primary"
+                size="small"
+                disabled={!arb}
+                loading={takeOverMutation.isLoading}
+                onClick={confirmTakeOver}
+              >
+                {t("ha.take_over")}
+              </Button>
+              <Button
+                size="small"
+                icon={<SyncOutlined />}
+                loading={syncMutation.isLoading}
+                onClick={confirmSync}
+              >
+                {t("ha.sync_from_master")}
+              </Button>
+            </>
+          )}
+        </Actions>
+      )}
     </Panel>
   );
 

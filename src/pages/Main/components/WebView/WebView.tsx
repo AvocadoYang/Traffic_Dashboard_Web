@@ -6,6 +6,7 @@ import {
   Splitter,
   Tooltip,
 } from "antd";
+import { usePermission } from "@/utils/permissions";
 import { memo, useEffect, useRef, useState } from "react";
 import { Layout } from "antd";
 import "./webview.css";
@@ -227,6 +228,7 @@ const WebView = () => {
   const setScale = useSetAtom(Scale);
   const cm = useAtomValue(centerMap);
   const { t } = useTranslation();
+  const canDispatch = usePermission()("mission.dispatch");
   const [bottomView, setBottomView] = useState<BottomView>("car");
   const [showSidebars, setShowSidebars] = useState(true);
 
@@ -316,17 +318,17 @@ const WebView = () => {
                         value: "car",
                       },
                       { label: t("utils.missions"), value: "mission" },
-                      {
-                        label: t("main.card_name.mission"),
-                        value: "dispatch",
-                      },
+                      // 功能權限: 沒有「派發任務」不給派發分頁
+                      ...(canDispatch
+                        ? [{ label: t("main.card_name.mission"), value: "dispatch" as const }]
+                        : []),
                     ]}
                   />
                 </BottomPanelTabs>
                 <BottomPanelBody $view={bottomView}>
                   {bottomView === "car" && <CarCardWrap></CarCardWrap>}
                   {bottomView === "mission" && <MissionWrap></MissionWrap>}
-                  {bottomView === "dispatch" && (
+                  {bottomView === "dispatch" && canDispatch && (
                     <MissionDispatchPanel></MissionDispatchPanel>
                   )}
                 </BottomPanelBody>

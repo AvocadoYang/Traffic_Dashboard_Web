@@ -28,6 +28,16 @@ export const tokenExpiresAt = (token: string | null): number | null => {
   }
 };
 
+/** 用預設密碼登入的 token (後端標 pwc): 要先改密碼 */
+export const tokenMustChangePassword = (token: string | null): boolean => {
+  if (!token) return false;
+  try {
+    return jwtDecode<{ pwc?: boolean }>(token).pwc === true;
+  } catch {
+    return false;
+  }
+};
+
 export const tokenAccount = (token: string | null): string => {
   if (!token) return "";
   try {

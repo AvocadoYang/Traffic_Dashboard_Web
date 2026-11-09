@@ -47,6 +47,7 @@ import ClientNameModal from "./ClientNameModal";
 import { clientNameAtom } from "@/utils/clientIdentity";
 import { UserAvatar as ProfileAvatar } from "@/components/UserAvatar/UserAvatar";
 import { useMyProfile } from "@/api/useProfile";
+import { pagePermissionOf, usePermission } from "@/utils/permissions";
 import { chatOpenAtom, useSiteChat } from "@/api/useSiteChat";
 import { getToken, logout, tokenAccount } from "@/utils/session";
 import SimTime from "./SimTime";
@@ -465,8 +466,11 @@ const Header: React.FC = () => {
   const { showSimulationUi, showSimulateV2 } = useUiConfig();
   // 任務列(任務派發)只有首頁才有內容。其他頁面一律顯示導覽、也不給切換,
   // 不然上次停在任務列的人換到別頁會看到一排空白,連導覽都不見。
+  const can = usePermission();
+  // 沒有「派發任務」權限的帳號任務列整排都是空的, 也不給切
   const hasToolsRow =
-    location.pathname === "/" || location.pathname === "/main-v1";
+    (location.pathname === "/" || location.pathname === "/main-v1") &&
+    can("mission.dispatch");
   const activeRow: HeaderRow = hasToolsRow ? headerRow : "nav";
   const [openClientName, setOpenClientName] = useState(false);
   const [clientName, setClientNameState] = useAtom(clientNameAtom);
@@ -553,7 +557,11 @@ const Header: React.FC = () => {
     { key: "/fleet-replay", label: t("page_fleet_replay") },
     { key: "/report", label: t("page_report") },
     { key: "/achievements", label: t("page_achievements") },
-  ];
+  ].filter((item) => {
+    // 功能權限: 帳號沒有的頁面不放進選單
+    const need = pagePermissionOf(item.key);
+    return !need || can(need);
+  });
 
   const handleMenuClick = (e: { key: string }) => {
     navigate(e.key);
@@ -755,7 +763,7 @@ const Header: React.FC = () => {
                   {t("header.stop_sim")}
                 </ControlButton>
               </Tooltip>
-            ) : showSimulationUi ? (
+            ) : showSimulationUi && can("system.sim_cars") ? (
               <Tooltip title={t("page_simulate")}>
                 <ControlButton
                   onClick={() => setIsSimulateOpen(true)}

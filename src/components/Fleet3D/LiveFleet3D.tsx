@@ -127,7 +127,7 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef, preferredView }) => {
   const anchors = useMemo(() => new ScreenAnchors(), []);
 
   const tracks = useMemo(() => new LiveTracks(), []);
-  tracks.filter = { currentMapId, filterIds, forbiddenIds, color: amrColor, simulated: !!names?.isSim };
+  tracks.filter = { currentMapId, filterIds, forbiddenIds, color: amrColor };
 
   // 即時資料: 跟 2D 地圖一樣直接訂閱 socket, 位置不經過 React;
   // 只有標籤文字、被佔用的路線換了才 setState
@@ -295,7 +295,7 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef, preferredView }) => {
     const tick = () => {
       const state = storeRef.current?.state;
       if (!state) return;
-      const warned = amrIds.filter((id) => state.warnings.has(id) && amrShownAt(state, id, currentMapId, !!names?.isSim));
+      const warned = amrIds.filter((id) => state.warnings.has(id) && amrShownAt(state, id, currentMapId));
       const step = patrol.step(warned, performance.now(), tourAreas.length);
       if (step?.kind === "follow") {
         setFollow(step.id);
@@ -444,7 +444,7 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef, preferredView }) => {
         {showRoad && <Roads3D segments={roads} color={colors.mapRoad} onHover={showRoadTooltip ? setHoverRoad : undefined} />}
         {showLocation && <Dots3D dots={points} onClick={onPointClick} onHover={showLocationTooltip ? setHoverPoint : undefined} />}
         {showPointCloud && <PointClouds3D state={liveState} ids={amrIds} color={amrColor} currentMapId={currentMapId} />}
-        <BBoxes3D state={liveState} ids={amrIds} color={amrColor} currentMapId={currentMapId} simulated={!!names?.isSim} />
+        <BBoxes3D state={liveState} ids={amrIds} color={amrColor} currentMapId={currentMapId} />
         {/* 點位 / 路線提示 (同 2D 的「地點提示」「路徑提示」) */}
         {hoverPoint && showLocation && showLocationTooltip && (
           <Html position={[hoverPoint.x, 0.4, -hoverPoint.y]} center style={{ pointerEvents: "none" }} zIndexRange={[30, 0]}>

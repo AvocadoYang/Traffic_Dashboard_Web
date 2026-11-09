@@ -270,7 +270,6 @@ const CanvasMap: FC<Props> = ({
     robotTypes,
     hiddenZoneIds,
     showRoadTooltip,
-    simulated: !!names?.isSim,
   });
   optsRef.current = {
     scene,
@@ -289,7 +288,6 @@ const CanvasMap: FC<Props> = ({
     robotTypes,
     hiddenZoneIds,
     showRoadTooltip,
-    simulated: !!names?.isSim,
   };
 
   const render = useCallback(() => {
@@ -353,7 +351,6 @@ const CanvasMap: FC<Props> = ({
         filterIds: o.filterIds,
         hintId: o.hintId,
         forbiddenIds: o.forbiddenIds,
-        simulated: o.simulated,
         mirLength: (amrId) => {
           const value = robotTypeValueOf(amrId);
           const type = o.robotTypes?.find((r) => r.value === value);

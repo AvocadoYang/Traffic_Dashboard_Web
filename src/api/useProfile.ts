@@ -56,6 +56,8 @@ export type MyProfile = {
   role: Role;
   avatar: AvatarChoice | null;
   preferences: UserPreferences;
+  /** 功能權限: 實際可以用的 key (utils/permissions.ts); 舊版後端沒有這欄 */
+  permissions?: string[];
 };
 
 /** 預設首頁可以選的頁面 (跟後端 HOME_PAGES 一樣) */
@@ -166,6 +168,8 @@ export type AccountRow = {
   avatar: AvatarChoice | null;
   disabled: boolean;
   lastLoginAt: string | null;
+  /** 功能權限的 key; null = 沒設過, 全部都可以 */
+  permissions: string[] | null;
 };
 
 export const useAccounts = (enabled: boolean) =>

@@ -7,6 +7,7 @@ import {
   Tooltip,
   message,
 } from "antd";
+import { usePermission } from "@/utils/permissions";
 import { lazy, memo, useCallback, useEffect, useRef, useState } from "react";
 import { Layout } from "antd";
 import "@/pages/Main/components/WebView/webview.css";
@@ -255,6 +256,9 @@ const WebViewV2 = () => {
   const setScale = useSetAtom(Scale);
   const cm = useAtomValue(centerMap);
   const { t } = useTranslation();
+  const can = usePermission();
+  const canDispatch = can("mission.dispatch");
+  const canSimCars = can("system.sim_cars");
   const [bottomView, setBottomView] = useState<BottomView>("car");
   const [storedViewMode, setViewMode] = useAtom(mapViewModeAtom);
   // 這台電腦畫不了 3D (沒有 WebGL) 就只給 2D, 之前存的 3D 也不理
@@ -443,7 +447,7 @@ const WebViewV2 = () => {
                 <OpenPerformanceBtn top="72px" left="16px" />
                 <PerformancePanel top="64px" right="16px" />
                 {/* 模擬車輛: 取代舊的 /simulate 頁; 開始 / 停止模擬還是 Header 的按鈕 */}
-                {showSimulationUi ? <SimCarPanel top="128px" left="16px" /> : null}
+                {showSimulationUi && canSimCars ? <SimCarPanel top="128px" left="16px" /> : null}
                 {profile && (
                   <Tooltip title={t("profile.prefs.save_view")}>
                     <SaveViewBtn
@@ -474,17 +478,17 @@ const WebViewV2 = () => {
                         value: "car",
                       },
                       { label: t("utils.missions"), value: "mission" },
-                      {
-                        label: t("main.card_name.mission"),
-                        value: "dispatch",
-                      },
+                      // 功能權限: 沒有「派發任務」不給派發分頁
+                      ...(canDispatch
+                        ? [{ label: t("main.card_name.mission"), value: "dispatch" as const }]
+                        : []),
                     ]}
                   />
                 </BottomPanelTabs>
                 <BottomPanelBody $view={bottomView}>
                   {bottomView === "car" && <CarCardWrap></CarCardWrap>}
                   {bottomView === "mission" && <MissionWrap></MissionWrap>}
-                  {bottomView === "dispatch" && (
+                  {bottomView === "dispatch" && canDispatch && (
                     <MissionDispatchPanel></MissionDispatchPanel>
                   )}
                 </BottomPanelBody>

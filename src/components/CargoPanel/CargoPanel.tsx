@@ -1,4 +1,5 @@
 import { FC } from "react";
+import { usePermission } from "@/utils/permissions";
 import { Alert, Button, Tag } from "antd";
 import { useAtom } from "jotai";
 import { useTranslation } from "react-i18next";
@@ -54,6 +55,7 @@ const ORDER: Record<CargoPanelTarget["type"], CargoOrder> = {
 /** 點位(貨架 / 輸送帶 / stack / 電梯)的貨物面板,由 CargoPanelTarget 決定顯示哪一個 */
 const CargoPanel: FC = () => {
   const { t } = useTranslation();
+  const can = usePermission();
   const [target, setTarget] = useAtom(CargoPanelTarget);
   const source = useCargoPanelSource(target);
   const save = useSaveCargo(target, source?.storageDbId);
@@ -139,6 +141,7 @@ const CargoPanel: FC = () => {
       order={target ? ORDER[target.type] : "none"}
       notices={notices}
       save={(cargo, knownCargoIds) => save.mutateAsync({ cargo, knownCargoIds })}
+      readOnly={!can("cargo.edit")}
     />
   );
 };

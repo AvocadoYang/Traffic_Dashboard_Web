@@ -13,6 +13,7 @@ import { HOME_PAGES, MyProfile, PROFILE_KEY } from "@/api/useProfile";
 import { CHAT_KEY } from "@/api/useSiteChat";
 import { CHAT_CHECK_KEY } from "@/utils/session";
 import client from "@/api/axiosClient";
+import { reconnectSocket } from "@/sockets/socketConnect";
 import { Err } from "@/utils/responseErr";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
@@ -284,6 +285,7 @@ const Login: React.FC = () => {
       client.post("api/logInAndOut/login", payload),
     onSuccess: async (res) => {
       localStorage.setItem("token", res.data.token);
+      reconnectSocket();
       // 上一個帳號的個人設定 / 聊天室不要留給這個帳號
       queryClient.removeQueries({ queryKey: ["profile"] });
       queryClient.removeQueries({ queryKey: CHAT_KEY });
