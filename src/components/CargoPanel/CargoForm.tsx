@@ -256,11 +256,6 @@ const CargoForm: FC<{
                         )}
                       </>
                     }
-                    rules={
-                      isUnique
-                        ? [{ required: true, message: t("utils.required") }]
-                        : undefined
-                    }
                   >
                     {renderInput(field)}
                   </Form.Item>
