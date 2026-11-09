@@ -75,6 +75,8 @@ export type MapScene = {
   roads: SceneRoad[];
   zones: SceneZone[];
   annotations: SceneAnnotation[];
+  /** 所有地點 (含貨架、充電站等設備) 的底圖像素位置; 畫車子的目的地用 */
+  locationPx: Map<string, [number, number]>;
 };
 
 export const buildScene = (map: MapType): MapScene => {
@@ -162,5 +164,8 @@ export const buildScene = (map: MapType): MapScene => {
     roads,
     zones,
     annotations,
+    locationPx: new Map(
+      map.locations.map((loc) => [loc.locationId.toString(), toPx(loc.x, loc.y)]),
+    ),
   };
 };

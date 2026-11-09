@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import styled, { css } from "styled-components";
 
 import {
@@ -47,6 +47,12 @@ import { JoystickAmrId } from "../../global/jotai";
 import MapSwitchModal from "./MapSwitchModal";
 import { MaintenanceBadge } from "./MaintenancePanel";
 import { mq } from "@/styles/responsive";
+import useAmrMissionTip from "@/hooks/useAmrMissionTip";
+import { useAmrAvoid } from "@/sockets/useTrafficAvoids";
+import {
+  routeHighlightAtom,
+  type RouteHighlightPoint,
+} from "@/components/CanvasMap/routeHighlight";
 
 const GamepadSvg = () => (
   <svg
@@ -571,6 +577,14 @@ const RowValue = styled.span<{ $muted?: boolean }>`
   color: ${({ $muted }) => ($muted ? "var(--c-text-muted)" : "var(--c-text)")};
 `;
 
+// 值底下的小字 (例如起訖下面的「前往 X」)
+const RowSub = styled.span`
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--c-text-muted);
+`;
+
 const MapGroupName = styled.span`
   font-weight: 400;
   color: var(--c-text-muted);
@@ -604,7 +618,28 @@ const TextRow: React.FC<{ label: string; value: string; color?: string }> = ({
 
 const RoadRow: React.FC<RowProps> = memo(({ amrId, isOffline }) => {
   const status = useRoadConditions(amrId);
+  const avoid = useAmrAvoid(amrId);
   const { t } = useTranslation();
+  // 避讓中: 交管的審路權照樣會送「順暢」, 所以避讓優先顯示, 讓人知道它是從哪裡讓到哪裡
+  if (!isOffline && avoid) {
+    return (
+      <InfoRow
+        title={
+          avoid.forAmrId
+            ? t("amr_card.avoid_for", { amr: avoid.forAmrId })
+            : undefined
+        }
+      >
+        <RowLabel>{t("utils.road_conditions")}</RowLabel>
+        <RowValue style={{ color: "var(--c-warning)" }}>
+          {`${t("amr_card.avoiding")} ${avoid.fromId || NO_DATA} → ${avoid.asideId}`}
+          {avoid.forAmrId ? (
+            <RowSub>{t("amr_card.avoid_for", { amr: avoid.forAmrId })}</RowSub>
+          ) : null}
+        </RowValue>
+      </InfoRow>
+    );
+  }
   return (
     <TextRow
       label={t("utils.road_conditions")}
@@ -642,16 +677,117 @@ const RosStatusRow: React.FC<RowProps> = memo(({ amrId, isOffline }) => {
   );
 });
 
-const DestinationRow: React.FC<RowProps> = memo(({ amrId, isOffline }) => {
+const pickLoc = (value?: string | null) => {
+  const trimmed = value?.trim() ?? "";
+  return trimmed && trimmed !== "0" ? trimmed : "";
+};
+
+/**
+ * 循軌車 (非 MiR) 走點位, 知道從哪出發、最後到哪: 顯示 起點 → 終點,
+ * 這一動要去的點跟終點不一樣時 (例如先取貨再放貨) 底下再寫「前往 X」。
+ * hover 這一列時, 地圖上把起點、終點 (和前往的點) 標出來
+ */
+const RouteRow: React.FC<RowProps> = memo(({ amrId, isOffline }) => {
   const { destination } = useAmrDestination(amrId);
   const { t } = useTranslation();
+  const setRouteHighlight = useSetAtom(routeHighlightAtom);
+  const startId = pickLoc(destination?.startLocationId);
+  const start = pickLoc(destination?.startName) || startId;
+  const finalId = pickLoc(destination?.finalLocationId);
+  const end = pickLoc(destination?.name) || finalId;
+  const next = pickLoc(destination?.locationId);
+
+  const points: RouteHighlightPoint[] = [];
+  if (startId)
+    points.push({
+      locationId: startId,
+      label: t("amr_card.start_label", { loc: start }),
+      kind: "start",
+    });
+  if (finalId)
+    points.push({
+      locationId: finalId,
+      label: t("amr_card.end_label", { loc: end }),
+      kind: "end",
+    });
+  if (next && next !== finalId && next !== startId)
+    points.push({
+      locationId: next,
+      label: t("amr_card.heading_to", { loc: next }),
+      kind: "next",
+    });
+  const pointsKey = JSON.stringify(points);
+  const canHighlight = !isOffline && points.length > 0;
+
+  const showOnMap = useCallback(() => {
+    if (!canHighlight) return;
+    setRouteHighlight({
+      amrId,
+      points: JSON.parse(pointsKey) as RouteHighlightPoint[],
+      since: performance.now(),
+    });
+  }, [amrId, canHighlight, pointsKey, setRouteHighlight]);
+  const hideOnMap = useCallback(
+    () => setRouteHighlight((cur) => (cur?.amrId === amrId ? null : cur)),
+    [amrId, setRouteHighlight],
+  );
+  // 卡片收起來 / 換頁時游標沒移出去, 也要把地圖上的標記拿掉
+  useEffect(() => hideOnMap, [hideOnMap]);
+  // hover 中途任務往下一段 (起訖變了): 標記跟著換, 不重新淡入
+  useEffect(() => {
+    setRouteHighlight((cur) =>
+      cur?.amrId === amrId
+        ? canHighlight
+          ? { ...cur, points: JSON.parse(pointsKey) as RouteHighlightPoint[] }
+          : null
+        : cur,
+    );
+  }, [amrId, canHighlight, pointsKey, setRouteHighlight]);
+
+  if (isOffline || (!start && !end && !next)) {
+    return <TextRow label={t("amr_card.route")} value={NO_DATA} />;
+  }
   return (
-    <TextRow
-      label={t("mission_dispatch_board.amr_destination")}
-      value={isOffline || !destination?.name ? NO_DATA : destination.name}
-    />
+    <InfoRow
+      $clickable={canHighlight}
+      style={canHighlight ? { cursor: "default" } : undefined}
+      onMouseEnter={showOnMap}
+      onMouseLeave={hideOnMap}
+    >
+      <RowLabel>{t("amr_card.route")}</RowLabel>
+      <RowValue>
+        {`${start || NO_DATA} → ${end || next}`}
+        {next && finalId && next !== finalId ? (
+          <RowSub>{t("amr_card.heading_to", { loc: next })}</RowSub>
+        ) : null}
+      </RowValue>
+    </InfoRow>
   );
 });
+
+/** 原本畫在地圖車頭上的提示 (在做什麼、要去哪裡), 改放在卡片; 循軌車的目的地改成 起點 → 終點 */
+const MissionTipRows: React.FC<RowProps & { mir: boolean }> = memo(
+  ({ amrId, isOffline, mir }) => {
+    const { tipText, destinationText } = useAmrMissionTip(amrId);
+    const { t } = useTranslation();
+    return (
+      <>
+        <TextRow
+          label={t("fleet3d.info.mission")}
+          value={isOffline || !tipText ? NO_DATA : tipText}
+        />
+        {mir ? (
+          <TextRow
+            label={t("mission_dispatch_board.amr_destination")}
+            value={isOffline || !destinationText ? NO_DATA : destinationText}
+          />
+        ) : (
+          <RouteRow amrId={amrId} isOffline={isOffline} />
+        )}
+      </>
+    );
+  },
+);
 
 const CoordinateRow: React.FC<RowProps> = memo(({ amrId, isOffline }) => {
   const { loc } = useXY(amrId);
@@ -764,7 +900,7 @@ const MiRMapRow: React.FC<RowProps> = memo(({ amrId, isOffline }) => {
 });
 
 /**
- * 正常大小只列每天會看的那幾列;detailed 再加上原始狀態、目的地、座標。
+ * 正常大小只列每天會看的那幾列 (含任務、目的地);detailed 再加上原始狀態、座標。
  */
 export const InfoRows: React.FC<{ amrId: string; detailed: boolean }> = memo(
   ({ amrId, detailed }) => {
@@ -772,6 +908,7 @@ export const InfoRows: React.FC<{ amrId: string; detailed: boolean }> = memo(
     const mir = isMiR(amrId);
     return (
       <RowList>
+        <MissionTipRows amrId={amrId} isOffline={isOverdue} mir={mir} />
         {mir ? (
           <>
             <MiRRunningRow amrId={amrId} isOffline={isOverdue} />
@@ -784,12 +921,7 @@ export const InfoRows: React.FC<{ amrId: string; detailed: boolean }> = memo(
             <MaintenanceRow amrId={amrId} isOffline={isOverdue} />
           </>
         )}
-        {detailed && (
-          <>
-            <DestinationRow amrId={amrId} isOffline={isOverdue} />
-            <CoordinateRow amrId={amrId} isOffline={isOverdue} />
-          </>
-        )}
+        {detailed && <CoordinateRow amrId={amrId} isOffline={isOverdue} />}
       </RowList>
     );
   },

@@ -76,6 +76,9 @@ import LocationPointMenu, {
   LocationPointMenuTarget,
 } from "../SettingV2/panels/location/LocationPointMenu";
 import type { ZoneRow } from "../SettingV2/panels/zone/ZoneEditModal";
+import RoadEditModal, {
+  type RoadRow,
+} from "../SettingV2/panels/road/RoadEditModal";
 import ZoneRedraw from "../SettingV2/panels/zone/ZoneRedraw";
 
 /**
@@ -382,6 +385,39 @@ const SettingMapV3: FC<Props> = ({
   );
   const closeZoneRedraw = useCallback(() => setRedrawZone(null), []);
 
+  // ---------------- 點了路徑: 直接開路徑參數的編輯視窗 (同路徑表的編輯鈕)
+  // 拉路線、快速路線、打點、框選時左鍵是在編輯, 不開
+  // 存檔要的是路徑表那份資料 (有 rev); 按下當下拍一份快照, 編輯途中資料重抓也不會換掉
+  const [editingRoad, setEditingRoad] = useState<RoadRow | null>(null);
+  const closeRoadEdit = useCallback(() => setEditingRoad(null), []);
+  const onRoadClick = useCallback(
+    (roadId: string) => {
+      if (isEditingOnMap || openEditRoadPanel || quickRoad) return;
+      const candidates = (resources?.groups ?? [])
+        .filter((g) => g.isUsing)
+        .flatMap((g) =>
+          g.maps.flatMap((m) =>
+            m.roads
+              .filter((r) => r.roadId === roadId)
+              .map(
+                (r) =>
+                  ({
+                    ...r,
+                    mapFileName: m.fileName,
+                    groupName: g.groupName,
+                    isActiveGroup: g.isUsing,
+                    mapId: m.mapId,
+                  }) as RoadRow & { mapId: string },
+              ),
+          ),
+        );
+      const row =
+        candidates.find((c) => c.mapId === mapData?.mapId) ?? candidates[0];
+      if (row) setEditingRoad(row);
+    },
+    [isEditingOnMap, openEditRoadPanel, quickRoad, resources, mapData?.mapId],
+  );
+
   return (
     <>
       <LocationPointMenu
@@ -389,6 +425,7 @@ const SettingMapV3: FC<Props> = ({
         onClose={closePointMenu}
         wrapRef={wrapRef}
       />
+      <RoadEditModal road={editingRoad} onClose={closeRoadEdit} />
       <CanvasMap
         wrapRef={wrapRef}
         mapImageRef={mapImageRef}
@@ -396,6 +433,7 @@ const SettingMapV3: FC<Props> = ({
         alwaysShowAnnotations
         leftButtonPans={!isEditingOnMap}
         onPointClick={onPointClick}
+        onRoadClick={onRoadClick}
         apiRef={apiRef}
         onCanvasPointerDown={onCanvasPointerDown}
         onZoneEdit={openZoneRedraw}
