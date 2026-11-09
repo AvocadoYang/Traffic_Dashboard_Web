@@ -826,6 +826,7 @@
       "maintenance_items": "Maintenance items"
     },
     "mission": {
+      "signal_trigger": "Signal triggers",
       "mission": "Mission",
       "edit_mission": "Edit mission",
       "charge_mission": "Charge management per vehicle",
@@ -3744,6 +3745,22 @@
     "take_over_missions": "Missions the previous MASTER dispatched: each vehicle is paused once it connects to this host, then its remaining steps go back to the same vehicle. Vehicles that do not connect within 60 seconds raise an alarm and need manual handling."
   },
   "setting_v2": {
+    "signal_trigger": {
+      "no_mission": "No mission selected",
+      "condition": "Condition",
+      "no_condition": "No condition yet",
+      "and": "and",
+      "or": "or",
+      "hold_fact": "(held {{sec}} s)",
+      "now_met": "holds now",
+      "now_not_met": "does not hold now",
+      "now_unknown": "unknown now",
+      "last": "Last event",
+      "any_car": "Any vehicle (system picks)",
+      "car_hint": "Pick several vehicles to send one mission to each; leave empty to send one mission and let the system pick the vehicle",
+      "hint": "A mission is sent when the condition changes from not holding to holding (and keeps holding for the set seconds); it must stop holding before it can fire again. Nothing is sent while the previous mission of the trigger is unfinished. A condition that already holds when the backend starts does not count. After adding, edit the condition and mission, then activate.",
+      "empty": "No signal triggers"
+    },
     "view_panel": "Panel",
     "view_map": "Map",
     "all": "ALL",
@@ -4347,6 +4364,7 @@
     "body": "What was sent",
     "before_full": "Full data before the change",
     "category": {
+      "signal_trigger": "Signal triggers",
       "point": "Point",
       "road": "Road",
       "zone": "Zone",

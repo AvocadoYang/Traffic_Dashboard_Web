@@ -826,6 +826,7 @@
       "maintenance_items": "保養項目"
     },
     "mission": {
+      "signal_trigger": "訊號觸發任務",
       "mission": "任務",
       "edit_mission": "編輯任務",
       "charge_mission": "每台車充電管理",
@@ -3745,6 +3746,22 @@
     "take_over_missions": "前一個 MASTER 派出去的任務：等車連上這台後先暫停，再把剩下的步驟派回同一台車；60 秒內沒連上的車會發告警，要人工處理。"
   },
   "setting_v2": {
+    "signal_trigger": {
+      "no_mission": "還沒選任務",
+      "condition": "觸發條件",
+      "no_condition": "還沒設條件",
+      "and": "且",
+      "or": "或",
+      "hold_fact": "(持續 {{sec}} 秒)",
+      "now_met": "現在成立",
+      "now_not_met": "現在不成立",
+      "now_unknown": "現在不明",
+      "last": "最近一次",
+      "any_car": "不指定 (系統挑車)",
+      "car_hint": "可以選好幾台，每台各派一筆；不選 = 派一筆，由系統挑車",
+      "hint": "條件從「不成立」變成「成立」(並持續設定的秒數) 時派任務；要先變回不成立才會再派。上一次派的任務還沒做完就不派。後端剛啟動時條件本來就成立不算一次觸發。新增後先按編輯設定條件和任務，再啟用。",
+      "empty": "尚無訊號觸發任務"
+    },
     "view_panel": "面板",
     "view_map": "地圖",
     "all": "全部",
@@ -4348,6 +4365,7 @@
     "body": "送出的內容",
     "before_full": "改之前的完整資料",
     "category": {
+      "signal_trigger": "訊號觸發任務",
       "point": "點位",
       "road": "路徑",
       "zone": "區域",
