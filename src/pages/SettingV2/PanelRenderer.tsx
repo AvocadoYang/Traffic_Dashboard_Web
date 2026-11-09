@@ -19,6 +19,7 @@ import ChargePanel from "./panels/mission/ChargePanel";
 import BeforeLeftChargeStationPanel from "./panels/mission/BeforeLeftChargeStationPanel";
 import BeforeEnterChargeStationPanel from "./panels/mission/BeforeEnterChargeStationPanel";
 import SchedulePanel from "./panels/mission/SchedulePanel";
+import SignalTriggerPanel from "./panels/mission/SignalTriggerPanel";
 import IdleRulePanel from "./panels/mission/IdleRulePanel";
 import TopicMissionPanel from "./panels/mission/TopicMissionPanel";
 import AbortCargoMissionPanel from "./panels/mission/AbortCargoMissionPanel";
@@ -131,6 +132,8 @@ const PanelRenderer: FC<Props> = ({
       return <BeforeLeftChargeStationPanel />;
     case "schedule_mission":
       return <SchedulePanel />;
+    case "signal_trigger":
+      return <SignalTriggerPanel />;
     case "idle_mission":
       return <IdleRulePanel />;
     case "topic_mission":

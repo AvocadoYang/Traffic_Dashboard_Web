@@ -15,6 +15,7 @@ export type SettingV2OnlyKey =
   | "map_annotation"
   | "setting_change_log"
   | "maintenance_items"
-  | "advantech_serial";
+  | "advantech_serial"
+  | "signal_trigger";
 
 export type SettingV2PanelKey = ToolBarItemType | SettingV2OnlyKey;

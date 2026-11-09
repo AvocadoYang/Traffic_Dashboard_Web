@@ -60,6 +60,7 @@ const CATEGORIES = [
   "map",
   "mission",
   "schedule",
+  "signal_trigger",
   "idle_rule",
   "charge",
   "dispatch",
