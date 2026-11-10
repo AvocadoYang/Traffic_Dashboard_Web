@@ -2826,8 +2826,10 @@
     "newPassword": "New Password",
     "confirmPassword": "Confirm Password",
     "passwordNotMatch": "Passwords do not match",
-    "forcedTitle": "Change the default password first",
-    "forcedHint": "This account still uses a default password that anyone can guess. Set a new one to continue (at least 8 characters, with upper and lower case letters)."
+    "reminderTitle": "Please change the default password",
+    "reminderHint": "This account still uses a default password that anyone can guess. We recommend setting a new one (at least 8 characters, with upper and lower case letters). If now is not a good time, choose 'Remind me in 7 days'.",
+    "remindLater": "Remind me in 7 days",
+    "rule": "At least 8 characters, with upper and lower case letters"
   },
   "client_name": {
     "title": "Computer name",
