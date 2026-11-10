@@ -749,7 +749,7 @@
     "per_day_title": "Completed per day",
     "per_bucket_hint": "Bars: completed transport missions; lines: average wait / run time (minutes)",
     "time_split_title": "Time split per vehicle",
-    "time_split_hint": "Idle = online without a mission; offline = backend running but vehicle not connected; not recorded = backend not running or before this feature",
+    "time_split_hint": "Each vehicle is counted in exactly one state at any moment, so the bars add up to 100%. Transport = normal transport missions; Charge = going to / on the charger; Give way = system moves the car off another's route; Standby = automatic return to standby point; Manual = moves dispatched by a person; Idle = online without a mission (including waiting in place); Offline = backend running but vehicle not connected; Not recorded = backend not running or before this feature. When missions overlap, the first of Transport > Charge > Manual > Standby > Give way wins",
     "vehicle_table_title": "Per vehicle",
     "alarm_title": "Alarm ranking",
     "alarm_hint": "Most vehicle warnings have no resolution time; those are counted, not timed",
