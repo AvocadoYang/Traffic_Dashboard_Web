@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# login-hero 錄影用的 Chrome profile
+scripts/login-hero/profile/

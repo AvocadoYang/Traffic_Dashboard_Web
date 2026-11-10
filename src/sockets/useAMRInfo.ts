@@ -58,9 +58,15 @@ export enum MaintenanceLevel {
 }
 
 export type MissionDestination = {
+  /** 這一動要去的點位 */
   locationId: string;
+  /** 整趟任務的終點 */
   finalLocationId: string;
   name: string;
+  /** 這趟任務從哪個點位出發 (派任務當下車子所在的點位); 舊後端沒送是 undefined */
+  startLocationId?: string;
+  /** 出發點名稱 (第一組 ept_s), 沒有是空字串 */
+  startName?: string;
 };
 
 export type FleetInfo = {
@@ -149,7 +155,6 @@ const schema = () =>
         x: number().optional(),
         y: number().optional(),
         yaw: number().optional(),
-        rawYaw: number().optional(),
         closeLoc: string(),
       }).optional(),
       IO: object({
@@ -277,6 +282,8 @@ const schema = () =>
         locationId: string().optional().nullable(),
         finalLocationId: string().optional().nullable(),
         name: string().optional().nullable(),
+        startLocationId: string().optional().nullable(),
+        startName: string().optional().nullable(),
       })
         .optional()
         .nullable(),
@@ -795,8 +802,10 @@ export const useYaw = (amrId: string) => {
     );
     const yaw$ = profile$
       .pipe(
-        map((info) => info.pose?.rawYaw ?? info.pose?.yaw),
-        filter((v) => v !== undefined),
+        // 後端的 yaw 正規化成 0~360 給地圖轉車頭用; 卡片照 ROS 的 -180~180 顯示
+        map((info) => info.pose?.yaw),
+        filter((v): v is number => v !== undefined),
+        map(sanitizeDegree),
         distinctUntilChanged(),
       )
       .subscribe((yaw) => {

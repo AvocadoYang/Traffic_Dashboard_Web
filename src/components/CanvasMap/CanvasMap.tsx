@@ -32,6 +32,7 @@ import { isDarkColor } from "@/theme/mapImage";
 import { buildScene } from "./scene";
 import { robotTypeValueOf } from "./robotType";
 import { createLiveStore, LiveStore } from "./liveStore";
+import { routeHighlightAtom } from "./routeHighlight";
 import { AmrHit, drawBase, drawLive, Frame } from "./draw";
 import { MapView, clampScale, initialView, wheelFactor, zoomTo } from "./view";
 import { amrAt, nearbyPoints, nearbyRoads, nearestPoint, pauseSignAt, pointAt, roadAt } from "./hitTest";
@@ -121,6 +122,8 @@ type Props = {
   children?: ReactNode;
   /** 點了點位 (首頁: 打開直接移動; 設定頁: 點位偵測) */
   onPointClick?: (locationId: string) => void;
+  /** 點了路徑 (設定頁: 開路徑參數的編輯視窗); 點位疊在路徑上時算點位 */
+  onRoadClick?: (roadId: string) => void;
   /** 疊在最上層的 DOM (設定頁的編輯工具: 打點的小紅點、拉線、框選…), 座標是底圖像素 */
   overlay?: ReactNode;
   /** 左鍵在空白處拖曳地圖; 設定頁打點 / 框選時左鍵要留給編輯工具 (中鍵、觸控照樣拖) */
@@ -151,6 +154,14 @@ type Props = {
   onZoneEdit?: (zoneId: string) => void;
 };
 
+/** 目的地記號微光的動畫間隔 (ms), 大約 30fps 就夠順, 不用每幀重畫 */
+const ANIM_FRAME_MS = 33;
+
+/** 使用者在系統設定關了動態效果: 目的地記號畫成靜止的 */
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" &&
+  !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
 /** 游標附近沒有點位時用同一個空集合, 底層才不會每次移動都重畫 */
 const NO_IDS = new Set<string>();
 
@@ -159,6 +170,7 @@ const sameIds = (a: string[], b: Set<string>) => a.length === b.size && a.every(
 const CanvasMap: FC<Props> = ({
   children,
   onPointClick,
+  onRoadClick,
   overlay,
   leftButtonPans = true,
   showAmrs = true,
@@ -217,6 +229,7 @@ const CanvasMap: FC<Props> = ({
   const [filterIds, setFilterIds] = useAtom(AmrFilterCarCard);
   const [forbiddenIds, setForbiddenIds] = useAtom(showZoneForbidden);
   const hintId = useAtomValue(hintAmr);
+  const routeHighlight = useAtomValue(routeHighlightAtom);
   const showLocation = useAtomValue(isShowLocation);
   const showRoad = useAtomValue(isShowRoad);
   const showPointCloud = useAtomValue(isShowPointCloud);
@@ -264,6 +277,7 @@ const CanvasMap: FC<Props> = ({
     filterIds,
     forbiddenIds,
     hintId,
+    routeHighlight,
     currentMapId,
     colors,
     darkCanvas,
@@ -282,6 +296,7 @@ const CanvasMap: FC<Props> = ({
     filterIds,
     forbiddenIds,
     hintId,
+    routeHighlight,
     currentMapId,
     colors,
     darkCanvas,
@@ -290,6 +305,7 @@ const CanvasMap: FC<Props> = ({
     showRoadTooltip,
   };
 
+  const animTimerRef = useRef(0);
   const render = useCallback(() => {
     frameRef.current = 0;
     const view = viewRef.current;
@@ -344,19 +360,29 @@ const CanvasMap: FC<Props> = ({
     } else if (dirty.live && live && store) {
       const frame: Frame = { ctx: live, view, width, height, dpr, colors: o.colors, darkCanvas: o.darkCanvas };
       const res = o.scene.resolution;
-      hitsRef.current = drawLive(frame, o.scene, store.state, {
+      const drawn = drawLive(frame, o.scene, store.state, {
         amrIds: o.amrIds,
         showPointCloud: o.showPointCloud,
         currentMapId: o.currentMapId,
         filterIds: o.filterIds,
         hintId: o.hintId,
+        routeHighlight: o.routeHighlight,
         forbiddenIds: o.forbiddenIds,
         mirLength: (amrId) => {
           const value = robotTypeValueOf(amrId);
           const type = o.robotTypes?.find((r) => r.value === value);
           return type && type.length > 0 ? type.length / res : MIR_FALLBACK_LENGTH;
         },
+        now: prefersReducedMotion() ? undefined : performance.now(),
       });
+      hitsRef.current = drawn.hits;
+      // 目的地記號的微光在動: 大約 30fps 再畫一次 (只重畫即時層, 沒有記號就停)
+      if (drawn.animating && !animTimerRef.current) {
+        animTimerRef.current = window.setTimeout(() => {
+          animTimerRef.current = 0;
+          requestDrawRef.current({ live: true });
+        }, ANIM_FRAME_MS);
+      }
     }
     dirtyRef.current = { base: false, live: false, layers: false };
   }, []);
@@ -379,6 +405,8 @@ const CanvasMap: FC<Props> = ({
   useEffect(
     () => () => {
       cancelAnimationFrame(frameRef.current);
+      window.clearTimeout(animTimerRef.current);
+      animTimerRef.current = 0;
       // 開發模式 StrictMode 會卸載再掛載一次, 不歸零的話之後永遠排不進下一幀
       frameRef.current = 0;
     },
@@ -391,7 +419,7 @@ const CanvasMap: FC<Props> = ({
   }, [scene, showLocation, showRoad, showAnnotation, showZones, hiddenZoneIds, colors, darkCanvas, requestDraw]);
   useEffect(() => {
     requestDraw({ live: true });
-  }, [scene, amrIds, filterIds, forbiddenIds, hintId, currentMapId, showPointCloud, showAmrs, colors, darkCanvas, robotTypes, requestDraw]);
+  }, [scene, amrIds, filterIds, forbiddenIds, hintId, routeHighlight, currentMapId, showPointCloud, showAmrs, colors, darkCanvas, robotTypes, requestDraw]);
 
   // 即時資料: 訂閱 socket, 每次有新訊息就排下一幀
   useEffect(() => {
@@ -746,10 +774,13 @@ const CanvasMap: FC<Props> = ({
    *  - 任何點擊都取消區域禁行的標示
    *  - 點到車: 在上面的 click capture 就處理掉了 (車可能疊在設備上)
    *  - 點到點位: onPointClick (首頁打開直接移動)
+   *  - 點到路徑: onRoadClick (設定頁編輯路徑參數)
    *  - 點到空白處: 取消車卡片的選取
    */
   const onPointClickRef = useRef(onPointClick);
   onPointClickRef.current = onPointClick;
+  const onRoadClickRef = useRef(onRoadClick);
+  onRoadClickRef.current = onRoadClick;
   const onBaseClick = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       const view = viewRef.current;
@@ -763,6 +794,11 @@ const CanvasMap: FC<Props> = ({
       const point = optsRef.current.showLocation ? pointAt(scene, view, x, y) : null;
       if (point) {
         onPointClickRef.current?.(point.id);
+        return;
+      }
+      const roadId = onRoadClickRef.current && optsRef.current.showRoad ? roadAt(scene, view, x, y) : null;
+      if (roadId) {
+        onRoadClickRef.current?.(roadId);
         return;
       }
       setFilterIds((prev) => (prev.size ? new Set() : prev));
