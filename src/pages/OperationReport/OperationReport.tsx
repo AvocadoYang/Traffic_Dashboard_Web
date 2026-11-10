@@ -170,13 +170,13 @@ const OperationReport: FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
 
   const [range, setRange] = useState<[Dayjs, Dayjs]>(() => presetRange("today"));
-  const [scope, setScope] = useState<ReportScope>("all");
+  const [scope, setScope] = useState<ReportScope>("real");
   const [amrIds, setAmrIds] = useState<string[]>([]);
   // 按下「查詢」才換條件, 不然每改一個欄位就重查一次
   const [query, setQuery] = useState<ReportQuery>(() => ({
     from: presetRange("today")[0].valueOf(),
     to: presetRange("today")[1].valueOf(),
-    scope: "all",
+    scope: "real",
     amrIds: [],
   }));
 
