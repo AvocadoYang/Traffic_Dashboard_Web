@@ -5317,7 +5317,13 @@
       "idle_logout": "Log out when idle",
       "idle_logout_help": "Log out after this long without clicks, keys or scrolling; recommended on shared computers",
       "idle_never": "Never",
-      "idle_minutes": "{{count}} min"
+      "idle_minutes": "{{count}} min",
+      "nav": "Top menu",
+      "nav_hint": "Reorder the header navigation and choose which pages to show. Hidden pages are still reachable by URL.",
+      "nav_reset": "Reset to default",
+      "nav_up": "Move up",
+      "nav_down": "Move down",
+      "nav_visible": "Show"
     },
     "notify": {
       "by_type": "By alarm type",

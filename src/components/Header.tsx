@@ -54,6 +54,7 @@ import SimTime from "./SimTime";
 import DirectMove from "@/pages/Main/components/missionModal/DirectMove";
 import ZoomPad from "@/pages/Main/components/WebView/components/ZoomPad";
 import useMap from "@/api/useMap";
+import { applyNavPrefs } from "@/utils/headerNav";
 import {
   headerNavItemBase,
   headerNavItemActive,
@@ -541,7 +542,7 @@ const Header: React.FC = () => {
   };
 
   // key 就是網址; 依 YAML 藏掉的項目直接不放, 其他項目不受影響
-  const items = [
+  const allItems = [
     { key: "/", label: t("page_view") },
     { key: "/amr", label: t("page_amr") },
     { key: "/cargo-history", label: t("page_cargo_history") },
@@ -562,6 +563,8 @@ const Header: React.FC = () => {
     const need = pagePermissionOf(item.key);
     return !need || can(need);
   });
+  // 個人偏好: 順序與隱藏 (設定在 個人設定 > 偏好)
+  const items = applyNavPrefs(allItems, profile?.preferences.nav);
 
   const handleMenuClick = (e: { key: string }) => {
     navigate(e.key);
