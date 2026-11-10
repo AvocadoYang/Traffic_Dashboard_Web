@@ -116,7 +116,7 @@
     "count": "數量",
     "detail": "詳情",
     "confirm": "確認",
-    "passwordMin": "至少 6 個字元",
+    "passwordMin": "至少 8 個字元",
     "is_registered": "已註冊",
     "not_registered": "未註冊",
     "search": "搜尋",
@@ -402,6 +402,12 @@
     "expand_detail": "展開詳細內容",
     "collapse_detail": "收合詳細內容",
     "coordinate": "座標",
+    "route": "起點 → 終點",
+    "start_label": "起點 {{loc}}",
+    "end_label": "終點 {{loc}}",
+    "heading_to": "前往 {{loc}}",
+    "avoiding": "避讓",
+    "avoid_for": "讓道給 {{amr}}",
     "section_charge": "充電",
     "section_mission": "任務",
     "section_motion": "行駛",
@@ -465,6 +471,28 @@
   "page_mission_dispatch": "任務看板",
   "page_fleet_replay": "車隊回放",
   "fleet_replay": {
+    "empty_network_real": "這段時間沒有網路紀錄: 只記實車 (模擬車不記), 而且是後端更新到這一版之後才開始記",
+    "group_traffic": "車流",
+    "group_network": "網路 / 定位",
+    "metric_latency": "網路延遲",
+    "metric_wifi": "WiFi 訊號",
+    "metric_disconnect": "斷線地點",
+    "metric_localization": "定位失準地點",
+    "metric_roam": "換 AP 地點",
+    "legend_latency": "網路延遲 (交管電腦和車的心跳來回, 平均)",
+    "legend_wifi": "WiFi 訊號 (平均)",
+    "legend_disconnect": "斷線次數",
+    "legend_localization": "定位失準次數",
+    "legend_roam": "換 AP 次數",
+    "latency_low": "0 ms",
+    "latency_high": "≥ 300 ms",
+    "wifi_strong": "≥ -50 dBm (強)",
+    "wifi_weak": "≤ -80 dBm (弱)",
+    "latency_value": "平均 {{avg}} ms, 最大 {{max}} ms",
+    "wifi_value": "平均 {{avg}} dBm, 最弱 {{min}} dBm",
+    "empty_wifi": "這段時間沒有 WiFi 資料: 車上的 amr-core 要更新到會回報 WiFi 的版本",
+    "empty_events": "這段時間沒有發生",
+    "network_hint": "網路延遲是交管電腦和車之間心跳的來回時間 (每格看平均, 熱點看最大); WiFi 訊號要車上的 amr-core 有回報才有; 斷線是心跳逾時時車所在的位置; 定位失準是車回報定位不準的位置; 換 AP 是車改連到另一台無線基地台的位置。資料跟車輛位置一起保留 7 天。",
     "mode_replay": "回放",
     "mode_heat": "熱度圖",
     "last_15m": "最近 15 分鐘",
@@ -826,6 +854,7 @@
       "maintenance_items": "保養項目"
     },
     "mission": {
+      "signal_trigger": "訊號觸發任務",
       "mission": "任務",
       "edit_mission": "編輯任務",
       "charge_mission": "每台車充電管理",
@@ -1568,6 +1597,8 @@
       "front_lidar": "前光達",
       "rear_lidar": "後光達",
       "peripheral_action": {
+        "write_signal": "寫訊號",
+        "wait_signal": "等訊號",
         "user_confirm": "使用者確認",
         "open_rolling_door": "開啟捲門",
         "close_rolling_door": "關閉捲門",
@@ -2715,7 +2746,9 @@
     "oldPassword": "原密碼",
     "newPassword": "新密碼",
     "confirmPassword": "確認密碼",
-    "passwordNotMatch": "密碼不相符"
+    "passwordNotMatch": "密碼不相符",
+    "forcedTitle": "請先修改預設密碼",
+    "forcedHint": "這個帳號還在用預設密碼, 任何人都猜得到。改成新密碼後才能繼續使用 (至少 8 碼, 要有大寫和小寫英文)。"
   },
   "client_name": {
     "title": "電腦名稱",
@@ -2754,6 +2787,7 @@
     "critical_warning": "關鍵：如果此地點從系統中刪除，您必須手動更新並配置新的起點以維持最佳的路由功能。"
   },
   "cancel_reason": {
+    "signal_wait_timeout": "等訊號逾時",
     "null": "未指定原因",
     "offline": "設備離線",
     "cancel": "手動取消任務",
@@ -3742,6 +3776,22 @@
     "take_over_missions": "前一個 MASTER 派出去的任務：等車連上這台後先暫停，再把剩下的步驟派回同一台車；60 秒內沒連上的車會發告警，要人工處理。"
   },
   "setting_v2": {
+    "signal_trigger": {
+      "no_mission": "還沒選任務",
+      "condition": "觸發條件",
+      "no_condition": "還沒設條件",
+      "and": "且",
+      "or": "或",
+      "hold_fact": "(持續 {{sec}} 秒)",
+      "now_met": "現在成立",
+      "now_not_met": "現在不成立",
+      "now_unknown": "現在不明",
+      "last": "最近一次",
+      "any_car": "不指定 (系統挑車)",
+      "car_hint": "可以選好幾台，每台各派一筆；不選 = 派一筆，由系統挑車",
+      "hint": "條件從「不成立」變成「成立」(並持續設定的秒數) 時派任務；要先變回不成立才會再派。上一次派的任務還沒做完就不派。後端剛啟動時條件本來就成立不算一次觸發。新增後先按編輯設定條件和任務，再啟用。",
+      "empty": "尚無訊號觸發任務"
+    },
     "view_panel": "面板",
     "view_map": "地圖",
     "all": "全部",
@@ -3869,6 +3919,43 @@
       }
     },
     "mission": {
+      "signal": {
+        "source_advantech": "研華模組",
+        "source_remote": "訊號程式",
+        "module_placeholder": "選模組",
+        "remote_placeholder": "模組名稱，例如 wise_31",
+        "no_advantech": "還沒有研華模組，到 設定 > 周邊 > Advantech 新增",
+        "deleted_module": "（已刪除的模組）",
+        "point": "點位",
+        "offline": "離線",
+        "now": "現在",
+        "unknown": "不明",
+        "expect_on": "要 ON",
+        "expect_off": "要 OFF",
+        "write_target": "要寫的輸出點",
+        "write_action": "動作",
+        "pulse": "脈衝",
+        "pulse_ms": "脈衝毫秒",
+        "write_hint": "寫成功才做下一步。寫失敗會發系統告警，每 3 秒重試，直到成功或任務被取消。研華模組由 MiR_BRIDGE 代寫，訊號程式的模組由訊號程式代寫。",
+        "conditions": "條件",
+        "add_condition": "新增條件",
+        "remove": "刪除條件",
+        "match": "判斷方式",
+        "match_all": "全部成立才繼續",
+        "match_any": "任一個成立就繼續",
+        "hold_sec": "持續秒數",
+        "hold_hint": "成立後要維持幾秒才算數，0 = 一成立就算",
+        "timeout_sec": "逾時秒數",
+        "timeout_hint": "0 = 一直等，不逾時",
+        "on_timeout": "逾時後",
+        "timeout_alarm": "發告警，繼續等",
+        "timeout_cancel": "發告警並取消任務",
+        "timeout_continue": "發告警，直接做下一步",
+        "wait_hint": "模組沒有連線或沒有回報時當作不成立。等待中的狀況會顯示在車輛的任務細節。",
+        "no_sources": "目前沒有訊號來源：研華模組在 設定 > 周邊 > Advantech 新增；訊號程式的模組要它送過訊號才會列出，也可以直接輸入模組名稱。",
+        "incomplete": "訊號設定還沒填完整：每個訊號都要選模組和點位",
+        "rolling_door_unsupported": "捲門動作沒有接到任何設備，車會一直停在這一步。請改用「寫訊號」「等訊號」。"
+      },
       "blind_hint": "新增只能選還沒綁過任務的地點,已綁定的請用清單上的編輯修改。",
       "schedule_hint": "新增會先建立一筆空白排程, 再按編輯填入車輛、任務、星期與時間。可以設「重複派」: 從那個時間開始每隔幾分鐘派一次。模擬進行中看的是模擬時間。",
       "unsupported_type": "這個車種的步驟編輯還沒有搬到新版設定頁。請先從舊版設定頁 (/setting-v1) 編輯。",
@@ -4324,6 +4411,7 @@
     "body": "送出的內容",
     "before_full": "改之前的完整資料",
     "category": {
+      "signal_trigger": "訊號觸發任務",
       "point": "點位",
       "road": "路徑",
       "zone": "區域",
@@ -5291,7 +5379,8 @@
       "reason": {
         "no_account": "沒有這個帳號",
         "wrong_password": "密碼錯誤",
-        "disabled": "帳號已停用"
+        "disabled": "帳號已停用",
+        "locked": "失敗太多次, 暫時鎖定"
       }
     },
     "accounts": {

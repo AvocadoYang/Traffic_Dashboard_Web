@@ -310,7 +310,7 @@ const ForkLiftIcon: FC<{
         </SquareBody>
       ) : (
         <ForkliftBody
-          rotate={amrId.includes("SW15") ? 90 - yaw + 180 : 90 - yaw}
+          rotate={90 - yaw}
           color={color}
           onClick={() => {
             setAmrFilterCarCard((pre) => {

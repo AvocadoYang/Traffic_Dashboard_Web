@@ -1,5 +1,5 @@
 import { FC, useEffect, useMemo, useRef, useState } from "react";
-import { Checkbox, Form, Input, Modal, Popconfirm, Table, message } from "antd";
+import { Checkbox, Input, Popconfirm, Table, message } from "antd";
 import type { TableColumnsType } from "antd";
 import {
   DeleteOutlined,
@@ -15,10 +15,9 @@ import useAllGroupsResources from "@/api/useAllGroupsResources";
 import client from "@/api/axiosClient";
 import { hoverRoad } from "@/utils/gloable";
 import { ErrorResponse } from "@/utils/globalType";
-import { editErrorHandler, errorHandler } from "@/utils/utils";
+import { errorHandler } from "@/utils/utils";
 import useIsNarrow from "../../ui/useIsNarrow";
 import GroupMapFilter from "../../ui/GroupMapFilter";
-import RoadCommonFields from "../../ui/roadFields";
 import {
   PanelShell,
   Section,
@@ -35,22 +34,7 @@ import {
   Tag,
 } from "../../ui/primitives";
 import MapDataTransfer from "../map/MapDataTransfer";
-
-type RoadRow = {
-  id: string;
-  roadId: string;
-  roadType: "oneWayRoad" | "twoWayRoad";
-  spot1Id: string;
-  spot2Id: string;
-  disabled: boolean;
-  limit: boolean;
-  priority: number;
-  validYawList: number[] | string;
-  rev?: string;
-  mapFileName: string;
-  groupName: string;
-  isActiveGroup: boolean;
-};
+import RoadEditModal, { type RoadRow } from "./RoadEditModal";
 
 const PRIORITY_LABEL: Record<number, string> = {
   1: "high",
@@ -63,7 +47,6 @@ const RoadListPanel: FC = () => {
   const isNarrow = useIsNarrow();
   const queryClient = useQueryClient();
   const [messageApi, contextHolder] = message.useMessage();
-  const [editForm] = Form.useForm();
 
   const { data: resources, refetch, isFetching } = useAllGroupsResources();
   const setHoverRoad = useSetAtom(hoverRoad);
@@ -106,21 +89,6 @@ const RoadListPanel: FC = () => {
     queryClient.refetchQueries({ queryKey: ["active-group-resources"] });
     queryClient.refetchQueries({ queryKey: ["all-groups-resources"] });
   };
-
-  const editMutation = useMutation({
-    mutationFn: (payload: Record<string, unknown>) =>
-      client.post("api/setting/edit-edit-road", payload),
-    onSuccess: () => {
-      void messageApi.success(t("utils.success"));
-      invalidate();
-      setEditing(null);
-    },
-    onError: (e: ErrorResponse) =>
-      editErrorHandler(e, messageApi, () => {
-        invalidate();
-        setEditing(null);
-      }),
-  });
 
   const deleteMutation = useMutation({
     mutationFn: (roadId: string) =>
@@ -203,30 +171,7 @@ const RoadListPanel: FC = () => {
   const yawText = (v: RoadRow["validYawList"]) =>
     Array.isArray(v) ? v.join(" / ") : String(v);
 
-  const openEdit = (row: RoadRow) => {
-    editForm.setFieldsValue({
-      roadType: row.roadType,
-      priority: row.priority,
-      validYawList: Array.isArray(row.validYawList)
-        ? row.validYawList.map(String)
-        : [String(row.validYawList)],
-      disabled: row.disabled,
-      limit: row.limit,
-    });
-    setEditing(row);
-  };
-
-  const submitEdit = () => {
-    if (!editing) return;
-    const v = editForm.getFieldsValue() as Record<string, unknown>;
-    editMutation.mutate({
-      ...v,
-      id: editing.id,
-      rev: editing.rev,
-      spot1Id: Number(editing.spot1Id),
-      spot2Id: Number(editing.spot2Id),
-    });
-  };
+  const openEdit = (row: RoadRow) => setEditing(row);
 
   const columns: TableColumnsType<RoadRow> = [
     {
@@ -467,20 +412,7 @@ const RoadListPanel: FC = () => {
         )}
       </Section>
 
-      <Modal
-        open={!!editing}
-        title={`${t("utils.edit")} — ${editing?.spot1Id ?? ""} → ${editing?.spot2Id ?? ""}`}
-        onCancel={() => setEditing(null)}
-        onOk={submitEdit}
-        confirmLoading={editMutation.isLoading}
-        okText={t("utils.save")}
-        cancelText={t("utils.cancel")}
-        destroyOnHidden
-      >
-        <Form form={editForm} layout="vertical">
-          <RoadCommonFields />
-        </Form>
-      </Modal>
+      <RoadEditModal road={editing} onClose={() => setEditing(null)} />
     </PanelShell>
   );
 };

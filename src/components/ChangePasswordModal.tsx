@@ -111,15 +111,23 @@ export const IndustrialButton = styled(Button)`
 const ChangePasswordModal: FC<{
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-}> = ({ open, setOpen }) => {
+  /** 還在用預設密碼: 不能關, 改完重新載入 (換成新 token 後 socket 和各頁重新連) */
+  forced?: boolean;
+}> = ({ open, setOpen, forced = false }) => {
   const [messageApi, contextHolder] = message.useMessage();
   const { t } = useTranslation();
   const [form] = Form.useForm();
 
   const cMutation = useMutation({
     mutationFn: (data: { oldPassword: string; newPassword: string }) =>
-      client.patch("api/logInAndOut/changePassword", data),
-    onSuccess: () => {
+      client.patch<{ token?: string }>("api/logInAndOut/changePassword", data),
+    onSuccess: (res) => {
+      // 後端回一張新的 token (拿掉「要改密碼」的標記)
+      if (res.data?.token) localStorage.setItem("token", res.data.token);
+      if (forced) {
+        window.location.reload();
+        return;
+      }
       messageApi.success(t("utils.success"));
       form.resetFields();
       setOpen(false);
@@ -152,13 +160,20 @@ const ChangePasswordModal: FC<{
         open
         title={
           <>
-            <LockOutlined /> {t("changePassword.title", "CHANGE PASSWORD")}
+            <LockOutlined />{" "}
+            {forced
+              ? t("changePassword.forcedTitle")
+              : t("changePassword.title", "CHANGE PASSWORD")}
           </>
         }
-        onCancel={handleClose}
+        onCancel={forced ? undefined : handleClose}
+        closable={!forced}
+        maskClosable={!forced}
+        keyboard={!forced}
         footer={null}
         destroyOnClose
       >
+        {forced && <p>{t("changePassword.forcedHint")}</p>}
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <Form.Item
             label={t("changePassword.oldPassword", "OLD PASSWORD")}
@@ -173,9 +188,14 @@ const ChangePasswordModal: FC<{
             name="newPassword"
             rules={[
               { required: true, message: t("utils.required") },
+              // 跟後端 checkPasswordRule 一樣: 至少 8 碼, 有大寫和小寫
               {
-                min: 6,
-                message: t("utils.passwordMin", "At least 6 characters"),
+                min: 8,
+                message: t("utils.passwordMin", "At least 8 characters"),
+              },
+              {
+                pattern: /^(?=.*[a-z])(?=.*[A-Z])/,
+                message: t("changePassword.forcedHint"),
               },
             ]}
           >
@@ -210,9 +230,11 @@ const ChangePasswordModal: FC<{
 
           <Form.Item>
             <Space style={{ width: "100%", justifyContent: "flex-end" }}>
-              <IndustrialButton onClick={handleClose}>
-                {t("utils.cancel", "CANCEL")}
-              </IndustrialButton>
+              {!forced && (
+                <IndustrialButton onClick={handleClose}>
+                  {t("utils.cancel", "CANCEL")}
+                </IndustrialButton>
+              )}
               <IndustrialButton
                 className="primary"
                 htmlType="submit"

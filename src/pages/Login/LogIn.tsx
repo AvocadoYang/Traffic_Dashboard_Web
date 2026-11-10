@@ -13,36 +13,41 @@ import { HOME_PAGES, MyProfile, PROFILE_KEY } from "@/api/useProfile";
 import { CHAT_KEY } from "@/api/useSiteChat";
 import { CHAT_CHECK_KEY } from "@/utils/session";
 import client from "@/api/axiosClient";
+import { reconnectSocket } from "@/sockets/socketConnect";
 import { Err } from "@/utils/responseErr";
 import { useTranslation } from "react-i18next";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
+
+// 背景影片 (public/login-hero.webm): 用車型的 3D 模型在無頭瀏覽器裡逐格錄出來的, 約 23 秒循環
+const HERO_VIDEO = `${import.meta.env.BASE_URL}login-hero.webm`;
+const HERO_POSTER = `${import.meta.env.BASE_URL}login-hero.jpg`;
+
+const cardIn = keyframes`
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
 
 const BackgroundContainer = styled.div`
-  background-image: url("/View.svg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background: #05070b;
   min-height: 100vh;
   height: 100vh;
   width: 100vw;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding: 40px;
+  padding: 40px 6vw 40px 40px;
   position: relative;
+  overflow: hidden;
 
+  /* 右側壓暗, 登入卡片才看得清楚; 左邊留給影片 */
   &::before {
     content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(
-      135deg,
-      rgba(0, 0, 0, 0.3) 0%,
-      rgba(0, 0, 0, 0.1) 100%
-    );
+    inset: 0;
+    z-index: 1;
+    background:
+      linear-gradient(90deg, rgba(5, 7, 11, 0) 35%, rgba(5, 7, 11, 0.72) 100%),
+      linear-gradient(0deg, rgba(5, 7, 11, 0.55) 0%, rgba(5, 7, 11, 0) 30%);
     pointer-events: none;
   }
 
@@ -52,18 +57,62 @@ const BackgroundContainer = styled.div`
   }
 `;
 
+const HeroVideo = styled.video`
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+
+  @media (prefers-reduced-motion: reduce) {
+    display: none;
+  }
+`;
+
+const HeroPoster = styled.div`
+  position: absolute;
+  inset: 0;
+  background: url(${HERO_POSTER}) center / cover no-repeat;
+`;
+
 const LoginCard = styled.div`
   position: relative;
-  z-index: 1;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--c-header-border);
-  border-left: 4px solid var(--c-header-accent);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+  background: rgba(10, 14, 20, 0.55);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-left: 3px solid var(--c-header-accent);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
   padding: 48px;
   width: 100%;
-  max-width: 480px;
+  max-width: 440px;
   font-family: "Roboto Mono", monospace;
+  animation: ${cardIn} 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+
+  /* 卡片固定是深色, 不跟主題: 文字、輸入框在這裡自己定 */
+  --c-text-secondary: rgba(255, 255, 255, 0.72);
+  --c-text-muted: rgba(255, 255, 255, 0.5);
+  --c-header-border: rgba(255, 255, 255, 0.2);
+  --c-bg: rgba(255, 255, 255, 0.06);
+  color: #fff;
+
+  .ant-input,
+  .ant-input-affix-wrapper {
+    color: #fff;
+  }
+  .ant-input::placeholder {
+    color: rgba(255, 255, 255, 0.38);
+  }
+  .ant-input:-webkit-autofill {
+    -webkit-text-fill-color: #fff;
+    transition: background-color 9999s;
+  }
+  .ant-input-password-icon,
+  .ant-input-password-icon:hover {
+    color: rgba(255, 255, 255, 0.6);
+  }
 
   @media (max-width: 768px) {
     max-width: 100%;
@@ -235,7 +284,7 @@ const ForgotLink = styled.div`
 const StatusBar = styled.div`
   margin-top: 32px;
   padding-top: 20px;
-  border-top: 1px solid #e8e8e8;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -284,6 +333,7 @@ const Login: React.FC = () => {
       client.post("api/logInAndOut/login", payload),
     onSuccess: async (res) => {
       localStorage.setItem("token", res.data.token);
+      reconnectSocket();
       // 上一個帳號的個人設定 / 聊天室不要留給這個帳號
       queryClient.removeQueries({ queryKey: ["profile"] });
       queryClient.removeQueries({ queryKey: CHAT_KEY });
@@ -318,6 +368,8 @@ const Login: React.FC = () => {
     <>
       {contextHolder}
       <BackgroundContainer>
+        <HeroPoster aria-hidden />
+        <HeroVideo aria-hidden src={HERO_VIDEO} poster={HERO_POSTER} autoPlay muted loop playsInline preload="auto" />
         <LoginCard>
           <LoginHeader>
             <LoginTitle>{t("login.title")}</LoginTitle>

@@ -8,7 +8,15 @@ import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import Fleet3DBoundary from "@/components/Fleet3D/Fleet3DBoundary";
 import { webglAvailable } from "@/components/Fleet3D/webgl";
-import { HeatMetric, heatRgb } from "@/components/Fleet3D/heatColors";
+import {
+  HeatMetric,
+  NETWORK_METRICS,
+  TRAFFIC_METRICS,
+  badness,
+  heatRgb,
+  heatValue,
+} from "@/components/Fleet3D/heatColors";
+import type { HeatCell } from "@/api/useTrackArchive";
 import useMap from "@/api/useMap";
 import { useTrackHeat, useTrackReplay } from "@/api/useTrackArchive";
 import { reportFeatureUse } from "@/api/useAchievements";
@@ -112,6 +120,9 @@ const KEEP_MS = 7 * 24 * 3600_000;
 
 const rampCss = `linear-gradient(90deg, ${[0, 0.35, 0.65, 1].map((v) => `rgb(${heatRgb(v).join(",")})`).join(", ")})`;
 
+const ALL_METRICS: HeatMetric[] = [...TRAFFIC_METRICS, ...NETWORK_METRICS];
+const isMetric = (v: string | null): v is HeatMetric => !!v && (ALL_METRICS as string[]).includes(v);
+
 const formatSec = (sec: number) => {
   if (sec < 90) return `${Math.round(sec)} s`;
   if (sec < 5400) return `${Math.round(sec / 60)} min`;
@@ -128,8 +139,15 @@ const FleetReplay: FC = () => {
   // 網址 ?mode=heat 直接開熱度圖 (可以貼連結給別人)
   const [params, setParams] = useSearchParams();
   const mode: Mode = params.get("mode") === "heat" ? "heat" : "replay";
-  const setMode = (m: Mode) => setParams(m === "heat" ? { mode: "heat" } : {}, { replace: true });
-  const [metric, setMetric] = useState<HeatMetric>("dwell");
+  // ?mode=heat&metric=wifi 也可以直接開某一種熱度圖
+  const urlMetric = params.get("metric");
+  const [metric, setMetricState] = useState<HeatMetric>(isMetric(urlMetric) ? urlMetric : "dwell");
+  const setMode = (m: Mode) => setParams(m === "heat" ? { mode: "heat", metric } : {}, { replace: true });
+  const setMetric = (m: HeatMetric) => {
+    setMetricState(m);
+    if (mode === "heat") setParams({ mode: "heat", metric: m }, { replace: true });
+  };
+  const isNetwork = NETWORK_METRICS.includes(metric);
   const [cell, setCell] = useState(1);
   // 查詢範圍固定在選的那一刻 (不要跟著時間一直變, 不然每次重畫都重新查)
   const [range, setRange] = useState(() => ({ from: Date.now() - 3600_000, to: Date.now() }));
@@ -152,8 +170,9 @@ const FleetReplay: FC = () => {
     const heat = heatQ.data;
     if (mode !== "heat" || !heat) return [];
     const locations = map?.locations ?? [];
-    return [...heat.cells]
-      .sort((a, b) => b[metric] - a[metric])
+    return heat.cells
+      .filter((c) => badness(c, metric) !== null)
+      .sort((a, b) => (badness(b, metric) ?? 0) - (badness(a, metric) ?? 0))
       .slice(0, 5)
       .map((c) => {
         const x = (c.ix + 0.5) * heat.cell;
@@ -163,13 +182,49 @@ const FleetReplay: FC = () => {
           const d = Math.hypot(l.x - x, l.y - y);
           if (!best || d < best.d) best = { id: l.locationId.toString(), d };
         }
-        return { key: `${c.ix},${c.iy}`, value: c[metric], near: best && best.d < 5 ? best.id : null, x, y };
+        return { key: `${c.ix},${c.iy}`, cell: c, near: best && best.d < 5 ? best.id : null, x, y };
       });
   }, [mode, heatQ.data, map, metric]);
 
   if (mode === "replay" && replayQ.data) reportFeatureUse("fleet_replay");
   if (mode === "heat" && heatQ.data) reportFeatureUse("fleet_heatmap");
-  const empty = mode === "replay" ? !replayQ.data?.vehicles.length : !heatQ.data?.cells.length;
+  const empty =
+    mode === "replay"
+      ? !replayQ.data?.vehicles.length
+      : !heatQ.data?.cells.some((c) => {
+          // 延遲 / 訊號: 有值就算有資料 (0 ms 也是資料); 車流 / 事件次數: 大於 0 才算
+          const v = heatValue(c, metric);
+          return metric === "latency" || metric === "wifi" ? v !== null : (v ?? 0) > 0;
+        });
+  const emptyText = !isNetwork
+    ? t("fleet_replay.empty")
+    : metric === "wifi"
+    ? t("fleet_replay.empty_wifi")
+    : metric === "latency"
+    ? t("fleet_replay.empty_network_real")
+    : t("fleet_replay.empty_events");
+
+  /** 熱點旁邊的數字 */
+  const hotValue = (c: HeatCell) => {
+    switch (metric) {
+      case "dwell":
+        return formatSec(c.dwell);
+      case "passes":
+        return t("fleet_replay.times", { n: c.passes });
+      case "latency":
+        return t("fleet_replay.latency_value", { avg: c.latency ?? 0, max: c.latencyMax ?? 0 });
+      case "wifi":
+        return t("fleet_replay.wifi_value", { avg: c.wifi ?? 0, min: c.wifiMin ?? 0 });
+      default:
+        return t("fleet_replay.times", { n: heatValue(c, metric) ?? 0 });
+    }
+  };
+  const rampEnds: [string, string] =
+    metric === "latency"
+      ? [t("fleet_replay.latency_low"), t("fleet_replay.latency_high")]
+      : metric === "wifi"
+      ? [t("fleet_replay.wifi_strong"), t("fleet_replay.wifi_weak")]
+      : [t("fleet_replay.cold"), t("fleet_replay.hot")];
   const supported = webglAvailable();
 
   return (
@@ -199,19 +254,30 @@ const FleetReplay: FC = () => {
           />
           {mode === "heat" && (
             <>
-              <Segmented<HeatMetric>
+              <Select<HeatMetric>
                 value={metric}
                 onChange={setMetric}
+                style={{ width: 170 }}
                 options={[
-                  { value: "dwell", label: t("fleet_replay.metric_dwell") },
-                  { value: "passes", label: t("fleet_replay.metric_passes") },
+                  {
+                    label: t("fleet_replay.group_traffic"),
+                    options: TRAFFIC_METRICS.map((m) => ({ value: m, label: t(`fleet_replay.metric_${m}`) })),
+                  },
+                  {
+                    label: t("fleet_replay.group_network"),
+                    options: NETWORK_METRICS.map((m) => ({ value: m, label: t(`fleet_replay.metric_${m}`) })),
+                  },
                 ]}
               />
               <Select value={cell} onChange={setCell} style={{ width: 110 }} options={CELLS.map((c) => ({ value: c, label: t("fleet_replay.cell", { m: c }) }))} />
             </>
           )}
         </Filters>
-        <Alert type="info" showIcon message={t("fleet_replay.hint")} />
+        <Alert
+          type="info"
+          showIcon
+          message={mode === "heat" && isNetwork ? t("fleet_replay.network_hint") : t("fleet_replay.hint")}
+        />
         <Stage>
           {!supported ? (
             <Center>
@@ -235,23 +301,23 @@ const FleetReplay: FC = () => {
               )}
               {!active.isFetching && active.data && empty && (
                 <Center style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
-                  <Empty description={t("fleet_replay.empty")} />
+                  <Empty description={mode === "heat" ? emptyText : t("fleet_replay.empty")} />
                 </Center>
               )}
               {mode === "heat" && heatQ.data && !empty && (
                 <Legend>
-                  <div>{t(metric === "dwell" ? "fleet_replay.legend_dwell" : "fleet_replay.legend_passes")}</div>
+                  <div>{t(`fleet_replay.legend_${metric}`)}</div>
                   <div className="ramp" style={{ background: rampCss }} />
                   <div className="ends">
-                    <span>{t("fleet_replay.cold")}</span>
-                    <span>{t("fleet_replay.hot")}</span>
+                    <span>{rampEnds[0]}</span>
+                    <span>{rampEnds[1]}</span>
                   </div>
                   <ol>
                     {hotspots.map((h) => (
                       <li key={h.key}>
                         {h.near ? t("fleet_replay.near_point", { id: h.near }) : `(${h.x.toFixed(1)}, ${h.y.toFixed(1)})`}
                         {" · "}
-                        {metric === "dwell" ? formatSec(h.value) : t("fleet_replay.times", { n: h.value })}
+                        {hotValue(h.cell)}
                       </li>
                     ))}
                   </ol>

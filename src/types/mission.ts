@@ -55,5 +55,7 @@ export enum CancelReason {
   AMR_DISCONNECTED = 222, // AMR 設備斷線
   ROSBRIDGE_DISCONNECTED = 223, // ROSBridge 設備斷線
 
+  SIGNAL_WAIT_TIMEOUT = 240, // 任務步驟等訊號逾時, 步驟設定成逾時就取消任務
+
   AMR_CHARGE_HAS_PROBLEM = 1002, // AMR 充電有問題
 }

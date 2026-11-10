@@ -153,6 +153,7 @@ export const navCategories: NavCategory[] = [
     children: [
       { key: "edit_mission", labelKey: "toolbar.mission.edit_mission" },
       { key: "schedule_mission", labelKey: "toolbar.mission.schedule_mission" },
+      { key: "signal_trigger", labelKey: "toolbar.mission.signal_trigger" },
       { key: "idle_mission", labelKey: "toolbar.mission.idle_mission" },
       { key: "topic_mission", labelKey: "toolbar.mission.topic_mission" },
       { key: "blind_mission", labelKey: "toolbar.mission.blind_mission" },
