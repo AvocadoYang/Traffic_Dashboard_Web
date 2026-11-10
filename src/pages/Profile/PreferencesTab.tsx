@@ -1,4 +1,5 @@
 import { FC } from "react";
+import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
 import { Button, Segmented, Select, Space, Switch, Tag, message } from "antd";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
@@ -11,6 +12,7 @@ import {
   themes,
   type ThemeId,
 } from "@/theme";
+import { DEFAULT_NAV_HIDDEN, NAV_PAGES, resolveNavOrder } from "@/utils/headerNav";
 import { Section, SettingRow } from "./parts";
 
 /** 地圖圖層的預設值 (沒存過偏好時首頁的樣子) */
@@ -48,6 +50,15 @@ const PreferencesTab: FC = () => {
       onSuccess: () => void messageApi.success(t("profile.saved")),
       onError: () => void messageApi.error(t("profile.save_failed")),
     });
+
+  const navOrder = resolveNavOrder(prefs.nav?.order);
+  const navHidden = prefs.nav?.hidden ?? DEFAULT_NAV_HIDDEN;
+  const saveNav = (order: string[], hidden: string[]) => savePrefs({ preferences: { nav: { order, hidden } } });
+  const moveNav = (i: number, d: -1 | 1) => {
+    const next = [...navOrder];
+    [next[i], next[i + d]] = [next[i + d], next[i]];
+    saveNav(next, navHidden);
+  };
 
   return (
     <>
@@ -145,6 +156,44 @@ const PreferencesTab: FC = () => {
             <Tag>{t("profile.prefs.view_3d_none")}</Tag>
           )}
         </SettingRow>
+      </Section>
+
+      <Section title={t("profile.prefs.nav")} hint={t("profile.prefs.nav_hint")}>
+        {navOrder.map((key, i) => {
+          const page = NAV_PAGES.find((p) => p.key === key);
+          if (!page) return null;
+          const visible = !navHidden.includes(key);
+          return (
+            <SettingRow key={key} label={t(page.labelKey)}>
+              <Space>
+                <Switch
+                  checked={visible}
+                  aria-label={t("profile.prefs.nav_visible")}
+                  onChange={(on) =>
+                    saveNav(navOrder, on ? navHidden.filter((k) => k !== key) : [...navHidden, key])
+                  }
+                />
+                <Button
+                  size="small"
+                  icon={<ArrowUpOutlined />}
+                  aria-label={t("profile.prefs.nav_up")}
+                  disabled={i === 0}
+                  onClick={() => moveNav(i, -1)}
+                />
+                <Button
+                  size="small"
+                  icon={<ArrowDownOutlined />}
+                  aria-label={t("profile.prefs.nav_down")}
+                  disabled={i === navOrder.length - 1}
+                  onClick={() => moveNav(i, 1)}
+                />
+              </Space>
+            </SettingRow>
+          );
+        })}
+        <Button size="small" onClick={() => saveNav([], DEFAULT_NAV_HIDDEN)}>
+          {t("profile.prefs.nav_reset")}
+        </Button>
       </Section>
 
       <Section title={t("profile.prefs.session")}>
