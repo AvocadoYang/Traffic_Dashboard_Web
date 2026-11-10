@@ -46,6 +46,8 @@ export type UserPreferences = {
   notify?: NotifyPrefs;
   favorites?: FavoriteMission[];
   idleLogoutMinutes?: number;
+  /** 頂部選單: order = 顯示順序 (頁面網址), hidden = 隱藏的頁面 */
+  nav?: { order?: string[]; hidden?: string[] };
 };
 
 export type Role = "GENERALLY" | "ENGINEER" | "ADMIN";
@@ -116,6 +118,7 @@ export const useSaveProfile = () => {
             ...p,
             ...(p.map ? { map: { ...prev.preferences.map, ...p.map } } : {}),
             ...(p.notify ? { notify: { ...prev.preferences.notify, ...p.notify } } : {}),
+            ...(p.nav ? { nav: p.nav } : {}),
           },
         });
       }
