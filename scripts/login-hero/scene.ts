@@ -149,16 +149,13 @@ export const ready = (async () => {
     return { ...car, rig: rigForklift(model), cargo };
   });
   S.fk = S.F[0];
-  // M68 上的箱子
-  const tote = new THREE.Mesh(unit, new THREE.MeshStandardMaterial({ color: 0x2d6fd6, roughness: 0.45, metalness: 0.1 }));
-  tote.scale.set(0.6, 0.32, 0.4); tote.castShadow = true; S.tote = tote; S.m68.root.add(tote);
 })();
 
 // ---------- 分鏡 ----------
 const ease = (x: number) => x * x * (3 - 2 * x);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const place = (c: Car, x: number, z: number, yaw = 0) => { c.root.position.set(x, 0, z); c.root.rotation.y = yaw; };
-const cfg: any = (window as any).CFG = { forkDir: -1, cargoX: -0.55, toteY: 0.8, m68Yaw: 0 };
+const cfg: any = (window as any).CFG = { forkDir: -1, cargoX: -0.55, m68Yaw: 0 };
 const look = (px: number, py: number, pz: number, tx: number, ty: number, tz: number, fov: number) => {
   camera.position.set(px, py, pz); camera.fov = fov; camera.updateProjectionMatrix(); camera.lookAt(tx, ty, tz);
 };
@@ -285,7 +282,6 @@ export function frame(time: number) {
   let t = ((time % TOTAL) + TOTAL) % TOTAL, i = 0;
   while (t >= SHOTS[i].dur) { t -= SHOTS[i].dur; i++; }
   const s = SHOTS[i];
-  S.tote.position.set(0, cfg.toteY, 0);
   for (const m of signals) (m.material as THREE.MeshBasicMaterial).opacity = 0;
   s.run(t / s.dur, t);
     // 開頭 / 結尾淡入淡出 (循環接縫), 每個鏡頭切換處很短的壓暗
