@@ -3787,7 +3787,10 @@
     "caps_lock": "Caps Lock is on",
     "forgot_password": "Forgot password?",
     "authenticating": "AUTHENTICATING...",
-    "system_online": "System Online"
+    "system_online": "System Online",
+    "welcome_back": "Welcome back, {{name}}",
+    "skip_hint": "Click or press any key to skip",
+    "starting": "STARTING"
   },
   "update_log": {
     "title": "System Update Log",

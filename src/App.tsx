@@ -29,6 +29,7 @@ import PasswordReminder from "./components/UserSession/PasswordReminder";
 import PageGate from "./components/PermissionGate/PageGate";
 import SiteChat from "./components/SiteChat/SiteChat";
 import { ThemeVarsProvider, ThemedAppConfigProvider } from "./theme";
+import Ignition from "./components/Ignition/Ignition";
 import { useTranslation } from "react-i18next";
 
 const client = new QueryClient({
@@ -123,6 +124,8 @@ function App() {
               </Route>
             </Routes>
           </BrowserRouter>
+          {/* 登入成功後的點火轉場: 放在路由外面, 換頁時不會被卸載 */}
+          <Ignition />
         </QueryClientProvider>
       </ThemedAppConfigProvider>
     </ThemeVarsProvider>
