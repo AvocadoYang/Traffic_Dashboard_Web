@@ -3,7 +3,8 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { Reflector } from "three/examples/jsm/objects/Reflector.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { FullScreenQuad } from "three/examples/jsm/postprocessing/Pass.js";
+import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLightUniformsLib.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
@@ -112,20 +113,79 @@ for (const side of [-1, 1]) {
 }
 // ---------- 天花板燈條 ----------
 const stripMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(2.6, 2.8, 3.2) });
+const STRIP_X: number[] = [];
 for (let x = -56; x <= 56; x += 7) {
   const m = new THREE.Mesh(unit, stripMat); m.position.set(x, 8.2, 0); m.scale.set(0.16, 0.05, 5.5); scene.add(m);
+  STRIP_X.push(x);
 }
 const redMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(3.2, 0.25, 0.2) });
 for (const z of [-3.9, 3.9]) { const m = new THREE.Mesh(unit, redMat); m.position.set(0, 0.03, z); m.scale.set(160, 0.03, 0.04); scene.add(m); }
 
+// ---------- 空氣感: 燈條下的光束 + 飄在空中的微塵 ----------
+const gradTex = (draw: (g: CanvasRenderingContext2D, w: number, h: number) => void, w: number, h: number) => {
+  const cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+  draw(cv.getContext("2d")!, w, h);
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t;
+};
+// 光束: 上亮下淡、兩端淡出的直立薄片, 每條燈下兩片微微張開成 V 形, 才有體積感
+const shaftTex = gradTex((g, w, h) => {
+  const v = g.createLinearGradient(0, 0, 0, h);
+  v.addColorStop(0, "rgba(255,255,255,1)"); v.addColorStop(0.35, "rgba(255,255,255,0.35)"); v.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = v; g.fillRect(0, 0, w, h);
+  g.globalCompositeOperation = "destination-in";
+  const u = g.createLinearGradient(0, 0, w, 0);
+  u.addColorStop(0, "rgba(0,0,0,0)"); u.addColorStop(0.2, "rgba(0,0,0,1)"); u.addColorStop(0.8, "rgba(0,0,0,1)"); u.addColorStop(1, "rgba(0,0,0,0)");
+  g.fillStyle = u; g.fillRect(0, 0, w, h);
+}, 64, 256);
+const shaftMat = new THREE.MeshBasicMaterial({
+  map: shaftTex, color: new THREE.Color(1, 0.97, 0.92), transparent: true, opacity: 0.075,
+  blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide,
+});
+const SHAFT_OPACITY = shaftMat.opacity;
+const shaftGeo = new THREE.PlaneGeometry(5.2, 7.6); shaftGeo.translate(0, -3.8, 0); shaftGeo.rotateY(Math.PI / 2);
+const shafts: THREE.Mesh[] = [];
+for (const x of STRIP_X) for (const tilt of [-0.13, 0.13]) {
+  const m = new THREE.Mesh(shaftGeo, shaftMat); m.position.set(x, 8.15, 0); m.rotation.z = tilt; m.renderOrder = 5; scene.add(m); shafts.push(m);
+}
+// 微塵: 位置照時間算 (同一個時間點每次算出來一樣, 動態模糊的子影格才對得上)
+const DUST = 2600;
+const dustBase = new Float32Array(DUST * 4);
+for (let i = 0; i < DUST; i++) dustBase.set([-30 + rnd() * 70, 0.2 + rnd() * 7.3, -3.8 + rnd() * 7.6, rnd() * 100], i * 4);
+const dustGeo = new THREE.BufferGeometry();
+dustGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(DUST * 3), 3));
+const dustMat = new THREE.PointsMaterial({
+  size: 0.032, sizeAttenuation: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  color: new THREE.Color(1, 0.95, 0.88), opacity: 0.6,
+  map: gradTex((g, w) => { const r = g.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2); r.addColorStop(0, "rgba(255,255,255,1)"); r.addColorStop(1, "rgba(255,255,255,0)"); g.fillStyle = r; g.fillRect(0, 0, w, w); }, 32, 32),
+});
+const DUST_OPACITY = dustMat.opacity;
+const dust = new THREE.Points(dustGeo, dustMat); dust.frustumCulled = false; scene.add(dust);
+const moveDust = (time: number) => {
+  const p = dustGeo.attributes.position as THREE.BufferAttribute;
+  for (let i = 0; i < DUST; i++) {
+    const [x, y, z, ph] = [dustBase[i * 4], dustBase[i * 4 + 1], dustBase[i * 4 + 2], dustBase[i * 4 + 3]];
+    const yy = 0.2 + ((((y - 0.2 - time * 0.035) % 7.3) + 7.3) % 7.3); // 很慢地往下飄, 落到底從上面再出現
+    p.setXYZ(i, x + Math.sin(time * 0.31 + ph) * 0.18, yy + Math.sin(time * 0.53 + ph * 1.7) * 0.05, z + Math.cos(time * 0.27 + ph) * 0.18);
+  }
+  p.needsUpdate = true;
+};
+
 // ---------- 燈 ----------
-scene.add(new THREE.HemisphereLight(0x8fa6c8, 0x0a0c10, 0.35));
+const hemi = new THREE.HemisphereLight(0x8fa6c8, 0x0a0c10, 0.35); scene.add(hemi);
 const key = new THREE.DirectionalLight(0xdfe9ff, 1.7);
 key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -0.0004; key.shadow.radius = 4;
 Object.assign(key.shadow.camera, { left: -9, right: 9, top: 9, bottom: -9, near: 1, far: 40 });
 scene.add(key, key.target);
 const rim = new THREE.DirectionalLight(0xff5a3c, 0.9); scene.add(rim, rim.target);
 const fill = new THREE.DirectionalLight(0x4f8cff, 1.1); scene.add(fill, fill.target);
+// 開場揭幕用的長條柔光 (面光源): 平常關著, 開場時掃過叉車外殼拉出一道移動的反光
+RectAreaLightUniformsLib.init();
+const sweep = new THREE.RectAreaLight(0xfff4ea, 0, 0.14, 3.4); scene.add(sweep);
+// 開燈時要調亮的東西: 原本的亮度
+const LIT = {
+  hemi: hemi.intensity, key: key.intensity, rim: rim.intensity, fill: fill.intensity, env: 0.75,
+  strip: stripMat.color.clone(), red: redMat.color.clone(), line: lineMat.color.clone(), dash: dashMat.color.clone(),
+};
 const aim = (x: number, z: number) => {
   key.target.position.set(x, 0, z); key.position.set(x - 5, 11, z + 3);
   rim.target.position.set(x, 0.6, z); fill.target.position.set(x, 0.6, z);
@@ -169,8 +229,8 @@ export const ready = (async () => {
   }
   // 叉車塔柱上的螢幕
   const scr = screenTexture();
-  fk.add(stamp(fk, V(2.5, 1.68, 0), V(-1, 0, 0), V(0.2, 0.15, 0.3),
-    new THREE.MeshStandardMaterial({ map: scr, emissiveMap: scr, emissive: 0xffffff, emissiveIntensity: 0.8, roughness: 0.12, transparent: true, polygonOffset: true, polygonOffsetFactor: -4, depthWrite: false })).mesh);
+  S.screen = new THREE.MeshStandardMaterial({ map: scr, emissiveMap: scr, emissive: 0xffffff, emissiveIntensity: 0.8, roughness: 0.12, transparent: true, polygonOffset: true, polygonOffsetFactor: -4, depthWrite: false });
+  fk.add(stamp(fk, V(2.5, 1.68, 0), V(-1, 0, 0), V(0.2, 0.15, 0.3), S.screen).mesh);
   // 車號貼花: 形狀每台一樣, 字不一樣
   const numSides = [1, -1].map((s) => stamp(fk, V(0.58, 0.76, 2 * s), V(0, 0, -s), V(0.2, 0.15, 0.4), MAT.white).mesh.geometry);
   // MiR 的 LED 燈帶
@@ -201,8 +261,17 @@ const ease = (x: number) => x * x * (3 - 2 * x);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const place = (c: Car, x: number, z: number, yaw = 0) => { c.root.position.set(x, 0, z); c.root.rotation.y = yaw; };
 const cfg: any = (window as any).CFG = { forkDir: -1, cargoX: -0.55, m68Yaw: 0 };
+/** 每個鏡頭自己設: 景深對焦距離 (沿視線的深度, m) 與強度 (無限遠處的模糊半徑, px @1600 寬), 暗場程度, 車燈是否亮 */
+const shotState = { focus: 5, blur: 0, dark: 0, lamps: 1, gloss: 0 };
+const lookDir = new THREE.Vector3();
 const look = (px: number, py: number, pz: number, tx: number, ty: number, tz: number, fov: number) => {
   camera.position.set(px, py, pz); camera.fov = fov; camera.updateProjectionMatrix(); camera.lookAt(tx, ty, tz);
+  lookDir.set(tx - px, ty - py, tz - pz).normalize();
+};
+/** 對焦在某一點 (呼叫前先 look) */
+const focusOn = (x: number, y: number, z: number, blur: number) => {
+  shotState.focus = Math.max(0.3, new THREE.Vector3(x, y, z).sub(camera.position).dot(lookDir));
+  shotState.blur = blur;
 };
 const lift = (f: any, h: number, loaded = true) => { f.rig.setLift(h); f.cargo.visible = loaded; f.cargo.position.set(cfg.cargoX, h + 0.05, 0); };
 const setLift = (h: number) => lift(S.F[0], h);
@@ -238,6 +307,23 @@ const dist = (t: number, segs: [number, number, number][]) => { // [開始時間
 };
 
 export const SHOTS: { dur: number; run: (u: number, t: number) => void }[] = [
+  // 0. 光影揭幕: 全黑, 一道長條柔光從左掃到右, 在紅色外殼上拉出移動的反光、勾出車身輪廓;
+  //    掃完倉庫的燈才亮起來, 叉車塔柱的燈和螢幕跟著點亮
+  { dur: 4.2, run: (u, t) => {
+    place(S.fk, 0, 0.9, 0); lift(S.F[0], 0.05, false);
+    park(S.mir, S.mir2, S.m68, S.F[1], S.F[2], S.F[3]);
+    const on = ease(sat((t - 2.75) / 0.9));
+    shotState.dark = 1 - on; shotState.lamps = sat((t - 2.55) / 0.25);
+    // 柔光在車尾外殼正前方平行移動 (背對兩側貨架, 只照得到車), 外殼上的反光帶跟著滑過去
+    const k = ease(sat((t - 0.15) / 2.7)), z = lerp(-1.3, 3.1, k);
+    sweep.position.set(3.0, 1.2, z);
+    sweep.lookAt(1.0, 0.85, 0.9 + (z - 0.9) * 0.35);
+    sweep.intensity = 24 * sat(t / 0.35) * (1 - 0.75 * on);
+    shotState.gloss = 1 - on; // 揭幕時外殼底漆調亮面, 面光源的反光才會收成一道
+    lights(0.5, 0.9, -6, 3.5, -5, 6, 2.5, 5);
+    look(lerp(4.3, 3.7, ease(u)), 0.5, lerp(3.0, 2.6, ease(u)), 0.75, 0.82, 0.85, 30);
+    focusOn(1.3, 0.9, 1.0, 11);
+  } },
   // 1. 貼地低角度: 叉車迎面開過來, 鏡頭慢慢後退
   { dur: 4.2, run: (u, t) => {
     const x = -7 + t * 1.5;
@@ -246,6 +332,7 @@ export const SHOTS: { dur: number; run: (u: number, t: number) => void }[] = [
     park(S.mir2, S.F[1], S.F[2], S.F[3]);
     lights(x, 0.9, -6, 3.5, -5, 6, 2.5, 5);
     look(x + 5.6 + t * 0.35, 0.28, 2.6 - t * 0.12, x + 0.6, 0.95, 0.75, 30);
+    focusOn(x + 1.3, 0.9, 0.9, 9);
   } },
   // 2. MiR 側面特寫: 長焦平移跟拍
   { dur: 3.6, run: (u, t) => {
@@ -254,6 +341,7 @@ export const SHOTS: { dur: number; run: (u: number, t: number) => void }[] = [
     place(S.fk, x - 14, 0.9, 0); setLift(0.3); park(S.m68, S.F[1], S.F[2], S.F[3]);
     lights(x, 0, 5, 2.2, -6, -5, 2, 6);
     look(x + 0.9 + t * 0.25, 0.42, 4.6, x + 0.35 + t * 0.2, 0.26, 0, 20);
+    focusOn(x + 0.2, 0.2, 0.25, 13);
   } },
   // 3. M68 滾筒車: 3/4 環繞
   { dur: 3.8, run: (u, t) => {
@@ -262,6 +350,7 @@ export const SHOTS: { dur: number; run: (u: number, t: number) => void }[] = [
     place(S.fk, 24 - t * 1.3, -1.4, Math.PI); setLift(0.3); park(S.F[1], S.F[2], S.F[3]);
     lights(x, 0, -5, 2.6, -5, 5, 2.4, 5);
     look(x + Math.cos(a) * 4.4, lerp(1.9, 1.05, ease(u)), Math.sin(a) * 4.4, x, 0.38, 0, 28);
+    focusOn(x, 0.35, 0, 9);
   } },
   // 4. 叉車在貨架前把貨舉起來: 仰角慢推
   { dur: 4.0, run: (u, t) => {
@@ -270,6 +359,7 @@ export const SHOTS: { dur: number; run: (u: number, t: number) => void }[] = [
     place(S.mir, -9 + t * 1.3, -0.9, 0); park(S.mir2, S.m68, S.F[1], S.F[2], S.F[3]);
     lights(2, 2.5, -6, 4, -3, 6, 2, -4);
     look(lerp(-3.4, -2.6, u), lerp(0.5, 0.75, u), lerp(-1.6, -1.1, u), 1.9, lerp(1.2, 1.7, u), 2.9, 32);
+    focusOn(1.9, 1.2, 2.6, 8);
   } },
   // 5. 多車節奏: B 從貨架退出來併入車道, 後面的 A 減速、停在停止線等它 (琥珀色光圈), B 走了路權放行 (虛線變青色) A 才跟上;
   //    對向車道兩台叉車保持固定車距通過
@@ -298,20 +388,91 @@ export const SHOTS: { dur: number; run: (u: number, t: number) => void }[] = [
     lights(6.5, 1, -7, 5, -5, 7, 3, 5);
     const e = ease(u);
     look(lerp(-3.6, -1.4, e), lerp(7.0, 6.0, e), -3.3, lerp(7.4, 9.4, e), 0.3, 1.0, 38);
+    focusOn(ax, 0.8, LANE, 3); // 高角度全景只輕微景深, 太淺會變成微縮模型的感覺
   } },
 ];
 export const TOTAL = SHOTS.reduce((a, s) => a + s.dur, 0);
 
-// ---------- 後製 ----------
-const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(W, H, { type: THREE.HalfFloatType, samples: 4 }));
-composer.addPass(new RenderPass(scene, camera));
+// ---------- 後製: 動態模糊 (快門時間內算好幾次平均) → 景深 → 光暈 → 調色 ----------
+const MB = +(q.get("mb") || 5); // 每格算幾個子影格 (1 = 不做動態模糊, 預覽用)
+const FPS = 30;
+const SHUTTER = 0.5; // 180 度快門: 曝光時間是半格
+
+// 子影格 (多重取樣抗鋸齒) 與累加結果, 都是 HDR, 調色前不會爆掉
+const subRT = new THREE.WebGLRenderTarget(W, H, { type: THREE.HalfFloatType, samples: 4 });
+const accRT = new THREE.WebGLRenderTarget(W, H, { type: THREE.HalfFloatType, depthBuffer: false });
+const quadVS = "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }";
+const accQuad = new FullScreenQuad(new THREE.ShaderMaterial({
+  uniforms: { tSrc: { value: null }, w: { value: 1 } },
+  vertexShader: quadVS,
+  fragmentShader: "uniform sampler2D tSrc; uniform float w; varying vec2 vUv; void main(){ gl_FragColor = vec4(texture2D(tSrc, vUv).rgb * w, w); }",
+  blending: THREE.CustomBlending, blendEquation: THREE.AddEquation, blendSrc: THREE.OneFactor, blendDst: THREE.OneFactor,
+  depthTest: false, depthWrite: false,
+}));
+
+// 景深用的深度 (只畫深度, 不畫鏡面地板、光束、微塵、地面號誌)
+const depthRT = new THREE.WebGLRenderTarget(W, H);
+depthRT.depthTexture = new THREE.DepthTexture(W, H, THREE.FloatType);
+const depthOnly = new THREE.MeshBasicMaterial({ colorWrite: false });
+const renderDepth = () => {
+  const hide = [mirror, dust, ...shafts, ...signals].filter((o) => o.visible);
+  hide.forEach((o) => (o.visible = false));
+  scene.overrideMaterial = depthOnly;
+  renderer.shadowMap.autoUpdate = false;
+  renderer.setRenderTarget(depthRT); renderer.clear(); renderer.render(scene, camera);
+  renderer.shadowMap.autoUpdate = true;
+  scene.overrideMaterial = null;
+  hide.forEach((o) => (o.visible = true));
+};
+
+// 景深: 每個取樣點用「自己的」模糊半徑決定有沒有糊到這個像素 (前景會糊開蓋到背景上,
+// 背景不會滲到清楚的前景上), 取樣點排成黃金角螺旋; 在 HDR 上做, 亮的燈會變成散景光斑
+const dof = new ShaderPass({
+  uniforms: {
+    tColor: { value: accRT.texture }, tDepth: { value: depthRT.depthTexture },
+    cameraNear: { value: camera.near }, cameraFar: { value: camera.far },
+    focus: { value: 5 }, blur: { value: 0 }, maxR: { value: 16 * (W / 1600) }, res: { value: new THREE.Vector2(W, H) },
+  },
+  vertexShader: quadVS,
+  fragmentShader: `#include <packing>
+    uniform sampler2D tColor; uniform sampler2D tDepth;
+    uniform float cameraNear, cameraFar, focus, blur, maxR; uniform vec2 res;
+    varying vec2 vUv;
+    float viewZ(vec2 uv) { return -perspectiveDepthToViewZ(texture2D(tDepth, uv).x, cameraNear, cameraFar); }
+    float coc(float z) { return clamp(blur * abs(z - focus) / max(z, 0.01), 0.0, maxR); }
+    void main() {
+      vec3 c0 = texture2D(tColor, vUv).rgb;
+      if (blur <= 0.0) { gl_FragColor = vec4(c0, 1.0); return; }
+      float zc = viewZ(vUv), cc = coc(zc);
+      vec3 acc = c0; float ws = 1.0;
+      for (int i = 0; i < 56; i++) {
+        float r = sqrt((float(i) + 0.5) / 56.0) * maxR;
+        float a = float(i) * 2.39996323;
+        vec2 uv = vUv + vec2(cos(a), sin(a)) * r / res;
+        float zs = viewZ(uv), cs = coc(zs);
+        float c = zs > zc ? min(cs, cc) : cs;
+        float w = smoothstep(r - 1.5, r + 0.5, c);
+        acc += texture2D(tColor, uv).rgb * w; ws += w;
+      }
+      gl_FragColor = vec4(acc / ws, 1.0);
+    }`,
+}, "tColorUnused");
+// ShaderPass 會複製 uniforms, 而渲染目標的貼圖不能複製 (會變成 null), 建好之後再接上
+dof.uniforms.tColor.value = accRT.texture;
+dof.uniforms.tDepth.value = depthRT.depthTexture;
+
+const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(W, H, { type: THREE.HalfFloatType }));
+composer.addPass(dof);
 composer.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), 0.5, 0.7, 1.0));
 const grade = new ShaderPass({
   uniforms: { tDiffuse: { value: null }, fade: { value: 1 }, time: { value: 0 } },
-  vertexShader: "varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }",
+  vertexShader: quadVS,
   fragmentShader: `uniform sampler2D tDiffuse; uniform float fade; uniform float time; varying vec2 vUv;
     float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)) + time) * 43758.5453); }
-    void main(){ vec4 c = texture2D(tDiffuse, vUv); vec2 d = vUv - 0.5;
+    void main(){ vec2 d = vUv - 0.5;
+      vec2 ca = d * 0.0022; // 鏡頭色差: 越靠邊紅藍分得越開 (很輕微)
+      vec4 c = texture2D(tDiffuse, vUv);
+      c.r = texture2D(tDiffuse, vUv + ca).r; c.b = texture2D(tDiffuse, vUv - ca).b;
       float v = smoothstep(0.85, 0.25, length(d * vec2(1.0, 0.85)));
       c.rgb *= mix(0.35, 1.0, v);
       c.rgb = mix(c.rgb, c.rgb * vec3(0.92, 1.0, 1.1), 0.5);
@@ -322,25 +483,68 @@ const grade = new ShaderPass({
 composer.addPass(grade);
 composer.addPass(new OutputPass());
 
-export function frame(time: number) {
-  let t = ((time % TOTAL) + TOTAL) % TOTAL, i = 0;
-  while (t >= SHOTS[i].dur) { t -= SHOTS[i].dur; i++; }
+const RED_ROUGH = MAT.redGloss.roughness;
+const LAMPS: [THREE.MeshStandardMaterial, number][] = [MAT.amber, MAT.green, MAT.white, MAT.ledBlue].map((m) => [m, m.emissiveIntensity]);
+const locate = (time: number) => {
+  let t = ((time % TOTAL) + TOTAL) % TOTAL, i = 0, start = time - t;
+  while (t >= SHOTS[i].dur) { t -= SHOTS[i].dur; start += SHOTS[i].dur; i++; }
+  return { i, t, start, dur: SHOTS[i].dur };
+};
+
+/** 把場景擺成某個時間點的樣子 (車、鏡頭、燈、號誌、微塵), 不畫 */
+function stage(time: number) {
+  const { i, t, dur } = locate(time);
   const s = SHOTS[i];
   for (const m of signals) (m.material as THREE.MeshBasicMaterial).opacity = 0;
-  s.run(t / s.dur, t);
-    // 開頭 / 結尾淡入淡出 (循環接縫), 每個鏡頭切換處很短的壓暗
+  shotState.dark = 0; shotState.lamps = 1; shotState.blur = 0; shotState.gloss = 0; sweep.intensity = 0;
+  s.run(t / dur, t);
+  // 暗場 (開場揭幕): 燈、環境反光、燈條、地面線一起調暗, 留一點點才看得到倉庫的輪廓
+  const lit = 1 - 0.96 * shotState.dark;
+  hemi.intensity = LIT.hemi * lit; key.intensity = LIT.key * lit; rim.intensity = LIT.rim * lit; fill.intensity = LIT.fill * lit;
+  scene.environmentIntensity = LIT.env * lit;
+  stripMat.color.copy(LIT.strip).multiplyScalar(lit); redMat.color.copy(LIT.red).multiplyScalar(lit);
+  lineMat.color.copy(LIT.line).multiplyScalar(lit); dashMat.color.copy(LIT.dash).multiplyScalar(lit);
+  shaftMat.opacity = SHAFT_OPACITY * lit; dustMat.opacity = DUST_OPACITY * (0.25 + 0.75 * lit);
+  for (const [m, base] of LAMPS) m.emissiveIntensity = base * shotState.lamps;
+  MAT.redGloss.roughness = lerp(RED_ROUGH, 0.16, shotState.gloss);
+  if (S.screen) S.screen.emissiveIntensity = 0.8 * shotState.lamps;
+  moveDust(time);
+  for (const m of signals) m.visible = (m.material as THREE.MeshBasicMaterial).opacity > 0.01;
+  // 開頭 / 結尾淡入淡出 (循環接縫), 每個鏡頭切換處很短的壓暗
   const g = Math.min(1, time / 0.7, (TOTAL - time) / 0.7);
-  const cut = Math.min(1, t / 0.18 + 0.25, (s.dur - t) / 0.18 + 0.25);
+  const cut = Math.min(1, t / 0.18 + 0.25, (dur - t) / 0.18 + 0.25);
   grade.uniforms.fade.value = Math.max(0, Math.min(g, cut));
   grade.uniforms.time.value = time;
-  for (const m of signals) m.visible = (m.material as THREE.MeshBasicMaterial).opacity > 0.01;
+}
+
+/** 算一格: setup(dt) 把場景擺到快門開著的某個時刻, 子影格平均起來就是動態模糊; 景深用中間那一刻 */
+function capture(setup: (dt: number) => void, mb: number) {
+  renderer.setRenderTarget(accRT); renderer.setClearColor(0x000000, 0); renderer.clear();
+  for (let k = 0; k < mb; k++) {
+    setup(mb > 1 ? ((k + 0.5) / mb - 0.5) * (SHUTTER / FPS) : 0);
+    renderer.setClearColor(BG, 1);
+    renderer.setRenderTarget(subRT); renderer.clear(); renderer.render(scene, camera);
+    (accQuad.material as THREE.ShaderMaterial).uniforms.tSrc.value = subRT.texture;
+    (accQuad.material as THREE.ShaderMaterial).uniforms.w.value = 1 / mb;
+    renderer.autoClear = false; renderer.setRenderTarget(accRT); accQuad.render(renderer); renderer.autoClear = true;
+  }
+  setup(0);
+  renderDepth();
+  dof.uniforms.focus.value = shotState.focus;
+  dof.uniforms.blur.value = shotState.blur * (W / 1600);
   composer.render();
+}
+
+export function frame(time: number, mb = MB) {
+  const { start, dur } = locate(time);
+  // 子影格不跨鏡頭, 切換處才不會有前後兩個鏡頭疊在一起的殘影
+  capture((dt) => stage(Math.min(start + dur - 1e-4, Math.max(start, time + dt))), mb);
 }
 
 const b64 = (u8: Uint8Array) => { let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode(...u8.subarray(i, i + 0x8000)); return btoa(s); };
 const api: any = ((window as any).HERO = { TOTAL, S, cfg });
 api.ready = () => ready.then(() => JSON.stringify({ info: S.info, pal: S.palSize, total: TOTAL }));
-api.still = async (time: number, quality = 0.9) => { await ready; frame(time); return canvas.toDataURL("image/jpeg", quality).split(",")[1]; };
+api.still = async (time: number, quality = 0.9, mb = MB) => { await ready; frame(time, mb); return canvas.toDataURL("image/jpeg", quality).split(",")[1]; };
 api.video = async (fps: number, bitrate: number) => {
   await ready;
   const target = new ArrayBufferTarget();
@@ -387,8 +591,9 @@ api.view = async (which: string, yaw: number, pitch: number, dist: number, ty = 
   place(car, 0, 0, 0); if (which === "fk") lift(S.F[0], 0.3);
   lights(0, 0, -6, 3.5, -5, 6, 2.5, 5);
   look(dist * Math.cos(pitch) * Math.cos(yaw), ty + dist * Math.sin(pitch), dist * Math.cos(pitch) * Math.sin(yaw), 0, ty, 0, fov);
+  shotState.blur = 0;
   grade.uniforms.fade.value = 1;
-  composer.render();
+  capture(() => {}, 1);
   return canvas.toDataURL("image/jpeg", 0.88).split(",")[1];
 };
 // 檢查用: 從側面往內打射線, 各高度打到多深 (找 MiR 上下外殼中間的縫)

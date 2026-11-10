@@ -18,7 +18,7 @@ const { sessionId } = await send("Target.attachToTarget", { targetId: targetInfo
 const S = (m, p) => send(m, p, sessionId);
 await S("Runtime.enable"); await S("Page.enable");
 const ev = async (expression) => { const r = await S("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true }); if (r.exceptionDetails) throw new Error(JSON.stringify(r.exceptionDetails).slice(0, 800)); return r.result.value; };
-await S("Page.navigate", { url: `file://${dir}index.html?w=${W}&h=${H}` });
+await S("Page.navigate", { url: `file://${dir}index.html?w=${W}&h=${H}&mb=${process.env.MB || 5}` });
 for (let i = 0; i < 100; i++) { if (await ev("!!window.HERO")) break; await new Promise((r) => setTimeout(r, 200)); }
 console.log(await ev("HERO.ready()"));
 console.log(await ev("(()=>{const g=document.createElement('canvas').getContext('webgl2');const e=g.getExtension('WEBGL_debug_renderer_info');return g.getParameter(e.UNMASKED_RENDERER_WEBGL)})()"));

@@ -20,7 +20,7 @@ import styled, { css, keyframes } from "styled-components";
 import { useSetAtom } from "jotai";
 import { ignitionAtom, prefersReducedMotion } from "@/components/Ignition/ignitionState";
 
-// 背景影片 (public/login-hero.webm): 用車型的 3D 模型在無頭瀏覽器裡逐格錄出來的, 約 23 秒循環
+// 背景影片 (public/login-hero.webm): 用車型的 3D 模型在無頭瀏覽器裡逐格錄出來的, 約 27 秒循環 (開頭是暗的光影揭幕)
 const HERO_VIDEO = `${import.meta.env.BASE_URL}login-hero.webm`;
 const HERO_POSTER = `${import.meta.env.BASE_URL}login-hero.jpg`;
 
