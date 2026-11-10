@@ -111,9 +111,9 @@ export const IndustrialButton = styled(Button)`
 const ChangePasswordModal: FC<{
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  /** 還在用預設密碼: 不能關, 改完重新載入 (換成新 token 後 socket 和各頁重新連) */
-  forced?: boolean;
-}> = ({ open, setOpen, forced = false }) => {
+  /** 還在用預設密碼: 標題改成提醒, 多一個「7 天後再提醒」(見 UserSession/PasswordReminder) */
+  reminder?: boolean;
+}> = ({ open, setOpen, reminder = false }) => {
   const [messageApi, contextHolder] = message.useMessage();
   const { t } = useTranslation();
   const [form] = Form.useForm();
@@ -122,13 +122,20 @@ const ChangePasswordModal: FC<{
     mutationFn: (data: { oldPassword: string; newPassword: string }) =>
       client.patch<{ token?: string }>("api/logInAndOut/changePassword", data),
     onSuccess: (res) => {
-      // 後端回一張新的 token (拿掉「要改密碼」的標記)
+      // 後端回一張新的 token (拿掉「預設密碼提醒」的標記)
       if (res.data?.token) localStorage.setItem("token", res.data.token);
-      if (forced) {
-        window.location.reload();
-        return;
-      }
       messageApi.success(t("utils.success"));
+      form.resetFields();
+      setOpen(false);
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
+  // 7 天後再提醒: 後端記下時間, 回一張沒有提醒標記的 token (重新整理也不會再跳)
+  const snoozeMutation = useMutation({
+    mutationFn: () => client.post<{ token?: string }>("api/logInAndOut/password-reminder/snooze"),
+    onSuccess: (res) => {
+      if (res.data?.token) localStorage.setItem("token", res.data.token);
       form.resetFields();
       setOpen(false);
     },
@@ -161,19 +168,18 @@ const ChangePasswordModal: FC<{
         title={
           <>
             <LockOutlined />{" "}
-            {forced
-              ? t("changePassword.forcedTitle")
+            {reminder
+              ? t("changePassword.reminderTitle")
               : t("changePassword.title", "CHANGE PASSWORD")}
           </>
         }
-        onCancel={forced ? undefined : handleClose}
-        closable={!forced}
-        maskClosable={!forced}
-        keyboard={!forced}
+        onCancel={handleClose}
+        // 提醒視窗不要點旁邊就關掉: 改密碼、按略過, 或右上角關 (下次開頁面再提醒)
+        maskClosable={!reminder}
         footer={null}
         destroyOnClose
       >
-        {forced && <p>{t("changePassword.forcedHint")}</p>}
+        {reminder && <p>{t("changePassword.reminderHint")}</p>}
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <Form.Item
             label={t("changePassword.oldPassword", "OLD PASSWORD")}
@@ -195,7 +201,7 @@ const ChangePasswordModal: FC<{
               },
               {
                 pattern: /^(?=.*[a-z])(?=.*[A-Z])/,
-                message: t("changePassword.forcedHint"),
+                message: t("changePassword.rule"),
               },
             ]}
           >
@@ -230,7 +236,14 @@ const ChangePasswordModal: FC<{
 
           <Form.Item>
             <Space style={{ width: "100%", justifyContent: "flex-end" }}>
-              {!forced && (
+              {reminder ? (
+                <IndustrialButton
+                  onClick={() => snoozeMutation.mutate()}
+                  loading={snoozeMutation.isPending}
+                >
+                  {t("changePassword.remindLater")}
+                </IndustrialButton>
+              ) : (
                 <IndustrialButton onClick={handleClose}>
                   {t("utils.cancel", "CANCEL")}
                 </IndustrialButton>
