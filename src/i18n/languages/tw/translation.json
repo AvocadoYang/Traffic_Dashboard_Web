@@ -5299,7 +5299,13 @@
       "idle_logout": "閒置自動登出",
       "idle_logout_help": "多久沒有操作 (點擊、鍵盤、捲動) 就自動登出; 共用電腦建議打開",
       "idle_never": "不自動登出",
-      "idle_minutes": "{{count}} 分鐘"
+      "idle_minutes": "{{count}} 分鐘",
+      "nav": "頂部選單",
+      "nav_hint": "調整頂部導覽列的順序，並選擇要顯示哪些頁面。隱藏的頁面仍可從網址進入。",
+      "nav_reset": "恢復預設",
+      "nav_up": "上移",
+      "nav_down": "下移",
+      "nav_visible": "顯示"
     },
     "notify": {
       "by_type": "依告警類型",
