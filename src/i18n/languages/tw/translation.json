@@ -3786,7 +3786,10 @@
     "caps_lock": "大寫鎖定 (Caps Lock) 已開啟",
     "forgot_password": "忘記密碼？",
     "authenticating": "驗證中...",
-    "system_online": "系統運作中"
+    "system_online": "系統運作中",
+    "welcome_back": "歡迎回來，{{name}}",
+    "skip_hint": "點一下或按任意鍵略過",
+    "starting": "啟動中"
   },
   "update_log": {
     "title": "系統更新紀錄",
