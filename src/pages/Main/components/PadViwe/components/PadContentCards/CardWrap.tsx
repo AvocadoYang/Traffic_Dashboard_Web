@@ -9,7 +9,11 @@ import {
   OpenQuickMission,
   viewBtn,
 } from "@/pages/Main/global/jotai";
-import { Card, Button, Space } from "antd";
+import { Card, Button, Space, message } from "antd";
+import { useMutation } from "@tanstack/react-query";
+import client from "@/api/axiosClient";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
 import { useAtomValue, useSetAtom } from "jotai";
 import { memo, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -37,6 +41,15 @@ const CardWrap: React.FC<{
   const openCarCardInfo = useSetAtom(OpenCarCardInfo);
   const openMissionCardInfo = useSetAtom(OpenMissionCardInfo);
 
+  const [messageApi, messageContextHolder] = message.useMessage();
+  const elevatorMutation = useMutation({
+    mutationFn: () => client.post("api/corning/trigger-elevator-mission"),
+    onSuccess: () => {
+      void messageApi.success(t("utils.success"));
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
   useEffect(() => {
     if (id === "map_2D_view" || id === "map_3D_view") {
       setBorderColor("rgb(56, 142, 240)");
@@ -45,6 +58,7 @@ const CardWrap: React.FC<{
       id === "quick_mission" ||
       id === "auto_mission" ||
       id === "new_mission" ||
+      id === "elevate_mission" ||
       id === "input_mission"
     ) {
       setBorderColor("rgb(247, 108, 10)");
@@ -71,6 +85,9 @@ const CardWrap: React.FC<{
       case "new_mission":
         openAssignMission(true);
         break;
+      case "elevate_mission":
+        elevatorMutation.mutate();
+        break;
       case "input_mission":
         openInputMission(true);
         break;
@@ -87,6 +104,7 @@ const CardWrap: React.FC<{
 
   return (
     <>
+      {messageContextHolder}
       <Card
         className="pad-card-wrap"
         size="default"
@@ -116,11 +134,12 @@ const CardWrap: React.FC<{
                 color="primary"
                 variant="filled"
                 disabled={id === "map_3D_view"}
+                loading={id === "elevate_mission" && elevatorMutation.isPending}
                 onClick={() => {
                   btnClick(id);
                 }}
               >
-                {t("utils.open")}
+                {id === "elevate_mission" ? t("utils.submit") : t("utils.open")}
               </Button>
             </Space>
           </>

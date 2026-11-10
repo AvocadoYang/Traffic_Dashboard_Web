@@ -18,6 +18,7 @@ const dataIndex = [
     { key: "quick_mission" },
     { key: "auto_mission" },
     { key: "new_mission" },
+    { key: "elevate_mission" },
     // { key: 'input_mission' }
   ],
   [{ key: "mission_info" }, { key: "car_info" }],
