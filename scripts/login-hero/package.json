@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "../../node_modules/.bin/esbuild scene.ts --bundle --outfile=out.js --loader:.glb=binary --format=iife --log-level=error",
-    "still": "npm run build && W=960 H=540 node run.mjs still 1 5.5 9.5 14 18.5",
+    "still": "npm run build && MB=1 W=960 H=540 node run.mjs still 1.0 2.0 3.6 6.0 9.6 13.6 17.6 24.0",
     "video": "npm run build && W=1600 H=900 node run.mjs video ../../public/login-hero.webm 30 2800000"
   },
   "dependencies": {

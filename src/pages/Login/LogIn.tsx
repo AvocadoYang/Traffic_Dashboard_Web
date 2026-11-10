@@ -16,9 +16,11 @@ import client from "@/api/axiosClient";
 import { reconnectSocket } from "@/sockets/socketConnect";
 import { Err } from "@/utils/responseErr";
 import { useTranslation } from "react-i18next";
-import styled, { keyframes } from "styled-components";
+import styled, { css, keyframes } from "styled-components";
+import { useSetAtom } from "jotai";
+import { ignitionAtom, prefersReducedMotion } from "@/components/Ignition/ignitionState";
 
-// 背景影片 (public/login-hero.webm): 用車型的 3D 模型在無頭瀏覽器裡逐格錄出來的, 約 23 秒循環
+// 背景影片 (public/login-hero.webm): 用車型的 3D 模型在無頭瀏覽器裡逐格錄出來的, 約 27 秒循環 (開頭是暗的光影揭幕)
 const HERO_VIDEO = `${import.meta.env.BASE_URL}login-hero.webm`;
 const HERO_POSTER = `${import.meta.env.BASE_URL}login-hero.jpg`;
 
@@ -26,6 +28,12 @@ const cardIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 `;
+// 登入成功後的退場: 卡片模糊淡出, 背景影片推近並暗到全黑, 接著由點火轉場 (components/Ignition) 接手
+const cardOut = keyframes`
+  to { opacity: 0; transform: translateY(-12px) scale(0.98); filter: blur(8px); }
+`;
+/** 退場要多久才換頁 (影片暗到全黑) */
+const LEAVE_MS = 900;
 
 const BackgroundContainer = styled.div`
   background: #05070b;
@@ -57,6 +65,20 @@ const BackgroundContainer = styled.div`
   }
 `;
 
+const HeroLayer = styled.div<{ $leaving: boolean }>`
+  position: absolute;
+  inset: 0;
+  transition:
+    transform 1.1s cubic-bezier(0.5, 0, 0.3, 1),
+    filter 0.9s ease-in;
+  ${(p) =>
+    p.$leaving &&
+    css`
+      transform: scale(1.12);
+      filter: brightness(0);
+    `}
+`;
+
 const HeroVideo = styled.video`
   position: absolute;
   inset: 0;
@@ -76,7 +98,7 @@ const HeroPoster = styled.div`
   background: url(${HERO_POSTER}) center / cover no-repeat;
 `;
 
-const LoginCard = styled.div`
+const LoginCard = styled.div<{ $leaving: boolean }>`
   position: relative;
   z-index: 2;
   background: rgba(10, 14, 20, 0.55);
@@ -90,6 +112,12 @@ const LoginCard = styled.div`
   max-width: 440px;
   font-family: "Roboto Mono", monospace;
   animation: ${cardIn} 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  ${(p) =>
+    p.$leaving &&
+    css`
+      animation: ${cardOut} 0.5s 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards; /* 晚一點淡出, 先看得到按鈕亮一下 */
+      pointer-events: none;
+    `}
 
   /* 卡片固定是深色, 不跟主題: 文字、輸入框在這裡自己定 */
   --c-text-secondary: rgba(255, 255, 255, 0.72);
@@ -261,6 +289,56 @@ const IndustrialButton = styled(Button)`
   }
 `;
 
+// 登入鈕的掃光: 驗證中一直掃, 成功時亮一下再掃一次 (光是疊在按鈕上的另一層, 不動 antd 按鈕本身)
+const sheen = keyframes`
+  from { transform: translateX(-120%) skewX(-20deg); }
+  to { transform: translateX(380%) skewX(-20deg); }
+`;
+const ButtonGlow = styled.div<{ $state: "idle" | "pending" | "go" }>`
+  position: relative;
+
+  .sheen {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 30%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+      transform: translateX(-120%) skewX(-20deg);
+    }
+  }
+  ${(p) =>
+    p.$state === "pending" &&
+    css`
+      .sheen::after {
+        animation: ${sheen} 1.2s ease-in-out infinite;
+      }
+    `}
+  ${(p) =>
+    p.$state === "go" &&
+    css`
+      .sheen::after {
+        animation: ${sheen} 0.55s ease-out both;
+      }
+      .ant-btn {
+        filter: brightness(1.25);
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.35),
+          0 0 36px 6px color-mix(in srgb, var(--c-header-accent) 65%, transparent);
+        transition:
+          filter 0.2s,
+          box-shadow 0.2s;
+      }
+    `}
+`;
+
 const ForgotLink = styled.div`
   text-align: right;
   margin-bottom: 24px;
@@ -324,6 +402,8 @@ const Login: React.FC = () => {
   const { t } = useTranslation();
 
   const [capsLock, setCapsLock] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+  const setIgnition = useSetAtom(ignitionAtom);
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const logoutReason = searchParams.get("reason");
@@ -331,7 +411,7 @@ const Login: React.FC = () => {
   const editMutation = useMutation({
     mutationFn: (payload: { username: string; password: string }) =>
       client.post("api/logInAndOut/login", payload),
-    onSuccess: async (res) => {
+    onSuccess: async (res, payload) => {
       localStorage.setItem("token", res.data.token);
       reconnectSocket();
       // 上一個帳號的個人設定 / 聊天室不要留給這個帳號
@@ -342,17 +422,24 @@ const Login: React.FC = () => {
       } catch {
         /* 聊天室不會自動打開而已 */
       }
-      messageApi.success(t("utils.success"));
+      // 成功不另外跳提示: 退場動畫 + 點火轉場就是回饋; 系統設定「減少動態效果」時直接換頁
+      const motion = !prefersReducedMotion();
+      if (motion) setLeaving(true);
+      const settled = new Promise((r) => window.setTimeout(r, motion ? LEAVE_MS : 0));
       // 個人設定的預設首頁; 讀不到 (舊後端) 就回首頁
       let home = "/";
+      let name = payload.username;
       try {
         const me = await client.get<MyProfile>("api/profile/me");
         queryClient.setQueryData(PROFILE_KEY, me.data);
         const page = me.data.preferences?.homePage;
         if (page && (HOME_PAGES as readonly string[]).includes(page)) home = page;
+        name = me.data.account || name;
       } catch {
         /* 舊後端沒有 /api/profile */
       }
+      await settled;
+      if (motion) setIgnition({ name });
       navigate(home, { replace: true });
     },
     onError(error: Err) {
@@ -361,6 +448,7 @@ const Login: React.FC = () => {
   });
 
   const handleSubmit = (values: unknown) => {
+    if (leaving) return;
     editMutation.mutate(values as { username: string; password: string });
   };
 
@@ -368,9 +456,11 @@ const Login: React.FC = () => {
     <>
       {contextHolder}
       <BackgroundContainer>
-        <HeroPoster aria-hidden />
-        <HeroVideo aria-hidden src={HERO_VIDEO} poster={HERO_POSTER} autoPlay muted loop playsInline preload="auto" />
-        <LoginCard>
+        <HeroLayer $leaving={leaving}>
+          <HeroPoster aria-hidden />
+          <HeroVideo aria-hidden src={HERO_VIDEO} poster={HERO_POSTER} autoPlay muted loop playsInline preload="auto" />
+        </HeroLayer>
+        <LoginCard $leaving={leaving}>
           <LoginHeader>
             <LoginTitle>{t("login.title")}</LoginTitle>
             <SystemLabel>{t("login.system_label")}</SystemLabel>
@@ -439,14 +529,21 @@ const Login: React.FC = () => {
             </Tooltip>
 
             <Form.Item style={{ marginBottom: 0 }}>
-              <IndustrialButton
-                type="primary"
-                htmlType="submit"
-                block
-                loading={editMutation.isPending}
-              >
-                {editMutation.isPending ? t("login.authenticating") : t("login.title")}
-              </IndustrialButton>
+              <ButtonGlow $state={leaving ? "go" : editMutation.isPending ? "pending" : "idle"}>
+                <IndustrialButton
+                  type="primary"
+                  htmlType="submit"
+                  block
+                  loading={editMutation.isPending && !leaving /* onSuccess 跑完之前都算 pending, 退場時不要轉圈 */}
+                >
+                  {leaving
+                    ? t("login.starting")
+                    : editMutation.isPending
+                      ? t("login.authenticating")
+                      : t("login.title")}
+                </IndustrialButton>
+                <span className="sheen" aria-hidden />
+              </ButtonGlow>
             </Form.Item>
           </StyledForm>
 

@@ -2835,8 +2835,10 @@
     "newPassword": "新密碼",
     "confirmPassword": "確認密碼",
     "passwordNotMatch": "密碼不相符",
-    "forcedTitle": "請先修改預設密碼",
-    "forcedHint": "這個帳號還在用預設密碼, 任何人都猜得到。改成新密碼後才能繼續使用 (至少 8 碼, 要有大寫和小寫英文)。"
+    "reminderTitle": "建議修改預設密碼",
+    "reminderHint": "這個帳號還在用預設密碼, 任何人都猜得到, 建議改成新密碼 (至少 8 碼, 要有大寫和小寫英文)。現在不方便的話可以按「7 天後再提醒」。",
+    "remindLater": "7 天後再提醒",
+    "rule": "至少 8 碼, 要有大寫和小寫英文"
   },
   "client_name": {
     "title": "電腦名稱",
@@ -3786,7 +3788,10 @@
     "caps_lock": "大寫鎖定 (Caps Lock) 已開啟",
     "forgot_password": "忘記密碼？",
     "authenticating": "驗證中...",
-    "system_online": "系統運作中"
+    "system_online": "系統運作中",
+    "welcome_back": "歡迎回來，{{name}}",
+    "skip_hint": "點一下或按任意鍵略過",
+    "starting": "啟動中"
   },
   "update_log": {
     "title": "系統更新紀錄",
