@@ -23,8 +23,10 @@ for (let i = 0; i < 100; i++) { if (await ev("!!window.HERO")) break; await new 
 console.log(await ev("HERO.ready()"));
 console.log(await ev("(()=>{const g=document.createElement('canvas').getContext('webgl2');const e=g.getExtension('WEBGL_debug_renderer_info');return g.getParameter(e.UNMASKED_RENDERER_WEBGL)})()"));
 if (process.env.CFG) await ev(`Object.assign(CFG, ${process.env.CFG})`);
-if (mode === "still") {
-  for (const t of rest) { const t0 = Date.now(); fs.writeFileSync(`${process.cwd()}/still_${t}.jpg`, Buffer.from(await ev(`HERO.still(${t}, 0.85)`), "base64")); console.log("still", t, Date.now() - t0, "ms"); if (process.env.DBG) console.log(await ev(process.env.DBG)); }
+if (mode === "eval") { console.log(await ev(rest[0])); }
+else if (mode === "img") { for (let i = 0; i < rest.length; i += 2) fs.writeFileSync(rest[i], Buffer.from(await ev(rest[i + 1]), "base64")); }
+else if (mode === "still") {
+  for (const t of rest) { const t0 = Date.now(); fs.writeFileSync(`${process.cwd()}/still_${t}.jpg`, Buffer.from(await ev(`HERO.still(${t}, 0.85)`), "base64")); console.log("still", t, Date.now() - t0, "ms"); }
 } else if (mode === "video") {
   const [out, fps = "30", br = "6000000"] = rest; const t0 = Date.now();
   const p = ev(`HERO.video(${fps}, ${br})`);

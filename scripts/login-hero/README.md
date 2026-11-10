@@ -7,9 +7,33 @@
 cd scripts/login-hero
 npm install          # 只有 webm-muxer; three / esbuild 用 dashboard 的 node_modules
 npm run still        # 每個鏡頭出一張 still_*.jpg, 調分鏡時先看這個 (幾秒)
-npm run video        # 重錄整支影片, 軟體算圖約 10 分鐘
+npm run video        # 重錄整支影片, 軟體算圖約 12 分鐘
 ```
 
 - 分鏡在 `scene.ts` 的 `SHOTS` (每個鏡頭自己擺車和攝影機), 燈光、貨架、後製也都在同一個檔。
 - 封面圖: `W=1600 H=900 node run.mjs still 1.6`, 再把 `still_1.6.jpg` 複製成 `public/login-hero.jpg`。
 - `run.mjs` 用 `--remote-debugging-pipe` 驅動 Chrome, 不開連接埠; 需要系統有 `google-chrome`。
+
+## 擬真材質 (`materials.ts`)
+
+模型只有頂點色 (CAD 匯出時的零件色, 大多是隨便給的白灰色), 也沒有法線。`realize()` 依 `RULES` 把每個顏色群換成實際材質,
+並重算法線 (36 度以內抹平; 調大的話低面數外殼的反光會出現皺摺)。對照的依據:
+
+- 叉車、SW15: 實車照片 (使用者提供, 本機 `~/Pictures/real_agv/`)。叉車是紅色亮面外殼 + 黑色側板 / 門架 / 牙叉 / 塔柱、
+  綠色充電板、米黃 PU 輪; SW15 是紅色鈑金 (模型裡兩端的白色櫃門實車也是紅的)、不鏽鋼滾筒、鋁側擋、黑色橡膠防撞條。
+- MiR250: 官方產品圖。RAL 7011 鐵灰外殼、陽極處理鋁頂板、四角黑色護角和白色信號燈; 上下外殼中間的藍色 LED 燈帶模型裡沒有,
+  由 `lightBand()` 從側面打射線找到縫的位置補上。
+
+車身印字用貼花 (`stamp()` 從外面打射線, 打到的地方投影一張字的貼圖): 每台車都印白色 KENMEC (叉車在車尾外殼、SW15 和 MiR 在兩側長邊),
+叉車兩側另有車號 (`NUMBERS`), 塔柱上有螢幕畫面。紙箱印 KENMEC 廣運、棧板是綠 / 藍塑膠, 也是照展場照片。
+
+調材質時用 `node run.mjs img <輸出.jpg> '<運算式>'` 拍檢查圖:
+
+```sh
+# 某些顏色群在模型的哪裡 (洋紅色), 車種 fk / mir / m68, 參數: 水平角、俯角、顏色群、距離
+W=800 H=600 node run.mjs img /tmp/a.jpg 'HERO.inspect("fk", 0.6, 0.25, ["#ff0000"])'
+# 換好材質的車單獨放在走道中央, 用正式的燈光後製拍: 車種、水平角、俯角、距離、看的高度
+W=800 H=450 node run.mjs img /tmp/b.jpg 'HERO.view("mir", 0.9, 0.18, 2.0, 0.15)'
+# 所有顏色群的頂點數和範圍
+W=320 H=180 node run.mjs eval 'HERO.ready().then(() => JSON.stringify(HERO.S.clusters.fk))'
+```

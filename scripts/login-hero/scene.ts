@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
-import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { Reflector } from "three/examples/jsm/objects/Reflector.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
@@ -9,6 +8,7 @@ import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPa
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 import { Muxer, ArrayBufferTarget } from "webm-muxer";
+import { colorClusters, highlightClone, realize, stamp, lightBand, MAT, kenmecTexture, numberTexture, screenTexture, cartonMaterials } from "./materials";
 import { rigForklift } from "../../src/components/Fleet3D/forkliftRig";
 import forkliftGlb from "../../public/models/forklift.glb";
 import mirGlb from "../../public/models/mir250.glb";
@@ -32,8 +32,22 @@ const BG = new THREE.Color(0x05070b);
 scene.background = BG;
 scene.fog = new THREE.FogExp2(0x05070b, 0.028);
 const pmrem = new THREE.PMREMGenerator(renderer);
-scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-scene.environmentIntensity = 0.35;
+// 反射用的環境: 暗的倉庫 + 天花板長條燈 + 兩側柔光箱, 烤漆和金屬上才會有車廠廣告那種長條反光
+{
+  const env = new THREE.Scene();
+  env.background = new THREE.Color(0x05070a);
+  const box = new THREE.BoxGeometry(1, 1, 1);
+  const panel = (c: THREE.Color, x: number, y: number, z: number, sx: number, sy: number, sz: number) => {
+    const m = new THREE.Mesh(box, new THREE.MeshBasicMaterial({ color: c })); m.position.set(x, y, z); m.scale.set(sx, sy, sz); env.add(m);
+  };
+  for (const z of [-3.6, -1.2, 1.2, 3.6]) panel(new THREE.Color(6, 6.2, 6.8), 0, 6, z, 40, 0.15, 0.45); // 天花板燈條
+  panel(new THREE.Color(1.2, 1.35, 1.7), 0, 2.4, -9, 18, 3.2, 0.2); // 冷色柔光箱
+  panel(new THREE.Color(1.1, 1.2, 1.5), 0, 2.4, 9, 18, 3.2, 0.2);
+  panel(new THREE.Color(1.7, 0.45, 0.32), -10, 1.6, 0, 0.2, 2.6, 12); // 暖色 (跟紅色輪廓光同側)
+  panel(new THREE.Color(0.8, 0.9, 1.1), 10, 2, 0, 0.2, 2.2, 10);
+  scene.environment = pmrem.fromScene(env, 0.02).texture;
+  scene.environmentIntensity = 0.75;
+}
 
 const camera = new THREE.PerspectiveCamera(35, W / H, 0.1, 200);
 
@@ -62,12 +76,16 @@ for (let x = -60; x < 60; x += 2.4) {
 // ---------- 貨架 ----------
 const rackMat = new THREE.MeshStandardMaterial({ color: 0x1c2f52, roughness: 0.5, metalness: 0.6 });
 const beamMat = new THREE.MeshStandardMaterial({ color: 0xc8541a, roughness: 0.5, metalness: 0.5 });
-const boxMats = [0x8a6a45, 0x9b7a52, 0x6f553a, 0xb0b4ba].map((c) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.85 }));
-const palMat = new THREE.MeshStandardMaterial({ color: 0x6b4f33, roughness: 0.9 });
+// 紙箱印 KENMEC 廣運、塑膠棧板綠 / 藍 (照展場照片)
+const carton = cartonMaterials();
+const whiteBox = new THREE.MeshStandardMaterial({ color: 0xc9ccd0, roughness: 0.8 });
+const boxMats: (THREE.Material | THREE.Material[])[] = [carton, carton, carton, whiteBox];
+const palGreen = new THREE.MeshStandardMaterial({ color: 0x35b04a, roughness: 0.5 });
+const palBlue = new THREE.MeshStandardMaterial({ color: 0x1f4fa8, roughness: 0.5 });
 const unit = new THREE.BoxGeometry(1, 1, 1);
 let seed = 7;
 const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-const addBox = (mat: THREE.Material, x: number, y: number, z: number, sx: number, sy: number, sz: number, shadow = false) => {
+const addBox = (mat: THREE.Material | THREE.Material[], x: number, y: number, z: number, sx: number, sy: number, sz: number, shadow = false) => {
   const m = new THREE.Mesh(unit, mat); m.position.set(x, y, z); m.scale.set(sx, sy, sz); m.castShadow = shadow; m.receiveShadow = true; scene.add(m); return m;
 };
 for (const side of [-1, 1]) {
@@ -79,7 +97,7 @@ for (const side of [-1, 1]) {
       for (const k of [0, 1]) {
         if (rnd() < 0.18) continue;
         const cx = x + 0.7 + k * 1.3, h = 0.55 + rnd() * 0.5;
-        addBox(palMat, cx, y + 0.13, z0, 1.05, 0.13, 1.05);
+        addBox(rnd() < 0.6 ? palGreen : palBlue, cx, y + 0.13, z0, 1.05, 0.13, 1.05);
         addBox(boxMats[Math.floor(rnd() * 4)], cx, y + 0.2 + h / 2, z0, 0.95, h, 0.95);
       }
     }
@@ -87,7 +105,7 @@ for (const side of [-1, 1]) {
     if (x < 54) for (const k of [0, 1]) {
       if (rnd() < 0.3) continue;
       const cx = x + 0.7 + k * 1.3, h = 0.6 + rnd() * 0.5;
-      addBox(palMat, cx, 0.07, z0, 1.05, 0.13, 1.05);
+      addBox(rnd() < 0.6 ? palGreen : palBlue, cx, 0.07, z0, 1.05, 0.13, 1.05);
       addBox(boxMats[Math.floor(rnd() * 4)], cx, 0.14 + h / 2, z0, 0.95, h, 0.95);
     }
   }
@@ -117,34 +135,61 @@ const aim = (x: number, z: number) => {
 const loader = new GLTFLoader(); loader.setMeshoptDecoder(MeshoptDecoder);
 const load = (u8: Uint8Array) => new Promise<THREE.Object3D>((res, rej) =>
   loader.parse(u8.buffer.slice(u8.byteOffset, u8.byteOffset + u8.byteLength), "", (g) => {
-    g.scene.traverse((o) => { o.castShadow = true; o.receiveShadow = true; const m = (o as THREE.Mesh).material as THREE.MeshStandardMaterial | undefined; if (m && "envMapIntensity" in m) m.envMapIntensity = 1.6; });
+    g.scene.traverse((o) => { o.castShadow = true; o.receiveShadow = true; });
     res(g.scene);
   }, rej));
 
-type Car = { root: THREE.Group; lamp: THREE.Mesh };
-const lampMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(1.2, 3.2, 4.2) });
-const mkCar = (model: THREE.Object3D, lx: number, ly: number): Car => {
+type Car = { root: THREE.Group };
+const mkCar = (model: THREE.Object3D): Car => {
   const root = new THREE.Group(); root.add(model);
-  const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.022, 12, 8), lampMat); lamp.position.set(lx, ly, 0); root.add(lamp);
-  scene.add(root); return { root, lamp };
+  scene.add(root); return { root };
 };
+
+// 印在車上的字: 白字印在清漆底下 (跟車漆一樣有反光)
+const decalMat = (map: THREE.Texture, extra: THREE.MeshPhysicalMaterialParameters = {}) => new THREE.MeshPhysicalMaterial({
+  map, transparent: true, roughness: 0.34, clearcoat: 1, clearcoatRoughness: 0.15,
+  polygonOffset: true, polygonOffsetFactor: -4, depthWrite: false, ...extra,
+});
+const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
+const NUMBERS = ["15", "7", "1", "9"]; // 每台叉車的車號 (照片上有 15、7、1)
 
 const S: any = {};
 export const ready = (async () => {
   const [fk, mir, m68, pal] = await Promise.all([load(forkliftGlb), load(mirGlb), load(m68Glb), load(palletGlb)]);
+  S.models = { fk: fk.clone(true), mir: mir.clone(true), m68: m68.clone(true) }; // 原本的頂點色 (HERO.inspect 用)
+  S.clusters = { fk: colorClusters(fk), mir: colorClusters(mir), m68: colorClusters(m68) };
   S.info = [fk, mir, m68, pal].map((o) => { const b = new THREE.Box3().setFromObject(o); return [b.min.toArray().map((n) => +n.toFixed(2)), b.max.toArray().map((n) => +n.toFixed(2))]; });
-  S.mir = mkCar(mir, 0.42, 0.22); S.m68 = mkCar(m68, 0.6, 0.3);
-  S.mir2 = mkCar(mir.clone(true), 0.42, 0.22);
+  realize(fk, "forklift"); realize(m68, "m68"); realize(mir, "mir");
+  // 印字: 叉車外殼車尾、SW15 兩側長邊、MiR 兩側長邊
+  const kenmec = decalMat(kenmecTexture());
+  fk.add(stamp(fk, V(2.5, 0.98, 0), V(-1, 0, 0), V(0.46, 0.092, 0.4), kenmec).mesh);
+  for (const s of [1, -1]) {
+    m68.add(stamp(m68, V(0, 0.33, 2 * s), V(0, 0, -s), V(0.5, 0.1, 0.3), kenmec).mesh);
+    mir.add(stamp(mir, V(0.08, 0.252, 2 * s), V(0, 0, -s), V(0.2, 0.04, 0.2), kenmec).mesh);
+  }
+  // 叉車塔柱上的螢幕
+  const scr = screenTexture();
+  fk.add(stamp(fk, V(2.5, 1.68, 0), V(-1, 0, 0), V(0.2, 0.15, 0.3),
+    new THREE.MeshStandardMaterial({ map: scr, emissiveMap: scr, emissive: 0xffffff, emissiveIntensity: 0.8, roughness: 0.12, transparent: true, polygonOffset: true, polygonOffsetFactor: -4, depthWrite: false })).mesh);
+  // 車號貼花: 形狀每台一樣, 字不一樣
+  const numSides = [1, -1].map((s) => stamp(fk, V(0.58, 0.76, 2 * s), V(0, 0, -s), V(0.2, 0.15, 0.4), MAT.white).mesh.geometry);
+  // MiR 的 LED 燈帶
+  const band = lightBand(mir, MAT.ledBlue); mir.add(band.mesh); S.band = band.found;
+  S.mir = mkCar(mir); S.m68 = mkCar(m68);
+  S.mir2 = mkCar(mir.clone(true));
   const pb = new THREE.Box3().setFromObject(pal); const ps = pb.getSize(new THREE.Vector3());
   S.palSize = ps.toArray();
   pal.position.sub(pb.getCenter(new THREE.Vector3())); pal.position.y += ps.y / 2;
   const palWrap = new THREE.Group(); palWrap.add(pal);
+  const palOf = (m: THREE.Material) => { const w = palWrap.clone(true); w.traverse((o) => { if ((o as THREE.Mesh).isMesh) (o as THREE.Mesh).material = m; }); return w; };
   // 四台叉車 (最後一個鏡頭要多車), 每台有自己的牙叉和貨
   S.F = [0, 1, 2, 3].map((i) => {
     const model = i ? fk.clone(true) : fk;
-    const car = mkCar(model, 1.2, -5);
-    const cargo = new THREE.Group(); cargo.add(palWrap.clone(true));
-    const carton = new THREE.Mesh(unit, boxMats[i % 4]); carton.scale.set(0.9, 0.55 + 0.1 * i, 0.9); carton.position.y = ps.y + carton.scale.y / 2; carton.castShadow = true; cargo.add(carton);
+    const car = mkCar(model);
+    const num = decalMat(numberTexture(NUMBERS[i]), { clearcoat: 0.35, clearcoatRoughness: 0.3, roughness: 0.45 });
+    for (const g of numSides) model.add(new THREE.Mesh(g, num));
+    const cargo = new THREE.Group(); cargo.add(palOf(i % 2 ? palBlue : palGreen));
+    const box = new THREE.Mesh(unit, carton); box.scale.set(0.9, 0.7, 0.9); box.position.y = ps.y + 0.35; box.castShadow = true; cargo.add(box);
     car.root.add(cargo);
     return { ...car, rig: rigForklift(model), cargo };
   });
@@ -176,7 +221,6 @@ const stopBar = new THREE.Mesh(new THREE.PlaneGeometry(0.14, 1.5), new THREE.Mes
 stopBar.rotation.x = -Math.PI / 2; stopBar.position.y = 0.012; scene.add(stopBar);
 const signals = [...dashesA, ...dashesB, waitRing, stopBar];
 for (const m of signals) { m.material.depthWrite = false; m.renderOrder = 10; }
-(window as any).DA = dashesA;
 const sat = (x: number) => Math.max(0, Math.min(1, x));
 
 // 叉車 B 從貨架退出來併入車道的路徑: 先直走離開貨架、四分之一圓轉進車道、再沿車道直走
@@ -316,5 +360,48 @@ api.video = async (fps: number, bitrate: number) => {
   await enc.flush(); muxer.finalize();
   api.out = new Uint8Array(target.buffer);
   return api.out.length;
+};
+// 檢查用: 單獨拍一台車 (kind = fk / mir / m68), 指定顏色群標成洋紅
+api.inspect = async (kind: string, yaw: number, pitch: number, hexes: string[] = [], dist = 4.2) => {
+  await ready;
+  const sc = new THREE.Scene(); sc.background = new THREE.Color(0x30343a);
+  sc.environment = scene.environment;
+  sc.add(new THREE.HemisphereLight(0xffffff, 0x404040, 1.2));
+  const dl = new THREE.DirectionalLight(0xffffff, 1.5); dl.position.set(3, 5, 4); sc.add(dl);
+  const m = highlightClone(S.models[kind], hexes); m.position.set(0, 0, 0); m.rotation.set(0, 0, 0); sc.add(m);
+  const b = new THREE.Box3().setFromObject(m), c = b.getCenter(new THREE.Vector3());
+  const cam = new THREE.PerspectiveCamera(35, W / H, 0.05, 50);
+  cam.position.set(c.x + dist * Math.cos(pitch) * Math.cos(yaw), c.y + dist * Math.sin(pitch), c.z + dist * Math.cos(pitch) * Math.sin(yaw));
+  cam.lookAt(c);
+  const tm = renderer.toneMapping; renderer.toneMapping = THREE.NoToneMapping;
+  renderer.setRenderTarget(null); renderer.render(sc, cam); renderer.toneMapping = tm;
+  return canvas.toDataURL("image/jpeg", 0.85).split(",")[1];
+};
+// 檢查用: 把一台車 (fk / mir / m68) 單獨放在走道中央, 用正式的燈光和後製從指定角度拍
+api.view = async (which: string, yaw: number, pitch: number, dist: number, ty = 0.5, fov = 30) => {
+  await ready;
+  const cars = [S.mir, S.mir2, S.m68, ...S.F];
+  cars.forEach((c: Car, i: number) => place(c, 300 + i * 5, 0));
+  for (const m of signals) (m.material as THREE.MeshBasicMaterial).opacity = 0, (m.visible = false);
+  const car = which === "fk" ? S.F[0] : which === "mir" ? S.mir : S.m68;
+  place(car, 0, 0, 0); if (which === "fk") lift(S.F[0], 0.3);
+  lights(0, 0, -6, 3.5, -5, 6, 2.5, 5);
+  look(dist * Math.cos(pitch) * Math.cos(yaw), ty + dist * Math.sin(pitch), dist * Math.cos(pitch) * Math.sin(yaw), 0, ty, 0, fov);
+  grade.uniforms.fade.value = 1;
+  composer.render();
+  return canvas.toDataURL("image/jpeg", 0.88).split(",")[1];
+};
+// 檢查用: 從側面往內打射線, 各高度打到多深 (找 MiR 上下外殼中間的縫)
+api.profile = async (which: string, x: number, z: number, dirx: number, dirz: number) => {
+  await ready;
+  const m = S.models[which];
+  m.updateMatrixWorld(true);
+  const rc = new THREE.Raycaster(); const out: string[] = [];
+  for (let y = 0.02; y <= 0.3; y += 0.005) {
+    rc.set(new THREE.Vector3(x, y, z), new THREE.Vector3(dirx, 0, dirz).normalize());
+    const h = rc.intersectObject(m, true)[0];
+    out.push(`${y.toFixed(3)}:${h ? (h.distance).toFixed(3) : "-"}`);
+  }
+  return out.join(" ");
 };
 api.chunk = (i: number, size = 1 << 20) => b64(api.out.subarray(i * size, (i + 1) * size));
