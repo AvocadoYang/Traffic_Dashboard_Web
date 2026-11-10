@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import styled, { keyframes } from "styled-components";
 import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
+import { AchievementIcon } from "@/components/Achievements/AchievementIcon";
 import { Achievement, DayReport, Tier, useAchievements, useDailyReport } from "@/api/useAchievements";
 import { mq } from "@/styles/responsive";
 
@@ -142,6 +143,8 @@ const Badge = styled.div<{ $tier: Tier; $done: boolean }>`
         ? `radial-gradient(circle at 30% 25%, ${TIER_METAL[$tier].light} 0%, ${TIER_METAL[$tier].main} 60%, ${TIER_METAL[$tier].dark} 100%)`
         : "var(--c-bg-subtle)"};
     box-shadow: ${({ $done }) => ($done ? "inset 0 1px 2px rgba(255,255,255,0.7), 0 2px 4px rgba(0,0,0,0.25)" : "none")};
+    color: ${({ $done, $tier }) => ($done ? TIER_METAL[$tier].dark : "var(--c-text-muted)")};
+    color: ${({ $done, $tier }) => ($done ? TIER_METAL[$tier].dark : "var(--c-text-muted)")};
     filter: ${({ $done }) => ($done ? "none" : "grayscale(1)")};
     opacity: ${({ $done }) => ($done ? 1 : 0.55)};
   }
@@ -185,7 +188,7 @@ const BadgeCard: FC<{ a: Achievement }> = ({ a }) => {
   return (
     <Badge $tier={a.tier} $done={done} data-testid={`achievement-${a.code}`} data-unlocked={done}>
       <div className="medal" aria-hidden>
-        {a.icon}
+        <AchievementIcon code={a.code} fallback={a.icon} />
       </div>
       <div className="body">
         <div className="name">
