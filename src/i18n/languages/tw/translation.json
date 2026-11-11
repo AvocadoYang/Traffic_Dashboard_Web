@@ -3789,7 +3789,41 @@
     "system_online": "系統運作中",
     "welcome_back": "歡迎回來，{{name}}",
     "skip_hint": "點一下或按任意鍵略過",
-    "starting": "啟動中"
+    "starting": "啟動中",
+    "hero": {
+      "forklift": {
+        "title": "FORKLIFT AGV",
+        "subtitle": "無人堆高機",
+        "features": "棧板自動取放 · 自動充電"
+      },
+      "mir": {
+        "title": "MI15",
+        "subtitle": "自主移動機器人 AMR",
+        "features": "自主導航 · 動態避障"
+      },
+      "roller": {
+        "title": "ROLLER AGV",
+        "subtitle": "SW15 滾筒式 AGV",
+        "features": "滾筒輸送 · 自動對接"
+      },
+      "lift": {
+        "title": "RACK HANDLING",
+        "subtitle": "貨架存取",
+        "features": "門架舉升 · 棧板自動取放"
+      },
+      "fleet": {
+        "title": "FLEET ORCHESTRATION",
+        "subtitle": "多車協同調度",
+        "features": "路權管理 · 等待與放行 · 即時監控"
+      },
+      "spec": {
+        "payload": "載重",
+        "speed": "最高速度",
+        "size": "尺寸",
+        "lift": "舉升高度"
+      },
+      "goto": "跳到第 {{n}} 章：{{name}}"
+    }
   },
   "update_log": {
     "title": "系統更新紀錄",
