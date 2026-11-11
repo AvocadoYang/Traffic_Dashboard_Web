@@ -23,7 +23,7 @@ import { buildMapImageMatrix, getMapCanvas, mapImageModeAtom, resolveColors, the
 import { isDarkColor } from "@/theme/mapImage";
 import { isPointAreaType } from "@/pages/Setting/mapComponents/components/AllLocation/pointAreaTypes";
 import { createLiveStore, LiveState, LiveStore } from "@/components/CanvasMap/liveStore";
-import { amrColor, amrShownAt, amrTip } from "@/components/CanvasMap/draw";
+import { amrColor, amrShownAt } from "@/components/CanvasMap/draw";
 import { CanvasMapApi } from "@/components/CanvasMap/CanvasMap";
 import { hiddenZoneIdsAtom, linkedZoneHighlightAtom } from "@/components/CanvasMap/MapOverlay";
 import { FOCUS_MARKER_MS, FOCUS_REQUEST_TTL_MS, focusLocationRequest } from "@/components/CanvasMap/focusLocation";
@@ -74,7 +74,9 @@ const AREA_MIN_DISTANCE = 12;
 /** 標籤上最多列幾個告警 */
 const LABEL_ALERTS = 2;
 
-type Label = { tip: string; dest: string; paused: boolean; warning: boolean; alerts: string[] };
+type Label = { paused: boolean; warning: boolean; alerts: string[] };
+/** 任務 / 目的地改放在車輛卡片, 標籤不再列 */
+const NO_LINES: string[] = [];
 
 type Props = {
   /** 點了點位 (首頁: 打開直接移動) */
@@ -127,7 +129,7 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef, preferredView }) => {
   const anchors = useMemo(() => new ScreenAnchors(), []);
 
   const tracks = useMemo(() => new LiveTracks(), []);
-  tracks.filter = { currentMapId, filterIds, forbiddenIds, color: amrColor, simulated: !!names?.isSim };
+  tracks.filter = { currentMapId, filterIds, forbiddenIds, color: amrColor };
 
   // 即時資料: 跟 2D 地圖一樣直接訂閱 socket, 位置不經過 React;
   // 只有標籤文字、被佔用的路線換了才 setState
@@ -142,10 +144,7 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef, preferredView }) => {
       cameraRef.current?.invalidate();
       const next: Record<string, Label> = {};
       state.amrs.forEach((a, id) => {
-        const { tipText, dest } = amrTip(state, id);
         next[id] = {
-          tip: tipText,
-          dest,
           paused: a.isPause,
           warning: state.warnings.has(id),
           alerts: (state.warningInfos.get(id) ?? []).slice(0, LABEL_ALERTS).map((m) => m.info),
@@ -295,7 +294,7 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef, preferredView }) => {
     const tick = () => {
       const state = storeRef.current?.state;
       if (!state) return;
-      const warned = amrIds.filter((id) => state.warnings.has(id) && amrShownAt(state, id, currentMapId, !!names?.isSim));
+      const warned = amrIds.filter((id) => state.warnings.has(id) && amrShownAt(state, id, currentMapId));
       const step = patrol.step(warned, performance.now(), tourAreas.length);
       if (step?.kind === "follow") {
         setFollow(step.id);
@@ -444,7 +443,7 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef, preferredView }) => {
         {showRoad && <Roads3D segments={roads} color={colors.mapRoad} onHover={showRoadTooltip ? setHoverRoad : undefined} />}
         {showLocation && <Dots3D dots={points} onClick={onPointClick} onHover={showLocationTooltip ? setHoverPoint : undefined} />}
         {showPointCloud && <PointClouds3D state={liveState} ids={amrIds} color={amrColor} currentMapId={currentMapId} />}
-        <BBoxes3D state={liveState} ids={amrIds} color={amrColor} currentMapId={currentMapId} simulated={!!names?.isSim} />
+        <BBoxes3D state={liveState} ids={amrIds} color={amrColor} currentMapId={currentMapId} />
         {/* 點位 / 路線提示 (同 2D 的「地點提示」「路徑提示」) */}
         {hoverPoint && showLocation && showLocationTooltip && (
           <Html position={[hoverPoint.x, 0.4, -hoverPoint.y]} center style={{ pointerEvents: "none" }} zIndexRange={[30, 0]}>
@@ -477,7 +476,6 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef, preferredView }) => {
         {/* 每台車各自等模型: 第一次載 MiR / SW15 / 上傳的模型時, 已經在畫的叉車不會跟著消失 */}
         {amrIds.map((id) => {
           const label = labels[id];
-          const lines = label ? [label.tip, label.dest && `→ ${label.dest}`].filter((l): l is string => !!l) : [];
           const common = {
             id,
             source: tracks.read,
@@ -488,7 +486,7 @@ const LiveFleet3D: FC<Props> = ({ onPointClick, apiRef, preferredView }) => {
               <VehicleLabel
                 name={`${forbiddenIds.has(id) ? "🚫 " : ""}${id}`}
                 color={amrColor(id)}
-                lines={lines}
+                lines={NO_LINES}
                 paused={label?.paused}
                 warning={label?.warning}
                 alerts={label?.alerts}

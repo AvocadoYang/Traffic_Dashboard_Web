@@ -9,6 +9,7 @@ import { CARTON_SIZE, PALLET_HEIGHT, PALLET_OFFSET } from "./dimensions";
 import { cartonMaterial, hitMaterial, palletMaterial, unitBox, usePalletGeometry } from "./models";
 import { VehicleModel } from "./vehicleModels";
 import { useBlinkFrames } from "./Scene3D";
+import { lowDetailOf } from "./lowDetail";
 import { isDrag } from "./pick";
 
 /**
@@ -58,7 +59,13 @@ type Body = {
   forkFlash: THREE.Object3D[];
   /** 貨放在哪 (模型座標) 和紙箱多大; 叉車的貨是棧板 + 紙箱, 會跟著牙叉升降; 其他車是車頂上一箱 */
   cargo: { x: number; y: number; size: [number, number, number]; pallet: boolean };
+  /** 每個網格 (含告警的那層) 原本的幾何; 遠的時候換成簡化版 (lowDetail) */
+  lod: { mesh: THREE.Mesh; high: THREE.BufferGeometry }[];
 };
+
+/** 車離鏡頭多遠 (公尺) 改用簡化的模型; 拉近要到 LOD_NEAR 才換回來, 在邊界上不會一直換 */
+const LOD_FAR = 28;
+const LOD_NEAR = 24;
 
 type Props = {
   id: string;
@@ -91,7 +98,7 @@ const VehicleShell: FC<Props & { body: Body; fitLength?: number }> = ({
   const palletGeometry = usePalletGeometry();
   const ringMaterial = useMemo(() => new THREE.MeshBasicMaterial({ color: "#888888", transparent: true, opacity: 0.75, depthWrite: false }), []);
   const frame = useMemo(emptyFrame, []);
-  const applied = useRef({ lift: Number.NaN, dim: false, ring: "", alert: 0 });
+  const applied = useRef({ lift: Number.NaN, dim: false, ring: "", alert: 0, far: false, lowApplied: false });
   /** 上一幀的位置: 還在變 (車在走、牙叉在動) 就要求下一幀 */
   const last = useRef({ x: Number.NaN, y: 0, yaw: 0, loaded: false });
   const invalidate = useThree((s) => s.invalidate);
@@ -134,7 +141,7 @@ const VehicleShell: FC<Props & { body: Body; fitLength?: number }> = ({
   // 標籤在車頂或車上的貨上面 (牙叉升起來時就不管了)
   const labelY = Math.max(height, cargo.y + (cargo.pallet ? PALLET_HEIGHT : 0) + cargo.size[1]) * scale + 0.35;
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock, camera }) => {
     const group = groupRef.current;
     if (!group) return;
     const shown = source(id, frame);
@@ -156,6 +163,19 @@ const VehicleShell: FC<Props & { body: Body; fitLength?: number }> = ({
     }
 
     const done = applied.current;
+    // 遠的時候換簡化的模型 (簡化版第一次要算一下, 算好之前照用原本的, 之後每一幀再試)
+    const far = camera.position.distanceTo(group.position) > (done.far ? LOD_NEAR : LOD_FAR) * scale;
+    if (far !== done.far || (far && !done.lowApplied)) {
+      let all = true;
+      for (const it of body.lod) {
+        const low = far ? lowDetailOf(it.high, invalidate) : null;
+        if (far && !low) all = false;
+        it.mesh.geometry = low ?? it.high;
+      }
+      done.far = far;
+      done.lowApplied = all;
+      invalidate();
+    }
     const lift = body.rig ? frame.lift : 0;
     if (!(Math.abs(lift - done.lift) < 0.0005)) {
       body.rig?.setLift(lift);
@@ -418,13 +438,20 @@ const buildBody = (scene: THREE.Object3D, kind: VehicleModel["kind"], yawDeg: nu
       pallet: false,
     };
   }
+  const forkFlash = [...rig.forks, ...guards].flatMap(addFlashOverlays);
+  const lod: Body["lod"] = [];
+  model.traverse((o) => {
+    const mesh = o as THREE.Mesh;
+    if (mesh.isMesh) lod.push({ mesh, high: mesh.geometry });
+  });
   return {
     object: model,
     rig: rig.forks.length ? rig : null,
-    forkFlash: [...rig.forks, ...guards].flatMap(addFlashOverlays),
+    forkFlash,
     materials,
     box,
     cargo,
+    lod,
   };
 };
 

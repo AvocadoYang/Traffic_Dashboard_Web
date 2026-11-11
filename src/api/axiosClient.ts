@@ -2,6 +2,7 @@ import axios from "axios";
 import { MISSION_CONTROL_URL } from "../configs/config";
 import i18next from "i18next";
 import { clientIdentityHeaders } from "../utils/clientIdentity";
+import { getToken, logout } from "../utils/session";
 
 /** 跟 utils/permissions 的 permissionLabelKey 一樣; 設定頁的 key 用分類名 + 看 / 改 */
 const permissionLabelKeyOf = (key: string) => {
@@ -38,6 +39,10 @@ client.interceptors.response.use(
       const text = t("permission.denied", { name: t(permissionLabelKeyOf(data.permission)) });
       // 翻譯還沒載入 (i18next 還沒 init) 就留後端的原文
       if (text) data.message = text;
+    }
+    // 後端要登入 (API_AUTH_MODE: enforce) 而 token 過期 / 失效: 回登入頁
+    if (err?.response?.status === 401 && data?.code === "LOGIN_REQUIRED" && getToken()) {
+      logout("expired");
     }
     // if (err.response?.status === 401) {
     //   localStorage.removeItem("token");

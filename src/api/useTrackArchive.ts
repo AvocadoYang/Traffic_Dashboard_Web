@@ -27,6 +27,19 @@ export type HeatCell = {
   dwell: number;
   /** 車開進這格的次數 */
   passes: number;
+  /** 以下是網路 / 定位品質 (後端 TrackArchive), 這格沒資料就沒有 */
+  netCount?: number;
+  /** 心跳來回 ms 的平均 / 最大 */
+  latency?: number;
+  latencyMax?: number;
+  /** WiFi 訊號 dBm 的平均 / 最弱 (車上 amr-core 有回報才有) */
+  wifiCount?: number;
+  wifi?: number;
+  wifiMin?: number;
+  /** 斷線、定位失準、換 AP 的次數 */
+  disconnect?: number;
+  localization?: number;
+  roam?: number;
 };
 
 export type TrackHeatData = { from: number; to: number; cell: number; vehicleCount: number; cells: HeatCell[] };

@@ -116,7 +116,7 @@
     "open": "Open",
     "detail": "Detail",
     "confirm": "Confirm",
-    "passwordMin": "At least 6 characters",
+    "passwordMin": "At least 8 characters",
     "location": "Location",
     "search": "search",
     "reset": "reset",
@@ -402,6 +402,12 @@
     "expand_detail": "Show details",
     "collapse_detail": "Hide details",
     "coordinate": "Coordinate",
+    "route": "Start → End",
+    "start_label": "From {{loc}}",
+    "end_label": "To {{loc}}",
+    "heading_to": "Heading to {{loc}}",
+    "avoiding": "Yielding",
+    "avoid_for": "Yielding to {{amr}}",
     "section_charge": "Charging",
     "section_mission": "Mission",
     "section_motion": "Motion",
@@ -465,6 +471,28 @@
   "page_mission_dispatch": "Mission Dispatch Board",
   "page_fleet_replay": "Fleet replay",
   "fleet_replay": {
+    "empty_network_real": "No network records in this period: only real vehicles are recorded (not simulated ones), starting with this backend version",
+    "group_traffic": "Traffic",
+    "group_network": "Network / localization",
+    "metric_latency": "Network latency",
+    "metric_wifi": "WiFi signal",
+    "metric_disconnect": "Disconnects",
+    "metric_localization": "Localization lost",
+    "metric_roam": "AP changes",
+    "legend_latency": "Network latency (heartbeat round trip, average)",
+    "legend_wifi": "WiFi signal (average)",
+    "legend_disconnect": "Disconnects",
+    "legend_localization": "Localization lost",
+    "legend_roam": "AP changes",
+    "latency_low": "0 ms",
+    "latency_high": "≥ 300 ms",
+    "wifi_strong": "≥ -50 dBm (strong)",
+    "wifi_weak": "≤ -80 dBm (weak)",
+    "latency_value": "avg {{avg}} ms, max {{max}} ms",
+    "wifi_value": "avg {{avg}} dBm, weakest {{min}} dBm",
+    "empty_wifi": "No WiFi data in this period: the vehicles' amr-core must be updated to a version that reports WiFi",
+    "empty_events": "Nothing happened in this period",
+    "network_hint": "Network latency is the heartbeat round trip between the traffic computer and the vehicle (cells show the average, hot spots the maximum); WiFi signal needs the vehicle's amr-core to report it; a disconnect is where the vehicle was when its heartbeat timed out; localization lost is where the vehicle reported an inaccurate position; an AP change is where the vehicle switched to another access point. Kept 7 days, like the vehicle positions.",
     "mode_replay": "Replay",
     "mode_heat": "Heatmap",
     "last_15m": "Last 15 min",
@@ -573,6 +601,90 @@
         "name": "Marathon Day",
         "desc": "Complete 500 missions in a single day"
       },
+      "missions_100": {
+        "name": "Centurion",
+        "desc": "Complete 100 missions in total"
+      },
+      "missions_1000": {
+        "name": "Veteran",
+        "desc": "Complete 1,000 missions in total"
+      },
+      "missions_10000": {
+        "name": "War Hero",
+        "desc": "Complete 10,000 missions in total"
+      },
+      "distance_10": {
+        "name": "Warm-up 10K",
+        "desc": "Fleet drives 10 km in total"
+      },
+      "distance_100": {
+        "name": "Century Club",
+        "desc": "Fleet drives 100 km in total"
+      },
+      "day_100": {
+        "name": "Hundred Day",
+        "desc": "Complete 100 missions in a single day"
+      },
+      "day_250": {
+        "name": "Full Throttle",
+        "desc": "Complete 250 missions in a single day"
+      },
+      "hour_20": {
+        "name": "Hour Sprint",
+        "desc": "Complete 20 missions within a single hour"
+      },
+      "cargo_day_100": {
+        "name": "Hundred Loads",
+        "desc": "Unload 100 items in a single day"
+      },
+      "dispatch_100": {
+        "name": "Dispatcher",
+        "desc": "Dispatch 100 missions yourself"
+      },
+      "dispatch_2000": {
+        "name": "Dispatch Master",
+        "desc": "Dispatch 2,000 missions yourself"
+      },
+      "active_8": {
+        "name": "Labor Law Model Student",
+        "desc": "Complete missions in 8 different hours of one day (a proper workday)"
+      },
+      "active_16": {
+        "name": "Liver Sacrifice Fleet",
+        "desc": "Complete missions in 16 different hours of one day (more dedication than any human)"
+      },
+      "active_24": {
+        "name": "The Sun Never Sets",
+        "desc": "Complete missions in every hour of one day"
+      },
+      "titles_50": {
+        "name": "Junior FAE",
+        "desc": "Create 50 mission templates"
+      },
+      "titles_100": {
+        "name": "Senior FAE",
+        "desc": "Create 100 mission templates"
+      },
+      "titles_200": {
+        "name": "FAE LEADER",
+        "desc": "Create 200 mission templates"
+      },
+      "sep_problem": {
+        "name": "It's someone else's problem",
+        "desc": "A vehicle warning sat for 10+ minutes with nobody looking at it"
+      },
+      "clean_run_50": {
+        "name": "Smooth Sailing",
+        "desc": "Complete 50 missions in a row without a single cancellation"
+      },
+      "do_it_myself": {
+        "name": "Fine, I'll do it myself",
+        "desc": "500 completed missions involved manual mode"
+      },
+      "weekend_warrior": {
+        "name": "Weekend Warrior",
+        "desc": "Dispatch 5 missions on a Saturday or Sunday"
+      },
       "zero_manual": {
         "name": "Hands Off",
         "desc": "A day with 100+ missions completed and no manual intervention"
@@ -600,6 +712,10 @@
       "chat_streak_7": {
         "name": "Shift Handover Pro",
         "desc": "Post in the chat 7 days in a row"
+      },
+      "backup_10": {
+        "name": "Data-Loss PTSD",
+        "desc": "Press Backup Now manually 10 times (good habit, or once bitten?)"
       },
       "observer": {
         "name": "Observer",
@@ -727,7 +843,7 @@
     "per_day_title": "Completed per day",
     "per_bucket_hint": "Bars: completed transport missions; lines: average wait / run time (minutes)",
     "time_split_title": "Time split per vehicle",
-    "time_split_hint": "Idle = online without a mission; offline = backend running but vehicle not connected; not recorded = backend not running or before this feature",
+    "time_split_hint": "Each vehicle is counted in exactly one state at any moment, so the bars add up to 100%. Transport = normal transport missions; Charge = going to / on the charger; Give way = system moves the car off another's route; Standby = automatic return to standby point; Manual = moves dispatched by a person; Idle = online without a mission (including waiting in place); Offline = backend running but vehicle not connected; Not recorded = backend not running or before this feature. When missions overlap, the first of Transport > Charge > Manual > Standby > Give way wins",
     "vehicle_table_title": "Per vehicle",
     "alarm_title": "Alarm ranking",
     "alarm_hint": "Most vehicle warnings have no resolution time; those are counted, not timed",
@@ -826,6 +942,7 @@
       "maintenance_items": "Maintenance items"
     },
     "mission": {
+      "signal_trigger": "Signal triggers",
       "mission": "Mission",
       "edit_mission": "Edit mission",
       "charge_mission": "Charge management per vehicle",
@@ -1565,6 +1682,8 @@
       "front_lidar": "Front Lidar",
       "rear_lidar": "Rear Lidar",
       "peripheral_action": {
+        "write_signal": "Write signal",
+        "wait_signal": "Wait for signal",
         "user_confirm": "User confirmation",
         "open_rolling_door": "Open rolling door",
         "close_rolling_door": "Close rolling door",
@@ -2712,7 +2831,11 @@
     "oldPassword": "Old Password",
     "newPassword": "New Password",
     "confirmPassword": "Confirm Password",
-    "passwordNotMatch": "Passwords do not match"
+    "passwordNotMatch": "Passwords do not match",
+    "reminderTitle": "Please change the default password",
+    "reminderHint": "This account still uses a default password that anyone can guess. We recommend setting a new one (at least 8 characters, with upper and lower case letters). If now is not a good time, choose 'Remind me in 7 days'.",
+    "remindLater": "Remind me in 7 days",
+    "rule": "At least 8 characters, with upper and lower case letters"
   },
   "client_name": {
     "title": "Computer name",
@@ -2751,6 +2874,7 @@
     "critical_warning": "Critical: If this location point is deleted from the system, you must manually update and configure a new start point to maintain optimal routing functionality."
   },
   "cancel_reason": {
+    "signal_wait_timeout": "Signal wait timed out",
     "null": "No Reason Specified",
     "offline": "Equipment Offline",
     "cancel": "Manually Cancelled",
@@ -3661,7 +3785,44 @@
     "caps_lock": "Caps Lock is on",
     "forgot_password": "Forgot password?",
     "authenticating": "AUTHENTICATING...",
-    "system_online": "System Online"
+    "system_online": "System Online",
+    "welcome_back": "Welcome back, {{name}}",
+    "skip_hint": "Click or press any key to skip",
+    "starting": "STARTING",
+    "hero": {
+      "forklift": {
+        "title": "FORKLIFT AGV",
+        "subtitle": "Autonomous forklift",
+        "features": "Automatic pallet handling · Auto charging"
+      },
+      "mir": {
+        "title": "MI15",
+        "subtitle": "Autonomous mobile robot",
+        "features": "Autonomous navigation · Dynamic obstacle avoidance"
+      },
+      "roller": {
+        "title": "ROLLER AGV",
+        "subtitle": "SW15 roller conveyor AGV",
+        "features": "Roller transfer · Automatic docking"
+      },
+      "lift": {
+        "title": "RACK HANDLING",
+        "subtitle": "Rack storage and retrieval",
+        "features": "Mast lifting · Automatic pallet handling"
+      },
+      "fleet": {
+        "title": "FLEET ORCHESTRATION",
+        "subtitle": "Multi-vehicle coordination",
+        "features": "Right-of-way control · Wait & release · Live monitoring"
+      },
+      "spec": {
+        "payload": "Payload",
+        "speed": "Top speed",
+        "size": "Footprint",
+        "lift": "Lift height"
+      },
+      "goto": "Go to chapter {{n}}: {{name}}"
+    }
   },
   "update_log": {
     "title": "System Update Log",
@@ -3739,6 +3900,22 @@
     "take_over_missions": "Missions the previous MASTER dispatched: each vehicle is paused once it connects to this host, then its remaining steps go back to the same vehicle. Vehicles that do not connect within 60 seconds raise an alarm and need manual handling."
   },
   "setting_v2": {
+    "signal_trigger": {
+      "no_mission": "No mission selected",
+      "condition": "Condition",
+      "no_condition": "No condition yet",
+      "and": "and",
+      "or": "or",
+      "hold_fact": "(held {{sec}} s)",
+      "now_met": "holds now",
+      "now_not_met": "does not hold now",
+      "now_unknown": "unknown now",
+      "last": "Last event",
+      "any_car": "Any vehicle (system picks)",
+      "car_hint": "Pick several vehicles to send one mission to each; leave empty to send one mission and let the system pick the vehicle",
+      "hint": "A mission is sent when the condition changes from not holding to holding (and keeps holding for the set seconds); it must stop holding before it can fire again. Nothing is sent while the previous mission of the trigger is unfinished. A condition that already holds when the backend starts does not count. After adding, edit the condition and mission, then activate.",
+      "empty": "No signal triggers"
+    },
     "view_panel": "Panel",
     "view_map": "Map",
     "all": "ALL",
@@ -3866,6 +4043,43 @@
       }
     },
     "mission": {
+      "signal": {
+        "source_advantech": "Advantech",
+        "source_remote": "Signal program",
+        "module_placeholder": "Select module",
+        "remote_placeholder": "Module name, e.g. wise_31",
+        "no_advantech": "No Advantech modules yet. Add them in Settings > Peripheral > Advantech",
+        "deleted_module": "(deleted module)",
+        "point": "Point",
+        "offline": "offline",
+        "now": "Now",
+        "unknown": "unknown",
+        "expect_on": "is ON",
+        "expect_off": "is OFF",
+        "write_target": "Output to write",
+        "write_action": "Action",
+        "pulse": "Pulse",
+        "pulse_ms": "Pulse (ms)",
+        "write_hint": "The next step starts only after the write succeeds. A failed write raises a system alarm and is retried every 3 s until it succeeds or the mission is cancelled. Advantech modules are written by MiR_BRIDGE, signal-program modules by the signal program.",
+        "conditions": "Conditions",
+        "add_condition": "Add condition",
+        "remove": "Remove condition",
+        "match": "Match",
+        "match_all": "All must hold",
+        "match_any": "Any one holds",
+        "hold_sec": "Hold (s)",
+        "hold_hint": "How long the conditions must keep holding; 0 = at once",
+        "timeout_sec": "Timeout (s)",
+        "timeout_hint": "0 = wait forever",
+        "on_timeout": "On timeout",
+        "timeout_alarm": "Alarm and keep waiting",
+        "timeout_cancel": "Alarm and cancel the mission",
+        "timeout_continue": "Alarm and go to the next step",
+        "wait_hint": "A module that is offline or not reporting counts as not holding. The vehicle's mission detail shows what it is waiting for.",
+        "no_sources": "No signal sources yet: add Advantech modules in Settings > Peripheral > Advantech; signal-program modules are listed once they have sent signals, or type the module name.",
+        "incomplete": "Signal settings are incomplete: pick a module and point for every signal",
+        "rolling_door_unsupported": "Rolling-door actions are not connected to any device; the vehicle would wait at this step forever. Use Write signal / Wait for signal instead."
+      },
       "blind_hint": "Only locations without a bound mission can be added. To change an existing binding, use Edit in the list.",
       "schedule_hint": "Add creates a blank schedule first; then use Edit to fill in the vehicle, mission, weekdays and time. \"Repeat\" dispatches again every N minutes from that time. During a simulation the simulated time is used.",
       "unsupported_type": "Step editing for this robot type has not been moved to the new settings page yet. Please edit it in the old settings page (/setting-v1).",
@@ -4305,6 +4519,7 @@
     "body": "What was sent",
     "before_full": "Full data before the change",
     "category": {
+      "signal_trigger": "Signal triggers",
       "point": "Point",
       "road": "Road",
       "zone": "Zone",
@@ -5210,7 +5425,13 @@
       "idle_logout": "Log out when idle",
       "idle_logout_help": "Log out after this long without clicks, keys or scrolling; recommended on shared computers",
       "idle_never": "Never",
-      "idle_minutes": "{{count}} min"
+      "idle_minutes": "{{count}} min",
+      "nav": "Top menu",
+      "nav_hint": "Reorder the header navigation and choose which pages to show. Hidden pages are still reachable by URL.",
+      "nav_reset": "Reset to default",
+      "nav_up": "Move up",
+      "nav_down": "Move down",
+      "nav_visible": "Show"
     },
     "notify": {
       "by_type": "By alarm type",
@@ -5271,7 +5492,8 @@
       "reason": {
         "no_account": "No such account",
         "wrong_password": "Wrong password",
-        "disabled": "Account disabled"
+        "disabled": "Account disabled",
+        "locked": "Too many failures, locked"
       }
     },
     "accounts": {

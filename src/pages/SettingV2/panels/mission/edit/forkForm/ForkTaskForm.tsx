@@ -44,13 +44,30 @@ import {
   SolidButton,
   Tag,
   Toolbar,
+  WarnNote,
 } from "../../../../ui/primitives";
 import useForkOptions, { YawGenre } from "./forkOptions";
 import ControlSequence from "./ControlSequence";
 import ControlParamFields from "./ControlParamFields";
+import {
+  SIGNAL_FIELD,
+  WaitSignalFields,
+  WriteSignalFields,
+  isSignalConfigComplete,
+} from "./SignalStepFields";
+import {
+  PeripheralSignalConfig,
+  defaultWaitConfig,
+  defaultWriteConfig,
+} from "@/api/useSignalSources";
 
 /** 需要使用者按確認才會往下走的設備動作,它自己就是一個「停在這裡」的步驟 */
 const USER_CONFIRM = "USER_CONFORM_NEXT_TASK_STEP";
+/** 寫一個輸出點 / 等輸入點成立,設定在 peripheral_action_signal */
+const WRITE_SIGNAL = "WRITE_SIGNAL";
+const WAIT_SIGNAL = "WAIT_SIGNAL";
+/** 這幾種周邊動作不用到點位 */
+const NO_LOCATION_PERIPHERALS = [USER_CONFIRM, WRITE_SIGNAL, WAIT_SIGNAL];
 
 /** 這些動作沒有目標地點可以設 */
 const NO_LOCATION_ACTIONS = [
@@ -63,11 +80,23 @@ const NO_LOCATION_ACTIONS = [
 
 const PERIPHERAL_ACTIONS = [
   { labelKey: "user_confirm", value: USER_CONFIRM },
+  { labelKey: "write_signal", value: WRITE_SIGNAL },
+  { labelKey: "wait_signal", value: WAIT_SIGNAL },
+] as const;
+
+/**
+ * 捲門的四個動作沒有接到任何設備 (後端送請求的函式是空的,也沒人回報捲門狀態),
+ * 車會一直停在那一步。新步驟選不到;已經存成這幾種的步驟照樣顯示,並提示改用寫訊號 / 等訊號。
+ */
+const LEGACY_PERIPHERAL_ACTIONS = [
   { labelKey: "open_rolling_door", value: "OPEN_ROLLING_DOOR" },
   { labelKey: "close_rolling_door", value: "CLOSE_ROLLING_DOOR" },
   { labelKey: "read_rolling_door_open", value: "READ_ROLLING_DOOR_OPEN" },
   { labelKey: "read_rolling_door_close", value: "READ_ROLLING_DOOR_CLOSE" },
 ] as const;
+
+const isLegacyPeripheral = (v: string) =>
+  LEGACY_PERIPHERAL_ACTIONS.some((a) => a.value === v);
 
 /**
  * 設定完不完整的提示。灰黑白之下用「實心深底 = 可以送出、灰底虛線 = 還缺東西」
@@ -164,6 +193,11 @@ const ForkTaskForm: FC<Props> = ({
     setYawType(origin.operation.is_define_yaw as YawGenre);
     setSequence(origin.operation.control ?? []);
     setPeripheral(origin.io?.peripheral_action?.type || "NULL");
+    const savedSignal = (
+      origin.io?.peripheral_action as
+        | { signal?: PeripheralSignalConfig }
+        | undefined
+    )?.signal;
 
     // v1 這裡包了一層 setTimeout(0)。那是為了避開「form 還沒接上 Form 元素」
     // 的警告,但這個 effect 是等 API 回來才跑的,那時候 Form 早就掛好了。
@@ -181,6 +215,11 @@ const ForkTaskForm: FC<Props> = ({
       level: (origin.io.fork_global?.level + 1) | 0,
       peripheral_action_type: origin.io?.peripheral_action?.type || "NULL",
       peripheral_action_message: origin.io?.peripheral_action?.message || "",
+      // 兩種都先放好預設值,切換類別時欄位就有東西;存檔時後端只看目前類別那一份
+      [SIGNAL_FIELD]: {
+        write: savedSignal?.write ?? defaultWriteConfig(),
+        wait: savedSignal?.wait ?? defaultWaitConfig(),
+      },
       lidar_mode: origin?.io?.lidar?.mode || "auto",
       lidar_front: origin?.io?.lidar?.front || 0,
       lidar_rear: origin?.io?.lidar?.rear || 0,
@@ -249,8 +288,14 @@ const ForkTaskForm: FC<Props> = ({
 
   /* ------------------------------- 顯示條件 ------------------------------- */
 
+  const isPeripheral = action === "peripheral_action";
   const needsLocation =
-    !NO_LOCATION_ACTIONS.includes(action) && peripheral !== USER_CONFIRM;
+    !NO_LOCATION_ACTIONS.includes(action) &&
+    peripheral !== USER_CONFIRM &&
+    !(isPeripheral && NO_LOCATION_PERIPHERALS.includes(peripheral));
+  const signalIncomplete =
+    isPeripheral &&
+    !isSignalConfigComplete(peripheral, values?.[SIGNAL_FIELD]);
 
   /** fork_height 選了 stack / stack_add 時,樓層是由堆疊邏輯決定的,不用再填 */
   const isStackMode = useMemo(() => {
@@ -266,7 +311,6 @@ const ForkTaskForm: FC<Props> = ({
   }, [values]);
 
   const hasWait = sequence.some((v) => v.startsWith("W"));
-  const isPeripheral = action === "peripheral_action";
 
   const status = useMemo(() => {
     if (sequence.length === 0 && !isPeripheral) {
@@ -274,6 +318,13 @@ const ForkTaskForm: FC<Props> = ({
         ok: false,
         icon: <WarningOutlined />,
         text: t("mission.task_form_fork.validation.warning"),
+      };
+    }
+    if (signalIncomplete) {
+      return {
+        ok: false,
+        icon: <WarningOutlined />,
+        text: t("setting_v2.mission.signal.incomplete"),
       };
     }
     if (needsLocation && locationType === "custom" && !values?.locationId) {
@@ -288,7 +339,15 @@ const ForkTaskForm: FC<Props> = ({
       icon: <CheckCircleOutlined />,
       text: t("mission.task_form_fork.validation.ok"),
     };
-  }, [sequence, isPeripheral, needsLocation, locationType, values, t]);
+  }, [
+    sequence,
+    isPeripheral,
+    signalIncomplete,
+    needsLocation,
+    locationType,
+    values,
+    t,
+  ]);
 
   /* -------------------------------- 送出 -------------------------------- */
 
@@ -313,6 +372,10 @@ const ForkTaskForm: FC<Props> = ({
   const onFinish = () => {
     if (sequence.length === 0 && !isPeripheral) {
       void messageApi.warning(t("mission.task_table.control_warn"));
+      return;
+    }
+    if (signalIncomplete) {
+      void messageApi.warning(t("setting_v2.mission.signal.incomplete"));
       return;
     }
     saveMutation.mutate({
@@ -434,7 +497,13 @@ const ForkTaskForm: FC<Props> = ({
               <FieldLabel>{t("setting_v2.mission.select_category")}</FieldLabel>
               <Form.Item name="peripheral_action_type" noStyle>
                 <Select
-                  options={PERIPHERAL_ACTIONS.map(({ labelKey, value }) => ({
+                  options={[
+                    ...PERIPHERAL_ACTIONS,
+                    // 已經存成捲門動作的步驟才列出那一個,新步驟選不到
+                    ...LEGACY_PERIPHERAL_ACTIONS.filter(
+                      (a) => a.value === peripheral,
+                    ),
+                  ].map(({ labelKey, value }) => ({
                     label: t(
                       `mission.task_form_fork.peripheral_action.${labelKey}`,
                     ),
@@ -453,6 +522,15 @@ const ForkTaskForm: FC<Props> = ({
                   <Input />
                 </Form.Item>
               </Field>
+            )}
+
+            {peripheral === WRITE_SIGNAL && <WriteSignalFields form={form} />}
+            {peripheral === WAIT_SIGNAL && <WaitSignalFields form={form} />}
+
+            {isLegacyPeripheral(peripheral) && (
+              <WarnNote>
+                {t("setting_v2.mission.signal.rolling_door_unsupported")}
+              </WarnNote>
             )}
           </Section>
         )}

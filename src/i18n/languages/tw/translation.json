@@ -116,7 +116,7 @@
     "count": "數量",
     "detail": "詳情",
     "confirm": "確認",
-    "passwordMin": "至少 6 個字元",
+    "passwordMin": "至少 8 個字元",
     "is_registered": "已註冊",
     "not_registered": "未註冊",
     "search": "搜尋",
@@ -402,6 +402,12 @@
     "expand_detail": "展開詳細內容",
     "collapse_detail": "收合詳細內容",
     "coordinate": "座標",
+    "route": "起點 → 終點",
+    "start_label": "起點 {{loc}}",
+    "end_label": "終點 {{loc}}",
+    "heading_to": "前往 {{loc}}",
+    "avoiding": "避讓",
+    "avoid_for": "讓道給 {{amr}}",
     "section_charge": "充電",
     "section_mission": "任務",
     "section_motion": "行駛",
@@ -465,6 +471,28 @@
   "page_mission_dispatch": "任務看板",
   "page_fleet_replay": "車隊回放",
   "fleet_replay": {
+    "empty_network_real": "這段時間沒有網路紀錄: 只記實車 (模擬車不記), 而且是後端更新到這一版之後才開始記",
+    "group_traffic": "車流",
+    "group_network": "網路 / 定位",
+    "metric_latency": "網路延遲",
+    "metric_wifi": "WiFi 訊號",
+    "metric_disconnect": "斷線地點",
+    "metric_localization": "定位失準地點",
+    "metric_roam": "換 AP 地點",
+    "legend_latency": "網路延遲 (交管電腦和車的心跳來回, 平均)",
+    "legend_wifi": "WiFi 訊號 (平均)",
+    "legend_disconnect": "斷線次數",
+    "legend_localization": "定位失準次數",
+    "legend_roam": "換 AP 次數",
+    "latency_low": "0 ms",
+    "latency_high": "≥ 300 ms",
+    "wifi_strong": "≥ -50 dBm (強)",
+    "wifi_weak": "≤ -80 dBm (弱)",
+    "latency_value": "平均 {{avg}} ms, 最大 {{max}} ms",
+    "wifi_value": "平均 {{avg}} dBm, 最弱 {{min}} dBm",
+    "empty_wifi": "這段時間沒有 WiFi 資料: 車上的 amr-core 要更新到會回報 WiFi 的版本",
+    "empty_events": "這段時間沒有發生",
+    "network_hint": "網路延遲是交管電腦和車之間心跳的來回時間 (每格看平均, 熱點看最大); WiFi 訊號要車上的 amr-core 有回報才有; 斷線是心跳逾時時車所在的位置; 定位失準是車回報定位不準的位置; 換 AP 是車改連到另一台無線基地台的位置。資料跟車輛位置一起保留 7 天。",
     "mode_replay": "回放",
     "mode_heat": "熱度圖",
     "last_15m": "最近 15 分鐘",
@@ -573,6 +601,90 @@
         "name": "馬拉松日",
         "desc": "單日完成 500 個任務"
       },
+      "missions_100": {
+        "name": "百戰小將",
+        "desc": "累計完成 100 個任務"
+      },
+      "missions_1000": {
+        "name": "千戰老將",
+        "desc": "累計完成 1,000 個任務"
+      },
+      "missions_10000": {
+        "name": "萬戰名將",
+        "desc": "累計完成 10,000 個任務"
+      },
+      "distance_10": {
+        "name": "熱身十公里",
+        "desc": "車隊累計行駛 10 公里"
+      },
+      "distance_100": {
+        "name": "百公里俱樂部",
+        "desc": "車隊累計行駛 100 公里"
+      },
+      "day_100": {
+        "name": "百單日",
+        "desc": "單日完成 100 個任務"
+      },
+      "day_250": {
+        "name": "產能全開",
+        "desc": "單日完成 250 個任務"
+      },
+      "hour_20": {
+        "name": "小時衝刺",
+        "desc": "單一小時內完成 20 個任務"
+      },
+      "cargo_day_100": {
+        "name": "單日百件",
+        "desc": "單日卸下 100 件貨"
+      },
+      "dispatch_100": {
+        "name": "派工熟手",
+        "desc": "自己派發 100 個任務"
+      },
+      "dispatch_2000": {
+        "name": "派工宗師",
+        "desc": "自己派發 2,000 個任務"
+      },
+      "active_8": {
+        "name": "勞基法模範生",
+        "desc": "單日有 8 個不同的小時都有完成任務 (剛好一個工作天)"
+      },
+      "active_16": {
+        "name": "爆肝車隊",
+        "desc": "單日有 16 個不同的小時都有完成任務 (比人類還肝)"
+      },
+      "active_24": {
+        "name": "日不落",
+        "desc": "單日 24 個小時每個小時都有完成任務"
+      },
+      "titles_50": {
+        "name": "Junior FAE",
+        "desc": "建立 50 種任務範本"
+      },
+      "titles_100": {
+        "name": "Senior FAE",
+        "desc": "建立 100 種任務範本"
+      },
+      "titles_200": {
+        "name": "FAE LEADER",
+        "desc": "建立 200 種任務範本"
+      },
+      "sep_problem": {
+        "name": "It's someone else's problem",
+        "desc": "有車輛警告放了 10 分鐘以上都沒人處理 (這不是我的問題)"
+      },
+      "clean_run_50": {
+        "name": "一路順風",
+        "desc": "連續完成 50 個任務, 中間沒有任何一個被取消"
+      },
+      "do_it_myself": {
+        "name": "Fine, I'll do it myself",
+        "desc": "累計 500 個完成的任務有按過手動模式 (算了我自己來)"
+      },
+      "weekend_warrior": {
+        "name": "周末加班仔",
+        "desc": "在週六或週日派發 5 個任務"
+      },
       "zero_manual": {
         "name": "零人工介入",
         "desc": "有一天完成 100 個以上任務而且沒有任何人工介入"
@@ -600,6 +712,10 @@
       "chat_streak_7": {
         "name": "交班達人",
         "desc": "連續 7 天都在聊天室發言"
+      },
+      "backup_10": {
+        "name": "資料不見 PTSD",
+        "desc": "手動按立即備份 10 次 (備份是好習慣, 還是被嚇過?)"
       },
       "observer": {
         "name": "觀察家",
@@ -727,7 +843,7 @@
     "per_day_title": "每天完成數",
     "per_bucket_hint": "長條是完成的搬運任務, 線是平均等車 / 執行時間 (分鐘)",
     "time_split_title": "每台車的時間分配",
-    "time_split_hint": "閒置 = 在線但沒任務; 離線 = 後端在跑但車沒連線; 沒有紀錄 = 後端沒在跑或功能上線之前",
+    "time_split_hint": "每台車每個時段只算一個狀態, 加起來 100%。搬運 = 執行一般搬運任務; 充電 = 去充電或充電中的任務; 讓路 = 系統叫車讓出路線; 回待命點 = 沒任務時自動回待命點; 手動移動 = 人員手動派的移動; 閒置 = 在線但沒任務(含停在原地等派工); 離線 = 後端在跑但車沒連線; 沒有紀錄 = 後端沒在跑或功能上線之前。同一時間有多個任務時, 依 搬運 > 充電 > 手動 > 回待命點 > 讓路 的順序只算一類",
     "vehicle_table_title": "每台車明細",
     "alarm_title": "告警排行",
     "alarm_hint": "車的警告多半沒有解除時間, 這些只算次數",
@@ -826,6 +942,7 @@
       "maintenance_items": "保養項目"
     },
     "mission": {
+      "signal_trigger": "訊號觸發任務",
       "mission": "任務",
       "edit_mission": "編輯任務",
       "charge_mission": "每台車充電管理",
@@ -1566,6 +1683,8 @@
       "front_lidar": "前光達",
       "rear_lidar": "後光達",
       "peripheral_action": {
+        "write_signal": "寫訊號",
+        "wait_signal": "等訊號",
         "user_confirm": "使用者確認",
         "open_rolling_door": "開啟捲門",
         "close_rolling_door": "關閉捲門",
@@ -2713,7 +2832,11 @@
     "oldPassword": "原密碼",
     "newPassword": "新密碼",
     "confirmPassword": "確認密碼",
-    "passwordNotMatch": "密碼不相符"
+    "passwordNotMatch": "密碼不相符",
+    "reminderTitle": "建議修改預設密碼",
+    "reminderHint": "這個帳號還在用預設密碼, 任何人都猜得到, 建議改成新密碼 (至少 8 碼, 要有大寫和小寫英文)。現在不方便的話可以按「7 天後再提醒」。",
+    "remindLater": "7 天後再提醒",
+    "rule": "至少 8 碼, 要有大寫和小寫英文"
   },
   "client_name": {
     "title": "電腦名稱",
@@ -2752,6 +2875,7 @@
     "critical_warning": "關鍵：如果此地點從系統中刪除，您必須手動更新並配置新的起點以維持最佳的路由功能。"
   },
   "cancel_reason": {
+    "signal_wait_timeout": "等訊號逾時",
     "null": "未指定原因",
     "offline": "設備離線",
     "cancel": "手動取消任務",
@@ -3662,7 +3786,44 @@
     "caps_lock": "大寫鎖定 (Caps Lock) 已開啟",
     "forgot_password": "忘記密碼？",
     "authenticating": "驗證中...",
-    "system_online": "系統運作中"
+    "system_online": "系統運作中",
+    "welcome_back": "歡迎回來，{{name}}",
+    "skip_hint": "點一下或按任意鍵略過",
+    "starting": "啟動中",
+    "hero": {
+      "forklift": {
+        "title": "FORKLIFT AGV",
+        "subtitle": "無人堆高機",
+        "features": "棧板自動取放 · 自動充電"
+      },
+      "mir": {
+        "title": "MI15",
+        "subtitle": "自主移動機器人 AMR",
+        "features": "自主導航 · 動態避障"
+      },
+      "roller": {
+        "title": "ROLLER AGV",
+        "subtitle": "SW15 滾筒式 AGV",
+        "features": "滾筒輸送 · 自動對接"
+      },
+      "lift": {
+        "title": "RACK HANDLING",
+        "subtitle": "貨架存取",
+        "features": "門架舉升 · 棧板自動取放"
+      },
+      "fleet": {
+        "title": "FLEET ORCHESTRATION",
+        "subtitle": "多車協同調度",
+        "features": "路權管理 · 等待與放行 · 即時監控"
+      },
+      "spec": {
+        "payload": "載重",
+        "speed": "最高速度",
+        "size": "尺寸",
+        "lift": "舉升高度"
+      },
+      "goto": "跳到第 {{n}} 章：{{name}}"
+    }
   },
   "update_log": {
     "title": "系統更新紀錄",
@@ -3740,6 +3901,22 @@
     "take_over_missions": "前一個 MASTER 派出去的任務：等車連上這台後先暫停，再把剩下的步驟派回同一台車；60 秒內沒連上的車會發告警，要人工處理。"
   },
   "setting_v2": {
+    "signal_trigger": {
+      "no_mission": "還沒選任務",
+      "condition": "觸發條件",
+      "no_condition": "還沒設條件",
+      "and": "且",
+      "or": "或",
+      "hold_fact": "(持續 {{sec}} 秒)",
+      "now_met": "現在成立",
+      "now_not_met": "現在不成立",
+      "now_unknown": "現在不明",
+      "last": "最近一次",
+      "any_car": "不指定 (系統挑車)",
+      "car_hint": "可以選好幾台，每台各派一筆；不選 = 派一筆，由系統挑車",
+      "hint": "條件從「不成立」變成「成立」(並持續設定的秒數) 時派任務；要先變回不成立才會再派。上一次派的任務還沒做完就不派。後端剛啟動時條件本來就成立不算一次觸發。新增後先按編輯設定條件和任務，再啟用。",
+      "empty": "尚無訊號觸發任務"
+    },
     "view_panel": "面板",
     "view_map": "地圖",
     "all": "全部",
@@ -3867,6 +4044,43 @@
       }
     },
     "mission": {
+      "signal": {
+        "source_advantech": "研華模組",
+        "source_remote": "訊號程式",
+        "module_placeholder": "選模組",
+        "remote_placeholder": "模組名稱，例如 wise_31",
+        "no_advantech": "還沒有研華模組，到 設定 > 周邊 > Advantech 新增",
+        "deleted_module": "（已刪除的模組）",
+        "point": "點位",
+        "offline": "離線",
+        "now": "現在",
+        "unknown": "不明",
+        "expect_on": "要 ON",
+        "expect_off": "要 OFF",
+        "write_target": "要寫的輸出點",
+        "write_action": "動作",
+        "pulse": "脈衝",
+        "pulse_ms": "脈衝毫秒",
+        "write_hint": "寫成功才做下一步。寫失敗會發系統告警，每 3 秒重試，直到成功或任務被取消。研華模組由 MiR_BRIDGE 代寫，訊號程式的模組由訊號程式代寫。",
+        "conditions": "條件",
+        "add_condition": "新增條件",
+        "remove": "刪除條件",
+        "match": "判斷方式",
+        "match_all": "全部成立才繼續",
+        "match_any": "任一個成立就繼續",
+        "hold_sec": "持續秒數",
+        "hold_hint": "成立後要維持幾秒才算數，0 = 一成立就算",
+        "timeout_sec": "逾時秒數",
+        "timeout_hint": "0 = 一直等，不逾時",
+        "on_timeout": "逾時後",
+        "timeout_alarm": "發告警，繼續等",
+        "timeout_cancel": "發告警並取消任務",
+        "timeout_continue": "發告警，直接做下一步",
+        "wait_hint": "模組沒有連線或沒有回報時當作不成立。等待中的狀況會顯示在車輛的任務細節。",
+        "no_sources": "目前沒有訊號來源：研華模組在 設定 > 周邊 > Advantech 新增；訊號程式的模組要它送過訊號才會列出，也可以直接輸入模組名稱。",
+        "incomplete": "訊號設定還沒填完整：每個訊號都要選模組和點位",
+        "rolling_door_unsupported": "捲門動作沒有接到任何設備，車會一直停在這一步。請改用「寫訊號」「等訊號」。"
+      },
       "blind_hint": "新增只能選還沒綁過任務的地點,已綁定的請用清單上的編輯修改。",
       "schedule_hint": "新增會先建立一筆空白排程, 再按編輯填入車輛、任務、星期與時間。可以設「重複派」: 從那個時間開始每隔幾分鐘派一次。模擬進行中看的是模擬時間。",
       "unsupported_type": "這個車種的步驟編輯還沒有搬到新版設定頁。請先從舊版設定頁 (/setting-v1) 編輯。",
@@ -4306,6 +4520,7 @@
     "body": "送出的內容",
     "before_full": "改之前的完整資料",
     "category": {
+      "signal_trigger": "訊號觸發任務",
       "point": "點位",
       "road": "路徑",
       "zone": "區域",
@@ -5211,7 +5426,13 @@
       "idle_logout": "閒置自動登出",
       "idle_logout_help": "多久沒有操作 (點擊、鍵盤、捲動) 就自動登出; 共用電腦建議打開",
       "idle_never": "不自動登出",
-      "idle_minutes": "{{count}} 分鐘"
+      "idle_minutes": "{{count}} 分鐘",
+      "nav": "頂部選單",
+      "nav_hint": "調整頂部導覽列的順序，並選擇要顯示哪些頁面。隱藏的頁面仍可從網址進入。",
+      "nav_reset": "恢復預設",
+      "nav_up": "上移",
+      "nav_down": "下移",
+      "nav_visible": "顯示"
     },
     "notify": {
       "by_type": "依告警類型",
@@ -5272,7 +5493,8 @@
       "reason": {
         "no_account": "沒有這個帳號",
         "wrong_password": "密碼錯誤",
-        "disabled": "帳號已停用"
+        "disabled": "帳號已停用",
+        "locked": "失敗太多次, 暫時鎖定"
       }
     },
     "accounts": {

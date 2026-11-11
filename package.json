@@ -93,6 +93,7 @@
     "socket.io-client": "^4.4.1",
     "styled-components": "^5.3.5",
     "three": "0.173.0",
+    "three-stdlib": "^2.35.6",
     "ts-extras": "^0.10.2",
     "typescript": "^5.3.3",
     "vite-plugin-checker": "^0.7.2",

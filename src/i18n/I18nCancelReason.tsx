@@ -28,6 +28,8 @@ const reasonKeyMap: { [key in CancelReason]: string } = {
   [CancelReason.AMR_DISCONNECTED]: "amr_disconnected",
   [CancelReason.ROSBRIDGE_DISCONNECTED]: "rosbridge_disconnected",
 
+  [CancelReason.SIGNAL_WAIT_TIMEOUT]: "signal_wait_timeout",
+
   [CancelReason.AMR_CHARGE_HAS_PROBLEM]: "amr_charge_has_problem",
 };
 

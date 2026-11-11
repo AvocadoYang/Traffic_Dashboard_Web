@@ -28,6 +28,16 @@ export const tokenExpiresAt = (token: string | null): number | null => {
   }
 };
 
+/** 用預設密碼登入、而且沒在略過期間的 token (後端標 pwr): 跳「建議修改預設密碼」 */
+export const tokenPasswordReminder = (token: string | null): boolean => {
+  if (!token) return false;
+  try {
+    return jwtDecode<{ pwr?: boolean }>(token).pwr === true;
+  } catch {
+    return false;
+  }
+};
+
 export const tokenAccount = (token: string | null): string => {
   if (!token) return "";
   try {

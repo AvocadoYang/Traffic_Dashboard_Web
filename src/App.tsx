@@ -25,9 +25,11 @@ import MainV2 from "./pages/MainV2/MainV2";
 import SettingV3 from "./pages/SettingV3/SettingV3";
 import Profile from "./pages/Profile/Profile";
 import UserSession from "./components/UserSession/UserSession";
+import PasswordReminder from "./components/UserSession/PasswordReminder";
 import PageGate from "./components/PermissionGate/PageGate";
 import SiteChat from "./components/SiteChat/SiteChat";
 import { ThemeVarsProvider, ThemedAppConfigProvider } from "./theme";
+import Ignition from "./components/Ignition/Ignition";
 import { useTranslation } from "react-i18next";
 
 const client = new QueryClient({
@@ -54,6 +56,7 @@ function App() {
     return (
       <>
         <UserSession />
+        <PasswordReminder />
         {/* 功能權限: 沒有這一頁的權限就不顯示 */}
         <PageGate />
         {/* 放在頁面後面: 跟頁面裡同一層的元件比, 聊天室要在上面 (見 CHAT_Z_INDEX) */}
@@ -121,6 +124,8 @@ function App() {
               </Route>
             </Routes>
           </BrowserRouter>
+          {/* 登入成功後的點火轉場: 放在路由外面, 換頁時不會被卸載 */}
+          <Ignition />
         </QueryClientProvider>
       </ThemedAppConfigProvider>
     </ThemeVarsProvider>

@@ -1,4 +1,4 @@
-import { FC, MutableRefObject, ReactNode, Suspense, useCallback, useEffect, useRef } from "react";
+import { FC, MutableRefObject, ReactNode, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { ErrorBoundary } from "react-error-boundary";
 import { Grid, MapControls } from "@react-three/drei";
@@ -324,46 +324,90 @@ type Props = {
   children: ReactNode;
 };
 
-const Scene3D: FC<Props> = ({ bounds, fitMargin = 4, background, gridColor, dark, follow = null, drive = false, apiRef, onPointerMissed, children }) => (
-  <Wrap onContextMenu={(e) => e.preventDefault()}>
-    <Canvas
-      frameloop="demand"
-      dpr={[1, 1.75]}
-      camera={{ fov: FOV, near: 0.1, far: 2000, position: [0, 40, 40] }}
-      gl={{ antialias: true }}
-      // 量大小用 offsetWidth/Height (不受 CSS transform 影響): 放在對話框裡時, 打開的放大動畫中量到的會是縮小的,
-      // 動畫結束版面大小沒變, ResizeObserver 不會再通知, 畫布就一直卡在錯的大小
-      resize={{ offsetSize: true }}
-      onPointerMissed={onPointerMissed}
-    >
-      <color attach="background" args={[background]} />
-      <hemisphereLight args={["#ffffff", dark ? "#3a4048" : "#b9c2cc", dark ? 0.9 : 1.2]} />
-      <directionalLight position={[30, 60, 20]} intensity={dark ? 1.4 : 1.7} />
-      <directionalLight position={[-40, 30, -30]} intensity={0.35} />
-      <MapControls
-        makeDefault
-        enableDamping
-        dampingFactor={0.12}
-        zoomToCursor
-        minDistance={1.5}
-        maxPolarAngle={Math.PI / 2 - 0.05}
-      />
-      <CameraRig bounds={bounds} fitMargin={fitMargin} follow={follow} drive={drive && !!follow} apiRef={apiRef} />
-      <Grid
-        position={[0, -0.02, 0]}
-        infiniteGrid
-        cellSize={1}
-        sectionSize={10}
-        cellThickness={0.6}
-        sectionThickness={1}
-        cellColor={gridColor}
-        sectionColor={gridColor}
-        fadeDistance={bounds ? Math.max(200, (bounds.maxX - bounds.minX + bounds.maxY - bounds.minY) * 1.5) : 400}
-        fadeStrength={1.5}
-      />
-      <Suspense fallback={null}>{children}</Suspense>
-    </Canvas>
-  </Wrap>
-);
+/** 解析度 (乘上螢幕倍率) 最多幾倍; 慢的電腦會自動降到 1 倍 (AdaptiveResolution) */
+const MAX_DPR = 1.75;
+/** 連續在畫的時候, 平均一幀比這個慢就降解析度、比 RAISE_MS 快才升回去 (ms) */
+const LOWER_MS = 1000 / 24;
+const RAISE_MS = 1000 / 50;
+/** 量幾幀算一次平均; 兩幀之間超過 IDLE_MS 是沒在動 (只在有東西變的時候畫), 不算 */
+const SAMPLE_FRAMES = 45;
+const IDLE_MS = 150;
+
+/**
+ * 慢的電腦自動降解析度: 只看「連續在畫」的時候 (車在走、鏡頭在飛) 兩幀之間隔多久。
+ * 不用 drei 的 PerformanceMonitor: 它算每秒幾幀, 這裡平常沒東西動就不畫, 會被誤判成很慢
+ */
+const AdaptiveResolution: FC<{ dpr: number; max: number; onChange: (dpr: number) => void }> = ({ dpr, max, onChange }) => {
+  const s = useRef({ last: 0, sum: 0, n: 0 });
+  useFrame(() => {
+    const now = performance.now();
+    const gap = now - s.current.last;
+    s.current.last = now;
+    if (gap > IDLE_MS) return;
+    s.current.sum += gap;
+    if (++s.current.n < SAMPLE_FRAMES) return;
+    const avg = s.current.sum / s.current.n;
+    s.current.sum = 0;
+    s.current.n = 0;
+    if (avg > LOWER_MS && dpr > 1) onChange(Math.max(1, dpr - 0.5));
+    else if (avg < RAISE_MS && dpr < max) onChange(Math.min(max, dpr + 0.25));
+  });
+  return null;
+};
+
+const Scene3D: FC<Props> = ({
+  bounds,
+  fitMargin = 4,
+  background,
+  gridColor,
+  dark,
+  follow = null,
+  drive = false,
+  apiRef,
+  onPointerMissed,
+  children,
+}) => {
+  const max = Math.min(MAX_DPR, Math.max(1, window.devicePixelRatio || 1));
+  const [dpr, setDpr] = useState(max);
+  return (
+    <Wrap onContextMenu={(e) => e.preventDefault()}>
+      <Canvas
+        frameloop="demand"
+        dpr={dpr}
+        camera={{ fov: FOV, near: 0.1, far: 2000, position: [0, 40, 40] }}
+        gl={{ antialias: true }}
+        onCreated={({ gl }) => {
+          // 正式版不檢查 shader 編譯錯誤: 檢查要同步等編譯結果, 慢的電腦每編一次就卡一下
+          gl.debug.checkShaderErrors = import.meta.env.DEV;
+        }}
+        // 量大小用 offsetWidth/Height (不受 CSS transform 影響): 放在對話框裡時, 打開的放大動畫中量到的會是縮小的,
+        // 動畫結束版面大小沒變, ResizeObserver 不會再通知, 畫布就一直卡在錯的大小
+        resize={{ offsetSize: true }}
+        onPointerMissed={onPointerMissed}
+      >
+        <AdaptiveResolution dpr={dpr} max={max} onChange={setDpr} />
+        <color attach="background" args={[background]} />
+        <hemisphereLight args={["#ffffff", dark ? "#3a4048" : "#b9c2cc", dark ? 0.9 : 1.2]} />
+        <directionalLight position={[30, 60, 20]} intensity={dark ? 1.4 : 1.7} />
+        <directionalLight position={[-40, 30, -30]} intensity={0.35} />
+        <MapControls makeDefault enableDamping dampingFactor={0.12} zoomToCursor minDistance={1.5} maxPolarAngle={Math.PI / 2 - 0.05} />
+        <CameraRig bounds={bounds} fitMargin={fitMargin} follow={follow} drive={drive && !!follow} apiRef={apiRef} />
+        <Grid
+          position={[0, -0.02, 0]}
+          infiniteGrid
+          cellSize={1}
+          sectionSize={10}
+          cellThickness={0.6}
+          sectionThickness={1}
+          cellColor={gridColor}
+          sectionColor={gridColor}
+          fadeDistance={bounds ? Math.max(200, (bounds.maxX - bounds.minX + bounds.maxY - bounds.minY) * 1.5) : 400}
+          fadeStrength={1.5}
+        />
+        <Suspense fallback={null}>{children}</Suspense>
+      </Canvas>
+    </Wrap>
+  );
+};
 
 export default Scene3D;

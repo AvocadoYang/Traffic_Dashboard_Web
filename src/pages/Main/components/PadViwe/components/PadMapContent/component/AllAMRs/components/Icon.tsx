@@ -165,7 +165,7 @@ const Icon: FC<{
       left={left}
       top={top}
       color={color}
-      rotate={amrId.includes("SW15") ? 90 - pose.yaw + 180 : 90 - pose.yaw}
+      rotate={90 - pose.yaw}
       is_agv={amrId.includes("SW15").toString()}
       $isCarry={isCarry as boolean}
     >
