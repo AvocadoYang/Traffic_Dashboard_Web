@@ -3790,7 +3790,41 @@
     "system_online": "System Online",
     "welcome_back": "Welcome back, {{name}}",
     "skip_hint": "Click or press any key to skip",
-    "starting": "STARTING"
+    "starting": "STARTING",
+    "hero": {
+      "forklift": {
+        "title": "FORKLIFT AGV",
+        "subtitle": "Autonomous forklift",
+        "features": "Automatic pallet handling · Auto charging"
+      },
+      "mir": {
+        "title": "MI15",
+        "subtitle": "Autonomous mobile robot",
+        "features": "Autonomous navigation · Dynamic obstacle avoidance"
+      },
+      "roller": {
+        "title": "ROLLER AGV",
+        "subtitle": "SW15 roller conveyor AGV",
+        "features": "Roller transfer · Automatic docking"
+      },
+      "lift": {
+        "title": "RACK HANDLING",
+        "subtitle": "Rack storage and retrieval",
+        "features": "Mast lifting · Automatic pallet handling"
+      },
+      "fleet": {
+        "title": "FLEET ORCHESTRATION",
+        "subtitle": "Multi-vehicle coordination",
+        "features": "Right-of-way control · Wait & release · Live monitoring"
+      },
+      "spec": {
+        "payload": "Payload",
+        "speed": "Top speed",
+        "size": "Footprint",
+        "lift": "Lift height"
+      },
+      "goto": "Go to chapter {{n}}: {{name}}"
+    }
   },
   "update_log": {
     "title": "System Update Log",

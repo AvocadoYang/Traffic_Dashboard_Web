@@ -1,0 +1,35 @@
+{
+  "total": 27.4,
+  "chapters": [
+    {
+      "chapter": "forklift",
+      "start": 0,
+      "end": 8.4,
+      "textAt": 3
+    },
+    {
+      "chapter": "mir",
+      "start": 8.4,
+      "end": 12,
+      "textAt": 8.4
+    },
+    {
+      "chapter": "roller",
+      "start": 12,
+      "end": 15.8,
+      "textAt": 12
+    },
+    {
+      "chapter": "lift",
+      "start": 15.8,
+      "end": 19.8,
+      "textAt": 15.8
+    },
+    {
+      "chapter": "fleet",
+      "start": 19.8,
+      "end": 27.4,
+      "textAt": 19.8
+    }
+  ]
+}

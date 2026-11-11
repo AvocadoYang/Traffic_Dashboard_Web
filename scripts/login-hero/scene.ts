@@ -306,10 +306,15 @@ const dist = (t: number, segs: [number, number, number][]) => { // [開始時間
   return d + v * Math.max(0, t - prev);
 };
 
-export const SHOTS: { dur: number; run: (u: number, t: number) => void }[] = [
+/**
+ * 分鏡。chapter: 登入頁疊的文字 (src/pages/Login/HeroOverlay.tsx) 用哪一章, 相鄰同一章的鏡頭會併成一章;
+ * textAt: 這一章的字從這個鏡頭開始後幾秒才出來 (開場揭幕要等燈亮)。錄影時會輸出 heroTimeline.json 給登入頁。
+ */
+export type Chapter = "forklift" | "mir" | "roller" | "lift" | "fleet";
+export const SHOTS: { dur: number; chapter: Chapter; textAt?: number; run: (u: number, t: number) => void }[] = [
   // 0. 光影揭幕: 全黑, 一道長條柔光從左掃到右, 在紅色外殼上拉出移動的反光、勾出車身輪廓;
   //    掃完倉庫的燈才亮起來, 叉車塔柱的燈和螢幕跟著點亮
-  { dur: 4.2, run: (u, t) => {
+  { dur: 4.2, chapter: "forklift", textAt: 3.0, run: (u, t) => {
     place(S.fk, 0, 0.9, 0); lift(S.F[0], 0.05, false);
     park(S.mir, S.mir2, S.m68, S.F[1], S.F[2], S.F[3]);
     const on = ease(sat((t - 2.75) / 0.9));
@@ -325,7 +330,7 @@ export const SHOTS: { dur: number; run: (u: number, t: number) => void }[] = [
     focusOn(1.3, 0.9, 1.0, 11);
   } },
   // 1. 貼地低角度: 叉車迎面開過來, 鏡頭慢慢後退
-  { dur: 4.2, run: (u, t) => {
+  { dur: 4.2, chapter: "forklift", run: (u, t) => {
     const x = -7 + t * 1.5;
     place(S.fk, x, 0.9, 0); setLift(0.3);
     place(S.mir, x - 9, 0.9, 0); place(S.m68, x + 16 - t * 2.6, -1.0, Math.PI + cfg.m68Yaw);
@@ -335,7 +340,7 @@ export const SHOTS: { dur: number; run: (u: number, t: number) => void }[] = [
     focusOn(x + 1.3, 0.9, 0.9, 9);
   } },
   // 2. MiR 側面特寫: 長焦平移跟拍
-  { dur: 3.6, run: (u, t) => {
+  { dur: 3.6, chapter: "mir", run: (u, t) => {
     const x = -4 + t * 1.3;
     place(S.mir, x, 0, 0); place(S.mir2, x + 7.5, 1.2, 0);
     place(S.fk, x - 14, 0.9, 0); setLift(0.3); park(S.m68, S.F[1], S.F[2], S.F[3]);
@@ -344,7 +349,7 @@ export const SHOTS: { dur: number; run: (u: number, t: number) => void }[] = [
     focusOn(x + 0.2, 0.2, 0.25, 13);
   } },
   // 3. M68 滾筒車: 3/4 環繞
-  { dur: 3.8, run: (u, t) => {
+  { dur: 3.8, chapter: "roller", run: (u, t) => {
     const x = 2 + t * 1.0, a = lerp(0.5, 1.25, ease(u));
     place(S.m68, x, 0, cfg.m68Yaw); place(S.mir, x - 7, 1.4, 0); place(S.mir2, 16 - t * 1.3, -1.4, Math.PI);
     place(S.fk, 24 - t * 1.3, -1.4, Math.PI); setLift(0.3); park(S.F[1], S.F[2], S.F[3]);
@@ -353,7 +358,7 @@ export const SHOTS: { dur: number; run: (u: number, t: number) => void }[] = [
     focusOn(x, 0.35, 0, 9);
   } },
   // 4. 叉車在貨架前把貨舉起來: 仰角慢推
-  { dur: 4.0, run: (u, t) => {
+  { dur: 4.0, chapter: "lift", run: (u, t) => {
     place(S.fk, 2.0, 2.55, Math.PI / 2);
     setLift(lerp(0.25, 1.75, ease(Math.min(1, u * 1.15))));
     place(S.mir, -9 + t * 1.3, -0.9, 0); park(S.mir2, S.m68, S.F[1], S.F[2], S.F[3]);
@@ -363,7 +368,7 @@ export const SHOTS: { dur: number; run: (u: number, t: number) => void }[] = [
   } },
   // 5. 多車節奏: B 從貨架退出來併入車道, 後面的 A 減速、停在停止線等它 (琥珀色光圈), B 走了路權放行 (虛線變青色) A 才跟上;
   //    對向車道兩台叉車保持固定車距通過
-  { dur: 7.6, run: (u, t) => {
+  { dur: 7.6, chapter: "fleet", run: (u, t) => {
     const [A, B, C, D] = S.F;
     park(S.mir, S.mir2, S.m68);
     // B: 0.4s 起步, 1.0 m/s 轉出來, 進車道後加速到 1.5
@@ -392,6 +397,18 @@ export const SHOTS: { dur: number; run: (u: number, t: number) => void }[] = [
   } },
 ];
 export const TOTAL = SHOTS.reduce((a, s) => a + s.dur, 0);
+/** 章節時間軸 (秒): 相鄰同一章的鏡頭併起來 */
+export const TIMELINE = (() => {
+  const out: { chapter: Chapter; start: number; end: number; textAt: number }[] = [];
+  let t = 0;
+  for (const s of SHOTS) {
+    const last = out[out.length - 1];
+    if (last && last.chapter === s.chapter) last.end = +(t + s.dur).toFixed(3);
+    else out.push({ chapter: s.chapter, start: +t.toFixed(3), end: +(t + s.dur).toFixed(3), textAt: +(t + (s.textAt ?? 0)).toFixed(3) });
+    t += s.dur;
+  }
+  return { total: +TOTAL.toFixed(3), chapters: out };
+})();
 
 // ---------- 後製: 動態模糊 (快門時間內算好幾次平均) → 景深 → 光暈 → 調色 ----------
 const MB = +(q.get("mb") || 5); // 每格算幾個子影格 (1 = 不做動態模糊, 預覽用)
@@ -542,7 +559,7 @@ export function frame(time: number, mb = MB) {
 }
 
 const b64 = (u8: Uint8Array) => { let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode(...u8.subarray(i, i + 0x8000)); return btoa(s); };
-const api: any = ((window as any).HERO = { TOTAL, S, cfg });
+const api: any = ((window as any).HERO = { TOTAL, S, cfg, TIMELINE });
 api.ready = () => ready.then(() => JSON.stringify({ info: S.info, pal: S.palSize, total: TOTAL }));
 api.still = async (time: number, quality = 0.9, mb = MB) => { await ready; frame(time, mb); return canvas.toDataURL("image/jpeg", quality).split(",")[1]; };
 api.video = async (fps: number, bitrate: number) => {
