@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Alert, Col, message, Row, Tooltip, Form, Input, Button, Space } from "antd";
 import {
   EyeInvisibleOutlined,
@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next";
 import styled, { css, keyframes } from "styled-components";
 import { useSetAtom } from "jotai";
 import { ignitionAtom, prefersReducedMotion } from "@/components/Ignition/ignitionState";
+import HeroOverlay from "./HeroOverlay";
 
 // 背景影片 (public/login-hero.webm): 用車型的 3D 模型在無頭瀏覽器裡逐格錄出來的, 約 27 秒循環 (開頭是暗的光影揭幕)
 const HERO_VIDEO = `${import.meta.env.BASE_URL}login-hero.webm`;
@@ -403,6 +404,7 @@ const Login: React.FC = () => {
 
   const [capsLock, setCapsLock] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const heroVideo = useRef<HTMLVideoElement>(null);
   const setIgnition = useSetAtom(ignitionAtom);
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
@@ -458,8 +460,10 @@ const Login: React.FC = () => {
       <BackgroundContainer>
         <HeroLayer $leaving={leaving}>
           <HeroPoster aria-hidden />
-          <HeroVideo aria-hidden src={HERO_VIDEO} poster={HERO_POSTER} autoPlay muted loop playsInline preload="auto" />
+          <HeroVideo ref={heroVideo} aria-hidden src={HERO_VIDEO} poster={HERO_POSTER} autoPlay muted loop playsInline preload="auto" />
         </HeroLayer>
+        {/* 影片上跟著鏡頭換的車型名稱、規格、章節進度條 */}
+        <HeroOverlay video={heroVideo} hidden={leaving} />
         <LoginCard $leaving={leaving}>
           <LoginHeader>
             <LoginTitle>{t("login.title")}</LoginTitle>
