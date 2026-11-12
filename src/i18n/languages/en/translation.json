@@ -741,7 +741,57 @@
     "no_online_records": "No vehicle connection records yet (run 20261014_amr_online_session.sql or yarn pdp on the database). Idle and offline time are counted as \"not recorded\".",
     "tab": {
       "overview": "Overview",
-      "battery": "Battery log"
+      "battery": "Battery log",
+      "connection": "Disconnections"
+    },
+    "connection": {
+      "not_recorded": "The database has no connection log table (connection_event) yet. The backend creates it on its next start and records from then on.",
+      "none": "No disconnections in this period",
+      "still_down": "Still down",
+      "restart_tag": "backend restart",
+      "restart_hint": "The end time was filled in when the backend restarted; the real recovery time is unknown",
+      "all_kinds": "All kinds",
+      "unit_sec": "s",
+      "unit_min": "min",
+      "unit_hour": "h",
+      "unit_day": "d",
+      "kind": {
+        "VEHICLE": "Vehicle",
+        "RABBITMQ": "RabbitMQ",
+        "MQTT": "MQTT",
+        "ECS": "ECS",
+        "ADVANTECH": "Advantech module",
+        "REDIS": "Redis"
+      },
+      "tile": {
+        "count": "Disconnections",
+        "down_time": "Total down time",
+        "ongoing": "Still down now",
+        "longest": "Longest",
+        "targets": "Targets affected"
+      },
+      "col": {
+        "kind": "Kind",
+        "target": "Target",
+        "count": "Count",
+        "down": "Down time",
+        "longest": "Longest",
+        "last_code": "Latest reason",
+        "code": "Reason code",
+        "start": "Disconnected at",
+        "end": "Recovered at",
+        "duration": "Duration",
+        "reason": "Reason"
+      },
+      "chart_hour": "Disconnections per hour",
+      "chart_day": "Disconnections per day",
+      "chart_hint": "Counted by when the outage started; colour = kind",
+      "kind_title": "By kind",
+      "code_title": "By reason",
+      "target_title": "By target",
+      "target_hint": "Longest down time first",
+      "event_title": "Events",
+      "event_hint": "Recorded when a vehicle is down for over 15 s, other links for over 5-10 s"
     },
     "battery": {
       "not_recorded": "The database has no battery log table (amr_battery_log) yet. The backend creates it on its next start and records every minute from then on.",
