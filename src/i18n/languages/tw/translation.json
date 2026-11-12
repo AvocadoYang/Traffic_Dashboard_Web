@@ -735,7 +735,57 @@
     "no_online_records": "還沒有車輛連線紀錄 (資料庫要先跑 20261014_amr_online_session.sql 或 yarn pdp)。閒置和離線時間會算在「沒有紀錄」。",
     "tab": {
       "overview": "總覽",
-      "battery": "電量紀錄"
+      "battery": "電量紀錄",
+      "connection": "斷線紀錄"
+    },
+    "connection": {
+      "not_recorded": "資料庫還沒有斷線紀錄表 (connection_event), 後端重開時會自動建立; 建立後才開始記錄",
+      "none": "這段期間沒有斷線紀錄",
+      "still_down": "還斷著",
+      "restart_tag": "後端重開",
+      "restart_hint": "後端重開時才補上結束時間, 實際恢復的時間不確定",
+      "all_kinds": "全部類別",
+      "unit_sec": "秒",
+      "unit_min": "分",
+      "unit_hour": "小時",
+      "unit_day": "天",
+      "kind": {
+        "VEHICLE": "車輛",
+        "RABBITMQ": "RabbitMQ",
+        "MQTT": "MQTT",
+        "ECS": "ECS",
+        "ADVANTECH": "研華模組",
+        "REDIS": "Redis"
+      },
+      "tile": {
+        "count": "斷線次數",
+        "down_time": "斷線總時間",
+        "ongoing": "目前還斷著",
+        "longest": "最長一次",
+        "targets": "斷過線的對象"
+      },
+      "col": {
+        "kind": "類別",
+        "target": "對象",
+        "count": "次數",
+        "down": "斷線時間",
+        "longest": "最長一次",
+        "last_code": "最近的原因",
+        "code": "原因代碼",
+        "start": "斷線時間",
+        "end": "恢復時間",
+        "duration": "持續",
+        "reason": "原因"
+      },
+      "chart_hour": "每小時斷線次數",
+      "chart_day": "每天斷線次數",
+      "chart_hint": "依斷線開始的時間計算, 顏色是類別",
+      "kind_title": "各類別",
+      "code_title": "原因統計",
+      "target_title": "各對象",
+      "target_hint": "斷線時間最長的在最上面",
+      "event_title": "斷線明細",
+      "event_hint": "車輛斷線超過 15 秒、其他連線斷 5~10 秒以上才會記"
     },
     "battery": {
       "not_recorded": "資料庫還沒有電量紀錄表 (amr_battery_log), 後端重開時會自動建立; 建立後才開始每分鐘記錄",
