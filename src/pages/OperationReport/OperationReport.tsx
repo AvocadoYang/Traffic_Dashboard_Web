@@ -57,6 +57,8 @@ import {
   SEQUENTIAL_BLUE,
 } from "@/pages/MissionDispatchBoard/chartPalette";
 import BatteryReportBody from "./BatteryReport";
+import ConnectionReportBody from "./ConnectionReport";
+import useConnectionReport from "@/api/useConnectionReport";
 import {
   ChartBox,
   Panel,
@@ -136,16 +138,18 @@ const formatHours = (sec: number) => `${(sec / 3600).toFixed(1)} h`;
 const percent = (part: number, total: number) =>
   total > 0 ? Math.round((part / total) * 1000) / 10 : 0;
 
-type ReportTab = "overview" | "battery";
+type ReportTab = "overview" | "battery" | "connection";
 
 const EXPORT_PATH: Record<ReportTab, string> = {
   overview: "api/report/operation/xlsx",
   battery: "api/report/battery/xlsx",
+  connection: "api/report/connection/xlsx",
 };
 
 const EXPORT_NAME: Record<ReportTab, string> = {
   overview: "operation_report",
   battery: "battery_report",
+  connection: "connection_report",
 };
 
 type Preset = "today" | "yesterday" | "last7" | "thisMonth";
@@ -186,7 +190,9 @@ const OperationReport: FC = () => {
   const options = useReportOptions();
   const overview = useOperationReport(tab === "overview" ? query : null);
   const battery = useBatteryReport(tab === "battery" ? query : null);
-  const { data, isFetching, error, refetch } = tab === "overview" ? overview : battery;
+  const connection = useConnectionReport(tab === "connection" ? query : null);
+  const { data, isFetching, error, refetch } =
+    tab === "overview" ? overview : tab === "battery" ? battery : connection;
 
   const vehicleOptions = useMemo(
     () =>
@@ -309,6 +315,7 @@ const OperationReport: FC = () => {
           items={[
             { key: "overview", label: t("report.tab.overview") },
             { key: "battery", label: t("report.tab.battery") },
+            { key: "connection", label: t("report.tab.connection") },
           ]}
         />
 
@@ -324,8 +331,10 @@ const OperationReport: FC = () => {
           <Spin spinning={isFetching}>
             {tab === "overview" ? (
               <ReportBody report={overview.data as Report} />
-            ) : (
+            ) : tab === "battery" ? (
               <BatteryReportBody report={battery.data!} />
+            ) : (
+              <ConnectionReportBody report={connection.data!} />
             )}
           </Spin>
         )}
