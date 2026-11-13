@@ -2,6 +2,7 @@ import { FC } from "react";
 import { Popconfirm, Tooltip } from "antd";
 import {
   CodeOutlined,
+  CopyOutlined,
   DeleteOutlined,
   EditOutlined,
   EyeInvisibleOutlined,
@@ -19,6 +20,8 @@ type Props = {
   onEdit: () => void;
   onToggleDisable: () => void;
   onDelete: () => void;
+  /** 沒給就不顯示複製鈕 */
+  onCopy?: () => void;
   /** 沒給就不顯示該顆按鈕(例如巢狀子步驟不能當引入的插入點) */
   onImport?: () => void;
   onJson?: () => void;
@@ -32,6 +35,7 @@ const StepActionBar: FC<Props> = ({
   onEdit,
   onToggleDisable,
   onDelete,
+  onCopy,
   onImport,
   onJson,
 }) => {
@@ -62,6 +66,15 @@ const StepActionBar: FC<Props> = ({
               : t("mission.task_table.inactive"))}
         </IconButton>
       </Tooltip>
+
+      {onCopy ? (
+        <Tooltip title={tip(t("utils.copy"))}>
+          <IconButton type="button" disabled={busy} onClick={onCopy}>
+            <CopyOutlined />
+            {withText && t("utils.copy")}
+          </IconButton>
+        </Tooltip>
+      ) : null}
 
       {onImport ? (
         <Tooltip title={tip(t("mission.task_table.import_mission"))}>
