@@ -291,14 +291,15 @@ const MissionTableSelect = ({
         ?.filter((m) => m.name.includes(search))
         .filter((v) =>
           v.MissionTitleBridgeCategory.some(
-            (w) => w.Category.tagName === "normal-mission"
-          )
+            (w) => w.Category.tagName === "normal-mission",
+          ),
         )
         .filter((m) => {
           if (selectFolder === "") return true;
           return m.mission_folder?.id === selectFolder;
-        }) || [],
-    [search, data, selectFolder]
+        })
+        .sort((a, b) => (a.name < b.name ? -1 : 1)) || [],
+    [search, data, selectFolder],
   );
   const columns = [
     {
