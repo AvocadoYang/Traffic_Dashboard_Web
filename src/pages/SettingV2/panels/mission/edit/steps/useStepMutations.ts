@@ -53,6 +53,21 @@ const useStepMutations = (missionId: string, messageApi: MessageInstance) => {
     onError,
   });
 
+  /** 複製一個步驟,複本排在最後面 */
+  const copy = useMutation({
+    mutationFn: (targetKey: string) =>
+      client.post("api/setting/copy-step", {
+        missionTitleId: missionId,
+        targetKey,
+        currentMapId: currentMapId || "",
+      }),
+    onSuccess: async () => {
+      void messageApi.success(t("utils.success"));
+      await refetch();
+    },
+    onError,
+  });
+
   const setDisabled = useMutation({
     mutationFn: (payload: { id: string; disable: boolean }) =>
       client.post("api/setting/disable-task", {
@@ -87,12 +102,14 @@ const useStepMutations = (missionId: string, messageApi: MessageInstance) => {
     queryKey,
     reorder,
     remove,
+    copy,
     setDisabled,
     setExtendNext,
     /** 有任何一個請求還在跑,就把清單鎖住不讓再拖 */
     busy:
       reorder.isLoading ||
       remove.isLoading ||
+      copy.isLoading ||
       setDisabled.isLoading ||
       setExtendNext.isLoading,
   };
