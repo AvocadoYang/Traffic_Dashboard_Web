@@ -162,6 +162,7 @@
     "active": "啟動",
     "inactive": "停止",
     "required": "必填",
+    "copy": "複製",
     "delete_warn": "確定刪除？",
     "cost_time": "耗時（分鐘)",
     "loading": "載入中...",

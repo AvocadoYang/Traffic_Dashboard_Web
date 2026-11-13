@@ -162,6 +162,7 @@
     "active": "Active",
     "inactive": "Inactive",
     "required": "Required",
+    "copy": "Copy",
     "delete_warn": "Are you sure?",
     "cost_time": "Cost Time (minutes)",
     "loading": "Loading...",
