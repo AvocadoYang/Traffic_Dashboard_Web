@@ -617,6 +617,7 @@ const TaskFormFork: FC<{
           yaw: originFormData.operation.yaw,
           tolerance: originFormData.operation.tolerance,
           lookahead: originFormData.operation.lookahead,
+          wait: originFormData.operation.wait || undefined,
           io: originFormData.io,
           is_define_id: originFormData.operation.is_define_id,
           is_define_level:
