@@ -63,6 +63,7 @@ type ChargeRow = {
   aggressiveTriggerDelayMin?: number | null;
   availableGetTaskTriggerDelayMin?: number | null;
   passiveTriggerDelayMin?: number | null;
+  manualChargePriority?: number | null;
   amr?: { fullName?: string; id?: string; isReal?: boolean }[] | null;
 };
 
@@ -75,6 +76,7 @@ type ChargeFormValues = {
   aggressiveTriggerDelayMin?: number;
   passiveTriggerDelayMin?: number;
   availableGetTaskTriggerDelayMin?: number;
+  manualChargePriority?: number;
 };
 
 const selectedSchema = object({
@@ -87,6 +89,7 @@ const selectedSchema = object({
   aggressiveTriggerDelayMin: number().optional().nullable(),
   availableGetTaskTriggerDelayMin: number().optional().nullable(),
   passiveTriggerDelayMin: number().optional().nullable(),
+  manualChargePriority: number().optional().nullable(),
   titleId: string().optional().nullable(),
   amr: array(
     object({
@@ -133,6 +136,7 @@ const ChargePanel: FC = () => {
       availableGetTaskThreshold: selected.availableGetTaskThreshold ?? null,
       aggressiveTriggerDelayMin: selected.aggressiveTriggerDelayMin,
       passiveTriggerDelayMin: selected.passiveTriggerDelayMin,
+      manualChargePriority: selected.manualChargePriority ?? 1,
       availableGetTaskTriggerDelayMin:
         selected.availableGetTaskTriggerDelayMin,
     });
@@ -640,6 +644,24 @@ const ChargePanel: FC = () => {
                     min={0}
                     addonAfter={t("charge.unit_min")}
                     style={{ width: "100%" }}
+                  />
+                </Form.Item>
+              </Field>
+            </FieldGrid>
+
+            <FieldLabel>{t("charge.section_manual_priority")}</FieldLabel>
+            <FieldGrid $cols={3} style={{ marginTop: 8 }}>
+              <Field>
+                {labelWithTip(
+                  t("charge.manualChargePriority"),
+                  t("charge.tooltip_manualChargePriority"),
+                )}
+                <Form.Item name="manualChargePriority">
+                  <Select
+                    options={[0, 1, 2, 3].map((v) => ({
+                      value: v,
+                      label: t(`charge.priority_${v}`),
+                    }))}
                   />
                 </Form.Item>
               </Field>
