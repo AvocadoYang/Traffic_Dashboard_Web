@@ -413,6 +413,30 @@ const DetailRow = styled.div`
   }
 `;
 
+const StepTimingTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+
+  th,
+  td {
+    padding: 4px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--c-border);
+  }
+  th {
+    color: var(--c-text-muted);
+    font-weight: 500;
+  }
+  td:nth-child(n + 4) {
+    font-family: "Roboto Mono", monospace;
+  }
+  td.slow {
+    color: var(--c-warning);
+    font-weight: 600;
+  }
+`;
+
 const Timeline = styled.ol`
   list-style: none;
   margin: 0;
@@ -618,6 +642,19 @@ const MissionHistory: FC<{
       return `${m}${t("mission_history.unit_m")} ${pad(s)}${t("mission_history.unit_s")}`;
     return `${s}${t("mission_history.unit_s")}`;
   };
+
+  /** 毫秒級的時間: 步驟之間的延遲多半不到 1 秒 */
+  const formatMs = (ms: number | null) => {
+    if (ms === null) return "—";
+    if (ms < 1000) return `${Math.max(0, Math.round(ms))} ms`;
+    if (ms < 60_000) return `${(ms / 1000).toFixed(1)} ${t("mission_history.unit_s")}`;
+    return formatDuration(ms) ?? "—";
+  };
+
+  const stepTypeLabel = (type?: string) =>
+    type
+      ? t(`mission_history.step_timing.type.${type}`, { defaultValue: type })
+      : "—";
 
   const sendByLabel = (value: Send_By) => {
     switch (value) {
@@ -1094,6 +1131,48 @@ const MissionHistory: FC<{
             })}
           </Timeline>
         </DetailSection>
+
+        {record.step_timing && record.step_timing.length > 0 && (
+          <DetailSection $wide>
+            <h5>{t("mission_history.step_timing.title")}</h5>
+            <StepTimingTable>
+              <thead>
+                <tr>
+                  <th>{t("mission_history.step_timing.step")}</th>
+                  <th>{t("mission_history.step_timing.action")}</th>
+                  <th>{t("mission_history.step_timing.location")}</th>
+                  <th title={t("mission_history.step_timing.gap_hint")}>
+                    {t("mission_history.step_timing.gap")}
+                  </th>
+                  <th>{t("mission_history.step_timing.run")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...record.step_timing]
+                  .sort((a, b) => a.step - b.step)
+                  .map((st, idx, all) => {
+                    const prev = idx > 0 ? all[idx - 1] : undefined;
+                    // 上一步做完 -> 這一步的指令送給車
+                    const gap = prev
+                      ? (st.sentAt ?? st.startedAt) - prev.doneAt
+                      : null;
+                    const run = st.doneAt - (st.sentAt ?? st.startedAt);
+                    return (
+                      <tr key={st.step}>
+                        <td>{st.step + 1}</td>
+                        <td>{stepTypeLabel(st.type)}</td>
+                        <td>{st.locationId ?? "—"}</td>
+                        <td className={gap !== null && gap >= 1000 ? "slow" : undefined}>
+                          {formatMs(gap)}
+                        </td>
+                        <td>{formatMs(run)}</td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </StepTimingTable>
+          </DetailSection>
+        )}
 
         {record.manualCount > 0 && (
           <DetailSection $wide>

@@ -57,6 +57,19 @@ const missionSchema = object({
       cargoCount: number().default(0),
       manualCount: number().default(0),
       // 放貨端「車開到才預約」拆成兩筆: 後半 / 前半是哪一筆任務
+      // 每一步的時間 (毫秒時間戳); 舊任務是 null
+      step_timing: array(
+        object({
+          step: number().required(),
+          type: string().optional(),
+          locationId: number().optional(),
+          startedAt: number().required(),
+          sentAt: number().optional(),
+          doneAt: number().required(),
+        }),
+      )
+        .nullable()
+        .default(null),
       splitTo: string().nullable().optional(),
       splitFrom: string().nullable().optional(),
     }).required(),
