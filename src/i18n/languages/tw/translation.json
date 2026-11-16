@@ -296,6 +296,22 @@
     "emergency_pressed": "期間按下緊急按鈕",
     "recovery_pressed": "期間按下復原按鈕",
     "timeline": "時間軸",
+    "step_timing": {
+      "title": "每一步的時間",
+      "step": "步",
+      "action": "動作",
+      "location": "點位",
+      "gap": "與上一步的間隔",
+      "run": "執行時間",
+      "gap_hint": "上一步做完到這一步的指令送給車的時間 (含任務設定的等待秒數); 超過 1 秒標色",
+      "type": {
+        "move": "移動",
+        "load": "取貨",
+        "offload": "放貨",
+        "charge": "充電",
+        "upper_control": "上部控制"
+      }
+    },
     "assigned_at": "指派時間",
     "ended_at": "結束時間",
     "detail": "任務資訊",

@@ -297,6 +297,22 @@
     "emergency_pressed": "Emergency button pressed",
     "recovery_pressed": "Recovery button pressed",
     "timeline": "Timeline",
+    "step_timing": {
+      "title": "Time per step",
+      "step": "Step",
+      "action": "Action",
+      "location": "Point",
+      "gap": "Gap from previous step",
+      "run": "Run time",
+      "gap_hint": "Time from the previous step finishing to this step's command being sent to the car (includes any wait seconds set on the task); highlighted over 1 s",
+      "type": {
+        "move": "Move",
+        "load": "Load",
+        "offload": "Offload",
+        "charge": "Charge",
+        "upper_control": "Upper control"
+      }
+    },
     "assigned_at": "Assigned At",
     "ended_at": "Ended At",
     "detail": "Mission Info",
