@@ -110,7 +110,7 @@ const PreviewButton = styled.span<{ $theme: Theme }>`
   margin-left: auto;
   flex-shrink: 0;
   padding: 2px 8px;
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-weight: 600;
   letter-spacing: 0.5px;
   background: ${({ $theme }) => $theme.colors.accent};

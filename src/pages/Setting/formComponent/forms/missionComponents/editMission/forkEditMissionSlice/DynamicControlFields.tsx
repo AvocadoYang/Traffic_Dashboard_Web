@@ -52,7 +52,7 @@ const StepBadge = styled.div`
   border: 1px solid #1890ff;
   color: #1890ff;
   font-weight: 700;
-  font-size: 11px;
+  font-size: var(--font-sm);
   font-family: "Roboto Mono", monospace;
   box-shadow: 0 1px 4px rgba(24, 144, 255, 0.15);
 `;
@@ -74,7 +74,7 @@ const CardBody = styled.div`
 
 const FieldLabel = styled.div`
   color: #595959;
-  font-size: 10px;
+  font-size: var(--font-xs);
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 6px;
@@ -151,7 +151,7 @@ const CollapseTitleWrapper = styled.div`
     background: #e6f7ff;
     padding: 2px 8px;
     border: 1px solid #1890ff;
-    font-size: 10px;
+    font-size: var(--font-xs);
     font-family: "Roboto Mono", monospace;
   }
 `;
@@ -176,7 +176,7 @@ const IndustrialSwitch = styled(Switch)`
 
 const WarningText = styled.div`
   color: #fa8c16;
-  font-size: 11px;
+  font-size: var(--font-sm);
   margin-top: 4px;
   font-family: "Roboto Mono", monospace;
   display: flex;
@@ -206,7 +206,7 @@ const SegmentedOption = styled.button<{ isActive: boolean }>`
   border-right: 1px solid #d9d9d9;
   color: ${({ isActive }) => (isActive ? "#1890ff" : "#8c8c8c")};
   font-family: "Roboto Mono", monospace;
-  font-size: 11px;
+  font-size: var(--font-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;

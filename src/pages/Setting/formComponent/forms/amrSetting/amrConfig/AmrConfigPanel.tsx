@@ -80,7 +80,7 @@ const IndustrialTableContainer = styled.div`
     color: #262626;
     font-weight: 600;
     text-transform: uppercase;
-    font-size: 11px;
+    font-size: var(--font-sm);
     letter-spacing: 1px;
     border-bottom: 2px solid #d9d9d9;
     font-family: "Roboto Mono", monospace;
@@ -107,7 +107,7 @@ const IndustrialTableContainer = styled.div`
 const StyledForm = styled(Form)`
   .ant-form-item-label > label {
     color: #595959;
-    font-size: 11px;
+    font-size: var(--font-sm);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-family: "Roboto Mono", monospace;
@@ -148,7 +148,7 @@ const StyledForm = styled(Form)`
 const IndustrialButton = styled(Button)`
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
-  font-size: 10px;
+  font-size: var(--font-xs);
   letter-spacing: 0.5px;
   height: 32px;
   font-weight: 600;
@@ -222,7 +222,7 @@ const DimensionBadge = styled.span`
   border-radius: 4px;
   color: #fa8c16;
   font-family: "Roboto Mono", monospace;
-  font-size: 11px;
+  font-size: var(--font-sm);
   font-weight: 600;
 `;
 
@@ -662,7 +662,7 @@ const AmrConfigPanel: FC<{
           <ul
             style={{
               fontFamily: "Roboto Mono",
-              fontSize: 11,
+              fontSize: "var(--font-sm)",
               color: "#595959",
             }}
           >

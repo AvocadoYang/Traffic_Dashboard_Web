@@ -70,7 +70,7 @@ const IoCode = styled.span`
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: ${font.mono};
-  font-size: 10px;
+  font-size: var(--font-xs);
   line-height: 1.2;
   color: ${c.textMuted};
 `;
