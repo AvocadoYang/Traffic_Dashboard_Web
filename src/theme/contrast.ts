@@ -31,7 +31,7 @@ export const contrastRatio = (a: string, b: string): number => {
 };
 
 /**
- * 把 fg 往黑色加深,直到對每個背景的對比度都 >= min。
+ * 把 fg 往黑色加深 (深色底則往白色調亮),直到對每個背景的對比度都 >= min。
  * 本來就夠清楚就原樣回傳 (不是 6 位數 hex 的值也原樣回傳)。
  */
 export const ensureTextContrast = (
@@ -44,9 +44,12 @@ export const ensureTextContrast = (
   const ok = (c: string) => backgrounds.every((bg) => contrastRatio(c, bg) >= min);
   if (ok(fg)) return fg;
   const base = toRgb(fg);
+  // 淺色底往黑色加深, 深色底往白色調亮
+  const darkBg = backgrounds.every((bg) => luminance(bg) < 0.4);
+  const target = darkBg ? 255 : 0;
   for (let t = 0.05; t <= 1; t += 0.05) {
-    const mixed = toHex(base.map((n) => n * (1 - t)));
+    const mixed = toHex(base.map((n) => n + (target - n) * t));
     if (ok(mixed)) return mixed;
   }
-  return "#000000";
+  return darkBg ? "#ffffff" : "#000000";
 };

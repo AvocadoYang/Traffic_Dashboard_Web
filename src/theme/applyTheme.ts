@@ -68,6 +68,13 @@ export const applyTheme = (theme: Theme, mapImage: MapImageMode): void => {
     );
   });
 
+  // 淡色文字 (標籤、單位、時間、提示) 在淺色主題只有 3:1 左右, 弱螢幕上看不清楚。
+  // 加深 / 調亮到對卡片底與淡底 4.5:1, 還是比次要文字淡一點。
+  root.style.setProperty(
+    cssVarName("textMuted"),
+    ensureTextContrast(colors.textMuted, [colors.bg, colors.bgSubtle]),
+  );
+
   scopeTints[theme.mode].forEach((tint, i) => {
     root.style.setProperty(scopeTintVarName(i, "bg"), tint.bg);
     root.style.setProperty(scopeTintVarName(i, "border"), tint.border);
