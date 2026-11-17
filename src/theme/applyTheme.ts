@@ -13,6 +13,7 @@ import {
   type ThemeId,
 } from "./palettes";
 import { isDarkColor } from "./mapImage";
+import { ensureTextContrast } from "./contrast";
 
 export const THEME_STORAGE_KEY = "fleet-ui-theme";
 export const MAP_IMAGE_STORAGE_KEY = "fleet-map-image";
@@ -55,6 +56,16 @@ export const applyTheme = (theme: Theme, mapImage: MapImageMode): void => {
   const colors = resolveColors(theme, mapImage);
   colorKeys.forEach((key) => {
     root.style.setProperty(cssVarName(key), colors[key]);
+  });
+
+  // 狀態色當「文字」用的版本: 淺色主題的綠 / 黃在白底上只有 2:1, 加深到 4.5:1。
+  // 要對照的背景包含卡片底、淡底與狀態標籤的淡色底。
+  (["success", "warning"] as const).forEach((k) => {
+    const soft = colors[`${k}Soft` as "successSoft" | "warningSoft"];
+    root.style.setProperty(
+      `--c-${k}-text`,
+      ensureTextContrast(colors[k], [colors.bg, colors.bgSubtle, soft]),
+    );
   });
 
   scopeTints[theme.mode].forEach((tint, i) => {

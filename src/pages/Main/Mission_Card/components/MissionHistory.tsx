@@ -207,7 +207,7 @@ const StatusBadge = styled.span<{ $status: number; $isDark: boolean }>`
         // pending
         bg: "var(--c-warning-soft)",
         border: "var(--c-warning)",
-        text: "var(--c-warning)",
+        text: "var(--c-warning-text)",
       },
       1: {
         // assigned
@@ -219,13 +219,13 @@ const StatusBadge = styled.span<{ $status: number; $isDark: boolean }>`
         // executing
         bg: "var(--c-success-soft)",
         border: "var(--c-success)",
-        text: "var(--c-success)",
+        text: "var(--c-success-text)",
       },
       3: {
         // completed
         bg: "var(--c-bg-subtle)",
         border: "var(--c-text-muted)",
-        text: "var(--c-text-muted)",
+        text: "var(--c-text-secondary)",
       },
       4: {
         // aborting
@@ -243,7 +243,7 @@ const StatusBadge = styled.span<{ $status: number; $isDark: boolean }>`
         // waiting
         bg: "var(--c-bg-subtle)",
         border: "var(--c-warning)",
-        text: "var(--c-warning)",
+        text: "var(--c-warning-text)",
       },
     };
     const color = statusColors[$status] || statusColors[0];
@@ -432,7 +432,7 @@ const StepTimingTable = styled.table`
     font-family: "Roboto Mono", monospace;
   }
   td.slow {
-    color: var(--c-warning);
+    color: var(--c-warning-text);
     font-weight: 600;
   }
 `;
@@ -1320,7 +1320,7 @@ const MissionHistory: FC<{
             <span>{t("mission_history.recovery_btn")}</span>
             <span
               style={
-                record.recoveryBtn ? { color: "var(--c-warning)" } : undefined
+                record.recoveryBtn ? { color: "var(--c-warning-text)" } : undefined
               }
             >
               {record.recoveryBtn

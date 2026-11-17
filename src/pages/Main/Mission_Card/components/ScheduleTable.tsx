@@ -130,7 +130,7 @@ const PriorityBadge = styled.span<{ $priority: number; $isDark: boolean }>`
       return `
         background: ${"var(--c-warning-soft)"};
         border: 1px solid var(--c-warning);
-        color: var(--c-warning);
+        color: var(--c-warning-text);
       `;
     } else {
       return `
@@ -191,7 +191,7 @@ const IndustrialButton = styled(Button)`
   &.pause-btn {
     background: var(--c-warning-soft); /* Light warning yellow */
     border: 1px solid var(--c-warning);
-    color: var(--c-warning);
+    color: var(--c-warning-text);
 
     &:hover:not(:disabled) {
       background: var(--c-warning); /* Warning Gold */

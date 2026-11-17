@@ -218,7 +218,7 @@ const StatusBadge = styled.span<{ $status: MissionStatus; $isDark: boolean }>`
       executing: {
         bg: "var(--c-success-soft)",
         border: "var(--c-success)",
-        text: "var(--c-success)",
+        text: "var(--c-success-text)",
       },
       assigned: {
         bg: "var(--c-header-accent-soft)",
@@ -228,12 +228,12 @@ const StatusBadge = styled.span<{ $status: MissionStatus; $isDark: boolean }>`
       pending: {
         bg: "var(--c-warning-soft)",
         border: "var(--c-warning)",
-        text: "var(--c-warning)",
+        text: "var(--c-warning-text)",
       },
       completed: {
         bg: "var(--c-bg-subtle)",
         border: "var(--c-text-muted)",
-        text: "var(--c-text-muted)",
+        text: "var(--c-text-secondary)",
       },
       aborting: {
         bg: "var(--c-danger-soft)",
@@ -248,7 +248,7 @@ const StatusBadge = styled.span<{ $status: MissionStatus; $isDark: boolean }>`
       waiting: {
         bg: "var(--c-bg-subtle)",
         border: "var(--c-warning)",
-        text: "var(--c-warning)",
+        text: "var(--c-warning-text)",
       },
     };
 
