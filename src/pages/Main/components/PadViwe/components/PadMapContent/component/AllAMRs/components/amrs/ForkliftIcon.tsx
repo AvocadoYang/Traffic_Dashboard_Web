@@ -66,10 +66,15 @@ const SquareBody = styled.div.attrs<{
   }
 `;
 
+/*
+ * 堆高機本體 (俯視): 倒角的車身 + 桅桿橫條 + 兩根尖頭叉臂 + 指向叉臂方向的箭頭。
+ * 外層這顆 div 只負責旋轉 (旋轉中心放在叉臂根部)、點擊、跟車身一樣大的定位框,
+ * 讓載貨方塊與暫停圖示照舊貼在車身上; 形狀都在 SVG 裡。純向量, 沒有濾鏡。
+ */
 const ForkliftBody = styled.div.attrs<{
   rotate: number;
   color: string;
-}>(({ rotate, color }) => ({
+}>(({ rotate }) => ({
   style: {
     transform: `rotate(${rotate}deg)`,
     transition: "x 1s, y 1s",
@@ -80,22 +85,56 @@ const ForkliftBody = styled.div.attrs<{
 }>`
   width: 15px;
   height: 20px;
-  background-color: ${(p) => p.color};
-  border-radius: 3px;
   position: relative;
-  /* 旋轉中心放在叉臂根部 */
   transform-origin: center bottom;
-  opacity: 80%;
-  border: "1px solid gray";
-  border: ${(p) => `1px solid ${p.color}`};
   cursor: pointer;
 
+  svg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .shape {
+    stroke: rgba(0, 0, 0, 0.4);
+    stroke-width: 0.8;
+    stroke-linejoin: miter;
+  }
+  .fork {
+    fill: #2b2b2b;
+  }
+
   /* 車子的代表色有深有淺,底圖跟著深色主題變深時,深色的車會跟底圖糊在一起,
-     所以補一圈淺色的外框 */
-  [data-map-canvas="dark"] & {
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.7);
+     所以改用淺色外框, 叉臂也換成淺色 */
+  [data-map-canvas="dark"] & .shape {
+    stroke: rgba(255, 255, 255, 0.8);
+  }
+  [data-map-canvas="dark"] & .fork {
+    fill: #dcdcdc;
   }
 `;
+
+/** 堆高機形狀 (viewBox 跟車身一樣 15×20, 叉臂往下超出到 31, 靠 overflow: visible 顯示) */
+const ForkliftShape: FC<{ color: string }> = ({ color }) => (
+  <svg width="15" height="20" viewBox="0 0 15 20" aria-hidden>
+    <polygon className="fork shape" points="2.4,19 5.4,19 4.9,31 2.9,31" />
+    <polygon className="fork shape" points="9.6,19 12.6,19 12.1,31 10.1,31" />
+    <polygon
+      className="shape"
+      fill={color}
+      fillOpacity={0.92}
+      points="0,4 4,0 11,0 15,4 15,18 0,18"
+    />
+    <rect x="0" y="16" width="15" height="3.2" fill="#262626" fillOpacity={0.85} />
+    <polygon
+      fill="#fff"
+      fillOpacity={0.85}
+      points="7.5,13.5 4.3,9.5 6,9.5 7.5,11.6 9,9.5 10.7,9.5"
+    />
+  </svg>
+);
 
 const Cargo = styled.div`
   width: 15px;
@@ -157,28 +196,6 @@ const MiRCargo = styled.div`
   opacity: 60%;
   border-radius: 2px;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
-`;
-
-const ForkArm = styled.div`
-  width: 3px;
-  height: 12px;
-  background: #333;
-  opacity: 75%;
-  position: absolute;
-  bottom: -11px; // 與車身接點
-  border-radius: 1px;
-
-  [data-map-canvas="dark"] & {
-    background: #d9d9d9;
-  }
-`;
-
-const LeftFork = styled(ForkArm)`
-  left: 9px;
-`;
-
-const RightFork = styled(ForkArm)`
-  right: 9px;
 `;
 
 const StopSignOverlay = styled.div`
@@ -324,12 +341,7 @@ const ForkLiftIcon: FC<{
             });
           }}
         >
-          {amrId.includes("mi") ? null : (
-            <>
-              <LeftFork />
-              <RightFork />
-            </>
-          )}
+          <ForkliftShape color={color} />
           {isCarry && <Cargo />}
           {isPause && (
             <Tooltip color="volcano" title={t("mode.isPause")}>
