@@ -442,12 +442,12 @@ const WebViewV2 = () => {
                 <ScalePad></ScalePad>
 
                 {/* 效能監看: 車隊跟不跟得上 + 程式卡不卡。
-                    按鈕排在 ScalePad (top 16px) 下面;
+                    三顆工具按鈕排成一欄 (各 44px, 間隔 8px): ScalePad top 16px、效能監看 68px、模擬車輛 120px;
                     面板讓開右上角的 MapSelectorSlot */}
-                <OpenPerformanceBtn top="72px" left="16px" />
+                <OpenPerformanceBtn top="68px" left="16px" />
                 <PerformancePanel top="64px" right="16px" />
                 {/* 模擬車輛: 取代舊的 /simulate 頁; 開始 / 停止模擬還是 Header 的按鈕 */}
-                {showSimulationUi && canSimCars ? <SimCarPanel top="128px" left="16px" /> : null}
+                {showSimulationUi && canSimCars ? <SimCarPanel top="120px" left="16px" /> : null}
                 {profile && (
                   <Tooltip title={t("profile.prefs.save_view")}>
                     <SaveViewBtn

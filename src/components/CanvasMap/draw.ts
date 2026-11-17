@@ -6,7 +6,7 @@
  *  - 地圖像素 (mapSpace): 跟著縮放變大變小, 車身、區域、標註這些「實際大小」的東西用這個
  *  - 螢幕像素 (screenSpace): 不跟著縮放, 文字標籤、細線用這個, 縮很小也看得清楚
  */
-import { amrId2ColorRainbow } from "@/utils/utils";
+import { amrId2ColorRainbow, amrShortNum, getAmrColorVersion, textOnColor } from "@/utils/utils";
 import type { PaletteColors } from "@/theme";
 import type { MapScene, SceneAnnotation } from "./scene";
 import type { LiveState } from "./liveStore";
@@ -46,7 +46,14 @@ const sized = (f: Frame, mapPx: number, min: number, max: number) =>
   Math.min(max, Math.max(min, mapPx * f.view.scale));
 
 const colorCache = new Map<string, string>();
+let colorCacheVersion = -1;
 export const amrColor = (amrId: string) => {
+  // 車隊名單更新後顏色可能換了 (見 utils 的 amrId2ColorRainbow), 快取要清掉重算
+  const version = getAmrColorVersion();
+  if (version !== colorCacheVersion) {
+    colorCache.clear();
+    colorCacheVersion = version;
+  }
   let c = colorCache.get(amrId);
   if (!c) {
     c = amrId2ColorRainbow(amrId);
@@ -439,6 +446,14 @@ export function drawLive(f: Frame, scene: MapScene, live: LiveState, o: LiveOpti
   }
 
   const dimOthers = o.filterIds.size > 0 || o.forbiddenIds.size > 0;
+  // LED 照在地上的光達範圍: 所有堆高機都畫, 先畫在所有車身底下 (不要蓋住別台車)
+  for (const v of shown) {
+    if (v.id.includes("mi")) continue;
+    const bbox = live.bbox.get(v.id);
+    if (!bbox) continue;
+    const highlighted = o.filterIds.size ? o.filterIds.has(v.id) : o.forbiddenIds.has(v.id);
+    drawLedZone(f, scene, v, bbox, dimOthers && !highlighted ? 0.1 : 1);
+  }
   const hits: AmrHit[] = [];
   for (const v of shown) {
     const highlighted = o.filterIds.size ? o.filterIds.has(v.id) : o.forbiddenIds.has(v.id);
@@ -563,6 +578,47 @@ function drawBBox(f: Frame, scene: MapScene, bbox: number[][], color: string) {
   ctx.globalAlpha = 1;
 }
 
+const hexToRgba = (hex: string, a: number) => {
+  const n = parseInt(hex.slice(1, 7), 16);
+  return `rgba(${n >> 16}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+};
+
+/**
+ * 車子 LED 照在地面上的光達範圍 (示意): 單層、只在車框 (車身周圍那圈虛線) 裡面,
+ * 從車頭往後照到車身尾端 (叉臂根部), 所以涵蓋車頭跟兩側; 叉臂那一端沒有光達, 不照。
+ * 顏色是這台車的識別色, 車頭最亮、往後漸淡。用畫布裁切 + 漸層, 沒有模糊 / 陰影濾鏡 (客戶電腦很弱)。
+ * 只畫堆高機 (MiR 沒有車框可以界定範圍)。
+ */
+function drawLedZone(f: Frame, scene: MapScene, v: Visible, bbox: number[][], dim: number) {
+  const n = bbox.length - 1; // 最後一個是中心點
+  if (n < 3) return;
+  const { ctx } = f;
+
+  // 車框 (螢幕座標) 當裁切範圍
+  const clip = new Path2D();
+  for (let i = 0; i < n; i += 1) {
+    const [sx, sy] = toScreen(f, ...scene.toPx(bbox[i][0], bbox[i][1]));
+    if (i) clip.lineTo(sx, sy);
+    else clip.moveTo(sx, sy);
+  }
+  clip.closePath();
+
+  ctx.save();
+  screenSpace(f);
+  ctx.clip(clip);
+  // 切到車的座標系 (原點在叉臂根部, 車頭朝 -y), 只填 y <= 0 的部分 = 車頭 + 兩側
+  mapSpace(f);
+  ctx.translate(v.x, v.y);
+  ctx.rotate(((90 - v.yaw) * Math.PI) / 180);
+  const g = ctx.createLinearGradient(0, -24, 0, 0);
+  g.addColorStop(0, hexToRgba(v.color, 0.5));
+  g.addColorStop(1, hexToRgba(v.color, 0.12));
+  ctx.globalAlpha = dim;
+  ctx.fillStyle = g;
+  ctx.fillRect(-60, -80, 120, 80);
+  ctx.restore();
+}
+
 /** 堆高機: 15x20 車身, 旋轉中心在叉臂根部 (= 車的位置), 叉臂往後伸 */
 function drawForklift(f: Frame, v: Visible, hasCargo: boolean, isPause: boolean) {
   const { ctx } = f;
@@ -572,29 +628,52 @@ function drawForklift(f: Frame, v: Visible, hasCargo: boolean, isPause: boolean)
   const deg = 90 - v.yaw;
   ctx.rotate((deg * Math.PI) / 180);
 
-  // 叉臂
-  ctx.globalAlpha = alpha * 0.75;
-  ctx.fillStyle = f.darkCanvas ? "#d9d9d9" : "#333333";
-  ctx.fillRect(-4.5, -1, 3, 12);
-  ctx.fillRect(1.5, -1, 3, 12);
+  // 堆高機形狀 (跟 DOM 版 ForkliftIcon 同一個設計, 座標是它的 15x20 SVG 平移到旋轉中心):
+  // 倒角車身 + 桅桿橫條 + 兩根尖頭叉臂 + 指向前進方向的箭頭。叉臂往後 (y > 0) 伸。
+  const P = (pts: number[][]) => {
+    const path = new Path2D();
+    pts.forEach(([x, y], i) => (i ? path.lineTo(x - 7.5, y - 20) : path.moveTo(x - 7.5, y - 20)));
+    path.closePath();
+    return path;
+  };
+  const outline = f.darkCanvas ? "rgba(255, 255, 255, 0.8)" : "rgba(0, 0, 0, 0.4)";
+  ctx.lineWidth = 0.8;
+  ctx.lineJoin = "miter";
+  ctx.strokeStyle = outline;
 
-  // 車身
-  ctx.globalAlpha = alpha * 0.8;
-  roundRect(ctx, -7.5, -20, 15, 20, 3);
-  ctx.fillStyle = v.color;
-  ctx.fill();
-  if (f.darkCanvas) {
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
-    ctx.stroke();
+  // 叉臂
+  ctx.globalAlpha = alpha * 0.9;
+  ctx.fillStyle = f.darkCanvas ? "#dcdcdc" : "#2b2b2b";
+  for (const fork of [
+    [[2.4, 19], [5.4, 19], [4.9, 31], [2.9, 31]],
+    [[9.6, 19], [12.6, 19], [12.1, 31], [10.1, 31]],
+  ]) {
+    const path = P(fork);
+    ctx.fill(path);
+    ctx.stroke(path);
   }
 
+  // 車身
+  ctx.globalAlpha = alpha * 0.92;
+  const body = P([[0, 4], [4, 0], [11, 0], [15, 4], [15, 18], [0, 18]]);
+  ctx.fillStyle = v.color;
+  ctx.fill(body);
+  ctx.stroke(body);
+
+  // 桅桿橫條 + 前進方向箭頭 (指向車身那一端, 跟 LED 光的方向一致)
+  ctx.fillStyle = "rgba(38, 38, 38, 0.85)";
+  ctx.fillRect(-7.5, -4, 15, 3.2);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+  ctx.fill(P([[7.5, 9.5], [4.3, 13.5], [6, 13.5], [7.5, 11.4], [9, 13.5], [10.7, 13.5]]));
+  ctx.globalAlpha = alpha * 0.8;
+
   if (hasCargo) {
+    // 載在叉臂上的貨 (22x16, 比車身 15 寬一點, 蓋住叉臂並超出一點, 一眼就看得出有載貨)
     ctx.fillStyle = "#ff7875";
-    ctx.fillRect(-8.5, 5, 15, 10);
+    ctx.fillRect(-11, 2, 22, 16);
     ctx.lineWidth = 1;
     ctx.strokeStyle = "#ffffff";
-    ctx.strokeRect(-8.5, 5, 15, 10);
+    ctx.strokeRect(-11, 2, 22, 16);
   }
   ctx.globalAlpha = alpha;
 
@@ -700,14 +779,46 @@ export const amrTip = (live: LiveState, id: string) => {
   };
 };
 
+/**
+ * 車頭上的車號牌: 跟卡片上同一塊 (同色、同字), 從地圖一眼對到是哪一台。
+ * 提示框 (下面 drawTip) 出現時就不畫牌子, 提示框裡本來就有完整車號。大小固定, 不跟地圖縮放。
+ */
+function drawPlate(f: Frame, v: Visible, o: LiveOptions) {
+  const { ctx } = f;
+  screenSpace(f);
+  const text = amrShortNum(v.id);
+  ctx.font = `700 11px ${FONT}`;
+  const w = Math.ceil(ctx.measureText(text).width) + 10;
+  const h = 15;
+  const [sx, sy] = toScreen(f, v.x, v.y);
+  const gap = (v.id.includes("mi") ? 12 : 24) * f.view.scale + 4;
+  const left = Math.round(sx - w / 2);
+  const top = Math.round(sy - gap - h);
+  const dimOthers = o.filterIds.size > 0 || o.forbiddenIds.size > 0;
+  const highlighted = o.filterIds.size ? o.filterIds.has(v.id) : o.forbiddenIds.has(v.id);
+  ctx.globalAlpha = dimOthers && !highlighted ? 0.15 : 1;
+  ctx.fillStyle = v.color;
+  ctx.fillRect(left, top, w, h);
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
+  ctx.strokeRect(left + 0.5, top + 0.5, w - 1, h - 1);
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = textOnColor(v.color);
+  ctx.fillText(text, sx, top + h / 2 + 0.5);
+  ctx.globalAlpha = 1;
+}
+
 /** 車上方的黑色提示框: 車號、在做什麼、要去哪裡 (規則同 useAmrMissionTip) */
 function drawTip(f: Frame, v: Visible, live: LiveState, o: LiveOptions) {
   const { tipText, dest } = amrTip(live, v.id);
   const forbidden = o.forbiddenIds.has(v.id);
   const show = o.filterIds.has(v.id) || o.hintId === v.id || forbidden || !!tipText || !!dest;
-  if (!show) return;
-
   const { ctx } = f;
+  if (!show) {
+    drawPlate(f, v, o);
+    return;
+  }
   screenSpace(f);
   const lines: { text: string; bold: boolean }[] = [
     { text: `${forbidden ? "🚫 " : ""}${v.id}`, bold: true },

@@ -25,14 +25,16 @@ const Hint = styled.div`
 
 const Meta = styled.div`
   margin-top: 2px;
-  color: var(--c-text-muted);
+  font-weight: 600;
+  color: var(--c-text-secondary);
 `;
 
 const Details = styled.details`
   margin-top: 4px;
   summary {
     cursor: pointer;
-    color: var(--c-text-muted);
+    font-weight: 600;
+    color: var(--c-text-secondary);
   }
   ul {
     margin: 2px 0 0;

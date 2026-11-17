@@ -104,7 +104,9 @@ export type ThemeId =
   | "terminal"
   | "neon"
   | "blueprint"
-  | "contrast";
+  | "contrast"
+  | "kenmec"
+  | "kenmec-light";
 
 /** PaletteColors 裡畫在地圖底圖上的那一組 */
 export type MapColors = Pick<
@@ -375,6 +377,100 @@ const midnight: PaletteColors = {
   mapCell: "rgba(214, 223, 240, 0.55)",
   mapCellHover: "rgba(186, 201, 230, 0.8)",
   mapCellText: "#17191d",
+};
+
+/**
+ * KENMEC 精品黑: 延續登入頁的風格 (高級車、精品)。近黑的石墨色系 + 白金色強調色 (主要按鈕是白底黑字);
+ * 品牌紅不當強調色 (會跟錯誤的紅色搞混), 只用在裝飾細線與「目前所在頁」的指示, 見 styles/luxe.css 的 --c-brand。
+ */
+const kenmec: PaletteColors = {
+  bg: "#0f1114",
+  bgSubtle: "#090a0d",
+  bgMuted: "#171a1f",
+  bgSelected: "#20242a",
+
+  border: "#1e2228",
+  borderStrong: "#30353d",
+
+  text: "#eceef1",
+  textSecondary: "#a3aab4",
+  textMuted: "#6b737e",
+
+  accent: "#e9ecf0",
+  accentHover: "#ffffff",
+  onAccent: "#0b0d10",
+
+  success: "#45c486",
+  successSoft: "#11241a",
+  warning: "#e2a93f",
+  warningSoft: "#2a2214",
+
+  danger: "#f05545",
+  dangerSoft: "#2e1a17",
+
+  headerBg: "#08090b",
+  headerText: "#8f97a2",
+  headerBorder: "#1b1e23",
+  headerAccent: "#e9ecf0",
+  headerAccentSoft: "rgba(233, 236, 240, 0.07)",
+
+  mapRoad: "#3d6fb6",
+  mapRoadPriority: "#d9822b",
+  mapRoadArrow: "#e8b77a",
+  mapPoint: "#1b1f27",
+  mapPointRotate: "#c4479f",
+  mapDevice: "#8a919c",
+  mapDeviceBorder: "#5d6470",
+  mapCell: "rgba(230, 232, 236, 0.55)",
+  mapCellHover: "rgba(210, 214, 220, 0.8)",
+  mapCellText: "#14171c",
+};
+
+/**
+ * KENMEC 精品白: 精品黑的淺色版 (使用者多半習慣白色介面)。暖白的紙張底 + 墨黑字,
+ * 強調色是墨黑 (主要按鈕黑底白字); 品牌紅一樣只用在細線與所在頁指示, 見 styles/luxe.css。
+ */
+const kenmecLight: PaletteColors = {
+  bg: "#ffffff",
+  bgSubtle: "#f6f5f3",
+  bgMuted: "#eeece9",
+  bgSelected: "#e5e2de",
+
+  border: "#e6e3df",
+  borderStrong: "#cdc8c1",
+
+  text: "#16181b",
+  textSecondary: "#55595f",
+  textMuted: "#8d9096",
+
+  accent: "#16181b",
+  accentHover: "#33363b",
+  onAccent: "#ffffff",
+
+  success: "#2e9d62",
+  successSoft: "#eaf6ef",
+  warning: "#c98a1a",
+  warningSoft: "#fbf3e3",
+
+  danger: "#c8341f",
+  dangerSoft: "#fbecea",
+
+  headerBg: "#ffffff",
+  headerText: "#6b6f75",
+  headerBorder: "#e6e3df",
+  headerAccent: "#16181b",
+  headerAccentSoft: "rgba(22, 24, 27, 0.05)",
+
+  mapRoad: "#4a6a8f",
+  mapRoadPriority: "#d07a2a",
+  mapRoadArrow: "#e6b27a",
+  mapPoint: "#16181b",
+  mapPointRotate: "#b0885a",
+  mapDevice: "#9a9ea4",
+  mapDeviceBorder: "#6c7076",
+  mapCell: "rgba(246, 245, 243, 0.6)",
+  mapCellHover: "rgba(229, 226, 222, 0.85)",
+  mapCellText: "#16181b",
 };
 
 /** 櫻花:帶粉的白底 + 玫瑰紅強調色,淺色主題裡最柔的一套。 */
@@ -776,6 +872,20 @@ const contrast: PaletteColors = {
 // ── 底圖跟著主題時,深色主題畫在(變深的)底圖上的地圖色 ──
 // 底圖深了,所以這裡可以直接用主題那些亮的強調色;點位、外框、字都要是淺色。
 
+// 精品黑: 底圖是深底淺牆, 路線用鋼藍色, 點位是白金色
+const kenmecOnDarkMap: MapColors = {
+  mapRoad: "#7f8fa6",
+  mapRoadPriority: "#e2a93f",
+  mapRoadArrow: "#f0c98a",
+  mapPoint: "#e9ecf0",
+  mapPointRotate: "#d6b87a",
+  mapDevice: "#59616d",
+  mapDeviceBorder: "#9aa3b0",
+  mapCell: "rgba(233, 236, 240, 0.06)",
+  mapCellHover: "rgba(233, 236, 240, 0.16)",
+  mapCellText: "#eceef1",
+};
+
 const midnightOnDarkMap: MapColors = {
   mapRoad: "#5b8cf0",
   mapRoadPriority: "#f0a04b",
@@ -878,6 +988,13 @@ export const themes: Theme[] = [
     mapCanvas: { paper: "#ffffff", ink: "#000000" },
   },
   {
+    id: "kenmec-light",
+    labelKey: "appearance.themes.kenmec-light",
+    mode: "light",
+    colors: kenmecLight,
+    mapCanvas: { paper: "#fbfaf8", ink: "#2a2d31" },
+  },
+  {
     id: "indigo",
     labelKey: "appearance.themes.indigo",
     mode: "light",
@@ -918,6 +1035,13 @@ export const themes: Theme[] = [
     mode: "light",
     colors: lavender,
     mapCanvas: { paper: lavender.bgSubtle, ink: lavender.text },
+  },
+  {
+    id: "kenmec",
+    labelKey: "appearance.themes.kenmec",
+    mode: "dark",
+    colors: kenmec,
+    mapCanvas: { paper: "#0c0e11", ink: "#8c939d", colors: kenmecOnDarkMap },
   },
   {
     id: "midnight",

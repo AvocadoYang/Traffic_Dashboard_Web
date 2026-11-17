@@ -68,6 +68,12 @@ export const applyTheme = (theme: Theme, mapImage: MapImageMode): void => {
     );
   });
 
+  // 強調色 (藍) 當色塊底、上面放 --c-bg 字, 或當文字用時的加深版
+  root.style.setProperty(
+    "--c-header-accent-text",
+    ensureTextContrast(colors.headerAccent, [colors.bg, colors.bgSubtle]),
+  );
+
   // 淡色文字 (標籤、單位、時間、提示) 在淺色主題只有 3:1 左右, 弱螢幕上看不清楚。
   // 加深 / 調亮到對卡片底與淡底 4.5:1, 還是比次要文字淡一點。
   root.style.setProperty(

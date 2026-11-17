@@ -6,7 +6,7 @@
   top: 3px;
   box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.3);
   background-color: #ffffff00;
-  border-radius: 8px;
+  border-radius: 0;
   z-index: 999;
   display: flex;
   flex-direction: column;
@@ -36,7 +36,7 @@
 }
 
 .drop-icon {
-  font-size: 10px;
+  font-size: var(--font-xs);
   padding-left: 5px;
   cursor: pointer;
 }
@@ -85,7 +85,7 @@
 .row2-dis,
 .row2-icon {
   width: 32.33%;
-  font-size: 11px;
+  font-size: var(--font-sm);
   margin: 5px;
 }
 
@@ -121,13 +121,13 @@
 
 /* ===== row3 start  =====*/
 .row3-tittle {
-  font-size: 11.5px;
+  font-size: var(--font-sm);
   width: 100%;
   background-color: rgb(197, 212, 236);
   display: flex;
   align-items: center;
   padding: 2px 0 0 4px;
-  font-weight: 300;
+  font-weight: 600;
 }
 
 .row3-content {
@@ -176,7 +176,7 @@
 
 /* ===== row4 start  =====*/
 .row4-tittle {
-  font-size: 11px;
+  font-size: var(--font-sm);
   width: 100%;
   background-color: rgb(197, 212, 236);
   display: flex;

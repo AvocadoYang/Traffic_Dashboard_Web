@@ -67,7 +67,7 @@ const SquareBody = styled.div.attrs<{
 `;
 
 /*
- * 堆高機本體 (俯視): 倒角的車身 + 桅桿橫條 + 兩根尖頭叉臂 + 指向叉臂方向的箭頭。
+ * 堆高機本體 (俯視): 倒角的車身 + 桅桿橫條 + 兩根尖頭叉臂 + 指向前進方向 (車身那一端) 的箭頭。
  * 外層這顆 div 只負責旋轉 (旋轉中心放在叉臂根部)、點擊、跟車身一樣大的定位框,
  * 讓載貨方塊與暫停圖示照舊貼在車身上; 形狀都在 SVG 裡。純向量, 沒有濾鏡。
  */
@@ -131,20 +131,22 @@ const ForkliftShape: FC<{ color: string }> = ({ color }) => (
     <polygon
       fill="#fff"
       fillOpacity={0.85}
-      points="7.5,13.5 4.3,9.5 6,9.5 7.5,11.6 9,9.5 10.7,9.5"
+      points="7.5,9.5 4.3,13.5 6,13.5 7.5,11.4 9,13.5 10.7,13.5"
     />
   </svg>
 );
 
 const Cargo = styled.div`
-  width: 15px;
-  height: 10px;
+  /* 載在叉臂上的貨: 22x16, 比車身 (15) 寬一點, 蓋住叉臂並超出一點 */
+  width: 22px;
+  height: 16px;
+  box-sizing: border-box;
   background: #ff7875;
   border: 1px solid white;
   position: absolute;
-  bottom: -15px;
+  bottom: -18px;
   opacity: 80%;
-  left: -1px;
+  left: -3.5px;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
 
   /* &::before,
