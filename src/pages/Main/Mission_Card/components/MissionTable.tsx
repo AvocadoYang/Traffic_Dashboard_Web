@@ -368,7 +368,7 @@ const MissionTable = () => {
 
         const tooltipContent = (
           <div
-            style={{ maxWidth: 260, fontFamily: "Roboto Mono", fontSize: 11 }}
+            style={{ maxWidth: 260, fontFamily: "Roboto Mono", fontSize: "var(--font-xs)" }}
           >
             {info.map((entry, idx) => (
               <div key={idx} style={{ marginBottom: 4 }}>
@@ -627,8 +627,8 @@ const MissionTable = () => {
           <div
             style={{
               marginBottom: 8,
-              fontSize: 10,
-              color: "var(--c-text-muted)",
+              fontSize: "var(--font-xs)",
+              color: "var(--c-text-secondary)",
               fontFamily: "Roboto Mono",
             }}
           >

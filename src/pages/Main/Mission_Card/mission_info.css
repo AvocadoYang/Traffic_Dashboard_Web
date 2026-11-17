@@ -67,14 +67,14 @@
   color: white;
   font-weight: bold;
   text-align: left;
-  font-size: 10px;
+  font-size: var(--font-xs);
   white-space: nowrap;
   justify-content: left;
 }
 
 @media screen and (max-width: 1200px) {
   .row1-status {
-    font-size: 7px;
+    font-size: var(--font-xs);
   }
 }
 
@@ -102,8 +102,8 @@
 }
 
 .row2-describe {
-  font-size: 7.5px;
-  color: rgb(102, 99, 99);
+  font-size: var(--font-xs);
+  color: var(--c-text-secondary);
   white-space: nowrap;
   margin-top: 1px;
 }

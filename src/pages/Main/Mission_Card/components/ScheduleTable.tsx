@@ -356,7 +356,7 @@ const ScheduleTable: FC<{}> = () => {
             <span
               style={{
                 fontFamily: "Roboto Mono",
-                fontSize: 11,
+                fontSize: "var(--font-xs)",
                 fontWeight: 600,
                 color: scheduleStatus.status === "1" ? "var(--c-success)" : "var(--c-danger)",
               }}
