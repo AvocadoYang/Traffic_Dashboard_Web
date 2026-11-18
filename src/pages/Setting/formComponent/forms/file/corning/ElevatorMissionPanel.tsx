@@ -11,7 +11,7 @@ import styled from "styled-components";
 
 const FieldLabel = styled.span`
   color: #595959;
-  font-size: 11px;
+  font-size: var(--font-sm);
   text-transform: uppercase;
   letter-spacing: 1px;
   font-family: "Roboto Mono", monospace;
@@ -23,7 +23,7 @@ const IndustrialButton = styled(Button)`
   color: #595959;
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--font-sm);
   letter-spacing: 1px;
   height: 36px;
   font-weight: 600;

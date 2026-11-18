@@ -96,7 +96,7 @@ const FolderCount = styled.span<{ $isSelected: boolean }>`
   border: 1px solid
     ${({ $isSelected }) => ($isSelected ? "#389e0d" : "#1890ff")};
   color: ${({ $isSelected }) => ($isSelected ? "#ffffff" : "#1890ff")};
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-weight: 700;
   font-family: "Roboto Mono", monospace;
   margin-left: 8px;

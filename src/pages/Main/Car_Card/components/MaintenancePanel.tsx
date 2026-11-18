@@ -56,7 +56,7 @@ const RestoreButton = styled.button`
   min-height: 40px;
   padding: 6px 12px;
   border: 1px solid var(--c-header-accent);
-  border-radius: 4px;
+  border-radius: 0;
   background: var(--c-header-accent-soft);
   color: var(--c-header-accent);
   font-family: "Roboto Mono", monospace;
@@ -89,7 +89,7 @@ const IndustrialDropdown = styled.div<{ $tone?: AlertTone }>`
   justify-content: space-between;
   background: var(--c-bg);
   border: 1px solid var(--c-border-strong);
-  border-radius: 4px;
+  border-radius: 0;
   color: var(--c-text);
   font-family: "Roboto Mono", monospace;
   font-size: 12px;
@@ -112,7 +112,7 @@ const IndustrialDropdown = styled.div<{ $tone?: AlertTone }>`
   }
 
   .arrow {
-    font-size: 10px;
+    font-size: var(--font-xs);
     transition: transform 0.2s;
   }
 
@@ -132,7 +132,7 @@ const StyledDropdownMenu = styled.div`
   .ant-dropdown-menu {
     background: var(--c-bg);
     border: 1px solid var(--c-border-strong);
-    border-radius: 4px;
+    border-radius: 0;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     padding: 0;
     overflow: hidden;
@@ -281,8 +281,10 @@ const AlertBar = styled.div<{ $tone: AlertTone }>`
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
-  border-bottom: 1px solid var(--c-${({ $tone }) => $tone});
+  margin: 6px 12px 0 14px;
+  padding: 6px 8px;
+  border: 1px solid var(--c-${({ $tone }) => $tone});
+  border-radius: 0;
   background: var(--c-${({ $tone }) => $tone}-soft);
   font-size: 12px;
   line-height: 1.5;
@@ -306,12 +308,12 @@ const AlertAction = styled.button`
   all: unset;
   box-sizing: border-box;
   flex-shrink: 0;
-  padding: 1px 6px;
+  padding: 2px 8px;
   border: 1px solid var(--c-border-strong);
-  border-radius: 2px;
+  border-radius: 0;
   background: var(--c-bg);
   color: var(--c-text);
-  font-size: 11px;
+  font-size: var(--font-sm);
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;

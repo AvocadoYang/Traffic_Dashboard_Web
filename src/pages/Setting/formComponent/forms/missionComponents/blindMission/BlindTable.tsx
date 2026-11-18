@@ -58,7 +58,7 @@ const IndustrialButton = styled.button`
   border: 1px solid #d9d9d9;
   color: #1890ff;
   font-family: "Roboto Mono", monospace;
-  font-size: 11px;
+  font-size: var(--font-sm);
   letter-spacing: 1px;
   height: 32px;
   padding: 0 12px;
@@ -75,7 +75,7 @@ const IndustrialButtondELETE = styled.button`
   border: 1px solid #d9d9d9;
   color: #ff1837;
   font-family: "Roboto Mono", monospace;
-  font-size: 11px;
+  font-size: var(--font-sm);
   letter-spacing: 1px;
   height: 32px;
   padding: 0 12px;
@@ -96,7 +96,7 @@ const IndustrialTable = styled(Table)`
   .ant-table-thead > tr > th {
     background: #fafafa;
     color: #8c8c8c;
-    font-size: 11px;
+    font-size: var(--font-sm);
     text-transform: uppercase;
     border-bottom: 1px solid #d9d9d9;
   }

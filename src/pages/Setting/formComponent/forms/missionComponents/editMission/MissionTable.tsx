@@ -37,7 +37,7 @@ const IndustrialTableContainer = styled.div`
     color: #262626;
     font-weight: 600;
 
-    font-size: 11px;
+    font-size: var(--font-sm);
     letter-spacing: 1px;
     border-bottom: 2px solid #d9d9d9;
     font-family: "Roboto Mono", monospace;
@@ -83,7 +83,7 @@ const RobotType = styled.p`
   border: 1px solid #1890ff;
   border-radius: 4px;
   color: #1890ff;
-  font-size: 11px;
+  font-size: var(--font-sm);
   font-weight: 600;
   display: inline-block;
 
@@ -98,7 +98,7 @@ const TagWrapper = styled.div`
 
 const IndustrialTag = styled(Tag)`
   font-family: "Roboto Mono", monospace;
-  font-size: 10px;
+  font-size: var(--font-xs);
 
   letter-spacing: 0.5px;
   padding: 2px 8px;
@@ -115,7 +115,7 @@ const ActionButtonGroup = styled.div`
 const IndustrialButton = styled(Button)`
   font-family: "Roboto Mono", monospace;
 
-  font-size: 10px;
+  font-size: var(--font-xs);
   letter-spacing: 0.5px;
   height: 32px;
   padding: 0 16px;

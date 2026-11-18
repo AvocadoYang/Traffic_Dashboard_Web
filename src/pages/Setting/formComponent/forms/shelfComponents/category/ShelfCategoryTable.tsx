@@ -22,7 +22,7 @@ const IndustrialButton = styled(Button)`
   color: #1890ff;
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--font-sm);
   letter-spacing: 1px;
   height: 36px;
 
@@ -68,7 +68,7 @@ const IndustrialAlert = styled(Alert)`
 
   .ant-alert-message {
     color: #ff4d4f;
-    font-size: 11px;
+    font-size: var(--font-sm);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 600;
@@ -89,7 +89,7 @@ const StyledTable = styled(Table)`
     border-bottom: 2px solid #1890ff;
     color: #262626;
     font-weight: 600;
-    font-size: 11px;
+    font-size: var(--font-sm);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-family: "Roboto Mono", monospace;

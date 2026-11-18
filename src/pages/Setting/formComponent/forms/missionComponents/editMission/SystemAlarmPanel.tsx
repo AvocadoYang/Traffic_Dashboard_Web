@@ -54,7 +54,7 @@ const SectionLabel = styled.div`
 
 const SectionHint = styled.div`
   color: #8c8c8c;
-  font-size: 11px;
+  font-size: var(--font-sm);
   margin-top: 4px;
 `;
 
@@ -78,7 +78,7 @@ const TypeSwitchItem = styled.label<{ $accent: string }>`
   border-left: 3px solid ${(props) => props.$accent};
   border-radius: 4px;
   background: #fafafa;
-  font-size: 11px;
+  font-size: var(--font-sm);
   text-transform: uppercase;
   letter-spacing: 1px;
   cursor: pointer;

@@ -192,7 +192,7 @@ const ControlIndex = styled.span`
   background: #e6f7ff;
   border: 1px solid #1890ff;
   color: #1890ff;
-  font-size: 11px;
+  font-size: var(--font-sm);
   font-weight: 700;
   font-family: "Roboto Mono", monospace;
   box-shadow: 0 1px 4px rgba(24, 144, 255, 0.15);
@@ -204,7 +204,7 @@ const IndustrialButton = styled(Button)`
   color: #1890ff;
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--font-sm);
   letter-spacing: 1px;
   height: 36px;
 
@@ -291,7 +291,7 @@ const MetricDisplay = styled.div`
   .label {
     color: #8c8c8c;
     text-transform: uppercase;
-    font-size: 10px;
+    font-size: var(--font-xs);
   }
 
   .value {
@@ -325,7 +325,7 @@ const ActionButtonGroup = styled.div`
 
 const FieldLabel = styled.span`
   color: #595959;
-  font-size: 11px;
+  font-size: var(--font-sm);
   text-transform: uppercase;
   letter-spacing: 1px;
   font-family: "Roboto Mono", monospace;
@@ -349,7 +349,7 @@ const SegmentedOption = styled.button<{ isActive: boolean }>`
   border-right: 1px solid #d9d9d9;
   color: ${({ isActive }) => (isActive ? "#1890ff" : "#8c8c8c")};
   font-family: "Roboto Mono", monospace;
-  font-size: 11px;
+  font-size: var(--font-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -868,7 +868,7 @@ const TaskFormFork: FC<{
                 <div
                   style={{
                     color: "#666",
-                    fontSize: 10,
+                    fontSize: "var(--font-xs)",
                     textTransform: "uppercase",
                     marginBottom: 8,
                     letterSpacing: 1,

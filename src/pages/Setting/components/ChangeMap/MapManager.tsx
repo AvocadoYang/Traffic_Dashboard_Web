@@ -197,7 +197,7 @@ const StyledDragger = styled(Dragger)`
 
   .ant-upload-hint {
     font-family: "Roboto Mono", monospace;
-    font-size: 10px;
+    font-size: var(--font-xs);
     color: #8c8c8c;
   }
 `;
@@ -205,7 +205,7 @@ const StyledDragger = styled(Dragger)`
 const StyledForm = styled(Form)`
   .ant-form-item-label > label {
     color: #595959;
-    font-size: 11px;
+    font-size: var(--font-sm);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-family: "Roboto Mono", monospace;
@@ -259,7 +259,7 @@ const StatusBadge = styled.div<{ $active: boolean }>`
   border: 1px solid ${({ $active }) => ($active ? "#52c41a" : "#ff4d4f")};
   color: ${({ $active }) => ($active ? "#52c41a" : "#ff4d4f")};
   font-family: "Roboto Mono", monospace;
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -364,7 +364,7 @@ const ActiveGroupBadge = styled.span`
   background: #fff0f6;
   border: 1px solid #eb2f96;
   color: #eb2f96;
-  font-size: 9px;
+  font-size: var(--font-xs);
   font-weight: 700;
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
@@ -382,7 +382,7 @@ const FolderCount = styled.span<{ $isSelected: boolean }>`
   border: 1px solid
     ${({ $isSelected }) => ($isSelected ? "#389e0d" : "#1890ff")};
   color: ${({ $isSelected }) => ($isSelected ? "#ffffff" : "#1890ff")};
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-weight: 700;
   font-family: "Roboto Mono", monospace;
   margin-left: 8px;

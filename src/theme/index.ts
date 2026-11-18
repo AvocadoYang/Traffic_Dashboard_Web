@@ -37,4 +37,12 @@ export {
   ThemedConfigProvider,
   ThemedAppConfigProvider,
 } from "./ThemeProvider";
-export { fontScaleAtom, FONT_SCALE_STEPS, scaledPx } from "./fontScale";
+export {
+  fontScaleAtom,
+  effectiveFontScaleAtom,
+  autoZoomFontAtom,
+  zoomCompAtom,
+  pixelRatioAtom,
+  FONT_SCALE_STEPS,
+  scaledPx,
+} from "./fontScale";

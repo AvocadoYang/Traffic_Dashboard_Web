@@ -7,12 +7,13 @@ import { useAmrPose, useIsLogIn } from "@/sockets/useAMRInfo";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
 import styled from "styled-components";
 import { useAtom, useAtomValue } from "jotai";
-import { amrId2ColorRainbow } from "@/utils/utils";
-import { AmrFilterCarCard, hintAmr, showZoneForbidden } from "@/utils/gloable";
+import { amrId2ColorRainbow, amrShortNum, textOnColor } from "@/utils/utils";
+import { AmrFilterCarCard, hintAmr, Scale, showZoneForbidden } from "@/utils/gloable";
 import { useWarningId } from "@/sockets/useWarning";
 import ForkLiftIcon from "./amrs/ForkliftIcon";
 import { useAmrBBox } from "@/sockets/useBBox";
 import BBox from "./amrs/BBox";
+import useAmrMissionTip from "@/hooks/useAmrMissionTip";
 import { useMiRStatus } from "@/sockets/useMirStatus";
 import { currentMapIdAtom } from "@/utils/mapSelection";
 
@@ -86,6 +87,48 @@ const ErrorTip = styled.div.attrs<{
   font-weight: bold;
 `;
 
+// 地圖上每台車頭上的車號牌: 跟卡片上同一塊 (同色、同字), 從地圖一眼對到是哪一台。
+// 地圖是整層 CSS scale, 牌子要反向縮放才不會跟著地圖放大縮小; 提示框 (Tip) 出現時就不畫, 免得疊在一起。
+const MapPlate = styled.div.attrs<{
+  left: number;
+  top: number;
+  $zoom: number;
+  $bg: string;
+}>(({ left, top, $zoom, $bg }) => ({
+  style: {
+    left,
+    top: top - 24,
+    transform: `translate(-50%, -100%) scale(${1 / $zoom})`,
+    transformOrigin: "50% 100%",
+    background: $bg,
+    color: textOnColor($bg),
+    transition: "x 1s, y 1s",
+  },
+}))<{
+  left: number;
+  top: number;
+  $zoom: number;
+  $bg: string;
+}>`
+  position: absolute;
+  z-index: 199999;
+  padding: 1px 6px;
+  font-family: var(--font-num);
+  font-size: 12px;
+  font-weight: 700;
+  font-stretch: 112%;
+  line-height: 1.3;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85);
+`;
+
+const TipDetail = styled.span`
+  font-weight: normal;
+  opacity: 0.85;
+`;
+
 const AMR: FC<{
   amrId: string;
 }> = ({ amrId }) => {
@@ -94,6 +137,7 @@ const AMR: FC<{
   const hintAmrId = useAtomValue(hintAmr);
   const hintAmrId2 = useAtomValue(AmrFilterCarCard);
   const zoneForbidden = useAtomValue(showZoneForbidden);
+  const mapScale = useAtomValue(Scale);
   const errorMessage = useWarningId()?.get(amrId);
   const MiR_Status_IO = useMiRStatus(amrId);
   const [mapId, setMapId] = useAtom(currentMapIdAtom);
@@ -102,12 +146,17 @@ const AMR: FC<{
     return zoneForbidden.has(amrId);
   }, [zoneForbidden]);
 
-  // 任務 / 目的地改放在車輛卡片, 車頭上只在選取 / hover / 禁行時顯示車號
+  const { tipText, destinationText } = useAmrMissionTip(amrId);
+
   const showTooltip = useMemo(() => {
     return (
-      hintAmrId2.has(amrId) || hintAmrId === amrId || zoneForbidden.has(amrId)
+      hintAmrId2.has(amrId) ||
+      hintAmrId === amrId ||
+      zoneForbidden.has(amrId) ||
+      !!tipText ||
+      !!destinationText
     );
-  }, [hintAmrId2, hintAmrId, zoneForbidden]);
+  }, [hintAmrId2, hintAmrId, zoneForbidden, tipText, destinationText]);
 
   const { pose } = useAmrPose(amrId);
   const bbox = useAmrBBox(amrId);
@@ -135,11 +184,21 @@ const AMR: FC<{
       {showTooltip ? (
         <Tip left={left} top={top}>
           <p>{`${isForbidden ? "🚫 " : ""}${amrId}`}</p>
+          {tipText ? <TipDetail>{tipText}</TipDetail> : null}
+          {destinationText ? (
+            <TipDetail>{`→ ${destinationText}`}</TipDetail>
+          ) : null}
           {/* <ArrowDownOutlined className="hint-icon" /> */}
         </Tip>
       ) : (
         []
       )}
+
+      {!showTooltip && mapScale > 0 ? (
+        <MapPlate left={left} top={top} $zoom={mapScale} $bg={color}>
+          {amrShortNum(amrId)}
+        </MapPlate>
+      ) : null}
 
       <ForkLiftIcon
         amrId={amrId}

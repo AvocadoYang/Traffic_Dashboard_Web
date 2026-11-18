@@ -17,7 +17,8 @@ import {
 import useName from "@/api/useAmrName";
 import { DefaultOptionType } from "antd/es/select";
 import { themeAtom } from "@/theme";
-import styled from "styled-components"; // Added styled-components
+import styled from "styled-components";
+import { PanelEyebrow, PanelIconColor, PanelTitle, PanelTitleBar } from "@/styles/panelTitle"; // Added styled-components
 import { mq } from "@/styles/responsive";
 import { useTranslation } from "react-i18next";
 import {
@@ -26,38 +27,15 @@ import {
   type CarCardDensity,
 } from "./cardDensity";
 
-// --- Reusing the Styled Components from the Missions component ---
-const TitleBar = styled.div<{ $isDark: boolean }>`
-  background: var(--c-bg);
-  border: 1px solid var(--c-header-border);
-  border-left: 4px solid var(--c-header-accent);
-  padding: 16px 20px;
-  margin-bottom: 20px;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  width: 100%;
-  cursor: pointer; /* To indicate the whole bar is clickable */
-  @media (max-width: 1500px) {
-    display: none;
-  }
+// 標題 (車輛) 跟任務側欄共用同一套樣式, 見 styles/panelTitle.ts
+const TitleBar = styled(PanelTitleBar)<{ $isDark: boolean }>`
+  cursor: pointer; /* 整條都可以點, 展開車種篩選 */
 `;
 
-const Title = styled.span<{ $isDark: boolean }>`
-  font-family: "Roboto Mono", monospace;
-  font-size: 16px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--c-text);
-
-  @media (max-width: 1200px) {
-    font-size: 12px;
-  }
-`;
-// ----------------------------------------------------------------
+const Title = styled(PanelTitle)<{ $isDark: boolean }>``;
 
 const TitleIcon = styled.div`
-  color: var(--c-header-accent);
+  ${PanelIconColor}
 `;
 
 // 卡片排列方式的切換鈕。TitleBar 在 1500px 以下會整條收掉,
@@ -65,10 +43,12 @@ const TitleIcon = styled.div`
 const DensityBar = styled.div`
   display: flex;
   width: 100%;
-  margin-bottom: 12px;
-  border: 1px solid var(--c-header-border);
-  border-radius: 4px;
-  background: var(--c-bg);
+  margin-bottom: 14px;
+  padding: 2px;
+  gap: 2px;
+  border: 1px solid var(--c-border);
+  border-radius: 0;
+  background: transparent;
   overflow: hidden;
 
   /* 底部面板的卡片是橫向捲動的,切換鈕固定在左邊不跟著捲走 */
@@ -91,27 +71,20 @@ const DensityBtn = styled.button<{ $active: boolean }>`
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: 28px;
-  font-family: "Roboto Mono", monospace;
+  height: 26px;
+  border-radius: 0;
+  font-family: var(--font-ui);
   font-size: 12px;
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
-  color: ${({ $active }) =>
-    $active ? "var(--c-header-accent)" : "var(--c-text-secondary)"};
-  background: ${({ $active }) =>
-    $active ? "var(--c-header-accent-soft)" : "transparent"};
+  color: ${({ $active }) => ($active ? "var(--c-text)" : "var(--c-text-muted)")};
+  background: ${({ $active }) => ($active ? "var(--c-bg-muted)" : "transparent")};
   cursor: pointer;
   transition:
     background-color 0.15s ease,
     color 0.15s ease;
 
-  & + & {
-    border-left: 1px solid var(--c-header-border);
-  }
-
   &:hover {
-    color: var(--c-header-accent);
-    background: ${({ $active }) =>
-      $active ? "var(--c-header-accent-soft)" : "var(--c-bg-muted)"};
+    color: var(--c-text);
   }
 
   &:focus-visible {
@@ -234,6 +207,7 @@ const TittleTools: React.FC<{}> = () => {
           setIsDrop(!isDrop);
         }}
       >
+        <PanelEyebrow>Fleet</PanelEyebrow>
         <Flex justify="space-between" align="center">
           <Title $isDark={isDark}>{t("main.amrs")}</Title>
 
@@ -247,7 +221,7 @@ const TittleTools: React.FC<{}> = () => {
                 });
                 setIsDrop(false);
               }}
-              style={{ color: "var(--c-header-accent)" }}
+              style={{ color: "var(--c-text-muted)" }}
             />
           ) : (
             <TitleIcon>

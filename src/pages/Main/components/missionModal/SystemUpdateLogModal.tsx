@@ -131,7 +131,7 @@ const TypeBadge = styled.span<{ type: LogType }>`
     `
     background: var(--c-success-soft);
     border: 1px solid var(--c-success);
-    color: var(--c-success);
+    color: var(--c-success-text);
   `}
 
   ${({ type }) =>
@@ -147,7 +147,7 @@ const TypeBadge = styled.span<{ type: LogType }>`
     `
     background: var(--c-warning-soft);
     border: 1px solid var(--c-warning);
-    color: var(--c-warning);
+    color: var(--c-warning-text);
   `}
 `;
 
@@ -191,7 +191,7 @@ const StatusDot = styled.div`
 `;
 
 const StatusText = styled.span`
-  color: var(--c-success);
+  color: var(--c-success-text);
   font-size: 10px;
   letter-spacing: 1px;
   text-transform: uppercase;

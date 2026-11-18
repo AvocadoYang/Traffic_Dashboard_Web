@@ -76,7 +76,7 @@ const SectionLabel = styled.div`
   align-items: center;
   gap: 8px;
   font-family: "Roboto Mono", monospace;
-  font-size: 11px;
+  font-size: var(--font-sm);
   font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -116,7 +116,7 @@ const SyncTypeButton = styled.button<{ $active: boolean }>`
   gap: 6px;
   padding: 14px 8px;
   font-family: "Roboto Mono", monospace;
-  font-size: 11px;
+  font-size: var(--font-sm);
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -170,7 +170,7 @@ const SummaryRow = styled.div`
     color: #8c8c8c;
     text-transform: uppercase;
     letter-spacing: 1px;
-    font-size: 10px;
+    font-size: var(--font-xs);
   }
 `;
 

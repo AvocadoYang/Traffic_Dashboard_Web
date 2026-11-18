@@ -20,6 +20,7 @@ import styled, { css, keyframes } from "styled-components";
 import { useSetAtom } from "jotai";
 import { ignitionAtom, prefersReducedMotion } from "@/components/Ignition/ignitionState";
 import HeroOverlay from "./HeroOverlay";
+import BrandLogo from "@/components/BrandLogo";
 
 // 背景影片 (public/login-hero.webm): 用車型的 3D 模型在無頭瀏覽器裡逐格錄出來的, 約 27 秒循環 (開頭是暗的光影揭幕)
 const HERO_VIDEO = `${import.meta.env.BASE_URL}login-hero.webm`;
@@ -106,12 +107,11 @@ const LoginCard = styled.div<{ $leaving: boolean }>`
   backdrop-filter: blur(22px) saturate(140%);
   -webkit-backdrop-filter: blur(22px) saturate(140%);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  border-left: 3px solid var(--c-header-accent);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
   padding: 48px;
   width: 100%;
   max-width: 440px;
-  font-family: "Roboto Mono", monospace;
+  font-family: var(--font-ui);
   animation: ${cardIn} 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   ${(p) =>
     p.$leaving &&
@@ -120,11 +120,18 @@ const LoginCard = styled.div<{ $leaving: boolean }>`
       pointer-events: none;
     `}
 
+  /* 全站是 * { 等寬字 }, 每個元素各自套, 不會從卡片繼承; 登入卡片跟影片上的標題、首頁同一套介面字 */
+  & * {
+    font-family: inherit;
+  }
+
   /* 卡片固定是深色, 不跟主題: 文字、輸入框在這裡自己定 */
   --c-text-secondary: rgba(255, 255, 255, 0.72);
   --c-text-muted: rgba(255, 255, 255, 0.5);
   --c-header-border: rgba(255, 255, 255, 0.2);
   --c-bg: rgba(255, 255, 255, 0.06);
+  /* 卡片裡的強調色 (hover / 聚焦 / 連結) 是白, 不用亮藍; 品牌紅只用在細線與掃光 */
+  --c-header-accent: #ffffff;
   color: #fff;
 
   .ant-input,
@@ -149,59 +156,68 @@ const LoginCard = styled.div<{ $leaving: boolean }>`
   }
 `;
 
+// 標題區: 標誌 → 寬字距白色標題 → 系統名稱, 底下一條淡線, 正中間壓一小段品牌紅 (跟影片左邊標題上的紅線呼應)
 const LoginHeader = styled.div`
+  position: relative;
   margin-bottom: 40px;
-  border-bottom: 2px solid var(--c-header-accent);
-  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  padding-bottom: 20px;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -1px;
+    width: 56px;
+    height: 2px;
+    margin-left: -28px;
+    background: var(--c-brand);
+  }
+`;
+
+/* 標誌放在標題上方置中; 卡片是固定深色, 字標吃卡片的白色 */
+const LoginBrand = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+  color: #fff;
 `;
 
 const LoginTitle = styled.h1`
-  font-family: "Roboto Mono", monospace;
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--c-header-accent);
-  text-transform: uppercase;
-  letter-spacing: 3px;
+  font-family: var(--font-ui);
+  font-stretch: 125%;
+  font-size: 24px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em; /* 字距會在最後一個字後面多留一段, 補回來才會真的置中 */
   margin: 0;
   text-align: center;
-
-  &::before {
-    content: "[";
-    margin-right: 8px;
-    color: var(--c-warning);
-  }
-
-  &::after {
-    content: "]";
-    margin-left: 8px;
-    color: var(--c-warning);
-  }
 `;
 
 const SystemLabel = styled.div`
-  font-family: "Roboto Mono", monospace;
-  font-size: 11px;
+  font-family: var(--font-ui);
+  font-size: var(--font-sm);
   color: var(--c-text-secondary);
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 0.24em;
+  text-indent: 0.24em;
   text-align: center;
-  margin-top: 8px;
+  margin-top: 10px;
   font-weight: 600;
 `;
 
 const StyledForm = styled(Form)`
   .ant-form-item-label > label {
-    font-family: "Roboto Mono", monospace;
-    font-size: 11px;
+    font-size: var(--font-sm);
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.14em;
     color: var(--c-text-secondary);
     font-weight: 600;
   }
 
   .ant-input,
   .ant-input-password {
-    font-family: "Roboto Mono", monospace;
     border: 1px solid var(--c-header-border);
     border-radius: 0;
     height: 48px;
@@ -209,29 +225,29 @@ const StyledForm = styled(Form)`
     background: var(--c-bg);
 
     &:hover {
-      border-color: var(--c-header-accent);
+      border-color: rgba(255, 255, 255, 0.5);
     }
 
     &:focus {
       border-color: var(--c-header-accent);
-      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12);
     }
   }
 
   .ant-input-affix-wrapper {
-    font-family: "Roboto Mono", monospace;
+    font-size: 13px; /* 帳號欄 (affix 外框) 原本沒設, 比密碼欄的字大一號 */
     border: 1px solid var(--c-header-border);
     border-radius: 0;
     padding: 0 16px;
     background: var(--c-bg);
 
     &:hover {
-      border-color: var(--c-header-accent);
+      border-color: rgba(255, 255, 255, 0.5);
     }
 
     &.ant-input-affix-wrapper-focused {
       border-color: var(--c-header-accent);
-      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12);
     }
 
     .ant-input {
@@ -257,36 +273,38 @@ const StyledForm = styled(Form)`
 `;
 
 const IndustrialButton = styled(Button)`
-  background: var(--c-header-accent);
-  border: 1px solid var(--c-header-accent);
-  color: #ffffff;
-  font-family: "Roboto Mono", monospace;
-  text-transform: uppercase;
-  font-size: 13px;
-  letter-spacing: 2px;
-  height: 48px;
-  font-weight: 700;
-  border-radius: 0;
-  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+  && {
+    background: #ffffff;
+    border: 1px solid #ffffff;
+    color: #111111;
+    text-transform: uppercase;
+    font-size: var(--font-md);
+    letter-spacing: 0.3em;
+    height: 48px;
+    font-weight: 700;
+    border-radius: 0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  }
 
-  &:hover {
-    background: var(--c-header-accent);
-    border-color: var(--c-header-accent);
-    color: #ffffff;
-    box-shadow: 0 6px 16px rgba(24, 144, 255, 0.5);
+  &&:hover:not(:disabled) {
+    background: #ececec;
+    border-color: #ececec;
+    color: #111111;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
     transform: translateY(-2px);
   }
 
-  &:active {
-    background: #0c7cd5;
-    border-color: #0c7cd5;
+  &&:active:not(:disabled) {
+    background: #d6d6d6;
+    border-color: #d6d6d6;
     transform: translateY(0);
   }
 
-  &:disabled {
-    background: var(--c-header-border);
-    border-color: var(--c-header-border);
-    color: var(--c-text-muted);
+  &&:disabled {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.5);
+    box-shadow: none;
   }
 `;
 
@@ -311,7 +329,7 @@ const ButtonGlow = styled.div<{ $state: "idle" | "pending" | "go" }>`
       bottom: 0;
       left: 0;
       width: 30%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+      background: linear-gradient(90deg, transparent, rgba(226, 35, 26, 0.38), transparent);
       transform: translateX(-120%) skewX(-20deg);
     }
   }
@@ -329,10 +347,9 @@ const ButtonGlow = styled.div<{ $state: "idle" | "pending" | "go" }>`
         animation: ${sheen} 0.55s ease-out both;
       }
       .ant-btn {
-        filter: brightness(1.25);
         box-shadow:
-          0 0 0 1px rgba(255, 255, 255, 0.35),
-          0 0 36px 6px color-mix(in srgb, var(--c-header-accent) 65%, transparent);
+          0 0 0 1px rgba(255, 255, 255, 0.5),
+          0 0 36px 6px rgba(226, 35, 26, 0.55);
         transition:
           filter 0.2s,
           box-shadow 0.2s;
@@ -345,11 +362,10 @@ const ForgotLink = styled.div`
   margin-bottom: 24px;
 
   a {
-    font-family: "Roboto Mono", monospace;
-    font-size: 11px;
+    font-size: var(--font-sm);
     color: var(--c-text-secondary);
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.14em;
     text-decoration: none;
     transition: all 0.2s;
 
@@ -390,11 +406,10 @@ const StatusDot = styled.div<{ $active?: boolean }>`
 `;
 
 const StatusText = styled.span`
-  font-family: "Roboto Mono", monospace;
-  font-size: 10px;
+  font-size: var(--font-xs);
   color: var(--c-text-muted);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.14em;
 `;
 
 const Login: React.FC = () => {
@@ -466,6 +481,9 @@ const Login: React.FC = () => {
         <HeroOverlay video={heroVideo} hidden={leaving} />
         <LoginCard $leaving={leaving}>
           <LoginHeader>
+            <LoginBrand>
+              <BrandLogo height={34} />
+            </LoginBrand>
             <LoginTitle>{t("login.title")}</LoginTitle>
             <SystemLabel>{t("login.system_label")}</SystemLabel>
           </LoginHeader>
@@ -556,7 +574,7 @@ const Login: React.FC = () => {
               <StatusDot $active />
               <StatusText>{t("login.system_online")}</StatusText>
             </Space>
-            <StatusText>v2.0.1</StatusText>
+            <StatusText>v5.0.1</StatusText>
           </StatusBar>
         </LoginCard>
       </BackgroundContainer>

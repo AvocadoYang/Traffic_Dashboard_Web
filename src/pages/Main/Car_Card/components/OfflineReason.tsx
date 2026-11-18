@@ -11,12 +11,12 @@ const Box = styled.div<{ $level: "error" | "warn" }>`
   line-height: 1.5;
   color: var(--c-text-secondary);
   background: ${({ $level }) => ($level === "error" ? "var(--c-danger-soft)" : "var(--c-warning-soft)")};
-  border: 1px solid ${({ $level }) => ($level === "error" ? "var(--c-danger)" : "var(--c-warning)")};
+  border: 1px solid ${({ $level }) => ($level === "error" ? "var(--c-danger)" : "var(--c-warning-text)")};
 `;
 
 const Title = styled.div<{ $level: "error" | "warn" }>`
   font-weight: 600;
-  color: ${({ $level }) => ($level === "error" ? "var(--c-danger)" : "var(--c-warning)")};
+  color: ${({ $level }) => ($level === "error" ? "var(--c-danger)" : "var(--c-warning-text)")};
 `;
 
 const Hint = styled.div`
@@ -25,14 +25,16 @@ const Hint = styled.div`
 
 const Meta = styled.div`
   margin-top: 2px;
-  color: var(--c-text-muted);
+  font-weight: 600;
+  color: var(--c-text-secondary);
 `;
 
 const Details = styled.details`
   margin-top: 4px;
   summary {
     cursor: pointer;
-    color: var(--c-text-muted);
+    font-weight: 600;
+    color: var(--c-text-secondary);
   }
   ul {
     margin: 2px 0 0;

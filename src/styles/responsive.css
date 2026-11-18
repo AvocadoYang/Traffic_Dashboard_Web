@@ -31,8 +31,8 @@ body,
   --tool-sheet-menu-max-height: 40dvh;
 
   /* 字級 */
-  --font-xs: calc(10px * var(--font-scale, 1));
-  --font-sm: calc(11px * var(--font-scale, 1));
+  --font-xs: calc(11px * var(--font-scale, 1));
+  --font-sm: calc(12px * var(--font-scale, 1));
   --font-md: calc(13px * var(--font-scale, 1));
   --font-lg: calc(15px * var(--font-scale, 1));
 
@@ -60,7 +60,7 @@ body,
     --drawer-width: 300px;
     --tool-sheet-icon-size: 26px;
 
-    --font-xs: calc(10px * var(--font-scale, 1));
+    --font-xs: calc(11px * var(--font-scale, 1));
     --font-sm: calc(12px * var(--font-scale, 1));
     --font-md: calc(14px * var(--font-scale, 1));
     --font-lg: calc(16px * var(--font-scale, 1));
