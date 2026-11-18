@@ -17,7 +17,8 @@ import {
 } from "antd";
 import { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import styled from "styled-components";
+import styled, { css, keyframes } from "styled-components";
+import { amrId2ColorRainbow } from "@/utils/utils";
 import { translate } from "@/i18n";
 import { darkMode } from "@/utils/gloable";
 import { useAtomValue } from "jotai";
@@ -50,222 +51,241 @@ const MISSION_SORT = [
   "canceled",
 ];
 
-// Industrial Styled Components
+// 表格: 不畫直線格線, 細邊框 + 圓角; 表頭用小字, 不再全大寫等寬字
 const IndustrialTableContainer = styled.div<{ $isDark: boolean }>`
   .ant-table {
-    background: var(--c-bg);
-    border: 1px solid var(--c-header-border);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    background-color: var(--c-bg);
+    background-image: var(--panel-sheen);
+    border: 1px solid var(--c-border);
+    border-radius: 0;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   }
 
   .ant-table-thead > tr > th {
-    background: var(--c-bg-subtle);
-    color: var(--c-text);
+    background: transparent;
+    color: var(--c-text-muted);
     font-weight: 600;
-    text-transform: uppercase;
-    font-size: 11px;
-    letter-spacing: 1px;
-    border-bottom: 2px solid
-      var(--c-header-border);
-    font-family: "Roboto Mono", monospace;
-  }
+    font-size: var(--font-sm); /* 表頭有中文, 不要再小 */
+    letter-spacing: 0.12em;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--c-border);
+    white-space: nowrap;
 
-  .ant-table-tbody > tr {
-    background: var(--c-bg);
-    transition: all 0.2s ease;
-    font-family: "Roboto Mono", monospace;
-
-    &:hover {
-      background: var(--c-header-accent-soft) !important;
-      box-shadow: 0 2px 4px rgba(24, 144, 255, 0.1);
+    &::before {
+      display: none; /* 表頭欄位之間的分隔線 */
     }
   }
 
+  .ant-table-tbody > tr {
+    background: transparent;
+    transition: background-color 0.15s ease;
+  }
+
   .ant-table-tbody > tr > td {
-    border-bottom: 1px solid
-      var(--c-bg-muted);
-    font-size: 12px;
-    color: var(--c-text-secondary);
+    padding: 10px;
+    border-bottom: 1px solid var(--c-border);
+    font-size: 12.5px;
+    color: var(--c-text);
+    vertical-align: middle;
+  }
+
+  .ant-table-tbody > tr:last-child > td {
+    border-bottom: 0;
   }
 
   .ant-pagination {
-    font-family: "Roboto Mono", monospace;
+    font-variant-numeric: tabular-nums;
   }
 `;
 
+// 任務內容: 任務名稱 + 下一行灰字的子任務名, 不再包一個框
 const TaskInfo = styled.div<{ $isDark: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 8px 12px;
-  background: var(--c-bg-subtle);
-  border: 1px solid var(--c-header-border);
-  border-radius: 4px;
-  transition: all 0.2s ease;
+  gap: 2px;
+  min-width: 0;
 `;
 
 const TaskTitle = styled.div<{ $isDark: boolean }>`
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
+  line-height: 1.4;
   color: var(--c-text);
-  margin-bottom: 4px;
-  font-family: "Roboto Mono", monospace;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 `;
 
 const SubTitle = styled.div<{ $isDark: boolean }>`
-  font-size: 11px;
+  font-size: var(--font-sm);
+  line-height: 1.4;
   color: var(--c-text-muted);
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-family: "Roboto Mono", monospace;
+  gap: 4px;
 
   &::before {
     content: "→";
     color: var(--c-header-accent);
-    font-weight: bold;
   }
 `;
 
 const ButtonWrapper = styled.div`
   width: 100%;
-  padding: 0 0 16px 0;
+  padding: 0 0 12px 0;
 `;
 
 const IndustrialButton = styled(Button)`
-  font-family: "Roboto Mono", monospace;
-  text-transform: uppercase;
-  font-size: 10px;
-  letter-spacing: 0.5px;
-  height: 36px;
-  padding: 0 20px;
+  font-size: 12px;
+  height: 30px;
+  padding: 0 12px;
   font-weight: 600;
-  border-radius: 4px;
-  transition: all 0.2s ease;
+  letter-spacing: 0.04em;
+  border-radius: 0;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
 
   &.delete-btn {
-    background: var(--c-danger-soft);
-    border: 1px solid var(--c-danger);
+    background: transparent;
+    border: 1px solid var(--c-border);
     color: var(--c-danger);
 
     &:hover:not(:disabled) {
       background: var(--c-danger);
-      border-color: var(--c-danger);
       color: #ffffff;
-      box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3);
     }
 
     &:disabled {
-      background: var(--c-bg-subtle);
-      border-color: var(--c-header-border);
+      background: transparent;
+      border-color: var(--c-border);
       color: var(--c-text-muted);
     }
   }
 
   &.history-btn {
-    background: var(--c-header-accent-soft);
-    border: 1px solid var(--c-header-accent);
-    color: var(--c-header-accent);
+    background: transparent;
+    border: 1px solid var(--c-border);
+    color: var(--c-text-secondary);
 
     &:hover {
-      background: var(--c-header-accent);
-      border-color: var(--c-header-accent);
-      color: #ffffff;
-      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+      border-color: var(--c-text-muted);
+      color: var(--c-text);
     }
   }
 `;
 
 const MissionIdTag = styled(Tag)`
-  font-family: "Roboto Mono", monospace;
-  font-size: 11px;
+  font-size: var(--font-sm);
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 2px 8px;
+  padding: 1px 8px;
+  border-radius: 0;
+  font-variant-numeric: tabular-nums;
   cursor: pointer;
 `;
 
-const AmrBadge = styled.span<{ $isDark: boolean }>`
-  display: inline-block;
-  padding: 2px 8px;
-  background: var(--c-header-accent-soft);
-  border: 1px solid var(--c-header-accent);
-  border-radius: 4px;
-  color: var(--c-header-accent);
-  font-family: "Roboto Mono", monospace;
-  font-size: 13px;
+// 車號: 前面一顆車輛識別色的小點 (跟地圖、車輛卡片同色); 還沒派到車的是虛線框
+const AmrBadge = styled.span<{ $isDark: boolean; $color?: string }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 2px 9px 2px 7px;
+  border-radius: 0;
+  white-space: nowrap;
+  font-size: 12px;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  ${({ $color }) =>
+    $color
+      ? css`
+          background: var(--c-bg-subtle);
+          border: 1px solid var(--c-border);
+          color: var(--c-text);
+
+          &::before {
+            content: "";
+            flex-shrink: 0;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: ${$color};
+          }
+        `
+      : css`
+          border: 1px dashed var(--c-border-strong);
+          color: var(--c-text-muted);
+          font-weight: 600;
+        `}
 `;
 
-const StatusBadge = styled.span<{ $status: MissionStatus; $isDark: boolean }>`
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-family: "Roboto Mono", monospace;
-  font-size: 10px;
+type StatusTone = "success" | "info" | "warning" | "waiting" | "muted" | "danger";
+// 狀態顏色看任務狀態的數字。以前是拿翻譯後的字 (例如「🤖 進行中」) 去對英文代號, 永遠對不到, 全部變成黃色
+const STATUS_TONE: Record<number, StatusTone> = {
+  [MissionStatus.EXECUTING]: "success",
+  [MissionStatus.ASSIGNED]: "info",
+  [MissionStatus.PENDING]: "warning",
+  [MissionStatus.WAITING]: "waiting",
+  [MissionStatus.COMPLETED]: "muted",
+  [MissionStatus.ABORTING]: "danger",
+  [MissionStatus.CANCELED]: "danger",
+};
+const TONE_COLOR: Record<StatusTone, { bg: string; dot: string; text: string }> = {
+  success: { bg: "var(--c-success-soft)", dot: "var(--c-success)", text: "var(--c-text)" },
+  info: { bg: "var(--c-header-accent-soft)", dot: "var(--c-header-accent)", text: "var(--c-header-accent)" },
+  warning: { bg: "var(--c-warning-soft)", dot: "var(--c-warning)", text: "var(--c-text)" },
+  waiting: { bg: "transparent", dot: "var(--c-warning)", text: "var(--c-text-secondary)" },
+  muted: { bg: "var(--c-bg-subtle)", dot: "var(--c-border-strong)", text: "var(--c-text-muted)" },
+  danger: { bg: "var(--c-danger-soft)", dot: "var(--c-danger)", text: "var(--c-danger)" },
+};
+/** 狀態翻譯字串前面帶 emoji (別的頁面還在用), 任務欄裡拿掉, 改用色點 */
+const stripEmoji = (label: string) => label.replace(/^(?:\p{Extended_Pictographic}|\u200d|\uFE0F|\s)+/u, "");
+
+const pulse = keyframes`
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+`;
+
+const StatusBadge = styled.span<{ $tone: StatusTone; $isDark: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 9px 2px 8px;
+  border-radius: 0;
+  white-space: nowrap;
+  font-size: 12px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  background: ${({ $tone }) => TONE_COLOR[$tone].bg};
+  color: ${({ $tone }) => TONE_COLOR[$tone].text};
+  border: 1px solid ${({ $tone }) => ($tone === "waiting" ? "var(--c-warning)" : "transparent")};
 
-  ${({ $status, $isDark }) => {
-    const statusColors: Record<
-      string,
-      { bg: string; border: string; text: string }
-    > = {
-      executing: {
-        bg: "var(--c-success-soft)",
-        border: "var(--c-success)",
-        text: "var(--c-success)",
-      },
-      assigned: {
-        bg: "var(--c-header-accent-soft)",
-        border: "var(--c-header-accent)",
-        text: "var(--c-header-accent)",
-      },
-      pending: {
-        bg: "var(--c-warning-soft)",
-        border: "var(--c-warning)",
-        text: "var(--c-warning)",
-      },
-      completed: {
-        bg: "var(--c-bg-subtle)",
-        border: "var(--c-text-muted)",
-        text: "var(--c-text-muted)",
-      },
-      aborting: {
-        bg: "var(--c-danger-soft)",
-        border: "var(--c-danger)",
-        text: "var(--c-danger)",
-      },
-      canceled: {
-        bg: "var(--c-danger-soft)",
-        border: "var(--c-danger)",
-        text: "var(--c-danger)",
-      },
-      waiting: {
-        bg: "var(--c-bg-subtle)",
-        border: "var(--c-warning)",
-        text: "var(--c-warning)",
-      },
-    };
+  &::before {
+    content: "";
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: ${({ $tone }) => TONE_COLOR[$tone].dot};
+    /* 進行中的那顆點慢慢呼吸 (只動透明度) */
+    ${({ $tone }) =>
+      $tone === "success" &&
+      css`
+        animation: ${pulse} 1.8s ease-in-out infinite;
+      `}
+  }
 
-    const color = statusColors[$status.toLowerCase()] || statusColors.pending;
-    return `
-      background: ${color.bg};
-      border: 1px solid ${color.border};
-      color: ${color.text};
-    `;
-  }}
+  @media (prefers-reduced-motion: reduce) {
+    &::before {
+      animation: none;
+    }
+  }
 `;
 
 const IndustrialCheckboxGroup = styled.div<{ $isDark: boolean }>`
   background: var(--c-bg-subtle);
   padding: 12px;
   border: 1px solid var(--c-header-border);
-  border-radius: 4px;
+  border-radius: 0;
   margin-bottom: 16px;
   display: inline-block;
   width: 100%;
@@ -280,7 +300,7 @@ const IndustrialCheckboxGroup = styled.div<{ $isDark: boolean }>`
   .ant-checkbox-wrapper {
     color: var(--c-text);
     font-family: "Roboto Mono", monospace;
-    font-size: 11px;
+    font-size: var(--font-sm);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 
@@ -293,7 +313,7 @@ const IndustrialCheckboxGroup = styled.div<{ $isDark: boolean }>`
   .ant-checkbox-inner {
     background-color: var(--c-bg);
     border-color: var(--c-header-border);
-    border-radius: 2px;
+    border-radius: 0;
   }
 
   /* Checked State */
@@ -368,7 +388,7 @@ const MissionTable = () => {
 
         const tooltipContent = (
           <div
-            style={{ maxWidth: 260, fontFamily: "Roboto Mono", fontSize: 11 }}
+            style={{ maxWidth: 260, fontFamily: "Roboto Mono", fontSize: "var(--font-xs)" }}
           >
             {info.map((entry, idx) => (
               <div key={idx} style={{ marginBottom: 4 }}>
@@ -389,11 +409,14 @@ const MissionTable = () => {
       title: "AMR",
       dataIndex: "amrId",
       key: "amrId",
+      width: 76,
       render: (code: string) => {
         return (
           <Tooltip title={code ? code : t("main_task_list.wait_suitable")}>
-            <AmrBadge $isDark={isDark}>
-              {code ? code.split("-")[3] : t("main_task_list.wait_suitable")}
+            <AmrBadge $isDark={isDark} $color={code ? amrId2ColorRainbow(code) : undefined}>
+              {code
+                ? (code.split("-")[3] ?? code.split("-").pop())
+                : t("main_task_list.wait_suitable")}
             </AmrBadge>
           </Tooltip>
         );
@@ -408,6 +431,7 @@ const MissionTable = () => {
       title: t("mission.task_table.status"),
       dataIndex: "missionStatus",
       key: "missionStatus",
+      width: 96,
       render: (status: MissionStatus, record) => {
         if (
           record.status === MissionStatus.CANCELED ||
@@ -415,8 +439,8 @@ const MissionTable = () => {
         ) {
           return (
             <Tooltip title={<I18nCancelReason reason={record.cancelReason} />}>
-              <StatusBadge $status={status} $isDark={isDark}>
-                {status}
+              <StatusBadge $tone={STATUS_TONE[record.status] ?? "warning"} $isDark={isDark}>
+                {stripEmoji(String(status))}
               </StatusBadge>
             </Tooltip>
           );
@@ -425,8 +449,8 @@ const MissionTable = () => {
         if (record.status === MissionStatus.WAITING) {
           return (
             <Tooltip title={record.message}>
-              <StatusBadge $status={status} $isDark={isDark}>
-                {status}
+              <StatusBadge $tone={STATUS_TONE[record.status] ?? "warning"} $isDark={isDark}>
+                {stripEmoji(String(status))}
               </StatusBadge>
             </Tooltip>
           );
@@ -441,8 +465,8 @@ const MissionTable = () => {
               color="var(--c-bg)"
             >
               <Flex gap={6} align="center">
-                <StatusBadge $status={status} $isDark={isDark}>
-                  {status}
+                <StatusBadge $tone={STATUS_TONE[record.status] ?? "warning"} $isDark={isDark}>
+                  {stripEmoji(String(status))}
                 </StatusBadge>
                 <WarningOutlined style={{ color: "var(--c-warning)" }} />
               </Flex>
@@ -451,8 +475,8 @@ const MissionTable = () => {
         }
 
         return (
-          <StatusBadge $status={status} $isDark={isDark}>
-            {status}
+          <StatusBadge $tone={STATUS_TONE[record.status] ?? "warning"} $isDark={isDark}>
+            {stripEmoji(String(status))}
           </StatusBadge>
         );
       },
@@ -593,7 +617,7 @@ const MissionTable = () => {
       />
 
       <ButtonWrapper>
-        <Flex gap="middle" align="flex-start">
+        <Flex gap={8} align="flex-start" wrap>
           {can("mission.cancel") && (
             <IndustrialButton
               className="delete-btn"
@@ -627,8 +651,8 @@ const MissionTable = () => {
           <div
             style={{
               marginBottom: 8,
-              fontSize: 10,
-              color: "var(--c-text-muted)",
+              fontSize: "var(--font-xs)",
+              color: "var(--c-text-secondary)",
               fontFamily: "Roboto Mono",
             }}
           >
@@ -688,7 +712,6 @@ const MissionTable = () => {
                     : "",
               })) as []
           }
-          bordered
           expandable={{
             showExpandColumn: false,
             expandedRowKeys: blockedKeys,
@@ -699,6 +722,7 @@ const MissionTable = () => {
           pagination={{
             pageSize: 20,
             showSizeChanger: true,
+            locale: { items_per_page: t("main_task_list.per_page") },
             showTotal: (total) =>
               t("main.mission_modal.total_missions", { count: total }),
           }}

@@ -58,6 +58,8 @@ import {
 } from "@/pages/MissionDispatchBoard/chartPalette";
 import BatteryReportBody from "./BatteryReport";
 import ConnectionReportBody from "./ConnectionReport";
+import StepTimingReportBody from "./StepTimingReport";
+import useStepTimingReport from "@/api/useStepTimingReport";
 import useConnectionReport from "@/api/useConnectionReport";
 import {
   ChartBox,
@@ -138,18 +140,20 @@ const formatHours = (sec: number) => `${(sec / 3600).toFixed(1)} h`;
 const percent = (part: number, total: number) =>
   total > 0 ? Math.round((part / total) * 1000) / 10 : 0;
 
-type ReportTab = "overview" | "battery" | "connection";
+type ReportTab = "overview" | "battery" | "connection" | "step_timing";
 
 const EXPORT_PATH: Record<ReportTab, string> = {
   overview: "api/report/operation/xlsx",
   battery: "api/report/battery/xlsx",
   connection: "api/report/connection/xlsx",
+  step_timing: "api/report/step-timing/xlsx",
 };
 
 const EXPORT_NAME: Record<ReportTab, string> = {
   overview: "operation_report",
   battery: "battery_report",
   connection: "connection_report",
+  step_timing: "step_timing_report",
 };
 
 type Preset = "today" | "yesterday" | "last7" | "thisMonth";
@@ -191,8 +195,15 @@ const OperationReport: FC = () => {
   const overview = useOperationReport(tab === "overview" ? query : null);
   const battery = useBatteryReport(tab === "battery" ? query : null);
   const connection = useConnectionReport(tab === "connection" ? query : null);
+  const stepTiming = useStepTimingReport(tab === "step_timing" ? query : null);
   const { data, isFetching, error, refetch } =
-    tab === "overview" ? overview : tab === "battery" ? battery : connection;
+    tab === "overview"
+      ? overview
+      : tab === "battery"
+        ? battery
+        : tab === "connection"
+          ? connection
+          : stepTiming;
 
   const vehicleOptions = useMemo(
     () =>
@@ -316,6 +327,7 @@ const OperationReport: FC = () => {
             { key: "overview", label: t("report.tab.overview") },
             { key: "battery", label: t("report.tab.battery") },
             { key: "connection", label: t("report.tab.connection") },
+            { key: "step_timing", label: t("report.tab.step_timing") },
           ]}
         />
 
@@ -333,8 +345,10 @@ const OperationReport: FC = () => {
               <ReportBody report={overview.data as Report} />
             ) : tab === "battery" ? (
               <BatteryReportBody report={battery.data!} />
-            ) : (
+            ) : tab === "connection" ? (
               <ConnectionReportBody report={connection.data!} />
+            ) : (
+              <StepTimingReportBody report={stepTiming.data!} />
             )}
           </Spin>
         )}

@@ -97,12 +97,12 @@ const IndustrialButton = styled(Button)`
   &.charge-btn {
     background: var(--c-bg);
     border: 1px solid var(--c-success);
-    color: var(--c-success);
+    color: var(--c-success-text);
 
     &:hover {
       background: var(--c-success-soft);
       border-color: var(--c-success);
-      color: var(--c-success);
+      color: var(--c-success-text);
       box-shadow: 0 2px 8px rgba(82, 196, 26, 0.3);
     }
   }
@@ -172,7 +172,7 @@ const IndustrialButton = styled(Button)`
   &.update-btn {
     background: var(--c-bg);
     border: 1px solid var(--c-warning);
-    color: var(--c-warning);
+    color: var(--c-warning-text);
 
     &:hover {
       background: var(--c-warning-soft);

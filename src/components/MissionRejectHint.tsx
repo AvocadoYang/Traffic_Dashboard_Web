@@ -22,7 +22,7 @@ const Block = styled.div<{ $fix: boolean }>`
   margin-top: 6px;
   padding: 6px 8px;
   border-left: 3px solid
-    ${({ $fix }) => ($fix ? "var(--c-warning)" : "var(--c-text-muted)")};
+    ${({ $fix }) => ($fix ? "var(--c-warning-text)" : "var(--c-text-secondary)")};
   background: ${({ $fix }) => ($fix ? "var(--c-warning-soft)" : "var(--c-bg-muted)")};
   font-size: 12px;
   line-height: 1.5;
@@ -36,7 +36,7 @@ const Head = styled.div<{ $fix: boolean }>`
   align-items: center;
   gap: 4px;
   font-weight: 600;
-  color: ${({ $fix }) => ($fix ? "var(--c-warning)" : "var(--c-text-muted)")};
+  color: ${({ $fix }) => ($fix ? "var(--c-warning-text)" : "var(--c-text-secondary)")};
 `;
 
 const Line = styled.div`

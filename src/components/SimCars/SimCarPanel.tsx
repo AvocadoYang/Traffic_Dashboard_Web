@@ -44,25 +44,33 @@ const Btn = styled.div<{ $top: string; $left: string; $active: boolean }>`
   z-index: 5;
   top: ${({ $top }) => $top};
   left: ${({ $left }) => $left};
-  background-color: ${({ $active }) =>
-    $active ? "var(--c-header-accent-soft)" : "var(--c-bg-subtle)"};
-  border-radius: 20px;
+  box-sizing: border-box;
+  /* 固定 px (跟 ScalePad / 效能監看按鈕同尺寸), 用 em 的話字體大小偏好調大就會互相壓到 */
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  opacity: 0.9;
-  width: 3em;
-  height: 3em;
+  color: ${({ $active }) => ($active ? "var(--c-header-accent)" : "var(--c-text)")};
+  background-color: ${({ $active }) =>
+    $active ? "var(--c-header-accent-soft)" : "var(--c-bg)"};
+  border: 1px solid
+    ${({ $active }) => ($active ? "var(--c-header-accent)" : "var(--c-border-strong)")};
+  border-radius: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   cursor: pointer;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
 
   &:hover {
-    opacity: 1;
+    color: var(--c-header-accent);
+    border-color: var(--c-header-accent);
   }
 
   svg {
-    width: 1.5em;
-    height: 1.5em;
+    width: 22px;
+    height: 22px;
     fill: currentColor;
   }
 `;
@@ -119,7 +127,7 @@ const Swatch = styled.span<{ $color: string }>`
  * 開始 / 停止模擬照舊在 Header 的「模擬」按鈕。
  */
 const SimCarPanel: FC<{ top?: string; left?: string }> = ({
-  top = "128px",
+  top = "120px",
   left = "16px",
 }) => {
   const { t } = useTranslation();
@@ -204,7 +212,7 @@ const SimCarPanel: FC<{ top?: string; left?: string }> = ({
       </Tooltip>
 
       {open && (
-        <Panel $top={top} $left={`calc(${left} + 3.5em)`}>
+        <Panel $top={top} $left={`calc(${left} + 52px)`}>
           <Flex justify="space-between" align="center">
             <Typography.Text strong>{t("sim.car_panel.title")}</Typography.Text>
             <Button

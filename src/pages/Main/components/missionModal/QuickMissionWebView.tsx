@@ -367,7 +367,7 @@ const InstructionBanner = styled.div`
   gap: 8px;
   font-family: "Roboto Mono", monospace;
   font-size: 10px;
-  color: var(--c-warning);
+  color: var(--c-warning-text);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;

@@ -93,7 +93,7 @@ const PanelHeader = styled.h3`
 const IndustrialButton = styled(Button)`
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--font-sm);
   letter-spacing: 1px;
   height: 36px;
   font-weight: 600;
@@ -201,7 +201,7 @@ const IndustrialTable = styled(Table)`
     background: #fafafa;
     border-bottom: 2px solid #d9d9d9;
     color: #595959;
-    font-size: 11px;
+    font-size: var(--font-sm);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 700;
@@ -276,7 +276,7 @@ const IndustrialModal = styled(Modal)`
     .ant-btn {
       font-family: "Roboto Mono", monospace;
       text-transform: uppercase;
-      font-size: 11px;
+      font-size: var(--font-sm);
       letter-spacing: 1px;
       height: 36px;
       font-weight: 600;
@@ -294,7 +294,7 @@ const StatusBadge = styled.div<{ $active: boolean }>`
   border: 1px solid ${({ $active }) => ($active ? "#52c41a" : "#ff4d4f")};
   color: ${({ $active }) => ($active ? "#52c41a" : "#ff4d4f")};
   font-family: "Roboto Mono", monospace;
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -320,7 +320,7 @@ const ThresholdValue = styled.span`
   border: 1px solid #1890ff;
   color: #1890ff;
   font-family: "Roboto Mono", monospace;
-  font-size: 11px;
+  font-size: var(--font-sm);
   font-weight: 700;
   white-space: nowrap;
 `;
@@ -342,7 +342,7 @@ const DelayValue = styled.span`
   border: 1px solid #faad14;
   color: #d48806;
   font-family: "Roboto Mono", monospace;
-  font-size: 11px;
+  font-size: var(--font-sm);
   font-weight: 700;
   white-space: nowrap;
 `;
@@ -358,7 +358,7 @@ const AmrTag = styled.span`
   background: #fafafa;
   border: 1px solid #d9d9d9;
   font-family: "Roboto Mono", monospace;
-  font-size: 10px;
+  font-size: var(--font-xs);
   color: #595959;
   text-transform: uppercase;
 `;

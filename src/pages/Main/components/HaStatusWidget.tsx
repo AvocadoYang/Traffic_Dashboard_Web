@@ -41,7 +41,7 @@ const SectionTitle = styled.div`
 `;
 
 const Label = styled.span`
-  color: rgba(128, 128, 128, 0.95);
+  color: var(--c-text-muted);
   white-space: nowrap;
 `;
 

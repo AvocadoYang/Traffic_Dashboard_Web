@@ -1,5 +1,7 @@
 import "./assets/main.css";
 import "./styles/responsive.css";
+import "./styles/fonts.css";
+import "./styles/luxe.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";

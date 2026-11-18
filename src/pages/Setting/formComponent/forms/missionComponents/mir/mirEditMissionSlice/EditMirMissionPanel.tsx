@@ -434,7 +434,7 @@ const CardChip = styled.span`
   border: 1px solid #d9d9d9;
   border-radius: 10px;
   font-weight: 600;
-  font-size: 11px;
+  font-size: var(--font-sm);
 `;
 
 const CardActions = styled.div`
@@ -464,7 +464,7 @@ const SlotSection = styled.div`
 `;
 
 const SlotHeader = styled.div`
-  font-size: 11px;
+  font-size: var(--font-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;

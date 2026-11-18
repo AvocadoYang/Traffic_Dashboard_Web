@@ -8,6 +8,7 @@ const schema = array(
     full_name: string().required("full name is required"),
     serialNum: string().required("Process order is required"),
     is_enable: boolean().required("Process order is required"),
+    display_color: string().nullable().optional(),
     ip: string().optional().nullable(),
     Robot_type: object({
       id: string().required("robot type ID is required"),

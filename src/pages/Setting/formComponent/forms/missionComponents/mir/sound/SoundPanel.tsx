@@ -67,7 +67,7 @@ const Title = styled.h2`
 `;
 
 const HelpIcon = styled(QuestionCircleOutlined)`
-  color: #98a2b3;
+  color: var(--c-text-muted);
   font-size: 15px;
 `;
 

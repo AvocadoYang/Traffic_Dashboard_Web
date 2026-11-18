@@ -64,7 +64,7 @@ const ConfigCard = styled(Card)`
     font-weight: 500;
     color: #262626;
     font-family: "Roboto Mono", monospace;
-    font-size: 11px;
+    font-size: var(--font-sm);
     text-transform: uppercase;
     letter-spacing: 1px;
     border-right: 1px solid #d9d9d9;
@@ -84,7 +84,7 @@ const ConfigCard = styled(Card)`
 
 const LevelTag = styled(Tag)`
   margin-right: 8px;
-  font-size: 11px;
+  font-size: var(--font-sm);
   font-weight: 700;
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
@@ -113,7 +113,7 @@ const Wrapper = styled.div<{ $hasSelect: boolean }>`
     border-bottom: 2px solid #1890ff;
     color: #262626;
     font-weight: 600;
-    font-size: 11px;
+    font-size: var(--font-sm);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-family: "Roboto Mono", monospace;
@@ -178,7 +178,7 @@ const SearchDropdown = styled.div`
 
   .ant-btn {
     font-family: "Roboto Mono", monospace;
-    font-size: 11px;
+    font-size: var(--font-sm);
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }

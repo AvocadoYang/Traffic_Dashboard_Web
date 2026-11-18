@@ -71,7 +71,7 @@ const ControlRow = styled(Row)`
 const IndustrialButton = styled(Button)`
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--font-sm);
   letter-spacing: 1px;
   height: 36px;
   font-weight: 600;
@@ -121,7 +121,7 @@ const IndustrialInput = styled(Input)`
   &::placeholder {
     color: #bfbfbf;
     text-transform: uppercase;
-    font-size: 10px;
+    font-size: var(--font-xs);
     letter-spacing: 0.5px;
   }
 `;
@@ -150,7 +150,7 @@ const IndustrialSelect = styled(Select)`
   .ant-select-selection-placeholder {
     color: #bfbfbf;
     text-transform: uppercase;
-    font-size: 10px;
+    font-size: var(--font-xs);
     letter-spacing: 0.5px;
   }
 `;
@@ -189,7 +189,7 @@ const IndustrialModal = styled(Modal)`
     .ant-btn {
       font-family: "Roboto Mono", monospace;
       text-transform: uppercase;
-      font-size: 11px;
+      font-size: var(--font-sm);
       letter-spacing: 1px;
       height: 36px;
       font-weight: 600;
@@ -200,7 +200,7 @@ const IndustrialModal = styled(Modal)`
 const StyledForm = styled(Form)`
   .ant-form-item-label > label {
     color: #595959;
-    font-size: 11px;
+    font-size: var(--font-sm);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-family: "Roboto Mono", monospace;
