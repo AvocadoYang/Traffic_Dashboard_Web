@@ -140,11 +140,77 @@ export const amrId2Color = (amrId: string) => {
   return color;
 };
 
+/*
+ * 車輛識別色: 卡片上的車號牌、地圖上的車與路線、任務表的車號徽章都用同一個顏色。
+ *
+ * 以前是拿車號的雜湊值決定色相 / 飽和度 / 明度, 結果明度亂跳 (有淡黃、粉紅, 白底上看不見)、
+ * 色相會擠在一起, 綠 / 紅還會跟「在線」「異常」的狀態色搞混。
+ * 現在是固定色盤: 每個顏色在白底上都看得清楚 (對比度 >= 3.4:1), 色相避開狀態色 (紅 / 綠 / 琥珀),
+ * 只有藍、紫、青、洋紅、棕這幾類。
+ *
+ * 分配方式: 車隊名單 (all-amr-name) 載入後依車號排序, 第 N 台拿第 N 個顏色, 所以只要車數不超過色盤,
+ * 保證不會撞色; 每台電腦排序一樣, 顏色也一樣。名單還沒載入 (或不在名單裡) 時退回雜湊, 至少顏色穩定。
+ * 車數增減時排序會變動, 部分車的顏色會跟著換。
+ */
+export const AMR_COLORS = [
+  "#2F6FDE", // 藍
+  "#7A3FD1", // 紫
+  "#0E9AA7", // 青
+  "#B8399F", // 洋紅
+  "#8A5A2B", // 棕
+  "#24459E", // 深藍
+  "#0F7FB8", // 天藍
+  "#8E2C6B", // 梅紅
+  "#4C4FD6", // 靛
+  "#0B6B73", // 深青
+  "#C0387F", // 玫紅
+  "#2D8CF0", // 亮藍
+  "#A24BD0", // 蘭紫
+  "#5E2B8F", // 深紫
+  "#19B5C8", // 水藍
+  "#6B7C93", // 灰藍
+] as const;
+
+let amrColorOrder: string[] = [];
+/** 設定頁手動指定的顏色 (後端 register_robot.display_color), 優先於自動分配 */
+let amrColorOverrides = new Map<string, string>();
+let amrColorVersion = 0;
+/** 名單更新時加一; 有自己快取顏色的地方 (CanvasMap) 靠它判斷快取是否過期 */
+export const getAmrColorVersion = () => amrColorVersion;
+
+/** 車號最後一段 (anfa-ps14-16-068 → 068), 卡片、地圖上的車號牌共用 */
+export const amrShortNum = (amrId: string) => amrId.split("-").slice(-1)[0];
+
+/**
+ * 車隊名單載入 / 更新時呼叫, 之後 amrId2ColorRainbow 依名單排序分配顏色。
+ * overrides: 設定頁手動指定的顏色 (車號 → #RRGGBB), 有指定的車直接用, 不佔用自動分配的順位。
+ */
+export const setAmrColorOrder = (amrIds: string[], overrides: Record<string, string> = {}) => {
+  amrColorOverrides = new Map(Object.entries(overrides).filter(([, c]) => /^#[0-9a-f]{6}$/i.test(c)));
+  // 自動分配只排「沒指定顏色」的車, 這樣指定了某台之後, 其他車的顏色不會跟著位移
+  amrColorOrder = [...new Set(amrIds)].filter((id) => !amrColorOverrides.has(id)).sort();
+  amrColorVersion += 1;
+};
+
 export const amrId2ColorRainbow = (amrId: string) => {
+  const manual = amrColorOverrides.get(amrId);
+  if (manual) return manual;
+  const idx = amrColorOrder.indexOf(amrId);
+  if (idx >= 0) return AMR_COLORS[idx % AMR_COLORS.length];
   const seed = parseInt(`0x${MD5(amrId).toString()}`, 16);
-  const h = seed % 360;
-  const s = (seed % 70) + 80;
-  const l = (seed % 60) + 10;
-  const color = `#${convert.hsl.hex([h, s, l])}`;
-  return color;
+  return AMR_COLORS[seed % AMR_COLORS.length];
+};
+
+/** 色塊上的字用黑還是白: 取對比度比較高的 */
+export const textOnColor = (hex: string) => {
+  const lum = (h: string) => {
+    const n = parseInt(h.slice(1, 7), 16);
+    const [r, g, b] = [n >> 16, (n >> 8) & 255, n & 255].map((v) => {
+      const c = v / 255;
+      return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const l = lum(hex);
+  return (1.05 / (l + 0.05)) >= ((l + 0.05) / 0.0556) ? "#ffffff" : "#111111";
 };

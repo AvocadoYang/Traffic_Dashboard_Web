@@ -1,6 +1,7 @@
 {
   "header": {
     "switch_row": "Switch between navigation and mission row",
+    "more": "More",
     "navigation": "Navigation",
     "sim_time": "SIM TIME",
     "stop_sim": "STOP SIM",
@@ -162,6 +163,7 @@
     "active": "Active",
     "inactive": "Inactive",
     "required": "Required",
+    "copy": "Copy",
     "delete_warn": "Are you sure?",
     "cost_time": "Cost Time (minutes)",
     "loading": "Loading...",
@@ -296,6 +298,22 @@
     "emergency_pressed": "Emergency button pressed",
     "recovery_pressed": "Recovery button pressed",
     "timeline": "Timeline",
+    "step_timing": {
+      "title": "Time per step",
+      "step": "Step",
+      "action": "Action",
+      "location": "Point",
+      "gap": "Gap from previous step",
+      "run": "Run time",
+      "gap_hint": "Time from the previous step finishing to this step's command being sent to the car (includes any wait seconds set on the task); highlighted over 1 s",
+      "type": {
+        "move": "Move",
+        "load": "Load",
+        "offload": "Offload",
+        "charge": "Charge",
+        "upper_control": "Upper control"
+      }
+    },
     "assigned_at": "Assigned At",
     "ended_at": "Ended At",
     "detail": "Mission Info",
@@ -601,6 +619,90 @@
         "name": "Marathon Day",
         "desc": "Complete 500 missions in a single day"
       },
+      "missions_100": {
+        "name": "Centurion",
+        "desc": "Complete 100 missions in total"
+      },
+      "missions_1000": {
+        "name": "Veteran",
+        "desc": "Complete 1,000 missions in total"
+      },
+      "missions_10000": {
+        "name": "War Hero",
+        "desc": "Complete 10,000 missions in total"
+      },
+      "distance_10": {
+        "name": "Warm-up 10K",
+        "desc": "Fleet drives 10 km in total"
+      },
+      "distance_100": {
+        "name": "Century Club",
+        "desc": "Fleet drives 100 km in total"
+      },
+      "day_100": {
+        "name": "Hundred Day",
+        "desc": "Complete 100 missions in a single day"
+      },
+      "day_250": {
+        "name": "Full Throttle",
+        "desc": "Complete 250 missions in a single day"
+      },
+      "hour_20": {
+        "name": "Hour Sprint",
+        "desc": "Complete 20 missions within a single hour"
+      },
+      "cargo_day_100": {
+        "name": "Hundred Loads",
+        "desc": "Unload 100 items in a single day"
+      },
+      "dispatch_100": {
+        "name": "Dispatcher",
+        "desc": "Dispatch 100 missions yourself"
+      },
+      "dispatch_2000": {
+        "name": "Dispatch Master",
+        "desc": "Dispatch 2,000 missions yourself"
+      },
+      "active_8": {
+        "name": "Labor Law Model Student",
+        "desc": "Complete missions in 8 different hours of one day (a proper workday)"
+      },
+      "active_16": {
+        "name": "Liver Sacrifice Fleet",
+        "desc": "Complete missions in 16 different hours of one day (more dedication than any human)"
+      },
+      "active_24": {
+        "name": "The Sun Never Sets",
+        "desc": "Complete missions in every hour of one day"
+      },
+      "titles_50": {
+        "name": "Junior FAE",
+        "desc": "Create 50 mission templates"
+      },
+      "titles_100": {
+        "name": "Senior FAE",
+        "desc": "Create 100 mission templates"
+      },
+      "titles_200": {
+        "name": "FAE LEADER",
+        "desc": "Create 200 mission templates"
+      },
+      "sep_problem": {
+        "name": "It's someone else's problem",
+        "desc": "A vehicle warning sat for 10+ minutes with nobody looking at it"
+      },
+      "clean_run_50": {
+        "name": "Smooth Sailing",
+        "desc": "Complete 50 missions in a row without a single cancellation"
+      },
+      "do_it_myself": {
+        "name": "Fine, I'll do it myself",
+        "desc": "500 completed missions involved manual mode"
+      },
+      "weekend_warrior": {
+        "name": "Weekend Warrior",
+        "desc": "Dispatch 5 missions on a Saturday or Sunday"
+      },
       "zero_manual": {
         "name": "Hands Off",
         "desc": "A day with 100+ missions completed and no manual intervention"
@@ -629,6 +731,10 @@
         "name": "Shift Handover Pro",
         "desc": "Post in the chat 7 days in a row"
       },
+      "backup_10": {
+        "name": "Data-Loss PTSD",
+        "desc": "Press Backup Now manually 10 times (good habit, or once bitten?)"
+      },
       "observer": {
         "name": "Observer",
         "desc": "Try the driver view, fleet replay and heatmap once each"
@@ -653,7 +759,93 @@
     "no_online_records": "No vehicle connection records yet (run 20261014_amr_online_session.sql or yarn pdp on the database). Idle and offline time are counted as \"not recorded\".",
     "tab": {
       "overview": "Overview",
-      "battery": "Battery log"
+      "battery": "Battery log",
+      "connection": "Disconnections",
+      "step_timing": "Step timing"
+    },
+    "step_timing": {
+      "none": "No step timing in this period (missions before 2026-11-16 have none)",
+      "hint": "Gap = previous step done to the command sent to the vehicle (includes the mission's wait seconds); Run = command sent to done; only steps finished inside the period count",
+      "by_type": "By action",
+      "by_location": "By point",
+      "by_vehicle": "By vehicle",
+      "slowest_first": "Slowest first by default",
+      "tile": {
+        "steps": "Steps",
+        "gap_avg": "Gap avg",
+        "gap_p90": "Gap P90",
+        "run_avg": "Run avg",
+        "run_p90": "Run P90"
+      },
+      "col": {
+        "type": "Action",
+        "location": "Point",
+        "vehicle": "Vehicle",
+        "count": "Steps",
+        "gap": "Gap from previous step",
+        "run": "Run time",
+        "avg": "Avg",
+        "p90": "P90",
+        "max": "Max"
+      },
+      "type": {
+        "move": "Move",
+        "load": "Load",
+        "offload": "Offload",
+        "charge": "Charge",
+        "upper_control": "Upper control",
+        "spin": "Spin",
+        "fork": "Fork move"
+      }
+    },
+    "connection": {
+      "not_recorded": "The database has no connection log table (connection_event) yet. The backend creates it on its next start and records from then on.",
+      "none": "No disconnections in this period",
+      "still_down": "Still down",
+      "restart_tag": "backend restart",
+      "restart_hint": "The end time was filled in when the backend restarted; the real recovery time is unknown",
+      "all_kinds": "All kinds",
+      "unit_sec": "s",
+      "unit_min": "min",
+      "unit_hour": "h",
+      "unit_day": "d",
+      "kind": {
+        "VEHICLE": "Vehicle",
+        "RABBITMQ": "RabbitMQ",
+        "MQTT": "MQTT",
+        "ECS": "ECS",
+        "ADVANTECH": "Advantech module",
+        "REDIS": "Redis"
+      },
+      "tile": {
+        "count": "Disconnections",
+        "down_time": "Total down time",
+        "ongoing": "Still down now",
+        "longest": "Longest",
+        "targets": "Targets affected"
+      },
+      "col": {
+        "kind": "Kind",
+        "target": "Target",
+        "count": "Count",
+        "down": "Down time",
+        "longest": "Longest",
+        "last_code": "Latest reason",
+        "code": "Reason code",
+        "start": "Disconnected at",
+        "end": "Recovered at",
+        "duration": "Duration",
+        "reason": "Reason"
+      },
+      "chart_hour": "Disconnections per hour",
+      "chart_day": "Disconnections per day",
+      "chart_hint": "Counted by when the outage started; colour = kind",
+      "kind_title": "By kind",
+      "code_title": "By reason",
+      "target_title": "By target",
+      "target_hint": "Longest down time first",
+      "event_title": "Events",
+      "event_hint": "Recorded when a vehicle is down for over 15 s, other links for over 5-10 s"
     },
     "battery": {
       "not_recorded": "The database has no battery log table (amr_battery_log) yet. The backend creates it on its next start and records every minute from then on.",
@@ -755,7 +947,7 @@
     "per_day_title": "Completed per day",
     "per_bucket_hint": "Bars: completed transport missions; lines: average wait / run time (minutes)",
     "time_split_title": "Time split per vehicle",
-    "time_split_hint": "Idle = online without a mission; offline = backend running but vehicle not connected; not recorded = backend not running or before this feature",
+    "time_split_hint": "Each vehicle is counted in exactly one state at any moment, so the bars add up to 100%. Transport = normal transport missions; Charge = going to / on the charger; Give way = system moves the car off another's route; Standby = automatic return to standby point; Manual = moves dispatched by a person; Idle = online without a mission (including waiting in place); Offline = backend running but vehicle not connected; Not recorded = backend not running or before this feature. When missions overlap, the first of Transport > Charge > Manual > Standby > Give way wins",
     "vehicle_table_title": "Per vehicle",
     "alarm_title": "Alarm ranking",
     "alarm_hint": "Most vehicle warnings have no resolution time; those are counted, not timed",
@@ -803,6 +995,7 @@
   "page_cargo_history": "Cargo History",
   "page_amr": "Amf info",
   "main_task_list": {
+    "per_page": "/ page",
     "wait_suitable": "wait suitable"
   },
   "toolbar": {
@@ -1245,6 +1438,9 @@
       "title_name": "Register AMR",
       "amr_name": "amr name",
       "type": "type",
+      "color": "Color",
+      "color_auto": "Auto",
+      "color_used_by": "Also used by {{names}}",
       "serial_number": " MAC address",
       "invalid_serial_number": "invalid serial number",
       "executing": "using",
@@ -1327,6 +1523,13 @@
     "tooltip_full": "While charging, the charge mission ends at this value and the vehicle stays in the station.",
     "tooltip_available_get_task": "While charging, above this value and with a mission waiting for this vehicle: charging ends and the vehicle goes to work.",
     "section_trigger_delay": "[03] Trigger Delay Settings",
+    "section_manual_priority": "[04] Manual Charge",
+    "manualChargePriority": "Manual charge dispatch priority",
+    "tooltip_manualChargePriority": "Priority of the charge mission created when a vehicle's Charge button (amr-charge) is used. Higher is dispatched first. Default: Normal.",
+    "priority_0": "Trivial",
+    "priority_1": "Normal",
+    "priority_2": "Pivotal",
+    "priority_3": "Critical",
     "aggressiveTriggerDelayMin": "Aggressive trigger delay",
     "aggressiveTriggerDelayMin_min": "Aggressive trigger delay must be at least 0 minutes",
     "tooltip_aggressiveTriggerDelayMin": "Delay before aggressive charging is triggered",
@@ -2744,8 +2947,10 @@
     "newPassword": "New Password",
     "confirmPassword": "Confirm Password",
     "passwordNotMatch": "Passwords do not match",
-    "forcedTitle": "Change the default password first",
-    "forcedHint": "This account still uses a default password that anyone can guess. Set a new one to continue (at least 8 characters, with upper and lower case letters)."
+    "reminderTitle": "Please change the default password",
+    "reminderHint": "This account still uses a default password that anyone can guess. We recommend setting a new one (at least 8 characters, with upper and lower case letters). If now is not a good time, choose 'Remind me in 7 days'.",
+    "remindLater": "Remind me in 7 days",
+    "rule": "At least 8 characters, with upper and lower case letters"
   },
   "client_name": {
     "title": "Computer name",
@@ -2981,6 +3186,8 @@
       "indigo": "Indigo",
       "teal": "Teal",
       "sand": "Sand",
+      "kenmec-light": "KENMEC Ivory",
+      "kenmec": "KENMEC Noir",
       "midnight": "Midnight",
       "sakura": "Sakura",
       "matcha": "Matcha",
@@ -3695,7 +3902,44 @@
     "caps_lock": "Caps Lock is on",
     "forgot_password": "Forgot password?",
     "authenticating": "AUTHENTICATING...",
-    "system_online": "System Online"
+    "system_online": "System Online",
+    "welcome_back": "Welcome back, {{name}}",
+    "skip_hint": "Click or press any key to skip",
+    "starting": "STARTING",
+    "hero": {
+      "forklift": {
+        "title": "FORKLIFT AGV",
+        "subtitle": "Autonomous forklift",
+        "features": "Automatic pallet handling · Auto charging"
+      },
+      "mir": {
+        "title": "MI15",
+        "subtitle": "Autonomous mobile robot",
+        "features": "Autonomous navigation · Dynamic obstacle avoidance"
+      },
+      "roller": {
+        "title": "ROLLER AGV",
+        "subtitle": "SW15 roller conveyor AGV",
+        "features": "Roller transfer · Automatic docking"
+      },
+      "lift": {
+        "title": "RACK HANDLING",
+        "subtitle": "Rack storage and retrieval",
+        "features": "Mast lifting · Automatic pallet handling"
+      },
+      "fleet": {
+        "title": "FLEET ORCHESTRATION",
+        "subtitle": "Multi-vehicle coordination",
+        "features": "Right-of-way control · Wait & release · Live monitoring"
+      },
+      "spec": {
+        "payload": "Payload",
+        "speed": "Top speed",
+        "size": "Footprint",
+        "lift": "Lift height"
+      },
+      "goto": "Go to chapter {{n}}: {{name}}"
+    }
   },
   "update_log": {
     "title": "System Update Log",
@@ -5270,6 +5514,8 @@
       "theme_help": "Same setting as Appearance on the settings page; changing either saves it to your account",
       "font_size": "Font size",
       "font_size_help": "Make it larger on touch screens on the floor",
+      "auto_zoom_font": "Enlarge text automatically when the browser is zoomed out",
+      "auto_zoom_font_help": "When the browser is zoomed below 100% (e.g. Ctrl -), text gets too small. When on, text is enlarged to compensate. Applies to this computer only.",
       "font_0_9": "Small",
       "font_1": "Standard",
       "font_1_15": "Large",

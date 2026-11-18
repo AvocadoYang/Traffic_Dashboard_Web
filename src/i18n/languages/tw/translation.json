@@ -1,6 +1,7 @@
 {
   "header": {
     "switch_row": "切換導覽列 / 任務列",
+    "more": "更多",
     "navigation": "導覽",
     "sim_time": "模擬時間",
     "stop_sim": "停止模擬",
@@ -162,6 +163,7 @@
     "active": "啟動",
     "inactive": "停止",
     "required": "必填",
+    "copy": "複製",
     "delete_warn": "確定刪除？",
     "cost_time": "耗時（分鐘)",
     "loading": "載入中...",
@@ -295,6 +297,22 @@
     "emergency_pressed": "期間按下緊急按鈕",
     "recovery_pressed": "期間按下復原按鈕",
     "timeline": "時間軸",
+    "step_timing": {
+      "title": "每一步的時間",
+      "step": "步",
+      "action": "動作",
+      "location": "點位",
+      "gap": "與上一步的間隔",
+      "run": "執行時間",
+      "gap_hint": "上一步做完到這一步的指令送給車的時間 (含任務設定的等待秒數); 超過 1 秒標色",
+      "type": {
+        "move": "移動",
+        "load": "取貨",
+        "offload": "放貨",
+        "charge": "充電",
+        "upper_control": "上部控制"
+      }
+    },
     "assigned_at": "指派時間",
     "ended_at": "結束時間",
     "detail": "任務資訊",
@@ -601,6 +619,90 @@
         "name": "馬拉松日",
         "desc": "單日完成 500 個任務"
       },
+      "missions_100": {
+        "name": "百戰小將",
+        "desc": "累計完成 100 個任務"
+      },
+      "missions_1000": {
+        "name": "千戰老將",
+        "desc": "累計完成 1,000 個任務"
+      },
+      "missions_10000": {
+        "name": "萬戰名將",
+        "desc": "累計完成 10,000 個任務"
+      },
+      "distance_10": {
+        "name": "熱身十公里",
+        "desc": "車隊累計行駛 10 公里"
+      },
+      "distance_100": {
+        "name": "百公里俱樂部",
+        "desc": "車隊累計行駛 100 公里"
+      },
+      "day_100": {
+        "name": "百單日",
+        "desc": "單日完成 100 個任務"
+      },
+      "day_250": {
+        "name": "產能全開",
+        "desc": "單日完成 250 個任務"
+      },
+      "hour_20": {
+        "name": "小時衝刺",
+        "desc": "單一小時內完成 20 個任務"
+      },
+      "cargo_day_100": {
+        "name": "單日百件",
+        "desc": "單日卸下 100 件貨"
+      },
+      "dispatch_100": {
+        "name": "派工熟手",
+        "desc": "自己派發 100 個任務"
+      },
+      "dispatch_2000": {
+        "name": "派工宗師",
+        "desc": "自己派發 2,000 個任務"
+      },
+      "active_8": {
+        "name": "勞基法模範生",
+        "desc": "單日有 8 個不同的小時都有完成任務 (剛好一個工作天)"
+      },
+      "active_16": {
+        "name": "爆肝車隊",
+        "desc": "單日有 16 個不同的小時都有完成任務 (比人類還肝)"
+      },
+      "active_24": {
+        "name": "日不落",
+        "desc": "單日 24 個小時每個小時都有完成任務"
+      },
+      "titles_50": {
+        "name": "Junior FAE",
+        "desc": "建立 50 種任務範本"
+      },
+      "titles_100": {
+        "name": "Senior FAE",
+        "desc": "建立 100 種任務範本"
+      },
+      "titles_200": {
+        "name": "FAE LEADER",
+        "desc": "建立 200 種任務範本"
+      },
+      "sep_problem": {
+        "name": "It's someone else's problem",
+        "desc": "有車輛警告放了 10 分鐘以上都沒人處理 (這不是我的問題)"
+      },
+      "clean_run_50": {
+        "name": "一路順風",
+        "desc": "連續完成 50 個任務, 中間沒有任何一個被取消"
+      },
+      "do_it_myself": {
+        "name": "Fine, I'll do it myself",
+        "desc": "累計 500 個完成的任務有按過手動模式 (算了我自己來)"
+      },
+      "weekend_warrior": {
+        "name": "周末加班仔",
+        "desc": "在週六或週日派發 5 個任務"
+      },
       "zero_manual": {
         "name": "零人工介入",
         "desc": "有一天完成 100 個以上任務而且沒有任何人工介入"
@@ -629,6 +731,10 @@
         "name": "交班達人",
         "desc": "連續 7 天都在聊天室發言"
       },
+      "backup_10": {
+        "name": "資料不見 PTSD",
+        "desc": "手動按立即備份 10 次 (備份是好習慣, 還是被嚇過?)"
+      },
       "observer": {
         "name": "觀察家",
         "desc": "用過駕駛視角、車隊回放、熱度圖各一次"
@@ -653,7 +759,93 @@
     "no_online_records": "還沒有車輛連線紀錄 (資料庫要先跑 20261014_amr_online_session.sql 或 yarn pdp)。閒置和離線時間會算在「沒有紀錄」。",
     "tab": {
       "overview": "總覽",
-      "battery": "電量紀錄"
+      "battery": "電量紀錄",
+      "connection": "斷線紀錄",
+      "step_timing": "步驟時間"
+    },
+    "step_timing": {
+      "none": "這段期間沒有步驟時間紀錄 (2026-11-16 以前的任務沒有記錄)",
+      "hint": "間隔 = 上一步做完到這一步指令送給車 (含任務設定的等待秒數); 執行時間 = 指令送出到做完; 只算做完時間在查詢期間內的步驟",
+      "by_type": "依動作",
+      "by_location": "依點位",
+      "by_vehicle": "依車輛",
+      "slowest_first": "預設最慢的排前面",
+      "tile": {
+        "steps": "步驟數",
+        "gap_avg": "間隔平均",
+        "gap_p90": "間隔 P90",
+        "run_avg": "執行平均",
+        "run_p90": "執行 P90"
+      },
+      "col": {
+        "type": "動作",
+        "location": "點位",
+        "vehicle": "車輛",
+        "count": "步數",
+        "gap": "與上一步的間隔",
+        "run": "執行時間",
+        "avg": "平均",
+        "p90": "P90",
+        "max": "最大"
+      },
+      "type": {
+        "move": "移動",
+        "load": "取貨",
+        "offload": "放貨",
+        "charge": "充電",
+        "upper_control": "上部控制",
+        "spin": "原地旋轉",
+        "fork": "牙叉動作"
+      }
+    },
+    "connection": {
+      "not_recorded": "資料庫還沒有斷線紀錄表 (connection_event), 後端重開時會自動建立; 建立後才開始記錄",
+      "none": "這段期間沒有斷線紀錄",
+      "still_down": "還斷著",
+      "restart_tag": "後端重開",
+      "restart_hint": "後端重開時才補上結束時間, 實際恢復的時間不確定",
+      "all_kinds": "全部類別",
+      "unit_sec": "秒",
+      "unit_min": "分",
+      "unit_hour": "小時",
+      "unit_day": "天",
+      "kind": {
+        "VEHICLE": "車輛",
+        "RABBITMQ": "RabbitMQ",
+        "MQTT": "MQTT",
+        "ECS": "ECS",
+        "ADVANTECH": "研華模組",
+        "REDIS": "Redis"
+      },
+      "tile": {
+        "count": "斷線次數",
+        "down_time": "斷線總時間",
+        "ongoing": "目前還斷著",
+        "longest": "最長一次",
+        "targets": "斷過線的對象"
+      },
+      "col": {
+        "kind": "類別",
+        "target": "對象",
+        "count": "次數",
+        "down": "斷線時間",
+        "longest": "最長一次",
+        "last_code": "最近的原因",
+        "code": "原因代碼",
+        "start": "斷線時間",
+        "end": "恢復時間",
+        "duration": "持續",
+        "reason": "原因"
+      },
+      "chart_hour": "每小時斷線次數",
+      "chart_day": "每天斷線次數",
+      "chart_hint": "依斷線開始的時間計算, 顏色是類別",
+      "kind_title": "各類別",
+      "code_title": "原因統計",
+      "target_title": "各對象",
+      "target_hint": "斷線時間最長的在最上面",
+      "event_title": "斷線明細",
+      "event_hint": "車輛斷線超過 15 秒、其他連線斷 5~10 秒以上才會記"
     },
     "battery": {
       "not_recorded": "資料庫還沒有電量紀錄表 (amr_battery_log), 後端重開時會自動建立; 建立後才開始每分鐘記錄",
@@ -755,7 +947,7 @@
     "per_day_title": "每天完成數",
     "per_bucket_hint": "長條是完成的搬運任務, 線是平均等車 / 執行時間 (分鐘)",
     "time_split_title": "每台車的時間分配",
-    "time_split_hint": "閒置 = 在線但沒任務; 離線 = 後端在跑但車沒連線; 沒有紀錄 = 後端沒在跑或功能上線之前",
+    "time_split_hint": "每台車每個時段只算一個狀態, 加起來 100%。搬運 = 執行一般搬運任務; 充電 = 去充電或充電中的任務; 讓路 = 系統叫車讓出路線; 回待命點 = 沒任務時自動回待命點; 手動移動 = 人員手動派的移動; 閒置 = 在線但沒任務(含停在原地等派工); 離線 = 後端在跑但車沒連線; 沒有紀錄 = 後端沒在跑或功能上線之前。同一時間有多個任務時, 依 搬運 > 充電 > 手動 > 回待命點 > 讓路 的順序只算一類",
     "vehicle_table_title": "每台車明細",
     "alarm_title": "告警排行",
     "alarm_hint": "車的警告多半沒有解除時間, 這些只算次數",
@@ -803,6 +995,7 @@
   "page_cargo_history": "貨物紀錄",
   "page_amr": "車輛資訊",
   "main_task_list": {
+    "per_page": "筆/頁",
     "wait_suitable": "等待適合"
   },
   "toolbar": {
@@ -1245,6 +1438,9 @@
       "title_name": "新增車輛",
       "amr_name": "車輛名稱",
       "type": "類型",
+      "color": "識別色",
+      "color_auto": "自動",
+      "color_used_by": "{{names}} 也在用這個顏色",
       "serial_number": "連線 MAC address",
       "invalid_serial_number": " serial number 格式不正確",
       "executing": "啟用中",
@@ -1327,6 +1523,13 @@
     "tooltip_full": "充電中電量到這個值，充電任務結束，車留在充電站裡。",
     "tooltip_available_get_task": "充電中電量超過這個值、而且有任務在等這台車時，結束充電去做任務。",
     "section_trigger_delay": "[03] 觸發延遲設定",
+    "section_manual_priority": "[04] 手動充電",
+    "manualChargePriority": "手動充電派發優先權",
+    "tooltip_manualChargePriority": "按下車輛「充電」(amr-charge) 時建立的充電任務用這個優先權排隊。數字越大越先派,和搬運任務搶車時比較用。預設「普通」。",
+    "priority_0": "最低",
+    "priority_1": "普通",
+    "priority_2": "優先",
+    "priority_3": "緊急",
     "aggressiveTriggerDelayMin": "激進觸發延遲",
     "aggressiveTriggerDelayMin_min": "激進觸發延遲至少為 0 分鐘",
     "tooltip_aggressiveTriggerDelayMin": "觸發激進充電前的延遲時間",
@@ -2745,8 +2948,10 @@
     "newPassword": "新密碼",
     "confirmPassword": "確認密碼",
     "passwordNotMatch": "密碼不相符",
-    "forcedTitle": "請先修改預設密碼",
-    "forcedHint": "這個帳號還在用預設密碼, 任何人都猜得到。改成新密碼後才能繼續使用 (至少 8 碼, 要有大寫和小寫英文)。"
+    "reminderTitle": "建議修改預設密碼",
+    "reminderHint": "這個帳號還在用預設密碼, 任何人都猜得到, 建議改成新密碼 (至少 8 碼, 要有大寫和小寫英文)。現在不方便的話可以按「7 天後再提醒」。",
+    "remindLater": "7 天後再提醒",
+    "rule": "至少 8 碼, 要有大寫和小寫英文"
   },
   "client_name": {
     "title": "電腦名稱",
@@ -2982,6 +3187,8 @@
       "indigo": "靛藍",
       "teal": "青綠",
       "sand": "暖砂",
+      "kenmec-light": "KENMEC 經典白",
+      "kenmec": "KENMEC 經典黑",
       "midnight": "深夜",
       "sakura": "櫻花",
       "matcha": "抹茶",
@@ -3692,11 +3899,48 @@
     "username_placeholder": "輸入帳號",
     "password_required": "請輸入密碼",
     "password_placeholder": "輸入密碼",
-    "forgot_tooltip": "抱歉，目前無法找回帳號，這個功能還在測試中 😣",
+    "forgot_tooltip": "抱歉，永遠無法找回帳號🥀",
     "caps_lock": "大寫鎖定 (Caps Lock) 已開啟",
     "forgot_password": "忘記密碼？",
     "authenticating": "驗證中...",
-    "system_online": "系統運作中"
+    "system_online": "系統運作中",
+    "welcome_back": "歡迎回來，{{name}}",
+    "skip_hint": "點一下或按任意鍵略過",
+    "starting": "啟動中",
+    "hero": {
+      "forklift": {
+        "title": "FORKLIFT AGV",
+        "subtitle": "無人堆高機",
+        "features": "棧板自動取放 · 自動充電"
+      },
+      "mir": {
+        "title": "MI15",
+        "subtitle": "自主移動機器人 AMR",
+        "features": "自主導航 · 動態避障"
+      },
+      "roller": {
+        "title": "ROLLER AGV",
+        "subtitle": "SW15 滾筒式 AGV",
+        "features": "滾筒輸送 · 自動對接"
+      },
+      "lift": {
+        "title": "RACK HANDLING",
+        "subtitle": "貨架存取",
+        "features": "門架舉升 · 棧板自動取放"
+      },
+      "fleet": {
+        "title": "FLEET ORCHESTRATION",
+        "subtitle": "多車協同調度",
+        "features": "路權管理 · 等待與放行 · 即時監控"
+      },
+      "spec": {
+        "payload": "載重",
+        "speed": "最高速度",
+        "size": "尺寸",
+        "lift": "舉升高度"
+      },
+      "goto": "跳到第 {{n}} 章：{{name}}"
+    }
   },
   "update_log": {
     "title": "系統更新紀錄",
@@ -5271,6 +5515,8 @@
       "theme_help": "跟設定頁的外觀設定是同一個, 改哪邊都會存到你的帳號",
       "font_size": "字體大小",
       "font_size_help": "現場觸控螢幕可以調大",
+      "auto_zoom_font": "縮小瀏覽器畫面時自動放大字體",
+      "auto_zoom_font_help": "把瀏覽器縮到 100% 以下 (例如 Ctrl -) 時，字會變得太小；開啟後會依縮小的程度自動把字體放大補回來。只影響這台電腦。",
       "font_0_9": "小",
       "font_1": "標準",
       "font_1_15": "大",

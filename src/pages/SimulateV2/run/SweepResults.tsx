@@ -404,7 +404,7 @@ const SweepResults: FC<{ sweep: SweepOutcome }> = ({ sweep }) => {
                 r.pass === null ? (
                   <span style={{ color: "var(--c-text-muted)" }}>{t("sim_v2.sweep.partial", { done: r.runs, total: sweep.plan.seeds.length })}</span>
                 ) : r.pass ? (
-                  <span style={{ color: "var(--c-success)" }}>
+                  <span style={{ color: "var(--c-success-text)" }}>
                     <CheckCircleFilled /> {t("sim_v2.sweep.pass")}
                   </span>
                 ) : (

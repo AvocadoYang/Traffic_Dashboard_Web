@@ -53,9 +53,9 @@ const InlineWarnList = styled.div`
   margin: 0 10px 10px;
   padding: 6px 8px;
   border: 1px solid var(--c-danger);
-  border-radius: 2px;
+  border-radius: 0;
   background: var(--c-danger-soft);
-  font-size: 11px;
+  font-size: var(--font-sm);
   line-height: 1.5;
 `;
 
@@ -78,8 +78,12 @@ const MenuTitle = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: "Roboto Mono", monospace;
+  font-family: var(--font-ui);
   font-size: 13px;
+
+  & * {
+    font-family: inherit;
+  }
   font-weight: 600;
   color: var(--c-text);
 `;
@@ -88,13 +92,13 @@ const MenuTitleSwatch = styled.span<{ $color: string }>`
   flex-shrink: 0;
   width: 4px;
   height: 16px;
-  border-radius: 1px;
+  border-radius: 0;
   background: ${({ $color }) => $color};
 `;
 
 const MenuTitleSub = styled.span`
-  font-size: 11px;
-  font-weight: 400;
+  font-size: var(--font-sm);
+  font-weight: 600;
   color: var(--c-text-muted);
 `;
 

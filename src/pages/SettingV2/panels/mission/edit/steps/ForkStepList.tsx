@@ -66,7 +66,7 @@ const ForkStepList: FC<Props> = ({ missionId, robotValue, onEditStep }) => {
   const { data, isLoading } = useTaskFork(missionId);
   const steps = useMemo(() => (data ?? []) as ForkStep[], [data]);
 
-  const { setDisabled, setExtendNext, busy } = useStepMutations(
+  const { setDisabled, setExtendNext, copy, busy } = useStepMutations(
     missionId,
     messageApi,
   );
@@ -91,6 +91,7 @@ const ForkStepList: FC<Props> = ({ missionId, robotValue, onEditStep }) => {
       onImport={() => setImportAfter(step.process_order)}
       onJson={() => setJsonStep(step)}
       onDelete={() => removeStep(step.id)}
+      onCopy={() => copy.mutate(step.id)}
     />
   );
 

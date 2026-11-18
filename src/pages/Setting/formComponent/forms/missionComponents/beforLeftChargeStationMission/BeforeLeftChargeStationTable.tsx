@@ -33,7 +33,7 @@ const IndustrialTable = styled(Table)`
     background: #fafafa;
     border-bottom: 2px solid #d9d9d9;
     color: #595959;
-    font-size: 11px;
+    font-size: var(--font-sm);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 700;
@@ -71,7 +71,7 @@ const IndustrialTable = styled(Table)`
 const IndustrialButton = styled(Button)`
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--font-sm);
   letter-spacing: 1px;
   height: 32px;
   font-weight: 600;
@@ -124,7 +124,7 @@ const StatusBadge = styled.div<{ $active: boolean }>`
   border: 1px solid ${({ $active }) => ($active ? "#52c41a" : "#d9d9d9")};
   color: ${({ $active }) => ($active ? "#52c41a" : "#8c8c8c")};
   font-family: "Roboto Mono", monospace;
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -151,7 +151,7 @@ const AmrTag = styled.span`
   background: #f9f0ff;
   border: 1px solid #d3adf7;
   font-family: "Roboto Mono", monospace;
-  font-size: 10px;
+  font-size: var(--font-xs);
   color: #722ed1;
   text-transform: uppercase;
   display: inline-block;

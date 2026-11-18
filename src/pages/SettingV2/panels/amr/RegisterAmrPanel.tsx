@@ -26,6 +26,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";
 import useRegisterAmr from "@/api/useRegisterAmr";
+import useName from "@/api/useAmrName";
+import { amrId2ColorRainbow } from "@/utils/utils";
+import AmrColorPicker from "./AmrColorPicker";
 import useAMRsample from "@/api/useAMRsample";
 import { Err } from "@/utils/responseErr";
 import AndyConfigModel from "@/pages/Setting/formComponent/forms/amrSetting/registerAmr/AndyConfigModel";
@@ -60,6 +63,7 @@ type RegisterRow = {
   full_name: string;
   serialNum: string;
   is_enable: boolean;
+  display_color?: string | null;
   ip?: string | null;
   Robot_type: { id: string; name: string; value: string };
 };
@@ -85,6 +89,8 @@ const RegisterAmrPanel: FC = () => {
 
   const { data, isLoading, isFetching, refetch } = useRegisterAmr();
   const { data: robotTypes } = useAMRsample();
+  // 車隊名單 (all-amr-name) 載入後才有「自動分配」的顏色, 這裡先載入讓顏色跟首頁一致
+  const { data: fleetNames } = useName();
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -120,6 +126,40 @@ const RegisterAmrPanel: FC = () => {
 
   const onError = (error: Err) =>
     void messageApi.error(error.response.data.message);
+
+  // 車輛識別色 (後端存, 所有電腦一致): 手動指定的優先, 沒指定的依車隊名單自動分配
+  const colorMutation = useMutation({
+    mutationFn: (payload: { id: string; color: string | null }) =>
+      client.post("api/setting/set-amr-color", payload),
+    onSuccess: () => {
+      void messageApi.success(t("utils.success"));
+      void invalidate();
+      void queryClient.refetchQueries({ queryKey: ["all-amr-name"] });
+    },
+    onError,
+  });
+
+  // 目前每個顏色有哪些車在用 (提示挑到同色時用; 不禁止)
+  const colorUsers = useMemo(() => {
+    const m = new Map<string, string[]>();
+    ((data ?? []) as RegisterRow[]).forEach((r) => {
+      const c = (r.display_color ?? amrId2ColorRainbow(r.full_name)).toLowerCase();
+      m.set(c, [...(m.get(c) ?? []), r.full_name]);
+    });
+    return m;
+    // fleetNames 載入後自動分配的顏色才算得對
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, fleetNames]);
+
+  const colorPicker = (row: RegisterRow) => (
+    <AmrColorPicker
+      manual={row.display_color}
+      effective={row.display_color ?? amrId2ColorRainbow(row.full_name)}
+      usedBy={(c) => (colorUsers.get(c.toLowerCase()) ?? []).filter((n) => n !== row.full_name)}
+      onPick={(color) => colorMutation.mutate({ id: row.id, color })}
+      disabled={colorMutation.isLoading}
+    />
+  );
 
   const createMutation = useMutation({
     mutationFn: (payload: SubmitPayload) =>
@@ -249,6 +289,12 @@ const RegisterAmrPanel: FC = () => {
       key: "full_name",
       width: 150,
       sorter: (a, b) => a.full_name.localeCompare(b.full_name),
+    },
+    {
+      title: t("setting_amr.register_amr.color"),
+      key: "display_color",
+      width: 140,
+      render: (_, r) => colorPicker(r),
     },
     {
       title: t("setting_amr.register_amr.serial_number"),
@@ -441,6 +487,8 @@ const RegisterAmrPanel: FC = () => {
                   <dd>{row.Robot_type.name}</dd>
                   <dt>IP</dt>
                   <dd>{row.ip || "—"}</dd>
+                  <dt>{t("setting_amr.register_amr.color")}</dt>
+                  <dd>{colorPicker(row)}</dd>
                 </CardFacts>
 
                 <Toolbar>

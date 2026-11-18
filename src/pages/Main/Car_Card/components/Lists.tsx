@@ -22,6 +22,7 @@ import {
   useXY,
   useMaintenanceStatus,
   useSpeed,
+  useIsCharging,
   MaintenanceLevel,
 } from "@/sockets/useAMRInfo";
 import { useTranslation } from "react-i18next";
@@ -44,6 +45,7 @@ import { useMiRStatus } from "@/sockets/useMirStatus";
 import { useSystemState } from "@/sockets/useSystemState";
 import { useSetAtom } from "jotai";
 import { usePermission } from "@/utils/permissions";
+import { amrId2ColorRainbow, amrShortNum, textOnColor } from "@/utils/utils";
 import { JoystickAmrId } from "../../global/jotai";
 import MapSwitchModal from "./MapSwitchModal";
 import { MaintenanceBadge } from "./MaintenancePanel";
@@ -97,15 +99,7 @@ const ONLINE_COLOR: Record<OnlineState, string> = {
 };
 
 const Head = styled.div<{ $compact: boolean }>`
-  padding: ${({ $compact }) => ($compact ? "6px 8px" : "8px 10px")};
-  border-radius: 0 3px 0 0;
-
-  ${({ $compact }) =>
-    !$compact &&
-    css`
-      background: var(--c-bg-subtle);
-      border-bottom: 1px solid var(--c-border);
-    `}
+  padding: ${({ $compact }) => ($compact ? "7px 10px 7px 12px" : "11px 12px 4px 14px")};
 `;
 
 const HeadMain = styled.div`
@@ -117,23 +111,44 @@ const HeadMain = styled.div`
 
 const OnlineDot = styled.span<{ $state: OnlineState }>`
   flex-shrink: 0;
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: ${({ $state }) => ONLINE_COLOR[$state]};
+  /* 外圈淡淡一圈同色光暈, 不動 (省效能) */
+  box-shadow: 0 0 0 3px color-mix(in srgb, ${({ $state }) => ONLINE_COLOR[$state]} 18%, transparent);
 `;
 
-const AmrNum = styled.span<{ $offline: boolean }>`
+// 車號牌: 小字「車號」+ 實心色塊的車號。色塊就是這台車的識別色 (跟地圖上的車、任務表的徽章同色),
+// 字色依色塊明暗自動選黑 / 白。離線時不淡化 (色塊淡了字就看不清楚; 離線已有紅點與提示框)。
+const AmrNum = styled.span<{ $offline: boolean; $compact: boolean }>`
   flex: 0 1 auto;
   min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.4;
-  color: ${({ $offline }) =>
-    $offline ? "var(--c-text-muted)" : "var(--c-text)"};
+  font-family: var(--font-ui);
+
+  small {
+    font-size: var(--font-sm);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--c-text-muted);
+  }
+`;
+
+const AmrPlate = styled.b<{ $compact: boolean }>`
+  display: inline-block;
+  padding: ${({ $compact }) => ($compact ? "2px 7px" : "3px 11px")};
+  font-family: var(--font-num);
+  font-size: ${({ $compact }) => ($compact ? "14px" : "20px")};
+  font-weight: 700;
+  font-stretch: 112%;
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
 `;
 
 const HeadActions = styled.div<{ $compact: boolean }>`
@@ -164,7 +179,7 @@ const IconBtn = styled.button`
   height: 22px;
   padding: 0 4px;
   gap: 3px;
-  border-radius: 2px;
+  border-radius: 0;
   font-size: 12px;
   color: var(--c-text-secondary);
   cursor: pointer;
@@ -201,11 +216,22 @@ const HeadSub = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  column-gap: 8px;
+  column-gap: 6px;
   margin-top: 2px;
-  font-size: 11px;
+  padding-left: 13px; /* 跟車號對齊 (在線燈號的寬度) */
+  font-size: var(--font-sm);
   line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
   color: var(--c-text-muted);
+
+  /* 欄位之間用細點隔開 */
+  > * + *::before {
+    content: "·";
+    margin-right: 6px;
+    color: var(--c-border-strong);
+    font-weight: 600;
+  }
 `;
 
 const OnlineText = styled.span<{ $state: OnlineState }>`
@@ -219,8 +245,8 @@ const NetworkDelay = styled.span<{ $delay: number | undefined }>`
   white-space: nowrap;
   color: ${({ $delay }) => {
     if ($delay === undefined) return "var(--c-text-muted)";
-    if ($delay <= 100) return "var(--c-success)";
-    if ($delay <= 300) return "var(--c-warning)";
+    if ($delay <= 100) return "var(--c-success-text)";
+    if ($delay <= 300) return "var(--c-warning-text)";
     return "var(--c-danger)";
   }};
 `;
@@ -254,15 +280,15 @@ const CompactStat = styled.span<{ $danger?: boolean }>`
 
   .anticon {
     flex-shrink: 0;
-    font-size: 11px;
+    font-size: var(--font-sm);
     color: ${({ $danger }) =>
       $danger ? "var(--c-danger)" : "var(--c-text-muted)"};
   }
 
 `;
 
-// 低於這個電量,電量數字會變成警示色
-const LOW_BATTERY = 20;
+// 低於這個電量,電量數字會變成警示色 (跟「低電量」標籤同一個門檻)
+const LOW_BATTERY = 25;
 
 const formatBattery = (
   battery: number | undefined,
@@ -322,10 +348,12 @@ export const CardHeader: React.FC<{
     const can = usePermission();
     const AmrID = useMemo(() => {
       return {
-        num: amrId.split("-")[amrId.split("-").length - 1],
+        num: amrShortNum(amrId),
         category: amrId.split("-").slice(0, 3).join("-"),
       };
     }, [amrId]);
+
+    const plateColor = amrId2ColorRainbow(amrId);
 
     const onlineState: OnlineState = isOverdue
       ? "offline"
@@ -342,8 +370,14 @@ export const CardHeader: React.FC<{
       <Head $compact={compact}>
         <HeadMain>
           <OnlineDot $state={onlineState} title={onlineText} />
-          <AmrNum $offline={isOverdue} title={`${amrId} (${onlineText})`}>
-            {compact ? AmrID.num : `${t("utils.num")} ${AmrID.num}`}
+          <AmrNum $offline={isOverdue} $compact={compact} title={`${amrId} (${onlineText})`}>
+            {!compact && <small>{t("utils.num")}</small>}
+            <AmrPlate
+              $compact={compact}
+              style={{ background: plateColor, color: textOnColor(plateColor) }}
+            >
+              {AmrID.num}
+            </AmrPlate>
           </AmrNum>
           {compact && <CompactStats amrId={amrId} isOffline={isOverdue} />}
           <HeadActions $compact={compact}>
@@ -406,113 +440,166 @@ export const CardHeader: React.FC<{
   },
 );
 
-// ======= 數值列:位置 / 車速 / 電量 / 轉角 =======
+// ======= 數值區: 電量條 + 位置 / 車速 / 轉角 =======
 
-const MetricGrid = styled.div<{ $cols: number }>`
-  display: grid;
-  grid-template-columns: repeat(${({ $cols }) => $cols}, minmax(0, 1fr));
-  gap: 4px;
-  padding: 8px 6px;
-  border-bottom: 1px solid var(--c-border);
-`;
-
-const Metric = styled.div<{ $danger?: boolean }>`
+const MetricBlock = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 10px;
+  padding: 8px 12px 10px 14px;
+`;
+
+type BatteryTone = "muted" | "success" | "warning" | "danger";
+const BATTERY_TONE: Record<BatteryTone, string> = {
+  muted: "var(--c-border-strong)",
+  success: "var(--c-success)",
+  warning: "var(--c-warning)",
+  danger: "var(--c-danger)",
+};
+
+// 電量獨立一行 (細長電量條 + 完整百分比): 以前跟其他三格擠在一起, 側欄窄的時候會被截成「86.…」
+const BatteryLine = styled.div<{ $tone: BatteryTone }>`
+  --tone: ${({ $tone }) => BATTERY_TONE[$tone]};
+  display: flex;
   align-items: center;
-  gap: 2px;
-  min-width: 0;
+  gap: 8px;
 
   .anticon {
-    font-size: 13px;
-    color: ${({ $danger }) =>
-      $danger ? "var(--c-danger)" : "var(--c-text-muted)"};
+    flex-shrink: 0;
+    font-size: 12px;
+    color: var(--tone);
+  }
+  .bar {
+    flex: 1;
+    height: 3px;
+    border-radius: 0;
+    background: var(--c-bg-muted);
+    overflow: hidden;
+  }
+  .bar > i {
+    display: block;
+    height: 100%;
+    border-radius: 0;
+    background: var(--tone);
+    transition: width 0.6s ease;
+  }
+  .pct {
+    flex-shrink: 0;
+    min-width: 2.6em;
+    text-align: right;
+    font-family: var(--font-num);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: ${({ $tone }) => ($tone === "danger" ? "var(--c-danger)" : $tone === "muted" ? "var(--c-text-muted)" : "var(--c-text)")};
   }
 `;
 
-const MetricValue = styled.span<{ $danger?: boolean }>`
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.4;
-  color: ${({ $danger }) => ($danger ? "var(--c-danger)" : "var(--c-text)")};
+const StatGrid = styled.div<{ $cols: number }>`
+  display: grid;
+  grid-template-columns: repeat(${({ $cols }) => $cols}, minmax(0, 1fr));
+  gap: 6px;
 `;
 
-// 桌機側欄的卡片很窄,四格放不下單位,所以只在底部面板(卡片定寬)顯示單位
-const MetricUnit = styled.span`
-  margin-left: 1px;
-  font-size: 10px;
-  font-weight: 400;
-  color: var(--c-text-muted);
+const Stat = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
 
-  ${mq.web} {
-    display: none;
+  > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .label {
+    font-size: var(--font-sm); /* 中文標籤不要再小, Windows 的正黑體 10px 會糊 */
+    line-height: 1.2;
+    letter-spacing: 0.12em;
+    color: var(--c-text-muted);
+  }
+  .value {
+    font-family: var(--font-num);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+    color: var(--c-text);
+  }
+  .value.empty {
+    color: var(--c-text-muted);
+    font-weight: 600;
   }
 `;
 
 type MetricProps = { amrId: string; isOffline?: boolean };
 
+const BatteryMetric: React.FC<MetricProps> = memo(({ amrId, isOffline }) => {
+  const { battery } = useBattery(amrId);
+  const { isCharge } = useIsCharging(amrId);
+  const { t } = useTranslation();
+  const has = !isOffline && typeof battery === "number" && battery > 0;
+  const tone: BatteryTone = !has
+    ? "muted"
+    : isCharge
+      ? "success"
+      : (battery as number) < LOW_BATTERY
+        ? "danger"
+        : (battery as number) < 40
+          ? "warning"
+          : "success";
+  return (
+    <BatteryLine
+      $tone={tone}
+      title={`${t("mission_dispatch_board.amr_battery")} ${has ? `${(battery as number).toFixed(1)}%` : NO_DATA}${isCharge ? ` · ${t("mode.is_charge")}` : ""}`}
+    >
+      <ThunderboltOutlined />
+      <span className="bar">
+        <i style={{ width: has ? `${Math.min(100, Math.max(0, battery as number))}%` : 0 }} />
+      </span>
+      <span className="pct">{has ? `${Math.round(battery as number)}%` : NO_DATA}</span>
+    </BatteryLine>
+  );
+});
+
+const StatItem: React.FC<{ label: string; value?: string; title?: string }> = ({ label, value, title }) => (
+  <Stat title={title ?? label}>
+    <span className="label">{label}</span>
+    <span className={value ? "value" : "value empty"}>{value || NO_DATA}</span>
+  </Stat>
+);
+
 const LocMetric: React.FC<MetricProps> = memo(({ amrId, isOffline }) => {
   const { closeLoc } = useCloseLoc(amrId);
   const { t } = useTranslation();
-  return (
-    <Metric title={t("mission_dispatch_board.amr_location") as string}>
-      <EnvironmentOutlined />
-      <MetricValue>{formatLoc(closeLoc, isOffline)}</MetricValue>
-    </Metric>
-  );
+  const v = formatLoc(closeLoc, isOffline);
+  return <StatItem label={t("mission_dispatch_board.amr_location")} value={v === NO_DATA ? undefined : v} />;
 });
 
 const SpeedMetric: React.FC<MetricProps> = memo(({ amrId, isOffline }) => {
   const { speed } = useSpeed(amrId);
   const { t } = useTranslation();
-  const displaySpeed = isOffline ? undefined : speed;
+  const label = t("mission_dispatch_board.amr_speed");
   return (
-    <Metric title={`${t("mission_dispatch_board.amr_speed")} (m/s)`}>
-      <CarOutlined />
-      <MetricValue>
-        {displaySpeed != null
-          ? Math.abs(Number(displaySpeed)).toFixed(2)
-          : NO_DATA}
-        <MetricUnit>m/s</MetricUnit>
-      </MetricValue>
-    </Metric>
-  );
-});
-
-const BatteryMetric: React.FC<MetricProps> = memo(({ amrId, isOffline }) => {
-  const { battery } = useBattery(amrId);
-  const { t } = useTranslation();
-  const isLow = !isOffline && Boolean(battery) && (battery as number) < LOW_BATTERY;
-  return (
-    <Metric
-      $danger={isLow}
-      title={t("mission_dispatch_board.amr_battery") as string}
-    >
-      <ThunderboltOutlined />
-      <MetricValue $danger={isLow}>
-        {formatBattery(battery, isOffline)}
-      </MetricValue>
-    </Metric>
+    <StatItem
+      label={label}
+      title={`${label} (m/s)`}
+      value={!isOffline && speed != null ? Math.abs(Number(speed)).toFixed(2) : undefined}
+    />
   );
 });
 
 const YawMetric: React.FC<MetricProps> = memo(({ amrId, isOffline }) => {
   const { yaw } = useYaw(amrId);
   const { t } = useTranslation();
-  const displayYaw = isOffline ? undefined : yaw;
+  const show = !isOffline && yaw !== undefined;
   return (
-    <Metric
-      title={`${t("utils.yaw")}${displayYaw !== undefined ? ` ${displayYaw.toFixed(2)}°` : ""}`}
-    >
-      <CompassOutlined />
-      <MetricValue>
-        {displayYaw !== undefined ? `${Math.round(displayYaw)}°` : NO_DATA}
-      </MetricValue>
-    </Metric>
+    <StatItem
+      label={t("utils.yaw")}
+      title={`${t("utils.yaw")}${show ? ` ${(yaw as number).toFixed(2)}°` : ""}`}
+      value={show ? `${Math.round(yaw as number)}°` : undefined}
+    />
   );
 });
 
@@ -520,12 +607,14 @@ export const Metrics: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const { isOverdue } = useIsLogIn(amrId);
   const mir = isMiR(amrId);
   return (
-    <MetricGrid $cols={mir ? 3 : 4}>
-      {!mir && <LocMetric amrId={amrId} isOffline={isOverdue} />}
-      <SpeedMetric amrId={amrId} isOffline={isOverdue} />
+    <MetricBlock>
       <BatteryMetric amrId={amrId} isOffline={isOverdue} />
-      <YawMetric amrId={amrId} isOffline={isOverdue} />
-    </MetricGrid>
+      <StatGrid $cols={mir ? 2 : 3}>
+        {!mir && <LocMetric amrId={amrId} isOffline={isOverdue} />}
+        <SpeedMetric amrId={amrId} isOffline={isOverdue} />
+        <YawMetric amrId={amrId} isOffline={isOverdue} />
+      </StatGrid>
+    </MetricBlock>
   );
 });
 
@@ -535,7 +624,9 @@ const RowList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 8px 10px;
+  margin: 0 12px 0 14px;
+  padding: 7px 0 9px;
+  border-top: 1px solid var(--c-border);
 `;
 
 const InfoRow = styled.div<{ $clickable?: boolean }>`
@@ -551,7 +642,7 @@ const InfoRow = styled.div<{ $clickable?: boolean }>`
     css`
       margin: 0 -4px;
       padding: 0 4px;
-      border-radius: 2px;
+      border-radius: 0;
       cursor: pointer;
       transition: background-color 0.15s ease;
 
@@ -567,6 +658,8 @@ const InfoRow = styled.div<{ $clickable?: boolean }>`
 
 const RowLabel = styled.span`
   flex-shrink: 0;
+  font-size: var(--font-sm);
+  letter-spacing: 0.1em;
   color: var(--c-text-muted);
 `;
 
@@ -587,13 +680,13 @@ const RowSub = styled.span`
 `;
 
 const MapGroupName = styled.span`
-  font-weight: 400;
+  font-weight: 600;
   color: var(--c-text-muted);
 `;
 
 const MapSwitchIcon = styled(SwapOutlined)`
   margin-left: 4px;
-  font-size: 11px;
+  font-size: var(--font-sm);
   color: var(--c-header-accent);
   opacity: 0;
   transition: opacity 0.15s ease;
@@ -945,8 +1038,13 @@ export const InfoRows: React.FC<{ amrId: string; detailed: boolean }> = memo(
 const TagWrap = styled.div<{ $offline: boolean }>`
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  padding: 0 10px 10px;
+  gap: 5px;
+  padding: 0 12px 12px 14px;
+
+  /* 標籤只列成立的狀態, 一個都沒有時整列收起來 */
+  &:empty {
+    display: none;
+  }
 
   ${({ $offline }) =>
     $offline &&

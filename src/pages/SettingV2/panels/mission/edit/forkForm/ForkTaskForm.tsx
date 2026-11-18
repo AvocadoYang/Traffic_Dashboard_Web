@@ -208,6 +208,8 @@ const ForkTaskForm: FC<Props> = ({
       yaw: origin.operation.yaw,
       tolerance: origin.operation.tolerance,
       lookahead: origin.operation.lookahead,
+      // 控制序列有 W 時, 車在移動前等的秒數 (0 = 沒設定, 欄位留空)
+      wait: origin.operation.wait || undefined,
       io: origin.io,
       is_define_id: origin.operation.is_define_id,
       is_define_level: origin.io.fork_global?.is_define_level || "custom",
@@ -384,6 +386,8 @@ const ForkTaskForm: FC<Props> = ({
       is_define_id: locationType,
       action_type: action,
       control: sequence,
+      // 後端只看 wait > 0 就會等, 不看有沒有 W; 序列沒有 W 就不能把藏起來的舊秒數送出去
+      wait: hasWait ? (form.getFieldValue("wait") as number | undefined) || 0 : 0,
       id: editTaskKey,
       rev: origin?.rev,
       is_define_yaw: yawType,

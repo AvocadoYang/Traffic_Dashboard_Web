@@ -7,6 +7,9 @@ import { HOME_PAGES, MapLayerPrefs, useMyProfile, useSaveProfile } from "@/api/u
 import {
   currentThemeIdAtom,
   fontScaleAtom,
+  autoZoomFontAtom,
+  zoomCompAtom,
+  pixelRatioAtom,
   FONT_SCALE_STEPS,
   setThemeAtom,
   themes,
@@ -40,6 +43,9 @@ const PreferencesTab: FC = () => {
   const themeId = useAtomValue(currentThemeIdAtom);
   const setTheme = useSetAtom(setThemeAtom);
   const [fontScale, setFontScale] = useAtom(fontScaleAtom);
+  const [autoZoomFont, setAutoZoomFont] = useAtom(autoZoomFontAtom);
+  const zoomComp = useAtomValue(zoomCompAtom);
+  const pixelRatio = useAtomValue(pixelRatioAtom);
   const prefs = profile?.preferences ?? {};
   const layers = { ...DEFAULT_LAYERS, ...prefs.map?.layers };
   const view = prefs.map?.view ?? null;
@@ -118,6 +124,17 @@ const PreferencesTab: FC = () => {
               label: t(`profile.prefs.font_${String(s).replace(".", "_")}` as never),
             }))}
           />
+        </SettingRow>
+        <SettingRow label={t("profile.prefs.auto_zoom_font")} help={t("profile.prefs.auto_zoom_font_help")}>
+          <Space size={12}>
+            <Switch checked={autoZoomFont} onChange={setAutoZoomFont} />
+            {/* 目前偵測到的瀏覽器縮放 (devicePixelRatio < 1 才算縮小) 與補償倍率 */}
+            {pixelRatio < 1 ? (
+              <Tag color={autoZoomFont ? "blue" : undefined} style={{ marginInlineEnd: 0 }}>
+                {`${Math.round(pixelRatio * 100)}% → ×${zoomComp.toFixed(2)}`}
+              </Tag>
+            ) : null}
+          </Space>
         </SettingRow>
       </Section>
 

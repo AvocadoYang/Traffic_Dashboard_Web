@@ -408,12 +408,6 @@ const CustomCargoInfoPanel: FC = () => {
                     <Form.Item
                       {...restField}
                       name={[name, "key"]}
-                      rules={[
-                        {
-                          required: true,
-                          message: t("customCargo.keyRequired"),
-                        },
-                      ]}
                       style={{ flex: 1, marginBottom: 0 }}
                     >
                       <Input placeholder="e.g. container_id" />

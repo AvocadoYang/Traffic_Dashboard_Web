@@ -182,13 +182,13 @@ const TitleInput = styled.input`
     border-color: #99a9d8;
   }
   &::placeholder {
-    color: #98a2b3;
+    color: var(--c-text-muted);
     font-weight: 400;
   }
 `;
 
 const HelpIcon = styled(QuestionCircleOutlined)`
-  color: #98a2b3;
+  color: var(--c-text-muted);
   font-size: 14px;
 `;
 
@@ -258,7 +258,7 @@ const VertexCircle = styled.rect<{ $selected: boolean }>`
 `;
 
 const EdgeLabel = styled.text`
-  font-size: 11px;
+  font-size: var(--font-sm);
   fill: #667085;
   font-family: inherit;
   user-select: none;
@@ -277,7 +277,7 @@ const GuideLine = styled.line`
 `;
 
 const GuideLabel = styled.text`
-  font-size: 11px;
+  font-size: var(--font-sm);
   fill: #e8720c;
   font-family: inherit;
   user-select: none;

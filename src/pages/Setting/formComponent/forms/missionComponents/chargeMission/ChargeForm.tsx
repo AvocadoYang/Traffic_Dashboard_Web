@@ -23,7 +23,7 @@ const StyledForm = styled(Form)`
 
   .ant-form-item-label > label {
     color: #595959;
-    font-size: 11px;
+    font-size: var(--font-sm);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-family: "Roboto Mono", monospace;
@@ -64,7 +64,7 @@ const IndustrialSelect = styled(Select)`
   .ant-select-selection-placeholder {
     color: #bfbfbf;
     text-transform: uppercase;
-    font-size: 10px;
+    font-size: var(--font-xs);
     letter-spacing: 0.5px;
   }
 
@@ -113,7 +113,7 @@ const SectionHeader = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
-  font-size: 11px;
+  font-size: var(--font-sm);
 `;
 
 const ThresholdInfo = styled.div`
@@ -123,7 +123,7 @@ const ThresholdInfo = styled.div`
   padding: 12px;
   margin-bottom: 16px;
   font-family: "Roboto Mono", monospace;
-  font-size: 10px;
+  font-size: var(--font-xs);
   color: #595959;
   line-height: 1.6;
 
