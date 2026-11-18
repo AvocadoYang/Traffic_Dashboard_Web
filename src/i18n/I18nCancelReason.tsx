@@ -20,6 +20,9 @@ const reasonKeyMap: { [key in CancelReason]: string } = {
     "charge_station_heartbeat_error",
   [CancelReason.CHARGE_STATION_AGV_NOT_DOCK_PRECISE]:
     "charge_station_agv_not_dock_precise",
+  [CancelReason.CHARGE_CAR_NOT_STILL]: "charge_car_not_still",
+  [CancelReason.CHARGE_CAR_LOCK_NOT_CONFIRMED]: "charge_car_lock_not_confirmed",
+  [CancelReason.CHARGE_START_REFUSED]: "charge_start_refused",
 
   [CancelReason.USER_ABORT]: "user_abort",
   [CancelReason.WCS_ABORT]: "wcs_abort",

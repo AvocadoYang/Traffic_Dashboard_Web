@@ -47,6 +47,10 @@ export enum CancelReason {
   CHARGE_STATION_MQTT_ERROR = 207,
   CHARGE_STATION_HEARTBEAT_ERROR = 208,
   CHARGE_STATION_AGV_NOT_DOCK_PRECISE = 209,
+  // 充電站安全機制不伸充電桿 (跟後端 types/manager.ts 一樣)
+  CHARGE_CAR_NOT_STILL = 212, // 伸桿前車沒停穩
+  CHARGE_CAR_LOCK_NOT_CONFIRMED = 213, // 車端 amr-core 沒確認充電鎖
+  CHARGE_START_REFUSED = 214, // 其他原因不伸桿
 
   USER_ABORT = 210, // 使用者手動中止
   WCS_ABORT = 211, // 第三方刪除任務
