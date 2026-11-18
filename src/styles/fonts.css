@@ -1,0 +1,20 @@
+/* Archivo (SIL Open Font License 1.1, 授權全文在 src/assets/fonts/Archivo-OFL.txt): 寬度可變的字型。
+   打包在專案裡, 工廠內網連不到外部字型服務也能顯示。只有拉丁字母, 中文走系統字型。
+   登入頁影片上的標題用展開的字寬; 首頁的車輛卡片、任務欄用正常字寬當介面字和數字字。 */
+@font-face {
+  font-family: "Archivo";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url("../assets/fonts/archivo-latin-wdth-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  /* 介面文字: 英數用 Archivo, 中文落到各平台的黑體 (Windows 是微軟正黑體) */
+  --font-ui: "Archivo", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Heiti TC", sans-serif;
+  /* 數字: 同一套字, 搭配 font-variant-numeric: tabular-nums 讓跳動的數字不會左右晃 */
+  --font-num: "Archivo", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+}

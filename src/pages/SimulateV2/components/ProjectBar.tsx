@@ -25,7 +25,7 @@ const Group = styled.div`
 
 const Dirty = styled.span<{ $dirty: boolean }>`
   font-size: 12px;
-  color: ${(p) => (p.$dirty ? "var(--c-warning)" : "var(--c-text-muted)")};
+  color: ${(p) => (p.$dirty ? "var(--c-warning-text)" : "var(--c-text-muted)")};
 `;
 
 export type ProjectAction = "new" | "info" | "copy" | "export" | "delete";

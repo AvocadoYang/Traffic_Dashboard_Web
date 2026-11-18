@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 import { useTranslation } from "react-i18next";
 import timeline from "./heroTimeline.json";
-import "./heroFont.css";
+import "@/styles/fonts.css";
 
 /**
  * 疊在登入頁背景影片上的文字 (車廠首頁那種): 跟著影片鏡頭換章節, 顯示車型名稱、規格、功能,

@@ -18,26 +18,30 @@ import { centerMap, mouseDetectLoc, Scale } from "@/utils/gloable";
 import { mq } from "@/styles/responsive";
 
 const ZoomPadWrap = styled.div`
-  position: absolute;
+  /* 窄版 (標題列裡): 跟著標題列的 flex 排在標誌右邊、選單按鈕左邊, 空間不夠就自己橫向捲動。
+     以前是絕對定位置中, 不管左邊的標誌多寬, 手機上就蓋在標誌上。
+     寬版 (>= 1440) 才是浮在地圖下緣置中 (見最下面的 mq.web)。 */
+  position: relative;
   z-index: 4;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  flex: 0 1 auto;
+  min-width: 0;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  background-color: #f5f5f5;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  opacity: 0.4;
+  /* 用主題色 (以前寫死淺灰底 + 藍色啟用, 深色主題下只是靠半透明「看起來」變暗) */
+  background-color: var(--c-bg);
+  border: 1px solid var(--c-border);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  opacity: 0.55;
   transition: opacity 0.3s ease-in-out;
 
   &:hover {
     opacity: 1;
   }
 
-  max-width: min(56vw, 260px);
+  max-width: 260px;
   overflow-x: auto;
   scrollbar-width: none;
   &::-webkit-scrollbar {
@@ -46,9 +50,11 @@ const ZoomPadWrap = styled.div`
 
   gap: 2px;
   padding: 4px 8px;
-  border-radius: 14px;
+  border-radius: 0;
 
   ${mq.web} {
+    position: absolute;
+    left: 50%;
     top: auto;
     bottom: 20px;
     transform: translateX(-50%);
@@ -56,7 +62,7 @@ const ZoomPadWrap = styled.div`
     overflow-x: visible;
     gap: 12px;
     padding: 6px 13px;
-    border-radius: 20px;
+    border-radius: 0;
   }
 `;
 
@@ -76,7 +82,7 @@ const StyledButton = styled(Button)`
     flex: 0 0 auto;
     border: none;
     background-color: transparent;
-    color: #151313;
+    color: var(--c-text-secondary);
     margin: 0;
     padding: 0;
 
@@ -90,7 +96,8 @@ const StyledButton = styled(Button)`
     justify-content: center;
 
     &:hover {
-      background-color: #ddd;
+      background-color: var(--c-bg-muted);
+      color: var(--c-text);
     }
 
     .anticon {
@@ -109,9 +116,11 @@ const StyledButton = styled(Button)`
   }
 
   &&.ant-btn-primary {
-    background-color: #359dfe;
+    background-color: var(--c-header-accent);
+    color: var(--c-on-accent);
     &:hover {
-      background-color: #40a9ff;
+      background-color: var(--c-header-accent);
+      opacity: 0.85;
     }
   }
 `;

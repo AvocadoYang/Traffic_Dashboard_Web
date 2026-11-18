@@ -13,6 +13,7 @@ import {
   type ThemeId,
 } from "./palettes";
 import { isDarkColor } from "./mapImage";
+import { ensureTextContrast } from "./contrast";
 
 export const THEME_STORAGE_KEY = "fleet-ui-theme";
 export const MAP_IMAGE_STORAGE_KEY = "fleet-map-image";
@@ -56,6 +57,29 @@ export const applyTheme = (theme: Theme, mapImage: MapImageMode): void => {
   colorKeys.forEach((key) => {
     root.style.setProperty(cssVarName(key), colors[key]);
   });
+
+  // 狀態色當「文字」用的版本: 淺色主題的綠 / 黃在白底上只有 2:1, 加深到 4.5:1。
+  // 要對照的背景包含卡片底、淡底與狀態標籤的淡色底。
+  (["success", "warning"] as const).forEach((k) => {
+    const soft = colors[`${k}Soft` as "successSoft" | "warningSoft"];
+    root.style.setProperty(
+      `--c-${k}-text`,
+      ensureTextContrast(colors[k], [colors.bg, colors.bgSubtle, soft]),
+    );
+  });
+
+  // 強調色 (藍) 當色塊底、上面放 --c-bg 字, 或當文字用時的加深版
+  root.style.setProperty(
+    "--c-header-accent-text",
+    ensureTextContrast(colors.headerAccent, [colors.bg, colors.bgSubtle]),
+  );
+
+  // 淡色文字 (標籤、單位、時間、提示) 在淺色主題只有 3:1 左右, 弱螢幕上看不清楚。
+  // 加深 / 調亮到對卡片底與淡底 4.5:1, 還是比次要文字淡一點。
+  root.style.setProperty(
+    cssVarName("textMuted"),
+    ensureTextContrast(colors.textMuted, [colors.bg, colors.bgSubtle]),
+  );
 
   scopeTints[theme.mode].forEach((tint, i) => {
     root.style.setProperty(scopeTintVarName(i, "bg"), tint.bg);

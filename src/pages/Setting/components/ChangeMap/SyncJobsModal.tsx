@@ -32,7 +32,7 @@ const JobStateBadge = styled.div<{ $state: MirSyncJobState }>`
   border: 1px solid ${({ $state }) => JOB_STATE_COLORS[$state] ?? "#8c8c8c"};
   color: ${({ $state }) => JOB_STATE_COLORS[$state] ?? "#8c8c8c"};
   font-family: "Roboto Mono", monospace;
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;

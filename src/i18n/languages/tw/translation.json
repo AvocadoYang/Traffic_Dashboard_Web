@@ -1,6 +1,7 @@
 {
   "header": {
     "switch_row": "切換導覽列 / 任務列",
+    "more": "更多",
     "navigation": "導覽",
     "sim_time": "模擬時間",
     "stop_sim": "停止模擬",
@@ -759,7 +760,43 @@
     "tab": {
       "overview": "總覽",
       "battery": "電量紀錄",
-      "connection": "斷線紀錄"
+      "connection": "斷線紀錄",
+      "step_timing": "步驟時間"
+    },
+    "step_timing": {
+      "none": "這段期間沒有步驟時間紀錄 (2026-11-16 以前的任務沒有記錄)",
+      "hint": "間隔 = 上一步做完到這一步指令送給車 (含任務設定的等待秒數); 執行時間 = 指令送出到做完; 只算做完時間在查詢期間內的步驟",
+      "by_type": "依動作",
+      "by_location": "依點位",
+      "by_vehicle": "依車輛",
+      "slowest_first": "預設最慢的排前面",
+      "tile": {
+        "steps": "步驟數",
+        "gap_avg": "間隔平均",
+        "gap_p90": "間隔 P90",
+        "run_avg": "執行平均",
+        "run_p90": "執行 P90"
+      },
+      "col": {
+        "type": "動作",
+        "location": "點位",
+        "vehicle": "車輛",
+        "count": "步數",
+        "gap": "與上一步的間隔",
+        "run": "執行時間",
+        "avg": "平均",
+        "p90": "P90",
+        "max": "最大"
+      },
+      "type": {
+        "move": "移動",
+        "load": "取貨",
+        "offload": "放貨",
+        "charge": "充電",
+        "upper_control": "上部控制",
+        "spin": "原地旋轉",
+        "fork": "牙叉動作"
+      }
     },
     "connection": {
       "not_recorded": "資料庫還沒有斷線紀錄表 (connection_event), 後端重開時會自動建立; 建立後才開始記錄",
@@ -958,6 +995,7 @@
   "page_cargo_history": "貨物紀錄",
   "page_amr": "車輛資訊",
   "main_task_list": {
+    "per_page": "筆/頁",
     "wait_suitable": "等待適合"
   },
   "toolbar": {
@@ -1400,6 +1438,9 @@
       "title_name": "新增車輛",
       "amr_name": "車輛名稱",
       "type": "類型",
+      "color": "識別色",
+      "color_auto": "自動",
+      "color_used_by": "{{names}} 也在用這個顏色",
       "serial_number": "連線 MAC address",
       "invalid_serial_number": " serial number 格式不正確",
       "executing": "啟用中",
@@ -3146,6 +3187,8 @@
       "indigo": "靛藍",
       "teal": "青綠",
       "sand": "暖砂",
+      "kenmec-light": "KENMEC 經典白",
+      "kenmec": "KENMEC 經典黑",
       "midnight": "深夜",
       "sakura": "櫻花",
       "matcha": "抹茶",
@@ -3856,7 +3899,7 @@
     "username_placeholder": "輸入帳號",
     "password_required": "請輸入密碼",
     "password_placeholder": "輸入密碼",
-    "forgot_tooltip": "抱歉，目前無法找回帳號，這個功能還在測試中 😣",
+    "forgot_tooltip": "抱歉，永遠無法找回帳號🥀",
     "caps_lock": "大寫鎖定 (Caps Lock) 已開啟",
     "forgot_password": "忘記密碼？",
     "authenticating": "驗證中...",
@@ -5472,6 +5515,8 @@
       "theme_help": "跟設定頁的外觀設定是同一個, 改哪邊都會存到你的帳號",
       "font_size": "字體大小",
       "font_size_help": "現場觸控螢幕可以調大",
+      "auto_zoom_font": "縮小瀏覽器畫面時自動放大字體",
+      "auto_zoom_font_help": "把瀏覽器縮到 100% 以下 (例如 Ctrl -) 時，字會變得太小；開啟後會依縮小的程度自動把字體放大補回來。只影響這台電腦。",
       "font_0_9": "小",
       "font_1": "標準",
       "font_1_15": "大",

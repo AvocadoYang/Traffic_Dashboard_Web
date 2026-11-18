@@ -13,22 +13,32 @@ const Btn = styled.div<{ $top: string; $left: string; $centered: boolean }>`
   top: ${({ $top }) => $top};
   left: ${({ $left }) => $left};
   ${({ $centered }) => ($centered ? "transform: translateY(-50%);" : "")}
-  background-color: var(--c-bg-subtle);
-  border-radius: 20px;
+  box-sizing: border-box;
+  /* 固定 px: 用 em 的話字體大小偏好調大, 按鈕變大就會壓到旁邊的按鈕 */
+  width: 44px;
+  height: 44px;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  opacity: 0.9;
-  transition: opacity 0.3s ease-in-out;
-  width: 3em;
-  height: 3em;
-  padding: 1em 0em;
-  justify-content: space-between;
+  justify-content: center;
+  color: var(--c-text);
+  background-color: var(--c-bg);
+  border: 1px solid var(--c-border-strong);
+  border-radius: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   cursor: pointer;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+
+  svg {
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+  }
 
   &:hover {
-    opacity: 1;
+    color: var(--c-header-accent);
+    border-color: var(--c-header-accent);
   }
 `;
 

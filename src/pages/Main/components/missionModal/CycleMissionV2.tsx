@@ -120,7 +120,7 @@ const SectionHeader = styled.div`
   padding: 8px 12px;
   margin-bottom: 12px;
   font-family: "Roboto Mono", monospace;
-  color: var(--c-warning);
+  color: var(--c-warning-text);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -474,14 +474,14 @@ const ActionButtonGroup = styled.div`
 
 const StatusIndicator = styled.div<{ hasItems: boolean }>`
   background: ${({ hasItems }) => (hasItems ? "var(--c-success-soft)" : "var(--c-warning-soft)")};
-  border: 2px solid ${({ hasItems }) => (hasItems ? "var(--c-success)" : "var(--c-warning)")};
+  border: 2px solid ${({ hasItems }) => (hasItems ? "var(--c-success-text)" : "var(--c-warning-text)")};
   padding: 10px 12px;
   margin-bottom: 16px;
   display: flex;
   align-items: center;
   gap: 8px;
   font-family: "Roboto Mono", monospace;
-  color: ${({ hasItems }) => (hasItems ? "var(--c-success)" : "var(--c-warning)")};
+  color: ${({ hasItems }) => (hasItems ? "var(--c-success-text)" : "var(--c-warning-text)")};
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;

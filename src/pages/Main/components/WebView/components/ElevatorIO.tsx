@@ -36,7 +36,7 @@ const IORow = styled.div`
 
 const Label = styled.span`
   flex: 1;
-  font-weight: 500;
+  font-weight: 600;
 `;
 
 const ElevatorIO: React.FC = () => {

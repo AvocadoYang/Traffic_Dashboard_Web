@@ -64,7 +64,7 @@ const IndustrialTable = styled(Table)`
     background: #fafafa;
     border-bottom: 2px solid #d9d9d9;
     color: #595959;
-    font-size: 11px;
+    font-size: var(--font-sm);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 700;
@@ -102,7 +102,7 @@ const IndustrialTable = styled(Table)`
 const IndustrialButton = styled(Button)`
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--font-sm);
   letter-spacing: 1px;
   height: 32px;
   font-weight: 600;
@@ -170,7 +170,7 @@ const StatusBadge = styled.div<{ $active: boolean }>`
   border: 1px solid ${({ $active }) => ($active ? "#52c41a" : "#d9d9d9")};
   color: ${({ $active }) => ($active ? "#52c41a" : "#8c8c8c")};
   font-family: "Roboto Mono", monospace;
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -197,7 +197,7 @@ const AmrTag = styled.span`
   background: #e6fffb;
   border: 1px solid #87e8de;
   font-family: "Roboto Mono", monospace;
-  font-size: 10px;
+  font-size: var(--font-xs);
   color: #13c2c2;
   text-transform: uppercase;
   display: inline-block;
@@ -209,7 +209,7 @@ const LocationTag = styled.span`
   color: #ff4d4f;
   padding: 2px 8px;
   font-family: "Roboto Mono", monospace;
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-weight: 600;
   text-transform: uppercase;
   display: inline-block;
@@ -225,7 +225,7 @@ const TimeValue = styled.span`
   border: 1px solid #13c2c2;
   color: #13c2c2;
   font-family: "Roboto Mono", monospace;
-  font-size: 11px;
+  font-size: var(--font-sm);
   font-weight: 700;
 `;
 
@@ -344,7 +344,7 @@ const IdleMissionTable: FC = () => {
               style={{
                 color: "#bfbfbf",
                 fontStyle: "italic",
-                fontSize: "11px",
+                fontSize: "var(--font-sm)",
                 textTransform: "uppercase",
                 fontFamily: "Roboto Mono, monospace",
               }}

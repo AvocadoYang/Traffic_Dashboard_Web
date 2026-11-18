@@ -41,7 +41,7 @@ const StyledModal = styled(Modal)`
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: var(--c-success);
+    color: var(--c-success-text);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -123,7 +123,7 @@ const InstructionPanel = styled.div`
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: var(--c-success);
+    color: var(--c-success-text);
     margin-bottom: 8px;
     display: flex;
     align-items: center;
@@ -140,7 +140,7 @@ const InstructionPanel = styled.div`
       position: relative;
 
       &::marker {
-        color: var(--c-success);
+        color: var(--c-success-text);
       }
     }
   }
@@ -183,7 +183,7 @@ const StyledDragger = styled(Dragger)`
       margin-bottom: 16px;
 
       .anticon {
-        color: var(--c-success);
+        color: var(--c-success-text);
         font-size: 64px;
       }
     }
@@ -237,7 +237,7 @@ const FileInfo = styled.div`
 
   .file-icon {
     font-size: 32px;
-    color: var(--c-success);
+    color: var(--c-success-text);
   }
 
   .file-details {
@@ -341,7 +341,7 @@ const UploadStatus = styled.div<{ status: "uploading" | "success" | "error" }>`
 
 const UploadIcon = styled(CloudUploadOutlined)`
   font-size: 18px;
-  color: var(--c-success);
+  color: var(--c-success-text);
 `;
 
 const TutorialContainer = styled.div`

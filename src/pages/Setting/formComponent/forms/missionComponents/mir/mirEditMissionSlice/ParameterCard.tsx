@@ -27,7 +27,7 @@ const CardHeader = styled.div`
 
 export const FieldLabel = styled.span`
   color: #595959;
-  font-size: 11px;
+  font-size: var(--font-sm);
   text-transform: uppercase;
   letter-spacing: 1px;
   font-family: "Roboto Mono", monospace;

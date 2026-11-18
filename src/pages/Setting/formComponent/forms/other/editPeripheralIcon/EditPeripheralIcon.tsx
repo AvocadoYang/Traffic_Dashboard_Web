@@ -100,7 +100,7 @@ const IndustrialInput = styled(Input)`
   &::placeholder {
     color: #bfbfbf;
     text-transform: uppercase;
-    font-size: 10px;
+    font-size: var(--font-xs);
     letter-spacing: 0.5px;
   }
 `;
@@ -135,7 +135,7 @@ const IndustrialSelect = styled(Select)`
   .ant-select-selection-placeholder {
     color: #bfbfbf;
     text-transform: uppercase;
-    font-size: 10px;
+    font-size: var(--font-xs);
     letter-spacing: 0.5px;
   }
 `;
@@ -143,7 +143,7 @@ const IndustrialSelect = styled(Select)`
 const IndustrialButton = styled(Button)`
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--font-sm);
   letter-spacing: 1px;
   height: 36px;
   font-weight: 600;
@@ -215,7 +215,7 @@ const IndustrialTable = styled(Table)`
     background: #fafafa;
     border-bottom: 2px solid #d9d9d9;
     color: #595959;
-    font-size: 11px;
+    font-size: var(--font-sm);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 500;
@@ -309,7 +309,7 @@ const ValueBadge = styled.span`
   border: 1px solid #eb2f96;
   color: #eb2f96;
   font-family: "Roboto Mono", monospace;
-  font-size: 11px;
+  font-size: var(--font-sm);
   font-weight: 700;
 `;
 
@@ -332,7 +332,7 @@ const LocationBadge = styled.span`
   border: 1px solid #d3adf7;
   color: #722ed1;
   font-family: "Roboto Mono", monospace;
-  font-size: 11px;
+  font-size: var(--font-sm);
   font-weight: 700;
   text-transform: uppercase;
 `;
@@ -345,7 +345,7 @@ const AreaTypeBadge = styled.span`
   border: 1px solid #87e8de;
   color: #13c2c2;
   font-family: "Roboto Mono", monospace;
-  font-size: 10px;
+  font-size: var(--font-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;

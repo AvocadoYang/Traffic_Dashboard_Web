@@ -37,7 +37,7 @@ const SectionHeader = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
-  font-size: 11px;
+  font-size: var(--font-sm);
 `;
 
 const StyledForm = styled(Form)`
@@ -47,7 +47,7 @@ const StyledForm = styled(Form)`
 
   .ant-form-item-label > label {
     color: #595959;
-    font-size: 11px;
+    font-size: var(--font-sm);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-family: "Roboto Mono", monospace;
@@ -100,7 +100,7 @@ const IndustrialInputNumber = styled(InputNumber)`
 const IndustrialButton = styled(Button)`
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--font-sm);
   letter-spacing: 1px;
   height: 36px;
   font-weight: 600;

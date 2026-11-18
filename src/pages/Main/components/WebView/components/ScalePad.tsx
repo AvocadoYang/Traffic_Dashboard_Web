@@ -1,114 +1,94 @@
 import { Button, message, Tooltip } from "antd";
 import { memo, useState, useEffect } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { useMutation } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { SwapOutlined, CloseOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { useMockInfo } from "@/sockets/useMockInfo";
 
+// 三顆地圖左上角的模擬工具 (模擬速度 / 效能監看 / 模擬車輛) 都用固定 px 尺寸排成一欄:
+// 以前用 em, 使用者把字體大小調大時按鈕跟著變大, 下面的按鈕就被壓到 (排位置的 top 是寫死的 px)。
+// 排法: ScalePad 16px 起、高 44px → 效能監看 top 68px → 模擬車輛 top 120px, 之間各留 8px。
+// 顏色全部走主題變數 (以前寫死白 / 灰 / 藍, 換主題不會變)。
 const ScalePadWrap = styled.div<{ $isMinimized: boolean }>`
   position: absolute;
   z-index: 4;
   top: 16px;
   left: 16px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  padding: 8px;
+  box-sizing: border-box;
+  background-color: var(--c-bg);
+  border: 1px solid var(--c-border-strong);
+  border-radius: 0;
+  padding: 3px;
   display: flex;
   align-items: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  gap: 8px;
-  opacity: 1;
-  transition: all 0.3s ease-in-out;
-  width: ${(props) => (props.$isMinimized ? "40px" : "auto")};
-  height: ${(props) => (props.$isMinimized ? "4em" : "auto")};
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  gap: 4px;
+  transition: width 0.2s ease-in-out;
+  width: ${(props) => (props.$isMinimized ? "44px" : "auto")};
+  height: 44px;
   overflow: hidden;
-  display: flex;
-  align-items: center;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: var(--c-text-muted);
   }
 
   @media (max-width: 768px) {
-    padding: ${(props) => (props.$isMinimized ? "0" : "6px")};
-    gap: 6px;
-    border-radius: 6px;
-  }
-
-  @media (max-width: 576px) {
-    padding: ${(props) => (props.$isMinimized ? "0" : "4px")};
-    gap: 4px;
-    border-radius: 4px;
-  }
-
-  @media (max-width: 480px) {
-    padding: ${(props) => (props.$isMinimized ? "0" : "4px")};
-    gap: 4px;
-    border-radius: 4px;
+    gap: 2px;
   }
 `;
 
-const StyledButton = styled(Button)`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+const toolBtn = css`
+  width: 36px;
+  height: 36px;
   padding: 0;
-  border: none;
-  background-color: #f5f5f5;
-  color: #333;
-  font-weight: 500;
-  font-size: 14px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  border: 1px solid transparent;
+  border-radius: 0;
+  background-color: var(--c-bg-muted);
+  color: var(--c-text);
+  font-weight: 600;
+  font-size: var(--font-sm);
+  box-shadow: none;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+`;
 
-  &:hover {
-    background-color: #1890ff;
-    color: #fff;
-    transform: scale(1.05);
+const StyledButton = styled(Button)`
+  && {
+    ${toolBtn}
   }
 
-  &:active {
-    transform: scale(0.95);
+  &&:hover:not(:disabled) {
+    background-color: var(--c-header-accent-soft);
+    border-color: var(--c-header-accent);
+    color: var(--c-header-accent);
   }
 
-  &.selected {
-    background-color: #1890ff;
-    color: #fff;
-    box-shadow: 0 2px 6px rgba(24, 144, 255, 0.3);
-  }
-
-  &.selected:hover {
-    background-color: #40a9ff;
+  &&.selected,
+  &&.selected:hover:not(:disabled) {
+    background-color: var(--c-header-accent-text);
+    border-color: var(--c-header-accent-text);
+    color: var(--c-bg);
   }
 `;
 
 const MinimizeButton = styled(Button)`
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: none;
-  background-color: #f5f5f5;
-  color: #333;
-  font-size: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 1s ease;
-
-  &:hover {
-    background-color: #ff4d4f; /* Red for minimize action */
-    color: #fff;
-    transform: scale(1.05);
+  && {
+    ${toolBtn}
   }
 
-  &:active {
-    transform: scale(0.95);
+  &&:hover:not(:disabled) {
+    background-color: var(--c-danger-soft);
+    border-color: var(--c-danger);
+    color: var(--c-danger);
   }
 `;
 
 const ContentWrapper = styled.div<{ $isVisible: boolean }>`
   display: flex;
-  gap: 8px;
+  gap: 4px;
   opacity: ${(props) => (props.$isVisible ? 1 : 0)};
   transition: opacity 0.3s ease-in-out;
   pointer-events: ${(props) => (props.$isVisible ? "auto" : "none")};

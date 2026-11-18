@@ -69,7 +69,7 @@ const Chip = styled.button<{ $active: boolean }>`
 `;
 
 const Count = styled.span<{ $active: boolean }>`
-  font-size: 10px;
+  font-size: var(--font-xs);
   opacity: 0.7;
   color: ${({ $active }) => ($active ? c.onAccent : c.textMuted)};
 `;

@@ -19,9 +19,9 @@ import {
 } from "./gridConstants";
 
 const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-  executing: { bg: "var(--c-success-soft)", text: "var(--c-success)" },
+  executing: { bg: "var(--c-success-soft)", text: "var(--c-success-text)" },
   assigned: { bg: "var(--c-header-accent-soft)", text: "var(--c-header-accent)" },
-  pending: { bg: "var(--c-warning-soft)", text: "var(--c-warning)" },
+  pending: { bg: "var(--c-warning-soft)", text: "var(--c-warning-text)" },
   completed: { bg: "var(--c-bg-subtle)", text: "var(--c-text-muted)" },
   aborting: { bg: "var(--c-danger-soft)", text: "var(--c-danger)" },
   canceled: { bg: "var(--c-danger-soft)", text: "var(--c-danger)" },
