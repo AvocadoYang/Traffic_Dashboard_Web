@@ -3157,7 +3157,7 @@
     "sustain_unit": "s",
     "enable": "Enable",
     "report_ecs": "Report to Corning",
-    "report_ecs_hint": "Report to Corning: severe items go as AL, minor ones as WN, with codes 0060 to 0065 (disk, host memory, backend memory, backend stall, database, Redis) and an empty a_agv_id. Confirm with Corning that they accept these codes before turning it on. On recovery the updated list is sent (an empty list when nothing is left)."
+    "report_ecs_hint": "Report to Corning: severe items go as AL, minor ones as WN, with codes 0060 to 0066 (disk, host memory, backend memory, backend stall, database, Redis, host temperature) and an empty a_agv_id. On by default. On recovery the updated list is sent (an empty list when nothing is left)."
   },
   "stack_batch": {
     "title": "Stack Batch Edit",
