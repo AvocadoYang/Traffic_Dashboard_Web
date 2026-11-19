@@ -15,7 +15,7 @@ import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import {
   IsEditingQuickRoads,
   QuickRoadsArray,
-} from "@/features/map/jotai/settingJotai";
+} from "@/features/map/jotai/mapEditModalAtoms";
 import styled from "styled-components";
 import ChargeStation from "./ChargeStation";
 

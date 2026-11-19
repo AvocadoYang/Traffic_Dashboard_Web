@@ -67,7 +67,7 @@ import EditPeripheralModal from "../formComponent/forms/peripheralModal/EditPeri
 import CargoPanel from "@/components/CargoPanel/CargoPanel";
 import { SudoPeripheral } from "../formComponent/forms/other/editPeripheralIcon";
 import AllElevator from "./components/AllElevator/AllElevator";
-import { EBLM, ECSM, EEM, LDM } from "@/features/map/jotai/settingJotai";
+import { EBLM, ECSM, EEM, LDM } from "@/features/map/jotai/mapEditModalAtoms";
 import EditElevatorModal from "./components/AllElevator/EditElevatorModal";
 import EditChargeStationConfigModal from "./components/AllChargeStation/EditChargeStationConfigModal";
 import AllGateWaitPoint from "./components/AllGateWaitPoint/AllGateWaitPoint";

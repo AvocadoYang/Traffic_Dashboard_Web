@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { mergeDarkPixels } from "../MapWalls3D";
-import { parsePgm } from "@/utils/pgm";
+import { parsePgm } from "@/features/map/pgm";
 
 const img = (rows: string[]) => {
   const h = rows.length;

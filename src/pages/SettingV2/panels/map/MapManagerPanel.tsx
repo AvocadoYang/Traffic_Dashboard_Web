@@ -1,4 +1,4 @@
-import { pgmFileToPng } from "@/utils/pgm";
+import { pgmFileToPng } from "@/features/map/pgm";
 import { FC, useMemo, useState } from "react";
 import {
   Form,

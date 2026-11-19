@@ -22,7 +22,7 @@ import {
   IsEditingQuickRoads,
   LDM,
   QuickRoadsArray,
-} from "@/features/map/jotai/settingJotai";
+} from "@/features/map/jotai/mapEditModalAtoms";
 
 const AllLocation: FC<{
   setInitPoint: React.Dispatch<draggableLineInitialPoint>;

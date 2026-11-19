@@ -8,7 +8,7 @@ import {
   AlarmPosition,
   systemAlarmPosition,
   systemAlarmPreviewTick,
-} from "@/utils/systemAlarmFilter";
+} from "@/features/alarm/systemAlarmFilter";
 import { c, font, space } from "@/theme/tokens";
 
 // 畫成一個小螢幕,六格對應畫面上的六個位置,選哪格告警就出現在哪。

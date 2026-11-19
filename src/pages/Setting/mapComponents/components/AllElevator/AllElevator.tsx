@@ -5,7 +5,7 @@ import {
   EEM,
   IsEditingQuickRoads,
   QuickRoadsArray,
-} from "@/features/map/jotai/settingJotai";
+} from "@/features/map/jotai/mapEditModalAtoms";
 import useElevatorSocket from "@/sockets/useElevatorSocket";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
 import { Tooltip } from "antd";

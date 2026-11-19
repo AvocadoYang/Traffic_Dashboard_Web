@@ -1,7 +1,7 @@
 import client from "@/api/axiosClient";
 import useName from "@/api/useAmrName";
 import useMap from "@/api/useMap";
-import { ECSM } from "@/features/map/jotai/settingJotai";
+import { ECSM } from "@/features/map/jotai/mapEditModalAtoms";
 import { useAllAmrStatus } from "@/sockets/useAMRInfo";
 import useChargeStationSocket from "@/sockets/useChargeStationSocket";
 import { ErrorResponse } from "@/utils/globalType";

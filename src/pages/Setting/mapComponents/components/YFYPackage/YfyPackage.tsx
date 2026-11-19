@@ -5,7 +5,7 @@ import { isShowLocation } from "@/utils/siderGloble";
 import {
   IsEditingQuickRoads,
   QuickRoadsArray,
-} from "@/features/map/jotai/settingJotai";
+} from "@/features/map/jotai/mapEditModalAtoms";
 import { EditPackageLocationId } from "@/pages/Setting/formComponent/forms/peripheralModal/jotai";
 import { Package_Info } from "@/types/peripheral";
 import PackageLayer from "@/features/map/layers/YFYPackage/PackageLayer";

@@ -38,7 +38,7 @@ import {
   IsEditingQuickRoads,
   LDM,
   QuickRoadsArray,
-} from "@/features/map/jotai/settingJotai";
+} from "@/features/map/jotai/mapEditModalAtoms";
 import { annotationToolAtom } from "@/features/map/jotai/annotationAtoms";
 import AllCargo from "@/pages/Setting/mapComponents/components/AllCargo/AllCargo";
 import SudoCargo, {

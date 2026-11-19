@@ -24,7 +24,7 @@ import {
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
-import { LDM } from "@/features/map/jotai/settingJotai";
+import { LDM } from "@/features/map/jotai/mapEditModalAtoms";
 
 const { Title, Text } = Typography;
 

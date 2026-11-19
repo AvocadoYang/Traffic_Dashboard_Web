@@ -16,7 +16,7 @@ import { useTranslation } from "react-i18next";
 import FormHr from "../utils/FormHr";
 import { useEffect, useState, useCallback } from "react";
 import { useAtom, useAtomValue } from "jotai";
-import { IsEditingQuickRoads, QuickRoadsArray } from "@/features/map/jotai/settingJotai";
+import { IsEditingQuickRoads, QuickRoadsArray } from "@/features/map/jotai/mapEditModalAtoms";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { errorHandler } from "@/utils/utils";

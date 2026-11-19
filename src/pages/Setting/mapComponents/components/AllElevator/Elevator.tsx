@@ -2,7 +2,7 @@ import {
   EEM,
   IsEditingQuickRoads,
   QuickRoadsArray,
-} from "@/features/map/jotai/settingJotai";
+} from "@/features/map/jotai/mapEditModalAtoms";
 import { Tooltip } from "antd";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import React, { FC } from "react";

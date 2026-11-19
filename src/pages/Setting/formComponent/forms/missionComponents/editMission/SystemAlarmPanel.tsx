@@ -10,7 +10,7 @@ import {
   ALARM_ACCENT,
   ALARM_TYPES,
   systemAlarmTypeFilter,
-} from "@/utils/systemAlarmFilter";
+} from "@/features/alarm/systemAlarmFilter";
 
 const IndustrialContainer = styled.div`
   font-family: "Roboto Mono", monospace;
