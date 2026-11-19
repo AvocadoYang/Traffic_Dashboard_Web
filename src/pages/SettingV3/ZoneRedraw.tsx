@@ -9,14 +9,14 @@ import useMap from "@/api/useMap";
 import { currentMapIdAtom } from "@/utils/mapSelection";
 import { rvizCoord } from "@/utils/utils";
 import { toOpaque } from "@/pages/Setting/mapComponents/components/AllZones/components/ZoneHoverCard";
-import { GhostButton, SolidButton } from "../../ui/primitives";
-import { c, font, space } from "../../ui/tokens";
+import { GhostButton, SolidButton } from "@/pages/SettingV2/ui/primitives";
+import { c, font, space } from "@/pages/SettingV2/ui/tokens";
 import {
   ZoneRow,
   useZoneEditMutation,
   zoneEditPayload,
   zoneFormValues,
-} from "./ZoneEditModal";
+} from "@/pages/SettingV2/panels/zone/ZoneEditModal";
 
 /** 拖不到這麼多螢幕像素就當作只是點一下, 不算框 */
 const MIN_DRAG_PX = 4;

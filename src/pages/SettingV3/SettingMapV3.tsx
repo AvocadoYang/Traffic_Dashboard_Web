@@ -74,12 +74,12 @@ import TempLocations from "@/pages/Setting/mapComponents/components/TempResource
 import MirStyleLocationPlacer from "@/pages/Setting/formComponent/forms/MirStyleLocationPlacer";
 import LocationPointMenu, {
   LocationPointMenuTarget,
-} from "../SettingV2/panels/location/LocationPointMenu";
-import type { ZoneRow } from "../SettingV2/panels/zone/ZoneEditModal";
+} from "./LocationPointMenu";
+import type { ZoneRow } from "@/pages/SettingV2/panels/zone/ZoneEditModal";
 import RoadEditModal, {
   type RoadRow,
-} from "../SettingV2/panels/road/RoadEditModal";
-import ZoneRedraw from "../SettingV2/panels/zone/ZoneRedraw";
+} from "@/pages/SettingV2/panels/road/RoadEditModal";
+import ZoneRedraw from "./ZoneRedraw";
 
 /**
  * 設定頁 (setting-v3) 的地圖: 舊 MapView 的畫布版。
