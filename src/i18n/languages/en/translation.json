@@ -2514,6 +2514,8 @@
       "event_loop_hint": "How long Node was blocked by synchronous work. 0 is healthy; a sustained 100ms+ means the software is the problem, not the fleet size.",
       "lag_max": "Peak lag",
       "lag_max_hint": "Worst single stall in this window. Isolated spikes are usually startup or a heavy query.",
+      "host_temp": "Host temp",
+      "host_temp_hint": "Source: {{detail}}. Sampled every 15 s; yellow at {{warn}}°C, red at {{alarm}}°C (adjustable in the health check settings).",
       "heap": "Heap",
       "verdict_ok": "Headroom",
       "verdict_busy": "Busy but coping",
