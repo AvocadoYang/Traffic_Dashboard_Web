@@ -376,7 +376,7 @@
     "force_next_step": "Skip to next step",
     "force_next_step_hint": "Use when the vehicle has actually finished but the system is still waiting for its done signal",
     "force_next_step_confirm_title": "Skip to the next step?",
-    "force_next_step_confirm_content": "This will not wait for the vehicle's done signal. The current step is treated as finished and the next step is sent to the vehicle. Make sure the vehicle has really completed the current action, otherwise it may collide or drop its cargo.",
+    "force_next_step_confirm_content": "Check the cargo on site first: confirm only if a pick has the cargo on the forks, or a drop has the cargo in the slot. The vehicle is not told to cancel this step; it is treated as finished and the next step is sent to the vehicle. If the step is not done, use Resend this step instead, otherwise the vehicle may collide or drop its cargo.",
     "force_next_step_stuck": "This step has been waiting {{time}}; the vehicle may have finished without reporting. Once you are sure it has, you can skip to the next step",
     "step_wait": "Waiting {{time}}",
     "step_wait_hint": "This step has been waiting a long time; the vehicle may have finished without reporting (you can use \"Skip to next step\")",

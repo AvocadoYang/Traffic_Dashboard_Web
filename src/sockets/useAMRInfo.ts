@@ -123,8 +123,11 @@ export type FleetInfo = {
   doingTask: boolean;
   /** 目前這一動已經做了多久 (ms), 沒有任務是 null */
   stepWaitMs?: number | null;
-  /** 斷線重連後判斷不出這一動有沒有做完, 要人到現場確認; 沒有是 null */
-  stepCheck?: { reason: string; since: number } | null;
+  /**
+   * 斷線重連後判斷不出這一動有沒有做完, 要人到現場確認; 沒有是 null.
+   * askDone: 這一動 (取放貨這類) 可能其實做完了, 才給「直接下一動」
+   */
+  stepCheck?: { reason: string; since: number; askDone?: boolean } | null;
   /** 這台車為什麼離線 / 還沒上線 (後端判斷); 正常是 null */
   offline?: OfflineInfo | null;
   destination: MissionDestination | null;
@@ -248,6 +251,7 @@ const schema = () =>
       stepCheck: object({
         reason: string().required(),
         since: number().required(),
+        askDone: boolean().optional(),
       })
         .nullable()
         .optional()
@@ -1047,7 +1051,11 @@ export const useOfflineInfo = (amrId: string) => {
 
 /** 斷線重連後要人確認的這一動 (原因 + 從什麼時候開始); 沒有是 null */
 export const useStepCheck = (amrId: string) => {
-  const [stepCheck, setStepCheck] = useState<{ reason: string; since: number } | null>(null);
+  const [stepCheck, setStepCheck] = useState<{
+    reason: string;
+    since: number;
+    askDone?: boolean;
+  } | null>(null);
   useEffect(() => {
     const sub = profiles$
       .pipe(
@@ -1055,7 +1063,10 @@ export const useStepCheck = (amrId: string) => {
         filter(isDefined),
         map((info) => info.stepCheck ?? null),
         distinctUntilChanged(
-          (pre, cur) => pre?.reason === cur?.reason && pre?.since === cur?.since,
+          (pre, cur) =>
+            pre?.reason === cur?.reason &&
+            pre?.since === cur?.since &&
+            pre?.askDone === cur?.askDone,
         ),
       )
       .subscribe(setStepCheck);
