@@ -366,22 +366,22 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
               </>
             )}
 
-            {can("amr.step") && (
+            {/* 跟重送這一步一樣, 只在系統要人確認、或這一動等很久時才給: 直接下一動不會叫車
+                取消目前這一步, 車其實還在做時按了, 車會繼續做, 下一動還會被車拒收 */}
+            {(stepCheck || stepStuck) && can("amr.step") && (
               <Tooltip
                 title={
                   stepCheck
                     ? t("amr_card.force_next_step_check", { reason: stepCheck.reason })
-                    : stepStuck
-                      ? t("amr_card.force_next_step_stuck", {
-                          time: formatWait(stepWaitMs),
-                        })
-                      : t("amr_card.force_next_step_hint")
+                    : t("amr_card.force_next_step_stuck", {
+                        time: formatWait(stepWaitMs),
+                      })
                 }
                 placement="bottom"
               >
                 <ActionButton
                   type="button"
-                  $tone={stepCheck || stepStuck ? "primary" : "warning"}
+                  $tone="primary"
                   onClick={() => handleForceNextStep()}
                 >
                   <StepForwardOutlined />
