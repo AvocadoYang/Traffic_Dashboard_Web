@@ -2,7 +2,7 @@ import { DispatchWidget } from "@/api/useMissionDispatchBoard";
 import useMap from "@/api/useMap";
 import MapSelector from "@/components/MapSelector";
 import WebMapView from "@/pages/Main/components/WebView/components/WebMapView";
-import ZoomPad from "@/pages/Main/components/WebView/components/ZoomPad";
+import ZoomPad from "@/components/MapLayers/ZoomPad";
 import { Scale } from "@/utils/gloable";
 import { useSetAtom } from "jotai";
 import React, { FC, useEffect, useRef } from "react";

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { array, boolean, number, object, string } from "yup";
 import client from "./axiosClient";
-import { Fork_Action } from "@/pages/Setting/formComponent/forms/missionComponents/editMission/forkEditMissionSlice/types";
+import { Fork_Action } from "@/types/forkAction";
 
 const getOneTask = async (key: string) => {
   const { data } = await client.post<unknown>(

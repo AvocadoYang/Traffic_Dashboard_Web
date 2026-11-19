@@ -14,7 +14,7 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   EditStackConfig,
   IsOpenStackModal,
-} from "@/pages/Setting/formComponent/forms/peripheralModal/jotai";
+} from "@/atoms/map/peripheralAtoms";
 import { CargoPanelTarget } from "@/components/CargoPanel/state";
 import {
   editHalfPanelStyle,

@@ -5,7 +5,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import {
   IsEditPeripheralModal,
   IsOpenPeripheralModal,
-} from "@/pages/Setting/formComponent/forms/peripheralModal/jotai";
+} from "@/atoms/map/peripheralAtoms";
 import { Conveyor_Info } from "@/types/peripheral";
 import {
   IsEditingQuickRoads,

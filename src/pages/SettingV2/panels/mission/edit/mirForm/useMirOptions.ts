@@ -8,7 +8,7 @@ import {
   MARKER_TYPE_SHELF_STYLE,
   useMirIoModuleOptions,
   useMirSoundOptions,
-} from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/useMirTaskOptions";
+} from "@/hooks/mission/useMirTaskOptions";
 import { ActionNames, OptionSource } from "./mirActionSpec";
 
 export type Option = { label: string; value: string };

@@ -15,7 +15,7 @@ import styled from "styled-components";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useTranslation } from "react-i18next";
-import { Mir_Action } from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/type";
+import { Mir_Action } from "@/types/mirAction";
 import {
   useMirVariableField,
   useMirVariableFields,

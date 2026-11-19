@@ -4,7 +4,7 @@ import { Stack_Info } from "@/types/peripheral";
 import {
   EditStackConfig,
   IsOpenStackModal,
-} from "@/pages/Setting/formComponent/forms/peripheralModal/jotai";
+} from "@/atoms/map/peripheralAtoms";
 import {
   IsEditingQuickRoads,
   QuickRoadsArray,

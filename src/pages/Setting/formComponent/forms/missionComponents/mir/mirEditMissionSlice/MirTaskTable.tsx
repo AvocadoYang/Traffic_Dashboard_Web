@@ -41,7 +41,7 @@ import { useAtomValue } from "jotai";
 import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import useTaskMir from "@/api/useTaskMir";
 import { Err } from "@/utils/responseErr";
-import { Mir_Action_Slice } from "./type";
+import { Mir_Action_Slice } from "@/types/mirAction";
 
 type ScopedTask = Mir_Action_Slice;
 

@@ -10,7 +10,7 @@ import {
 } from "@/utils/map/areaTypes";
 import { useAtomValue, useSetAtom } from "jotai";
 import { nearbyLocationIdSet, tooltipProp } from "@/utils/gloable";
-import { OpenDirect } from "@/pages/Main/global/jotai";
+import { OpenDirect } from "@/atoms/main/mainAtoms";
 import { useAllAmrDestinations } from "@/sockets/useAMRInfo";
 
 // 單一個點位。props 全部是基本型別或穩定的 callback,所以游標靠近 / 離開時

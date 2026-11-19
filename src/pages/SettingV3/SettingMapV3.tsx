@@ -56,7 +56,7 @@ import AllStack from "@/components/MapLayers/AllStack/AllStack";
 import EditStackModal from "@/components/MapLayers/AllStack/EditStackModal";
 import YfyPackage from "@/components/MapLayers/YFYPackage/YfyPackage";
 import EditPackageModal from "@/components/MapLayers/YFYPackage/EditPackageModal";
-import { IsOpenPeripheralModal } from "@/pages/Setting/formComponent/forms/peripheralModal/jotai";
+import { IsOpenPeripheralModal } from "@/atoms/map/peripheralAtoms";
 import EditPeripheralModal from "@/pages/Setting/formComponent/forms/peripheralModal/EditPeripheralModal";
 import { SudoPeripheral } from "@/pages/Setting/formComponent/forms/other/editPeripheralIcon";
 import BlindLocationMissionModal from "@/components/Setting/BlindLocationMissionModal";

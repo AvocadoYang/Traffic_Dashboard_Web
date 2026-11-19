@@ -11,7 +11,7 @@ import {
 } from "antd";
 import { useAtom } from "jotai";
 import React, { useMemo } from "react";
-import { OpenQueueMirTask } from "../../global/jotai";
+import { OpenQueueMirTask } from "@/atoms/main/mainAtoms";
 import useAllMirMission from "@/api/useAllMirMission";
 import useMirMissionVariables, {
   MirMissionVariable,

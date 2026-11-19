@@ -27,8 +27,8 @@ import useWheelZoom from "@/hooks/map/useWheelZoom";
 import AllConveyor from "../../PadViwe/components/PadMapContent/AllConveyor/AllConveyor";
 import { AllElevator } from "../../PadViwe/components/PadMapContent/AllElevator";
 import AllChargeStation from "../../PadViwe/components/PadMapContent/AllChargeStation/AllChargeStation";
-import { OpenChargeStationModal } from "@/pages/Main/global/jotai";
-import StatusPanel from "../../PadViwe/components/PadMapContent/AllChargeStation/StatusPanel";
+import { OpenChargeStationModal } from "@/atoms/main/mainAtoms";
+import StatusPanel from "@/components/MapLayers/AllChargeStation/StatusPanel";
 import useDetectLoc from "../hooks/useDetectLoc";
 import useMouseClick from "../hooks/useMouseClick";
 import AllGateWaitPoint from "../../PadViwe/components/PadMapContent/AllGateWaitPoint/AllGateWaitPoint";
@@ -36,7 +36,7 @@ import AllLiftGate from "../../PadViwe/components/PadMapContent/AllGate/AllLiftG
 import AllStack from "../../PadViwe/components/PadMapContent/AllStack/AllStack";
 import YfyPackage from "../../PadViwe/components/PadMapContent/YFYPackage/YfyPackage";
 import AllPointCloud from "../../PadViwe/components/PadMapContent/component/AllPointCloud/AllPointCloud";
-import LocalizationCorrectionGhost from "../../PadViwe/components/PadMapContent/component/LocalizationCorrection/LocalizationCorrectionGhost";
+import LocalizationCorrectionGhost from "@/components/LocalizationCorrection/LocalizationCorrectionGhost";
 import useDragPan from "@/pages/Main/components/WebView/hooks/useDragPan";
 import useCenterMap from "@/hooks/useCenterMap";
 

@@ -26,7 +26,7 @@ import useBlindMission from "@/api/useBlindMission";
 import { EBLM } from "@/atoms/map/mapEditModalAtoms";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import MissionTableSelect from "@/pages/Main/components/missionModal/MissionTableSelect";
+import MissionTableSelect from "@/components/Mission/MissionTableSelect";
 import useIsNarrow from "../../ui/useIsNarrow";
 import {
   PanelShell,

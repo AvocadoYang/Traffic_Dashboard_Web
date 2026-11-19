@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import styled from "styled-components";
 import { Button } from "antd";
 import { CloseOutlined } from "@ant-design/icons";
-import { JoystickAmrId } from "@/pages/Main/global/jotai";
+import { JoystickAmrId } from "@/atoms/main/mainAtoms";
 import { darkMode } from "@/utils/gloable";
 import { useJoystickControl } from "@/sockets/useJoystickControl";
 import {

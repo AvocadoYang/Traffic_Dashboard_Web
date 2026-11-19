@@ -6,7 +6,7 @@ import {
   QuickMissionOffload,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
-} from "@/pages/Main/global/jotai";
+} from "@/atoms/main/mainAtoms";
 import { CargoPanelTarget } from "@/components/CargoPanel/state";
 import { Package_Info } from "@/types/peripheral";
 import PackageLayer from "@/components/MapLayers/YFYPackage/PackageLayer";

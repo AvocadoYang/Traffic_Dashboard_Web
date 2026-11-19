@@ -6,7 +6,7 @@ import AllAnnotations from "@/components/MapLayers/AllAnnotations/AllAnnotations
 import AllZones from "@/components/MapLayers/AllZones/AllZones";
 import AllAMRs from "./AllAMRs/AllAMRs";
 import AllPointCloud from "./AllPointCloud/AllPointCloud";
-import LocalizationCorrectionGhost from "./LocalizationCorrection/LocalizationCorrectionGhost";
+import LocalizationCorrectionGhost from "@/components/LocalizationCorrection/LocalizationCorrectionGhost";
 const PadMapView: React.FC<{
   scale: number;
   mapRef: RefObject<HTMLDivElement>;

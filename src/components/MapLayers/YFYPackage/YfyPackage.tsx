@@ -6,7 +6,7 @@ import {
   IsEditingQuickRoads,
   QuickRoadsArray,
 } from "@/atoms/map/mapEditModalAtoms";
-import { EditPackageLocationId } from "@/pages/Setting/formComponent/forms/peripheralModal/jotai";
+import { EditPackageLocationId } from "@/atoms/map/peripheralAtoms";
 import { Package_Info } from "@/types/peripheral";
 import PackageLayer from "./PackageLayer";
 import { PackagePortView } from "./PackageStrip";

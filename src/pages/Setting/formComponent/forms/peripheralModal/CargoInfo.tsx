@@ -11,7 +11,7 @@ import { FormInstance } from "antd/es/form/Form";
 import { FC, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { IsEditPeripheralModal, IsOpenPeripheralModal } from "./jotai";
+import { IsEditPeripheralModal, IsOpenPeripheralModal } from "@/atoms/map/peripheralAtoms";
 import { CargoPanelTarget } from "@/components/CargoPanel/state";
 import {
   editHalfPanelStyle,

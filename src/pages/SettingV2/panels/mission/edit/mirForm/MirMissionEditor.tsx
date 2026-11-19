@@ -27,7 +27,7 @@ import useTaskMir from "@/api/useTaskMir";
 import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import { Mir_Action } from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/type";
+import { Mir_Action } from "@/types/mirAction";
 import { MirVariableProvider } from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/MirVariableContext";
 import useIsNarrow from "../../../../ui/useIsNarrow";
 import {

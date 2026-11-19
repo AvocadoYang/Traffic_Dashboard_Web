@@ -2,7 +2,7 @@ import { Button, Input, Modal, Table, Tag, Space, Flex } from "antd";
 import { useState, useMemo } from "react";
 import { SearchOutlined, DatabaseOutlined } from "@ant-design/icons";
 import styled from "styled-components";
-import Folder from "@/pages/Setting/formComponent/forms/missionComponents/editMission/folder/Folder";
+import Folder from "./Folder";
 import useAllMissionTitles from "@/api/useMissionTitle";
 import { filter } from "rxjs";
 import { useTranslation } from "react-i18next";

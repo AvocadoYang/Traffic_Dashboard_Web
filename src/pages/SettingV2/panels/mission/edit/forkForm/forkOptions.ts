@@ -5,11 +5,11 @@ import {
   actonList,
   levelOption,
   selectLocationOption,
-} from "@/pages/Setting/formComponent/forms/missionComponents/editMission/forkEditMissionSlice/params";
+} from "@/utils/mission/forkParams";
 import {
   Action_Type,
   Select_Location_Type,
-} from "@/pages/Setting/formComponent/forms/missionComponents/editMission/forkEditMissionSlice/types";
+} from "@/types/forkAction";
 
 /** 後端存的是 0/1/2,不是字串 */
 export enum YawGenre {

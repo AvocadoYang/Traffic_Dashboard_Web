@@ -26,7 +26,7 @@ import useEquipmentSignalSocket from "@/sockets/useEquipmentSignalSocket";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { Package_Signal } from "@/types/peripheral";
-import { EditPackageLocationId } from "@/pages/Setting/formComponent/forms/peripheralModal/jotai";
+import { EditPackageLocationId } from "@/atoms/map/peripheralAtoms";
 import { CargoPanelTarget } from "@/components/CargoPanel/state";
 import PeripheralIdentity from "@/components/MapLayers/PeripheralIdentity";
 import {

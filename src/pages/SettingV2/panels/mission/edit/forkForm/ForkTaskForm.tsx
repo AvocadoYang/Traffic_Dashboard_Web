@@ -25,11 +25,11 @@ import useOneTaskDetailFork from "@/api/useOneTaskDetailFork";
 import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import { ErrorResponse } from "@/utils/globalType";
 import { editErrorHandler } from "@/utils/utils";
-import { controlList } from "@/pages/Setting/formComponent/forms/missionComponents/editMission/forkEditMissionSlice/params";
+import { controlList } from "@/utils/mission/forkParams";
 import {
   Action_Type,
   Select_Location_Type,
-} from "@/pages/Setting/formComponent/forms/missionComponents/editMission/forkEditMissionSlice/types";
+} from "@/types/forkAction";
 import SegmentedControl from "../../../../ui/SegmentedControl";
 import { c, font, space } from "@/theme/tokens";
 import {

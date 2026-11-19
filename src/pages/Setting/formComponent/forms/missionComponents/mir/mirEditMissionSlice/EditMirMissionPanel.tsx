@@ -52,7 +52,7 @@ import {
   mirMoveActonList,
   mirSaftySystemList,
   mirSoundLight,
-} from "./type";
+} from "@/types/mirAction";
 import {
   MirBlockedDockingTimeoutInputInput,
   MirBlockedPathTimeoutInputInput,
@@ -97,7 +97,7 @@ import {
   buildMirOperationFields,
   isCurrentPositionOperation,
 } from "./mirActionFields";
-import { useMirDockingMarkerType } from "./useMirTaskOptions";
+import { useMirDockingMarkerType } from "@/hooks/mission/useMirTaskOptions";
 import { useTranslation } from "react-i18next";
 
 dayjs.extend(customParseFormat);

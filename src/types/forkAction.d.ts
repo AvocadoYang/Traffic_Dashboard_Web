@@ -1,4 +1,4 @@
-import { YawGenre } from "../mission";
+import { YawGenre } from "./missionForm";
 import {
   actonList,
   activeWaitRobot,
@@ -6,7 +6,7 @@ import {
   yawOption,
   forkHeightOption,
   waitRobotOption,
-} from "./params";
+} from "@/utils/mission/forkParams";
 
 export type Fork_Movement = {
   tilt?: number; //-6~+6 deg

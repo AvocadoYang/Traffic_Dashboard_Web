@@ -21,7 +21,7 @@ import useAllMissionTitlesDetail, {
 import useMissionFolder from "@/api/useMissionFolder";
 import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import { Err } from "@/utils/responseErr";
-import { Mission_Title } from "@/pages/Setting/formComponent/forms/missionComponents/editMission/mission";
+import { Mission_Title } from "@/types/missionForm";
 import UpgradeTaskFormat from "@/pages/Setting/formComponent/forms/missionComponents/editMission/UpgradeTaskFormat";
 import useIsNarrow from "../../../ui/useIsNarrow";
 import FolderChips from "./FolderChips";

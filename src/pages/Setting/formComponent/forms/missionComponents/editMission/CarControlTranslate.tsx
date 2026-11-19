@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Action_Type } from "./forkEditMissionSlice/types";
+import { Action_Type } from "@/types/forkAction";
 
 const CarControlTranslate = ({ word }: { word: Action_Type }) => {
   const { t } = useTranslation();

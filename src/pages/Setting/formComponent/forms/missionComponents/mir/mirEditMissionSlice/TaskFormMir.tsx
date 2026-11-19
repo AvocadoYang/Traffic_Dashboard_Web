@@ -12,7 +12,7 @@ import {
   mirMoveActonList,
   mirSaftySystemList,
   mirSoundLight,
-} from "./type";
+} from "@/types/mirAction";
 import {
   MirBlockedDockingTimeoutInputInput,
   MirBlockedPathTimeoutInputInput,
@@ -58,7 +58,7 @@ import {
   buildMirOperationFields,
   isCurrentPositionOperation,
 } from "./mirActionFields";
-import { useMirDockingMarkerType } from "./useMirTaskOptions";
+import { useMirDockingMarkerType } from "@/hooks/mission/useMirTaskOptions";
 
 // save-edit-mir-task 實際送出去的形狀:是一個 Mir_Action 加上 missionTitleId,
 // 但不含 scope_reference —— 那是後端自己維護的「內容群組」id,前端不該回寫,

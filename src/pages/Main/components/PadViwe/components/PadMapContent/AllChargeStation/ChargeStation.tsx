@@ -1,4 +1,4 @@
-import { OpenChargeStationModal } from "@/pages/Main/global/jotai";
+import { OpenChargeStationModal } from "@/atoms/main/mainAtoms";
 import { Tooltip } from "antd";
 import { useSetAtom } from "jotai";
 import React, { FC } from "react";

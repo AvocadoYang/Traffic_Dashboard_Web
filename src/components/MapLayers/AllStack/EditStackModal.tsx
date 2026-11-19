@@ -10,7 +10,7 @@ import { PeripheralTypes } from "@/types/peripheral";
 import {
   IsOpenStackModal,
   EditStackConfig,
-} from "@/pages/Setting/formComponent/forms/peripheralModal/jotai";
+} from "@/atoms/map/peripheralAtoms";
 import Config from "./Config";
 import CargoInfoAtPeripheral from "./CargoInfo";
 import PeripheralIdentity from "@/components/MapLayers/PeripheralIdentity";

@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import type { Mir_Action } from "./type";
+import type { Mir_Action } from "@/types/mirAction";
 
 export type MirEditableField =
   | "location_id"

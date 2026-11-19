@@ -11,7 +11,7 @@ import useTaskFork from "@/api/useTaskFork";
 import {
   Action_Type,
   Fork_Action,
-} from "@/pages/Setting/formComponent/forms/missionComponents/editMission/forkEditMissionSlice/types";
+} from "@/types/forkAction";
 import CarControlTranslate from "@/pages/Setting/formComponent/forms/missionComponents/editMission/CarControlTranslate";
 import useIsNarrow from "../../../../ui/useIsNarrow";
 import StatusTag from "../../../../ui/StatusTag";

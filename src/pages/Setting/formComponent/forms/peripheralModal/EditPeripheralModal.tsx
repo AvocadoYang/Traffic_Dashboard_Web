@@ -8,7 +8,7 @@ import client from "@/api/axiosClient";
 import { useMutation } from "@tanstack/react-query";
 import Config from "./Config";
 import CargoInfoAtPeripheral from "./CargoInfo";
-import { IsEditPeripheralModal, IsOpenPeripheralModal } from "./jotai";
+import { IsEditPeripheralModal, IsOpenPeripheralModal } from "@/atoms/map/peripheralAtoms";
 import { PeripheralTypes } from "@/types/peripheral";
 import PeripheralIdentity from "@/components/MapLayers/PeripheralIdentity";
 

@@ -16,12 +16,12 @@ import {
   QuickMissionPickerLoc,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
-} from "@/pages/Main/global/jotai";
+} from "@/atoms/main/mainAtoms";
 import ShelfLevelPicker, {
   getModeColor,
   isLevelSelectable,
   PickLevel,
-} from "./ShelfLevelPicker";
+} from "@/components/MapLayers/AllCargo/ShelfLevelPicker";
 
 const Wrapper = styled.div<
   WrapperType & { $dim: boolean; $glow: string | null }

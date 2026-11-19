@@ -10,7 +10,7 @@ import useAMRsample from "@/api/useAMRsample";
 import useCategory from "@/api/useCategory";
 import useMissionTitleById from "@/api/useMissionTitleById";
 import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
-import { MissionListType } from "@/pages/Setting/formComponent/forms/missionComponents/editMission/mission";
+import { MissionListType } from "@/types/missionForm";
 import { Field, FieldLabel, Hint } from "../../../ui/primitives";
 
 type Props = {

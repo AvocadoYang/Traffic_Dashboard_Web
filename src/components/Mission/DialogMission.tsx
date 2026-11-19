@@ -1,10 +1,10 @@
 import { Button, Flex, Form, Input, message, Modal, Radio, Select } from "antd";
 import { useAtom } from "jotai";
 import { useTranslation } from "react-i18next";
-import { OpenAssignMission } from "../../global/jotai";
+import { OpenAssignMission } from "@/atoms/main/mainAtoms";
 import useAllMissionTitles from "@/api/useMissionTitle";
 import useTaskMir from "@/api/useTaskMir";
-import useMirTaskOptions from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/useMirTaskOptions";
+import useMirTaskOptions from "@/hooks/mission/useMirTaskOptions";
 import { useEffect, useMemo, useState } from "react";
 import useName from "@/api/useAmrName";
 import { useMutation } from "@tanstack/react-query";
@@ -17,7 +17,7 @@ import {
   SettingOutlined,
 } from "@ant-design/icons";
 import styled from "styled-components";
-import MissionTableSelect from "./MissionTableSelect";
+import MissionTableSelect from "@/components/Mission/MissionTableSelect";
 
 enum MissionPriority {
   TRIVIAL,

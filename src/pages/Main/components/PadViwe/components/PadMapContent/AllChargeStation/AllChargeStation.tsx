@@ -10,7 +10,7 @@ import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import styled from "styled-components";
 import ChargeStation from "./ChargeStation";
 import { Point } from "@/components/MapLayers/AllLocation/PointAndLine";
-import StatusPanel from "./StatusPanel";
+import StatusPanel from "@/components/MapLayers/AllChargeStation/StatusPanel";
 import useChargeStationSocket from "@/sockets/useChargeStationSocket";
 
 const WrapperStation = styled.div.attrs<{

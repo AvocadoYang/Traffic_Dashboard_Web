@@ -5,7 +5,7 @@ import {
   mirMoveActonList,
   mirSaftySystemList,
   mirSoundLight,
-} from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/type";
+} from "@/types/mirAction";
 import { MIR_DEFAULT_SOUND } from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/mirActionFields";
 
 /** 可以把別的動作包在裡面的動作 */

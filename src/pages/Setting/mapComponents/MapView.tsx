@@ -58,7 +58,7 @@ import AllConveyor from "@/components/MapLayers/AllConveyor/AllConveyor";
 import {
   IsEditPeripheralModal,
   IsOpenPeripheralModal,
-} from "../formComponent/forms/peripheralModal/jotai";
+} from "@/atoms/map/peripheralAtoms";
 import EditPeripheralModal from "../formComponent/forms/peripheralModal/EditPeripheralModal";
 import CargoPanel from "@/components/CargoPanel/CargoPanel";
 import { SudoPeripheral } from "../formComponent/forms/other/editPeripheralIcon";

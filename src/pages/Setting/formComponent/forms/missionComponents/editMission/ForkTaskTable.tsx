@@ -35,7 +35,7 @@ import client from "@/api/axiosClient";
 import useTaskFork from "../../../../../../api/useTaskFork";
 import ImportMissionForm from "./ImportMissionForm";
 import CarControlTranslate from "./CarControlTranslate";
-import { Fork_mission_Slice } from "./mission";
+import { Fork_mission_Slice } from "@/types/missionForm";
 import { Err } from "@/utils/responseErr";
 import { useAtomValue } from "jotai";
 import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
