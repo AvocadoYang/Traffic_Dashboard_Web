@@ -297,7 +297,7 @@ export const MissionTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   );
 });
 
-/** 這一動等太久了: 提示可以考慮用「直接下一動」 */
+/** 這一動等太久了: 可能在排隊等交管, 也可能車端做完沒回報; 確認後可用「重送這一步」 */
 export const StepWaitTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   const stepWaitMs = useStepWaitMs(amrId);
   const { t } = useTranslation();
@@ -318,7 +318,10 @@ export const StepCheckTag: React.FC<{ amrId: string }> = memo(({ amrId }) => {
   return (
     <StatusChip
       $tone="danger"
-      title={t("amr_card.step_check_hint", { reason: stepCheck.reason })}
+      title={t(
+        stepCheck.askDone ? "amr_card.step_check_hint" : "amr_card.step_check_hint_resend",
+        { reason: stepCheck.reason },
+      )}
     >
       <BrakeWarnIcon lit />
       {t("amr_card.step_check")}
