@@ -43,6 +43,14 @@ export interface PerformanceSnapshot {
     uptimeSec: number;
     health: "ok" | "warn" | "critical";
   };
+  /** 主機溫度; 這台主機沒有感測器時是 null */
+  hostTemp: {
+    value: number;
+    detail: string;
+    level: "ok" | "warning" | "alarm";
+    warnAt: number;
+    alarmAt: number;
+  } | null;
 }
 
 export const PERFORMANCE_KEY = ["performance"];
