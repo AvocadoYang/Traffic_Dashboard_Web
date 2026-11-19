@@ -2500,6 +2500,8 @@
       "event_loop_hint": "Node 被同步工作卡住的時間。0 = 健康；持續 >100ms 代表程式本身有問題，不是車不夠。",
       "lag_max": "延遲峰值",
       "lag_max_hint": "這段區間內最久的一次卡頓。偶發的高峰通常是啟動或大量查詢造成。",
+      "host_temp": "主機溫度",
+      "host_temp_hint": "目前讀數來源: {{detail}}。每 15 秒量一次; 達 {{warn}}°C 變黃、達 {{alarm}}°C 變紅 (可在設定的健康檢查調整)。",
       "heap": "記憶體",
       "verdict_ok": "有餘裕",
       "verdict_busy": "忙，但跟得上",
