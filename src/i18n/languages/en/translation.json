@@ -1150,6 +1150,21 @@
     "key_save": ": Save",
     "key_cancel": ": Cancel"
   },
+  "storage_hover": {
+    "title": "Slot status",
+    "s0": "Undefined",
+    "s10": "Offline (reported by PAC)",
+    "s20": "Empty · can receive",
+    "s30": "Empty · reserved",
+    "s31": "Empty · defect reserved",
+    "s40": "Empty · not available",
+    "s50": "Occupied · can pick",
+    "s60": "Occupied · pick reserved",
+    "s70": "Occupied · not available",
+    "disabled": "Disabled in settings",
+    "booked": "Booked by",
+    "none": "No live data"
+  },
   "edit_location_panel": {
     "none": "normal",
     "charge_station": "charge station",
