@@ -14,7 +14,7 @@ import {
   sanitizeSignedDeg,
 } from "@/utils/utils";
 import { useMiRStatus } from "@/sockets/useMirStatus";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
 import LocalizationCorrectionPanel from "./LocalizationCorrectionPanel";
 
 // Position/rotation are set as inline styles via .attrs (rather than

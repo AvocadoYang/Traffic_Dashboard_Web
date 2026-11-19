@@ -5,12 +5,13 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { nearbyLocationIdSet, tooltipProp } from "@/utils/gloable";
 import { draggableLineInitialPoint } from "@/hooks/map/hook";
 import { Point, DraggableLine } from "@/features/map/layers/AllLocation/PointAndLine";
+import { MirAreaTypeMarker } from "@/features/map/layers/AllLocation/MirAreaTypeMarker";
 import {
-  MirAreaTypeMarker,
   isDetectableAreaType,
   isMirAreaType,
-} from "@/features/map/layers/AllLocation/MirAreaTypeMarker";
-import { isPointAreaType, isStandbyAreaType } from "@/features/map/layers/AllLocation/pointAreaTypes";
+  isPointAreaType,
+  isStandbyAreaType,
+} from "@/features/map/areaTypes";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
 import {
   EditRoadPanelSwitch,

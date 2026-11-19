@@ -2,7 +2,7 @@ import { useAtom, useAtomValue } from "jotai";
 import { useAmrPose } from "@/sockets/useAMRInfo";
 import { useMiRStatus } from "@/sockets/useMirStatus";
 import { localizationCorrection } from "@/utils/gloable";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
 import { sanitizeSignedDeg } from "@/utils/utils";
 
 /**

@@ -6,9 +6,9 @@ import { useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import useMap from "@/api/useMap";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
 import { rvizCoord } from "@/utils/utils";
-import { toOpaque } from "@/features/map/layers/AllZones/ZoneHoverCard";
+import { toOpaque } from "@/utils/color";
 import { GhostButton, SolidButton } from "@/pages/SettingV2/ui/primitives";
 import { c, font, space } from "@/theme/tokens";
 import {

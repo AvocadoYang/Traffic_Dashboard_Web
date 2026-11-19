@@ -16,7 +16,7 @@ import { array, boolean, object, string } from "yup";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { InfoCircleOutlined } from "@ant-design/icons";
-import { GlobalLoadingPage } from "@/utils/GlobalLoadingPage";
+import { GlobalLoadingPage } from "@/components/GlobalLoadingPage";
 
 const schema = array(
   object({

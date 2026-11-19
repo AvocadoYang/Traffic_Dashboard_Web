@@ -22,7 +22,7 @@ import { useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";
 import useOneTaskDetailFork from "@/api/useOneTaskDetailFork";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
 import { ErrorResponse } from "@/utils/globalType";
 import { editErrorHandler } from "@/utils/utils";
 import { controlList } from "@/pages/Setting/formComponent/forms/missionComponents/editMission/forkEditMissionSlice/params";

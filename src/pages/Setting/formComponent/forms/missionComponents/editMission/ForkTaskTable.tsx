@@ -38,7 +38,7 @@ import CarControlTranslate from "./CarControlTranslate";
 import { Fork_mission_Slice } from "./mission";
 import { Err } from "@/utils/responseErr";
 import { useAtomValue } from "jotai";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
 
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   "data-row-key": string;

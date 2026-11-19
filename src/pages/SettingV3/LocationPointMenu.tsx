@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import useMap from "@/api/useMap";
 import useAllGroupsResources from "@/api/useAllGroupsResources";
 import { LDM } from "@/features/map/jotai/settingJotai";
-import { isDetectableAreaType } from "@/features/map/layers/AllLocation/MirAreaTypeMarker";
+import { isDetectableAreaType } from "@/features/map/areaTypes";
 import LocationEditModal, {
   LocationRow,
 } from "@/pages/SettingV2/panels/location/LocationEditModal";

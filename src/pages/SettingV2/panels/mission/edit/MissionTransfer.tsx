@@ -1,7 +1,7 @@
 import client from "@/api/axiosClient";
 import { MTType } from "@/api/useMissionTitleDetail";
 import { isFork } from "@/utils/globalFunction";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
 import { DownloadOutlined, UploadOutlined } from "@ant-design/icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {

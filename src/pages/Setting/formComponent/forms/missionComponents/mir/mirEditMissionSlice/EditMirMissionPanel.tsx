@@ -41,7 +41,7 @@ import { nanoid } from "nanoid";
 import styled from "styled-components";
 import client from "@/api/axiosClient";
 import { useAtomValue } from "jotai";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
 import useTaskMir from "@/api/useTaskMir";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";

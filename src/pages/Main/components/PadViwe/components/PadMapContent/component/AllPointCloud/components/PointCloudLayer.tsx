@@ -4,7 +4,7 @@ import { useAmrPointCloud } from "@/sockets/usePointCloud";
 import { useIsLogIn } from "@/sockets/useAMRInfo";
 import { useMiRStatus } from "@/sockets/useMirStatus";
 import { useAtom } from "jotai";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
 
 const PointCloudLayer: FC<{ amrId: string; color: string }> = ({
   amrId,

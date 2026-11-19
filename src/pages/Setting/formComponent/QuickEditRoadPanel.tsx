@@ -22,7 +22,7 @@ import client from "@/api/axiosClient";
 import { errorHandler } from "@/utils/utils";
 import { ErrorResponse } from "@/utils/globalType";
 import { QuestionCircleOutlined } from "@ant-design/icons";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
 
 type RoadFormData = {
   validYawList?: string | number[];

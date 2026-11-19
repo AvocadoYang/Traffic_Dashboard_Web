@@ -36,7 +36,7 @@ import { Robot_Mission_Slice_Table } from "./mission";
 import { Err } from "@/utils/responseErr";
 import useTaskHumanRobot from "@/api/useTaskHumanRobot";
 import { useAtomValue } from "jotai";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
 
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   "data-row-key": string;

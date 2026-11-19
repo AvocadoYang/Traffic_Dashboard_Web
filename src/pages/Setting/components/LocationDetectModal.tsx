@@ -20,10 +20,10 @@ import useMap from "@/api/useMap";
 import {
   getDefaultMarkerPattern,
   FALLBACK_MARKER_PATTERN,
-} from "@/features/map/layers/AllLocation/MirAreaTypeMarker";
+} from "@/features/map/areaTypes";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
 import { LDM } from "@/features/map/jotai/settingJotai";
 
 const { Title, Text } = Typography;

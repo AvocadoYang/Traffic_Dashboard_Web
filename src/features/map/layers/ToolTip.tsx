@@ -6,7 +6,7 @@ import { FC } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { HoverLabel, TOOLTIP_Z_INDEX } from "./HoverLabel";
-import { isStandbyAreaType } from "@/features/map/layers/AllLocation/pointAreaTypes";
+import { isStandbyAreaType } from "@/features/map/areaTypes";
 
 const TooltipWrapper = styled.div.attrs<{
   left: number;

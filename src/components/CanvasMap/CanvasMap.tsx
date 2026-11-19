@@ -26,7 +26,7 @@ import {
   isShowRoadTooltip,
   showAllZonesSwitch,
 } from "@/utils/siderGloble";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
 import { buildMapImageMatrix, getMapCanvas, mapImageModeAtom, resolveColors, themeAtom } from "@/theme";
 import { isDarkColor } from "@/theme/mapImage";
 import { buildScene } from "./scene";

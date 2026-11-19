@@ -1,5 +1,6 @@
 import useMap from "@/api/useMap";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
+import { toOpaque } from "@/utils/color";
 import { FC, memo, useEffect, useState } from "react";
 import styled from "styled-components";
 import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
@@ -18,13 +19,6 @@ type ZoneInfo = ZoneHoverInfo & {
     endX: number;
     endY: number;
   };
-};
-
-const toOpaque = (color: string) => {
-  const rgb = color.match(/rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)/i);
-  if (!rgb) return color;
-  const [, r, g, b] = rgb;
-  return `rgb(${r}, ${g}, ${b})`;
 };
 
 const Frame = styled.div.attrs<{

@@ -6,7 +6,9 @@ import { showZoneForbidden } from "@/utils/gloable";
 import { amrId2ColorRainbow } from "@/utils/utils";
 import useZoneOccupants from "@/api/useZoneOccupants";
 import { c, font, space } from "@/theme/tokens";
-import { LinkedZone, useLinkedZones } from "@/features/map/zoneLinks";
+import { LinkedZone } from "@/features/map/zoneLinks";
+import useLinkedZones from "@/hooks/map/useLinkedZones";
+import { toOpaque } from "@/utils/color";
 import {
   EditOutlined,
   LinkOutlined,
@@ -48,13 +50,6 @@ const toneColors: Record<Tone, { fg: string; bg: string; border: string }> = {
   neutral: { fg: c.text, bg: c.bgSubtle, border: c.borderStrong },
   warning: { fg: c.warning, bg: c.warningSoft, border: c.warning },
   danger: { fg: c.danger, bg: c.dangerSoft, border: c.danger },
-};
-
-export const toOpaque = (color: string) => {
-  const rgb = color.match(/rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)/i);
-  if (!rgb) return color;
-  const [, r, g, b] = rgb;
-  return `rgb(${r}, ${g}, ${b})`;
 };
 
 const Card = styled.div`

@@ -7,7 +7,7 @@ import useAllAreaTypes from "@/api/useAllAreaTypes";
 import { WORK_AREA_CONFIG_KEY } from "@/api/useWorkAreas";
 import client from "@/api/axiosClient";
 import { locationOption } from "@/pages/Setting/utils/func";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
 import { ErrorResponse } from "@/utils/globalType";
 import { editErrorHandler } from "@/utils/utils";
 import { Field, FieldLabel, FieldGrid, Hint } from "../../ui/primitives";

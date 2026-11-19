@@ -6,7 +6,7 @@ import { useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";
 import useAllMissionTitlesDetail from "@/api/useMissionTitleDetail";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
 import { isFork, isMir } from "@/utils/globalFunction";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";

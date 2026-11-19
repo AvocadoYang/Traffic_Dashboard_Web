@@ -17,9 +17,10 @@ import ToolTip from "@/features/map/layers/ToolTip";
 import LocationHoverCluster from "@/features/map/layers/AllLocation/LocationHoverCluster";
 import RoadHoverCluster from "@/features/map/layers/AllRoads/RoadHoverCluster";
 import { HoverLabel, TOOLTIP_Z_INDEX } from "@/features/map/layers/HoverLabel";
-import ZoneHoverCard, { toOpaque } from "@/features/map/layers/AllZones/ZoneHoverCard";
+import ZoneHoverCard from "@/features/map/layers/AllZones/ZoneHoverCard";
+import { toOpaque } from "@/utils/color";
 import { c, font } from "@/theme/tokens";
-import { useLinkedZones } from "@/features/map/zoneLinks";
+import useLinkedZones from "@/hooks/map/useLinkedZones";
 import type { MapScene, SceneZone } from "./scene";
 
 /**

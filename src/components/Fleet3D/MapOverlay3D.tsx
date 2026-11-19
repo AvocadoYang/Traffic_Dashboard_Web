@@ -5,7 +5,7 @@ import type { MapType } from "@/api/useMap";
 import type { PaletteColors } from "@/theme";
 import { Frame, drawAnnotations, drawZones } from "@/components/CanvasMap/draw";
 import { buildScene } from "@/components/CanvasMap/scene";
-import { toOpaque } from "@/features/map/layers/AllZones/ZoneHoverCard";
+import { toOpaque } from "@/utils/color";
 
 /**
  * 地上的區域、地圖標註: 直接拿 2D 地圖的畫法 (draw.ts) 畫在一張跟底圖一樣大的透明畫布上,

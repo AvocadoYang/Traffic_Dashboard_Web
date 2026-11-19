@@ -8,6 +8,7 @@
  */
 import { amrId2ColorRainbow, amrShortNum, getAmrColorVersion, textOnColor } from "@/utils/utils";
 import type { PaletteColors } from "@/theme";
+import { toOpaque } from "@/utils/color";
 import type { MapScene, SceneAnnotation } from "./scene";
 import type { RouteHighlight } from "./routeHighlight";
 import type { LiveState } from "./liveStore";
@@ -61,13 +62,6 @@ export const amrColor = (amrId: string) => {
     colorCache.set(amrId, c);
   }
   return c;
-};
-
-const toOpaque = (color: string) => {
-  const rgb = color.match(/rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)/i);
-  if (!rgb) return color;
-  const [, r, g, b] = rgb;
-  return `rgb(${r}, ${g}, ${b})`;
 };
 
 /** 地圖上的字: 深色底圖用淺色字, 淺色底圖用深色字 (舊地圖的 FrameName 也是這樣補的) */

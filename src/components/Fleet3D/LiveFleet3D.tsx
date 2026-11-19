@@ -18,10 +18,10 @@ import {
   isShowRoadTooltip,
   showAllZonesSwitch,
 } from "@/utils/siderGloble";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
 import { buildMapImageMatrix, getMapCanvas, mapImageModeAtom, resolveColors, themeAtom } from "@/theme";
 import { isDarkColor } from "@/theme/mapImage";
-import { isPointAreaType } from "@/features/map/layers/AllLocation/pointAreaTypes";
+import { isPointAreaType } from "@/features/map/areaTypes";
 import { createLiveStore, LiveState, LiveStore } from "@/components/CanvasMap/liveStore";
 import { amrColor, amrShownAt } from "@/components/CanvasMap/draw";
 import { CanvasMapApi } from "@/components/CanvasMap/CanvasMap";

@@ -2,14 +2,12 @@ import useMap from "@/api/useMap";
 import { amrId2ColorRainbow, rosCoord2DisplayCoord } from "@/utils/utils";
 import { memo, RefObject, useCallback, useMemo } from "react";
 import { PointMain } from "@/features/map/layers/AllLocation/PointAndLine";
+import { MirAreaTypeMarker } from "@/features/map/layers/AllLocation/MirAreaTypeMarker";
 import {
-  MirAreaTypeMarker,
   isMirAreaType,
-} from "@/features/map/layers/AllLocation/MirAreaTypeMarker";
-import {
   isPointAreaType,
   isStandbyAreaType,
-} from "@/features/map/layers/AllLocation/pointAreaTypes";
+} from "@/features/map/areaTypes";
 import { useAtomValue, useSetAtom } from "jotai";
 import { nearbyLocationIdSet, tooltipProp } from "@/utils/gloable";
 import { OpenDirect } from "@/pages/Main/global/jotai";

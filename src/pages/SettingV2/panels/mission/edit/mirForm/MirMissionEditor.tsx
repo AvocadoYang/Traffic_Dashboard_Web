@@ -24,7 +24,7 @@ import { useTranslation } from "react-i18next";
 import { nanoid } from "nanoid";
 import client from "@/api/axiosClient";
 import useTaskMir from "@/api/useTaskMir";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { Mir_Action } from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/type";

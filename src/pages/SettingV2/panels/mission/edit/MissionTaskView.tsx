@@ -11,7 +11,7 @@ import { useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
 import { nanoid } from "nanoid";
 import client from "@/api/axiosClient";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { isFork, isMir } from "@/utils/globalFunction";

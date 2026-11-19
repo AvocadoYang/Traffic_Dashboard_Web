@@ -25,7 +25,7 @@ import {
   MirStyleLocationPlacerSwitch,
   QuickEditLocationPanelSwitch,
 } from "@/utils/siderGloble";
-import { LocationType } from "@/utils/jotai";
+import { LocationType } from "@/features/map/locationTypes";
 import { rad2Deg, rosCoord2DisplayCoord } from "@/utils/utils";
 import { DraggableLine } from "@/features/map/layers/AllLocation/PointAndLine";
 import "@/pages/Setting/setting.css";

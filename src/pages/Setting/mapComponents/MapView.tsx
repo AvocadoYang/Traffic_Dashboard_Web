@@ -50,7 +50,7 @@ import AllAnnotations from "@/features/map/layers/AllAnnotations/AllAnnotations"
 import LocationHoverCluster from "@/features/map/layers/AllLocation/LocationHoverCluster";
 import { annotationToolAtom } from "@/features/map/jotai/annotationAtoms";
 import type { FrameColor } from "./components";
-import { LocationType } from "@/utils/jotai";
+import { LocationType } from "@/features/map/locationTypes";
 import AllRoads from "@/features/map/layers/AllRoads/AllRoads";
 import RoadHoverCluster from "@/features/map/layers/AllRoads/RoadHoverCluster";
 import AllCargo from "./components/AllCargo/AllCargo";

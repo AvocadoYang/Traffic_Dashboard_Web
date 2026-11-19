@@ -6,7 +6,7 @@ import { useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
 import useAllGroupsResources from "@/api/useAllGroupsResources";
 import client from "@/api/axiosClient";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
 import { ErrorResponse } from "@/utils/globalType";
 import { editErrorHandler } from "@/utils/utils";
 import ZoneFields, { zoneColorFromPicker } from "../../ui/zoneFields";

@@ -1,6 +1,6 @@
 import { atom } from "jotai";
 import { selectAtom } from "jotai/utils";
-import { LocationType } from "./jotai";
+import { LocationType } from "@/features/map/locationTypes";
 import { mouseLocation, RectInfo } from "@/hooks/map/hook";
 import { SelectStation } from "@/api/type/useLocation";
 import { SelectProps } from "antd";

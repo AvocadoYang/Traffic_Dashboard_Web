@@ -15,7 +15,7 @@ import client from "@/api/axiosClient";
 import useVersion from "@/api/useVersion";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import GlobalLoading from "@/utils/GlobalLoading";
+import GlobalLoading from "@/components/GlobalLoading";
 import useIsNarrow from "../../ui/useIsNarrow";
 import {
   PanelShell,

@@ -15,7 +15,7 @@ import {
 import { DeleteTwoTone, EditOutlined } from "@ant-design/icons";
 import useAllGroupsResources from "@/api/useAllGroupsResources";
 import { useAtomValue } from "jotai";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
 import GroupMapFolderBrowser from "@/components/GroupMapFolderBrowser";
 import { nanoid } from "nanoid";
 import { tagColor } from "../../../utils/utils";
