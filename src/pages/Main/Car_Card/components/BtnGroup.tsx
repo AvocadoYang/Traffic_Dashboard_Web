@@ -27,7 +27,7 @@ import {
 } from "@ant-design/icons";
 import { isFork } from "@/utils/globalFunction";
 import { useStepCheck, useStepWaitMs } from "@/sockets/useAMRInfo";
-import { STEP_WAIT_WARN_MS, formatWait } from "../stepWait";
+import { STEP_WAIT_WARN_MS } from "../stepWait";
 import MaintenancePanel from "./MaintenancePanel";
 import SpinModal from "./SpinModal";
 import { usePermission } from "@/utils/permissions";
@@ -366,17 +366,12 @@ const BtnGroup: FC<{ amrId: string }> = ({ amrId }) => {
               </>
             )}
 
-            {/* 跟重送這一步一樣, 只在系統要人確認、或這一動等很久時才給: 直接下一動不會叫車
-                取消目前這一步, 車其實還在做時按了, 車會繼續做, 下一動還會被車拒收 */}
-            {(stepCheck || stepStuck) && can("amr.step") && (
+            {/* 只在系統說「不知道這一步做完沒」的取放貨這類動作才給 (後端標 askDone): 直接下一動不會叫車
+                取消目前這一步, 車其實還在做時按了, 車會繼續做, 下一動還會被車拒收. 移動一律用重送這一步;
+                等很久 (可能只是在排隊等交管) 也不給 */}
+            {stepCheck?.askDone && can("amr.step") && (
               <Tooltip
-                title={
-                  stepCheck
-                    ? t("amr_card.force_next_step_check", { reason: stepCheck.reason })
-                    : t("amr_card.force_next_step_stuck", {
-                        time: formatWait(stepWaitMs),
-                      })
-                }
+                title={t("amr_card.force_next_step_check", { reason: stepCheck.reason })}
                 placement="bottom"
               >
                 <ActionButton
