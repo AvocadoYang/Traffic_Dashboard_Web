@@ -68,7 +68,7 @@ const IndustrialButton = styled(Button)`
   color: #262626;
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--font-sm);
   letter-spacing: 1px;
   height: 36px;
   font-weight: 600;

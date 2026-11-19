@@ -1,6 +1,7 @@
 {
   "header": {
     "switch_row": "Switch between navigation and mission row",
+    "more": "More",
     "navigation": "Navigation",
     "sim_time": "SIM TIME",
     "stop_sim": "STOP SIM",
@@ -375,16 +376,17 @@
     "force_next_step": "Skip to next step",
     "force_next_step_hint": "Use when the vehicle has actually finished but the system is still waiting for its done signal",
     "force_next_step_confirm_title": "Skip to the next step?",
-    "force_next_step_confirm_content": "This will not wait for the vehicle's done signal. The current step is treated as finished and the next step is sent to the vehicle. Make sure the vehicle has really completed the current action, otherwise it may collide or drop its cargo.",
+    "force_next_step_confirm_content": "Check the cargo on site first: confirm only if a pick has the cargo on the forks, or a drop has the cargo in the slot. The vehicle is not told to cancel this step; it is treated as finished and the next step is sent to the vehicle. If the step is not done, use Resend this step instead, otherwise the vehicle may collide or drop its cargo.",
     "force_next_step_stuck": "This step has been waiting {{time}}; the vehicle may have finished without reporting. Once you are sure it has, you can skip to the next step",
     "step_wait": "Waiting {{time}}",
-    "step_wait_hint": "This step has been waiting a long time; the vehicle may have finished without reporting (you can use \"Skip to next step\")",
+    "step_wait_hint": "This step has been waiting a long time: it may be queued for traffic, or the vehicle finished without reporting. Check on site that the vehicle is stopped and idle, then use \"Resend this step\"",
     "offline_for": "In this state for {{time}}",
     "offline_last_seen": "last seen {{time}} ago",
     "offline_car_page": "Car diagnostics page",
     "offline_basis": "Why we think so",
     "step_check": "Needs check",
-    "step_check_hint": "{{reason}}. Check on site: if it finished, use \"Skip to next step\"; if not, use \"Resend this step\"; if the job is off, delete the mission",
+    "step_check_hint": "{{reason}}. Check the cargo on site: if it finished (a pick has the cargo on the forks, a drop has it in the slot), use \"Skip to next step\"; if not, use \"Resend this step\"; if the job is off, delete the mission",
+    "step_check_hint_resend": "{{reason}}. Check on site and follow the alarm; if the job is off, delete the mission",
     "force_next_step_check": "{{reason}}. Once you are sure the vehicle finished this step, continue with the next one here",
     "resend_step": "Resend this step",
     "resend_step_hint": "Use when the vehicle did not finish this step: it drops the step first, then gets the same command again",
@@ -759,7 +761,43 @@
     "tab": {
       "overview": "Overview",
       "battery": "Battery log",
-      "connection": "Disconnections"
+      "connection": "Disconnections",
+      "step_timing": "Step timing"
+    },
+    "step_timing": {
+      "none": "No step timing in this period (missions before 2026-11-16 have none)",
+      "hint": "Gap = previous step done to the command sent to the vehicle (includes the mission's wait seconds); Run = command sent to done; only steps finished inside the period count",
+      "by_type": "By action",
+      "by_location": "By point",
+      "by_vehicle": "By vehicle",
+      "slowest_first": "Slowest first by default",
+      "tile": {
+        "steps": "Steps",
+        "gap_avg": "Gap avg",
+        "gap_p90": "Gap P90",
+        "run_avg": "Run avg",
+        "run_p90": "Run P90"
+      },
+      "col": {
+        "type": "Action",
+        "location": "Point",
+        "vehicle": "Vehicle",
+        "count": "Steps",
+        "gap": "Gap from previous step",
+        "run": "Run time",
+        "avg": "Avg",
+        "p90": "P90",
+        "max": "Max"
+      },
+      "type": {
+        "move": "Move",
+        "load": "Load",
+        "offload": "Offload",
+        "charge": "Charge",
+        "upper_control": "Upper control",
+        "spin": "Spin",
+        "fork": "Fork move"
+      }
     },
     "connection": {
       "not_recorded": "The database has no connection log table (connection_event) yet. The backend creates it on its next start and records from then on.",
@@ -958,6 +996,7 @@
   "page_cargo_history": "Cargo History",
   "page_amr": "Amf info",
   "main_task_list": {
+    "per_page": "/ page",
     "wait_suitable": "wait suitable"
   },
   "toolbar": {
@@ -1400,6 +1439,9 @@
       "title_name": "Register AMR",
       "amr_name": "amr name",
       "type": "type",
+      "color": "Color",
+      "color_auto": "Auto",
+      "color_used_by": "Also used by {{names}}",
       "serial_number": " MAC address",
       "invalid_serial_number": "invalid serial number",
       "executing": "using",
@@ -1482,6 +1524,13 @@
     "tooltip_full": "While charging, the charge mission ends at this value and the vehicle stays in the station.",
     "tooltip_available_get_task": "While charging, above this value and with a mission waiting for this vehicle: charging ends and the vehicle goes to work.",
     "section_trigger_delay": "[03] Trigger Delay Settings",
+    "section_manual_priority": "[04] Manual Charge",
+    "manualChargePriority": "Manual charge dispatch priority",
+    "tooltip_manualChargePriority": "Priority of the charge mission created when a vehicle's Charge button (amr-charge) is used. Higher is dispatched first. Default: Normal.",
+    "priority_0": "Trivial",
+    "priority_1": "Normal",
+    "priority_2": "Pivotal",
+    "priority_3": "Critical",
     "aggressiveTriggerDelayMin": "Aggressive trigger delay",
     "aggressiveTriggerDelayMin_min": "Aggressive trigger delay must be at least 0 minutes",
     "tooltip_aggressiveTriggerDelayMin": "Delay before aggressive charging is triggered",
@@ -2956,6 +3005,9 @@
     "charge_station_mqtt_error": "Charging Station MQTT Connection Error",
     "charge_station_heartbeat_error": "Charging Station Heartbeat Timeout",
     "charge_station_agv_not_dock_precise": "AGV Not Precisely Docked at Charging Station",
+    "charge_car_not_still": "Vehicle was still moving, charging bar not extended",
+    "charge_car_lock_not_confirmed": "Vehicle did not confirm the charge lock, charging bar not extended",
+    "charge_start_refused": "Charging station safety check failed, charging bar not extended",
     "user_abort": "Manually Aborted by User",
     "wcs_abort": "Mission Cancelled by WCS",
     "mock_disconnected": "Mock Device Disconnected",
@@ -3138,6 +3190,8 @@
       "indigo": "Indigo",
       "teal": "Teal",
       "sand": "Sand",
+      "kenmec-light": "KENMEC Ivory",
+      "kenmec": "KENMEC Noir",
       "midnight": "Midnight",
       "sakura": "Sakura",
       "matcha": "Matcha",
@@ -5464,6 +5518,8 @@
       "theme_help": "Same setting as Appearance on the settings page; changing either saves it to your account",
       "font_size": "Font size",
       "font_size_help": "Make it larger on touch screens on the floor",
+      "auto_zoom_font": "Enlarge text automatically when the browser is zoomed out",
+      "auto_zoom_font_help": "When the browser is zoomed below 100% (e.g. Ctrl -), text gets too small. When on, text is enlarged to compensate. Applies to this computer only.",
       "font_0_9": "Small",
       "font_1": "Standard",
       "font_1_15": "Large",

@@ -89,7 +89,7 @@ const IndustrialModal = styled(Modal)<{ $isDark: boolean }>`
 const IndustrialButton = styled(Button)`
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--font-sm);
   letter-spacing: 0.5px;
   height: 36px;
   font-weight: 600;
@@ -124,7 +124,7 @@ const IndustrialTableContainer = styled.div<{ $isDark: boolean }>`
     color: ${({ $isDark }) => ($isDark ? "#00ff41" : "#262626")};
     font-weight: 600;
     text-transform: uppercase;
-    font-size: 10px;
+    font-size: var(--font-xs);
     letter-spacing: 1px;
     border-bottom: 2px solid
       ${({ $isDark }) => ($isDark ? "#2a2a2a" : "#d9d9d9")};
@@ -378,7 +378,7 @@ const BKBtn = () => {
           <QuestionCircleFilled
             style={{ color: "#00ff41", marginRight: 8, fontSize: 14 }}
           />
-          <ConsoleText $isDark={isDark} style={{ fontSize: 10, opacity: 0.8 }}>
+          <ConsoleText $isDark={isDark} style={{ fontSize: "var(--font-xs)", opacity: 0.8 }}>
             {t("backup.note")}
           </ConsoleText>
         </Flex>

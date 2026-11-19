@@ -1,10 +1,10 @@
-import { useLayoutEffect, type FC, type ReactNode } from "react";
-import { useAtomValue } from "jotai";
+import { useEffect, useLayoutEffect, type FC, type ReactNode } from "react";
+import { useAtomValue, useSetAtom } from "jotai";
 import { ConfigProvider } from "antd";
 import { applyTheme } from "./applyTheme";
 import { buildAntdTheme, buildAppAntdTheme } from "./antdTheme";
 import { mapImageModeAtom, themeAtom } from "./themeAtom";
-import { fontScaleAtom } from "./fontScale";
+import { effectiveFontScaleAtom, pixelRatioAtom } from "./fontScale";
 
 /**
  * 掛在 App 最外層。只負責把選到的主題灌成 <html> 上的 CSS 變數,
@@ -15,7 +15,16 @@ import { fontScaleAtom } from "./fontScale";
 export const ThemeVarsProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const theme = useAtomValue(themeAtom);
   const mapImage = useAtomValue(mapImageModeAtom);
-  const fontScale = useAtomValue(fontScaleAtom);
+  const fontScale = useAtomValue(effectiveFontScaleAtom);
+  const setPixelRatio = useSetAtom(pixelRatioAtom);
+
+  // 瀏覽器縮放 (Ctrl +/-) 會改 devicePixelRatio 並觸發 resize; 縮小時字體自動補償 (見 fontScale.ts)
+  useEffect(() => {
+    const update = () => setPixelRatio(window.devicePixelRatio || 1);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [setPixelRatio]);
 
   useLayoutEffect(() => {
     document.documentElement.style.setProperty("--font-scale", String(fontScale));
@@ -34,7 +43,7 @@ export const ThemedConfigProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const theme = useAtomValue(themeAtom);
-  const fontScale = useAtomValue(fontScaleAtom);
+  const fontScale = useAtomValue(effectiveFontScaleAtom);
   return (
     <ConfigProvider theme={buildAntdTheme(theme, fontScale)}>{children}</ConfigProvider>
   );
@@ -48,7 +57,7 @@ export const ThemedAppConfigProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const theme = useAtomValue(themeAtom);
-  const fontScale = useAtomValue(fontScaleAtom);
+  const fontScale = useAtomValue(effectiveFontScaleAtom);
   return (
     <ConfigProvider theme={buildAppAntdTheme(theme, fontScale)}>{children}</ConfigProvider>
   );

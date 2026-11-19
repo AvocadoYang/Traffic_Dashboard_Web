@@ -102,7 +102,7 @@ const IndustrialButton = styled(Button)`
   color: #1890ff;
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--font-sm);
   letter-spacing: 1px;
   height: 36px;
 
@@ -141,7 +141,7 @@ const IndustrialButton = styled(Button)`
   &:disabled {
     background: #f5f5f5;
     border-color: #d9d9d9;
-    color: #bfbfbf;
+    color: var(--c-text-muted);
   }
 `;
 
@@ -163,7 +163,7 @@ const StyledTable = styled(Table)`
     border-bottom: 2px solid #1890ff;
     color: #262626;
     font-weight: 600;
-    font-size: 11px;
+    font-size: var(--font-sm);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-family: "Roboto Mono", monospace;
@@ -229,7 +229,7 @@ const SearchDropdown = styled.div`
 
   .ant-btn {
     font-family: "Roboto Mono", monospace;
-    font-size: 11px;
+    font-size: var(--font-sm);
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
@@ -278,7 +278,7 @@ const Dot = styled.div<DotStyle>`
 `;
 
 const StatusText = styled.span<{ $active: boolean }>`
-  font-size: 11px;
+  font-size: var(--font-sm);
   text-transform: uppercase;
   letter-spacing: 1px;
   color: ${(prop) => (prop.$active ? "#ff4d4f" : "#52c41a")};

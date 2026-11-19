@@ -5,7 +5,7 @@ import styled from "styled-components";
 export const IndustrialButton = styled(Button)`
   font-family: "Roboto Mono", monospace;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--font-sm);
   letter-spacing: 1px;
   height: 36px;
   font-weight: 600;
@@ -83,7 +83,7 @@ export const IndustrialTable = styled(Table)`
     background: #fafafa;
     border-bottom: 2px solid #d9d9d9;
     color: #595959;
-    font-size: 11px;
+    font-size: var(--font-sm);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 700;
@@ -154,7 +154,7 @@ export const IndustrialModal = styled(Modal)`
     .ant-btn {
       font-family: "Roboto Mono", monospace;
       text-transform: uppercase;
-      font-size: 11px;
+      font-size: var(--font-sm);
       letter-spacing: 1px;
       height: 36px;
       font-weight: 600;

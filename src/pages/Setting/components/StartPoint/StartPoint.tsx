@@ -56,7 +56,7 @@ const StyledModal = styled(Modal)`
     .ant-btn {
       font-family: "Roboto Mono", monospace;
       text-transform: uppercase;
-      font-size: 11px;
+      font-size: var(--font-sm);
       letter-spacing: 1px;
       height: 36px;
       border: 1px solid #d9d9d9;
@@ -115,7 +115,7 @@ const IndustrialFormContainer = styled.div`
 
     > label {
       font-family: "Roboto Mono", monospace;
-      font-size: 11px;
+      font-size: var(--font-sm);
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -177,7 +177,7 @@ const InstructionPanel = styled.div`
   padding: 12px 16px;
   margin-bottom: 20px;
   font-family: "Roboto Mono", monospace;
-  font-size: 11px;
+  font-size: var(--font-sm);
   color: #262626;
   line-height: 1.7;
 
@@ -219,7 +219,7 @@ const InstructionPanel = styled.div`
     border: 1px solid #ffd591;
     border-left: 2px solid #faad14;
     color: #ad6800;
-    font-size: 10px;
+    font-size: var(--font-xs);
     display: flex;
     align-items: flex-start;
     gap: 6px;
@@ -359,7 +359,7 @@ const StartPoint: FC<StartPointProps> = ({
                       padding: "20px",
                       textAlign: "center",
                       fontFamily: '"Roboto Mono", monospace',
-                      fontSize: "11px",
+                      fontSize: "var(--font-sm)",
                       color: "#8c8c8c",
                       textTransform: "uppercase",
                     }}

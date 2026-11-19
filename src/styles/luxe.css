@@ -1,0 +1,25 @@
+/* 精品風格 (跟登入頁同一套語言) 共用的變數。
+   元件只用這幾顆變數, 各主題自己決定要不要「精品化」: 預設值讓原本的主題維持原樣, 精品黑主題再覆寫。 */
+:root {
+  /* KENMEC 品牌紅: 不跟主題走, 只用在裝飾細線 */
+  --c-brand: #e2231a;
+  /* 「目前所在頁 / 目前選取」的指示線顏色 */
+  --nav-indicator: var(--c-header-accent);
+  /* 標題列下緣那條細線 (預設沒有) */
+  --header-line: none;
+  /* 面板 / 卡片頂端很淡的一層光澤 (預設沒有) */
+  --panel-sheen: none;
+}
+
+html[data-theme="kenmec"] {
+  --nav-indicator: var(--c-brand);
+  --header-line: linear-gradient(90deg, transparent 0%, rgba(226, 35, 26, 0.85) 50%, transparent 100%);
+  --panel-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.035) 0%, rgba(255, 255, 255, 0) 45%);
+}
+
+/* 精品白: 一樣用品牌紅當所在頁指示與標題列細線, 白底上紅線淡一點; 卡片不加光澤 (白底上看不出來) */
+html[data-theme="kenmec-light"] {
+  --nav-indicator: var(--c-brand);
+  --header-line: linear-gradient(90deg, transparent 0%, rgba(226, 35, 26, 0.55) 50%, transparent 100%);
+}
+

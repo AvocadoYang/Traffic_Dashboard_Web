@@ -373,7 +373,7 @@ const PeripheralGroupPanel: FC = () => {
             render={(item) => (
               <div>
                 <div style={{ fontWeight: 600 }}>{item.title}</div>
-                <div style={{ fontSize: 11, color: c.textMuted, marginTop: 2 }}>
+                <div style={{ fontSize: "var(--font-sm)", color: c.textMuted, marginTop: 2 }}>
                   {item.description}
                 </div>
               </div>

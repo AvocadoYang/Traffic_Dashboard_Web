@@ -56,7 +56,7 @@ const IndustrialModal = styled(Modal)`
 
   .ant-form-item-label > label {
     font-family: "Roboto Mono", monospace;
-    font-size: 11px;
+    font-size: var(--font-sm);
     text-transform: uppercase;
     letter-spacing: 1px;
     color: #595959;
@@ -116,7 +116,7 @@ const Item = styled.div`
 const WordTitle = styled.span`
   flex: 1;
   font-weight: 600;
-  font-size: 11px;
+  font-size: var(--font-sm);
   color: #262626;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -357,7 +357,7 @@ const ShelfCategoryForm: FC<{
                   style={{
                     padding: "20px",
                     color: "#8c8c8c",
-                    fontSize: "11px",
+                    fontSize: "var(--font-sm)",
                     textTransform: "uppercase",
                     letterSpacing: "2px",
                   }}

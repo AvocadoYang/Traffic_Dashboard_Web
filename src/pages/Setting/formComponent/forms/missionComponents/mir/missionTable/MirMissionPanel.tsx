@@ -65,7 +65,7 @@ const Body = styled.div`
 
 const FieldLabel = styled.div`
   color: #595959;
-  font-size: 10px;
+  font-size: var(--font-xs);
   text-transform: uppercase;
   letter-spacing: 0.8px;
   font-family: "Roboto Mono", monospace;
@@ -111,7 +111,7 @@ const SummaryRow = styled.div`
     color: #8c8c8c;
     text-transform: uppercase;
     letter-spacing: 1px;
-    font-size: 10px;
+    font-size: var(--font-xs);
   }
 `;
 
@@ -125,7 +125,7 @@ const QueueButton = styled.button`
   font-weight: 600;
   letter-spacing: 1px;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--font-sm);
   border: 1px solid #1890ff;
   border-radius: 4px;
   background: #1890ff;

@@ -2,70 +2,27 @@ import { FC, memo, useState } from "react";
 import { Flex, Popover, Tooltip } from "antd";
 import { useAtomValue } from "jotai";
 import { darkMode } from "@/utils/gloable";
-import { MoreOutlined, QuestionCircleFilled } from "@ant-design/icons";
+import { MoreOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { PanelEyebrow, PanelIconColor, PanelTitle, PanelTitleBar } from "@/styles/panelTitle";
 import styled from "styled-components";
 import MissionRejectReasonInfo from "./components/MissionRejectReasonInfo";
 import MissionSwitch from "./components/MissionSwitch";
 import { Mission_Switch } from "./MissionWrap";
 import { useTranslation } from "react-i18next";
 
-const TitleBar = styled.div<{ $isDark: boolean }>`
-  background: var(--c-bg);
-  border: 1px solid var(--c-header-border);
-  border-left: 4px solid var(--c-header-accent);
-  padding: 16px 20px;
-  margin-bottom: 20px;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+// 標題 (任務 / 排程) 跟車輛側欄共用同一套樣式, 見 styles/panelTitle.ts
+const TitleBar = styled(PanelTitleBar)<{ $isDark: boolean }>``;
 
-  @media (max-width: 1500px) {
-    display: none;
-  }
-`;
+const Title = styled(PanelTitle)<{ $isDark: boolean }>``;
 
-const Title = styled.span<{ $isDark: boolean }>`
-  font-family: "Roboto Mono", monospace;
-  font-size: 16px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--c-text);
-
-  @media (max-width: 1200px) {
-    font-size: 12px;
-  }
-`;
-
-const InfoIcon = styled(QuestionCircleFilled)<{ $isDark: boolean }>`
-  font-size: 18px;
-  color: var(--c-header-accent);
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    color: var(--c-header-accent);
-    transform: scale(1.1);
-  }
-
-  @media (max-width: 1200px) {
-    font-size: 12px;
-  }
+const InfoIcon = styled(QuestionCircleOutlined)<{ $isDark: boolean }>`
+  font-size: 15px;
+  ${PanelIconColor}
 `;
 
 const SwitchIcon = styled(MoreOutlined)<{ $isDark: boolean }>`
   font-size: 18px;
-  color: var(--c-header-accent);
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    color: var(--c-header-accent);
-    transform: scale(1.1);
-  }
-
-  @media (max-width: 1200px) {
-    font-size: 12px;
-  }
+  ${PanelIconColor}
 `;
 
 const TitleTools: FC<{
@@ -77,12 +34,11 @@ const TitleTools: FC<{
 
   return (
     <TitleBar $isDark={isDark}>
+      <PanelEyebrow>{viewSwitch === "mission" ? "Dispatch" : "Schedule"}</PanelEyebrow>
       <Flex gap="middle" align="center" justify="space-between">
-        <Flex gap="middle">
+        <Flex gap={10} align="center">
           <Title $isDark={isDark}>
-            {t(
-              viewSwitch === "mission" ? "utils.missions" : "main.schedule.tab",
-            ).toLocaleUpperCase()}
+            {t(viewSwitch === "mission" ? "utils.missions" : "main.schedule.tab")}
           </Title>
           {viewSwitch === "mission" && (
             <Popover content={<MissionRejectReasonInfo />} trigger="click">
