@@ -20,7 +20,7 @@ import useAllMirMission, {
 } from "@/api/useAllMirMission";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import { c, font } from "../../ui/tokens";
+import { c, font } from "@/theme/tokens";
 import {
   PanelShell,
   Section,

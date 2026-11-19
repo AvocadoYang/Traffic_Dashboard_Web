@@ -23,7 +23,7 @@ import { useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";
 import useBlindMission from "@/api/useBlindMission";
-import { EBLM } from "@/pages/Setting/utils/settingJotai";
+import { EBLM } from "@/features/map/jotai/settingJotai";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import MissionTableSelect from "@/pages/Main/components/missionModal/MissionTableSelect";

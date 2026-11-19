@@ -15,7 +15,7 @@ import { useAtomValue } from "jotai";
 import client from "@/api/axiosClient";
 import useName from "@/api/useAmrName";
 import { currentMapIdAtom } from "@/utils/mapSelection";
-import { c, font, space } from "../../ui/tokens";
+import { c, font, space } from "@/theme/tokens";
 import {
   PanelShell,
   Section,

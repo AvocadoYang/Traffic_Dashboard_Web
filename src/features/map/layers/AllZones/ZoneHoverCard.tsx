@@ -5,8 +5,8 @@ import { useSetAtom } from "jotai";
 import { showZoneForbidden } from "@/utils/gloable";
 import { amrId2ColorRainbow } from "@/utils/utils";
 import useZoneOccupants from "@/api/useZoneOccupants";
-import { c, font, space } from "@/pages/SettingV2/ui/tokens";
-import { LinkedZone, useLinkedZones } from "@/pages/SettingV2/ui/zoneLinks";
+import { c, font, space } from "@/theme/tokens";
+import { LinkedZone, useLinkedZones } from "@/features/map/zoneLinks";
 import {
   EditOutlined,
   LinkOutlined,

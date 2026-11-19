@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import styled from "styled-components";
-import { c, font, mqNarrow } from "./tokens";
+import { c, font, mqNarrow } from "@/theme/tokens";
 
 const Bar = styled.div`
   display: flex;

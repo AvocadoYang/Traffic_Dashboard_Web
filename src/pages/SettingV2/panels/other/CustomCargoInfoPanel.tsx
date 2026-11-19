@@ -31,7 +31,7 @@ import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import useIsNarrow from "../../ui/useIsNarrow";
 import StatusTag from "../../ui/StatusTag";
-import { c } from "../../ui/tokens";
+import { c } from "@/theme/tokens";
 import {
   PanelShell,
   Section,

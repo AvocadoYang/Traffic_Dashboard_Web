@@ -44,7 +44,7 @@ import {
   CardFacts,
   Hint,
 } from "../../ui/primitives";
-import { c } from "../../ui/tokens";
+import { c } from "@/theme/tokens";
 
 type TagRow = {
   id: string;

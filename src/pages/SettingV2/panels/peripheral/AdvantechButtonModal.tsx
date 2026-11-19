@@ -27,7 +27,7 @@ import {
 } from "@/api/useAdvantech";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import { c, font, space } from "../../ui/tokens";
+import { c, font, space } from "@/theme/tokens";
 import { Field, FieldLabel, GhostButton, Hint } from "../../ui/primitives";
 import { IO_COUNT } from "./AdvantechIo";
 

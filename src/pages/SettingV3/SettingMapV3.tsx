@@ -27,9 +27,9 @@ import {
 } from "@/utils/siderGloble";
 import { LocationType } from "@/utils/jotai";
 import { rad2Deg, rosCoord2DisplayCoord } from "@/utils/utils";
-import { DraggableLine } from "@/pages/Setting/mapComponents/components/AllLocation/components/PointAndLine";
+import { DraggableLine } from "@/features/map/layers/AllLocation/PointAndLine";
 import "@/pages/Setting/setting.css";
-import { draggableLineInitialPoint } from "@/pages/Setting/hooks/hook";
+import { draggableLineInitialPoint } from "@/hooks/map/hook";
 import { getLocationInfoById } from "@/pages/Setting/utils/utils";
 import {
   EBLM,
@@ -38,8 +38,8 @@ import {
   IsEditingQuickRoads,
   LDM,
   QuickRoadsArray,
-} from "@/pages/Setting/utils/settingJotai";
-import { annotationToolAtom } from "@/pages/Setting/mapComponents/components/AllAnnotations/annotationAtoms";
+} from "@/features/map/jotai/settingJotai";
+import { annotationToolAtom } from "@/features/map/jotai/annotationAtoms";
 import AllCargo from "@/pages/Setting/mapComponents/components/AllCargo/AllCargo";
 import SudoCargo, {
   SudoBatchCargo,
@@ -62,14 +62,14 @@ import { SudoPeripheral } from "@/pages/Setting/formComponent/forms/other/editPe
 import BlindLocationMissionModal from "@/pages/Setting/components/BlindLocationMissionModal";
 import LocationDetectModal from "@/pages/Setting/components/LocationDetectModal";
 import { useMousePoint, useZoneFrame } from "@/pages/Setting/hooks";
+import AllAnnotations from "@/features/map/layers/AllAnnotations/AllAnnotations";
 import {
-  AllAnnotations,
   DragFrame,
   MousePoint,
   ZoneIconHint,
 } from "@/pages/Setting/mapComponents/components";
 import type { FrameColor } from "@/pages/Setting/mapComponents/components";
-import { MouseLocationForFrame } from "@/pages/Setting/hooks/hook";
+import { MouseLocationForFrame } from "@/hooks/map/hook";
 import TempLocations from "@/pages/Setting/mapComponents/components/TempResources/TempLocations";
 import MirStyleLocationPlacer from "@/pages/Setting/formComponent/forms/MirStyleLocationPlacer";
 import LocationPointMenu, {

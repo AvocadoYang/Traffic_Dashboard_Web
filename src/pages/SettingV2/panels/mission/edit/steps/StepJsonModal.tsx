@@ -2,7 +2,7 @@ import { FC } from "react";
 import { Modal } from "antd";
 import ReactJsonView from "@uiw/react-json-view";
 import { useTranslation } from "react-i18next";
-import { font } from "../../../../ui/tokens";
+import { font } from "@/theme/tokens";
 import { Hint } from "../../../../ui/primitives";
 
 type Props = {

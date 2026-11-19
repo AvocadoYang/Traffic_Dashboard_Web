@@ -1,5 +1,5 @@
 import client from "@/api/axiosClient";
-import { ECSM } from "@/pages/Setting/utils/settingJotai";
+import { ECSM } from "@/features/map/jotai/settingJotai";
 import useChargeStationSocket from "@/sockets/useChargeStationSocket";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";

@@ -4,7 +4,7 @@ import type { DraggableSyntheticListeners } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import styled from "styled-components";
-import { c, font, space, mqNarrow } from "../../../../ui/tokens";
+import { c, font, space, mqNarrow } from "@/theme/tokens";
 
 /* ------------------------------------------------------------------ */
 /*  拖曳排序                                                           */

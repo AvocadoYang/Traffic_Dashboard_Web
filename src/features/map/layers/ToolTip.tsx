@@ -5,8 +5,8 @@ import { useAtomValue } from "jotai";
 import { FC } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import { HoverLabel, TOOLTIP_Z_INDEX } from "../mapComponents/components/HoverLabel";
-import { isStandbyAreaType } from "../mapComponents/components/AllLocation/pointAreaTypes";
+import { HoverLabel, TOOLTIP_Z_INDEX } from "./HoverLabel";
+import { isStandbyAreaType } from "@/features/map/layers/AllLocation/pointAreaTypes";
 
 const TooltipWrapper = styled.div.attrs<{
   left: number;

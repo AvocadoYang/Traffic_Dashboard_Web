@@ -9,7 +9,7 @@ import {
 } from "@ant-design/icons";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
-import { c, font, space } from "../../../../ui/tokens";
+import { c, font, space } from "@/theme/tokens";
 import {
   CountNote,
   EmptyState,

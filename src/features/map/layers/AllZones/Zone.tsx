@@ -6,7 +6,7 @@ import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
 import { Popover } from "antd";
 import { useTranslation } from "react-i18next";
 import ZoneHoverCard, { ZoneHoverInfo } from "./ZoneHoverCard";
-import { c, font } from "@/pages/SettingV2/ui/tokens";
+import { c, font } from "@/theme/tokens";
 import useToggleZoneEnabled from "@/api/useToggleZoneEnabled";
 
 type ZoneInfo = ZoneHoverInfo & {

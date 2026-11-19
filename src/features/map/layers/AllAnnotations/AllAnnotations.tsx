@@ -22,7 +22,7 @@ import {
   isDraftDirty,
   normalizeRect,
   toDraft,
-} from "./annotationAtoms";
+} from "@/features/map/jotai/annotationAtoms";
 
 type Props = {
   scale: number;

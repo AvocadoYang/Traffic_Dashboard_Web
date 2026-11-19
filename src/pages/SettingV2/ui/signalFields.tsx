@@ -11,7 +11,7 @@ import {
   SignalSource,
   readSignal,
 } from "@/api/useSignalSources";
-import { c, font, space } from "./tokens";
+import { c, font, space } from "@/theme/tokens";
 import { GhostButton, Hint } from "./primitives";
 
 /**

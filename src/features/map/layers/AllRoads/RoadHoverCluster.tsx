@@ -4,7 +4,7 @@ import { useAtomValue } from "jotai";
 import useMap from "@/api/useMap";
 import { hoverRoad, roadHoverInfo } from "@/utils/gloable";
 import { rosCoord2DisplayCoord, closestPointOnSegment } from "@/utils/utils";
-import { HoverLabel, TOOLTIP_Z_INDEX } from "../HoverLabel";
+import { HoverLabel, TOOLTIP_Z_INDEX } from "@/features/map/layers/HoverLabel";
 
 // 圍繞游標排列的最小半徑，以及每個標籤沿圓周需要的最小弧長(px)。
 // 路徑越密集，圓周需要的周長越長，因此半徑會隨數量增加，確保標籤彼此不重疊。

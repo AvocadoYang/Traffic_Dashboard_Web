@@ -4,7 +4,7 @@ import { useAtomValue } from "jotai";
 import { RefObject, useEffect } from "react";
 import { fromEvent, switchMap, takeUntil, tap, EMPTY, take, merge } from "rxjs";
 import { rvizCoord } from "@/utils/utils";
-import { MouseLocationForFrame, RectInfo } from "./hook";
+import { MouseLocationForFrame, RectInfo } from "@/hooks/map/hook";
 import { FormInstance } from "antd";
 
 const useZoneFrame = (

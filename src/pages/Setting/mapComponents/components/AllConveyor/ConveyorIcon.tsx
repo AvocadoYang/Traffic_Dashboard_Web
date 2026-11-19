@@ -10,7 +10,7 @@ import { Conveyor_Info } from "@/types/peripheral";
 import {
   IsEditingQuickRoads,
   QuickRoadsArray,
-} from "@/pages/Setting/utils/settingJotai";
+} from "@/features/map/jotai/settingJotai";
 
 const ConveyorContainer = styled.div`
   position: relative;

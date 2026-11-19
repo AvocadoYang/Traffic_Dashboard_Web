@@ -10,7 +10,7 @@ import { currentMapIdAtom } from "@/utils/mapSelection";
 import { ErrorResponse } from "@/utils/globalType";
 import { editErrorHandler } from "@/utils/utils";
 import ZoneFields, { zoneColorFromPicker } from "../../ui/zoneFields";
-import { LinkMap } from "../../ui/zoneLinks";
+import { LinkMap } from "@/features/map/zoneLinks";
 import { FieldGrid, Field, FieldLabel } from "../../ui/primitives";
 
 export type ZoneRow = {

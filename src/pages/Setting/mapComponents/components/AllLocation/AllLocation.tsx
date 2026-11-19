@@ -3,14 +3,14 @@ import { nanoid } from "nanoid";
 import { FC, memo, useCallback } from "react";
 import { useAtomValue, useSetAtom } from "jotai";
 import { nearbyLocationIdSet, tooltipProp } from "@/utils/gloable";
-import { draggableLineInitialPoint } from "@/pages/Setting/hooks/hook";
-import { Point, DraggableLine } from "./components/PointAndLine";
+import { draggableLineInitialPoint } from "@/hooks/map/hook";
+import { Point, DraggableLine } from "@/features/map/layers/AllLocation/PointAndLine";
 import {
   MirAreaTypeMarker,
   isDetectableAreaType,
   isMirAreaType,
-} from "./components/MirAreaTypeMarker";
-import { isPointAreaType, isStandbyAreaType } from "./pointAreaTypes";
+} from "@/features/map/layers/AllLocation/MirAreaTypeMarker";
+import { isPointAreaType, isStandbyAreaType } from "@/features/map/layers/AllLocation/pointAreaTypes";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
 import {
   EditRoadPanelSwitch,
@@ -21,7 +21,7 @@ import {
   IsEditingQuickRoads,
   LDM,
   QuickRoadsArray,
-} from "@/pages/Setting/utils/settingJotai";
+} from "@/features/map/jotai/settingJotai";
 
 const AllLocation: FC<{
   setInitPoint: React.Dispatch<draggableLineInitialPoint>;

@@ -8,7 +8,7 @@ import { BUILTIN_MODELS, MODEL_YAWS, ModelChoice, VehicleModel, modelOfType } fr
 import type { OptimizeResult } from "@/components/Fleet3D/upload/optimizeModel";
 import { webglAvailable } from "@/components/Fleet3D/webgl";
 import { DangerButton, FieldLabel, GhostButton, Hint, Toolbar, WarnNote } from "../../ui/primitives";
-import { c, font, space } from "../../ui/tokens";
+import { c, font, space } from "@/theme/tokens";
 
 /**
  * 車型設定的「3D 模型」: 用內建的哪一個, 或上傳 glb (上傳前在瀏覽器裡先減面壓縮, 見 optimizeModel)。

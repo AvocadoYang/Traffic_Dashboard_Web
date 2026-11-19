@@ -11,7 +11,7 @@ import { LoadingStation } from "./LoadingStation";
 import {
   IsEditingQuickRoads,
   QuickRoadsArray,
-} from "@/pages/Setting/utils/settingJotai";
+} from "@/features/map/jotai/settingJotai";
 import { prefixLevelName } from "@/utils/globalFunction";
 import { BaseGlobalCargoInfoModal, GlobalCargoData } from "./jotaiState";
 import { useCargoMutations } from "@/api/useCargoMutations";

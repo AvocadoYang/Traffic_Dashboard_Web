@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { c, font } from "./tokens";
+import { c, font } from "@/theme/tokens";
 
 /**
  * 啟用 / 停用這種二元狀態。灰黑白配色下不能靠顏色分辨,

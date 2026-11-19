@@ -12,7 +12,7 @@ import {
 } from "@/api/useAdvantech";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import { c, font, space } from "../../ui/tokens";
+import { c, font, space } from "@/theme/tokens";
 
 /** 一台 ADAM-4000 固定畫 4 個輸出、4 個輸入; 群組裡每台模組都還是自己的 0–3 */
 export const IO_COUNT = 4;

@@ -29,7 +29,7 @@ import PanelRenderer from "@/pages/SettingV2/PanelRenderer";
 import { ThemedConfigProvider } from "@/theme";
 import { usePermission } from "@/utils/permissions";
 import useIsNarrow from "@/pages/SettingV2/ui/useIsNarrow";
-import { c, font, mqNarrow, space } from "@/pages/SettingV2/ui/tokens";
+import { c, font, mqNarrow, space } from "@/theme/tokens";
 
 const { Content } = Layout;
 

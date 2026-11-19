@@ -29,7 +29,7 @@ import useShelfCategory, {
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import useIsNarrow from "../../ui/useIsNarrow";
-import { c, font, space } from "../../ui/tokens";
+import { c, font, space } from "@/theme/tokens";
 import {
   PanelShell,
   Section,

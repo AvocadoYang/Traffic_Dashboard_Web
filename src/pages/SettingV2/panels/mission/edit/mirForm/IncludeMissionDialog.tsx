@@ -12,7 +12,7 @@ import dayjs from "dayjs";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import type { MirTitleVariable } from "@/api/useMirMissionTitleVariables";
-import { c, font, space } from "../../../../ui/tokens";
+import { c, font, space } from "@/theme/tokens";
 import { Field, FieldLabel, Hint } from "../../../../ui/primitives";
 import { IncludeGroup, IncludeMissionSelect } from "../steps/includeMission";
 import { ACTION_FIELDS, MirField } from "./mirActionSpec";

@@ -9,7 +9,7 @@ import {
   systemAlarmPosition,
   systemAlarmPreviewTick,
 } from "@/utils/systemAlarmFilter";
-import { c, font, space } from "../../ui/tokens";
+import { c, font, space } from "@/theme/tokens";
 
 // 畫成一個小螢幕,六格對應畫面上的六個位置,選哪格告警就出現在哪。
 const Screen = styled.div`

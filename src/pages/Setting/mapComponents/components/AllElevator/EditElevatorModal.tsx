@@ -1,5 +1,5 @@
 import useAllMissionTitles from "@/api/useMissionTitle";
-import { EEM } from "@/pages/Setting/utils/settingJotai";
+import { EEM } from "@/features/map/jotai/settingJotai";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { Flex, Form, message, Modal, Select, Tooltip, Typography } from "antd";
 import { useAtom } from "jotai";

@@ -5,11 +5,11 @@ import { isShowLocation } from "@/utils/siderGloble";
 import {
   IsEditingQuickRoads,
   QuickRoadsArray,
-} from "@/pages/Setting/utils/settingJotai";
+} from "@/features/map/jotai/settingJotai";
 import { EditPackageLocationId } from "@/pages/Setting/formComponent/forms/peripheralModal/jotai";
 import { Package_Info } from "@/types/peripheral";
-import PackageLayer from "./PackageLayer";
-import { PackagePortView } from "./PackageStrip";
+import PackageLayer from "@/features/map/layers/YFYPackage/PackageLayer";
+import { PackagePortView } from "@/features/map/layers/YFYPackage/PackageStrip";
 
 /** 設定頁地圖上的包膜線:點入口或出口開它的設定;快速畫路線時改成把點位加進路線 */
 const YFYPackage: FC = () => {

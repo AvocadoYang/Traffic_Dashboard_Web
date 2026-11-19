@@ -1,22 +1,18 @@
 import { memo, RefObject, useEffect, useRef, useState } from "react";
-import {
-  MapImage,
-  LocationHoverCluster,
-} from "@/pages/Setting/mapComponents/components";
+import MapImage from "@/features/map/layers/MapImage";
+import LocationHoverCluster from "@/features/map/layers/AllLocation/LocationHoverCluster";
 import "../webview.css";
-import {
-  AllAnnotations,
-  AllZones,
-} from "@/pages/Setting/mapComponents/components";
+import AllAnnotations from "@/features/map/layers/AllAnnotations/AllAnnotations";
+import AllZones from "@/features/map/layers/AllZones/AllZones";
 import AllLocation from "../../PadViwe/components/PadMapContent/component/AllLocation";
 import { useAtom, useAtomValue } from "jotai";
 import { AmrFilterCarCard, Scale, showZoneForbidden } from "@/utils/gloable";
 
-import AllRoads from "@/pages/Setting/mapComponents/components/AllRoads/AllRoads";
-import RoadHoverCluster from "@/pages/Setting/mapComponents/components/AllRoads/RoadHoverCluster";
+import AllRoads from "@/features/map/layers/AllRoads/AllRoads";
+import RoadHoverCluster from "@/features/map/layers/AllRoads/RoadHoverCluster";
 import AllAMRs from "../../PadViwe/components/PadMapContent/component/AllAMRs/AllAMRs";
 import AllCargo from "../../PadViwe/components/PadMapContent/AllCargo/AllCargo";
-import ToolTip from "@/pages/Setting/components/ToolTip";
+import ToolTip from "@/features/map/layers/ToolTip";
 import {
   isShowLocation,
   isShowLocationTooltip,
@@ -25,11 +21,9 @@ import {
   isShowRoadTooltip,
 } from "@/utils/siderGloble";
 import useMap from "@/api/useMap";
-import {
-  useLocationHoverTooltip,
-  useRoadHoverTooltip,
-  useWheelZoom,
-} from "@/pages/Setting/hooks";
+import useLocationHoverTooltip from "@/hooks/map/useLocationHoverTooltip";
+import useRoadHoverTooltip from "@/hooks/map/useRoadHoverTooltip";
+import useWheelZoom from "@/hooks/map/useWheelZoom";
 import AllConveyor from "../../PadViwe/components/PadMapContent/AllConveyor/AllConveyor";
 import { AllElevator } from "../../PadViwe/components/PadMapContent/AllElevator";
 import AllChargeStation from "../../PadViwe/components/PadMapContent/AllChargeStation/AllChargeStation";

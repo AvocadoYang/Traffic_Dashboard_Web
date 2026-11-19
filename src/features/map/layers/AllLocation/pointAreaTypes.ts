@@ -1,4 +1,4 @@
-import { isMirAreaType } from "./components/MirAreaTypeMarker";
+import { isMirAreaType } from "./MirAreaTypeMarker";
 
 // 哪些地點屬性在地圖上畫成「點位」(一顆小圓點,可以拉路線、首頁可以點它直接派車)。
 //

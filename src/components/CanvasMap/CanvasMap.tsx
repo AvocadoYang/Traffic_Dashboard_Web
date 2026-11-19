@@ -6,7 +6,7 @@ import styled from "styled-components";
 import useMap from "@/api/useMap";
 import useName from "@/api/useAmrName";
 import useAMRsample from "@/api/useAMRsample";
-import { MapImage } from "@/pages/Setting/mapComponents/components";
+import MapImage from "@/features/map/layers/MapImage";
 import {
   AmrFilterCarCard,
   centerMap,

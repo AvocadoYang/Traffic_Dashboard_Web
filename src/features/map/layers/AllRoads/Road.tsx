@@ -5,7 +5,7 @@ import { rad2Deg, amrId2ColorRainbow } from "@/utils/utils";
 import { isShowRoadTooltip } from "@/utils/siderGloble";
 import { hoverRoad } from "@/utils/gloable";
 import { useMockInfo } from "@/sockets/useMockInfo";
-import { HoverLabel, TOOLTIP_Z_INDEX } from "../HoverLabel";
+import { HoverLabel, TOOLTIP_Z_INDEX } from "@/features/map/layers/HoverLabel";
 
 const Container = styled.div.attrs<{
   left: number;

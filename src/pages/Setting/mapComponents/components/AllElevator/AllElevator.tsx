@@ -1,11 +1,11 @@
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import useMap from "@/api/useMap";
-import ToolTip from "@/pages/Setting/components/ToolTip";
+import ToolTip from "@/features/map/layers/ToolTip";
 import {
   EEM,
   IsEditingQuickRoads,
   QuickRoadsArray,
-} from "@/pages/Setting/utils/settingJotai";
+} from "@/features/map/jotai/settingJotai";
 import useElevatorSocket from "@/sockets/useElevatorSocket";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
 import { Tooltip } from "antd";

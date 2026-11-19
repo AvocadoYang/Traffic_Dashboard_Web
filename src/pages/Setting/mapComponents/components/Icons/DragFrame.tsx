@@ -1,4 +1,4 @@
-import { RectInfo } from "@/pages/Setting/hooks/hook";
+import { RectInfo } from "@/hooks/map/hook";
 import { FC, memo } from "react";
 import styled from "styled-components";
 

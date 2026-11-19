@@ -8,9 +8,9 @@ import styled from "styled-components";
 import useMap from "@/api/useMap";
 import { currentMapIdAtom } from "@/utils/mapSelection";
 import { rvizCoord } from "@/utils/utils";
-import { toOpaque } from "@/pages/Setting/mapComponents/components/AllZones/components/ZoneHoverCard";
+import { toOpaque } from "@/features/map/layers/AllZones/ZoneHoverCard";
 import { GhostButton, SolidButton } from "@/pages/SettingV2/ui/primitives";
-import { c, font, space } from "@/pages/SettingV2/ui/tokens";
+import { c, font, space } from "@/theme/tokens";
 import {
   ZoneRow,
   useZoneEditMutation,

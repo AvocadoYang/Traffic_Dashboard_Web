@@ -1,6 +1,6 @@
 import useMap from "@/api/useMap";
 import { useAtomValue } from "jotai";
-import Zone from "./components/Zone";
+import Zone from "./Zone";
 import { FC, memo } from "react";
 import { showAllZonesSwitch } from "@/utils/siderGloble";
 

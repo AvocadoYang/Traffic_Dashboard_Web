@@ -46,7 +46,7 @@ import {
   CardFacts,
   Tag,
 } from "../../ui/primitives";
-import { c } from "../../ui/tokens";
+import { c } from "@/theme/tokens";
 
 const PeripheralGroupPanel: FC = () => {
   const { t } = useTranslation();

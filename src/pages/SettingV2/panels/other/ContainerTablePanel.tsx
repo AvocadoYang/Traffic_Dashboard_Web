@@ -15,7 +15,7 @@ import useContainerLocation, { Loc_For_CD } from "@/api/useContainerLocation";
 import { tooltipProp } from "@/utils/gloable";
 import { locationOption } from "@/pages/Setting/utils/func";
 import useIsNarrow from "../../ui/useIsNarrow";
-import { c } from "../../ui/tokens";
+import { c } from "@/theme/tokens";
 import {
   PanelShell,
   Section,

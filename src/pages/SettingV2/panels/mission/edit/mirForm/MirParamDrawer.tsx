@@ -20,7 +20,7 @@ import {
   useMirVariableField,
   useMirVariableFields,
 } from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/MirVariableContext";
-import { c, font, space } from "../../../../ui/tokens";
+import { c, font, space } from "@/theme/tokens";
 import {
   DangerButton,
   FieldLabel,

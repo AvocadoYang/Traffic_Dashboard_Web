@@ -9,7 +9,7 @@ import usePackageSocket from "@/sockets/usePackageSocket";
 import { tooltipProp } from "@/utils/gloable";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
 import { Package_Info } from "@/types/peripheral";
-import { Point } from "../AllLocation/components/PointAndLine";
+import { Point } from "@/features/map/layers/AllLocation/PointAndLine";
 import PackageStrip, { PackagePortIcon, PackagePortView } from "./PackageStrip";
 
 const WrapperStation = styled.div.attrs<{

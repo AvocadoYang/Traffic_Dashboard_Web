@@ -13,7 +13,7 @@ import { currentMapIdAtom } from "@/utils/mapSelection";
 import {
   IsEditingQuickRoads,
   QuickRoadsArray,
-} from "@/pages/Setting/utils/settingJotai";
+} from "@/features/map/jotai/settingJotai";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import RoadCommonFields from "../../ui/roadFields";

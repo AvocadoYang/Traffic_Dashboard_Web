@@ -33,7 +33,7 @@ import {
   isDraftDirty,
   normalizeRect,
   toDraft,
-} from "@/pages/Setting/mapComponents/components/AllAnnotations/annotationAtoms";
+} from "@/features/map/jotai/annotationAtoms";
 import {
   PanelShell,
   Section,

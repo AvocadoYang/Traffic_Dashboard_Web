@@ -27,34 +27,34 @@ import TempLocations from "./components/TempResources/TempLocations";
 import {
   draggableLineInitialPoint,
   MouseLocationForFrame,
-} from "../hooks/hook";
+} from "@/hooks/map/hook";
 import {
   useMousePoint,
   useDraggableLine,
   useZoneFrame,
-  useLocationHoverTooltip,
-  useRoadHoverTooltip,
-  useWheelZoom,
 } from "../hooks";
+import useLocationHoverTooltip from "@/hooks/map/useLocationHoverTooltip";
+import useRoadHoverTooltip from "@/hooks/map/useRoadHoverTooltip";
+import useWheelZoom from "@/hooks/map/useWheelZoom";
 import { getLocationInfoById } from "@/pages/Setting/utils/utils";
 import useVerityVersion from "@/api/useVerityVersion";
 import {
   MousePoint,
   AllLocation,
-  MapImage,
   ZoneIconHint,
   DragFrame,
-  AllZones,
-  AllAnnotations,
-  LocationHoverCluster,
 } from "./components";
-import { annotationToolAtom } from "./components/AllAnnotations/annotationAtoms";
+import MapImage from "@/features/map/layers/MapImage";
+import AllZones from "@/features/map/layers/AllZones/AllZones";
+import AllAnnotations from "@/features/map/layers/AllAnnotations/AllAnnotations";
+import LocationHoverCluster from "@/features/map/layers/AllLocation/LocationHoverCluster";
+import { annotationToolAtom } from "@/features/map/jotai/annotationAtoms";
 import type { FrameColor } from "./components";
 import { LocationType } from "@/utils/jotai";
-import AllRoads from "./components/AllRoads/AllRoads";
-import RoadHoverCluster from "./components/AllRoads/RoadHoverCluster";
+import AllRoads from "@/features/map/layers/AllRoads/AllRoads";
+import RoadHoverCluster from "@/features/map/layers/AllRoads/RoadHoverCluster";
 import AllCargo from "./components/AllCargo/AllCargo";
-import ToolTip from "../components/ToolTip";
+import ToolTip from "@/features/map/layers/ToolTip";
 import SudoCargo, { SudoBatchCargo } from "./components/AllCargo/SudoCargo";
 import { AllChargeStation } from "./components/AllChargeStation";
 import CargoModal from "./components/AllCargo/CargoModal";
@@ -67,7 +67,7 @@ import EditPeripheralModal from "../formComponent/forms/peripheralModal/EditPeri
 import CargoPanel from "@/components/CargoPanel/CargoPanel";
 import { SudoPeripheral } from "../formComponent/forms/other/editPeripheralIcon";
 import AllElevator from "./components/AllElevator/AllElevator";
-import { EBLM, ECSM, EEM, LDM } from "../utils/settingJotai";
+import { EBLM, ECSM, EEM, LDM } from "@/features/map/jotai/settingJotai";
 import EditElevatorModal from "./components/AllElevator/EditElevatorModal";
 import EditChargeStationConfigModal from "./components/AllChargeStation/EditChargeStationConfigModal";
 import AllGateWaitPoint from "./components/AllGateWaitPoint/AllGateWaitPoint";

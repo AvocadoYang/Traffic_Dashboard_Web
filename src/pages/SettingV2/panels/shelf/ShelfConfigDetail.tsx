@@ -4,7 +4,7 @@ import { Tooltip } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { ShelfWithoutList } from "@/api/type/useShelf";
-import { c, font, space } from "../../ui/tokens";
+import { c, font, space } from "@/theme/tokens";
 import { Tag } from "../../ui/primitives";
 
 const Wrap = styled.div`

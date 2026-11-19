@@ -2,7 +2,7 @@ import { FC } from "react";
 import styled from "styled-components";
 import { FolderOpenOutlined, FolderOutlined } from "@ant-design/icons";
 import useMissionFolder from "@/api/useMissionFolder";
-import { c, font, space, mqNarrow } from "../../../ui/tokens";
+import { c, font, space, mqNarrow } from "@/theme/tokens";
 import { useTranslation } from "react-i18next";
 
 const Row = styled.div`

@@ -1,7 +1,7 @@
 import { FC } from "react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
-import { c, font, space, mqNarrow } from "./tokens";
+import { c, font, space, mqNarrow } from "@/theme/tokens";
 
 export type GroupFolder = {
   groupId: string;

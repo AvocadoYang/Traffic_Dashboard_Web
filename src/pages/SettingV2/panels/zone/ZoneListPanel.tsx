@@ -18,7 +18,7 @@ import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import useIsNarrow from "../../ui/useIsNarrow";
 import GroupMapFilter from "../../ui/GroupMapFilter";
-import { linkIdOf } from "../../ui/zoneLinks";
+import { linkIdOf } from "@/features/map/zoneLinks";
 import {
   PanelShell,
   Section,
@@ -34,7 +34,7 @@ import {
   CardFacts,
   Tag,
 } from "../../ui/primitives";
-import { c } from "../../ui/tokens";
+import { c } from "@/theme/tokens";
 import StatusTag from "../../ui/StatusTag";
 import useToggleZoneEnabled from "@/api/useToggleZoneEnabled";
 import ZoneEditModal, { ZoneRow } from "./ZoneEditModal";

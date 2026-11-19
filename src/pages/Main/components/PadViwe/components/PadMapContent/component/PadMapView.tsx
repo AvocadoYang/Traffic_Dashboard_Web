@@ -1,11 +1,9 @@
 import { RefObject } from "react";
-import { MapImage } from "@/pages/Setting/mapComponents/components";
+import MapImage from "@/features/map/layers/MapImage";
 import AllLocation from "./AllLocation";
-import AllRoads from "@/pages/Setting/mapComponents/components/AllRoads/AllRoads";
-import {
-  AllAnnotations,
-  AllZones,
-} from "@/pages/Setting/mapComponents/components";
+import AllRoads from "@/features/map/layers/AllRoads/AllRoads";
+import AllAnnotations from "@/features/map/layers/AllAnnotations/AllAnnotations";
+import AllZones from "@/features/map/layers/AllZones/AllZones";
 import AllAMRs from "./AllAMRs/AllAMRs";
 import AllPointCloud from "./AllPointCloud/AllPointCloud";
 import LocalizationCorrectionGhost from "./LocalizationCorrection/LocalizationCorrectionGhost";

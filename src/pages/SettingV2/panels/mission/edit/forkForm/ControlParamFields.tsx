@@ -4,7 +4,7 @@ import type { FormInstance } from "antd";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import SegmentedControl from "../../../../ui/SegmentedControl";
-import { c, font, space } from "../../../../ui/tokens";
+import { c, font, space } from "@/theme/tokens";
 import { Hint } from "../../../../ui/primitives";
 import { OrderBadge } from "../steps/stepPrimitives";
 import {

@@ -21,13 +21,13 @@ import {
 import { currentMapIdAtom } from "@/utils/mapSelection";
 import { buildMapImageMatrix, getMapCanvas, mapImageModeAtom, resolveColors, themeAtom } from "@/theme";
 import { isDarkColor } from "@/theme/mapImage";
-import { isPointAreaType } from "@/pages/Setting/mapComponents/components/AllLocation/pointAreaTypes";
+import { isPointAreaType } from "@/features/map/layers/AllLocation/pointAreaTypes";
 import { createLiveStore, LiveState, LiveStore } from "@/components/CanvasMap/liveStore";
 import { amrColor, amrShownAt } from "@/components/CanvasMap/draw";
 import { CanvasMapApi } from "@/components/CanvasMap/CanvasMap";
 import { hiddenZoneIdsAtom, linkedZoneHighlightAtom } from "@/components/CanvasMap/MapOverlay";
 import { FOCUS_MARKER_MS, FOCUS_REQUEST_TTL_MS, focusLocationRequest } from "@/components/CanvasMap/focusLocation";
-import { HoverLabel } from "@/pages/Setting/mapComponents/components/HoverLabel";
+import { HoverLabel } from "@/features/map/layers/HoverLabel";
 import { OpenChargeStationModal } from "@/pages/Main/global/jotai";
 import ChargeStationPanel from "@/pages/Main/components/PadViwe/components/PadMapContent/AllChargeStation/StatusPanel";
 import Scene3D, { Bounds, CameraApi, ModelBoundary } from "./Scene3D";

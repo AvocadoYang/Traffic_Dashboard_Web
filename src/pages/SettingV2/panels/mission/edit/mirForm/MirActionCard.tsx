@@ -13,7 +13,7 @@ import { CSS } from "@dnd-kit/utilities";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { Mir_Action } from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/type";
-import { c, font, space } from "../../../../ui/tokens";
+import { c, font, space } from "@/theme/tokens";
 import { IconBar, IconButton } from "../steps/stepPrimitives";
 import StepMoveButtons from "../steps/StepMoveButtons";
 import {

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { c, font, space, mqNarrow } from "./tokens";
+import { c, font, space, mqNarrow } from "@/theme/tokens";
 
 /** 每個面板最外層:滿高、可捲動、內距一致 */
 export const PanelShell = styled.div`

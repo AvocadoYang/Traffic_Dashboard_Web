@@ -40,7 +40,7 @@ import {
   Toolbar,
 } from "../../../../ui/primitives";
 import styled from "styled-components";
-import { c, font, scopeTint, space } from "../../../../ui/tokens";
+import { c, font, scopeTint, space } from "@/theme/tokens";
 import { NestedEmpty, NestedList } from "../steps/stepPrimitives";
 import { useIncludeMissionOptions } from "../steps/includeMission";
 import useMirMissionTitleVariables from "@/api/useMirMissionTitleVariables";

@@ -9,7 +9,7 @@ import {
   SectionTitle,
   Hint,
 } from "../../ui/primitives";
-import { c, font, space, mqNarrow } from "../../ui/tokens";
+import { c, font, space, mqNarrow } from "@/theme/tokens";
 import {
   themes,
   currentThemeIdAtom,

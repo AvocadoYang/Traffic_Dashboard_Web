@@ -31,7 +31,7 @@ import {
   Select_Location_Type,
 } from "@/pages/Setting/formComponent/forms/missionComponents/editMission/forkEditMissionSlice/types";
 import SegmentedControl from "../../../../ui/SegmentedControl";
-import { c, font, space } from "../../../../ui/tokens";
+import { c, font, space } from "@/theme/tokens";
 import {
   CountNote,
   Field,

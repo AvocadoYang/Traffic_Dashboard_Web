@@ -1,6 +1,6 @@
 import { useAtom } from "jotai";
 import React, { FC, useState } from "react";
-import { EBLM } from "../utils/settingJotai";
+import { EBLM } from "@/features/map/jotai/settingJotai";
 import { Form, Input, message, Modal } from "antd";
 import styled from "styled-components";
 import { SettingOutlined } from "@ant-design/icons";

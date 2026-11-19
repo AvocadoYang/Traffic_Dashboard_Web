@@ -6,8 +6,8 @@ import { useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import useMap from "@/api/useMap";
 import useAllGroupsResources from "@/api/useAllGroupsResources";
-import { LDM } from "@/pages/Setting/utils/settingJotai";
-import { isDetectableAreaType } from "@/pages/Setting/mapComponents/components/AllLocation/components/MirAreaTypeMarker";
+import { LDM } from "@/features/map/jotai/settingJotai";
+import { isDetectableAreaType } from "@/features/map/layers/AllLocation/MirAreaTypeMarker";
 import LocationEditModal, {
   LocationRow,
 } from "@/pages/SettingV2/panels/location/LocationEditModal";

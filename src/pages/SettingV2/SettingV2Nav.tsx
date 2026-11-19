@@ -39,7 +39,7 @@ import { navCategories } from "./navItems";
 import useConfigFlags from "@/api/useConfigFlags";
 import { SETTING_NAV_VIEW_PERMISSION, usePermission } from "@/utils/permissions";
 import { mapViewModeAtom, type MapViewMode } from "./mapViewModeAtom";
-import { c, font, mqNarrow } from "./ui/tokens";
+import { c, font, mqNarrow } from "@/theme/tokens";
 
 const NAV_WIDTH = "240px";
 /** 收起來之後只剩圖示,寬度抓得剛好放得下 antd 的圖示按鈕 */

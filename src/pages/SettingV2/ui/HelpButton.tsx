@@ -3,7 +3,7 @@ import { Modal } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
-import { c, font, space } from "./tokens";
+import { c, font, space } from "@/theme/tokens";
 
 /**
  * 區塊標題旁的問號: 點開看詳細的使用說明。

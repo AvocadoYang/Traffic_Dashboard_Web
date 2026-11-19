@@ -3,7 +3,7 @@ import {
   EEM,
   IsEditingQuickRoads,
   QuickRoadsArray,
-} from "@/pages/Setting/utils/settingJotai";
+} from "@/features/map/jotai/settingJotai";
 import { CargoPanelTarget } from "@/components/CargoPanel/state";
 import {
   Button,

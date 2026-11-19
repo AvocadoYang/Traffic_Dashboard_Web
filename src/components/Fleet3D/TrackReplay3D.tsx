@@ -10,7 +10,7 @@ import useAMRsample from "@/api/useAMRsample";
 import type { TrackHeatData, TrackReplayData, TrackVehicle } from "@/api/useTrackArchive";
 import { buildMapImageMatrix, getMapCanvas, mapImageModeAtom, resolveColors, themeAtom } from "@/theme";
 import { amrColor } from "@/components/CanvasMap/draw";
-import { isPointAreaType } from "@/pages/Setting/mapComponents/components/AllLocation/pointAreaTypes";
+import { isPointAreaType } from "@/features/map/layers/AllLocation/pointAreaTypes";
 import Scene3D, { Bounds, CameraApi, ModelBoundary } from "./Scene3D";
 import MapGround from "./MapGround";
 import { Dot, Dots3D, Roads3D, Segment } from "./MapLayers3D";

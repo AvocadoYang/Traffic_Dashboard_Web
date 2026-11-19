@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NARROW } from "./tokens";
+import { NARROW } from "@/theme/tokens";
 
 /**
  * 面板區域在窄螢幕時要改用卡片式清單。這裡直接量視窗寬度即可——

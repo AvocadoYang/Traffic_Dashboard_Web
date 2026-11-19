@@ -8,7 +8,7 @@ import {
 import {
   IsEditingQuickRoads,
   QuickRoadsArray,
-} from "@/pages/Setting/utils/settingJotai";
+} from "@/features/map/jotai/settingJotai";
 import { useSetAtom, useAtomValue } from "jotai";
 
 const pulse = keyframes`

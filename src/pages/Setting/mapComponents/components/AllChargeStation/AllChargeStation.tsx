@@ -3,19 +3,19 @@ import { nanoid } from "nanoid";
 import { FC, memo, useCallback } from "react";
 import { useAtomValue, useSetAtom } from "jotai";
 import { tooltipProp } from "@/utils/gloable";
-import { draggableLineInitialPoint } from "@/pages/Setting/hooks/hook";
+import { draggableLineInitialPoint } from "@/hooks/map/hook";
 import { rosCoord2DisplayCoord } from "@/utils/utils";
 import {
   EditRoadPanelSwitch,
   EditZoneSwitch,
   isShowLocation,
 } from "@/utils/siderGloble";
-import { DraggableLine, Point } from "../AllLocation/components/PointAndLine";
+import { DraggableLine, Point } from "@/features/map/layers/AllLocation/PointAndLine";
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import {
   IsEditingQuickRoads,
   QuickRoadsArray,
-} from "@/pages/Setting/utils/settingJotai";
+} from "@/features/map/jotai/settingJotai";
 import styled from "styled-components";
 import ChargeStation from "./ChargeStation";
 

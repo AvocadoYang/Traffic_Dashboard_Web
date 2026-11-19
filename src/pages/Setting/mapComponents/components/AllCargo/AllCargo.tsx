@@ -9,8 +9,8 @@ import {
   EditZoneSwitch,
   isShowLocation,
 } from "@/utils/siderGloble";
-import { draggableLineInitialPoint } from "../../../hooks/hook";
-import { DraggableLine, Point } from "../AllLocation/components/PointAndLine";
+import { draggableLineInitialPoint } from "@/hooks/map/hook";
+import { DraggableLine, Point } from "@/features/map/layers/AllLocation/PointAndLine";
 import { nanoid } from "nanoid";
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import useCargoInfo from "@/sockets/useCargoInfo";

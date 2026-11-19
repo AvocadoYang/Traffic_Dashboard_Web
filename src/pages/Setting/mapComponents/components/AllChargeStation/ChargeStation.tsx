@@ -2,7 +2,7 @@ import {
   ECSM,
   IsEditingQuickRoads,
   QuickRoadsArray,
-} from "@/pages/Setting/utils/settingJotai";
+} from "@/features/map/jotai/settingJotai";
 import { Tooltip } from "antd";
 import { useAtomValue, useSetAtom } from "jotai";
 import React, { FC } from "react";

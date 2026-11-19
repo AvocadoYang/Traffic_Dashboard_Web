@@ -14,7 +14,7 @@ import AlarmPositionPicker from "./AlarmPositionPicker";
 import HealthMonitorSection from "./HealthMonitorSection";
 import useIsNarrow from "../../ui/useIsNarrow";
 import StatusTag from "../../ui/StatusTag";
-import { c, font, space } from "../../ui/tokens";
+import { c, font, space } from "@/theme/tokens";
 import {
   PanelShell,
   Section,
