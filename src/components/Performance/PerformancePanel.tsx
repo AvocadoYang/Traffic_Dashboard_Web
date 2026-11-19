@@ -259,6 +259,25 @@ const PerformancePanel: FC<{ top?: string; right?: string }> = ({
               value={proc ? `${proc.eventLoopLag.max}ms` : "—"}
               hint={t("sim.perf.lag_max_hint")}
             />
+            {/* 沒有感測器的主機 (虛擬機等) 整格不顯示 */}
+            {data?.hostTemp && (
+              <Stat
+                label={t("sim.perf.host_temp")}
+                value={`${data.hostTemp.value}°C`}
+                tone={
+                  data.hostTemp.level === "alarm"
+                    ? "bad"
+                    : data.hostTemp.level === "warning"
+                      ? "warn"
+                      : "ok"
+                }
+                hint={t("sim.perf.host_temp_hint", {
+                  detail: data.hostTemp.detail,
+                  warn: data.hostTemp.warnAt,
+                  alarm: data.hostTemp.alarmAt,
+                })}
+              />
+            )}
           </Flex>
         </Flex>
       </Card>
