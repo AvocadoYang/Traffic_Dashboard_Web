@@ -1,4 +1,4 @@
-import { LocationType } from "@/features/map/locationTypes";
+import { LocationType } from "@/types/map/locationTypes";
 import { hsl } from "color-convert";
 import { MD5 } from "crypto-js";
 

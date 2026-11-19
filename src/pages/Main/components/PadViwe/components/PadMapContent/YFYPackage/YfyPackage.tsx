@@ -9,8 +9,8 @@ import {
 } from "@/pages/Main/global/jotai";
 import { CargoPanelTarget } from "@/components/CargoPanel/state";
 import { Package_Info } from "@/types/peripheral";
-import PackageLayer from "@/features/map/layers/YFYPackage/PackageLayer";
-import { PackagePortView } from "@/features/map/layers/YFYPackage/PackageStrip";
+import PackageLayer from "@/components/MapLayers/YFYPackage/PackageLayer";
+import { PackagePortView } from "@/components/MapLayers/YFYPackage/PackageStrip";
 
 /**
  * 主畫面地圖上的包膜線。

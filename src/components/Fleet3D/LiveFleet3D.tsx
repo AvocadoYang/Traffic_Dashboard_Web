@@ -18,16 +18,16 @@ import {
   isShowRoadTooltip,
   showAllZonesSwitch,
 } from "@/utils/siderGloble";
-import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import { buildMapImageMatrix, getMapCanvas, mapImageModeAtom, resolveColors, themeAtom } from "@/theme";
 import { isDarkColor } from "@/theme/mapImage";
-import { isPointAreaType } from "@/features/map/areaTypes";
+import { isPointAreaType } from "@/utils/map/areaTypes";
 import { createLiveStore, LiveState, LiveStore } from "@/components/CanvasMap/liveStore";
 import { amrColor, amrShownAt } from "@/components/CanvasMap/draw";
 import { CanvasMapApi } from "@/components/CanvasMap/CanvasMap";
 import { hiddenZoneIdsAtom, linkedZoneHighlightAtom } from "@/components/CanvasMap/MapOverlay";
 import { FOCUS_MARKER_MS, FOCUS_REQUEST_TTL_MS, focusLocationRequest } from "@/components/CanvasMap/focusLocation";
-import { HoverLabel } from "@/features/map/layers/HoverLabel";
+import { HoverLabel } from "@/components/MapLayers/HoverLabel";
 import { OpenChargeStationModal } from "@/pages/Main/global/jotai";
 import ChargeStationPanel from "@/pages/Main/components/PadViwe/components/PadMapContent/AllChargeStation/StatusPanel";
 import Scene3D, { Bounds, CameraApi, ModelBoundary } from "./Scene3D";

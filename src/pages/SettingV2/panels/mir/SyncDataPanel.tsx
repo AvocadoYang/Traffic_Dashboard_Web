@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 import { useAtomValue } from "jotai";
 import client from "@/api/axiosClient";
 import useName from "@/api/useAmrName";
-import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import { c, font, space } from "@/theme/tokens";
 import {
   PanelShell,

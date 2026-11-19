@@ -5,7 +5,7 @@ import { SoundOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { AlarmType, NotifyPrefs, useMyProfile, useSaveProfile } from "@/api/useProfile";
 import { io } from "@/sockets/socketConnect";
-import { DEFAULT_SOUND, DEFAULT_VOLUME, playAlarmTone } from "@/features/alarm/alarmSound";
+import { DEFAULT_SOUND, DEFAULT_VOLUME, playAlarmTone } from "@/utils/alarmSound";
 import { Section, SettingRow } from "./parts";
 
 export const ALARM_TYPES: AlarmType[] = ["error", "warn", "success", "info"];

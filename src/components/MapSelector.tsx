@@ -6,7 +6,7 @@ import useMapList from "@/api/useMapList";
 import useMapGroup from "@/api/useMapGroup";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
-import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 
 // 使用中群組內每張地圖都算使用中, 這個下拉選單純粹是使用者選擇「目前要看/要畫的
 // 是哪一張地圖」——選擇結果同時也是新增點位/路徑/區域時綁定 map_id 的依據。

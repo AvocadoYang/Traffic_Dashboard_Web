@@ -32,9 +32,9 @@ import {
   isOpenUploadWarningIDModal,
 } from "@/utils/siderGloble";
 import type { SettingV2PanelKey } from "./panelKeys";
-import StartPoint from "@/pages/Setting/components/StartPoint/StartPoint";
-import ImportMapConfigModal from "@/pages/Setting/components/importMap/ImportMapConfigModal";
-import UploadWarningModal from "@/pages/Setting/components/UploadWarningModal";
+import StartPoint from "@/components/Setting/StartPoint/StartPoint";
+import ImportMapConfigModal from "@/components/Setting/importMap/ImportMapConfigModal";
+import UploadWarningModal from "@/components/Setting/UploadWarningModal";
 import { navCategories } from "./navItems";
 import useConfigFlags from "@/api/useConfigFlags";
 import { SETTING_NAV_VIEW_PERMISSION, usePermission } from "@/utils/permissions";

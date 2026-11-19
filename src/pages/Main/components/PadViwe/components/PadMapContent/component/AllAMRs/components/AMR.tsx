@@ -15,7 +15,7 @@ import { useAmrBBox } from "@/sockets/useBBox";
 import BBox from "./amrs/BBox";
 import useAmrMissionTip from "@/hooks/useAmrMissionTip";
 import { useMiRStatus } from "@/sockets/useMirStatus";
-import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 
 const Tip = styled.div.attrs<{
   left: number;

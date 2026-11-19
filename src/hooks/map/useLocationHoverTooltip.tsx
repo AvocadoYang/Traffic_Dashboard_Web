@@ -4,7 +4,7 @@ import { fromEvent, throttleTime, map, tap } from "rxjs";
 import { rvizCoord } from "@/utils/utils";
 import useMap from "@/api/useMap";
 import { locationHoverInfo } from "@/utils/gloable";
-import { isPointAreaType } from "@/features/map/areaTypes";
+import { isPointAreaType } from "@/utils/map/areaTypes";
 
 // 偵測半徑(公尺)：游標所在的 ROS 座標範圍內的點位都會浮出提示
 const DETECT_RADIUS = 2;

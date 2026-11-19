@@ -10,7 +10,7 @@ import Config from "./Config";
 import CargoInfoAtPeripheral from "./CargoInfo";
 import { IsEditPeripheralModal, IsOpenPeripheralModal } from "./jotai";
 import { PeripheralTypes } from "@/types/peripheral";
-import PeripheralIdentity from "@/pages/Setting/mapComponents/components/PeripheralIdentity";
+import PeripheralIdentity from "@/components/MapLayers/PeripheralIdentity";
 
 const EditPeripheralModal: FC = () => {
   const [openModal, setOpenModal] = useAtom(IsEditPeripheralModal);

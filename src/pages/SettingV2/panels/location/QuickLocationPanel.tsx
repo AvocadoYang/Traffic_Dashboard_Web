@@ -11,14 +11,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtom, useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";
-import { LocationType } from "@/features/map/locationTypes";
+import { LocationType } from "@/types/map/locationTypes";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { openNotificationWithIcon } from "@/pages/Setting/utils/notification";
 import useMap from "@/api/useMap";
 import useAllAreaTypes from "@/api/useAllAreaTypes";
 import { locationOption } from "@/pages/Setting/utils/func";
-import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import {
   locationXForQuickEditLocationPanel,
   locationYForQuickEditLocationPanel,

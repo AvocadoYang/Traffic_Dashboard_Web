@@ -6,7 +6,7 @@ import { useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import useMap from "@/api/useMap";
-import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import { rvizCoord } from "@/utils/utils";
 import { toOpaque } from "@/utils/color";
 import { GhostButton, SolidButton } from "@/pages/SettingV2/ui/primitives";

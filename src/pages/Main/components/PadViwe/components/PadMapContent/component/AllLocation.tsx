@@ -1,13 +1,13 @@
 import useMap from "@/api/useMap";
 import { amrId2ColorRainbow, rosCoord2DisplayCoord } from "@/utils/utils";
 import { memo, RefObject, useCallback, useMemo } from "react";
-import { PointMain } from "@/features/map/layers/AllLocation/PointAndLine";
-import { MirAreaTypeMarker } from "@/features/map/layers/AllLocation/MirAreaTypeMarker";
+import { PointMain } from "@/components/MapLayers/AllLocation/PointAndLine";
+import { MirAreaTypeMarker } from "@/components/MapLayers/AllLocation/MirAreaTypeMarker";
 import {
   isMirAreaType,
   isPointAreaType,
   isStandbyAreaType,
-} from "@/features/map/areaTypes";
+} from "@/utils/map/areaTypes";
 import { useAtomValue, useSetAtom } from "jotai";
 import { nearbyLocationIdSet, tooltipProp } from "@/utils/gloable";
 import { OpenDirect } from "@/pages/Main/global/jotai";

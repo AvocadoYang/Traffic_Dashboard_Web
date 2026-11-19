@@ -35,7 +35,7 @@ import useActiveGroupResources from "@/api/useActiveGroupResources";
 import useAmrName from "@/api/useAmrName";
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import { useAtomValue, useSetAtom } from "jotai";
-import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import { initialZoneRectInfo, zoneRectInfo } from "@/utils/gloable";
 
 type TagRender = SelectProps["tagRender"];

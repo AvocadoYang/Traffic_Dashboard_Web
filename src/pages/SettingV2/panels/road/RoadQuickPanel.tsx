@@ -9,11 +9,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtom, useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";
-import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import {
   IsEditingQuickRoads,
   QuickRoadsArray,
-} from "@/features/map/jotai/mapEditModalAtoms";
+} from "@/atoms/map/mapEditModalAtoms";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import RoadCommonFields from "../../ui/roadFields";

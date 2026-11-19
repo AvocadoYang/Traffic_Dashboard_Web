@@ -23,42 +23,38 @@ import {
 import MirStyleLocationPlacer from "../formComponent/forms/MirStyleLocationPlacer";
 import useMap from "@/api/useMap";
 import Cookies from "js-cookie";
-import TempLocations from "./components/TempResources/TempLocations";
+import TempLocations from "@/components/MapLayers/TempResources/TempLocations";
 import {
   draggableLineInitialPoint,
   MouseLocationForFrame,
 } from "@/hooks/map/hook";
-import {
-  useMousePoint,
-  useDraggableLine,
-  useZoneFrame,
-} from "../hooks";
+import { useDraggableLine } from "../hooks";
+import useMousePoint from "@/hooks/map/useMousePoint";
+import useZoneFrame from "@/hooks/map/useZoneFrame";
 import useLocationHoverTooltip from "@/hooks/map/useLocationHoverTooltip";
 import useRoadHoverTooltip from "@/hooks/map/useRoadHoverTooltip";
 import useWheelZoom from "@/hooks/map/useWheelZoom";
 import { getLocationInfoById } from "@/pages/Setting/utils/utils";
 import useVerityVersion from "@/api/useVerityVersion";
-import {
-  MousePoint,
-  AllLocation,
-  ZoneIconHint,
-  DragFrame,
-} from "./components";
-import MapImage from "@/features/map/layers/MapImage";
-import AllZones from "@/features/map/layers/AllZones/AllZones";
-import AllAnnotations from "@/features/map/layers/AllAnnotations/AllAnnotations";
-import LocationHoverCluster from "@/features/map/layers/AllLocation/LocationHoverCluster";
-import { annotationToolAtom } from "@/features/map/jotai/annotationAtoms";
-import type { FrameColor } from "./components";
-import { LocationType } from "@/features/map/locationTypes";
-import AllRoads from "@/features/map/layers/AllRoads/AllRoads";
-import RoadHoverCluster from "@/features/map/layers/AllRoads/RoadHoverCluster";
-import AllCargo from "./components/AllCargo/AllCargo";
-import ToolTip from "@/features/map/layers/ToolTip";
-import SudoCargo, { SudoBatchCargo } from "./components/AllCargo/SudoCargo";
-import { AllChargeStation } from "./components/AllChargeStation";
-import CargoModal from "./components/AllCargo/CargoModal";
-import AllConveyor from "./components/AllConveyor/AllConveyor";
+import { AllLocation } from "./components";
+import MousePoint from "@/components/MapLayers/Icons/MousePoint";
+import ZoneIconHint from "@/components/MapLayers/Icons/ZoneIconHint";
+import DragFrame from "@/components/MapLayers/Icons/DragFrame";
+import MapImage from "@/components/MapLayers/MapImage";
+import AllZones from "@/components/MapLayers/AllZones/AllZones";
+import AllAnnotations from "@/components/MapLayers/AllAnnotations/AllAnnotations";
+import LocationHoverCluster from "@/components/MapLayers/AllLocation/LocationHoverCluster";
+import { annotationToolAtom } from "@/atoms/map/annotationAtoms";
+import type { FrameColor } from "@/components/MapLayers/Icons/DragFrame";
+import { LocationType } from "@/types/map/locationTypes";
+import AllRoads from "@/components/MapLayers/AllRoads/AllRoads";
+import RoadHoverCluster from "@/components/MapLayers/AllRoads/RoadHoverCluster";
+import AllCargo from "@/components/MapLayers/AllCargo/AllCargo";
+import ToolTip from "@/components/MapLayers/ToolTip";
+import SudoCargo, { SudoBatchCargo } from "@/components/MapLayers/AllCargo/SudoCargo";
+import { AllChargeStation } from "@/components/MapLayers/AllChargeStation/index";
+import CargoModal from "@/components/MapLayers/AllCargo/CargoModal";
+import AllConveyor from "@/components/MapLayers/AllConveyor/AllConveyor";
 import {
   IsEditPeripheralModal,
   IsOpenPeripheralModal,
@@ -66,18 +62,18 @@ import {
 import EditPeripheralModal from "../formComponent/forms/peripheralModal/EditPeripheralModal";
 import CargoPanel from "@/components/CargoPanel/CargoPanel";
 import { SudoPeripheral } from "../formComponent/forms/other/editPeripheralIcon";
-import AllElevator from "./components/AllElevator/AllElevator";
-import { EBLM, ECSM, EEM, LDM } from "@/features/map/jotai/mapEditModalAtoms";
-import EditElevatorModal from "./components/AllElevator/EditElevatorModal";
-import EditChargeStationConfigModal from "./components/AllChargeStation/EditChargeStationConfigModal";
-import AllGateWaitPoint from "./components/AllGateWaitPoint/AllGateWaitPoint";
-import AllLiftGate from "./components/AllGate/AllLiftGate";
-import AllStack from "./components/AllStack/AllStack";
-import YfyPackage from "./components/YFYPackage/YfyPackage";
-import EditStackModal from "./components/AllStack/EditStackModal";
-import EditPackageModal from "./components/YFYPackage/EditPackageModal";
-import BlindLocationMissionModal from "../components/BlindLocationMissionModal";
-import LocationDetectModal from "../components/LocationDetectModal";
+import AllElevator from "@/components/MapLayers/AllElevator/AllElevator";
+import { EBLM, ECSM, EEM, LDM } from "@/atoms/map/mapEditModalAtoms";
+import EditElevatorModal from "@/components/MapLayers/AllElevator/EditElevatorModal";
+import EditChargeStationConfigModal from "@/components/MapLayers/AllChargeStation/EditChargeStationConfigModal";
+import AllGateWaitPoint from "@/components/MapLayers/AllGateWaitPoint/AllGateWaitPoint";
+import AllLiftGate from "@/components/MapLayers/AllGate/AllLiftGate";
+import AllStack from "@/components/MapLayers/AllStack/AllStack";
+import YfyPackage from "@/components/MapLayers/YFYPackage/YfyPackage";
+import EditStackModal from "@/components/MapLayers/AllStack/EditStackModal";
+import EditPackageModal from "@/components/MapLayers/YFYPackage/EditPackageModal";
+import BlindLocationMissionModal from "@/components/Setting/BlindLocationMissionModal";
+import LocationDetectModal from "@/components/Setting/LocationDetectModal";
 import useCenterMap from "@/hooks/useCenterMap";
 import useDragPan from "@/pages/Main/components/WebView/hooks/useDragPan";
 

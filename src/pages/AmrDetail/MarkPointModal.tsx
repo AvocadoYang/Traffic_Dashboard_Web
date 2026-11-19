@@ -7,8 +7,8 @@ import client from "@/api/axiosClient";
 import useAllAreaTypes from "@/api/useAllAreaTypes";
 import { locationOption } from "@/pages/Setting/utils/func";
 import { openNotificationWithIcon } from "@/pages/Setting/utils/notification";
-import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
-import { LocationType } from "@/features/map/locationTypes";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
+import { LocationType } from "@/types/map/locationTypes";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 

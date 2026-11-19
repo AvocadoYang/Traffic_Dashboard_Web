@@ -18,7 +18,7 @@ import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import useIsNarrow from "../../ui/useIsNarrow";
 import GroupMapFilter from "../../ui/GroupMapFilter";
-import { linkIdOf } from "@/features/map/zoneLinks";
+import { linkIdOf } from "@/utils/map/zoneLinks";
 import {
   PanelShell,
   Section,

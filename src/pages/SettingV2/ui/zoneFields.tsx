@@ -22,7 +22,7 @@ import {
   LinkMap,
   usedLinkIds,
   zonesWithLinkId,
-} from "@/features/map/zoneLinks";
+} from "@/utils/map/zoneLinks";
 import { c } from "@/theme/tokens";
 
 /** 區域分類:選了才會出現對應的設定欄位 */

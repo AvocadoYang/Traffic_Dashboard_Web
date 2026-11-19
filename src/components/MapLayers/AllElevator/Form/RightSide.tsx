@@ -1,0 +1,94 @@
+import useElevatorInfo from "@/api/useElevatorInfo";
+import {
+  EEM,
+  IsEditingQuickRoads,
+  QuickRoadsArray,
+} from "@/atoms/map/mapEditModalAtoms";
+import { CargoPanelTarget } from "@/components/CargoPanel/state";
+import {
+  Button,
+  Form,
+  FormInstance,
+  Input,
+  InputNumber,
+  Switch,
+  Typography,
+} from "antd";
+import { useAtomValue, useSetAtom } from "jotai";
+import { FC } from "react";
+import { useTranslation } from "react-i18next";
+import { editHalfPanelStyle, EDIT_TITLE_COLOR } from "@/components/MapLayers/editModalStyle";
+
+const { Title } = Typography;
+
+const RightSide: FC<{
+  form: FormInstance<unknown>;
+  locationId: string;
+}> = ({ form, locationId }) => {
+  const { t } = useTranslation();
+  const quickRoad = useAtomValue(IsEditingQuickRoads);
+  const setQuickRoadArr = useSetAtom(QuickRoadsArray);
+  const { data: elevator } = useElevatorInfo(locationId);
+  const openCargoPanel = useSetAtom(CargoPanelTarget);
+  const setOpenFirst = useSetAtom(EEM);
+  const handleCon = () => {
+    if (quickRoad) {
+      setQuickRoadArr((prev) => [...prev, locationId]);
+      return;
+    }
+    if (!elevator) return;
+
+    setOpenFirst((prev) => {
+      return { locationId: prev.locationId, isOpen: false };
+    });
+    // 貨物改用跟主畫面同一個面板編輯
+    openCargoPanel({ type: "ELEVATOR", locationId });
+  };
+
+  return (
+    <div style={editHalfPanelStyle}>
+      <Form form={form} layout="vertical" size="large">
+        <Title
+          level={3}
+          style={{
+            textAlign: "center",
+            marginBottom: "24px",
+            color: EDIT_TITLE_COLOR,
+          }}
+        >
+          {t("elevator.other_config")}
+        </Title>
+        <Form.Item label={t("elevator.name")} name={`name`}>
+          <Input />
+        </Form.Item>
+
+        <Form.Item label={t("elevator.description")} name={`description`}>
+          <Input />
+        </Form.Item>
+
+        <Button onClick={handleCon}>{t("elevator.edit_cargo_detail")}</Button>
+
+        <Form.Item
+          label={t("elevator.disable")}
+          name={`disable`}
+          valuePropName="checked"
+        >
+          <Switch
+            checkedChildren={t("utils.on")}
+            unCheckedChildren={t("utils.off")}
+          />
+        </Form.Item>
+
+        <Form.Item label={t("shelf.load_priority")} name={`loadPriority`}>
+          <InputNumber min={0} />
+        </Form.Item>
+
+        <Form.Item label={t("shelf.offload_priority")} name={`offloadPriority`}>
+          <InputNumber min={0} />
+        </Form.Item>
+      </Form>
+    </div>
+  );
+};
+
+export default RightSide;

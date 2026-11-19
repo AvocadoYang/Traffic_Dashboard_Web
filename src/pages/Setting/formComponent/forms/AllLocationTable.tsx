@@ -17,7 +17,7 @@ import {
   Form,
 } from "antd";
 import { useAtomValue, useSetAtom } from "jotai";
-import { LocationType } from "@/features/map/locationTypes";
+import { LocationType } from "@/types/map/locationTypes";
 import { useEffect, useMemo, useRef, useState, memo } from "react";
 import { FilterDropdownProps } from "antd/es/table/interface";
 import { useTranslation } from "react-i18next";
@@ -37,7 +37,7 @@ import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import useAllGroupsResources from "@/api/useAllGroupsResources";
-import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import GroupMapFolderBrowser from "@/components/GroupMapFolderBrowser";
 import FormHr from "../../utils/FormHr";
 import SubmitButton from "@/components/SubmitButton";

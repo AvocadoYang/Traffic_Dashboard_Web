@@ -8,8 +8,8 @@ import client from "@/api/axiosClient";
 import useAllAreaTypes from "@/api/useAllAreaTypes";
 import { WORK_AREA_CONFIG_KEY } from "@/api/useWorkAreas";
 import { locationOption } from "@/pages/Setting/utils/func";
-import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
-import { LocationType } from "@/features/map/locationTypes";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
+import { LocationType } from "@/types/map/locationTypes";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import {

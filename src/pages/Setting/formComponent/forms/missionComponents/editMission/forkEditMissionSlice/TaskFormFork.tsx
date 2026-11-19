@@ -34,7 +34,7 @@ import { controlList } from "./params";
 import DynamicControlFields from "./DynamicControlFields";
 import HorrorModal from "@/pages/Setting/components/HorrorModal";
 import { useAtomValue } from "jotai";
-import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 
 enum YawGenre {
   CUSTOM,

@@ -1,7 +1,7 @@
 import {
   IsEditingQuickRoads,
   QuickRoadsArray,
-} from "@/features/map/jotai/mapEditModalAtoms";
+} from "@/atoms/map/mapEditModalAtoms";
 import { Lift_Gate_Status } from "@/types/peripheral";
 import { useAtomValue, useSetAtom } from "jotai";
 import React, { FC } from "react";

@@ -2,7 +2,7 @@ import { FC } from "react";
 import {
   StyledForm,
   StyledTitle,
-} from "../../../mapComponents/components/AllConveyor/style";
+} from "@/components/MapLayers/AllConveyor/style";
 import {
   Flex,
   Form,
@@ -18,7 +18,7 @@ import {
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import useAllMissionTitles from "@/api/useMissionTitle";
-import { editHalfPanelStyle } from "@/pages/Setting/mapComponents/components/editModalStyle";
+import { editHalfPanelStyle } from "@/components/MapLayers/editModalStyle";
 
 const Config: FC<{
   formConfig: FormInstance<unknown>;

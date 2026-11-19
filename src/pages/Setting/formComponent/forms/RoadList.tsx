@@ -31,7 +31,7 @@ import { FilterDropdownProps } from "antd/es/table/interface";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import useAllGroupsResources from "@/api/useAllGroupsResources";
-import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import GroupMapFolderBrowser from "@/components/GroupMapFolderBrowser";
 import { hoverRoad } from "@/utils/gloable";
 import client from "@/api/axiosClient";

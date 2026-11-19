@@ -12,7 +12,7 @@ import { useAtom, useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
 import { io } from "@/sockets/socketConnect";
 import { NotifyPrefs, useMyProfile } from "@/api/useProfile";
-import { DEFAULT_SOUND, DEFAULT_VOLUME, playAlarmTone } from "@/features/alarm/alarmSound";
+import { DEFAULT_SOUND, DEFAULT_VOLUME, playAlarmTone } from "@/utils/alarmSound";
 import {
   AlarmType,
   SystemAlarmData,
@@ -25,7 +25,7 @@ import {
   systemAlarmPosition,
   systemAlarmPreviewTick,
   systemAlarmTypeFilter,
-} from "@/features/alarm/systemAlarmFilter";
+} from "@/atoms/alarm/systemAlarmFilter";
 
 // 同時最多疊幾張卡。超過就把最舊的擠掉,避免一串警報把整個畫面洗成瀑布。
 const MAX_VISIBLE = 4;

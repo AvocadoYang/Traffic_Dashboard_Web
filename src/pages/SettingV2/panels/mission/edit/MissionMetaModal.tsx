@@ -9,7 +9,7 @@ import client from "@/api/axiosClient";
 import useAMRsample from "@/api/useAMRsample";
 import useCategory from "@/api/useCategory";
 import useMissionTitleById from "@/api/useMissionTitleById";
-import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import { MissionListType } from "@/pages/Setting/formComponent/forms/missionComponents/editMission/mission";
 import { Field, FieldLabel, Hint } from "../../../ui/primitives";
 

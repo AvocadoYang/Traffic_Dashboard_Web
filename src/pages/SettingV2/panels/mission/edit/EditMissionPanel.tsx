@@ -19,7 +19,7 @@ import useAllMissionTitlesDetail, {
   MTType,
 } from "@/api/useMissionTitleDetail";
 import useMissionFolder from "@/api/useMissionFolder";
-import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import { Err } from "@/utils/responseErr";
 import { Mission_Title } from "@/pages/Setting/formComponent/forms/missionComponents/editMission/mission";
 import UpgradeTaskFormat from "@/pages/Setting/formComponent/forms/missionComponents/editMission/UpgradeTaskFormat";

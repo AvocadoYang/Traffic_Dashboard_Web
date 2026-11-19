@@ -17,8 +17,9 @@ import {
   QuickEditLocationPanelSwitch,
 } from "@/utils/siderGloble";
 import SettingMapV3 from "./SettingMapV3";
-import { ZoomPad, BKBtn } from "@/pages/Setting/components";
-import { useResetSiderSwitch } from "@/pages/Setting/hooks";
+import ZoomPad from "@/components/Setting/ZoomPad";
+import BKBtn from "@/components/Setting/BKBtn";
+import useResetSiderSwitch from "@/hooks/setting/useResetSiderSwitch";
 import "@/pages/Setting/setting.css";
 import { activeSettingPanelAtom } from "@/pages/SettingV2/activePanelAtom";
 import { mapViewModeAtom, type MapViewMode } from "@/pages/SettingV2/mapViewModeAtom";

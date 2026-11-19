@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { Layout, Form, Splitter, Flex } from "antd";
 import Header from "../../components/Header";
-import { ZoomPad, Sider, BKBtn, ToolComponents } from "./components";
-import { useResetSiderSwitch } from "./hooks";
+import { Sider, ToolComponents } from "./components";
+import ZoomPad from "@/components/Setting/ZoomPad";
+import BKBtn from "@/components/Setting/BKBtn";
+import useResetSiderSwitch from "@/hooks/setting/useResetSiderSwitch";
 import "./setting.css";
 import { DndContext } from "@dnd-kit/core";
 import {
@@ -12,7 +14,7 @@ import {
 } from "@dnd-kit/sortable";
 import { restrictToParentElement } from "@dnd-kit/modifiers";
 import { getMoveIndex } from "./utils/utils";
-import { toolbarState } from "./components/siderElement";
+import { toolbarState } from "@/components/Setting/siderElement";
 import MapView from "./mapComponents/MapView";
 import useMap from "@/api/useMap";
 import { centerMap, Scale } from "@/utils/gloable";

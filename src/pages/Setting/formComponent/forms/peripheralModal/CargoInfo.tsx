@@ -17,7 +17,7 @@ import {
   editHalfPanelStyle,
   editSubPanelStyle,
   EDIT_TITLE_COLOR,
-} from "@/pages/Setting/mapComponents/components/editModalStyle";
+} from "@/components/MapLayers/editModalStyle";
 
 const { Title } = Typography;
 

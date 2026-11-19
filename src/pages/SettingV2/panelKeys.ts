@@ -1,4 +1,4 @@
-import type { ToolBarItemType } from "@/pages/Setting/components/siderElement";
+import type { ToolBarItemType } from "@/components/Setting/siderElement";
 
 // v2 才有、v1 沒有對應項目的面板 key。
 // 刻意不加進 siderElement 的 formList,因為那份陣列同時是 v1 Setting 的

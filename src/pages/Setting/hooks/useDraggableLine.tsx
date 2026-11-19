@@ -6,7 +6,7 @@ import { FormInstance } from "antd";
 import { draggableLineInitialPoint } from "@/hooks/map/hook";
 import { getLocationInfoById } from "@/pages/Setting/utils/utils";
 import useMap from "@/api/useMap";
-import { LocationType } from "@/features/map/locationTypes";
+import { LocationType } from "@/types/map/locationTypes";
 import { EditRoadPanelSwitch, EditZoneSwitch } from "@/utils/siderGloble";
 
 const useDraggableLine = (

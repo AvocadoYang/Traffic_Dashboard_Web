@@ -1,7 +1,7 @@
 import {
   IsEditingQuickRoads,
   QuickRoadsArray,
-} from "@/features/map/jotai/mapEditModalAtoms";
+} from "@/atoms/map/mapEditModalAtoms";
 import { useAtomValue, useSetAtom } from "jotai";
 import React, { FC } from "react";
 import styled from "styled-components";

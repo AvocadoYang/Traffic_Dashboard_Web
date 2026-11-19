@@ -6,7 +6,7 @@ import { useAtomValue } from "jotai";
 import styled from "styled-components";
 import client from "@/api/axiosClient";
 import useMap from "@/api/useMap";
-import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import { rosCoord2DisplayCoord, rvizCoord } from "@/utils/utils";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";

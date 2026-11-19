@@ -19,7 +19,7 @@ import styled from "styled-components";
 import { Mission_Title } from "./mission";
 import useMissionFolder from "@/api/useMissionFolder";
 import { useAtomValue } from "jotai";
-import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 
 // Industrial Styled Components
 const IndustrialTableContainer = styled.div`

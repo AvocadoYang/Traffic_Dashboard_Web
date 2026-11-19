@@ -17,7 +17,7 @@ import {
   Form,
 } from "antd";
 import { useSetAtom } from "jotai";
-import { LocationType } from "@/features/map/locationTypes";
+import { LocationType } from "@/types/map/locationTypes";
 import { useRef, useState, memo } from "react";
 import { FilterDropdownProps } from "antd/es/table/interface";
 import { useTranslation } from "react-i18next";

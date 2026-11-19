@@ -5,7 +5,7 @@ import {
   zonesWithLinkId,
   type LinkMap,
   type LinkZone,
-} from "@/features/map/zoneLinks";
+} from "@/utils/map/zoneLinks";
 
 /**
  * 跟這個區域綁在一起的其他區域 (使用中群組): 電梯區是所有樓層同電梯 ID 的,

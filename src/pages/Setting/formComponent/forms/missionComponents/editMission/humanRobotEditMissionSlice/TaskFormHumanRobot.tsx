@@ -26,7 +26,7 @@ import { errorHandler } from "@/utils/utils";
 import { Robot_Control, Robot_Type, Robot_Upper_Control } from "./type";
 import useOneTaskDetailHumanRobot from "@/api/useOneTaskDetailHumanRobot";
 import { useAtomValue } from "jotai";
-import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 
 function isWithinLimits(jointName: string, angle: number): boolean {
   const joint = jointLimits.find((j) => j.jointName === jointName);

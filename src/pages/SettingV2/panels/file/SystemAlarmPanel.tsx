@@ -9,7 +9,7 @@ import { io } from "@/sockets/socketConnect";
 import {
   ALARM_TYPES,
   systemAlarmTypeFilter,
-} from "@/features/alarm/systemAlarmFilter";
+} from "@/atoms/alarm/systemAlarmFilter";
 import AlarmPositionPicker from "./AlarmPositionPicker";
 import HealthMonitorSection from "./HealthMonitorSection";
 import useIsNarrow from "../../ui/useIsNarrow";

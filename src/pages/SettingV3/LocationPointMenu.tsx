@@ -6,8 +6,8 @@ import { useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import useMap from "@/api/useMap";
 import useAllGroupsResources from "@/api/useAllGroupsResources";
-import { LDM } from "@/features/map/jotai/mapEditModalAtoms";
-import { isDetectableAreaType } from "@/features/map/areaTypes";
+import { LDM } from "@/atoms/map/mapEditModalAtoms";
+import { isDetectableAreaType } from "@/utils/map/areaTypes";
 import LocationEditModal, {
   LocationRow,
 } from "@/pages/SettingV2/panels/location/LocationEditModal";

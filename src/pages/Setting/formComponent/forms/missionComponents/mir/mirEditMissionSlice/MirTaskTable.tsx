@@ -38,7 +38,7 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import client from "@/api/axiosClient";
 import { useAtomValue } from "jotai";
-import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import useTaskMir from "@/api/useTaskMir";
 import { Err } from "@/utils/responseErr";
 import { Mir_Action_Slice } from "./type";

@@ -1,4 +1,4 @@
-import { pgmFileToPng } from "@/features/map/pgm";
+import { pgmFileToPng } from "@/utils/map/pgm";
 import { FC, useMemo, useState } from "react";
 import {
   Form,
@@ -32,7 +32,7 @@ import useAllMapInfo from "@/api/useAllMapInfo";
 import useMapGroup from "@/api/useMapGroup";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import SyncJobsModal from "@/pages/Setting/components/ChangeMap/SyncJobsModal";
+import SyncJobsModal from "@/components/Setting/ChangeMap/SyncJobsModal";
 import useIsNarrow from "../../ui/useIsNarrow";
 import StatusTag from "../../ui/StatusTag";
 import GroupMapFilter from "../../ui/GroupMapFilter";

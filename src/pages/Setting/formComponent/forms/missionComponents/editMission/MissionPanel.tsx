@@ -29,7 +29,7 @@ import FolderEditor from "./folder/FolderEditor";
 import UpgradeTaskFormat from "./UpgradeTaskFormat";
 import MissionTransfer from "@/pages/SettingV2/panels/mission/edit/MissionTransfer";
 import { useAtomValue } from "jotai";
-import { currentMapIdAtom } from "@/features/map/jotai/mapSelectionAtoms";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 
 // Industrial Styled Components
 const IndustrialContainer = styled.div`
