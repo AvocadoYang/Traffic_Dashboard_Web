@@ -12,12 +12,12 @@ import {
 import client from "@/api/axiosClient";
 import { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LocationType, RoadListType } from "@/utils/jotai";
+import { LocationType } from "@/types/map/locationTypes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import useMap from "@/api/useMap";
-import { openNotificationWithIcon } from "../../utils/notification";
+import { openNotificationWithIcon } from "@/utils/notification";
 import { useAtom, useAtomValue } from "jotai";
 import {
   locationXForQuickEditLocationPanel,
@@ -26,8 +26,23 @@ import {
 } from "@/utils/gloable";
 import FormHr from "../../utils/FormHr";
 import useAllAreaTypes from "@/api/useAllAreaTypes";
-import { locationOption } from "../../utils/func";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { locationOption } from "@/utils/map/locationOptions";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
+
+type RoadListType = {
+  roadId: string;
+  validYawList: string | number[];
+  x: string;
+  to: string;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  roadType: "oneWayRoad" | "twoWayRoad";
+  checkboxGroup?: string[];
+  disabled: boolean;
+  limit: boolean;
+};
 
 const initialFormDate = {
   genre: "EXTRA",

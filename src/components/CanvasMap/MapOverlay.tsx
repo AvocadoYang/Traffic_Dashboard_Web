@@ -13,13 +13,14 @@ import {
   isShowRoadTooltip,
   showAllZonesSwitch,
 } from "@/utils/siderGloble";
-import ToolTip from "@/pages/Setting/components/ToolTip";
-import { LocationHoverCluster } from "@/pages/Setting/mapComponents/components";
-import RoadHoverCluster from "@/pages/Setting/mapComponents/components/AllRoads/RoadHoverCluster";
-import { HoverLabel, TOOLTIP_Z_INDEX } from "@/pages/Setting/mapComponents/components/HoverLabel";
-import ZoneHoverCard, { toOpaque } from "@/pages/Setting/mapComponents/components/AllZones/components/ZoneHoverCard";
-import { c, font } from "@/pages/SettingV2/ui/tokens";
-import { useLinkedZones } from "@/pages/SettingV2/ui/zoneLinks";
+import ToolTip from "@/components/MapLayers/ToolTip";
+import LocationHoverCluster from "@/components/MapLayers/AllLocation/LocationHoverCluster";
+import RoadHoverCluster from "@/components/MapLayers/AllRoads/RoadHoverCluster";
+import { HoverLabel, TOOLTIP_Z_INDEX } from "@/components/MapLayers/HoverLabel";
+import ZoneHoverCard from "@/components/MapLayers/AllZones/ZoneHoverCard";
+import { toOpaque } from "@/utils/color";
+import { c, font } from "@/theme/tokens";
+import useLinkedZones from "@/hooks/map/useLinkedZones";
 import type { MapScene, SceneZone } from "./scene";
 
 /**

@@ -8,9 +8,9 @@ import AllConveyor from "@/pages/Main/components/PadViwe/components/PadMapConten
 import AllGateWaitPoint from "@/pages/Main/components/PadViwe/components/PadMapContent/AllGateWaitPoint/AllGateWaitPoint";
 import AllLiftGate from "@/pages/Main/components/PadViwe/components/PadMapContent/AllGate/AllLiftGate";
 import AllChargeStation from "@/pages/Main/components/PadViwe/components/PadMapContent/AllChargeStation/AllChargeStation";
-import StatusPanel from "@/pages/Main/components/PadViwe/components/PadMapContent/AllChargeStation/StatusPanel";
-import LocalizationCorrectionGhost from "@/pages/Main/components/PadViwe/components/PadMapContent/component/LocalizationCorrection/LocalizationCorrectionGhost";
-import { OpenChargeStationModal } from "@/pages/Main/global/jotai";
+import StatusPanel from "@/components/MapLayers/AllChargeStation/StatusPanel";
+import LocalizationCorrectionGhost from "@/components/LocalizationCorrection/LocalizationCorrectionGhost";
+import { OpenChargeStationModal } from "@/atoms/main/mainAtoms";
 
 /**
  * 地圖上的設備: 數量不多, 但點擊、Popover、快速任務選層這些互動很多,

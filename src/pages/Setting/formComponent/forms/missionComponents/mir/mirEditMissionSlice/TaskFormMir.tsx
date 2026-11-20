@@ -12,7 +12,7 @@ import {
   mirMoveActonList,
   mirSaftySystemList,
   mirSoundLight,
-} from "./type";
+} from "@/types/mirAction";
 import {
   MirBlockedDockingTimeoutInputInput,
   MirBlockedPathTimeoutInputInput,
@@ -46,19 +46,19 @@ import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import client from "@/api/axiosClient";
 import { useAtomValue } from "jotai";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import useTaskMir from "@/api/useTaskMir";
 import useTaskMirOne from "@/api/useTaskMirOne";
 import {
   MirVariableProvider,
   useMirVariableFields,
-} from "./MirVariableContext";
+} from "@/pages/SettingV3/forms/missionComponents/mir/mirEditMissionSlice/MirVariableContext";
 import {
   MIR_DEFAULT_SOUND,
   buildMirOperationFields,
   isCurrentPositionOperation,
-} from "./mirActionFields";
-import { useMirDockingMarkerType } from "./useMirTaskOptions";
+} from "@/pages/SettingV3/forms/missionComponents/mir/mirEditMissionSlice/mirActionFields";
+import { useMirDockingMarkerType } from "@/hooks/mission/useMirTaskOptions";
 
 // save-edit-mir-task 實際送出去的形狀:是一個 Mir_Action 加上 missionTitleId,
 // 但不含 scope_reference —— 那是後端自己維護的「內容群組」id,前端不該回寫,

@@ -4,8 +4,8 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ShelfTable from "./ShelfTable";
 import ShelfDrawer from "./ShelfDrawer";
-import SettingMultiCargoStyleForm from "./SettingMultiCargoStyleForm";
-import SettingBatchCargoStyleForm from "./SettingBatchCargoStyleForm";
+import SettingMultiCargoStyleForm from "@/pages/SettingV3/forms/shelfComponents/editShelf/SettingMultiCargoStyleForm";
+import SettingBatchCargoStyleForm from "@/pages/SettingV3/forms/shelfComponents/editShelf/SettingBatchCargoStyleForm";
 import useShelf from "@/api/useShelf";
 import FormHr from "../../../../utils/FormHr";
 

@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useAtom, useSetAtom } from "jotai";
 import styled from "styled-components";
 import WebMapView from "@/pages/Main/components/WebView/components/WebMapView";
-import ZoomPad from "@/pages/Main/components/WebView/components/ZoomPad";
+import ZoomPad from "@/components/MapLayers/ZoomPad";
 import MapSelector from "@/components/MapSelector";
 import useMap from "@/api/useMap";
 import { AmrFilterCarCard, Scale } from "@/utils/gloable";

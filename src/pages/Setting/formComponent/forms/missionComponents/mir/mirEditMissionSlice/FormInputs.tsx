@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import useMirTaskOptions, {
   useMirIoModuleOptions,
   useMirSoundOptions,
-} from "./useMirTaskOptions";
+} from "@/hooks/mission/useMirTaskOptions";
 import ParameterCard, { FieldLabel } from "./ParameterCard";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";

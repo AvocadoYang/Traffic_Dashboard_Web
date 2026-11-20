@@ -3,7 +3,7 @@ import useName from "@/api/useAmrName";
 import useAllMissionTitles from "@/api/useMissionTitle";
 import { useTopicMission } from "@/api/useTopicMission";
 import { ErrorResponse } from "@/utils/globalType";
-import SubmitButton from "@/utils/SubmitButton";
+import SubmitButton from "@/components/SubmitButton";
 import { errorHandler } from "@/utils/utils";
 import { useMutation } from "@tanstack/react-query";
 import { Form, InputNumber, message, Select } from "antd";

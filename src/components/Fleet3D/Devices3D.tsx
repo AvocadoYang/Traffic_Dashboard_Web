@@ -20,8 +20,8 @@ import {
   QuickMissionPickerLoc,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
-} from "@/pages/Main/global/jotai";
-import { getModeColor } from "@/pages/Main/components/PadViwe/components/PadMapContent/AllCargo/ShelfLevelPicker";
+} from "@/atoms/main/mainAtoms";
+import { getModeColor } from "@/components/MapLayers/AllCargo/ShelfLevelPicker";
 import { Lift_Gate_Status } from "@/types/peripheral";
 import { DevicePlacement } from "./devicePlacement";
 import {

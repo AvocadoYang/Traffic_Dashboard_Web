@@ -25,12 +25,12 @@ import {
   MirStyleLocationPlacerSwitch,
   QuickEditLocationPanelSwitch,
 } from "@/utils/siderGloble";
-import { LocationType } from "@/utils/jotai";
+import { LocationType } from "@/types/map/locationTypes";
 import { rad2Deg, rosCoord2DisplayCoord } from "@/utils/utils";
-import { DraggableLine } from "@/pages/Setting/mapComponents/components/AllLocation/components/PointAndLine";
-import "@/pages/Setting/setting.css";
-import { draggableLineInitialPoint } from "@/pages/Setting/hooks/hook";
-import { getLocationInfoById } from "@/pages/Setting/utils/utils";
+import { DraggableLine } from "@/components/MapLayers/AllLocation/PointAndLine";
+import "./setting.css";
+import { draggableLineInitialPoint } from "@/hooks/map/hook";
+import { getLocationInfoById } from "@/pages/SettingV3/utils/utils";
 import {
   EBLM,
   ECSM,
@@ -38,48 +38,47 @@ import {
   IsEditingQuickRoads,
   LDM,
   QuickRoadsArray,
-} from "@/pages/Setting/utils/settingJotai";
-import { annotationToolAtom } from "@/pages/Setting/mapComponents/components/AllAnnotations/annotationAtoms";
-import AllCargo from "@/pages/Setting/mapComponents/components/AllCargo/AllCargo";
+} from "@/atoms/map/mapEditModalAtoms";
+import { annotationToolAtom } from "@/atoms/map/annotationAtoms";
+import AllCargo from "@/components/MapLayers/AllCargo/AllCargo";
 import SudoCargo, {
   SudoBatchCargo,
-} from "@/pages/Setting/mapComponents/components/AllCargo/SudoCargo";
-import CargoModal from "@/pages/Setting/mapComponents/components/AllCargo/CargoModal";
-import { AllChargeStation } from "@/pages/Setting/mapComponents/components/AllChargeStation";
-import EditChargeStationConfigModal from "@/pages/Setting/mapComponents/components/AllChargeStation/EditChargeStationConfigModal";
-import AllConveyor from "@/pages/Setting/mapComponents/components/AllConveyor/AllConveyor";
-import AllElevator from "@/pages/Setting/mapComponents/components/AllElevator/AllElevator";
-import EditElevatorModal from "@/pages/Setting/mapComponents/components/AllElevator/EditElevatorModal";
-import AllGateWaitPoint from "@/pages/Setting/mapComponents/components/AllGateWaitPoint/AllGateWaitPoint";
-import AllLiftGate from "@/pages/Setting/mapComponents/components/AllGate/AllLiftGate";
-import AllStack from "@/pages/Setting/mapComponents/components/AllStack/AllStack";
-import EditStackModal from "@/pages/Setting/mapComponents/components/AllStack/EditStackModal";
-import YfyPackage from "@/pages/Setting/mapComponents/components/YFYPackage/YfyPackage";
-import EditPackageModal from "@/pages/Setting/mapComponents/components/YFYPackage/EditPackageModal";
-import { IsOpenPeripheralModal } from "@/pages/Setting/formComponent/forms/peripheralModal/jotai";
-import EditPeripheralModal from "@/pages/Setting/formComponent/forms/peripheralModal/EditPeripheralModal";
-import { SudoPeripheral } from "@/pages/Setting/formComponent/forms/other/editPeripheralIcon";
-import BlindLocationMissionModal from "@/pages/Setting/components/BlindLocationMissionModal";
-import LocationDetectModal from "@/pages/Setting/components/LocationDetectModal";
-import { useMousePoint, useZoneFrame } from "@/pages/Setting/hooks";
-import {
-  AllAnnotations,
-  DragFrame,
-  MousePoint,
-  ZoneIconHint,
-} from "@/pages/Setting/mapComponents/components";
-import type { FrameColor } from "@/pages/Setting/mapComponents/components";
-import { MouseLocationForFrame } from "@/pages/Setting/hooks/hook";
-import TempLocations from "@/pages/Setting/mapComponents/components/TempResources/TempLocations";
-import MirStyleLocationPlacer from "@/pages/Setting/formComponent/forms/MirStyleLocationPlacer";
+} from "@/components/MapLayers/AllCargo/SudoCargo";
+import CargoModal from "@/components/MapLayers/AllCargo/CargoModal";
+import { AllChargeStation } from "@/components/MapLayers/AllChargeStation/index";
+import EditChargeStationConfigModal from "@/components/MapLayers/AllChargeStation/EditChargeStationConfigModal";
+import AllConveyor from "@/components/MapLayers/AllConveyor/AllConveyor";
+import AllElevator from "@/components/MapLayers/AllElevator/AllElevator";
+import EditElevatorModal from "@/components/MapLayers/AllElevator/EditElevatorModal";
+import AllGateWaitPoint from "@/components/MapLayers/AllGateWaitPoint/AllGateWaitPoint";
+import AllLiftGate from "@/components/MapLayers/AllGate/AllLiftGate";
+import AllStack from "@/components/MapLayers/AllStack/AllStack";
+import EditStackModal from "@/components/MapLayers/AllStack/EditStackModal";
+import YfyPackage from "@/components/MapLayers/YFYPackage/YfyPackage";
+import EditPackageModal from "@/components/MapLayers/YFYPackage/EditPackageModal";
+import { IsOpenPeripheralModal } from "@/atoms/map/peripheralAtoms";
+import EditPeripheralModal from "@/pages/SettingV3/forms/peripheralModal/EditPeripheralModal";
+import SudoPeripheral from "@/pages/SettingV3/forms/other/editPeripheralIcon/SudoPeripheral";
+import BlindLocationMissionModal from "@/components/Setting/BlindLocationMissionModal";
+import LocationDetectModal from "@/components/Setting/LocationDetectModal";
+import useMousePoint from "@/hooks/map/useMousePoint";
+import useZoneFrame from "@/hooks/map/useZoneFrame";
+import AllAnnotations from "@/components/MapLayers/AllAnnotations/AllAnnotations";
+import MousePoint from "@/components/MapLayers/Icons/MousePoint";
+import ZoneIconHint from "@/components/MapLayers/Icons/ZoneIconHint";
+import DragFrame from "@/components/MapLayers/Icons/DragFrame";
+import type { FrameColor } from "@/components/MapLayers/Icons/DragFrame";
+import { MouseLocationForFrame } from "@/hooks/map/hook";
+import TempLocations from "@/components/MapLayers/TempResources/TempLocations";
+import MirStyleLocationPlacer from "@/pages/SettingV3/forms/MirStyleLocationPlacer";
 import LocationPointMenu, {
   LocationPointMenuTarget,
-} from "../SettingV2/panels/location/LocationPointMenu";
-import type { ZoneRow } from "../SettingV2/panels/zone/ZoneEditModal";
+} from "./LocationPointMenu";
+import type { ZoneRow } from "@/pages/SettingV3/panels/zone/ZoneEditModal";
 import RoadEditModal, {
   type RoadRow,
-} from "../SettingV2/panels/road/RoadEditModal";
-import ZoneRedraw from "../SettingV2/panels/zone/ZoneRedraw";
+} from "@/pages/SettingV3/panels/road/RoadEditModal";
+import ZoneRedraw from "./ZoneRedraw";
 
 /**
  * 設定頁 (setting-v3) 的地圖: 舊 MapView 的畫布版。

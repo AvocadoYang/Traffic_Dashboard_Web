@@ -8,7 +8,7 @@ import client from "@/api/axiosClient";
 import useVersion from "@/api/useVersion";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import GlobalLoading from "@/utils/GlobalLoading";
+import GlobalLoading from "@/components/GlobalLoading";
 import FormHr from "@/pages/Setting/utils/FormHr";
 import { LoginOutlined, PlusOutlined } from "@ant-design/icons";
 type Backup = {

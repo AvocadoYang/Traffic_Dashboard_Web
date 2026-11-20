@@ -16,7 +16,7 @@ import useName from "@/api/useAmrName";
 import client from "@/api/axiosClient";
 import { errorHandler } from "@/utils/utils";
 import { ErrorResponse } from "@/utils/globalType";
-import SubmitButton from "@/utils/SubmitButton";
+import SubmitButton from "@/components/SubmitButton";
 
 interface DataType {
   id: string;

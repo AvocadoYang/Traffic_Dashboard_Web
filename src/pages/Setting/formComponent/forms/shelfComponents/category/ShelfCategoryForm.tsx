@@ -24,7 +24,7 @@ import useShelfCategory from "@/api/useShelfCategory";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import SubmitButton from "@/utils/SubmitButton";
+import SubmitButton from "@/components/SubmitButton";
 
 const { Search } = Input;
 

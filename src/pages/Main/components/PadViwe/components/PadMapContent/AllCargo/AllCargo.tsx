@@ -14,7 +14,7 @@ import {
   QuickMissionHoverCell,
   QuickMissionPickerLoc,
   StartQuickMissionSetting,
-} from "@/pages/Main/global/jotai";
+} from "@/atoms/main/mainAtoms";
 
 const Point = styled.div.attrs<{
   left: number;

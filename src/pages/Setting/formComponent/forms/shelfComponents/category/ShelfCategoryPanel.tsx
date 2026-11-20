@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";
 import ShelfCategoryTable from "./ShelfCategoryTable";
 import ShelfCategoryForm from "./ShelfCategoryForm";
-import { borderColor } from "../../../../utils/utils";
+import { borderColor } from "@/pages/SettingV3/utils/utils";
 
 const ShelfCategoryPanel: FC<{
   sortableId: string;

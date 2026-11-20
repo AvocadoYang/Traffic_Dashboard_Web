@@ -6,7 +6,7 @@ import styled from "styled-components";
 import useMap from "@/api/useMap";
 import useName from "@/api/useAmrName";
 import useAMRsample from "@/api/useAMRsample";
-import { MapImage } from "@/pages/Setting/mapComponents/components";
+import MapImage from "@/components/MapLayers/MapImage";
 import {
   AmrFilterCarCard,
   centerMap,
@@ -26,7 +26,7 @@ import {
   isShowRoadTooltip,
   showAllZonesSwitch,
 } from "@/utils/siderGloble";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import { buildMapImageMatrix, getMapCanvas, mapImageModeAtom, resolveColors, themeAtom } from "@/theme";
 import { isDarkColor } from "@/theme/mapImage";
 import { buildScene } from "./scene";

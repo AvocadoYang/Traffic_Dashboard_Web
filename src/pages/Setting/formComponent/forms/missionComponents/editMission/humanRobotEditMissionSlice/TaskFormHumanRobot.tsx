@@ -18,7 +18,7 @@ import {
   robotUpperControl,
 } from "./params";
 import useMap from "@/api/useMap";
-import SubmitButton from "@/utils/SubmitButton";
+import SubmitButton from "@/components/SubmitButton";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
@@ -26,7 +26,7 @@ import { errorHandler } from "@/utils/utils";
 import { Robot_Control, Robot_Type, Robot_Upper_Control } from "./type";
 import useOneTaskDetailHumanRobot from "@/api/useOneTaskDetailHumanRobot";
 import { useAtomValue } from "jotai";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 
 function isWithinLimits(jointName: string, angle: number): boolean {
   const joint = jointLimits.find((j) => j.jointName === jointName);
