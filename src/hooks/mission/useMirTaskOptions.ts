@@ -119,13 +119,7 @@ export const useMirIoModuleOptions = () => {
 
   const ioModuleOption = useMemo(() => toGuidOptions(data ?? []), [data]);
 
-  /** guid 換成顯示名稱;清單裡沒有(沒車在線、模組被移除)就直接顯示 guid */
-  const ioModuleNameOf = useMemo(() => {
-    const labelByGuid = new Map(ioModuleOption.map((o) => [o.value, o.label]));
-    return (guid: string) => labelByGuid.get(guid) ?? guid;
-  }, [ioModuleOption]);
-
-  return { ioModuleOption, ioModuleNameOf, amrId, isFetching, error, refetch };
+  return { ioModuleOption, amrId, isFetching, error, refetch };
 };
 
 export const useMirSoundOptions = () => {

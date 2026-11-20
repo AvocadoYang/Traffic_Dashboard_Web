@@ -105,7 +105,7 @@ const IncludeMissionDialog: FC<Props> = ({
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const [pick, setPick] = useState<string>();
-  const { locations, markerTypeOptions, bySource } = useMirOptions();
+  const { locations, markerTypeOptions, options } = useMirOptions();
 
   const [variables, setVariables] = useState<MirTitleVariable[]>([]);
   const [loading, setLoading] = useState(false);
@@ -183,7 +183,7 @@ const IncludeMissionDialog: FC<Props> = ({
       case "optionSelect":
         return (
           <Select
-            options={bySource(spec.source)}
+            options={options[spec.source]}
             allowClear
             showSearch={searchable}
           />

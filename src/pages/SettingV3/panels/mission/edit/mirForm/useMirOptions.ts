@@ -9,9 +9,24 @@ import {
   useMirIoModuleOptions,
   useMirSoundOptions,
 } from "@/hooks/mission/useMirTaskOptions";
-import { ActionNames, OptionSource } from "./mirActionSpec";
+import {
+  MIR_DEFAULT_IO_MODULE,
+  MIR_DEFAULT_SOUND,
+} from "@/pages/SettingV3/forms/missionComponents/mir/mirEditMissionSlice/mirActionFields";
+import { OptionSource } from "./mirActionSpec";
 
 export type Option = { label: string; value: string };
+
+/**
+ * MiR 內建的音檔、IO module, 每台車都有。沒車在線、即時清單是空的時候
+ * 下拉裡至少還有它們, 預設值也才不會只顯示一串 guid。
+ * 車上清單有同一個 guid 時用車上的名稱。
+ */
+const DEFAULT_SOUND_OPTION: Option = { label: "Default sound", value: MIR_DEFAULT_SOUND };
+const DEFAULT_IO_MODULE_OPTION: Option = { label: "Internal IO", value: MIR_DEFAULT_IO_MODULE };
+
+const withDefault = (list: Option[], fallback: Option) =>
+  list.some((o) => o.value === fallback.value) ? list : [fallback, ...list];
 
 /** 即時清單的狀態,下拉要靠它顯示「讀取中」「沒有車在線」 */
 export type LiveState = {
@@ -37,9 +52,17 @@ const useMirOptions = () => {
   const { data: footprints } = useFootprint();
   const { data: markerTypes } = useMarkerType();
   const { data: shelfData } = useShelf();
-  const { soundOption, ...soundsLive } = useMirSoundOptions();
-  const { ioModuleOption, ioModuleNameOf, ...ioModulesLive } =
-    useMirIoModuleOptions();
+  const sounds = useMirSoundOptions();
+  const ioModules = useMirIoModuleOptions();
+
+  const soundOptions = useMemo(
+    () => withDefault(sounds.soundOption, DEFAULT_SOUND_OPTION),
+    [sounds.soundOption],
+  );
+  const ioModuleOptions = useMemo(
+    () => withDefault(ioModules.ioModuleOption, DEFAULT_IO_MODULE_OPTION),
+    [ioModules.ioModuleOption],
+  );
 
   const locations = useMemo(
     () =>
@@ -54,19 +77,6 @@ const useMirOptions = () => {
     () => (footprints ?? []).map((v) => ({ label: v.name, value: v.id })),
     [footprints],
   );
-
-  const actionNames = useMemo<ActionNames>(() => {
-    const footprintNames = new Map(
-      footprintOptions.map((o) => [o.value, o.label]),
-    );
-    const soundNames = new Map(soundOption.map((o) => [o.value, o.label]));
-    return {
-      moduleNameOf: ioModuleNameOf,
-      footprintNameOf: (id) => footprintNames.get(id) ?? id,
-      // 音檔的 name 可能是空字串,這時也要退回 guid
-      soundNameOf: (guid) => soundNames.get(guid) || guid,
-    };
-  }, [footprintOptions, soundOption, ioModuleNameOf]);
 
   const markerTypeOptions = useMemo(
     () => (markerTypes ?? []).map((v) => ({ label: v.name, value: v.id })),
@@ -89,33 +99,39 @@ const useMirOptions = () => {
     [shelfData, mapData],
   );
 
-  const bySource = (source: OptionSource): Option[] => {
-    switch (source) {
-      case "locations":
-        return locations;
-      case "footprints":
-        return footprintOptions;
-      case "sounds":
-        return soundOption;
-      case "ioModules":
-        return ioModuleOption;
-    }
+  /** optionSelect 欄位的下拉, 用欄位的 source 取 */
+  const options: Record<OptionSource, Option[]> = {
+    locations,
+    footprints: footprintOptions,
+    sounds: soundOptions,
+    ioModules: ioModuleOptions,
   };
 
-  /** 只有即時清單有狀態可以顯示,本地那幾份回 undefined */
-  const liveStateOf = (source: OptionSource): LiveState | undefined => {
-    if (source === "sounds") return soundsLive;
-    if (source === "ioModules") return ioModulesLive;
-    return undefined;
-  };
+  /** 即時向車上查的清單才有讀取狀態, 其他 source 沒有 */
+  const live: Partial<Record<OptionSource, LiveState>> = { sounds, ioModules };
+
+  /**
+   * operation 裡存的 id / guid → 顯示名稱, 卡片摘要用。
+   * footprint id 跟 MiR 的 guid 都是 uuid 不會撞, 放同一張表就好。
+   * 名稱是空字串的 (音檔可能沒取名) 不放, 摘要就會退回顯示 id。
+   */
+  const names = useMemo(
+    () =>
+      new Map(
+        [...footprintOptions, ...soundOptions, ...ioModuleOptions]
+          .filter((o) => o.label)
+          .map((o) => [o.value, o.label]),
+      ),
+    [footprintOptions, soundOptions, ioModuleOptions],
+  );
 
   return {
     locations,
     markerTypeOptions,
     markerTypeLocationIds,
-    bySource,
-    liveStateOf,
-    actionNames,
+    options,
+    live,
+    names,
   };
 };
 
