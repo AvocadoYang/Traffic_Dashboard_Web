@@ -1,18 +1,16 @@
 import useMap from "@/api/useMap";
 import { amrId2ColorRainbow, rosCoord2DisplayCoord } from "@/utils/utils";
 import { memo, RefObject, useCallback, useMemo } from "react";
-import { PointMain } from "@/pages/Setting/mapComponents/components/AllLocation/components/PointAndLine";
+import { PointMain } from "@/components/MapLayers/AllLocation/PointAndLine";
+import { MirAreaTypeMarker } from "@/components/MapLayers/AllLocation/MirAreaTypeMarker";
 import {
-  MirAreaTypeMarker,
   isMirAreaType,
-} from "@/pages/Setting/mapComponents/components/AllLocation/components/MirAreaTypeMarker";
-import {
   isPointAreaType,
   isStandbyAreaType,
-} from "@/pages/Setting/mapComponents/components/AllLocation/pointAreaTypes";
+} from "@/utils/map/areaTypes";
 import { useAtomValue, useSetAtom } from "jotai";
 import { nearbyLocationIdSet, tooltipProp } from "@/utils/gloable";
-import { OpenDirect } from "@/pages/Main/global/jotai";
+import { OpenDirect } from "@/atoms/main/mainAtoms";
 import { useAllAmrDestinations } from "@/sockets/useAMRInfo";
 
 // 單一個點位。props 全部是基本型別或穩定的 callback,所以游標靠近 / 離開時

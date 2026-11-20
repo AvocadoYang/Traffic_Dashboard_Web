@@ -1,7 +1,7 @@
 import React, { memo, useEffect } from "react";
-import { LocationType } from "@/utils/jotai";
+import { LocationType } from "@/types/map/locationTypes";
 import "./form.css"; // Ensure this file is updated (see CSS below)
-import { openNotificationWithIcon } from "../../utils/notification";
+import { openNotificationWithIcon } from "@/utils/notification";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -22,9 +22,9 @@ import { errorHandler } from "@/utils/utils";
 import FormHr from "../../utils/FormHr";
 import { MinusOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
 import useAllAreaTypes from "@/api/useAllAreaTypes";
-import { locationOption } from "../../utils/func";
+import { locationOption } from "@/utils/map/locationOptions";
 import { useAtomValue } from "jotai";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 
 // Adjusted props to be cleaner
 const EditLocationPanel: React.FC<{

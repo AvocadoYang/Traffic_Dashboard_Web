@@ -1,5 +1,5 @@
 import { RefObject, memo, useCallback, useRef, useState } from "react";
-import "../setting.css";
+import "@/pages/SettingV3/setting.css";
 import { Form, FormInstance } from "antd";
 import { useAtom, useAtomValue } from "jotai";
 import {
@@ -20,64 +20,60 @@ import {
   MirStyleLocationPlacerSwitch,
   EditAnnotationSwitch,
 } from "@/utils/siderGloble";
-import MirStyleLocationPlacer from "../formComponent/forms/MirStyleLocationPlacer";
+import MirStyleLocationPlacer from "@/pages/SettingV3/forms/MirStyleLocationPlacer";
 import useMap from "@/api/useMap";
 import Cookies from "js-cookie";
-import TempLocations from "./components/TempResources/TempLocations";
+import TempLocations from "@/components/MapLayers/TempResources/TempLocations";
 import {
   draggableLineInitialPoint,
   MouseLocationForFrame,
-} from "../hooks/hook";
-import {
-  useMousePoint,
-  useDraggableLine,
-  useZoneFrame,
-  useLocationHoverTooltip,
-  useRoadHoverTooltip,
-  useWheelZoom,
-} from "../hooks";
-import { getLocationInfoById } from "@/pages/Setting/utils/utils";
+} from "@/hooks/map/hook";
+import { useDraggableLine } from "../hooks";
+import useMousePoint from "@/hooks/map/useMousePoint";
+import useZoneFrame from "@/hooks/map/useZoneFrame";
+import useLocationHoverTooltip from "@/hooks/map/useLocationHoverTooltip";
+import useRoadHoverTooltip from "@/hooks/map/useRoadHoverTooltip";
+import useWheelZoom from "@/hooks/map/useWheelZoom";
+import { getLocationInfoById } from "@/pages/SettingV3/utils/utils";
 import useVerityVersion from "@/api/useVerityVersion";
-import {
-  MousePoint,
-  AllLocation,
-  MapImage,
-  ZoneIconHint,
-  DragFrame,
-  AllZones,
-  AllAnnotations,
-  LocationHoverCluster,
-} from "./components";
-import { annotationToolAtom } from "./components/AllAnnotations/annotationAtoms";
-import type { FrameColor } from "./components";
-import { LocationType } from "@/utils/jotai";
-import AllRoads from "./components/AllRoads/AllRoads";
-import RoadHoverCluster from "./components/AllRoads/RoadHoverCluster";
-import AllCargo from "./components/AllCargo/AllCargo";
-import ToolTip from "../components/ToolTip";
-import SudoCargo, { SudoBatchCargo } from "./components/AllCargo/SudoCargo";
-import { AllChargeStation } from "./components/AllChargeStation";
-import CargoModal from "./components/AllCargo/CargoModal";
-import AllConveyor from "./components/AllConveyor/AllConveyor";
+import { AllLocation } from "./components";
+import MousePoint from "@/components/MapLayers/Icons/MousePoint";
+import ZoneIconHint from "@/components/MapLayers/Icons/ZoneIconHint";
+import DragFrame from "@/components/MapLayers/Icons/DragFrame";
+import MapImage from "@/components/MapLayers/MapImage";
+import AllZones from "@/components/MapLayers/AllZones/AllZones";
+import AllAnnotations from "@/components/MapLayers/AllAnnotations/AllAnnotations";
+import LocationHoverCluster from "@/components/MapLayers/AllLocation/LocationHoverCluster";
+import { annotationToolAtom } from "@/atoms/map/annotationAtoms";
+import type { FrameColor } from "@/components/MapLayers/Icons/DragFrame";
+import { LocationType } from "@/types/map/locationTypes";
+import AllRoads from "@/components/MapLayers/AllRoads/AllRoads";
+import RoadHoverCluster from "@/components/MapLayers/AllRoads/RoadHoverCluster";
+import AllCargo from "@/components/MapLayers/AllCargo/AllCargo";
+import ToolTip from "@/components/MapLayers/ToolTip";
+import SudoCargo, { SudoBatchCargo } from "@/components/MapLayers/AllCargo/SudoCargo";
+import { AllChargeStation } from "@/components/MapLayers/AllChargeStation/index";
+import CargoModal from "@/components/MapLayers/AllCargo/CargoModal";
+import AllConveyor from "@/components/MapLayers/AllConveyor/AllConveyor";
 import {
   IsEditPeripheralModal,
   IsOpenPeripheralModal,
-} from "../formComponent/forms/peripheralModal/jotai";
-import EditPeripheralModal from "../formComponent/forms/peripheralModal/EditPeripheralModal";
+} from "@/atoms/map/peripheralAtoms";
+import EditPeripheralModal from "@/pages/SettingV3/forms/peripheralModal/EditPeripheralModal";
 import CargoPanel from "@/components/CargoPanel/CargoPanel";
 import { SudoPeripheral } from "../formComponent/forms/other/editPeripheralIcon";
-import AllElevator from "./components/AllElevator/AllElevator";
-import { EBLM, ECSM, EEM, LDM } from "../utils/settingJotai";
-import EditElevatorModal from "./components/AllElevator/EditElevatorModal";
-import EditChargeStationConfigModal from "./components/AllChargeStation/EditChargeStationConfigModal";
-import AllGateWaitPoint from "./components/AllGateWaitPoint/AllGateWaitPoint";
-import AllLiftGate from "./components/AllGate/AllLiftGate";
-import AllStack from "./components/AllStack/AllStack";
-import YfyPackage from "./components/YFYPackage/YfyPackage";
-import EditStackModal from "./components/AllStack/EditStackModal";
-import EditPackageModal from "./components/YFYPackage/EditPackageModal";
-import BlindLocationMissionModal from "../components/BlindLocationMissionModal";
-import LocationDetectModal from "../components/LocationDetectModal";
+import AllElevator from "@/components/MapLayers/AllElevator/AllElevator";
+import { EBLM, ECSM, EEM, LDM } from "@/atoms/map/mapEditModalAtoms";
+import EditElevatorModal from "@/components/MapLayers/AllElevator/EditElevatorModal";
+import EditChargeStationConfigModal from "@/components/MapLayers/AllChargeStation/EditChargeStationConfigModal";
+import AllGateWaitPoint from "@/components/MapLayers/AllGateWaitPoint/AllGateWaitPoint";
+import AllLiftGate from "@/components/MapLayers/AllGate/AllLiftGate";
+import AllStack from "@/components/MapLayers/AllStack/AllStack";
+import YfyPackage from "@/components/MapLayers/YFYPackage/YfyPackage";
+import EditStackModal from "@/components/MapLayers/AllStack/EditStackModal";
+import EditPackageModal from "@/components/MapLayers/YFYPackage/EditPackageModal";
+import BlindLocationMissionModal from "@/components/Setting/BlindLocationMissionModal";
+import LocationDetectModal from "@/components/Setting/LocationDetectModal";
 import useCenterMap from "@/hooks/useCenterMap";
 import useDragPan from "@/pages/Main/components/WebView/hooks/useDragPan";
 

@@ -6,11 +6,11 @@ import {
   QuickMissionOffload,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
-} from "@/pages/Main/global/jotai";
+} from "@/atoms/main/mainAtoms";
 import { CargoPanelTarget } from "@/components/CargoPanel/state";
 import { Package_Info } from "@/types/peripheral";
-import PackageLayer from "@/pages/Setting/mapComponents/components/YFYPackage/PackageLayer";
-import { PackagePortView } from "@/pages/Setting/mapComponents/components/YFYPackage/PackageStrip";
+import PackageLayer from "@/components/MapLayers/YFYPackage/PackageLayer";
+import { PackagePortView } from "@/components/MapLayers/YFYPackage/PackageStrip";
 
 /**
  * 主畫面地圖上的包膜線。

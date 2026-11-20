@@ -8,13 +8,13 @@ import {
 import { useSetAtom } from "jotai";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
-import { OpenAssignMission } from "@/pages/Main/global/jotai";
+import { OpenAssignMission } from "@/atoms/main/mainAtoms";
 import { DialogMission } from "../../missionModal";
-import QuickMissionWebView from "../../missionModal/QuickMissionWebView";
-import CycleMissionV2 from "../../missionModal/CycleMissionV2";
-import CycleMissionViewer from "../../missionModal/CycleMissionViewer";
-import UploadMission from "../../missionModal/UploadMission";
-import FavoriteMissionBar from "./FavoriteMissionBar";
+import QuickMissionWebView from "@/components/Mission/QuickMissionWebView";
+import CycleMissionV2 from "@/components/Mission/CycleMissionV2";
+import CycleMissionViewer from "@/components/Mission/CycleMissionViewer";
+import UploadMission from "@/components/Mission/UploadMission";
+import FavoriteMissionBar from "@/components/Mission/FavoriteMissionBar";
 import { Cycle } from "@/sockets/useCycleMission";
 
 // 小螢幕(平板 / 手機)底部「任務派發」分頁的內容。

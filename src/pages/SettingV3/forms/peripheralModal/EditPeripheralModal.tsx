@@ -1,0 +1,113 @@
+import { FC, useEffect } from "react";
+import { useAtom } from "jotai";
+import { useTranslation } from "react-i18next";
+import { Button, Flex, Form, message, Modal } from "antd";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
+import client from "@/api/axiosClient";
+import { useMutation } from "@tanstack/react-query";
+import Config from "./Config";
+import CargoInfoAtPeripheral from "./CargoInfo";
+import { IsEditPeripheralModal, IsOpenPeripheralModal } from "@/atoms/map/peripheralAtoms";
+import { PeripheralTypes } from "@/types/peripheral";
+import PeripheralIdentity from "@/components/MapLayers/PeripheralIdentity";
+
+const EditPeripheralModal: FC = () => {
+  const [openModal, setOpenModal] = useAtom(IsEditPeripheralModal);
+  const [open, setOpen] = useAtom(IsOpenPeripheralModal);
+  const [formConfig] = Form.useForm();
+  const [formCargo] = Form.useForm();
+  const { t } = useTranslation();
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const updateMutation = useMutation({
+    mutationFn: (data: {
+      stationId: string;
+      forkHeight: number;
+      peripheralType: PeripheralTypes;
+      activeLoad: boolean;
+      activeOffload: boolean;
+      loadMissionId: string;
+      offloadMissionId: string;
+      loadPriority: number;
+      offloadPriority: number;
+    }) => {
+      return client.post(`/api/peripherals/update-config`, data);
+    },
+    onSuccess: () => {
+      messageApi.success(t("utils.success"));
+      setOpenModal(null);
+      setOpen(false);
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
+  useEffect(() => {
+    if (openModal) {
+      formConfig.setFieldsValue({
+        forkHeight: openModal.forkHeight,
+        activeLoad: openModal.activeLoad,
+        activeOffload: openModal.activeOffload,
+        loadMissionId: openModal.loadMissionId,
+        offloadMissionId: openModal.offloadMissionId,
+        loadPriority: openModal.loadPriority,
+        offloadPriority: openModal.offloadPriority,
+      });
+    }
+  }, [openModal, formConfig]);
+
+  const handleCancel = () => {
+    setOpenModal(null);
+    setOpen(false);
+  };
+
+  const handleSubmit = async () => {
+    if (!openModal) {
+      messageApi.warning(t("utils.station_not_found"));
+      return;
+    }
+
+    const values = await formConfig.validateFields();
+    const cargoInfo = await formCargo.validateFields();
+    // console.log(cargoInfo, 'cargo info');
+    updateMutation.mutate({
+      stationId: openModal.stationId,
+      peripheralType: openModal.stationType,
+      ...values,
+      ...cargoInfo,
+    });
+  };
+
+  return (
+    <>
+      {contextHolder}
+      <Modal
+        title={
+          openModal ? (
+            <PeripheralIdentity locationId={openModal.stationId} />
+          ) : null
+        }
+        open={open}
+        onCancel={handleCancel}
+        centered
+        width={1000}
+        footer={
+          <Button
+            type="primary"
+            onClick={handleSubmit}
+            loading={updateMutation.isPending}
+          >
+            {t("utils.save")}
+          </Button>
+        }
+      >
+        <Flex gap={16}>
+          <Config formConfig={formConfig} />
+          <CargoInfoAtPeripheral form={formCargo} />
+        </Flex>
+      </Modal>
+    </>
+  );
+};
+
+export default EditPeripheralModal;

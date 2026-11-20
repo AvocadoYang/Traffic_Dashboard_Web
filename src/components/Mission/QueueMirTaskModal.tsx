@@ -1,0 +1,614 @@
+import {
+  Flex,
+  Form,
+  Input,
+  InputNumber,
+  message,
+  Modal,
+  Select,
+  Spin,
+  Switch,
+} from "antd";
+import { useAtom } from "jotai";
+import React, { useMemo } from "react";
+import { OpenQueueMirTask } from "@/atoms/main/mainAtoms";
+import useAllMirMission from "@/api/useAllMirMission";
+import useMirMissionVariables, {
+  MirMissionVariable,
+} from "@/api/useMirMissionVariables";
+import useLoc from "@/api/useLoc";
+import { useTranslation } from "react-i18next";
+import client from "@/api/axiosClient";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
+import { RocketOutlined, SettingOutlined } from "@ant-design/icons";
+import styled from "styled-components";
+import MirMissionTableSelect from "./MirMissionTableSelect";
+import useName from "@/api/useAmrName";
+
+enum MissionPriority {
+  TRIVIAL,
+  NORMAL,
+  PIVOTAL,
+  CRITICAL,
+}
+
+interface QueueMirTaskFormValues {
+  amrId: string;
+  missionName: string;
+  priority: number;
+  variables?: Record<string, string | number | boolean | null | undefined>;
+}
+
+interface QueueMirTaskPayload {
+  amrId: string;
+  missionName: string;
+  priority: number;
+  variables?: Record<string, string>;
+}
+
+// Industrial Modal Styling with RWD — mirrors DialogMission.tsx so both
+// "dispatch a mission" flows share the exact same look and feel.
+const IndustrialModal = styled(Modal)`
+  .ant-modal-content {
+    background: var(--c-bg);
+    border: 2px solid var(--c-header-border);
+    border-radius: 0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .ant-modal-header {
+    background: var(--c-bg-subtle);
+    border-bottom: 2px solid var(--c-header-border);
+    padding: 12px 16px;
+    position: relative;
+    border-radius: 0;
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--c-header-accent);
+    }
+
+    @media (min-width: 768px) {
+      padding: 16px 24px;
+    }
+  }
+
+  .ant-modal-title {
+    font-family: "Roboto Mono", monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--c-header-accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    @media (min-width: 768px) {
+      font-size: 16px;
+      letter-spacing: 1.5px;
+      gap: 12px;
+    }
+  }
+
+  .ant-modal-body {
+    padding: 16px;
+    background: var(--c-bg);
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+
+    @media (min-width: 768px) {
+      padding: 24px;
+      max-height: none;
+      overflow-y: visible;
+    }
+  }
+
+  .ant-modal-footer {
+    background: var(--c-bg-subtle);
+    border-top: 2px solid var(--c-header-border);
+    padding: 12px 16px;
+    border-radius: 0;
+
+    @media (min-width: 768px) {
+      padding: 16px 24px;
+    }
+  }
+
+  .ant-modal-close {
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+
+    @media (min-width: 768px) {
+      top: 16px;
+      right: 16px;
+    }
+
+    .ant-modal-close-x {
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      font-size: 18px;
+    }
+  }
+
+  @media (max-width: 576px) {
+    max-width: 100vw !important;
+    margin: 0;
+    top: 0;
+    padding: 0;
+
+    .ant-modal-content {
+      border-radius: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ant-modal-body {
+      flex: 1;
+      overflow-y: auto;
+    }
+  }
+`;
+
+const SectionDivider = styled.div`
+  height: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--c-header-border) 0,
+    var(--c-header-border) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+  margin: 16px 0;
+  position: relative;
+
+  @media (min-width: 768px) {
+    margin: 24px 0;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: var(--c-header-accent);
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 2px var(--c-header-border);
+  }
+`;
+
+const FieldLabel = styled.div`
+  color: var(--c-text-secondary);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-family: "Roboto Mono", monospace;
+  font-weight: 600;
+  margin-bottom: 8px;
+
+  @media (min-width: 768px) {
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+`;
+
+const FormSection = styled.div`
+  margin-bottom: 16px;
+
+  @media (min-width: 768px) {
+    margin-bottom: 20px;
+  }
+`;
+
+const IndustrialButton = styled.button`
+  background: var(--c-bg);
+  border: 1px solid var(--c-header-border);
+  color: var(--c-header-accent);
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.8px;
+  height: 36px;
+  font-weight: 600;
+  border-radius: 0;
+  padding: 0 12px;
+  cursor: pointer;
+
+  @media (min-width: 768px) {
+    font-size: 11px;
+    letter-spacing: 1px;
+    height: 40px;
+    padding: 0 16px;
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--c-header-accent-soft);
+    border-color: var(--c-header-accent);
+    color: var(--c-header-accent);
+    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+  }
+
+  &.primary {
+    background: var(--c-header-accent);
+    border-color: var(--c-header-accent);
+    color: #ffffff;
+
+    &:hover:not(:disabled) {
+      background: var(--c-header-accent);
+      border-color: var(--c-header-accent);
+      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
+    }
+  }
+
+  &:disabled {
+    background: var(--c-bg-subtle);
+    border-color: var(--c-header-border);
+    color: var(--c-text-muted);
+    cursor: not-allowed;
+  }
+`;
+
+const StyledSelect = styled(Select)`
+  .ant-select-selector {
+    border-radius: 0 !important;
+    border: 1px solid var(--c-header-border) !important;
+    font-family: "Roboto Mono", monospace;
+    min-height: 36px !important;
+
+    @media (min-width: 768px) {
+      min-height: 40px !important;
+    }
+
+    &:hover {
+      border-color: var(--c-header-accent) !important;
+    }
+  }
+
+  &.ant-select-focused .ant-select-selector {
+    border-color: var(--c-header-accent) !important;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1) !important;
+  }
+`;
+
+const ResponsiveFooter = styled(Flex)`
+  gap: 8px;
+  flex-wrap: wrap;
+
+  @media (min-width: 768px) {
+    gap: 12px;
+    flex-wrap: nowrap;
+  }
+
+  button {
+    flex: 1;
+    min-width: 100px;
+
+    @media (min-width: 768px) {
+      flex: initial;
+    }
+  }
+`;
+
+const VariableHint = styled.div<{ $error?: boolean }>`
+  font-family: "Roboto Mono", monospace;
+  font-size: 12px;
+  color: ${({ $error }) => ($error ? "var(--c-danger)" : "var(--c-text-muted)")};
+`;
+
+const VariableName = styled.span`
+  font-family: "Roboto Mono", monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-text);
+`;
+
+const QueueMirTaskModal = () => {
+  const [open, setOpen] = useAtom(OpenQueueMirTask);
+  const { data, isLoading } = useAllMirMission();
+  const [form] = Form.useForm<QueueMirTaskFormValues>();
+  const [messageApi, contextHolder] = message.useMessage();
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const amrId = Form.useWatch("amrId", form);
+  const missionName = Form.useWatch("missionName", form);
+  const variablesQuery = useMirMissionVariables(amrId, missionName);
+  const variables = variablesQuery.data ?? [];
+  const { data: locs } = useLoc(undefined);
+  const { data: name } = useName();
+
+  const AmrOption: { value: null | string; label: string }[] = useMemo(() => {
+    return (
+      name?.amrs
+        .filter((a) => a.isReal === true)
+        .map((m) => ({
+          label: `${m.amrId} ${m.isReal ? [] : <Tag>{`${t("simulate")}`}</Tag>}`,
+          value: m.amrId,
+        })) || []
+    );
+  }, [name]);
+
+  // bridge 會用 locationId 自己查成 MiR position guid，所以 value 填 locationId
+  const locationOptions = useMemo(
+    () =>
+      (Array.isArray(locs) ? locs : []).map((loc) => ({
+        value: loc.locationId,
+        label: loc.locationId,
+      })),
+    [locs],
+  );
+
+  const renderVariableInput = (variable: MirMissionVariable) => {
+    if (variable.is_location || variable.value_type === "location") {
+      return (
+        <StyledSelect
+          showSearch
+          options={locationOptions}
+          placeholder={t("main.queue_mir_task_modal.select_location")}
+        />
+      );
+    }
+
+    switch (variable.value_type) {
+      case "int":
+        return <InputNumber precision={0} style={{ width: "100%" }} />;
+      case "float":
+        return <InputNumber style={{ width: "100%" }} />;
+      case "bool":
+        return <Switch />;
+      default:
+        return <Input />;
+    }
+  };
+
+  const resetVariables = () => form.setFieldValue("variables", undefined);
+
+  const mutation = useMutation({
+    mutationFn: (payload: QueueMirTaskPayload) =>
+      client.post("api/setting/queue-mir-task", payload),
+    onSuccess: () => {
+      void messageApi.success(t("utils.success"));
+      void queryClient.invalidateQueries({ queryKey: ["all-mir-mission"] });
+      form.resetFields();
+      setOpen(false);
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
+  const submit = async () => {
+    const { variables: rawVariables, ...values } = await form.validateFields();
+    const variableEntries = Object.entries(rawVariables ?? {})
+      .filter(
+        ([, value]) => value !== undefined && value !== null && value !== "",
+      )
+      .map(([name, value]) => [name, String(value)] as const);
+
+    mutation.mutate({
+      ...values,
+      variables: variableEntries.length
+        ? Object.fromEntries(variableEntries)
+        : undefined,
+    });
+  };
+
+  const handleCancel = () => {
+    form.resetFields();
+    setOpen(false);
+  };
+
+  return (
+    <IndustrialModal
+      title={
+        <>
+          <RocketOutlined />
+          {t("main.queue_mir_task_modal.title")}
+        </>
+      }
+      open={open}
+      width={600}
+      style={{ top: 10 }}
+      centered
+      footer={
+        <ResponsiveFooter justify="flex-end">
+          <IndustrialButton onClick={handleCancel}>
+            {t("utils.cancel")}
+          </IndustrialButton>
+          <IndustrialButton
+            className="primary"
+            onClick={submit}
+            disabled={mutation.isPending || variablesQuery.isFetching}
+          >
+            {mutation.isPending ? "DEPLOYING..." : t("utils.submit")}
+          </IndustrialButton>
+        </ResponsiveFooter>
+      }
+      onCancel={handleCancel}
+      destroyOnHidden
+    >
+      {contextHolder}
+      <Form
+        form={form}
+        layout="vertical"
+        size="large"
+        initialValues={{ priority: MissionPriority.NORMAL }}
+      >
+        {/* AMR Selection */}
+        <FormSection>
+          <FieldLabel>
+            <SettingOutlined style={{ marginRight: 6 }} />
+            [01] {t("main.queue_mir_task_modal.amr")}
+          </FieldLabel>
+          <Form.Item
+            name="amrId"
+            style={{ marginBottom: 0 }}
+            rules={[
+              {
+                required: true,
+                message: t("main.queue_mir_task_modal.select_amr_required"),
+              },
+            ]}
+          >
+            <StyledSelect
+              options={AmrOption}
+              loading={isLoading}
+              placeholder={t("main.queue_mir_task_modal.select_amr")}
+              onChange={() => {
+                form.setFieldValue("missionName", undefined);
+                resetVariables();
+              }}
+              onMouseDown={(e) => e.preventDefault()}
+              onPopupScroll={(e) => {
+                e.stopPropagation();
+              }}
+              onOpenChange={(isOpen) => {
+                document.body.style.overflow = isOpen ? "hidden" : "auto";
+              }}
+            />
+          </Form.Item>
+        </FormSection>
+
+        <SectionDivider />
+
+        {/* Mission Selection */}
+        <FormSection>
+          <FieldLabel>
+            <SettingOutlined style={{ marginRight: 6 }} />
+            [02] {t("main.queue_mir_task_modal.mission_name")}
+          </FieldLabel>
+          <Form.Item
+            name="missionName"
+            style={{ marginBottom: 0 }}
+            rules={[
+              {
+                required: true,
+                message: t("main.queue_mir_task_modal.select_mission_required"),
+              },
+            ]}
+          >
+            <MirMissionTableSelect
+              amrId={amrId}
+              value={missionName}
+              onSelect={(name) => {
+                form.setFieldValue("missionName", name);
+                resetVariables();
+                void messageApi.success(
+                  t("main.mission_modal.selected_mission", { name }),
+                );
+              }}
+            />
+          </Form.Item>
+        </FormSection>
+
+        {/* Mission Variables — 在 MiR 介面自己建的任務查不到變數，沒有變數是正常狀態 */}
+        {missionName && (
+          <>
+            <SectionDivider />
+            <FormSection>
+              <FieldLabel>
+                <SettingOutlined style={{ marginRight: 6 }} />
+                [03] {t("main.queue_mir_task_modal.variables")}
+              </FieldLabel>
+              {variablesQuery.isFetching ? (
+                <Spin size="small" />
+              ) : variablesQuery.isError ? (
+                <VariableHint $error>
+                  {t("main.queue_mir_task_modal.query_variables_failed")}
+                </VariableHint>
+              ) : variables.length === 0 ? (
+                <VariableHint>
+                  {t("main.queue_mir_task_modal.no_variables")}
+                </VariableHint>
+              ) : (
+                variables.map((variable) => (
+                  <Form.Item
+                    key={variable.name}
+                    name={["variables", variable.name]}
+                    label={<VariableName>{variable.name}</VariableName>}
+                    valuePropName={
+                      variable.value_type === "bool" ? "checked" : "value"
+                    }
+                    initialValue={
+                      variable.value_type === "bool" ? false : undefined
+                    }
+                    extra={
+                      variable.value_type === "mixed"
+                        ? t("main.queue_mir_task_modal.mixed_type_hint")
+                        : undefined
+                    }
+                    rules={
+                      variable.value_type === "bool"
+                        ? []
+                        : [
+                            {
+                              required: true,
+                              message: t(
+                                "main.queue_mir_task_modal.variable_required",
+                              ),
+                            },
+                          ]
+                    }
+                  >
+                    {renderVariableInput(variable)}
+                  </Form.Item>
+                ))
+              )}
+            </FormSection>
+          </>
+        )}
+
+        <SectionDivider />
+
+        {/* Priority */}
+        <FormSection>
+          <FieldLabel>
+            <SettingOutlined style={{ marginRight: 6 }} />
+            [04] {t("main.queue_mir_task_modal.priority")}
+          </FieldLabel>
+          <Form.Item name="priority" style={{ marginBottom: 0 }}>
+            <StyledSelect
+              options={[
+                {
+                  value: MissionPriority.TRIVIAL,
+                  label: t(
+                    "main.mission_modal.dialog_mission.priority.TRIVIAL",
+                  ),
+                },
+                {
+                  value: MissionPriority.NORMAL,
+                  label: t("main.mission_modal.dialog_mission.priority.NORMAL"),
+                },
+                {
+                  value: MissionPriority.PIVOTAL,
+                  label: t(
+                    "main.mission_modal.dialog_mission.priority.PIVOTAL",
+                  ),
+                },
+                {
+                  value: MissionPriority.CRITICAL,
+                  label: t(
+                    "main.mission_modal.dialog_mission.priority.CRITICAL",
+                  ),
+                },
+              ]}
+            />
+          </Form.Item>
+        </FormSection>
+      </Form>
+    </IndustrialModal>
+  );
+};
+
+export default QueueMirTaskModal;

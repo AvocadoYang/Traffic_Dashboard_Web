@@ -1,4 +1,4 @@
-import { Open2DMap } from "@/pages/Main/global/jotai";
+import { Open2DMap } from "@/atoms/main/mainAtoms";
 import { Button, Space } from "antd";
 import { useSetAtom } from "jotai";
 import {

@@ -4,10 +4,10 @@ import styled from "styled-components";
 import { Button, Tooltip } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { SoundsTable } from "./SoundsTable";
-import { CreateSoundModal } from "./CreateSoundModal";
+import { CreateSoundModal } from "@/pages/SettingV3/forms/missionComponents/mir/sound/CreateSoundModal";
 
 import type { SoundRow } from "../../../../../../../api/useSound";
-import { EditSoundModal } from "./EditSoundModal";
+import { EditSoundModal } from "@/pages/SettingV3/forms/missionComponents/mir/sound/EditSoundModal";
 import { useTranslation } from "react-i18next";
 
 const IndustrialContainer = styled.div`

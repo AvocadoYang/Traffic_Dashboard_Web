@@ -51,7 +51,7 @@ import {
   isShowEditMirMission,
 } from "@/utils/siderGloble";
 import { useAtomValue } from "jotai";
-import { ToolBarItemType, ToolBarType } from "./siderElement";
+import { ToolBarItemType, ToolBarType } from "@/components/Setting/siderElement";
 import { useSortable } from "@dnd-kit/sortable";
 import cardStyle from "../utils/cardStyle";
 import { ShelfPanel } from "../formComponent/forms/shelfComponents/editShelf";

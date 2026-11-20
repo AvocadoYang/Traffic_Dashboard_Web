@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Form, FormProps, Input, InputNumber, message, Radio } from "antd";
 import { FC } from "react";
 import { useTranslation } from "react-i18next";
-import SubmitButton from "@/utils/SubmitButton";
+import SubmitButton from "@/components/SubmitButton";
 import useWarningTable from "@/api/useWarningTable";
 interface FieldType {
   id: number;

@@ -34,11 +34,11 @@ import styled from "styled-components";
 import client from "@/api/axiosClient";
 import useTaskFork from "../../../../../../api/useTaskFork";
 import ImportMissionForm from "./ImportMissionForm";
-import CarControlTranslate from "./CarControlTranslate";
-import { Fork_mission_Slice } from "./mission";
+import CarControlTranslate from "@/pages/SettingV3/forms/missionComponents/editMission/CarControlTranslate";
+import { Fork_mission_Slice } from "@/types/missionForm";
 import { Err } from "@/utils/responseErr";
 import { useAtomValue } from "jotai";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   "data-row-key": string;

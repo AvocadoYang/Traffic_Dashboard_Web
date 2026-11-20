@@ -5,14 +5,14 @@ import {
   levelOption,
   selectLocationOption,
   waitRobotOption,
-} from "../params";
+} from "@/utils/mission/forkParams";
 import {
   Action_Type,
   Select_Active_Robot_Type,
   Select_Fork_Height_Type,
   Select_Location_Type,
   Select_Robot_Wait_Type,
-} from "../types";
+} from "@/types/forkAction";
 import useMap from "@/api/useMap";
 import useName from "@/api/useAmrName";
 import { useMemo } from "react";

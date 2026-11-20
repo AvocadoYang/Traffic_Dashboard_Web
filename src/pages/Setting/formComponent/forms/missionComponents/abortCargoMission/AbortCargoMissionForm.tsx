@@ -2,7 +2,7 @@ import client from "@/api/axiosClient";
 import useName from "@/api/useAmrName";
 import useAllMissionTitles from "@/api/useMissionTitle";
 import { ErrorResponse } from "@/utils/globalType";
-import SubmitButton from "@/utils/SubmitButton";
+import SubmitButton from "@/components/SubmitButton";
 import { errorHandler } from "@/utils/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Form, message, Select } from "antd";

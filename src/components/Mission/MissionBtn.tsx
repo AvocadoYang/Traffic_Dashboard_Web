@@ -1,0 +1,163 @@
+import {
+  ThunderboltOutlined,
+  CalendarOutlined,
+  UploadOutlined,
+  SyncOutlined,
+  RocketOutlined,
+  StarOutlined,
+} from "@ant-design/icons";
+import { Button, Dropdown, Flex, Modal } from "antd";
+import { useNavigate } from "react-router-dom";
+import { useFavoriteMissions } from "./FavoriteMissionBar";
+import { useTranslation } from "react-i18next";
+import DialogMission from "./DialogMission";
+import { memo, useState } from "react";
+import { OpenAssignMission, OpenQueueMirTask } from "@/atoms/main/mainAtoms";
+import { useSetAtom } from "jotai";
+import QuickMissionWebView from "./QuickMissionWebView";
+import styled from "styled-components";
+import UploadMission from "./UploadMission";
+import CycleMissionV2 from "./CycleMissionV2";
+import CycleMissionViewer from "./CycleMissionViewer";
+import QueueMirTaskModal from "./QueueMirTaskModal";
+import { Cycle, Cycle_Mission } from "@/sockets/useCycleMission";
+import { headerNavItemBase } from "@/styles/headerNavItemStyle";
+import useConfigFlags from "@/api/useConfigFlags";
+
+// 跟 Header 上「切換頁面」的導覽按鈕共用同一份樣式,讓這排任務派發按鈕
+// 看起來就是導覽列的一部分,不是另一種風格的工具列。
+const NavStyleButton = styled(Button)`
+  ${headerNavItemBase}
+`;
+
+const ButtonGroup = styled(Flex)`
+  gap: 4px;
+`;
+
+const MissionBtn = () => {
+  const { t } = useTranslation();
+  const { data: configFlags } = useConfigFlags();
+  const hasMir = configFlags?.hasMir ?? true;
+  const openAssignMission = useSetAtom(OpenAssignMission);
+  const openQueueMirTask = useSetAtom(OpenQueueMirTask);
+  const [showQuickMission, setShowQuickMission] = useState(false);
+  const [showUploadMission, setShowUploadMission] = useState(false);
+  const [showCycleMission, setShowCycleMission] = useState(false);
+  const [showEditCycleMission, setShowEditCycleMission] = useState(false);
+  const [editCyc, setEditCyc] = useState<null | Cycle>(null);
+  // 常用任務 (個人設定 > 常用任務)
+  const navigate = useNavigate();
+  const { favorites, run, busy, contextHolder } = useFavoriteMissions();
+  const [modal, modalHolder] = Modal.useModal();
+
+  return (
+    <>
+      {contextHolder}
+      {modalHolder}
+      <ButtonGroup align="center">
+        <NavStyleButton
+          onClick={() => {
+            setShowUploadMission(!showUploadMission);
+          }}
+          icon={<UploadOutlined />}
+        >
+          {t("main.card_name.upload_mission")}
+        </NavStyleButton>
+
+        <NavStyleButton
+          onClick={() => {
+            setShowCycleMission(!showCycleMission);
+          }}
+          icon={<SyncOutlined />}
+        >
+          {t("main.card_name.cycle_mission")}
+        </NavStyleButton>
+
+        <NavStyleButton
+          onClick={() => {
+            setShowQuickMission(!showQuickMission);
+          }}
+          icon={<ThunderboltOutlined />}
+        >
+          {t("main.card_name.quick_mission")}
+        </NavStyleButton>
+
+        <NavStyleButton
+          onClick={() => {
+            openAssignMission(true);
+          }}
+          icon={<CalendarOutlined />}
+        >
+          {t("main.card_name.new_mission")}
+        </NavStyleButton>
+
+        {favorites.length > 0 && (
+          <Dropdown
+            trigger={["click"]}
+            menu={{
+              items: [
+                ...favorites.map(({ fav, name, title }) => ({
+                  key: fav.id,
+                  label: name,
+                  title,
+                  disabled: busy === fav.id,
+                })),
+                { type: "divider" as const },
+                { key: "__manage", label: t("profile.favorites.manage") },
+              ],
+              onClick: ({ key }) => {
+                if (key === "__manage") {
+                  navigate("/profile?tab=favorites");
+                  return;
+                }
+                const item = favorites.find((x) => x.fav.id === key);
+                if (!item) return;
+                modal.confirm({
+                  title: t("profile.favorites.confirm", { name: item.name }),
+                  content: item.fav.amrId ? `${t("utils.amr_id")}: ${item.fav.amrId}` : t("utils.random"),
+                  onOk: () => run(item.fav),
+                });
+              },
+            }}
+          >
+            <NavStyleButton icon={<StarOutlined />}>{t("profile.tab.favorites")}</NavStyleButton>
+          </Dropdown>
+        )}
+
+        {/* <NavStyleButton
+          onClick={() => {
+            openQueueMirTask(true);
+          }}
+          icon={<RocketOutlined />}
+        >
+          {t("main.card_name.queue_mir_task")}
+        </NavStyleButton> */}
+      </ButtonGroup>
+
+      <DialogMission />
+      <QuickMissionWebView
+        showQuickMission={showQuickMission}
+        setShowQuickMission={setShowQuickMission}
+      />
+      <UploadMission
+        open={showUploadMission}
+        setShowUploadMission={setShowUploadMission}
+      />
+      <CycleMissionV2
+        open={showEditCycleMission}
+        setShowCycleMission={setShowEditCycleMission}
+        editCyc={editCyc}
+        setEditCyc={setEditCyc}
+      />
+      <CycleMissionViewer
+        open={showCycleMission}
+        setShowCycleMission={setShowCycleMission}
+        setShowEditCycleMission={setShowEditCycleMission}
+        setEditCyc={setEditCyc}
+      />
+      <QueueMirTaskModal />
+    </>
+  );
+};
+
+export default memo(MissionBtn);

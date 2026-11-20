@@ -14,11 +14,11 @@ import {
 import { InfoCircleOutlined } from "@ant-design/icons";
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MissionListType } from "./mission";
+import { MissionListType } from "@/types/missionForm";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { useAtomValue } from "jotai";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 
 const MissionForm: FC<{
   openMissionModel: boolean;

@@ -41,7 +41,7 @@ import { nanoid } from "nanoid";
 import styled from "styled-components";
 import client from "@/api/axiosClient";
 import { useAtomValue } from "jotai";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import useTaskMir from "@/api/useTaskMir";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
@@ -52,7 +52,7 @@ import {
   mirMoveActonList,
   mirSaftySystemList,
   mirSoundLight,
-} from "./type";
+} from "@/types/mirAction";
 import {
   MirBlockedDockingTimeoutInputInput,
   MirBlockedPathTimeoutInputInput,
@@ -90,14 +90,14 @@ import {
 import {
   MirVariableProvider,
   useMirVariableFields,
-} from "./MirVariableContext";
+} from "@/pages/SettingV3/forms/missionComponents/mir/mirEditMissionSlice/MirVariableContext";
 import {
   MIR_ACTION_FIELDS,
   MIR_DEFAULT_SOUND,
   buildMirOperationFields,
   isCurrentPositionOperation,
-} from "./mirActionFields";
-import { useMirDockingMarkerType } from "./useMirTaskOptions";
+} from "@/pages/SettingV3/forms/missionComponents/mir/mirEditMissionSlice/mirActionFields";
+import { useMirDockingMarkerType } from "@/hooks/mission/useMirTaskOptions";
 import { useTranslation } from "react-i18next";
 
 dayjs.extend(customParseFormat);
