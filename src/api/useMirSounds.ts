@@ -37,6 +37,7 @@ const useMirSounds = (amrId?: string, enabled = true) => {
     enabled: !!amrId && enabled,
     retry: false,
     staleTime: 0,
+    keepPreviousData: true,
   });
 };
 
