@@ -247,7 +247,11 @@ type RecordPanelProps<T> = {
   title: string;
   columns: ColumnsType<T>;
   // 分頁查詢的 hook(useWarningHistory 那一類),由面板帶入目前頁碼
-  useHistory: (page: number, pageSize: number) => HistoryResult<T>;
+  useHistory: (
+    page: number,
+    pageSize: number,
+    range?: { start?: string; end?: string },
+  ) => HistoryResult<T>;
   deleteUrl: string;
   exportUrl: string;
   // 匯出檔名的前綴,後面會接上日期區間
@@ -270,7 +274,18 @@ const RecordPanel = <T extends { id: string }>({
   const [pageSize, setPageSize] = useState(20);
   const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
   const [messageApi, contextHolder] = message.useMessage();
-  const { data, isLoading, refetch } = useHistory(currentPage, pageSize);
+  // 選了時間區間就同時篩選列表跟匯出,精度到分鐘(起點取該分鐘 00 秒、終點取 59 秒)
+  const range = dateRange
+    ? {
+        start: dateRange[0].startOf("minute").toISOString(),
+        end: dateRange[1].endOf("minute").toISOString(),
+      }
+    : undefined;
+  const { data, isLoading, refetch } = useHistory(
+    currentPage,
+    pageSize,
+    range,
+  );
 
   const deleteMutation = useMutation({
     mutationFn: () => client.post(deleteUrl),
@@ -289,8 +304,8 @@ const RecordPanel = <T extends { id: string }>({
       const [start, end] = dateRange;
       const res = await client.get(exportUrl, {
         params: {
-          start: start.startOf("day").toISOString(),
-          end: end.endOf("day").toISOString(),
+          start: start.startOf("minute").toISOString(),
+          end: end.endOf("minute").toISOString(),
         },
         responseType: "blob",
       });
@@ -301,8 +316,8 @@ const RecordPanel = <T extends { id: string }>({
       const link = document.createElement("a");
       const [start, end] = dateRange!;
       link.href = url;
-      link.download = `${exportFileName}_${start.format("YYYYMMDD")}_${end.format(
-        "YYYYMMDD",
+      link.download = `${exportFileName}_${start.format("YYYYMMDD_HHmm")}_${end.format(
+        "YYYYMMDD_HHmm",
       )}.xlsx`;
       document.body.appendChild(link);
       link.click();
@@ -339,7 +354,12 @@ const RecordPanel = <T extends { id: string }>({
         <Toolbar>
           <RangePicker
             value={dateRange}
-            onChange={(val) => setDateRange(val as [Dayjs, Dayjs] | null)}
+            showTime={{ format: "HH:mm" }}
+            format="YYYY-MM-DD HH:mm"
+            onChange={(val) => {
+              setDateRange(val as [Dayjs, Dayjs] | null);
+              setCurrentPage(1);
+            }}
             allowClear
           />
           <ToolbarButtons>
