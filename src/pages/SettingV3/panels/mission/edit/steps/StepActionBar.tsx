@@ -17,8 +17,9 @@ type Props = {
   /** 窄螢幕的卡片上要帶文字,表格裡只放圖示靠 tooltip 說明 */
   withText: boolean;
   busy: boolean;
-  onEdit: () => void;
-  onToggleDisable: () => void;
+  /** 沒給就不顯示(引用其他任務的項目不能編輯 / 停用) */
+  onEdit?: () => void;
+  onToggleDisable?: () => void;
   onDelete: () => void;
   /** 沒給就不顯示複製鈕 */
   onCopy?: () => void;
@@ -44,28 +45,32 @@ const StepActionBar: FC<Props> = ({
 
   return (
     <IconBar>
-      <Tooltip title={tip(t("utils.edit"))}>
-        <IconButton type="button" onClick={onEdit}>
-          <EditOutlined />
-          {withText && t("utils.edit")}
-        </IconButton>
-      </Tooltip>
+      {onEdit ? (
+        <Tooltip title={tip(t("utils.edit"))}>
+          <IconButton type="button" onClick={onEdit}>
+            <EditOutlined />
+            {withText && t("utils.edit")}
+          </IconButton>
+        </Tooltip>
+      ) : null}
 
-      <Tooltip
-        title={
-          disabled
-            ? t("mission.task_table.in_use")
-            : t("mission.task_table.stop_this_process")
-        }
-      >
-        <IconButton type="button" disabled={busy} onClick={onToggleDisable}>
-          {disabled ? <EyeInvisibleOutlined /> : <EyeOutlined />}
-          {withText &&
-            (disabled
-              ? t("mission.task_table.active")
-              : t("mission.task_table.inactive"))}
-        </IconButton>
-      </Tooltip>
+      {onToggleDisable ? (
+        <Tooltip
+          title={
+            disabled
+              ? t("mission.task_table.in_use")
+              : t("mission.task_table.stop_this_process")
+          }
+        >
+          <IconButton type="button" disabled={busy} onClick={onToggleDisable}>
+            {disabled ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+            {withText &&
+              (disabled
+                ? t("mission.task_table.active")
+                : t("mission.task_table.inactive"))}
+          </IconButton>
+        </Tooltip>
+      ) : null}
 
       {onCopy ? (
         <Tooltip title={tip(t("utils.copy"))}>
