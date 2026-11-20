@@ -1,5 +1,5 @@
 import useMap from "@/api/useMap";
-import SubmitButton from "@/utils/SubmitButton";
+import SubmitButton from "@/components/SubmitButton";
 import { Button, Form, InputNumber, message, Modal, Select } from "antd";
 import { Dispatch, FC, SetStateAction, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";

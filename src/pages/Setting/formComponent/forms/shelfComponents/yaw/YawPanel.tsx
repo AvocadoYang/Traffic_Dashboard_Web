@@ -10,7 +10,7 @@ import YawTable from "./YawTable";
 import YawForm from "./YawForm";
 import FormHr from "../../../../utils/FormHr";
 import { PlusOutlined } from "@ant-design/icons";
-import SubmitButton from "@/utils/SubmitButton";
+import SubmitButton from "@/components/SubmitButton";
 type FieldType = {
   yaw?: string;
 };

@@ -15,7 +15,7 @@ import { useAmrBBox } from "@/sockets/useBBox";
 import BBox from "./amrs/BBox";
 import useAmrMissionTip from "@/hooks/useAmrMissionTip";
 import { useMiRStatus } from "@/sockets/useMirStatus";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 
 const Tip = styled.div.attrs<{
   left: number;
@@ -148,15 +148,14 @@ const AMR: FC<{
 
   const { tipText, destinationText } = useAmrMissionTip(amrId);
 
+  // 任務中不自動跳黑框 (太擋地圖), 只有指到/篩選/禁區時才顯示
   const showTooltip = useMemo(() => {
     return (
       hintAmrId2.has(amrId) ||
       hintAmrId === amrId ||
-      zoneForbidden.has(amrId) ||
-      !!tipText ||
-      !!destinationText
+      zoneForbidden.has(amrId)
     );
-  }, [hintAmrId2, hintAmrId, zoneForbidden, tipText, destinationText]);
+  }, [hintAmrId2, hintAmrId, zoneForbidden, amrId]);
 
   const { pose } = useAmrPose(amrId);
   const bbox = useAmrBBox(amrId);

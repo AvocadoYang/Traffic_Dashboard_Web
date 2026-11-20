@@ -45,7 +45,7 @@ import {
   isShowAllMirMission,
   isShowEditMirMission,
 } from "@/utils/siderGloble";
-import { ToolBarItemType } from "../components/siderElement";
+import { ToolBarItemType } from "@/components/Setting/siderElement";
 
 const FormCloseBtn: FC<{ sortableId: string; panelName: ToolBarItemType }> = ({
   panelName,

@@ -26,8 +26,7 @@ import {
   transformToNumber,
   zoneTagResetFields,
 } from "./zoneTagSetting";
-import { openNotificationWithIcon } from "../../utils/notification";
-import { TagSettingType, ZoneType } from "@/utils/jotai";
+import { openNotificationWithIcon } from "@/utils/notification";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
@@ -36,10 +35,34 @@ import useActiveGroupResources from "@/api/useActiveGroupResources";
 import useAmrName from "@/api/useAmrName";
 import useLoc, { LocWithoutArr } from "@/api/useLoc";
 import { useAtomValue, useSetAtom } from "jotai";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import { initialZoneRectInfo, zoneRectInfo } from "@/utils/gloable";
 
 type TagRender = SelectProps["tagRender"];
+
+type ZoneType = {
+  name?: string;
+  /** antd ColorPicker 給的 Color; 存檔時直接讀它的 metaColor (r/g/b) */
+  color?: { metaColor: { r: number; g: number; b: number } };
+  category?: string[];
+  layer: string;
+  lidar_back: boolean;
+  lidar_front: boolean;
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+};
+
+type TagSettingType = {
+  speed_limit: number;
+  forbidden: string[];
+  all_forbidden: boolean;
+  hight_limit: number;
+  limitNum: number;
+  view_available: string;
+  elevator_id: string;
+};
 
 type ZoneFormValue = ZoneType & Partial<TagSettingType>;
 

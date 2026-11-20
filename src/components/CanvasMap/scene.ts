@@ -1,9 +1,9 @@
 import type { MapType } from "@/api/useMap";
-import { isMirAreaType } from "@/pages/Setting/mapComponents/components/AllLocation/components/MirAreaTypeMarker";
+import { isMirAreaType } from "@/utils/map/areaTypes";
 import {
   isPointAreaType,
   isStandbyAreaType,
-} from "@/pages/Setting/mapComponents/components/AllLocation/pointAreaTypes";
+} from "@/utils/map/areaTypes";
 
 /**
  * 地圖上不常變的東西 (點位、路線、區域、標註), 換成底圖像素先算好。

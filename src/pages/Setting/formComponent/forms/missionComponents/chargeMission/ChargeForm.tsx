@@ -6,7 +6,7 @@ import { array, boolean, number, object, string } from "yup";
 import client from "@/api/axiosClient";
 import useAllMissionTitles from "@/api/useMissionTitle";
 import useName from "@/api/useAmrName";
-import GlobalLoading from "@/utils/GlobalLoading";
+import GlobalLoading from "@/components/GlobalLoading";
 import styled from "styled-components";
 
 // Industrial Styled Components

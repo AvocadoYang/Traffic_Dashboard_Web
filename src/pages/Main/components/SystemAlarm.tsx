@@ -25,7 +25,7 @@ import {
   systemAlarmPosition,
   systemAlarmPreviewTick,
   systemAlarmTypeFilter,
-} from "@/utils/systemAlarmFilter";
+} from "@/atoms/alarm/systemAlarmFilter";
 
 // 同時最多疊幾張卡。超過就把最舊的擠掉,避免一串警報把整個畫面洗成瀑布。
 const MAX_VISIBLE = 4;

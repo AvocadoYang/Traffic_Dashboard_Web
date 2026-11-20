@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import client from "./axiosClient";
-import { Mir_Action } from "@/pages/Setting/formComponent/forms/missionComponents/mir/mirEditMissionSlice/type";
+import { Mir_Action } from "@/types/mirAction";
 
 const getRelateTaskOne = async (key: string) => {
   const { data } = await client.post<unknown>(

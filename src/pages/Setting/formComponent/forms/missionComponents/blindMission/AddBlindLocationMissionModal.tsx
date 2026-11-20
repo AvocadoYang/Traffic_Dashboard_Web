@@ -8,7 +8,7 @@ import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import useBlindMission from "@/api/useBlindMission";
-import MissionTableSelect from "@/pages/Main/components/missionModal/MissionTableSelect";
+import MissionTableSelect from "@/components/Mission/MissionTableSelect";
 
 const IndustrialCard = styled.div`
   background: #ffffff;

@@ -8,6 +8,7 @@
  */
 import { amrId2ColorRainbow, amrShortNum, getAmrColorVersion, textOnColor } from "@/utils/utils";
 import type { PaletteColors } from "@/theme";
+import { toOpaque } from "@/utils/color";
 import type { MapScene, SceneAnnotation } from "./scene";
 import type { RouteHighlight } from "./routeHighlight";
 import type { LiveState } from "./liveStore";
@@ -61,13 +62,6 @@ export const amrColor = (amrId: string) => {
     colorCache.set(amrId, c);
   }
   return c;
-};
-
-const toOpaque = (color: string) => {
-  const rgb = color.match(/rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)/i);
-  if (!rgb) return color;
-  const [, r, g, b] = rgb;
-  return `rgb(${r}, ${g}, ${b})`;
 };
 
 /** 地圖上的字: 深色底圖用淺色字, 淺色底圖用深色字 (舊地圖的 FrameName 也是這樣補的) */
@@ -994,7 +988,8 @@ function drawPlate(f: Frame, v: Visible, o: LiveOptions) {
 function drawTip(f: Frame, v: Visible, live: LiveState, o: LiveOptions) {
   const { tipText, dest } = amrTip(live, v.id);
   const forbidden = o.forbiddenIds.has(v.id);
-  const show = o.filterIds.has(v.id) || o.hintId === v.id || forbidden || !!tipText || !!dest;
+  // 任務中不自動跳黑框 (太擋地圖), 只有指到/篩選/禁區時才顯示
+  const show = o.filterIds.has(v.id) || o.hintId === v.id || forbidden;
   const { ctx } = f;
   if (!show) {
     drawPlate(f, v, o);

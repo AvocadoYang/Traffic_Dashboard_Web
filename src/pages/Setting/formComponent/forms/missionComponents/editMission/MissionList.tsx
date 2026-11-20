@@ -14,7 +14,7 @@ import HumanRobotTaskTable from "./HumanRobotTaskTable";
 import TaskFormHumanRobot from "./humanRobotEditMissionSlice/TaskFormHumanRobot";
 import TaskFormFork from "./forkEditMissionSlice/TaskFormFork";
 import { useAtomValue } from "jotai";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import MirTaskTable from "../mir/mirEditMissionSlice/MirTaskTable";
 import TaskFormMir from "../mir/mirEditMissionSlice/TaskFormMir";
 import EditMirMissionPanel from "../mir/mirEditMissionSlice/EditMirMissionPanel";

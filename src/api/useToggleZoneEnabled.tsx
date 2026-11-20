@@ -7,7 +7,7 @@ import client from "./axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import { amrId2ColorRainbow } from "@/utils/utils";
-import { c, font, space } from "@/pages/SettingV2/ui/tokens";
+import { c, font, space } from "@/theme/tokens";
 
 type Violations = {
   forbidden: string[];

@@ -46,7 +46,7 @@ import { useSystemState } from "@/sockets/useSystemState";
 import { useSetAtom } from "jotai";
 import { usePermission } from "@/utils/permissions";
 import { amrId2ColorRainbow, amrShortNum, textOnColor } from "@/utils/utils";
-import { JoystickAmrId } from "../../global/jotai";
+import { JoystickAmrId } from "@/atoms/main/mainAtoms";
 import MapSwitchModal from "./MapSwitchModal";
 import { MaintenanceBadge } from "./MaintenancePanel";
 import { mq } from "@/styles/responsive";

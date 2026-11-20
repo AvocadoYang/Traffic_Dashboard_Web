@@ -4,7 +4,7 @@ import {
   QuickMissionOffload,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
-} from "@/pages/Main/global/jotai";
+} from "@/atoms/main/mainAtoms";
 import { CargoPanelTarget } from "@/components/CargoPanel/state";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { FC } from "react";

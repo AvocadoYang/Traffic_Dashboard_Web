@@ -22,7 +22,7 @@ import {
   DoubleRightOutlined,
   DeleteFilled,
 } from "@ant-design/icons";
-import { FootprintEditor, type FootprintRecord } from "./FootprintEditor";
+import { FootprintEditor, type FootprintRecord } from "@/pages/SettingV3/forms/missionComponents/mir/footprinter/FootprintEditor";
 import { useFootprint } from "@/api/useFootprint";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";

@@ -8,7 +8,7 @@ import {
   QuickMissionOffload,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
-} from "@/pages/Main/global/jotai";
+} from "@/atoms/main/mainAtoms";
 import { CargoPanelTarget } from "@/components/CargoPanel/state";
 
 const ConveyorContainer = styled.div`

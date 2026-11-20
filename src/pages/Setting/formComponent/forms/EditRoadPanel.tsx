@@ -22,7 +22,7 @@ import { Road } from "./road";
 import client from "@/api/axiosClient";
 import FormHr from "../../utils/FormHr";
 import { useAtomValue, useSetAtom } from "jotai";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import { DragLineInfo, showBlockId as ShowBlockId } from "@/utils/gloable";
 
 const EditRoadPanel: React.FC<{

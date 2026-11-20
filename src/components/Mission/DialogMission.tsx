@@ -1,0 +1,706 @@
+import { Button, Flex, Form, Input, message, Modal, Radio, Select } from "antd";
+import { useAtom } from "jotai";
+import { useTranslation } from "react-i18next";
+import { OpenAssignMission } from "@/atoms/main/mainAtoms";
+import useAllMissionTitles from "@/api/useMissionTitle";
+import useTaskMir from "@/api/useTaskMir";
+import useMirTaskOptions from "@/hooks/mission/useMirTaskOptions";
+import { useEffect, useMemo, useState } from "react";
+import useName from "@/api/useAmrName";
+import { useMutation } from "@tanstack/react-query";
+import client from "@/api/axiosClient";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
+import {
+  ReloadOutlined,
+  RocketOutlined,
+  SettingOutlined,
+} from "@ant-design/icons";
+import styled from "styled-components";
+import MissionTableSelect from "@/components/Mission/MissionTableSelect";
+
+enum MissionPriority {
+  TRIVIAL,
+  NORMAL,
+  PIVOTAL,
+  CRITICAL,
+}
+
+type MissionFrom = {
+  amrId: string | null;
+  titleId: string;
+  priority: MissionPriority;
+  variableValues?: Record<string, string>;
+};
+
+// 座標類變數先帶 0，使用者不用每次都手打
+const COORDINATE_VARIABLES = ["x", "y", "z"];
+
+const isCoordinateVariable = (name: string) =>
+  COORDINATE_VARIABLES.includes(name.toLowerCase());
+
+// gRPC 那邊是 map<string, string>，什麼字串都收，只能在這裡擋。
+// 不用 Number() 判斷：它會放過 "0x10"、"1e3"、" 3 " 這種 MiR 不一定吃的寫法，
+// 字串會原樣送出去，所以只收一般的十進位數字。
+const NUMERIC_STRING = /^-?(\d+(\.\d*)?|\.\d+)$/;
+const isNumericString = (value: string | undefined) =>
+  !!value && NUMERIC_STRING.test(value);
+
+// 值其實是 MiR 內部 GUID 的欄位名稱 -> 派發時要用哪種下拉選。
+// location_id/entry_position 存的是 QAMS 這邊的 location_id,要在 bridge
+// 那邊另外查表轉成 MiR marker GUID;footprint/marker_type/sound 這幾個欄位
+// 本身存的就已經是 MiR 的原始 GUID(直接來自 useMirTaskOptions 對應的
+// option value),不需要另外轉換,只是派發時一樣要用下拉選,不能讓使用者
+// 自己手打 GUID。其餘欄位(逾時、距離、速度等)MiR 原生介面也只是純文字/
+// 數字輸入,維持 Input 就好。
+type VariableFieldKind = "location" | "footprint" | "marker_type" | "sound";
+const VARIABLE_FIELD_KIND: Record<string, VariableFieldKind> = {
+  location_id: "location",
+  entry_position: "location",
+  footprint: "footprint",
+  marker_type: "marker_type",
+  sound: "sound",
+};
+
+// Industrial Modal Styling with RWD
+const IndustrialModal = styled(Modal)`
+  .ant-modal-content {
+    background: var(--c-bg);
+    border: 2px solid var(--c-header-border);
+    border-radius: 0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .ant-modal-header {
+    background: var(--c-bg-subtle);
+    border-bottom: 2px solid var(--c-header-border);
+    padding: 12px 16px;
+    position: relative;
+    border-radius: 0;
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--c-header-accent);
+    }
+
+    @media (min-width: 768px) {
+      padding: 16px 24px;
+    }
+  }
+
+  .ant-modal-title {
+    font-family: "Roboto Mono", monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--c-header-accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    @media (min-width: 768px) {
+      font-size: 16px;
+      letter-spacing: 1.5px;
+      gap: 12px;
+    }
+  }
+
+  .ant-modal-body {
+    padding: 16px;
+    background: var(--c-bg);
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+
+    @media (min-width: 768px) {
+      padding: 24px;
+      max-height: none;
+      overflow-y: visible;
+    }
+  }
+
+  .ant-modal-footer {
+    background: var(--c-bg-subtle);
+    border-top: 2px solid var(--c-header-border);
+    padding: 12px 16px;
+    border-radius: 0;
+
+    @media (min-width: 768px) {
+      padding: 16px 24px;
+    }
+  }
+
+  .ant-modal-close {
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+
+    @media (min-width: 768px) {
+      top: 16px;
+      right: 16px;
+    }
+
+    .ant-modal-close-x {
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      font-size: 18px;
+    }
+  }
+
+  /* Mobile: Full screen on very small devices */
+  @media (max-width: 576px) {
+    max-width: 100vw !important;
+    margin: 0;
+    top: 0;
+    padding: 0;
+
+    .ant-modal-content {
+      border-radius: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ant-modal-body {
+      flex: 1;
+      overflow-y: auto;
+    }
+  }
+`;
+
+const SectionDivider = styled.div`
+  height: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--c-header-border) 0,
+    var(--c-header-border) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+  margin: 16px 0;
+  position: relative;
+
+  @media (min-width: 768px) {
+    margin: 24px 0;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: var(--c-header-accent);
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 2px var(--c-header-border);
+  }
+`;
+
+const FieldLabel = styled.div`
+  color: var(--c-text-secondary);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-family: "Roboto Mono", monospace;
+  font-weight: 600;
+  margin-bottom: 8px;
+
+  @media (min-width: 768px) {
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+`;
+
+const FormSection = styled.div`
+  margin-bottom: 16px;
+
+  @media (min-width: 768px) {
+    margin-bottom: 20px;
+  }
+`;
+
+const PriorityRadioGroup = styled(Radio.Group)`
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+
+  @media (min-width: 768px) {
+    gap: 8px;
+  }
+
+  .ant-radio-button-wrapper {
+    height: 38px;
+    line-height: 36px;
+    border: 1px solid var(--c-header-border);
+    background: var(--c-bg-subtle);
+    font-family: "Roboto Mono", monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    font-weight: 600;
+    transition: all 0.2s;
+    text-align: center;
+    border-radius: 0;
+    padding: 0 4px;
+
+    @media (min-width: 768px) {
+      height: 44px;
+      line-height: 42px;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      padding: 0 12px;
+    }
+
+    &:first-child {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    &:last-child {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    &:hover {
+      background: var(--c-bg-subtle);
+      border-color: var(--c-text-muted);
+    }
+
+    &.ant-radio-button-wrapper-checked {
+      background: var(--c-header-accent-soft);
+      border-color: var(--c-header-accent);
+      color: var(--c-header-accent);
+      box-shadow: inset 0 0 20px rgba(24, 144, 255, 0.08);
+      position: relative;
+
+      &::before {
+        background: var(--c-header-accent);
+      }
+
+      &::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--c-header-accent);
+      }
+    }
+  }
+`;
+
+const IndustrialButton = styled(Button)`
+  background: var(--c-bg);
+  border: 1px solid var(--c-header-border);
+  color: var(--c-header-accent);
+  font-family: "Roboto Mono", monospace;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.8px;
+  height: 36px;
+  font-weight: 600;
+  border-radius: 0;
+  padding: 0 12px;
+
+  @media (min-width: 768px) {
+    font-size: 11px;
+    letter-spacing: 1px;
+    height: 40px;
+    padding: 0 16px;
+  }
+
+  &:hover {
+    background: var(--c-header-accent-soft);
+    border-color: var(--c-header-accent);
+    color: var(--c-header-accent);
+    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+  }
+
+  &.primary {
+    background: var(--c-header-accent);
+    border-color: var(--c-header-accent);
+    color: #ffffff;
+
+    &:hover {
+      background: var(--c-header-accent);
+      border-color: var(--c-header-accent);
+      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
+    }
+  }
+
+  &:disabled {
+    background: var(--c-bg-subtle);
+    border-color: var(--c-header-border);
+    color: var(--c-text-muted);
+  }
+`;
+
+const StyledSelect = styled(Select)`
+  .ant-select-selector {
+    border-radius: 0 !important;
+    border: 1px solid var(--c-header-border) !important;
+    font-family: "Roboto Mono", monospace;
+    min-height: 36px !important;
+
+    @media (min-width: 768px) {
+      min-height: 40px !important;
+    }
+
+    &:hover {
+      border-color: var(--c-header-accent) !important;
+    }
+  }
+
+  &.ant-select-focused .ant-select-selector {
+    border-color: var(--c-header-accent) !important;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1) !important;
+  }
+`;
+
+const ActionBar = styled(Flex)`
+  padding-top: 12px;
+  border-top: 1px dashed var(--c-header-border);
+  margin-top: 16px;
+
+  @media (min-width: 768px) {
+    padding-top: 16px;
+    margin-top: 24px;
+  }
+`;
+
+const ResponsiveFooter = styled(Flex)`
+  gap: 8px;
+  flex-wrap: wrap;
+
+  @media (min-width: 768px) {
+    gap: 12px;
+    flex-wrap: nowrap;
+  }
+
+  button {
+    flex: 1;
+    min-width: 100px;
+
+    @media (min-width: 768px) {
+      flex: initial;
+    }
+  }
+`;
+
+const DialogMission = () => {
+  const { t } = useTranslation();
+  const [missionForm] = Form.useForm();
+  const { refetch: refetchMissions } = useAllMissionTitles();
+  const { data: name, refetch: refetchAgv } = useName();
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const [openDialogMission, setOpenDialogMission] = useAtom(OpenAssignMission);
+  const [, setAmrGenre] = useState<string | null>(null);
+  const [selectedTitleId, setSelectedTitleId] = useState("");
+  const { data: mirTaskData } = useTaskMir(selectedTitleId);
+  const { locationsOption, footprintOption, markerTypeOption, soundOption } =
+    useMirTaskOptions();
+
+  // 這個任務底下所有 slice 用到的變數名稱,以及每個變數名稱要用哪種下拉選
+  // (綁在 location_id/footprint/marker_type/sound 這類欄位上的變數不能讓
+  // 使用者手打 GUID)。沒有變數的任務(絕大多數情況)這裡都是空的,Modal
+  // 長得跟以前一樣。
+  const { variableNames, variableFieldKinds } = useMemo(() => {
+    const names = new Set<string>();
+    const kinds = new Map<string, VariableFieldKind>();
+    (mirTaskData ?? []).forEach((slice) => {
+      Object.entries(slice.operation?.variables ?? {}).forEach(
+        ([fieldName, varName]) => {
+          names.add(varName);
+          const kind = VARIABLE_FIELD_KIND[fieldName];
+          if (kind) {
+            kinds.set(varName, kind);
+          }
+        },
+      );
+    });
+    return { variableNames: [...names], variableFieldKinds: kinds };
+  }, [mirTaskData]);
+  const reload = () => {
+    refetchAgv();
+    refetchMissions();
+    void messageApi.success("reload");
+  };
+
+  const AmrOption: { value: string; label: string }[] | undefined =
+    useMemo(() => {
+      let options;
+      if (name?.isSim) {
+        options = name.amrs
+          .filter((a) => a.isReal === false)
+          .map((m) => ({ label: m.amrId, value: m.amrId }));
+      } else {
+        options = name?.amrs
+          .filter((a) => a.isReal === true)
+          .map((m) => ({ label: m.amrId, value: m.amrId }));
+      }
+      return options
+        ? [...options, { value: "none", label: t("utils.random") }]
+        : undefined;
+    }, [name, t]);
+
+  const canSubmitMutation = useMutation({
+    mutationFn: (payload: MissionFrom) => {
+      return client.post("api/missions/dialog-mission", payload, {
+        headers: { authorization: `Bearer ${localStorage.getItem("_KMT")}` },
+      });
+    },
+    onSuccess: (resData) => {
+      const errorMessage = resData?.data.message;
+      if (!errorMessage || errorMessage === "success") {
+        void messageApi.success(t("utils.success"));
+        setOpenDialogMission(false);
+        return;
+      }
+      const splitErrorMessage = errorMessage.split(" ");
+      if (splitErrorMessage[0] === "[CustomError]") {
+        void messageApi.error(t("utils.contact_fae"));
+      }
+    },
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+  });
+
+  const submit = () => {
+    const payload = missionForm.getFieldsValue() as MissionFrom;
+    const { titleId, priority, variableValues } = payload;
+    if (!titleId || priority === undefined || priority === null) {
+      void messageApi.error(t("main.mission_modal.options_incomplete"));
+      return;
+    }
+
+    const missingVariable = variableNames.some(
+      (name) => !variableValues?.[name],
+    );
+    if (missingVariable) {
+      void messageApi.error(t("main.mission_modal.variable_missing"));
+      return;
+    }
+
+    const invalidCoordinate = variableNames.some(
+      (name) =>
+        isCoordinateVariable(name) && !isNumericString(variableValues?.[name]),
+    );
+    if (invalidCoordinate) {
+      void messageApi.error(t("main.mission_modal.variable_must_be_number"));
+      return;
+    }
+
+    const newPayload = {
+      ...payload,
+      amrId: payload.amrId,
+    };
+
+    canSubmitMutation.mutate(newPayload);
+  };
+
+  const handleCancel = () => {
+    setOpenDialogMission(false);
+  };
+
+  useEffect(() => {
+    if (!openDialogMission) return;
+    missionForm.setFieldValue("priority", MissionPriority.PIVOTAL);
+  }, [openDialogMission]);
+
+  return (
+    <IndustrialModal
+      title={
+        <>
+          <RocketOutlined />
+          {t("main.card_name.new_mission")}
+        </>
+      }
+      open={openDialogMission}
+      width={700}
+      style={{ top: 10 }}
+      centered
+      footer={
+        <ResponsiveFooter justify="flex-end">
+          <IndustrialButton onClick={handleCancel}>
+            {t("utils.cancel")}
+          </IndustrialButton>
+          <IndustrialButton
+            className="primary"
+            onClick={submit}
+            loading={canSubmitMutation.isLoading}
+          >
+            {canSubmitMutation.isLoading ? "DEPLOYING..." : t("utils.submit")}
+          </IndustrialButton>
+        </ResponsiveFooter>
+      }
+      onCancel={handleCancel}
+    >
+      {contextHolder}
+      <Form form={missionForm} layout="vertical" size="large">
+        {/* AMR Selection */}
+        <FormSection>
+          <FieldLabel>
+            <SettingOutlined style={{ marginRight: 6 }} />
+            [01] {t("mission.cycle_mission.car")}
+          </FieldLabel>
+          <Form.Item name="amrId" style={{ marginBottom: 0 }}>
+            <StyledSelect
+              options={AmrOption}
+              onChange={(v: string) => setAmrGenre(v)}
+              placeholder={t("main.queue_mir_task_modal.select_amr")}
+              onMouseDown={(e) => e.preventDefault()}
+              onPopupScroll={(e) => {
+                e.stopPropagation();
+              }}
+              onOpenChange={(open) => {
+                if (open) {
+                  document.body.style.overflow = "hidden";
+                } else {
+                  document.body.style.overflow = "auto";
+                }
+              }}
+            />
+          </Form.Item>
+        </FormSection>
+
+        <SectionDivider />
+
+        {/* Priority Selection */}
+        <FormSection>
+          <FieldLabel>
+            <SettingOutlined style={{ marginRight: 6 }} />
+            [02] {t("main.mission_modal.dialog_mission.task_priority")}
+          </FieldLabel>
+          <Form.Item name="priority" shouldUpdate style={{ marginBottom: 0 }}>
+            <PriorityRadioGroup>
+              <Radio.Button value={MissionPriority.CRITICAL}>
+                {t("main.mission_modal.dialog_mission.priority.CRITICAL")}
+              </Radio.Button>
+              <Radio.Button value={MissionPriority.PIVOTAL}>
+                {t("main.mission_modal.dialog_mission.priority.PIVOTAL")}
+              </Radio.Button>
+              <Radio.Button value={MissionPriority.NORMAL}>
+                {t("main.mission_modal.dialog_mission.priority.NORMAL")}
+              </Radio.Button>
+              <Radio.Button value={MissionPriority.TRIVIAL}>
+                {t("main.mission_modal.dialog_mission.priority.TRIVIAL")}
+              </Radio.Button>
+            </PriorityRadioGroup>
+          </Form.Item>
+        </FormSection>
+
+        <SectionDivider />
+
+        {/* Mission Selection */}
+        <FormSection>
+          <FieldLabel>
+            <SettingOutlined style={{ marginRight: 6 }} />
+            [03] {t("toolbar.mission.mission")}
+          </FieldLabel>
+          <Form.Item name="titleId" style={{ marginBottom: 0 }}>
+            <MissionTableSelect
+              onSelect={(record) => {
+                missionForm.setFieldValue("titleId", record.id);
+                missionForm.setFieldValue("variableValues", undefined);
+                missionForm.resetFields(
+                  variableNames.map((n) => ["variableValues", n]),
+                );
+                setSelectedTitleId(record.id);
+                void messageApi.success(
+                  t("main.mission_modal.selected_mission", {
+                    name: record.name,
+                  }),
+                );
+              }}
+              placeholder={t("main.mission_modal.click_to_choose")}
+            />
+          </Form.Item>
+        </FormSection>
+
+        {variableNames.length > 0 && (
+          <>
+            <SectionDivider />
+            <FormSection>
+              <FieldLabel>
+                <SettingOutlined style={{ marginRight: 6 }} />
+                [04] {t("main.mission_modal.dialog_mission.variables")}
+              </FieldLabel>
+              {variableNames.map((name) => {
+                const kind = variableFieldKinds.get(name);
+                const selectOptionsByKind: Record<
+                  VariableFieldKind,
+                  { label: string; value: string }[]
+                > = {
+                  location: locationsOption,
+                  footprint: footprintOption,
+                  marker_type: markerTypeOption,
+                  sound: soundOption,
+                };
+
+                return (
+                  <Form.Item
+                    key={name}
+                    label={name}
+                    name={["variableValues", name]}
+                    initialValue={isCoordinateVariable(name) ? "0" : undefined}
+                    rules={[
+                      { required: true },
+                      ...(isCoordinateVariable(name)
+                        ? [
+                            {
+                              validator: (_: unknown, value?: string) =>
+                                !value || isNumericString(value)
+                                  ? Promise.resolve()
+                                  : Promise.reject(
+                                      new Error(
+                                        t(
+                                          "main.mission_modal.variable_must_be_number",
+                                        ),
+                                      ),
+                                    ),
+                            },
+                          ]
+                        : []),
+                    ]}
+                    style={{ marginBottom: 12 }}
+                  >
+                    {kind ? (
+                      <StyledSelect
+                        options={selectOptionsByKind[kind]}
+                        showSearch
+                        placeholder={t("main.mission_modal.select_value")}
+                      />
+                    ) : (
+                      <Input
+                        placeholder={t("main.mission_modal.enter_value")}
+                      />
+                    )}
+                  </Form.Item>
+                );
+              })}
+            </FormSection>
+          </>
+        )}
+
+        <ActionBar align="center" justify="center">
+          <IndustrialButton icon={<ReloadOutlined />} onClick={() => reload()}>
+            {t("main.mission_modal.dialog_mission.reload")}
+          </IndustrialButton>
+        </ActionBar>
+      </Form>
+    </IndustrialModal>
+  );
+};
+
+export default DialogMission;

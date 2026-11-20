@@ -1,5 +1,5 @@
 import { YawType } from "@/api/useYaw";
-import SubmitButton from "@/utils/SubmitButton";
+import SubmitButton from "@/components/SubmitButton";
 import { FormInstance, Form, Input, Modal } from "antd";
 import { Dispatch, FC, useEffect } from "react";
 import { useTranslation } from "react-i18next";

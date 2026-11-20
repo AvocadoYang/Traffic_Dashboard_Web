@@ -4,7 +4,7 @@ import FormHr from "@/pages/Setting/utils/FormHr";
 import { useMutation } from "@tanstack/react-query";
 import { Button, message, Select, Typography } from "antd";
 import { useAtomValue } from "jotai";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import {
   ApartmentOutlined,
   BorderOutlined,

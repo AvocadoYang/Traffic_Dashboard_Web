@@ -29,12 +29,12 @@ import client from "@/api/axiosClient";
 import { Err } from "@/utils/responseErr";
 import useOneTaskDetailFork from "@/api/useOneTaskDetailFork";
 import useTaskOptions from "./hook/useTaskOptions";
-import { Action_Type, Select_Location_Type } from "./types";
-import { controlList } from "./params";
+import { Action_Type, Select_Location_Type } from "@/types/forkAction";
+import { controlList } from "@/utils/mission/forkParams";
 import DynamicControlFields from "./DynamicControlFields";
 import HorrorModal from "@/pages/Setting/components/HorrorModal";
 import { useAtomValue } from "jotai";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 
 enum YawGenre {
   CUSTOM,

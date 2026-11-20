@@ -16,13 +16,13 @@ import { useTranslation } from "react-i18next";
 import FormHr from "../utils/FormHr";
 import { useEffect, useState, useCallback } from "react";
 import { useAtom, useAtomValue } from "jotai";
-import { IsEditingQuickRoads, QuickRoadsArray } from "../utils/settingJotai";
+import { IsEditingQuickRoads, QuickRoadsArray } from "@/atoms/map/mapEditModalAtoms";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { errorHandler } from "@/utils/utils";
 import { ErrorResponse } from "@/utils/globalType";
 import { QuestionCircleOutlined } from "@ant-design/icons";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 
 type RoadFormData = {
   validYawList?: string | number[];
