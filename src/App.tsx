@@ -5,7 +5,6 @@ import {
   Main,
   LogIn,
   Setting,
-  SettingV2,
   Register,
   Records,
 } from "./pages";
@@ -89,7 +88,6 @@ function App() {
                   element={<Navigate to="/setting-v3" replace />}
                 ></Route>
                 <Route path="/setting-v1" element={<Setting></Setting>}></Route>
-                <Route path="/setting-v2" element={<SettingV2 />}></Route>
                 <Route path="/setting-v3" element={<SettingV3 />} />
                 {/* 舊的任務模擬頁拿掉了: 放模擬車改在首頁地圖的「模擬車輛」 */}
                 <Route

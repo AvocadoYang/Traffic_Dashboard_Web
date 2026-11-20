@@ -5,7 +5,7 @@ import {
   QuickMissionOffload,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
-} from "@/pages/Main/global/jotai";
+} from "@/atoms/main/mainAtoms";
 import { useMutation } from "@tanstack/react-query";
 import { Button, Flex, message, Popover, Tooltip } from "antd";
 import { useAtom, useSetAtom } from "jotai";

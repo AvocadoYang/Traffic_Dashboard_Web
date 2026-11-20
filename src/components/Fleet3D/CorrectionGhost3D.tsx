@@ -3,8 +3,8 @@ import { ThreeEvent, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useAmrPointCloud } from "@/sockets/usePointCloud";
 import { amrId2ColorRainbow, sanitizeDeg } from "@/utils/utils";
-import { useCorrectionGhost } from "@/pages/Main/components/PadViwe/components/PadMapContent/component/LocalizationCorrection/useCorrectionGhost";
-import LocalizationCorrectionPanel from "@/pages/Main/components/PadViwe/components/PadMapContent/component/LocalizationCorrection/LocalizationCorrectionPanel";
+import { useCorrectionGhost } from "@/hooks/amr/useCorrectionGhost";
+import LocalizationCorrectionPanel from "@/components/LocalizationCorrection/LocalizationCorrectionPanel";
 
 /**
  * 定位校正的幽靈車身, 3D 版 (同 2D 的 LocalizationCorrectionGhost): 半透明的車身加紅框,

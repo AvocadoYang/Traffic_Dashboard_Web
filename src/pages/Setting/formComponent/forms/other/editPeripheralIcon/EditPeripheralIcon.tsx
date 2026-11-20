@@ -5,7 +5,7 @@ import { Button, Drawer, Flex, Select, Table, Input } from "antd";
 import { useAtom, useSetAtom } from "jotai";
 import { FC, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import SettingStyleForm from "./SettingStyleForm";
+import SettingStyleForm from "@/pages/SettingV3/forms/other/editPeripheralIcon/SettingStyleForm";
 import {
   FormatPainterOutlined,
   ReloadOutlined,
@@ -15,7 +15,7 @@ import {
   FilterOutlined,
 } from "@ant-design/icons";
 import usePeripheralStyle from "@/api/usePeripheralStyle";
-import SettingMultiStyleForm from "./SettingMultiStyleForm";
+import SettingMultiStyleForm from "@/pages/SettingV3/forms/other/editPeripheralIcon/SettingMultiStyleForm";
 import styled from "styled-components";
 
 // Industrial Styled Components

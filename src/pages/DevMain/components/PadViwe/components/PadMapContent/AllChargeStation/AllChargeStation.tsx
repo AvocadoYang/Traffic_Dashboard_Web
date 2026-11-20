@@ -9,7 +9,7 @@ import useLoc, { LocWithoutArr } from "@/api/useLoc";
 
 import styled from "styled-components";
 import ChargeStation from "./ChargeStation";
-import { Point } from "@/pages/Setting/mapComponents/components/AllLocation/components/PointAndLine";
+import { Point } from "@/components/MapLayers/AllLocation/PointAndLine";
 import StatusPanel from "./StatusPanel";
 import useChargeStationSocket from "@/sockets/useChargeStationSocket";
 

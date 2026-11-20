@@ -8,7 +8,7 @@ import {
   OpenMissionCardInfo,
   OpenQuickMission,
   viewBtn,
-} from "@/pages/Main/global/jotai";
+} from "@/atoms/main/mainAtoms";
 import { Card, Button, Space, message } from "antd";
 import { useMutation } from "@tanstack/react-query";
 import client from "@/api/axiosClient";

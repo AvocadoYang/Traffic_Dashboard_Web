@@ -23,7 +23,7 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import useCategory from "@/api/useCategory";
 import client from "@/api/axiosClient";
-import SubmitButton from "@/utils/SubmitButton";
+import SubmitButton from "@/components/SubmitButton";
 
 // bitch ant design not support the type
 interface Color {

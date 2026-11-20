@@ -1,9 +1,9 @@
-import { OpenChargeStationModal } from "@/pages/Main/global/jotai";
+import { OpenChargeStationModal } from "@/atoms/main/mainAtoms";
 import {
   ECSM,
   IsEditingQuickRoads,
   QuickRoadsArray,
-} from "@/pages/Setting/utils/settingJotai";
+} from "@/atoms/map/mapEditModalAtoms";
 import { Tooltip } from "antd";
 import { useAtomValue, useSetAtom } from "jotai";
 import React, { FC } from "react";

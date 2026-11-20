@@ -16,10 +16,10 @@ import {
 import { FC } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import { Mission_Title } from "./mission";
+import { Mission_Title } from "@/types/missionForm";
 import useMissionFolder from "@/api/useMissionFolder";
 import { useAtomValue } from "jotai";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 
 // Industrial Styled Components
 const IndustrialTableContainer = styled.div`

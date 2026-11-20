@@ -1,5 +1,5 @@
 import client from "@/api/axiosClient";
-import { EBLM } from "@/pages/Setting/utils/settingJotai";
+import { EBLM } from "@/atoms/map/mapEditModalAtoms";
 import { useMutation } from "@tanstack/react-query";
 import { Table, Flex, Popconfirm } from "antd";
 import { useAtom } from "jotai";

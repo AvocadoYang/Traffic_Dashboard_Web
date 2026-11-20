@@ -5,10 +5,10 @@ import { useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";
 import useAllAreaTypes from "@/api/useAllAreaTypes";
-import { locationOption } from "@/pages/Setting/utils/func";
-import { openNotificationWithIcon } from "@/pages/Setting/utils/notification";
-import { currentMapIdAtom } from "@/utils/mapSelection";
-import { LocationType } from "@/utils/jotai";
+import { locationOption } from "@/utils/map/locationOptions";
+import { openNotificationWithIcon } from "@/utils/notification";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
+import { LocationType } from "@/types/map/locationTypes";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 

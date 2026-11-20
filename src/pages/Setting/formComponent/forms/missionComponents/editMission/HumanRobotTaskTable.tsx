@@ -32,11 +32,11 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import client from "@/api/axiosClient";
 import ImportMissionForm from "./ImportMissionForm";
-import { Robot_Mission_Slice_Table } from "./mission";
+import { Robot_Mission_Slice_Table } from "@/types/missionForm";
 import { Err } from "@/utils/responseErr";
 import useTaskHumanRobot from "@/api/useTaskHumanRobot";
 import { useAtomValue } from "jotai";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   "data-row-key": string;

@@ -3,7 +3,7 @@ import { Layout, Menu, message, Switch, Drawer } from "antd";
 import styled from "styled-components";
 import { mq } from "@/styles/responsive";
 import useMap from "@/api/useMap";
-import UploadWarningModal from "./UploadWarningModal";
+import UploadWarningModal from "@/components/Setting/UploadWarningModal";
 import { useAtom, useSetAtom } from "jotai";
 import {
   toolSheetPanelHost,
@@ -70,14 +70,14 @@ import {
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import type { MenuProps } from "antd";
-import "../setting.css";
-import { ToolBarItemType } from "./siderElement";
+import "@/pages/SettingV3/setting.css";
+import { ToolBarItemType } from "@/components/Setting/siderElement";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import ImportMapConfigModal from "./importMap/ImportMapConfigModal";
-import StartPoint from "./StartPoint/StartPoint";
+import ImportMapConfigModal from "@/components/Setting/importMap/ImportMapConfigModal";
+import StartPoint from "@/components/Setting/StartPoint/StartPoint";
 import useIsWebMediaQuery from "@/hooks/useIsWebMediaQuery";
 import useConfigFlags from "@/api/useConfigFlags";
 

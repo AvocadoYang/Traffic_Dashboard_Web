@@ -1,22 +1,18 @@
 import { memo, RefObject, useEffect, useRef, useState } from "react";
-import {
-  MapImage,
-  LocationHoverCluster,
-} from "@/pages/Setting/mapComponents/components";
+import MapImage from "@/components/MapLayers/MapImage";
+import LocationHoverCluster from "@/components/MapLayers/AllLocation/LocationHoverCluster";
 import "../webview.css";
-import {
-  AllAnnotations,
-  AllZones,
-} from "@/pages/Setting/mapComponents/components";
+import AllAnnotations from "@/components/MapLayers/AllAnnotations/AllAnnotations";
+import AllZones from "@/components/MapLayers/AllZones/AllZones";
 import AllLocation from "../../PadViwe/components/PadMapContent/component/AllLocation";
 import { useAtom, useAtomValue } from "jotai";
 import { AmrFilterCarCard, Scale, showZoneForbidden } from "@/utils/gloable";
 
-import AllRoads from "@/pages/Setting/mapComponents/components/AllRoads/AllRoads";
-import RoadHoverCluster from "@/pages/Setting/mapComponents/components/AllRoads/RoadHoverCluster";
+import AllRoads from "@/components/MapLayers/AllRoads/AllRoads";
+import RoadHoverCluster from "@/components/MapLayers/AllRoads/RoadHoverCluster";
 import AllAMRs from "../../PadViwe/components/PadMapContent/component/AllAMRs/AllAMRs";
 import AllCargo from "../../PadViwe/components/PadMapContent/AllCargo/AllCargo";
-import ToolTip from "@/pages/Setting/components/ToolTip";
+import ToolTip from "@/components/MapLayers/ToolTip";
 import {
   isShowLocation,
   isShowLocationTooltip,
@@ -25,16 +21,14 @@ import {
   isShowRoadTooltip,
 } from "@/utils/siderGloble";
 import useMap from "@/api/useMap";
-import {
-  useLocationHoverTooltip,
-  useRoadHoverTooltip,
-  useWheelZoom,
-} from "@/pages/Setting/hooks";
+import useLocationHoverTooltip from "@/hooks/map/useLocationHoverTooltip";
+import useRoadHoverTooltip from "@/hooks/map/useRoadHoverTooltip";
+import useWheelZoom from "@/hooks/map/useWheelZoom";
 import AllConveyor from "../../PadViwe/components/PadMapContent/AllConveyor/AllConveyor";
 import { AllElevator } from "../../PadViwe/components/PadMapContent/AllElevator";
 import AllChargeStation from "../../PadViwe/components/PadMapContent/AllChargeStation/AllChargeStation";
-import { OpenChargeStationModal } from "@/pages/Main/global/jotai";
-import StatusPanel from "../../PadViwe/components/PadMapContent/AllChargeStation/StatusPanel";
+import { OpenChargeStationModal } from "@/atoms/main/mainAtoms";
+import StatusPanel from "@/components/MapLayers/AllChargeStation/StatusPanel";
 import useDetectLoc from "../hooks/useDetectLoc";
 import useMouseClick from "../hooks/useMouseClick";
 import AllGateWaitPoint from "../../PadViwe/components/PadMapContent/AllGateWaitPoint/AllGateWaitPoint";
@@ -42,7 +36,7 @@ import AllLiftGate from "../../PadViwe/components/PadMapContent/AllGate/AllLiftG
 import AllStack from "../../PadViwe/components/PadMapContent/AllStack/AllStack";
 import YfyPackage from "../../PadViwe/components/PadMapContent/YFYPackage/YfyPackage";
 import AllPointCloud from "../../PadViwe/components/PadMapContent/component/AllPointCloud/AllPointCloud";
-import LocalizationCorrectionGhost from "../../PadViwe/components/PadMapContent/component/LocalizationCorrection/LocalizationCorrectionGhost";
+import LocalizationCorrectionGhost from "@/components/LocalizationCorrection/LocalizationCorrectionGhost";
 import useDragPan from "@/pages/Main/components/WebView/hooks/useDragPan";
 import useCenterMap from "@/hooks/useCenterMap";
 

@@ -8,7 +8,7 @@ import {
   QuickMissionOffload,
   QuickMissionSettingMode,
   StartQuickMissionSetting,
-} from "@/pages/Main/global/jotai";
+} from "@/atoms/main/mainAtoms";
 
 const ConveyorContainer = styled.div`
   position: relative;

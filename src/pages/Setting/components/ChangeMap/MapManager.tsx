@@ -32,12 +32,12 @@ import useMapGroup from "@/api/useMapGroup";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
-import SyncJobsModal from "./SyncJobsModal";
+import SyncJobsModal from "@/components/Setting/ChangeMap/SyncJobsModal";
 import {
   IndustrialButton,
   IndustrialModal,
   IndustrialTable,
-} from "./industrialStyle";
+} from "@/components/Setting/ChangeMap/industrialStyle";
 
 const { Dragger } = Upload;
 

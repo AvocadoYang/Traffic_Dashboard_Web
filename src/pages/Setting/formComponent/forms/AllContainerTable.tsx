@@ -17,7 +17,7 @@ import {
   Form,
 } from "antd";
 import { useSetAtom } from "jotai";
-import { LocationType } from "@/utils/jotai";
+import { LocationType } from "@/types/map/locationTypes";
 import { useRef, useState, memo } from "react";
 import { FilterDropdownProps } from "antd/es/table/interface";
 import { useTranslation } from "react-i18next";
@@ -38,7 +38,7 @@ import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import useMap from "@/api/useMap";
 import FormHr from "../../utils/FormHr";
-import SubmitButton from "@/utils/SubmitButton";
+import SubmitButton from "@/components/SubmitButton";
 import useContainerLocation, { Loc_For_CD } from "@/api/useContainerLocation";
 
 // Industrial Styled Components

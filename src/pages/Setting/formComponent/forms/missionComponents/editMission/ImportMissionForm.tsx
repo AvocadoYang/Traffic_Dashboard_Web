@@ -1,7 +1,7 @@
 import client from "@/api/axiosClient";
 import useAllMissionTitlesDetail from "@/api/useMissionTitleDetail";
 import { isFork, isHumanRobot } from "@/utils/globalFunction";
-import { currentMapIdAtom } from "@/utils/mapSelection";
+import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import { Err } from "@/utils/responseErr";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Form, message, Modal, Select } from "antd";

@@ -1,8 +1,8 @@
 import { RefObject } from "react";
-import { MapImage } from "@/pages/Setting/mapComponents/components";
+import MapImage from "@/components/MapLayers/MapImage";
 import AllLocation from "./AllLocation";
-import AllRoads from "@/pages/Setting/mapComponents/components/AllRoads/AllRoads";
-import { AllZones } from "@/pages/Setting/mapComponents/components";
+import AllRoads from "@/components/MapLayers/AllRoads/AllRoads";
+import AllZones from "@/components/MapLayers/AllZones/AllZones";
 import AllAMRs from "./AllAMRs/AllAMRs";
 const PadMapView: React.FC<{
   scale: number;

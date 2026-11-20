@@ -6,7 +6,7 @@ import { useSetAtom } from "jotai";
 import React from "react";
 import styled from "styled-components";
 import GateWaitPoint from "./GateWaitPoint";
-import { OpenDirect } from "@/pages/Main/global/jotai";
+import { OpenDirect } from "@/atoms/main/mainAtoms";
 
 const Point = styled.div.attrs<{
   left: number;

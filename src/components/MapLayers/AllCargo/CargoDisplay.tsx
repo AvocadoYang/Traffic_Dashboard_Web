@@ -1,0 +1,167 @@
+import {
+  QuickMissionLoad,
+  QuickMissionOffload,
+  QuickMissionSettingMode,
+  StartQuickMissionSetting,
+} from "@/atoms/main/mainAtoms";
+import { useAtom, useSetAtom } from "jotai";
+import { FC } from "react";
+import styled from "styled-components";
+import { Button } from "antd";
+
+// Styled components for enhanced UI
+const Block = styled(Button)<{
+  $hasCargo: boolean;
+  $isDisable: boolean;
+  $isSelecting: boolean;
+  $canBeClick: boolean;
+}>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: ${({ $hasCargo }) =>
+    $hasCargo ? "#ffe73c80" : "var(--c-map-cell)"};
+  border: ${({ $isSelecting, $canBeClick }) =>
+    $isSelecting && $canBeClick
+      ? "2px solid #1890ff"
+      : "1px dashed var(--c-map-device-border)"};
+  border-radius: 3px;
+  min-height: 15px;
+  max-width: 15px;
+  max-height: 100%;
+  height: auto;
+  padding: 2px 0;
+  transition: all 0.2s ease;
+  position: relative;
+  z-index: ${({ $isSelecting }) => ($isSelecting ? 50 : 1)};
+  cursor: ${({ $isDisable, $isSelecting, $canBeClick }) =>
+    $isDisable
+      ? "not-allowed"
+      : $isSelecting && !$canBeClick
+        ? "not-allowed"
+        : "pointer"};
+  opacity: ${({ $isDisable }) => ($isDisable ? 0.6 : 1)};
+  box-shadow: ${({ $isSelecting, $canBeClick }) =>
+    $isSelecting && $canBeClick ? "0 0 8px rgba(24, 144, 255, 0.3)" : "none"};
+
+  &:hover:not(:disabled) {
+    background-color: ${({ $hasCargo }) =>
+      $hasCargo ? "#ffe73cb3" : "var(--c-map-cell-hover)"};
+    transform: scale(1.05);
+  }
+
+  &:disabled::after {
+    content: "X";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: rgba(113, 113, 113, 0.7);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+`;
+
+const BlockSpan = styled.span<{ rotate: number; $hasCargo: boolean }>`
+  font-size: 12px;
+  font-weight: 500;
+  color: ${({ $hasCargo }) => ($hasCargo ? "#000" : "var(--c-map-cell-text)")};
+  transform: ${({ rotate }) => `rotate(${-rotate}deg)`};
+  writing-mode: vertical-rl;
+  text-orientation: sideways;
+  white-space: nowrap;
+  user-select: none;
+  text-align: center;
+`;
+
+interface CargoDisplayProps {
+  level: number;
+  levelName: string;
+  cargoValue: boolean;
+  isDisable: boolean;
+  locId: string;
+  rotate: number;
+  /** 右鍵時切換這一層有沒有貨 */
+  onToggleCargo: (
+    e: React.MouseEvent<HTMLElement>,
+    locId: string,
+    level: number,
+  ) => void;
+}
+
+const CargoDisplay: FC<CargoDisplayProps> = ({
+  level,
+  levelName,
+  cargoValue,
+  isDisable,
+  locId,
+  rotate,
+  onToggleCargo,
+}) => {
+  const [selectMode, setQuickSettingMode] = useAtom(QuickMissionSettingMode);
+  const [isStartSelecting, setStartQuickSetting] = useAtom(
+    StartQuickMissionSetting,
+  );
+  const setLoad = useSetAtom(QuickMissionLoad);
+  const setOffload = useSetAtom(QuickMissionOffload);
+
+  const canBeClickInSelection =
+    isStartSelecting &&
+    !isDisable &&
+    ((selectMode === "load" && cargoValue) ||
+      (selectMode === "offload" && !cargoValue));
+
+  const handleQuickMissionPayload = () => {
+    if (!isStartSelecting || !canBeClickInSelection || selectMode === null)
+      return;
+
+    if (selectMode === "load") {
+      setLoad({
+        missionType: "load",
+        columnName: levelName,
+        locationId: locId,
+        level,
+      });
+    } else if (selectMode === "offload") {
+      setOffload({
+        missionType: "offload",
+        columnName: levelName,
+        locationId: locId,
+        level,
+      });
+    }
+
+    setStartQuickSetting(false);
+    setQuickSettingMode(null);
+  };
+
+  return (
+    <Block
+      $hasCargo={cargoValue}
+      $isDisable={isDisable}
+      $isSelecting={isStartSelecting}
+      $canBeClick={isStartSelecting ? canBeClickInSelection : true}
+      // 右鍵直接切換這一層有沒有貨。preventDefault 是要擋掉瀏覽器自己的
+      // 右鍵選單,不然選單會蓋在地圖上。
+      onContextMenu={(e) => {
+        e.preventDefault();
+        onToggleCargo(e, locId, level);
+      }}
+      onClick={isStartSelecting ? handleQuickMissionPayload : undefined}
+      role="button"
+    >
+      <BlockSpan $hasCargo={cargoValue} rotate={rotate} id={locId}>
+        {levelName}
+      </BlockSpan>
+    </Block>
+  );
+};
+
+export default CargoDisplay;

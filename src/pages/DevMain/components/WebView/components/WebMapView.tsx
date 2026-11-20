@@ -1,15 +1,15 @@
 import { memo, RefObject, useRef } from "react";
-import { MapImage } from "@/pages/Setting/mapComponents/components";
+import MapImage from "@/components/MapLayers/MapImage";
 import "../webview.css";
-import { AllZones } from "@/pages/Setting/mapComponents/components";
+import AllZones from "@/components/MapLayers/AllZones/AllZones";
 import AllLocation from "../../PadViwe/components/PadMapContent/component/AllLocation";
 import { useAtom, useAtomValue } from "jotai";
 import { AmrFilterCarCard, Scale, showZoneForbidden } from "@/utils/gloable";
 
-import AllRoads from "@/pages/Setting/mapComponents/components/AllRoads/AllRoads";
+import AllRoads from "@/components/MapLayers/AllRoads/AllRoads";
 import AllAMRs from "../../PadViwe/components/PadMapContent/component/AllAMRs/AllAMRs";
 import AllCargo from "../../PadViwe/components/PadMapContent/AllCargo/AllCargo";
-import ToolTip from "@/pages/Setting/components/ToolTip";
+import ToolTip from "@/components/MapLayers/ToolTip";
 import {
   isShowLocation,
   isShowLocationTooltip,
@@ -19,7 +19,7 @@ import useMap from "@/api/useMap";
 import AllConveyor from "../../PadViwe/components/PadMapContent/AllConveyor/AllConveyor";
 import { AllElevator } from "../../PadViwe/components/PadMapContent/AllElevator";
 import AllChargeStation from "../../PadViwe/components/PadMapContent/AllChargeStation/AllChargeStation";
-import { OpenChargeStationModal } from "@/pages/Main/global/jotai";
+import { OpenChargeStationModal } from "@/atoms/main/mainAtoms";
 import StatusPanel from "../../PadViwe/components/PadMapContent/AllChargeStation/StatusPanel";
 import useDetectLoc from "../hooks/useDetectLoc";
 import useMouseClick from "../hooks/useMouseClick";
