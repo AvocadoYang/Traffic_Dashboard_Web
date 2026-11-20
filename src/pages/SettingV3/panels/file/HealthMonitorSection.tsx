@@ -47,6 +47,8 @@ type Row = {
 type HealthResponse = {
   host: string;
   rev: string;
+  /** 這個案場有沒有開 Corning 回報 (YAML HEALTH_REPORT_ECS); 沒開就不顯示開關 */
+  ecsAvailable?: boolean;
   rules: Record<string, Rule>;
   rows: Row[];
 };
@@ -124,7 +126,10 @@ const HealthMonitorSection: FC = () => {
           const rule = form[row.metric];
           if (!rule) return null;
           return (
-            <ItemCard key={row.metric} data-testid={`health-card-${row.metric}`}>
+            <ItemCard
+              key={row.metric}
+              data-testid={`health-card-${row.metric}`}
+            >
               <CardTitleRow>
                 <span>{row.label}</span>
                 {levelTag(row.level)}
@@ -156,7 +161,9 @@ const HealthMonitorSection: FC = () => {
                     precision={0}
                     addonAfter={row.unit}
                     value={rule.warnAt}
-                    onChange={(v) => patch(row.metric, { warnAt: Number(v ?? 1) })}
+                    onChange={(v) =>
+                      patch(row.metric, { warnAt: Number(v ?? 1) })
+                    }
                   />
                 </Field>
                 <Field>
@@ -167,7 +174,9 @@ const HealthMonitorSection: FC = () => {
                     precision={0}
                     addonAfter={row.unit}
                     value={rule.alarmAt}
-                    onChange={(v) => patch(row.metric, { alarmAt: Number(v ?? 1) })}
+                    onChange={(v) =>
+                      patch(row.metric, { alarmAt: Number(v ?? 1) })
+                    }
                   />
                 </Field>
                 <Field>
@@ -179,7 +188,9 @@ const HealthMonitorSection: FC = () => {
                     precision={0}
                     addonAfter={t("health_monitor.sustain_unit")}
                     value={rule.sustainSec}
-                    onChange={(v) => patch(row.metric, { sustainSec: Number(v ?? 0) })}
+                    onChange={(v) =>
+                      patch(row.metric, { sustainSec: Number(v ?? 0) })
+                    }
                   />
                 </Field>
               </FieldGrid>
@@ -191,20 +202,24 @@ const HealthMonitorSection: FC = () => {
                   onChange={(enabled) => patch(row.metric, { enabled })}
                 />
                 <span>{t("health_monitor.enable")}</span>
-                <Switch
-                  size="small"
-                  checked={rule.reportEcs}
-                  disabled={!rule.enabled}
-                  onChange={(reportEcs) => patch(row.metric, { reportEcs })}
-                />
-                <span>{t("health_monitor.report_ecs")}</span>
+                {data.ecsAvailable && (
+                  <>
+                    <Switch
+                      size="small"
+                      checked={rule.reportEcs}
+                      disabled={!rule.enabled}
+                      onChange={(reportEcs) => patch(row.metric, { reportEcs })}
+                    />
+                    <span>{t("health_monitor.report_ecs")}</span>
+                  </>
+                )}
               </Toolbar>
             </ItemCard>
           );
         })}
       </CardList>
 
-      <Hint>{t("health_monitor.report_ecs_hint")}</Hint>
+      {data.ecsAvailable && <Hint>{t("health_monitor.report_ecs_hint")}</Hint>}
 
       <Toolbar>
         <SolidButton

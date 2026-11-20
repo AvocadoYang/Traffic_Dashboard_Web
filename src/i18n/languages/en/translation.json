@@ -2497,6 +2497,8 @@
       "event_loop_hint": "How long Node was blocked by synchronous work. 0 is healthy; a sustained 100ms+ means the software is the problem, not the fleet size.",
       "lag_max": "Peak lag",
       "lag_max_hint": "Worst single stall in this window. Isolated spikes are usually startup or a heavy query.",
+      "host_temp": "Host temp",
+      "host_temp_hint": "Source: {{detail}}. Sampled every 15 s; yellow at {{warn}}°C, red at {{alarm}}°C (adjustable in the health check settings).",
       "heap": "Heap",
       "verdict_ok": "Headroom",
       "verdict_busy": "Busy but coping",
@@ -3140,7 +3142,7 @@
     "sustain_unit": "s",
     "enable": "Enable",
     "report_ecs": "Report to Corning",
-    "report_ecs_hint": "Report to Corning: severe items go as AL, minor ones as WN, with codes 0060 to 0065 (disk, host memory, backend memory, backend stall, database, Redis) and an empty a_agv_id. Confirm with Corning that they accept these codes before turning it on. On recovery the updated list is sent (an empty list when nothing is left)."
+    "report_ecs_hint": "Report to Corning: severe items go as AL, minor ones as WN, with codes 0060 to 0066 (disk, host memory, backend memory, backend stall, database, Redis, host temperature) and an empty a_agv_id. On by default. On recovery the updated list is sent (an empty list when nothing is left)."
   },
   "stack_batch": {
     "title": "Stack Batch Edit",
