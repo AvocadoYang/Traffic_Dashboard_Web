@@ -1,5 +1,5 @@
 import { RefObject, memo, useCallback, useRef, useState } from "react";
-import "../setting.css";
+import "@/pages/SettingV3/setting.css";
 import { Form, FormInstance } from "antd";
 import { useAtom, useAtomValue } from "jotai";
 import {
@@ -20,7 +20,7 @@ import {
   MirStyleLocationPlacerSwitch,
   EditAnnotationSwitch,
 } from "@/utils/siderGloble";
-import MirStyleLocationPlacer from "../formComponent/forms/MirStyleLocationPlacer";
+import MirStyleLocationPlacer from "@/pages/SettingV3/forms/MirStyleLocationPlacer";
 import useMap from "@/api/useMap";
 import Cookies from "js-cookie";
 import TempLocations from "@/components/MapLayers/TempResources/TempLocations";
@@ -34,7 +34,7 @@ import useZoneFrame from "@/hooks/map/useZoneFrame";
 import useLocationHoverTooltip from "@/hooks/map/useLocationHoverTooltip";
 import useRoadHoverTooltip from "@/hooks/map/useRoadHoverTooltip";
 import useWheelZoom from "@/hooks/map/useWheelZoom";
-import { getLocationInfoById } from "@/pages/Setting/utils/utils";
+import { getLocationInfoById } from "@/pages/SettingV3/utils/utils";
 import useVerityVersion from "@/api/useVerityVersion";
 import { AllLocation } from "./components";
 import MousePoint from "@/components/MapLayers/Icons/MousePoint";
@@ -59,7 +59,7 @@ import {
   IsEditPeripheralModal,
   IsOpenPeripheralModal,
 } from "@/atoms/map/peripheralAtoms";
-import EditPeripheralModal from "../formComponent/forms/peripheralModal/EditPeripheralModal";
+import EditPeripheralModal from "@/pages/SettingV3/forms/peripheralModal/EditPeripheralModal";
 import CargoPanel from "@/components/CargoPanel/CargoPanel";
 import { SudoPeripheral } from "../formComponent/forms/other/editPeripheralIcon";
 import AllElevator from "@/components/MapLayers/AllElevator/AllElevator";

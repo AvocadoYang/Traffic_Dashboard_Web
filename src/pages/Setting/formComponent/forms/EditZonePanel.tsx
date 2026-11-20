@@ -26,7 +26,7 @@ import {
   transformToNumber,
   zoneTagResetFields,
 } from "./zoneTagSetting";
-import { openNotificationWithIcon } from "../../utils/notification";
+import { openNotificationWithIcon } from "@/utils/notification";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";

@@ -17,7 +17,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import useMap from "@/api/useMap";
-import { openNotificationWithIcon } from "../../utils/notification";
+import { openNotificationWithIcon } from "@/utils/notification";
 import { useAtom, useAtomValue } from "jotai";
 import {
   locationXForQuickEditLocationPanel,
@@ -26,7 +26,7 @@ import {
 } from "@/utils/gloable";
 import FormHr from "../../utils/FormHr";
 import useAllAreaTypes from "@/api/useAllAreaTypes";
-import { locationOption } from "../../utils/func";
+import { locationOption } from "@/utils/map/locationOptions";
 import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 
 type RoadListType = {

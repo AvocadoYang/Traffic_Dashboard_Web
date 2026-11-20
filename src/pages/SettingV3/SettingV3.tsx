@@ -20,16 +20,16 @@ import SettingMapV3 from "./SettingMapV3";
 import ZoomPad from "@/components/Setting/ZoomPad";
 import BKBtn from "@/components/Setting/BKBtn";
 import useResetSiderSwitch from "@/hooks/setting/useResetSiderSwitch";
-import "@/pages/Setting/setting.css";
-import { activeSettingPanelAtom } from "@/pages/SettingV2/activePanelAtom";
-import { mapViewModeAtom, type MapViewMode } from "@/pages/SettingV2/mapViewModeAtom";
-import { navCollapsedAtom } from "@/pages/SettingV2/navCollapsedAtom";
-import { navCategories } from "@/pages/SettingV2/navItems";
-import SettingV2Nav from "@/pages/SettingV2/SettingV2Nav";
-import PanelRenderer from "@/pages/SettingV2/PanelRenderer";
+import "./setting.css";
+import { activeSettingPanelAtom } from "./activePanelAtom";
+import { mapViewModeAtom, type MapViewMode } from "./mapViewModeAtom";
+import { navCollapsedAtom } from "./navCollapsedAtom";
+import { navCategories } from "./navItems";
+import SettingNav from "./SettingNav";
+import PanelRenderer from "./PanelRenderer";
 import { ThemedConfigProvider } from "@/theme";
 import { usePermission } from "@/utils/permissions";
-import useIsNarrow from "@/pages/SettingV2/ui/useIsNarrow";
+import useIsNarrow from "@/pages/SettingV3/ui/useIsNarrow";
 import { c, font, mqNarrow, space } from "@/theme/tokens";
 
 const { Content } = Layout;
@@ -341,14 +341,14 @@ const SettingV3: React.FC = () => {
                   width={280}
                   styles={{ body: { padding: 0 } }}
                 >
-                  <SettingV2Nav
+                  <SettingNav
                     activePanel={activePanel}
                     onSelectPanel={setActivePanel}
                     onAfterSelect={() => setNavOpen(false)}
                   />
                 </Drawer>
               ) : (
-                <SettingV2Nav
+                <SettingNav
                   activePanel={activePanel}
                   onSelectPanel={setActivePanel}
                   collapsed={navCollapsed}

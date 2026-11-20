@@ -28,9 +28,9 @@ import {
 import { LocationType } from "@/types/map/locationTypes";
 import { rad2Deg, rosCoord2DisplayCoord } from "@/utils/utils";
 import { DraggableLine } from "@/components/MapLayers/AllLocation/PointAndLine";
-import "@/pages/Setting/setting.css";
+import "./setting.css";
 import { draggableLineInitialPoint } from "@/hooks/map/hook";
-import { getLocationInfoById } from "@/pages/Setting/utils/utils";
+import { getLocationInfoById } from "@/pages/SettingV3/utils/utils";
 import {
   EBLM,
   ECSM,
@@ -57,8 +57,8 @@ import EditStackModal from "@/components/MapLayers/AllStack/EditStackModal";
 import YfyPackage from "@/components/MapLayers/YFYPackage/YfyPackage";
 import EditPackageModal from "@/components/MapLayers/YFYPackage/EditPackageModal";
 import { IsOpenPeripheralModal } from "@/atoms/map/peripheralAtoms";
-import EditPeripheralModal from "@/pages/Setting/formComponent/forms/peripheralModal/EditPeripheralModal";
-import { SudoPeripheral } from "@/pages/Setting/formComponent/forms/other/editPeripheralIcon";
+import EditPeripheralModal from "@/pages/SettingV3/forms/peripheralModal/EditPeripheralModal";
+import SudoPeripheral from "@/pages/SettingV3/forms/other/editPeripheralIcon/SudoPeripheral";
 import BlindLocationMissionModal from "@/components/Setting/BlindLocationMissionModal";
 import LocationDetectModal from "@/components/Setting/LocationDetectModal";
 import useMousePoint from "@/hooks/map/useMousePoint";
@@ -70,14 +70,14 @@ import DragFrame from "@/components/MapLayers/Icons/DragFrame";
 import type { FrameColor } from "@/components/MapLayers/Icons/DragFrame";
 import { MouseLocationForFrame } from "@/hooks/map/hook";
 import TempLocations from "@/components/MapLayers/TempResources/TempLocations";
-import MirStyleLocationPlacer from "@/pages/Setting/formComponent/forms/MirStyleLocationPlacer";
+import MirStyleLocationPlacer from "@/pages/SettingV3/forms/MirStyleLocationPlacer";
 import LocationPointMenu, {
   LocationPointMenuTarget,
 } from "./LocationPointMenu";
-import type { ZoneRow } from "@/pages/SettingV2/panels/zone/ZoneEditModal";
+import type { ZoneRow } from "@/pages/SettingV3/panels/zone/ZoneEditModal";
 import RoadEditModal, {
   type RoadRow,
-} from "@/pages/SettingV2/panels/road/RoadEditModal";
+} from "@/pages/SettingV3/panels/road/RoadEditModal";
 import ZoneRedraw from "./ZoneRedraw";
 
 /**

@@ -2,7 +2,7 @@ import { SettingOutlined } from "@ant-design/icons";
 import { Input, Popover, Switch } from "antd";
 import React, { FC, ReactNode, useState } from "react";
 import styled from "styled-components";
-import { useMirVariableField } from "./MirVariableContext";
+import { useMirVariableField } from "@/pages/SettingV3/forms/missionComponents/mir/mirEditMissionSlice/MirVariableContext";
 import { useTranslation } from "react-i18next";
 
 const IndustrialCard = styled.div`

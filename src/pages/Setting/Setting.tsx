@@ -5,7 +5,7 @@ import { Sider, ToolComponents } from "./components";
 import ZoomPad from "@/components/Setting/ZoomPad";
 import BKBtn from "@/components/Setting/BKBtn";
 import useResetSiderSwitch from "@/hooks/setting/useResetSiderSwitch";
-import "./setting.css";
+import "@/pages/SettingV3/setting.css";
 import { DndContext } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -13,7 +13,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { restrictToParentElement } from "@dnd-kit/modifiers";
-import { getMoveIndex } from "./utils/utils";
+import { getMoveIndex } from "@/pages/SettingV3/utils/utils";
 import { toolbarState } from "@/components/Setting/siderElement";
 import MapView from "./mapComponents/MapView";
 import useMap from "@/api/useMap";

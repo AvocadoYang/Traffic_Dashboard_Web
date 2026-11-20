@@ -4,7 +4,7 @@ import { DragLineInfo, showBlockId as ShowBlockId } from "@/utils/gloable";
 import { rad2Deg } from "@/utils/utils";
 import { FormInstance } from "antd";
 import { draggableLineInitialPoint } from "@/hooks/map/hook";
-import { getLocationInfoById } from "@/pages/Setting/utils/utils";
+import { getLocationInfoById } from "@/pages/SettingV3/utils/utils";
 import useMap from "@/api/useMap";
 import { LocationType } from "@/types/map/locationTypes";
 import { EditRoadPanelSwitch, EditZoneSwitch } from "@/utils/siderGloble";

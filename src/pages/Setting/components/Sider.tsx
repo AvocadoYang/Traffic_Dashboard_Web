@@ -66,7 +66,7 @@ import {
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import type { MenuProps } from "antd";
-import "../setting.css";
+import "@/pages/SettingV3/setting.css";
 import { ToolBarItemType } from "@/components/Setting/siderElement";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import client from "@/api/axiosClient";

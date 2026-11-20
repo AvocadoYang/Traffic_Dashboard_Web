@@ -23,7 +23,7 @@ import useYaw from "@/api/useYaw";
 import { cargoStyle, shelfSelectedStyleLocationId } from "@/utils/gloable";
 import useShelf from "@/api/useShelf";
 import { ShelfWithoutList } from "@/api/type/useShelf";
-import SettingCargoStyleForm from "./SettingCargoStyleForm";
+import SettingCargoStyleForm from "@/pages/SettingV3/forms/shelfComponents/editShelf/SettingCargoStyleForm";
 import { DataIndex } from "../../antd";
 import { FilterDropdownProps } from "antd/es/table/interface";
 

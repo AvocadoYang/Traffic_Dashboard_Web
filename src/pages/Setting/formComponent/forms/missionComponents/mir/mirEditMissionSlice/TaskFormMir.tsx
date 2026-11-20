@@ -52,12 +52,12 @@ import useTaskMirOne from "@/api/useTaskMirOne";
 import {
   MirVariableProvider,
   useMirVariableFields,
-} from "./MirVariableContext";
+} from "@/pages/SettingV3/forms/missionComponents/mir/mirEditMissionSlice/MirVariableContext";
 import {
   MIR_DEFAULT_SOUND,
   buildMirOperationFields,
   isCurrentPositionOperation,
-} from "./mirActionFields";
+} from "@/pages/SettingV3/forms/missionComponents/mir/mirEditMissionSlice/mirActionFields";
 import { useMirDockingMarkerType } from "@/hooks/mission/useMirTaskOptions";
 
 // save-edit-mir-task 實際送出去的形狀:是一個 Mir_Action 加上 missionTitleId,

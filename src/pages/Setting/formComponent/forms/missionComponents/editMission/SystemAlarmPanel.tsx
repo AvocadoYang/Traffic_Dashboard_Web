@@ -5,7 +5,7 @@ import styled from "styled-components";
 import FormHr from "@/pages/Setting/utils/FormHr";
 import { useTranslation } from "react-i18next";
 import { useAtom } from "jotai";
-import AlarmPositionPicker from "@/pages/SettingV2/panels/file/AlarmPositionPicker";
+import AlarmPositionPicker from "@/pages/SettingV3/panels/file/AlarmPositionPicker";
 import {
   ALARM_ACCENT,
   ALARM_TYPES,

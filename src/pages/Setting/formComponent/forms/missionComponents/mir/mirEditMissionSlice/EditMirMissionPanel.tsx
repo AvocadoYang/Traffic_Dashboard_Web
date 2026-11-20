@@ -90,13 +90,13 @@ import {
 import {
   MirVariableProvider,
   useMirVariableFields,
-} from "./MirVariableContext";
+} from "@/pages/SettingV3/forms/missionComponents/mir/mirEditMissionSlice/MirVariableContext";
 import {
   MIR_ACTION_FIELDS,
   MIR_DEFAULT_SOUND,
   buildMirOperationFields,
   isCurrentPositionOperation,
-} from "./mirActionFields";
+} from "@/pages/SettingV3/forms/missionComponents/mir/mirEditMissionSlice/mirActionFields";
 import { useMirDockingMarkerType } from "@/hooks/mission/useMirTaskOptions";
 import { useTranslation } from "react-i18next";
 

@@ -18,7 +18,7 @@ import { useAtomValue } from "jotai";
 import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 import GroupMapFolderBrowser from "@/components/GroupMapFolderBrowser";
 import { nanoid } from "nanoid";
-import { tagColor } from "../../../utils/utils";
+import { tagColor } from "@/pages/SettingV3/utils/utils";
 import { ZoneTableData } from "../antd";
 import EditZoneTable from "./component/EditZoneTable";
 import { useMutation, useQueryClient } from "@tanstack/react-query";

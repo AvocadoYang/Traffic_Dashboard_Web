@@ -26,8 +26,8 @@ import SwitchTable from "./SwitchTable";
 import useAllMissionTitlesDetail from "@/api/useMissionTitleDetail";
 import Folder from "@/components/Mission/Folder";
 import FolderEditor from "./folder/FolderEditor";
-import UpgradeTaskFormat from "./UpgradeTaskFormat";
-import MissionTransfer from "@/pages/SettingV2/panels/mission/edit/MissionTransfer";
+import UpgradeTaskFormat from "@/pages/SettingV3/forms/missionComponents/editMission/UpgradeTaskFormat";
+import MissionTransfer from "@/pages/SettingV3/panels/mission/edit/MissionTransfer";
 import { useAtomValue } from "jotai";
 import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 

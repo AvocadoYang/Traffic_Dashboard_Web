@@ -10,7 +10,7 @@ import { LDM } from "@/atoms/map/mapEditModalAtoms";
 import { isDetectableAreaType } from "@/utils/map/areaTypes";
 import LocationEditModal, {
   LocationRow,
-} from "@/pages/SettingV2/panels/location/LocationEditModal";
+} from "@/pages/SettingV3/panels/location/LocationEditModal";
 
 export type LocationPointMenuTarget = {
   locationId: string;
