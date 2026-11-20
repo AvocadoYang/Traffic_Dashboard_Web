@@ -13,7 +13,7 @@ export const actonList = [
 ] as const;
 
 export const controlList = {
-  move: ["F", "fork_height", "B", "W", "NS"],
+  move: ["F", "fork_height", "B", "NS"],
   load: [
     "C",
     "B",
@@ -54,7 +54,7 @@ export const controlList = {
     // "shelf_detection",
     // "QR",
     "fork_shift",
-    // "straight_backward",
+    "W"
   ],
   charge: ["fork_height"],
   cargo_limit: ["fork_height"],
