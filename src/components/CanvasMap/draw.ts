@@ -994,7 +994,8 @@ function drawPlate(f: Frame, v: Visible, o: LiveOptions) {
 function drawTip(f: Frame, v: Visible, live: LiveState, o: LiveOptions) {
   const { tipText, dest } = amrTip(live, v.id);
   const forbidden = o.forbiddenIds.has(v.id);
-  const show = o.filterIds.has(v.id) || o.hintId === v.id || forbidden || !!tipText || !!dest;
+  // 任務中不自動跳黑框 (太擋地圖), 只有指到/篩選/禁區時才顯示
+  const show = o.filterIds.has(v.id) || o.hintId === v.id || forbidden;
   const { ctx } = f;
   if (!show) {
     drawPlate(f, v, o);
