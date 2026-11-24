@@ -18,7 +18,8 @@ import {
 } from "@/components/Fleet3D/heatColors";
 import type { HeatCell } from "@/api/useTrackArchive";
 import useMap from "@/api/useMap";
-import { useTrackHeat, useTrackReplay } from "@/api/useTrackArchive";
+import { useTrackEvents, useTrackHeat, useTrackReplay } from "@/api/useTrackArchive";
+import { parseReplayParams } from "@/utils/replayLink";
 import { reportFeatureUse } from "@/api/useAchievements";
 import { mq } from "@/styles/responsive";
 
@@ -150,11 +151,17 @@ const FleetReplay: FC = () => {
   const isNetwork = NETWORK_METRICS.includes(metric);
   const [cell, setCell] = useState(1);
   // 查詢範圍固定在選的那一刻 (不要跟著時間一直變, 不然每次重畫都重新查)
-  const [range, setRange] = useState(() => ({ from: Date.now() - 3600_000, to: Date.now() }));
+  // 網址帶 ?from=&to=&amr= (從任務歷史跳過來) 就看那一段, 並把那台車標出來
+  const urlRange = useMemo(() => parseReplayParams(params), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const [focusAmr, setFocusAmr] = useState<string | null>(urlRange?.amr ?? null);
+  const [range, setRange] = useState(() =>
+    urlRange ? { from: urlRange.from, to: urlRange.to } : { from: Date.now() - 3600_000, to: Date.now() },
+  );
 
   // 看到資料了才算用過 (「觀察家」成就)
   const replayQ = useTrackReplay(mode === "replay" ? range : null);
   const heatQ = useTrackHeat(mode === "heat" ? range : null, cell);
+  const eventsQ = useTrackEvents(mode === "replay" ? range : null);
   const active = mode === "replay" ? replayQ : heatQ;
 
   const preset = (ms: number) => setRange({ from: Date.now() - ms, to: Date.now() });
@@ -291,7 +298,16 @@ const FleetReplay: FC = () => {
             <>
               <Fleet3DBoundary>
                 <Suspense fallback={<Center><Spin /></Center>}>
-                  <TrackReplay3D mode={mode} replay={replayQ.data ?? null} heat={heatQ.data ?? null} metric={metric} />
+                  <TrackReplay3D
+                    mode={mode}
+                    replay={replayQ.data ?? null}
+                    heat={heatQ.data ?? null}
+                    metric={metric}
+                    events={eventsQ.data?.events ?? []}
+                    eventsTruncated={!!eventsQ.data?.truncated}
+                    focusAmr={focusAmr}
+                    onClearFocus={() => setFocusAmr(null)}
+                  />
                 </Suspense>
               </Fleet3DBoundary>
               {active.isFetching && (

@@ -52,6 +52,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Dayjs } from "dayjs";
 import client from "@/api/axiosClient";
 import { themeAtom } from "@/theme";
+import { missionReplayLink } from "@/utils/replayLink";
 import RedispatchModal, { RedispatchTarget } from "./RedispatchModal";
 
 const { RangePicker } = DatePicker;
@@ -581,6 +582,7 @@ const MissionHistory: FC<{
 }> = ({ isOpenMissionHistory, setIsOpenMissionHistory }) => {
   const { t, i18n } = useTranslation();
   const canRedispatch = usePermission()("mission.redispatch");
+  const canReplay = usePermission()("page.fleet_replay");
   const isDark = useAtomValue(darkMode);
   // antd 的 token 不能吃 var(),要餵真實色碼,所以這裡直接拿 palette
   const { colors } = useAtomValue(themeAtom);
@@ -948,6 +950,11 @@ const MissionHistory: FC<{
             {amrId || "—"}
           </PrimaryText>
           <MutedText>{sendByLabel(record.send_by)}</MutedText>
+          {canReplay && missionReplayLink(record) && (
+            <a href={missionReplayLink(record)!} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12 }}>
+              {t("fleet_replay.open_from_mission")}
+            </a>
+          )}
           {sourceLabel(record.send_source) && (
             <Tooltip title={sourceLabel(record.send_source, true)}>
               <MutedText style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>

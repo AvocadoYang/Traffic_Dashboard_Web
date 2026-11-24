@@ -14,6 +14,7 @@ import {
   InboxOutlined,
   AlertOutlined,
   HistoryOutlined,
+  ToolOutlined,
 } from "@ant-design/icons";
 import type { SettingV2PanelKey } from "./panelKeys";
 
@@ -268,6 +269,16 @@ export const navCategories: NavCategory[] = [
         key: "setting_change_log",
         labelKey: "toolbar.records.setting_change_log",
       },
+    ],
+  },
+  {
+    key: "system_maintenance",
+    labelKey: "toolbar.category.system_maintenance",
+    icon: ToolOutlined,
+    children: [
+      { key: "diagnostic_bundle", labelKey: "diagnostic_bundle.title" },
+      { key: "settings_snapshot", labelKey: "snapshot.title" },
+      { key: "system_restart", labelKey: "restart_section.title" },
     ],
   },
   {

@@ -230,3 +230,15 @@ export const NestedEmpty = styled.div`
   background: ${c.bgSubtle};
   border: 1px dashed ${c.border};
 `;
+
+/** 引用其他任務的那一項:只顯示任務名稱,不展開內容 */
+export const IncludeBanner = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${space.sm};
+  padding: 4px ${space.sm};
+  font-weight: 700;
+  color: ${c.text};
+  background: ${c.bgSubtle};
+  border-left: 3px solid ${c.borderStrong};
+`;
