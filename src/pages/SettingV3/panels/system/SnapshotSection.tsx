@@ -38,6 +38,7 @@ type ListResponse = {
   lastRestore: { snapshotName: string; at: string } | null;
   pendingRestart: boolean;
   activeMissions: number;
+  pendingMissions: number;
 };
 
 type TableChange = {
@@ -55,6 +56,7 @@ type Preview = {
   categories: { category: string; label: string; tables: TableChange[] }[];
   blockers: {
     count: number;
+    pending: number;
     sample: { id: string; amrId: string; status: string }[];
   };
 };
@@ -272,6 +274,11 @@ const SnapshotSection: FC = () => {
                   .map((m) => `${m.id} (${m.amrId} ${m.status})`)
                   .join(", ")}
               </WarnNote>
+            )}
+            {preview.blockers.pending > 0 && (
+              <Hint>
+                {t("snapshot.pending_note", { count: preview.blockers.pending })}
+              </Hint>
             )}
             {nothingToRestore ? (
               <Hint>{t("snapshot.no_difference")}</Hint>
