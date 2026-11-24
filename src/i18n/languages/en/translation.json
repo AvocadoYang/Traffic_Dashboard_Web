@@ -5884,6 +5884,44 @@
       "io_summary": "{{n}} modules · {{io}} IN {{io}} OUT",
       "no_modules": "This group has no modules",
       "standalone": "Standalone"
+    },
+    "state": {
+      "title": "What the signals mean",
+      "add": "Add signal state for {{group}}",
+      "edit": "Edit signal state for {{group}}",
+      "add_short": "Add",
+      "empty": "Nothing set up yet. Pick one or more signals and write what it means when they are on, e.g. DO0 + DO1 → Exclusive mode on, DI0 → Elevator fault. The Advantech 4000 box on the main screen lists the ones that are on now.",
+      "signals": "Signals",
+      "signals_hint": "Click to pick signals. Picking several = they must all be on at the same time. Modules in a group are numbered in order: the 1st is 0–3, the 2nd is 4–7. The dot in the corner is the live value.",
+      "need_signal": "Pick at least one signal",
+      "none_picked": "None picked",
+      "name": "Meaning",
+      "name_placeholder": "e.g. Exclusive mode on, Door open pressed, Elevator fault",
+      "tone": "Color",
+      "tone_green": "Green (normal)",
+      "tone_blue": "Blue (action)",
+      "tone_amber": "Amber (caution)",
+      "tone_red": "Red (fault)",
+      "tone_purple": "Purple",
+      "tone_gray": "Gray",
+      "note": "Extra note",
+      "note_placeholder": "Shown under this state on the main screen. Optional.",
+      "live_met": "With the current signals, the main screen would show \"{{name}}\"",
+      "live_not_met": "With the current signals, this would not show",
+      "now": "NOW",
+      "broken": "A signal belongs to a module that is no longer in this group, so this never shows. Edit it.",
+      "missing_module": "(module removed)"
+    },
+    "status": {
+      "title": "Advantech 4000",
+      "current": "Current state",
+      "others": "Other states",
+      "signals": "Signals",
+      "no_groups": "No module groups yet. Create one in Settings > Devices > Advantech 4000 serial.",
+      "no_states": "No signal states set up",
+      "no_states_hint": "Add them on the group card in Settings, e.g. DO0 + DO1 → Exclusive mode on.",
+      "no_active": "Nothing triggered",
+      "no_active_hint": "None of the signal combinations you set up are on right now."
     }
   }
 }

@@ -5885,6 +5885,44 @@
       "io_summary": "{{n}} 台模組 · {{io}} IN {{io}} OUT",
       "no_modules": "這個群組沒有模組了",
       "standalone": "獨立"
+    },
+    "state": {
+      "title": "訊號代表的狀態",
+      "add": "新增 {{group}} 的訊號狀態",
+      "edit": "編輯 {{group}} 的訊號狀態",
+      "add_short": "新增",
+      "empty": "還沒有設定。選一個或幾個訊號, 寫下它們亮起來時代表什麼, 例如 DO0 + DO1 → 專屬模式啟動、DI0 → 電梯故障。首頁的 Advantech 4000 方塊會列出現在亮著的。",
+      "signals": "訊號",
+      "signals_hint": "點選訊號, 選好幾個 = 要同時亮才算。群組裡的模組照順序接續編號: 第 1 台是 0–3, 第 2 台是 4–7。右上角小燈是現在讀到的值。",
+      "need_signal": "至少要選一個訊號",
+      "none_picked": "還沒選",
+      "name": "代表什麼",
+      "name_placeholder": "例如 專屬模式啟動、按下開門、電梯故障",
+      "tone": "顏色",
+      "tone_green": "綠 (正常)",
+      "tone_blue": "藍 (動作)",
+      "tone_amber": "黃 (注意)",
+      "tone_red": "紅 (異常)",
+      "tone_purple": "紫",
+      "tone_gray": "灰",
+      "note": "補充說明",
+      "note_placeholder": "顯示在首頁這個狀態底下, 可以留空",
+      "live_met": "照現在的訊號, 首頁會顯示「{{name}}」",
+      "live_not_met": "照現在的訊號, 這個不會顯示",
+      "now": "目前",
+      "broken": "有訊號的模組已經不在這個群組, 這一筆不會顯示, 請重新編輯",
+      "missing_module": "(模組已移出)"
+    },
+    "status": {
+      "title": "Advantech 4000",
+      "current": "目前狀態",
+      "others": "其他狀態",
+      "signals": "訊號",
+      "no_groups": "還沒有模組群組, 到 設定 > 設備 > Advantech 4000 serial 建立",
+      "no_states": "尚未設定訊號代表的狀態",
+      "no_states_hint": "到設定頁的群組卡新增, 例如 DO0 + DO1 → 專屬模式啟動。",
+      "no_active": "沒有觸發中的狀態",
+      "no_active_hint": "設定過的訊號組合現在都沒有亮。"
     }
   }
 }
