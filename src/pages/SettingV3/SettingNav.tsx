@@ -9,7 +9,6 @@ import {
 import type { MenuProps } from "antd";
 import {
   DeliveredProcedureOutlined,
-  BorderOuterOutlined,
   UploadOutlined,
   EyeInvisibleOutlined,
   BorderHorizontalOutlined,
@@ -25,7 +24,6 @@ import {
   isOpenUploadWarningIDModal,
 } from "@/utils/siderGloble";
 import type { SettingV2PanelKey } from "@/pages/SettingV3/panelKeys";
-import StartPoint from "@/components/Setting/StartPoint/StartPoint";
 import ImportMapConfigModal from "@/components/Setting/importMap/ImportMapConfigModal";
 import UploadWarningModal from "@/components/Setting/UploadWarningModal";
 import { navCategories } from "@/pages/SettingV3/navItems";
@@ -131,7 +129,6 @@ const SettingNav: FC<Props> = ({
 }) => {
   const [mapMode, setMapMode] = useAtom(mapViewModeAtom);
   const { t } = useTranslation();
-  const [openStartPoint, setOpenStartPoint] = useState(false);
   const [openImportMapConfig, setImportMapConfig] = useState(false);
   const [mirStylePlacer, setMirStylePlacer] = useAtom(
     MirStyleLocationPlacerSwitch,
@@ -166,7 +163,6 @@ const SettingNav: FC<Props> = ({
   );
 
   const uploadWarningLabel = t("toolbar.file_setting.upload_warning_file");
-  const startPointLabel = t("toolbar.file_setting.start_point");
   const importMapLabel = t("toolbar.file_setting.import_map");
 
   // 點同一個項目 = 收起來,點別的 = 直接換過去,永遠只會有一個面板。
@@ -280,16 +276,6 @@ const SettingNav: FC<Props> = ({
             {!collapsed && uploadWarningLabel}
           </ActionButton>
         )}
-        {can("setting.point.edit") && (
-          <ActionButton
-            $collapsed={collapsed}
-            title={collapsed ? startPointLabel : undefined}
-            onClick={() => setOpenStartPoint(true)}
-          >
-            <BorderOuterOutlined />
-            {!collapsed && startPointLabel}
-          </ActionButton>
-        )}
         {can("setting.map.edit") && (
           <ActionButton
             $collapsed={collapsed}
@@ -302,10 +288,6 @@ const SettingNav: FC<Props> = ({
         )}
       </ActionList>
 
-      <StartPoint
-        openStartPoint={openStartPoint}
-        setOpenStartPoint={setOpenStartPoint}
-      />
       <ImportMapConfigModal
         openImportMapConfig={openImportMapConfig}
         setImportMapConfig={setImportMapConfig}
