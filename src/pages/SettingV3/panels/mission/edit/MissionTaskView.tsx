@@ -3,6 +3,7 @@ import { Form, Modal, Popconfirm, message } from "antd";
 import {
   CopyOutlined,
   LeftOutlined,
+  LinkOutlined,
   PlusOutlined,
   ScheduleOutlined,
 } from "@ant-design/icons";
@@ -28,6 +29,7 @@ import {
 import ForkStepList from "@/pages/SettingV3/panels/mission/edit/steps/ForkStepList";
 import ForkTaskForm from "@/pages/SettingV3/panels/mission/edit/forkForm/ForkTaskForm";
 import MirMissionEditor from "@/pages/SettingV3/panels/mission/edit/mirForm/MirMissionEditor";
+import IncludeStepModal from "@/pages/SettingV3/panels/mission/edit/steps/IncludeStepModal";
 import { STEP_QUERY_BASE } from "@/pages/SettingV3/panels/mission/edit/steps/useStepMutations";
 
 type Props = {
@@ -52,6 +54,7 @@ const MissionTaskView: FC<Props> = ({
 
   const [editTaskKey, setEditTaskKey] = useState("");
   const [formOpen, setFormOpen] = useState(false);
+  const [includeOpen, setIncludeOpen] = useState(false);
 
   // 人形車的步驟編輯器沒有人在用,v2 不做這一支;v1 的 /setting 還留著。
   const isForkMission = isFork(robotValue);
@@ -140,6 +143,13 @@ const MissionTaskView: FC<Props> = ({
               {t("mission.mission_list.copy_mission")}
             </GhostButton>
           </Popconfirm>
+
+          {isForkMission && (
+            <GhostButton onClick={() => setIncludeOpen(true)}>
+              <LinkOutlined />
+              {t("setting_v2.mission.include_button")}
+            </GhostButton>
+          )}
         </Toolbar>
 
         {!isForkMission && !isMirMission && (
@@ -162,6 +172,14 @@ const MissionTaskView: FC<Props> = ({
           />
         )}
       </Section>
+
+      <IncludeStepModal
+        open={includeOpen && isForkMission}
+        missionId={missionId}
+        robotValue={robotValue}
+        messageApi={messageApi}
+        onClose={() => setIncludeOpen(false)}
+      />
 
       {/* MiR 的參數是在自己的抽屜裡改,不會用到這個對話框 */}
       <Modal

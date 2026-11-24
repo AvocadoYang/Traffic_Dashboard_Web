@@ -77,7 +77,6 @@ import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { errorHandler } from "@/utils/utils";
 import ImportMapConfigModal from "@/components/Setting/importMap/ImportMapConfigModal";
-import StartPoint from "@/components/Setting/StartPoint/StartPoint";
 import useIsWebMediaQuery from "@/hooks/useIsWebMediaQuery";
 import useConfigFlags from "@/api/useConfigFlags";
 
@@ -292,7 +291,6 @@ const Sider: React.FC<{
   );
   const [openImportMapConfig, setImportMapConfig] = useState(false);
   const [openBackup, setOpenBackup] = useAtom(isShowEditBackup);
-  const [openStartPoint, setOpenStartPoint] = useState(false);
 
   const [openSwitchMap, setOpenSwitchMap] = useAtom(isOpenSwitchMap);
   const [openMapGroupTable, setOpenMapGroupTable] =
@@ -973,11 +971,6 @@ const Sider: React.FC<{
         />,
       ),
       getItem(
-        t("toolbar.file_setting.start_point"),
-        "9-4",
-        <BorderOuterOutlined />,
-      ),
-      getItem(
         t("toolbar.file_setting.import_map"),
         "9-5",
         <DeliveredProcedureOutlined />,
@@ -1107,9 +1100,6 @@ const Sider: React.FC<{
           window.location.reload();
         }, 6000);
         return;
-      case "9-4":
-        setOpenStartPoint(true);
-        break;
       case "9-5":
         setImportMapConfig(true);
         break;
@@ -1252,10 +1242,6 @@ const Sider: React.FC<{
         setImportMapConfig={setImportMapConfig}
         openImportMapConfig={openImportMapConfig}
       ></ImportMapConfigModal>
-      <StartPoint
-        openStartPoint={openStartPoint}
-        setOpenStartPoint={setOpenStartPoint}
-      />
       <UploadWarningModal></UploadWarningModal>
     </>
   );
