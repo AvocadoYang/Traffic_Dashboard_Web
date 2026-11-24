@@ -3168,6 +3168,22 @@
     "description": "Description",
     "enable": "Enable"
   },
+  "diagnostic_bundle": {
+    "title": "Diagnostic bundle",
+    "hint": "Packs this host's recent logs, missions, alarms, connection and setting-change records, versions and health status into one zip for support. Passwords and keys in the config are masked; the logs themselves are not scrubbed, so do not share the bundle publicly.",
+    "range": "Data range",
+    "range_options": {
+      "1": "Last 1 hour",
+      "24": "Last 24 hours",
+      "72": "Last 3 days",
+      "168": "Last 7 days"
+    },
+    "download": "Download diagnostic bundle",
+    "preparing": "Packing, this can take a while when there are many logs…",
+    "done": "Diagnostic bundle downloaded",
+    "busy": "A bundle is already being made, please try again shortly",
+    "failed": "Could not make the diagnostic bundle"
+  },
   "health_monitor": {
     "title": "Host and software health",
     "hint": "Checks disk, memory, backend stalls, the database and Redis every 15 seconds and raises a system alarm when one is over its limit. Each host checks itself; this is the host that answered ({{host}}). A reading has to stay over the limit for a while before it counts, so brief spikes do not keep ringing.",
