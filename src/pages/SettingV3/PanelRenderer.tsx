@@ -48,6 +48,7 @@ import WarningListPanel from "@/pages/SettingV3/panels/file/WarningListPanel";
 import SystemAlarmPanel from "@/pages/SettingV3/panels/file/SystemAlarmPanel";
 import DiagnosticBundlePanel from "@/pages/SettingV3/panels/system/DiagnosticBundlePanel";
 import SnapshotPanel from "@/pages/SettingV3/panels/system/SnapshotPanel";
+import RestartPanel from "@/pages/SettingV3/panels/system/RestartPanel";
 import FootprintPanel from "@/pages/SettingV3/panels/mir/FootprintPanel";
 import SoundPanel from "@/pages/SettingV3/panels/mir/SoundPanel";
 import MarkerTypePanel from "@/pages/SettingV3/panels/mir/MarkerTypePanel";
@@ -189,6 +190,8 @@ const PanelRenderer: FC<Props> = ({
       return <DiagnosticBundlePanel />;
     case "settings_snapshot":
       return <SnapshotPanel />;
+    case "system_restart":
+      return <RestartPanel />;
     case "maintenance_items":
       return <MaintenanceItemPanel />;
     case "footprint":

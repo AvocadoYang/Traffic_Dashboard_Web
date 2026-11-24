@@ -278,6 +278,7 @@ export const navCategories: NavCategory[] = [
     children: [
       { key: "diagnostic_bundle", labelKey: "diagnostic_bundle.title" },
       { key: "settings_snapshot", labelKey: "snapshot.title" },
+      { key: "system_restart", labelKey: "restart_section.title" },
     ],
   },
   {

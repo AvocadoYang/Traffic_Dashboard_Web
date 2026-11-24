@@ -3169,6 +3169,20 @@
     "description": "Description",
     "enable": "Enable"
   },
+  "restart_section": {
+    "title": "Restart backend",
+    "hint": "Restarts the backend program (not the computer). Needed after restoring a settings snapshot. Vehicle connections drop during the restart and are reconciled automatically afterwards.",
+    "mode_loop": "The backend on this host is started by start-all.sh: it exits and the script runs it again in the same terminal window.",
+    "mode_supervisor": "The backend on this host is managed by pm2 or Docker: it exits and is started again by them.",
+    "mode_dev": "The backend on this host runs in development mode (ts-node-dev): it recompiles and restarts by itself.",
+    "mode_self": "The backend on this host runs in a terminal: it starts a new copy of itself, which begins in about 5 seconds. Its output continues in the same terminal window.",
+    "active_warning": "{{count}} missions are being carried out by vehicles; restarting interrupts them and they are reconciled afterwards.",
+    "restart": "Restart",
+    "confirm_title": "Restart the backend?",
+    "confirm_body": "The page cannot reach the backend for a while and reloads itself when it is back.",
+    "waiting": "Restarting, the page reloads itself when the backend is back…",
+    "timeout": "The backend has not come back after 3 minutes, please check it on the host"
+  },
   "snapshot": {
     "title": "Settings snapshots",
     "hint": "Saves all current settings (maps, missions, vehicles, devices and shelves, rules, alarm settings) so a bad change can be rolled back in one step. Accounts, history, cargo and live state such as whether a shelf holds cargo or which map group is in use are not included.",
