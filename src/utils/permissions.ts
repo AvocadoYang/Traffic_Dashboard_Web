@@ -97,6 +97,7 @@ export const SETTING_NAV_VIEW_PERMISSION: Record<string, string> = {
   cargo: "setting.cargo.view",
   alarm: "setting.alarm.view",
   records: "setting.change_log.view",
+  system_maintenance: "setting.system.edit",
   mir: "setting.mir.view",
 };
 

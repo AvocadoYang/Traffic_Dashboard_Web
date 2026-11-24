@@ -1145,7 +1145,8 @@
       "dispatch": "Dispatch Rules",
       "cargo": "Cargo",
       "alarm": "Alarms",
-      "records": "Records"
+      "records": "Records",
+      "system_maintenance": "System maintenance"
     },
     "restart": {
       "restart": "restart system"

@@ -14,6 +14,8 @@ export type SettingV2OnlyKey =
   | "work_areas"
   | "map_annotation"
   | "setting_change_log"
+  | "diagnostic_bundle"
+  | "settings_snapshot"
   | "maintenance_items"
   | "advantech_serial"
   | "signal_trigger";

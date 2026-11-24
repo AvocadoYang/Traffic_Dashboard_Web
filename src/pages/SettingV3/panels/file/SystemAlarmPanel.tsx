@@ -12,8 +12,6 @@ import {
 } from "@/atoms/alarm/systemAlarmFilter";
 import AlarmPositionPicker from "./AlarmPositionPicker";
 import HealthMonitorSection from "./HealthMonitorSection";
-import DiagnosticBundleSection from "./DiagnosticBundleSection";
-import SnapshotSection from "./SnapshotSection";
 import useIsNarrow from "@/pages/SettingV3/ui/useIsNarrow";
 import StatusTag from "@/pages/SettingV3/ui/StatusTag";
 import { c, font, space } from "@/theme/tokens";
@@ -178,10 +176,6 @@ const SystemAlarmPanel: FC = () => {
       </Section>
 
       <HealthMonitorSection />
-
-      <DiagnosticBundleSection />
-
-      <SnapshotSection />
 
       <Section>
         <SectionTitle>
