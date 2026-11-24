@@ -12,12 +12,13 @@ import {
 import CargoHistory from "./pages/CargoHistory/CargoHistory";
 import AmrDetail from "./pages/AmrDetail/AmrDetail";
 import AmrList from "./pages/AmrDetail/AmrList";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { SystemAlarmOverlay } from "./pages/Main/components/SystemAlarm";
 import { UserConformOverlay } from "./pages/Main/components/UserConformTaskStep";
 import MissionDispatchBoard from "./pages/MissionDispatchBoard/MissionDispatchBoard";
 import OperationReport from "./pages/OperationReport/OperationReport";
 import FleetReplay from "./pages/FleetReplay/FleetReplay";
+import Kiosk from "./pages/Kiosk/Kiosk";
 import Achievements from "./pages/Achievements/Achievements";
 import AchievementToaster from "./components/Achievements/AchievementToaster";
 import SimulateV2Gate from "./pages/SimulateV2/SimulateV2Gate";
@@ -47,6 +48,7 @@ function App() {
   // const bar = useBarcodeSignal();
 
   const ProtectedRoute = () => {
+    const { pathname } = useLocation();
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -60,7 +62,8 @@ function App() {
         {/* 功能權限: 沒有這一頁的權限就不顯示 */}
         <PageGate />
         {/* 放在頁面後面: 跟頁面裡同一層的元件比, 聊天室要在上面 (見 CHAT_Z_INDEX) */}
-        <SiteChat />
+        {/* 看板模式是給電視看的, 不放聊天室浮動按鈕 */}
+        {pathname !== "/kiosk" && <SiteChat />}
         <AchievementToaster />
       </>
     );
@@ -118,6 +121,7 @@ function App() {
                 <Route path="/amr/:amrId" element={<AmrDetail />} />
                 <Route path="/report" element={<OperationReport />} />
                 <Route path="/fleet-replay" element={<FleetReplay />} />
+                <Route path="/kiosk" element={<Kiosk />} />
                 <Route path="/achievements" element={<Achievements />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="*" element={<h1>{t("utils.not_found")}</h1>} />
