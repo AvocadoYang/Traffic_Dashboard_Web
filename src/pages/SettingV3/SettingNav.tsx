@@ -3,16 +3,12 @@ import {
   Button,
   Menu,
   Switch,
-  Popconfirm,
-  message,
   Segmented,
   Tooltip,
 } from "antd";
 import type { MenuProps } from "antd";
 import {
   DeliveredProcedureOutlined,
-  BorderOuterOutlined,
-  RedoOutlined,
   UploadOutlined,
   EyeInvisibleOutlined,
   BorderHorizontalOutlined,
@@ -22,17 +18,12 @@ import {
 } from "@ant-design/icons";
 import { useAtom } from "jotai";
 import { useTranslation } from "react-i18next";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import styled from "styled-components";
-import client from "@/api/axiosClient";
-import { errorHandler } from "@/utils/utils";
-import { ErrorResponse } from "@/utils/globalType";
 import {
   MirStyleLocationPlacerSwitch,
   isOpenUploadWarningIDModal,
 } from "@/utils/siderGloble";
 import type { SettingV2PanelKey } from "@/pages/SettingV3/panelKeys";
-import StartPoint from "@/components/Setting/StartPoint/StartPoint";
 import ImportMapConfigModal from "@/components/Setting/importMap/ImportMapConfigModal";
 import UploadWarningModal from "@/components/Setting/UploadWarningModal";
 import { navCategories } from "@/pages/SettingV3/navItems";
@@ -138,9 +129,6 @@ const SettingNav: FC<Props> = ({
 }) => {
   const [mapMode, setMapMode] = useAtom(mapViewModeAtom);
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  const [messageApi, contextHolder] = message.useMessage();
-  const [openStartPoint, setOpenStartPoint] = useState(false);
   const [openImportMapConfig, setImportMapConfig] = useState(false);
   const [mirStylePlacer, setMirStylePlacer] = useAtom(
     MirStyleLocationPlacerSwitch,
@@ -150,15 +138,6 @@ const SettingNav: FC<Props> = ({
   // 還沒拿到 (或拿失敗) 時當成沒有 MiR, 沒有 MiR 的案場不會先閃出 MiR 選單
   const hasMir = configFlags?.hasMir ?? false;
   const can = usePermission();
-
-  const restartMutate = useMutation({
-    mutationFn: () => client.post("api/setting/restart"),
-    onSuccess: () => {
-      void messageApi.success("success");
-      queryClient.refetchQueries({ queryKey: ["map"] });
-    },
-    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
-  });
 
   const menuItems: MenuProps["items"] = useMemo(
     () =>
@@ -184,9 +163,7 @@ const SettingNav: FC<Props> = ({
   );
 
   const uploadWarningLabel = t("toolbar.file_setting.upload_warning_file");
-  const startPointLabel = t("toolbar.file_setting.start_point");
   const importMapLabel = t("toolbar.file_setting.import_map");
-  const restartLabel = t("toolbar.restart.restart");
 
   // 點同一個項目 = 收起來,點別的 = 直接換過去,永遠只會有一個面板。
   const handleClick: MenuProps["onClick"] = ({ key }) => {
@@ -197,7 +174,6 @@ const SettingNav: FC<Props> = ({
 
   return (
     <NavWrap $collapsed={collapsed}>
-      {contextHolder}
 
       {onToggleCollapse && (
         <CollapseRow $collapsed={collapsed}>
@@ -300,16 +276,6 @@ const SettingNav: FC<Props> = ({
             {!collapsed && uploadWarningLabel}
           </ActionButton>
         )}
-        {can("setting.point.edit") && (
-          <ActionButton
-            $collapsed={collapsed}
-            title={collapsed ? startPointLabel : undefined}
-            onClick={() => setOpenStartPoint(true)}
-          >
-            <BorderOuterOutlined />
-            {!collapsed && startPointLabel}
-          </ActionButton>
-        )}
         {can("setting.map.edit") && (
           <ActionButton
             $collapsed={collapsed}
@@ -320,34 +286,8 @@ const SettingNav: FC<Props> = ({
             {!collapsed && importMapLabel}
           </ActionButton>
         )}
-        {/* v1 是直接點下去就重啟,這裡加一層確認:單選選單比開關更容易誤點,
-            而重啟會讓整個系統中斷再 reload。 */}
-        {can("setting.system.edit") && (
-        <Popconfirm
-          title={t("toolbar.restart.restart")}
-          onConfirm={() => {
-            restartMutate.mutate();
-            setTimeout(() => window.location.reload(), 6000);
-          }}
-          okText={t("utils.confirm")}
-          cancelText={t("utils.cancel")}
-          placement="right"
-        >
-          <ActionButton
-            $collapsed={collapsed}
-            title={collapsed ? restartLabel : undefined}
-          >
-            <RedoOutlined />
-            {!collapsed && restartLabel}
-          </ActionButton>
-        </Popconfirm>
-        )}
       </ActionList>
 
-      <StartPoint
-        openStartPoint={openStartPoint}
-        setOpenStartPoint={setOpenStartPoint}
-      />
       <ImportMapConfigModal
         openImportMapConfig={openImportMapConfig}
         setImportMapConfig={setImportMapConfig}

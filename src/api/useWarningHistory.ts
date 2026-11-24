@@ -14,9 +14,11 @@ const schema = array(
   })
 ).required();
 
-const getData = async (page = 1, pageSize = 50) => {
+export type HistoryRange = { start?: string; end?: string };
+
+const getData = async (page = 1, pageSize = 50, range: HistoryRange = {}) => {
   const { data } = await client.get("api/records/warning-history", {
-    params: { page, pageSize },
+    params: { page, pageSize, start: range.start, end: range.end },
   });
 
   return schema
@@ -28,10 +30,14 @@ const getData = async (page = 1, pageSize = 50) => {
     }));
 };
 
-const useWarningHistory = (page: number, pageSize: number) => {
+const useWarningHistory = (
+  page: number,
+  pageSize: number,
+  range: HistoryRange = {},
+) => {
   return useQuery({
-    queryKey: ["warning-history", page, pageSize],
-    queryFn: () => getData(page, pageSize),
+    queryKey: ["warning-history", page, pageSize, range.start, range.end],
+    queryFn: () => getData(page, pageSize, range),
     refetchInterval: 3000,
   });
 };

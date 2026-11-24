@@ -797,6 +797,9 @@ const Header: React.FC = () => {
       case "chat":
         setChatOpen(true);
         break;
+      case "kiosk":
+        navigate("/kiosk");
+        break;
       case "client-name":
         setOpenClientName(true);
         break;
@@ -861,6 +864,14 @@ const Header: React.FC = () => {
         <MessageOutlined />
         {t("chat.menu")}
         {unreadChat > 0 && <CountBadge>{unreadChat}</CountBadge>}
+      </MenuItem>
+      <MenuItem
+        type="button"
+        role="menuitem"
+        onClick={() => runUserAction("kiosk")}
+      >
+        <DesktopOutlined />
+        {t("kiosk.open")}
       </MenuItem>
       <MenuItem
         type="button"
