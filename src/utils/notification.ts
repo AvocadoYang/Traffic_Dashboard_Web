@@ -9,7 +9,7 @@ const openNotificationWithIcon = (
   placement: "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight",
 ) => {
   notification[type]({
-    message: title,
+    title,
     description,
     placement,
   });

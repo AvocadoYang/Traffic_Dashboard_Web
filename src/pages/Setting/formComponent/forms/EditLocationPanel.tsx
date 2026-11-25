@@ -28,6 +28,7 @@ import { currentMapIdAtom } from "@/atoms/map/mapSelectionAtoms";
 
 // Adjusted props to be cleaner
 const EditLocationPanel: React.FC<{
+  sortableId?: string;
   locationPanelForm: FormInstance<unknown>;
   // For Dnd-kit, keep these imports correct
   attributes: import("@dnd-kit/core").DraggableAttributes;
@@ -174,7 +175,8 @@ const EditLocationPanel: React.FC<{
           initialValues={initialLocationFormValue}
           form={locationPanelForm}
           className="industrial-form"
-          onValuesChange={(changed) => {
+          onValuesChange={(changedValues) => {
+            const changed = changedValues as Partial<LocationType>;
             if (
               Object.prototype.hasOwnProperty.call(changed, "areaType") &&
               changed.areaType !== "ELEVATOR"

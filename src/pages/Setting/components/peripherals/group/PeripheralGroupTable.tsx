@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button, Flex, Popconfirm, Skeleton, Table, Tag, message } from "antd";
+import { Button, Flex, Popconfirm, Skeleton, Table, Tag, message, type TableColumnsType } from "antd";
 import { useTranslation } from "react-i18next";
 import usePeripheralGroup, {
   PeripheralGroupName,
@@ -61,7 +61,7 @@ const PeripheralGroupTable: React.FC = () => {
     deleteMutation.mutate({ id });
   };
 
-  const columns = [
+  const columns: TableColumnsType<PeripheralGroupName> = [
     {
       title: t("peripheral_group_table.name"),
       dataIndex: "name",

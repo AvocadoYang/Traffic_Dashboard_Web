@@ -335,7 +335,7 @@ const QueueMirTaskModal = () => {
       name?.amrs
         .filter((a) => a.isReal === true)
         .map((m) => ({
-          label: `${m.amrId} ${m.isReal ? [] : <Tag>{`${t("simulate")}`}</Tag>}`,
+          label: `${m.amrId} `,
           value: m.amrId,
         })) || []
     );

@@ -1628,19 +1628,96 @@
       "ip": "IP"
     },
     "station_panel": {
-      "charging_started": "CHARGING STARTED",
-      "charging_stopped": "CHARGING STOPPED",
-      "location_not_found": "LOCATION NOT FOUND",
-      "control_title": "CHARGE STATION CONTROL",
-      "status_title": "CHARGE STATION STATUS",
-      "location_id": "Location ID:",
-      "last_heartbeat": "Last Heartbeat:",
-      "heartbeat": "Heartbeat:",
-      "mqtt": "MQTT Connection:",
-      "tcp": "TCP Connection:",
-      "charge_bar": "Charge Bar:",
-      "start": "Start Charging",
-      "stop": "Stop Charging"
+      "charging_started": "Start charging sent",
+      "charging_stopped": "Stop charging sent",
+      "location_not_found": "Location not found",
+      "station_id": "Station ID",
+      "disabled": "Disabled",
+      "node_fleet": "Fleet system",
+      "node_fleet_sub": "mission-control",
+      "node_bridge": "Bridge program",
+      "node_bridge_sub": "usr_charge",
+      "node_station": "Charge station",
+      "node_station_sub": "Comm module + charger",
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "unknown": "Unknown",
+      "data": "Data",
+      "data_ok": "OK",
+      "data_stopped": "stopped {{duration}}",
+      "blame_here": "▲ Problem is here",
+      "last_data": "Last data",
+      "ago": "{{duration}} ago",
+      "never": "None since the bridge started",
+      "charge_bar": "Charge bar",
+      "bar_in": "Retracted",
+      "bar_out": "Extended",
+      "bar_unknown": "Unknown",
+      "last_known": "last received",
+      "location_id": "Location ID",
+      "using_amr": "Vehicle",
+      "start": "Start charging",
+      "stop": "Stop charging",
+      "dur_sec": "{{n}} s",
+      "dur_min": "{{n}} min",
+      "dur_hour": "{{n}} h",
+      "dur_day": "{{n}} d",
+      "impact": "This station cannot charge until it recovers. Vehicles bound to it are paused when they enter its area.",
+      "verdict": {
+        "ok": {
+          "title": "OK",
+          "what": "Connected and the station keeps sending data. Charge bar is {{bar}}."
+        },
+        "no_data": {
+          "title": "No data for this charge station",
+          "what": "The fleet system is not sending any status for this location.",
+          "do": [
+            "Reload the page",
+            "Still the same: check in Settings that this location is set up as a charge station"
+          ]
+        },
+        "stale": {
+          "title": "Problem: fleet system / page connection",
+          "what": "This page no longer receives updates from the fleet system. The status below is old.",
+          "do": [
+            "Check that the fleet PC and mission-control are running",
+            "Reload the page"
+          ]
+        },
+        "bridge": {
+          "title": "Problem: charge station bridge program",
+          "what": "The bridge program (usr_charge) is not connected to the fleet system, so no charge station status is received.",
+          "do": [
+            "On the fleet PC, check that usr_charge is running (pm2 list)",
+            "Not running or keeps restarting: check usr_charge app.log"
+          ]
+        },
+        "tcp": {
+          "title": "Problem: charge station power or network",
+          "what": "The bridge program cannot connect to this charge station (TCP).",
+          "do": [
+            "Check that the station is powered and the network cable is plugged in",
+            "Ping the station's IP from the fleet PC",
+            "Ping works but it still cannot connect, or keeps flipping between connected and disconnected: the station's comm module is stuck, power-cycle the station"
+          ]
+        },
+        "silent": {
+          "title": "Problem: the charge station itself (comm module or charger)",
+          "what": "The network is fine, but the station has sent no data for {{duration}}. Restarting the fleet system or the bridge program will not help.",
+          "do": [
+            "Power-cycle the charge station",
+            "Happens often: note the time and contact the charger vendor with the bridge's station log"
+          ]
+        },
+        "bar_unknown": {
+          "title": "Charge bar state not understood",
+          "what": "Data is received, but whether the bar is extended or retracted cannot be read, so it is treated as extended for safety.",
+          "do": [
+            "Check the charger type of this station in the bridge program's config",
+            "Type is correct: contact software with the bridge's station log"
+          ]
+        }
+      }
     },
     "station_label": "Charge station no.",
     "station_config": {

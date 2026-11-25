@@ -468,7 +468,7 @@ const TaskFormFork: FC<{
       const newOrder = prev.filter((_, i) => i !== index);
       setTimeout(() => {
         const currentForkValues = form.getFieldValue(["io", "fork"]) || {};
-        const newForkValues = {};
+        const newForkValues: Record<string, unknown> = {};
         let newIndex = 0;
         Object.keys(currentForkValues).forEach((key, oldIndex) => {
           if (oldIndex !== index) {
@@ -493,7 +493,7 @@ const TaskFormFork: FC<{
       newOrder.splice(to, 0, moved);
       const current = form.getFieldValue(["io", "fork"]) || {};
       const keys = Object.keys(current);
-      const reorderedForkValues = {};
+      const reorderedForkValues: Record<number, unknown> = {};
       const reorderedKeys = [...keys];
       const [removedKey] = reorderedKeys.splice(from, 1);
       reorderedKeys.splice(to, 0, removedKey);

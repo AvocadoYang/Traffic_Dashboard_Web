@@ -83,7 +83,7 @@ const AllCargo: React.FC<{
                 key={nanoid()}
                 onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
                 onMouseLeave={() => handleLeave()}
-                onMouseDown={(e) => {
+                onMouseDown={(e: React.MouseEvent) => {
                   if (!openEditRoadPanel || openEditZone) return;
                   setInitPoint({ clientX: e.clientX, clientY: e.clientY });
                   handleMouseDown((e.target as HTMLInputElement).id);

@@ -107,7 +107,7 @@ const StyledTable = styled(Table)`
   .ant-table-tbody > tr:hover > td {
     background: #fafafa;
   }
-`;
+` as typeof Table;
 
 const ShelfCategoryTable: FC<{
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;

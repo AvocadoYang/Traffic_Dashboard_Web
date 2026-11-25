@@ -54,7 +54,7 @@ const CardWrap: React.FC<{
     }
   }, []);
 
-  const btnClick = useCallback((id) => {
+  const btnClick = useCallback((id: string) => {
     switch (id) {
       case "map_2D_view":
         open2DMap(true);

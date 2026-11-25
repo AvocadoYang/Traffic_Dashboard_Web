@@ -740,7 +740,7 @@ const QuickMissionWebView: React.FC<{
               >
                 <StyledSelect
                   options={AmrOption}
-                  onChange={(v: string) => setAmrGenre(v)}
+                  onChange={(v) => setAmrGenre(v as string)}
                   placeholder={t("utils.required")}
                   size="large"
                 />

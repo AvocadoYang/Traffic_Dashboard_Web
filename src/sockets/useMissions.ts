@@ -196,11 +196,11 @@ export const useActiveMission = (amrId: string) => {
 };
 
 export type MissionInfo = {
-  amrId?: string;
+  amrId?: string | null;
   missionId: string;
-  full_name: string[];
+  full_name: (string | undefined)[];
   sub_name: string;
-  category: string[];
+  category: (string | undefined)[];
   missionType: string;
   missionStatus: string;
   manualMode?: boolean | string;
@@ -215,6 +215,8 @@ export type MissionInfo = {
   completedAt?: Date;
   info?: string | null;
   cancelReason?: CancelReason;
+  /** WAITING 任務在等什麼 */
+  message?: string | null;
   priority?: number;
   order: number;
   /** 後端的 MissionStatus 數字; missionStatus 是給畫面顯示的文字 */

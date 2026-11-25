@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { Empty, Flex, Spin, Table, Tag, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import useCargoByMission, {
   CargoMissionEvent,
@@ -25,7 +25,7 @@ const MissionCargoEvents: FC<{
       title: t("cargo_history.time"),
       dataIndex: "timestamp",
       width: 170,
-      render: (v: string) => moment(v).format("YYYY-MM-DD HH:mm:ss"),
+      render: (v: string) => dayjs(v).format("YYYY-MM-DD HH:mm:ss"),
     },
     {
       title: t("cargo_history.action_filter"),

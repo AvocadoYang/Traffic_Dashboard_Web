@@ -661,7 +661,7 @@ const SettingStyleForm: FC = () => {
             <IndustrialSelect
               value={selectStation.flex_direction}
               options={flexOption}
-              onChange={(e) => handleChangeFlex(e)}
+              onChange={(e) => handleChangeFlex(e as string)}
             />
           </Form.Item>
         </StyledForm>
