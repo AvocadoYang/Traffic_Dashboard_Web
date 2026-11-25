@@ -805,7 +805,37 @@
       "overview": "Overview",
       "battery": "Battery log",
       "connection": "Disconnections",
-      "step_timing": "Step timing"
+      "step_timing": "Step timing",
+      "eta_accuracy": "ETA accuracy"
+    },
+    "eta_accuracy": {
+      "none": "No missions with a recorded estimate in this period (recorded when a mission is assigned)",
+      "hint": "Finish time estimated at assignment compared with the real finish. Error = actual - estimate; positive means later than estimated. Within 1 minute or 20% of the estimate counts as accurate.",
+      "by_route": "By route",
+      "by_vehicle": "By vehicle",
+      "worst": "Largest errors",
+      "largest_first": "Largest error first",
+      "tile": {
+        "count": "Missions",
+        "abs_avg": "Mean abs error",
+        "bias": "Bias (+ = later)",
+        "p90": "Abs error P90",
+        "within": "Within tolerance"
+      },
+      "col": {
+        "route": "Route",
+        "vehicle": "Vehicle",
+        "mission": "Mission",
+        "assigned_at": "Assigned at",
+        "count": "Missions",
+        "predicted": "Estimate",
+        "actual": "Actual",
+        "abs_avg": "Mean abs error",
+        "bias": "Bias",
+        "p90": "P90",
+        "within": "Within tolerance",
+        "error": "Error"
+      }
     },
     "step_timing": {
       "none": "No step timing in this period (missions before 2026-11-16 have none)",
@@ -3036,6 +3066,158 @@
       "ENGINEER": "Engineer"
     }
   },
+  "eta": {
+    "column": "ETA",
+    "approx": "~",
+    "soon": "Finishing",
+    "minutes": "{{n}} min",
+    "hours": "{{h}} h {{m}} min",
+    "starts": "starts {{time}}",
+    "queued": "Queued",
+    "hint": "Estimated from past travel speed and load / offload times. Queued missions are simulated in the current order; values marked ~ are rough.",
+    "vehicle": "Current mission done in {{left}}"
+  },
+  "vehicle_version": {
+    "title": "Vehicle software",
+    "card_title": "amr-core version",
+    "hint": "The amr-core version on each vehicle (reported with every heartbeat). Versions are git commits; age is compared by commit time. Old amr-core builds report no commit time and always count as older than the minimum.",
+    "min_label": "Minimum version",
+    "no_min": "No check",
+    "save": "Save",
+    "saved": "Minimum version saved",
+    "min_hint": "When a vehicle connects with an amr-core older than the minimum, a system alarm is raised (once per vehicle and version); dispatching continues. Only versions with a commit time can be chosen.",
+    "below_count": "{{count}} vehicle(s) run an amr-core older than the minimum, please update",
+    "mixed": "The fleet runs {{count}} different amr-core versions",
+    "below_min": "below minimum",
+    "below_min_detail": "Below the minimum version {{min}}, please update amr-core on this vehicle",
+    "not_reported": "No version reported yet",
+    "no_commit_time": "(old build, no time)",
+    "offline": "Not seen since start",
+    "online": "Online",
+    "simulated": "Simulated",
+    "history": "Version changes",
+    "first_seen": "First seen",
+    "no_history": "No changes yet",
+    "col": {
+      "vehicle": "Vehicle",
+      "version": "Version",
+      "commit_at": "Version time",
+      "since": "On this version since",
+      "last_seen": "Last report",
+      "time": "Time",
+      "change": "Change"
+    }
+  },
+  "standby_demand_help": {
+    "open": "How pre-positioning works",
+    "title": "Pre-positioning: how it works",
+    "sections": [
+      {
+        "title": "What it does",
+        "items": [
+          "When a car becomes idle, an idle rule can send it to a standby point. Normally it goes to the nearest free one; with pre-positioning it goes to a standby point near where missions are expected next, so the next trip starts closer.",
+          "It only decides where idle cars park. It does not change dispatching and never holds back a mission."
+        ]
+      },
+      {
+        "title": "Two things to set up first",
+        "items": [
+          "Standby points on the map: Settings > Points > Edit points, set the point type to Standby. Pick side branches or dead ends that do not block traffic, at least 4.2 m apart.",
+          "An idle rule: Settings > Missions > Idle tasks, action \"go to standby\", standby choice \"by expected demand\". The rules on this page are only used by such idle rules."
+        ]
+      },
+      {
+        "title": "What \"demand\" means",
+        "items": [
+          "Demand of a standby point at a given hour = on average, how many missions per day start picking up near this standby point in that hour. Unit: missions per hour.",
+          "Automatic: transport missions of the last N days (set on the idle rule, default 14); each mission's first destination is counted for the standby point nearest to it along the roads; weekdays and weekends separately, each hour separately.",
+          "Why decimals: it is a daily average. 2 missions at 13:00 over 10 weekdays = 0.2, i.e. most days nothing, sometimes one. A steady 4 per day gives 4.",
+          "On maps with many one-way roads demand may go to a standby point that looks further away: following the roads it is the quickest way there."
+        ]
+      },
+      {
+        "title": "Manual rules: mode and missions",
+        "items": [
+          "Rules are checked top to bottom; the first one that matches (point, day and time) sets the demand; otherwise the default at the bottom applies.",
+          "Automatic: the number from history, no value needed.",
+          "Automatic plus: history + your number. For \"history is roughly right but a batch always comes at this time\". Negative values subtract; below 0 counts as 0.",
+          "Fixed: your number, history ignored. 0 = don't park here at this time.",
+          "Enter roughly how many missions happen in that hour. Example: 4 missions near 4405 every day at 13:00 → a rule on the standby point near 4405, Mon-Fri, 13:00-14:00, Fixed, 4.",
+          "Setting the bottom default to \"don't park\" means only the points and times you wrote rules for have demand."
+        ]
+      },
+      {
+        "title": "How a car chooses",
+        "items": [
+          "An idle car looks at the free standby points within \"max extra distance\" (on the idle rule, default 60 m) beyond the nearest free one, and takes the one with the highest demand.",
+          "So the numbers are mainly compared: 3.3 beats 0.2. If all are 0 the car takes the nearest, as before.",
+          "One standby point holds one car. A value of 4 does not send 4 cars; the next idle car takes the highest remaining free point. To park several cars near an area, add several standby points there with high values.",
+          "Cars already parked are not moved when the hour changes; only newly idle cars are affected."
+        ]
+      },
+      {
+        "title": "Reading the preview",
+        "items": [
+          "Pick a day and hour to see each standby point's demand under the saved rules. Unsaved edits are not included.",
+          "Automatic = from history; Applied = which rule decided (or the default); Demand = the number that is compared; Car parked = the car standing there now.",
+          "The backend log prints \"standby point by demand\": demand = chosen for demand, nearest = no demand in range, nearest taken."
+        ]
+      },
+      {
+        "title": "Common situations",
+        "items": [
+          "New site or little history: most values are 0 and cars go to the nearest point. Collect a week or two of missions, or use manual rules.",
+          "Missions exist but demand stays 0: only missions with a pick-up step and recorded step times (since 2026-11-16) count.",
+          "To turn it off: set the idle rule's standby choice back to \"nearest free standby point\". The rules here can stay; nothing uses them then."
+        ]
+      }
+    ]
+  },
+  "standby_demand": {
+    "title": "Pre-positioning",
+    "saved": "Saved",
+    "save": "Save",
+    "unsaved": "Unsaved changes",
+    "hint": "Used when an idle rule's \"go to standby\" is set to \"by expected demand\": the demand (missions per hour) of each standby point. Rules are checked top to bottom, the first match decides; otherwise the default at the bottom applies. Auto = transport missions of the last N days on the same kind of day (weekday / weekend) and hour, each counted for the standby point nearest to its first destination.",
+    "no_rules": "No rules: the default below applies everywhere",
+    "add": "Add rule",
+    "all_points": "All standby points",
+    "every_day": "Every day",
+    "whole_day": "All day",
+    "per_hour": "/h",
+    "default_label": "Other points and times",
+    "default_auto": "Automatic",
+    "default_none": "Don't park (demand 0)",
+    "mode": {
+      "AUTO": "Automatic",
+      "AUTO_PLUS": "Automatic plus",
+      "FIXED": "Fixed"
+    },
+    "col": {
+      "enabled": "On",
+      "point": "Standby point",
+      "days": "Days",
+      "time": "Time",
+      "mode": "Mode",
+      "value": "Missions",
+      "note": "Note",
+      "history": "Automatic",
+      "applied": "Applied",
+      "demand": "Demand (/h)",
+      "car_here": "Car parked"
+    },
+    "source": {
+      "default_auto": "Default (automatic)",
+      "default_none": "Default (don't park)",
+      "rule": "Rule {{n}} ({{mode}})"
+    },
+    "preview": "Preview",
+    "preview_hint": "Demand of each standby point at a chosen time, using the saved rules. An idle car goes to the free point with the highest demand within the extra-distance limit.",
+    "days_label": "Days of history",
+    "weekday_label": "Day",
+    "hour_label": "Hour",
+    "no_points": "No standby points on the map"
+  },
   "cancel_reason": {
     "signal_wait_timeout": "Signal wait timed out",
     "null": "No Reason Specified",
@@ -3439,6 +3621,16 @@
     }
   },
   "idle_rules": {
+    "action_STANDBY_demand": "Go to standby (by demand)",
+    "standby_mode": "Standby choice",
+    "standby_mode_NEAREST": "Nearest free standby point",
+    "standby_mode_DEMAND": "By expected demand",
+    "standby_mode_NEAREST_hint": "Go to the nearest standby point with no car.",
+    "standby_mode_DEMAND_hint": "Go to a standby point near where missions are expected next (demand is set on the Pre-positioning page). Without history or demand it behaves like the nearest free point.",
+    "demand_days": "Use missions of the last",
+    "days": "days",
+    "demand_max_extra": "Max extra distance",
+    "demand_max_extra_hint": "A high-demand point further than this beyond the nearest free point is not used.",
     "title": "Idle rules",
     "hint": "What a vehicle does when it is idle. Rules are checked from the top; a vehicle follows the first one that matches, and stays where it is when none does.",
     "order_hint": "A vehicle that matches several rules only does the topmost one. When that one cannot be dispatched for now (for example no free standby point or no free charging station), the ones below are tried first.",
@@ -5996,6 +6188,44 @@
       "io_summary": "{{n}} modules · {{io}} IN {{io}} OUT",
       "no_modules": "This group has no modules",
       "standalone": "Standalone"
+    },
+    "state": {
+      "title": "What the signals mean",
+      "add": "Add signal state for {{group}}",
+      "edit": "Edit signal state for {{group}}",
+      "add_short": "Add",
+      "empty": "Nothing set up yet. Pick one or more signals and write what it means when they are on, e.g. DO0 + DO1 → Exclusive mode on, DI0 → Elevator fault. The Advantech 4000 box on the main screen lists the ones that are on now.",
+      "signals": "Signals",
+      "signals_hint": "Click to pick signals. Picking several = they must all be on at the same time. Modules in a group are numbered in order: the 1st is 0–3, the 2nd is 4–7. The dot in the corner is the live value.",
+      "need_signal": "Pick at least one signal",
+      "none_picked": "None picked",
+      "name": "Meaning",
+      "name_placeholder": "e.g. Exclusive mode on, Door open pressed, Elevator fault",
+      "tone": "Color",
+      "tone_green": "Green (normal)",
+      "tone_blue": "Blue (action)",
+      "tone_amber": "Amber (caution)",
+      "tone_red": "Red (fault)",
+      "tone_purple": "Purple",
+      "tone_gray": "Gray",
+      "note": "Extra note",
+      "note_placeholder": "Shown under this state on the main screen. Optional.",
+      "live_met": "With the current signals, the main screen would show \"{{name}}\"",
+      "live_not_met": "With the current signals, this would not show",
+      "now": "NOW",
+      "broken": "A signal belongs to a module that is no longer in this group, so this never shows. Edit it.",
+      "missing_module": "(module removed)"
+    },
+    "status": {
+      "title": "Advantech 4000",
+      "current": "Current state",
+      "others": "Other states",
+      "signals": "Signals",
+      "no_groups": "No module groups yet. Create one in Settings > Devices > Advantech 4000 serial.",
+      "no_states": "No signal states set up",
+      "no_states_hint": "Add them on the group card in Settings, e.g. DO0 + DO1 → Exclusive mode on.",
+      "no_active": "Nothing triggered",
+      "no_active_hint": "None of the signal combinations you set up are on right now."
     }
   }
 }

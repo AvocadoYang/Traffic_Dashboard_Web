@@ -53,6 +53,8 @@ export type LiveState = {
   mirMapId: Map<string, string>;
   /** 這台車正在做的任務的 sub_name */
   activeSubName: Map<string, string>;
+  /** 車目前任務的預計完成時間 (毫秒); 後端估得出來才有 */
+  activeEta: Map<string, { finishAt: number; approx: boolean }>;
   /** 申請路權被拒、還在等的車 -> 在等誰 (traffic-waits) */
   waits: Map<string, TrafficWait>;
 };
@@ -77,10 +79,12 @@ const activeSubNames = (missions: MissionInfo[]) => {
     }
   }
   const out = new Map<string, string>();
+  const eta = new Map<string, { finishAt: number; approx: boolean }>();
   best.forEach((m, amrId) => {
     if (m.sub_name) out.set(amrId, m.sub_name);
+    if (m.etaFinishAt) eta.set(amrId, { finishAt: m.etaFinishAt, approx: !!m.etaApprox });
   });
-  return out;
+  return { subNames: out, eta };
 };
 
 export type LiveStore = {
@@ -100,6 +104,7 @@ export const createLiveStore = (): LiveStore => {
     pointCloud: new Map(),
     mirMapId: new Map(),
     activeSubName: new Map(),
+    activeEta: new Map(),
     waits: new Map(),
   };
   const listeners = new Set<() => void>();
@@ -184,7 +189,9 @@ export const createLiveStore = (): LiveStore => {
 
   subs.add(
     missionReports$.subscribe(({ missions }) => {
-      state.activeSubName = activeSubNames(missions as MissionInfo[]);
+      const active = activeSubNames(missions as MissionInfo[]);
+      state.activeSubName = active.subNames;
+      state.activeEta = active.eta;
       notify();
     }),
   );

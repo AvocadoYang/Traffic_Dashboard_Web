@@ -156,6 +156,7 @@ export const navCategories: NavCategory[] = [
       { key: "schedule_mission", labelKey: "toolbar.mission.schedule_mission" },
       { key: "signal_trigger", labelKey: "toolbar.mission.signal_trigger" },
       { key: "idle_mission", labelKey: "toolbar.mission.idle_mission" },
+      { key: "standby_demand", labelKey: "standby_demand.title" },
       { key: "topic_mission", labelKey: "toolbar.mission.topic_mission" },
       { key: "blind_mission", labelKey: "toolbar.mission.blind_mission" },
       {
@@ -292,6 +293,7 @@ export const navCategories: NavCategory[] = [
       { key: "diagnostic_bundle", labelKey: "diagnostic_bundle.title" },
       { key: "settings_snapshot", labelKey: "snapshot.title" },
       { key: "system_restart", labelKey: "restart_section.title" },
+      { key: "vehicle_versions", labelKey: "vehicle_version.title" },
     ],
   },
   {

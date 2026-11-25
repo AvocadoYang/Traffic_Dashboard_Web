@@ -126,6 +126,8 @@ export const MIR_ACTION_FIELDS: Record<string, readonly MirEditableField[]> = {
 };
 
 export const MIR_DEFAULT_SOUND = "mirconst-guid-0000-0001-sounds000000";
+/** MiR 內建的 IO module (車上本身的 IO), 每台車都有 */
+export const MIR_DEFAULT_IO_MODULE = "mirconst-guid-0000-0001-internalIO00";
 
 const DEFAULTS: Record<MirEditableField, unknown> = {
   location_id: "",

@@ -6,7 +6,10 @@ import {
   mirSaftySystemList,
   mirSoundLight,
 } from "@/types/mirAction";
-import { MIR_DEFAULT_SOUND } from "@/pages/SettingV3/forms/missionComponents/mir/mirEditMissionSlice/mirActionFields";
+import {
+  MIR_DEFAULT_IO_MODULE,
+  MIR_DEFAULT_SOUND,
+} from "@/pages/SettingV3/forms/missionComponents/mir/mirEditMissionSlice/mirActionFields";
 
 /** 可以把別的動作包在裡面的動作 */
 export const CONTAINER_TYPE = "reduce_protective_fields";
@@ -89,7 +92,7 @@ export const buildDefaultOperation = (type: string): Mir_Action => ({
   rear: "muted",
   sides: "muted",
   content: "",
-  module: "",
+  module: MIR_DEFAULT_IO_MODULE,
   port: 0,
   value: "on",
   operation: "on",
@@ -468,18 +471,15 @@ export const ACTION_FIELDS: Record<string, MirField[]> = {
   ],
 };
 
-/** operation 裡存的是 id,摘要要顯示名稱得靠這些查詢;查不到就回傳原本的 id */
-export type ActionNames = {
-  moduleNameOf: (guid: string) => string;
-  footprintNameOf: (id: string) => string;
-  soundNameOf: (guid: string) => string;
-};
-
-/** 卡片上那一行摘要 */
+/**
+ * 卡片上那一行摘要。
+ * names 是 id / guid → 顯示名稱 (footprint、音檔、IO module), 查不到就直接顯示 id。
+ */
 export const summarizeAction = (
   op: Mir_Action,
-  { moduleNameOf, footprintNameOf, soundNameOf }: ActionNames,
+  names: ReadonlyMap<string, string>,
 ): { verb: string; chip?: string } => {
+  const nameOf = (id: string) => names.get(id) ?? id;
   switch (op.type) {
     case "move":
       return { verb: "Move to", chip: op.location_id || "-" };
@@ -496,7 +496,7 @@ export const summarizeAction = (
     case "set_footprint":
       return {
         verb: "Set footprint to",
-        chip: op.footprint ? footprintNameOf(op.footprint) : "-",
+        chip: op.footprint ? nameOf(op.footprint) : "-",
       };
     case "switch_map":
       return { verb: "Switch map" };
@@ -507,7 +507,7 @@ export const summarizeAction = (
     case "sound":
       return {
         verb: "Play sound",
-        chip: op.sound ? soundNameOf(op.sound) : "-",
+        chip: op.sound ? nameOf(op.sound) : "-",
       };
     case "sound_stop":
       return { verb: "Stop sound" };
@@ -533,11 +533,11 @@ export const summarizeAction = (
       };
     case "set_io":
       return {
-        verb: `Set IO ${moduleNameOf(op.module ?? "")} port ${op.port ?? 0} to ${op.operation ?? ""}`,
+        verb: `Set IO ${nameOf(op.module ?? "")} port ${op.port ?? 0} to ${op.operation ?? ""}`,
       };
     case "wait_for_io":
       return {
-        verb: `Wait for IO ${moduleNameOf(op.module ?? "")} port ${op.port ?? 0} to be ${op.value ?? ""}`,
+        verb: `Wait for IO ${nameOf(op.module ?? "")} port ${op.port ?? 0} to be ${op.value ?? ""}`,
       };
     default:
       return { verb: op.type || "Unknown action" };
