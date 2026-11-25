@@ -46,6 +46,7 @@ import AdvantechIo, {
   OfflineBadge,
 } from "./AdvantechIo";
 import AdvantechButtonModal from "./AdvantechButtonModal";
+import AdvantechStateList from "./AdvantechStateList";
 
 type GroupForm = { name: string; note: string; moduleIds: string[] };
 
@@ -346,6 +347,7 @@ const AdvantechGroupSection: FC<Props> = ({ devices, groups, onChanged }) => {
                 ) : (
                   <Hint>{t("advantech.group.no_modules")}</Hint>
                 )}
+                <AdvantechStateList group={group} onChanged={onChanged} />
                 <ButtonArea>
                   <ButtonAreaLabel>
                     {t("advantech.button.title")}

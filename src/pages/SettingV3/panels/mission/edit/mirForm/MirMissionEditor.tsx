@@ -145,7 +145,7 @@ const MirMissionEditorContent: FC<Props> = ({ missionId, robotValue }) => {
 
   const { data, isLoading } = useTaskMir(missionId);
   const includeOptions = useIncludeMissionOptions(missionId, robotValue);
-  const { actionNames } = useMirOptions();
+  const { names } = useMirOptions();
 
   const [slices, setSlices] = useState<EditorSlice[]>([]);
   const [expanded, setExpanded] = useState<string[]>([]);
@@ -620,7 +620,7 @@ const MirMissionEditorContent: FC<Props> = ({ missionId, robotValue }) => {
         }
         onEdit={() => openEdit(slice)}
         unfilledVariables={unfilledCount(slice)}
-        actionNames={actionNames}
+        names={names}
         onDuplicate={() => duplicate(slice.clientId)}
         onDelete={() => remove(slice.clientId)}
       />
@@ -736,7 +736,7 @@ const MirMissionEditorContent: FC<Props> = ({ missionId, robotValue }) => {
             {activeSlice ? (
               <DragPreview>
                 <HolderOutlined />
-                {summarizeAction(activeSlice.operation, actionNames).verb}
+                {summarizeAction(activeSlice.operation, names).verb}
               </DragPreview>
             ) : null}
           </DragOverlay>

@@ -1,3 +1,4 @@
+import { etaText } from "@/utils/eta";
 import {
   Additional_Mission_Info,
   MissionInfo,
@@ -335,7 +336,7 @@ type SelectMissionT = {
   status?: string;
 };
 
-const defaultOpenColumn = ["amrId", "missionStatus", "taskInfo"];
+const defaultOpenColumn = ["amrId", "missionStatus", "taskInfo", "eta"];
 
 const MissionTable = () => {
   const { t } = useTranslation();
@@ -510,6 +511,32 @@ const MissionTable = () => {
           );
         }
         return <span>-</span>;
+      },
+    },
+    {
+      title: (
+        <Tooltip title={t("eta.hint")}>
+          <span>{t("eta.column")}</span>
+        </Tooltip>
+      ),
+      dataIndex: "etaFinishAt",
+      key: "eta",
+      width: 128,
+      render: (_: unknown, record: MissionInfo) => {
+        const text = etaText(record, Date.now(), t);
+        if (!text) return <span>-</span>;
+        return (
+          <Flex vertical>
+            <span style={{ fontFamily: "Roboto Mono", fontWeight: 600, whiteSpace: "nowrap" }}>
+              {text.main}
+            </span>
+            {text.start && (
+              <span style={{ fontSize: 12, color: "var(--c-text-secondary)", whiteSpace: "nowrap" }}>
+                {text.start}
+              </span>
+            )}
+          </Flex>
+        );
       },
     },
     {

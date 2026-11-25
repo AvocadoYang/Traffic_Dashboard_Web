@@ -15,7 +15,7 @@ import {
   Typography,
 } from "antd";
 import { CloseOutlined, PlusOutlined, SwapOutlined } from "@ant-design/icons";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import client from "@/api/axiosClient";
@@ -28,6 +28,7 @@ import { amrId2Color, errorHandler } from "@/utils/utils";
 import AmrForm, { EditFormType } from "./AmrForm";
 import ScriptModal from "./ScriptModal";
 import { EditingSimCar, OpenSimCarPanel } from "./simCarAtoms";
+import { OpenAdvantechPanel } from "@/components/Advantech/atoms";
 import { refetchSimCars, SIM_CAR_DRAG_TYPE } from "./useSimCarPlacement";
 
 type MockSettings = {
@@ -132,6 +133,8 @@ const SimCarPanel: FC<{ top?: string; left?: string }> = ({
 }) => {
   const { t } = useTranslation();
   const [open, setOpen] = useAtom(OpenSimCarPanel);
+  // 跟 Advantech 4000 面板在同一側, 開這個就把那個關掉
+  const setAdvantechOpen = useSetAtom(OpenAdvantechPanel);
   const [editing, setEditing] = useAtom(EditingSimCar);
   const [addOpen, setAddOpen] = useState(false);
   const [scriptOpen, setScriptOpen] = useState(false);
@@ -202,7 +205,10 @@ const SimCarPanel: FC<{ top?: string; left?: string }> = ({
           $top={top}
           $left={left}
           $active={open}
-          onClick={() => setOpen((prev) => !prev)}
+          onClick={() => {
+            if (!open) setAdvantechOpen(false);
+            setOpen((prev) => !prev);
+          }}
         >
           {/* mdi: car-cog 風格的小車 */}
           <svg viewBox="0 0 24 24" aria-hidden>

@@ -30,6 +30,7 @@ import {
   Toolbar,
 } from "@/pages/SettingV3/ui/primitives";
 import {
+  MIR_DEFAULT_IO_MODULE,
   MIR_DEFAULT_SOUND,
   isCurrentPositionOperation,
 } from "@/pages/SettingV3/forms/missionComponents/mir/mirEditMissionSlice/mirActionFields";
@@ -210,9 +211,9 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
     locations,
     markerTypeOptions,
     markerTypeLocationIds,
-    bySource,
-    liveStateOf,
-    actionNames,
+    options,
+    live: liveLists,
+    names,
   } = useMirOptions();
   const { fields: variableFields, setAllFields } = useMirVariableFields();
   const fields = operation ? (ACTION_FIELDS[operation.type] ?? []) : [];
@@ -263,7 +264,7 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       front: operation.front ?? "muted",
       rear: operation.rear ?? "muted",
       sides: operation.sides ?? "muted",
-      module: operation.module || null,
+      module: operation.module || MIR_DEFAULT_IO_MODULE,
       port: Number(operation.port ?? 0),
       value: operation.value ?? "on",
       operation: operation.operation ?? "on",
@@ -528,7 +529,7 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
           // 音效與 IO module 是即時向車上查的,清單空掉的原因不只一種
           // (沒車在線 / 還在讀 / 讀失敗),要分別講清楚,不然使用者只會看到
           // 一個空下拉不知道發生什麼事。
-          const live = liveStateOf(field.source);
+          const live = liveLists[field.source];
           const notFound = !live
             ? undefined
             : live.isFetching
@@ -540,7 +541,7 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
                   : undefined;
           return (
             <Select
-              options={bySource(field.source)}
+              options={options[field.source]}
               style={{ width: "100%" }}
               allowClear
               placeholder={t("utils.select")}
@@ -597,7 +598,7 @@ const MirParamDrawer: FC<Props> = ({ slice, onClose, onSubmit, onDelete }) => {
       onClose={onClose}
       width={460}
       destroyOnHidden
-      title={operation ? summarizeAction(operation, actionNames).verb : ""}
+      title={operation ? summarizeAction(operation, names).verb : ""}
     >
       {operation ? (
         <Stack>
