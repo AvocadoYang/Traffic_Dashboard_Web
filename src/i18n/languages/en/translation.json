@@ -6287,5 +6287,14 @@
       "no_active": "Nothing triggered",
       "no_active_hint": "None of the signal combinations you set up are on right now."
     }
+  },
+  "backend_down": {
+    "title": "Backend unreachable",
+    "desc": "The backend service cannot be reached, so the data on screen may be out of date. The system keeps retrying and returns to your page as soon as it is back.",
+    "retrying": "Retrying automatically…",
+    "last_check": "Last check: {{time}}",
+    "since": "Down since: {{time}}",
+    "retry_now": "Retry now",
+    "hint": "If it does not recover, please contact the on-site maintainer to check the backend service."
   }
 }
