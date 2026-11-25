@@ -3060,6 +3060,37 @@
     "hint": "Estimated from past travel speed and load / offload times. Queued missions are simulated in the current order; values marked ~ are rough.",
     "vehicle": "Current mission done in {{left}}"
   },
+  "vehicle_version": {
+    "title": "Vehicle software",
+    "card_title": "amr-core version",
+    "hint": "The amr-core version on each vehicle (reported with every heartbeat). Versions are git commits; age is compared by commit time. Old amr-core builds report no commit time and always count as older than the minimum.",
+    "min_label": "Minimum version",
+    "no_min": "No check",
+    "save": "Save",
+    "saved": "Minimum version saved",
+    "min_hint": "When a vehicle connects with an amr-core older than the minimum, a system alarm is raised (once per vehicle and version); dispatching continues. Only versions with a commit time can be chosen.",
+    "below_count": "{{count}} vehicle(s) run an amr-core older than the minimum, please update",
+    "mixed": "The fleet runs {{count}} different amr-core versions",
+    "below_min": "below minimum",
+    "below_min_detail": "Below the minimum version {{min}}, please update amr-core on this vehicle",
+    "not_reported": "No version reported yet",
+    "no_commit_time": "(old build, no time)",
+    "offline": "Not seen since start",
+    "online": "Online",
+    "simulated": "Simulated",
+    "history": "Version changes",
+    "first_seen": "First seen",
+    "no_history": "No changes yet",
+    "col": {
+      "vehicle": "Vehicle",
+      "version": "Version",
+      "commit_at": "Version time",
+      "since": "On this version since",
+      "last_seen": "Last report",
+      "time": "Time",
+      "change": "Change"
+    }
+  },
   "cancel_reason": {
     "signal_wait_timeout": "Signal wait timed out",
     "null": "No Reason Specified",

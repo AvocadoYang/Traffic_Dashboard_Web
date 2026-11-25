@@ -17,6 +17,7 @@ export type SettingV2OnlyKey =
   | "diagnostic_bundle"
   | "settings_snapshot"
   | "system_restart"
+  | "vehicle_versions"
   | "maintenance_items"
   | "advantech_serial"
   | "signal_trigger";

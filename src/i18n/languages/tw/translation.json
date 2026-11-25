@@ -3061,6 +3061,37 @@
     "hint": "依歷史車速和取放貨時間估算。排隊中的任務照目前順序模擬由哪台車接，標「約」的估得比較粗。",
     "vehicle": "目前任務 {{left}}後完成"
   },
+  "vehicle_version": {
+    "title": "車輛軟體版本",
+    "card_title": "amr-core 版本",
+    "hint": "每台車上 amr-core 的版本 (車子每次心跳回報)。版本是 git commit 編號，新舊用 commit 時間比；舊版 amr-core 沒有回報 commit 時間，一律算比最低版本舊。",
+    "min_label": "最低版本",
+    "no_min": "不檢查",
+    "save": "儲存",
+    "saved": "已儲存最低版本",
+    "min_hint": "車連上時如果 amr-core 比最低版本舊，發一筆系統告警 (每台車每個版本一次)，照常派車。只能選有回報 commit 時間的版本。",
+    "below_count": "有 {{count}} 台車的 amr-core 低於最低版本，請更新",
+    "mixed": "車隊目前有 {{count}} 種 amr-core 版本",
+    "below_min": "低於最低版本",
+    "below_min_detail": "低於最低版本 {{min}}，請更新車上的 amr-core",
+    "not_reported": "還沒回報版本",
+    "no_commit_time": "(舊版, 沒有時間)",
+    "offline": "這次啟動後沒收到",
+    "online": "在線",
+    "simulated": "模擬車",
+    "history": "版本更新紀錄",
+    "first_seen": "第一次看到",
+    "no_history": "還沒有更新紀錄",
+    "col": {
+      "vehicle": "車輛",
+      "version": "版本",
+      "commit_at": "版本時間",
+      "since": "使用此版本自",
+      "last_seen": "最後回報",
+      "time": "時間",
+      "change": "變更"
+    }
+  },
   "cancel_reason": {
     "signal_wait_timeout": "等訊號逾時",
     "null": "未指定原因",
