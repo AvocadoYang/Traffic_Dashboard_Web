@@ -3091,6 +3091,51 @@
       "change": "Change"
     }
   },
+  "standby_demand": {
+    "title": "Pre-positioning",
+    "saved": "Saved",
+    "save": "Save",
+    "unsaved": "Unsaved changes",
+    "hint": "Used when an idle rule's \"go to standby\" is set to \"by expected demand\": the demand (missions per hour) of each standby point. Rules are checked top to bottom, the first match decides; otherwise the default at the bottom applies. Auto = transport missions of the last N days on the same kind of day (weekday / weekend) and hour, each counted for the standby point nearest to its first destination.",
+    "no_rules": "No rules: the default below applies everywhere",
+    "add": "Add rule",
+    "all_points": "All standby points",
+    "every_day": "Every day",
+    "whole_day": "All day",
+    "per_hour": "/h",
+    "default_label": "Other points and times",
+    "default_auto": "Automatic",
+    "default_none": "Don't park (demand 0)",
+    "mode": {
+      "AUTO": "Automatic",
+      "AUTO_PLUS": "Automatic plus",
+      "FIXED": "Fixed"
+    },
+    "col": {
+      "enabled": "On",
+      "point": "Standby point",
+      "days": "Days",
+      "time": "Time",
+      "mode": "Mode",
+      "value": "Missions",
+      "note": "Note",
+      "history": "Automatic",
+      "applied": "Applied",
+      "demand": "Demand (/h)",
+      "car_here": "Car parked"
+    },
+    "source": {
+      "default_auto": "Default (automatic)",
+      "default_none": "Default (don't park)",
+      "rule": "Rule {{n}} ({{mode}})"
+    },
+    "preview": "Preview",
+    "preview_hint": "Demand of each standby point at a chosen time, using the saved rules. An idle car goes to the free point with the highest demand within the extra-distance limit.",
+    "days_label": "Days of history",
+    "weekday_label": "Day",
+    "hour_label": "Hour",
+    "no_points": "No standby points on the map"
+  },
   "cancel_reason": {
     "signal_wait_timeout": "Signal wait timed out",
     "null": "No Reason Specified",
@@ -3494,6 +3539,16 @@
     }
   },
   "idle_rules": {
+    "action_STANDBY_demand": "Go to standby (by demand)",
+    "standby_mode": "Standby choice",
+    "standby_mode_NEAREST": "Nearest free standby point",
+    "standby_mode_DEMAND": "By expected demand",
+    "standby_mode_NEAREST_hint": "Go to the nearest standby point with no car.",
+    "standby_mode_DEMAND_hint": "Go to a standby point near where missions are expected next (demand is set on the Pre-positioning page). Without history or demand it behaves like the nearest free point.",
+    "demand_days": "Use missions of the last",
+    "days": "days",
+    "demand_max_extra": "Max extra distance",
+    "demand_max_extra_hint": "A high-demand point further than this beyond the nearest free point is not used.",
     "title": "Idle rules",
     "hint": "What a vehicle does when it is idle. Rules are checked from the top; a vehicle follows the first one that matches, and stays where it is when none does.",
     "order_hint": "A vehicle that matches several rules only does the topmost one. When that one cannot be dispatched for now (for example no free standby point or no free charging station), the ones below are tried first.",

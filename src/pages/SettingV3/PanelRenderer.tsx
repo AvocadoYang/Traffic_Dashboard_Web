@@ -21,6 +21,7 @@ import BeforeEnterChargeStationPanel from "@/pages/SettingV3/panels/mission/Befo
 import SchedulePanel from "@/pages/SettingV3/panels/mission/SchedulePanel";
 import SignalTriggerPanel from "@/pages/SettingV3/panels/mission/SignalTriggerPanel";
 import IdleRulePanel from "@/pages/SettingV3/panels/mission/IdleRulePanel";
+import StandbyDemandPanel from "@/pages/SettingV3/panels/mission/StandbyDemandPanel";
 import TopicMissionPanel from "@/pages/SettingV3/panels/mission/TopicMissionPanel";
 import AbortCargoMissionPanel from "@/pages/SettingV3/panels/mission/AbortCargoMissionPanel";
 import BlindLocationPanel from "@/pages/SettingV3/panels/mission/BlindLocationPanel";
@@ -137,6 +138,8 @@ const PanelRenderer: FC<Props> = ({
       return <SignalTriggerPanel />;
     case "idle_mission":
       return <IdleRulePanel />;
+    case "standby_demand":
+      return <StandbyDemandPanel />;
     case "topic_mission":
       return <TopicMissionPanel />;
     case "abort_cargo_mission":

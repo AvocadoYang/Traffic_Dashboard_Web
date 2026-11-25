@@ -62,6 +62,8 @@ import {
 type TargetKind = "ALL" | "ROBOT_TYPE" | "ROBOTS";
 type LocationMode = "ANY" | "IN" | "NOT_IN";
 type ActionKind = "STANDBY" | "MISSION" | "CHARGE";
+/** 回待命點時怎麼挑: 最近的空待命點 / 依需求預先停靠 */
+type StandbyMode = "NEAREST" | "DEMAND";
 
 type RuleForm = {
   name: string;
@@ -82,6 +84,12 @@ type RuleForm = {
   /** 時段 "HH:mm"; 兩個都 null = 整天, 結束比開始早 = 跨午夜 */
   timeFrom: string | null;
   timeTo: string | null;
+  /** 只有「回待命點」用 */
+  standbyMode: StandbyMode;
+  /** 依需求: 參考最近幾天的任務 */
+  demandDays: number;
+  /** 依需求: 比最近的待命點最多多走幾公尺 */
+  demandMaxExtraM: number;
 };
 
 /** 表單裡的時段用 dayjs (TimePicker), 送出前轉回 "HH:mm" */
@@ -156,6 +164,9 @@ const emptyForm: RuleForm = {
   activeDays: [],
   timeFrom: null,
   timeTo: null,
+  standbyMode: "NEAREST",
+  demandDays: 14,
+  demandMaxExtraM: 60,
 };
 
 const toFormValues = (form: RuleForm): FormValues => ({
@@ -182,6 +193,9 @@ const toForm = (rule: IdleRule | null): RuleForm =>
         activeDays: rule.activeDays ?? [],
         timeFrom: rule.timeFrom ?? null,
         timeTo: rule.timeTo ?? null,
+        standbyMode: rule.standbyMode ?? "NEAREST",
+        demandDays: rule.demandDays ?? 14,
+        demandMaxExtraM: rule.demandMaxExtraM ?? 60,
       }
     : emptyForm;
 
@@ -204,6 +218,7 @@ const IdleRulePanel: FC = () => {
   const targetKind = Form.useWatch("targetKind", form);
   const locationMode = Form.useWatch("locationMode", form);
   const actionKind = Form.useWatch("actionKind", form);
+  const standbyMode = Form.useWatch("standbyMode", form);
 
   const areaTypeLabel = (type: string) =>
     isLabelledAreaType(type) ? t(AREA_TYPE_LABELS[type]) : type;
@@ -316,6 +331,9 @@ const IdleRulePanel: FC = () => {
       locationValues: values.locationMode === "ANY" ? [] : values.locationValues ?? [],
       missionTitleId: values.actionKind === "MISSION" ? values.missionTitleId : null,
       batteryBelow: values.actionKind === "CHARGE" ? values.batteryBelow ?? null : null,
+      standbyMode: values.actionKind === "STANDBY" ? values.standbyMode ?? "NEAREST" : "NEAREST",
+      demandDays: values.demandDays ?? 14,
+      demandMaxExtraM: values.demandMaxExtraM ?? 60,
       id: editing?.id,
     });
   };
@@ -340,7 +358,11 @@ const IdleRulePanel: FC = () => {
   };
 
   const describeAction = (rule: IdleRule) => {
-    if (rule.actionKind === "STANDBY") return t("idle_rules.action_STANDBY");
+    if (rule.actionKind === "STANDBY") {
+      return rule.standbyMode === "DEMAND"
+        ? t("idle_rules.action_STANDBY_demand")
+        : t("idle_rules.action_STANDBY");
+    }
     if (rule.actionKind === "CHARGE") return t("idle_rules.action_CHARGE");
     return t("idle_rules.run_mission", {
       name: rule.missionName ?? t("idle_rules.mission_gone"),
@@ -611,6 +633,43 @@ const IdleRulePanel: FC = () => {
                 placeholder={t("utils.select")}
               />
             </Form.Item>
+          )}
+
+          {actionKind === "STANDBY" && (
+            <>
+              <FieldLabel>{t("idle_rules.standby_mode")}</FieldLabel>
+              <Form.Item
+                name="standbyMode"
+                extra={t(`idle_rules.standby_mode_${standbyMode ?? "NEAREST"}_hint`)}
+              >
+                <Select
+                  options={(["NEAREST", "DEMAND"] as const).map((mode) => ({
+                    value: mode,
+                    label: t(`idle_rules.standby_mode_${mode}`),
+                  }))}
+                />
+              </Form.Item>
+              {standbyMode === "DEMAND" && (
+                <FieldGrid $cols={2}>
+                  <Field>
+                    <FieldLabel>{t("idle_rules.demand_days")}</FieldLabel>
+                    <Form.Item name="demandDays" rules={[{ required: true, message: t("utils.required") }]}>
+                      <InputNumber min={1} max={90} precision={0} suffix={t("idle_rules.days")} style={{ width: 160 }} />
+                    </Form.Item>
+                  </Field>
+                  <Field>
+                    <FieldLabel>{t("idle_rules.demand_max_extra")}</FieldLabel>
+                    <Form.Item
+                      name="demandMaxExtraM"
+                      extra={t("idle_rules.demand_max_extra_hint")}
+                      rules={[{ required: true, message: t("utils.required") }]}
+                    >
+                      <InputNumber min={0} max={10000} precision={0} suffix="m" style={{ width: 160 }} />
+                    </Form.Item>
+                  </Field>
+                </FieldGrid>
+              )}
+            </>
           )}
 
           {actionKind === "CHARGE" && (

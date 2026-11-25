@@ -3092,6 +3092,51 @@
       "change": "變更"
     }
   },
+  "standby_demand": {
+    "title": "預先停靠",
+    "saved": "已儲存",
+    "save": "儲存",
+    "unsaved": "有修改還沒儲存",
+    "hint": "閒置規則「回待命點」選「依需求預先停靠」時，用這裡算每個待命點的需求 (每小時幾筆)。規則由上往下比對，第一條符合的決定；都不符合看最下面的預設。自動分析 = 最近 N 天、同樣是平日 / 假日、同一個小時的搬運任務，第一個要去的點位算給離它最近的待命點。",
+    "no_rules": "沒有規則：全部照最下面的預設",
+    "add": "新增一條",
+    "all_points": "全部待命點",
+    "every_day": "每天",
+    "whole_day": "整天",
+    "per_hour": "筆/時",
+    "default_label": "其餘待命點與時段",
+    "default_auto": "自動分析",
+    "default_none": "不停靠 (需求 0)",
+    "mode": {
+      "AUTO": "自動分析",
+      "AUTO_PLUS": "自動分析再加",
+      "FIXED": "固定"
+    },
+    "col": {
+      "enabled": "啟用",
+      "point": "待命點",
+      "days": "星期",
+      "time": "時段",
+      "mode": "方式",
+      "value": "筆數",
+      "note": "備註",
+      "history": "自動分析",
+      "applied": "套用",
+      "demand": "需求 (筆/時)",
+      "car_here": "現在停的車"
+    },
+    "source": {
+      "default_auto": "預設 (自動分析)",
+      "default_none": "預設 (不停靠)",
+      "rule": "第 {{n}} 條 ({{mode}})"
+    },
+    "preview": "預覽",
+    "preview_hint": "照目前已儲存的規則，算某個時段每個待命點的需求。車閒下來時，在不多走太遠的範圍裡去需求最高的空待命點。",
+    "days_label": "參考天數",
+    "weekday_label": "星期",
+    "hour_label": "時段",
+    "no_points": "地圖上沒有待命區的點位"
+  },
   "cancel_reason": {
     "signal_wait_timeout": "等訊號逾時",
     "null": "未指定原因",
@@ -3495,6 +3540,16 @@
     }
   },
   "idle_rules": {
+    "action_STANDBY_demand": "回待命點 (依需求預先停靠)",
+    "standby_mode": "停靠方式",
+    "standby_mode_NEAREST": "最近的空待命點",
+    "standby_mode_DEMAND": "依需求預先停靠",
+    "standby_mode_NEAREST_hint": "去離車最近、沒有車的待命點。",
+    "standby_mode_DEMAND_hint": "去接下來最可能有任務的地方附近的待命點 (需求在「預先停靠」頁設定)。沒有歷史或都沒需求時，跟最近的空待命點一樣。",
+    "demand_days": "參考最近幾天的任務",
+    "days": "天",
+    "demand_max_extra": "最多多走",
+    "demand_max_extra_hint": "需求高的待命點比最近的空待命點遠超過這個距離就不去。",
     "title": "閒置規則",
     "hint": "車閒置時要做什麼。清單由上往下比對，一台車做第一條符合的規則；都不符合就留在原地。",
     "order_hint": "同一台車符合好幾條時只做最上面那一條。上面那條暫時派不出去（例如沒有空的待命點、沒有空的充電站）時，會先試下面的。",
