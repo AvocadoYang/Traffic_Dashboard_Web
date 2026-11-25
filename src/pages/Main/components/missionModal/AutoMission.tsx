@@ -83,7 +83,6 @@ const AutoMission = () => {
     <Modal
       title={t("toolbar.mission.cycle_mission")}
       open={openAutoMission}
-      onClose={handleCancel}
       footer={[
         <Button
           key="submit"

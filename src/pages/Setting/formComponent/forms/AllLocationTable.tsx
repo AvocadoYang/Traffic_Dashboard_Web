@@ -573,7 +573,7 @@ const AllLocationTable: React.FC<{
       id,
       newLocationId: oldLocationId,
       oldLocationId,
-      currentMapId: currentMapId,
+      currentMapId: currentMapId ?? undefined,
     };
 
     saveLocationMutation.mutate(sanitizedPayload);
@@ -680,7 +680,7 @@ const AllLocationTable: React.FC<{
             ? t("utils.location_property.none")
             : record.areaType;
         return (
-          <IndustrialTag color={pointTypeWithColor[record.areaType]}>
+          <IndustrialTag color={(pointTypeWithColor as Record<string, string>)[record.areaType]}>
             {label}
           </IndustrialTag>
         );

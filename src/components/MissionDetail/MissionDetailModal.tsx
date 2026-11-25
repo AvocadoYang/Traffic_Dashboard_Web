@@ -88,7 +88,7 @@ const MissionDetailModal: FC<{
                       ) as string}
                     </Tag>
                     {canceled && (
-                      <I18nCancelReason reason={mission.cancel_reason} />
+                      <I18nCancelReason reason={mission.cancel_reason ?? undefined} />
                     )}
                   </>
                 ),

@@ -51,7 +51,9 @@ const useZoneFrame = (
         });
         if ((mapImageRef.current as HTMLElement).nodeName !== "IMG")
           return EMPTY;
-        const startRect = mapImageRef.current.getBoundingClientRect();
+        const startRect = (
+          mapImageRef.current as HTMLElement
+        ).getBoundingClientRect();
         const startX = startEvent.clientX;
         const startY = startEvent.clientY;
         const startXForDisplay = startX - startRect.left;

@@ -26,6 +26,7 @@ const IconWrapper = styled.div.attrs<{
 }))<{
   left: number;
   top: number;
+  amrId: string;
 }>`
   position: absolute;
   z-index: 200000;

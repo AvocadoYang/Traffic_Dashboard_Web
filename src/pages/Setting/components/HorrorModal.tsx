@@ -180,7 +180,7 @@ const HorrorModal: FC<HorrorModalProps> = ({
         centered
         // 關鍵：將 styled-components 的 class 綁定到 Antd 的 content 上
         classNames={{
-          content: "horror-modal-content",
+          container: "horror-modal-content",
         }}
         className="horror-modal-content"
         footer={[

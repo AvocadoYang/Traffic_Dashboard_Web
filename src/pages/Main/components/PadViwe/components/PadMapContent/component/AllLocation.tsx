@@ -92,7 +92,8 @@ const LocationPoint: React.FC<{
 );
 
 const AllLocation: React.FC<{
-  mapRef: RefObject<HTMLDivElement>;
+  /** 目前沒用到, WebMapView 還有傳 */
+  mapRef?: RefObject<HTMLDivElement>;
 }> = () => {
   const { data } = useMap();
   const setTooltip = useSetAtom(tooltipProp);

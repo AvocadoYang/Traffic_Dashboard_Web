@@ -97,6 +97,17 @@ interface Mission {
   /** 分段任務: 後半 / 前半是哪一筆 */
   splitTo?: string | null;
   splitFrom?: string | null;
+  /** 每一步的時間 (毫秒時間戳); 舊任務是 null */
+  step_timing?:
+    | {
+        step: number;
+        type?: string;
+        locationId?: number;
+        startedAt: number;
+        sentAt?: number;
+        doneAt: number;
+      }[]
+    | null;
 }
 
 enum Send_By {

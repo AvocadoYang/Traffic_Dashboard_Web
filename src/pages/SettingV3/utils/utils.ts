@@ -12,7 +12,10 @@ export const getLocationInfoById = (
   return result[0];
 };
 
-export const getMoveIndex = (array, dragItem) => {
+export const getMoveIndex = (
+  array: { key?: unknown }[],
+  dragItem: { active: { id: unknown }; over: { id: unknown } | null },
+) => {
   const { active, over } = dragItem;
   let activeIndex = 0;
   let overIndex = 0;
@@ -22,7 +25,7 @@ export const getMoveIndex = (array, dragItem) => {
       if (active.id === item.key) {
         activeIndex = index;
       }
-      if (over.id === item.key) {
+      if ((over as { id: unknown }).id === item.key) {
         overIndex = index;
       }
     });

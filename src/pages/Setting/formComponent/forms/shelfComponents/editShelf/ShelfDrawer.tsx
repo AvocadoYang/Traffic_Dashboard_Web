@@ -87,7 +87,6 @@ const ShelfDrawer: FC<{
       {openDrawer ? (
         <Modal
           title={t("edit_shelf_panel.edit_shelf")}
-          onClose={() => setOpenDrawer(false)}
           onCancel={() => setOpenDrawer(false)}
           open={openDrawer}
           onOk={() => onFinish()}

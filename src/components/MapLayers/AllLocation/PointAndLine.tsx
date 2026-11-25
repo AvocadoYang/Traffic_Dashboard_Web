@@ -232,20 +232,22 @@ const PointMainDiv = styled.div.attrs<{
 
 export const PointMain = memo(PointMainDiv);
 
-const DraggableLineDiv = styled.div.attrs<{
+type DraggableLineProps = {
   left: number;
   top: number;
   deg: number;
   width: number;
   openeditroadpanel: boolean;
-}>(({ left, top, deg, width }) => ({
+};
+
+const DraggableLineDiv = styled.div.attrs<DraggableLineProps>(({ left, top, deg, width }) => ({
   style: {
     left,
     top,
     transform: `rotate(${deg || 0}deg)`,
     width: width ? width : 5,
   },
-}))`
+}))<DraggableLineProps>`
   display: ${(props) => (props.openeditroadpanel ? "block" : "none")};
   position: absolute;
   height: 4px;

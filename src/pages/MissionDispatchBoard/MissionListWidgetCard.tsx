@@ -124,7 +124,8 @@ const MissionListWidgetCard: FC<{
   const { t } = useTranslation();
   const canCancel = usePermission()("mission.cancel");
   const [messageApi, contextHolder] = message.useMessage();
-  const { missions } = useMissions();
+  // 即時資料的 cancelReason 可能是 null, MissionInfo 沒寫; 這裡只用到顯示和取消
+  const missions = useMissions().missions as unknown as MissionInfo[];
 
   const deleteMissionMutation = useMutation({
     mutationFn: (mission: MissionInfo) =>

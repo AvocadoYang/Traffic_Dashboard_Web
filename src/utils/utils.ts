@@ -100,7 +100,7 @@ export const errorHandler = (e: ErrorResponse, messageApi: MessageInstance) => {
 
   const errorMessage =
     e?.response?.data?.message ||
-    e?.response?.data?.error.message ||
+    e?.response?.data?.error?.message ||
     // 這裡不在元件裡,拿不到 useTranslation 的 t;全域 i18next.t 的 key 型別
     // 又跟 hook 的不一樣,所以收斂成 string
     (i18next.t as (key: string) => string)("utils.unknown_error");

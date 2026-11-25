@@ -130,7 +130,7 @@ const CargoMissionForm: FC<{
             placeholder={t("utils.select")}
             showSearch={{
               filterOption: (input, option) =>
-                (option?.label ?? "")
+                String(option?.label ?? "")
                   .toLowerCase()
                   .includes(input.toLowerCase()),
             }}
@@ -158,7 +158,7 @@ const CargoMissionForm: FC<{
             placeholder={t("utils.select")}
             showSearch={{
               filterOption: (input, option) =>
-                (option?.label ?? "")
+                String(option?.label ?? "")
                   .toLowerCase()
                   .includes(input.toLowerCase()),
             }}
@@ -192,7 +192,7 @@ const CargoMissionForm: FC<{
             placeholder={t("utils.select")}
             showSearch={{
               filterOption: (input, option) =>
-                (option?.label ?? "")
+                String(option?.label ?? "")
                   .toLowerCase()
                   .includes(input.toLowerCase()),
             }}
