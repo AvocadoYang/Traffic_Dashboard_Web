@@ -1,3 +1,4 @@
+import { etaText } from "@/utils/eta";
 import { FC, useEffect, useState } from "react";
 import { Button } from "antd";
 import { CloseOutlined, EyeOutlined, WarningFilled } from "@ant-design/icons";
@@ -108,6 +109,7 @@ type Snapshot = {
   hasCargo: boolean;
   destination: string;
   mission: string;
+  eta: { finishAt: number; approx: boolean } | null;
   stepWaitMs: number | null;
   paused: boolean;
   warnings: WarningMessage[];
@@ -127,6 +129,7 @@ const snapshotOf = (store: LiveStore | null, id: string): Snapshot | null => {
     hasCargo: a.hasCargo,
     destination: a.destination ? a.destination.name || a.destination.locationId : "",
     mission: store.state.activeSubName.get(id) ?? "",
+    eta: store.state.activeEta.get(id) ?? null,
     stepWaitMs: a.stepWaitMs,
     paused: a.isPause,
     warnings: store.state.warningInfos.get(id) ?? [],
@@ -245,6 +248,12 @@ const VehicleInfoCard: FC<{
               {snap.mission || dash}
               {snap.stepWaitMs !== null && snap.mission && ` · ${t("fleet3d.info.step_wait", { time: duration(snap.stepWaitMs) })}`}
             </dd>
+            {snap.eta && (
+              <>
+                <dt>{t("eta.column")}</dt>
+                <dd>{etaText({ etaFinishAt: snap.eta.finishAt, etaApprox: snap.eta.approx }, Date.now(), t)?.main}</dd>
+              </>
+            )}
             {snap.wait && (
               <>
                 <dt>{t("fleet3d.info.waiting")}</dt>

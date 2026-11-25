@@ -5,6 +5,7 @@ import type { ToolBarItemType } from "@/components/Setting/siderElement";
 // 工具列資料來源,加進去 v1 會多出一個點不開的項目。
 export type SettingV2OnlyKey =
   | "appearance"
+  | "standby_demand"
   | "before_enter_charge_station_task"
   | "dispatch_strategy"
   | "gate_interlock"
@@ -18,6 +19,7 @@ export type SettingV2OnlyKey =
   | "diagnostic_bundle"
   | "settings_snapshot"
   | "system_restart"
+  | "vehicle_versions"
   | "maintenance_items"
   | "advantech_serial"
   | "signal_trigger";

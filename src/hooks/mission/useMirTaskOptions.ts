@@ -9,7 +9,7 @@ import { useSound } from "@/api/useSound";
 import { useAllAmrStatus } from "@/sockets/useAMRInfo";
 import { Form, FormInstance } from "antd";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 
 // 貨架樣式 type_1 / Shelf position，需要可以點選 marker_type
 export const MARKER_TYPE_SHELF_STYLE = "type_1";
@@ -98,18 +98,30 @@ const toGuidOptions = (items: { guid: string; name: string }[]) => {
   }));
 };
 
+/**
+ * 挑一台車去問 MiR 上的音檔 / IO module 清單。
+ *
+ * 選中之後只要那台車還在名單裡就一直用它, 不因為 isOverdue 換車:
+ * 只有一開始挑車、或選中的車被移出名單 (刪除 / 切換模擬) 時, 才找一台在線的。
+ */
 const useFirstAvailableAmrId = () => {
   const { data: amrName } = useAmrName();
   const amrStatus = useAllAmrStatus();
+  const pickedRef = useRef<string>();
 
   return useMemo(() => {
     const wantReal = !amrName?.isSim;
+    const fleet = amrName?.amrs.filter((a) => a.isReal === wantReal) ?? [];
+
+    if (fleet.some((a) => a.amrId === pickedRef.current)) {
+      return pickedRef.current;
+    }
+
     const online = new Set(
       amrStatus.filter((s) => !s.isOverdue).map((s) => s.amrId),
     );
-    return amrName?.amrs.find(
-      (a) => a.isReal === wantReal && online.has(a.amrId),
-    )?.amrId;
+    pickedRef.current = fleet.find((a) => online.has(a.amrId))?.amrId;
+    return pickedRef.current;
   }, [amrName, amrStatus]);
 };
 
@@ -119,13 +131,7 @@ export const useMirIoModuleOptions = () => {
 
   const ioModuleOption = useMemo(() => toGuidOptions(data ?? []), [data]);
 
-  /** guid 換成顯示名稱;清單裡沒有(沒車在線、模組被移除)就直接顯示 guid */
-  const ioModuleNameOf = useMemo(() => {
-    const labelByGuid = new Map(ioModuleOption.map((o) => [o.value, o.label]));
-    return (guid: string) => labelByGuid.get(guid) ?? guid;
-  }, [ioModuleOption]);
-
-  return { ioModuleOption, ioModuleNameOf, amrId, isFetching, error, refetch };
+  return { ioModuleOption, amrId, isFetching, error, refetch };
 };
 
 export const useMirSoundOptions = () => {

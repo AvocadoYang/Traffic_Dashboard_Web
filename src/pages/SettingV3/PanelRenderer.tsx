@@ -21,6 +21,7 @@ import BeforeEnterChargeStationPanel from "@/pages/SettingV3/panels/mission/Befo
 import SchedulePanel from "@/pages/SettingV3/panels/mission/SchedulePanel";
 import SignalTriggerPanel from "@/pages/SettingV3/panels/mission/SignalTriggerPanel";
 import IdleRulePanel from "@/pages/SettingV3/panels/mission/IdleRulePanel";
+import StandbyDemandPanel from "@/pages/SettingV3/panels/mission/StandbyDemandPanel";
 import TopicMissionPanel from "@/pages/SettingV3/panels/mission/TopicMissionPanel";
 import AbortCargoMissionPanel from "@/pages/SettingV3/panels/mission/AbortCargoMissionPanel";
 import BlindLocationPanel from "@/pages/SettingV3/panels/mission/BlindLocationPanel";
@@ -50,6 +51,7 @@ import SystemAlarmPanel from "@/pages/SettingV3/panels/file/SystemAlarmPanel";
 import DiagnosticBundlePanel from "@/pages/SettingV3/panels/system/DiagnosticBundlePanel";
 import SnapshotPanel from "@/pages/SettingV3/panels/system/SnapshotPanel";
 import RestartPanel from "@/pages/SettingV3/panels/system/RestartPanel";
+import VehicleVersionPanel from "./panels/system/VehicleVersionPanel";
 import FootprintPanel from "@/pages/SettingV3/panels/mir/FootprintPanel";
 import SoundPanel from "@/pages/SettingV3/panels/mir/SoundPanel";
 import MarkerTypePanel from "@/pages/SettingV3/panels/mir/MarkerTypePanel";
@@ -137,6 +139,8 @@ const PanelRenderer: FC<Props> = ({
       return <SignalTriggerPanel />;
     case "idle_mission":
       return <IdleRulePanel />;
+    case "standby_demand":
+      return <StandbyDemandPanel />;
     case "topic_mission":
       return <TopicMissionPanel />;
     case "abort_cargo_mission":
@@ -195,6 +199,8 @@ const PanelRenderer: FC<Props> = ({
       return <SnapshotPanel />;
     case "system_restart":
       return <RestartPanel />;
+    case "vehicle_versions":
+      return <VehicleVersionPanel />;
     case "maintenance_items":
       return <MaintenanceItemPanel />;
     case "footprint":

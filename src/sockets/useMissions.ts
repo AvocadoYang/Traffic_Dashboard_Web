@@ -1,3 +1,4 @@
+import type { EtaFields } from "@/utils/eta";
 import { useEffect, useState } from "react";
 import {
   filter,
@@ -74,6 +75,10 @@ const schema = () =>
         status: number().required(),
         order: number().required(),
         priority: number().required(),
+        /** 預計完成 / 開始時間 (毫秒), 後端估得出來才有 */
+        etaFinishAt: number().optional(),
+        etaStartAt: number().optional(),
+        etaApprox: boolean().optional(),
       }).required()
     ).required(),
   }).required();
@@ -214,7 +219,7 @@ export type MissionInfo = {
   order: number;
   /** 後端的 MissionStatus 數字; missionStatus 是給畫面顯示的文字 */
   status?: MissionStatus;
-};
+} & EtaFields;
 
 export type Additional_Mission_Info = {
   missionFullName?: string[];

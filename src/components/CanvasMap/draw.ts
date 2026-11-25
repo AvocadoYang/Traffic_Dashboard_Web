@@ -12,6 +12,8 @@ import { toOpaque } from "@/utils/color";
 import type { MapScene, SceneAnnotation } from "./scene";
 import type { RouteHighlight } from "./routeHighlight";
 import type { LiveState } from "./liveStore";
+import i18n from "i18next";
+import { etaText } from "@/utils/eta";
 import { MapView, visibleRect } from "./view";
 
 type Ctx = CanvasRenderingContext2D;
@@ -939,14 +941,19 @@ const pickLoc = (value?: string | null) => {
   return trimmed && trimmed !== "0" ? trimmed : "";
 };
 
-/** 車的提示框內容 (3D 檢視的標籤也用): 正在做什麼、要去哪裡 */
+/** 「約 3 分鐘 (14:32)」; canvas 裡沒有 React, 用全域的 i18next 翻譯 */
+const etaLine = (eta?: { finishAt: number; approx: boolean }) =>
+  eta ? etaText({ etaFinishAt: eta.finishAt, etaApprox: eta.approx }, Date.now(), i18n.t)?.main ?? "" : "";
+
+/** 車的提示框內容 (3D 檢視的標籤也用): 正在做什麼、要去哪裡、預計幾點做完 */
 export const amrTip = (live: LiveState, id: string) => {
   const a = live.amrs.get(id);
-  if (!a) return { tipText: "", dest: "" };
+  if (!a) return { tipText: "", dest: "", eta: "" };
   const status = a.status.trim();
   const isIdle = !status || IDLE_STATUS.includes(status.toLowerCase());
   return {
     tipText: live.activeSubName.get(id) || (isIdle ? "" : status),
+    eta: etaLine(live.activeEta.get(id)),
     dest:
       pickLoc(a.destination?.name) ||
       pickLoc(a.destination?.finalLocationId) ||
@@ -986,7 +993,7 @@ function drawPlate(f: Frame, v: Visible, o: LiveOptions) {
 
 /** 車上方的黑色提示框: 車號、在做什麼、要去哪裡 (規則同 useAmrMissionTip) */
 function drawTip(f: Frame, v: Visible, live: LiveState, o: LiveOptions) {
-  const { tipText, dest } = amrTip(live, v.id);
+  const { tipText, dest, eta } = amrTip(live, v.id);
   const forbidden = o.forbiddenIds.has(v.id);
   // 任務中不自動跳黑框 (太擋地圖), 只有指到/篩選/禁區時才顯示
   const show = o.filterIds.has(v.id) || o.hintId === v.id || forbidden;
@@ -1001,6 +1008,7 @@ function drawTip(f: Frame, v: Visible, live: LiveState, o: LiveOptions) {
   ];
   if (tipText) lines.push({ text: tipText, bold: false });
   if (dest) lines.push({ text: `→ ${dest}`, bold: false });
+  if (eta) lines.push({ text: `⏱ ${eta}`, bold: false });
 
   const fontSize = 11;
   const lineH = 14;

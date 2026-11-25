@@ -33,7 +33,12 @@ const useMirIoModules = (amrId?: string, enabled = true) => {
   return useQuery(
     ["mir-io-modules", amrId],
     () => getMirIoModules(amrId ?? ""),
-    { enabled: !!amrId && enabled, retry: false, staleTime: 0 },
+    {
+      enabled: !!amrId && enabled,
+      retry: false,
+      staleTime: 0,
+      keepPreviousData: true,
+    },
   );
 };
 

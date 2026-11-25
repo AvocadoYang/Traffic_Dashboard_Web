@@ -1,3 +1,5 @@
+import { useActiveMission } from "@/sockets/useMissions";
+import { etaText } from "@/utils/eta";
 import { CSSProperties, FC, lazy, ReactNode, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Empty, Spin } from "antd";
 import {
@@ -390,6 +392,8 @@ const VehicleTile: FC<{ amrId: string; online: boolean }> = ({ amrId, online }) 
   const { t } = useTranslation();
   const { battery } = useBattery(amrId);
   const { isWorking } = useIsWorking(amrId);
+  const { activeMission } = useActiveMission(amrId);
+  const eta = activeMission ? etaText(activeMission, Date.now(), t) : null;
   const level = batteryLevel(battery);
   return (
     <Tile $off={!online}>
@@ -397,7 +401,10 @@ const VehicleTile: FC<{ amrId: string; online: boolean }> = ({ amrId, online }) 
         <span className={`light ${online ? "on" : ""}`} />
         {amrId}
       </div>
-      <div className="state">{!online ? t("kiosk.offline") : isWorking ? t("kiosk.working") : t("kiosk.idle")}</div>
+      <div className="state">
+        {!online ? t("kiosk.offline") : isWorking ? t("kiosk.working") : t("kiosk.idle")}
+        {online && isWorking && eta && ` · ⏱ ${eta.main}`}
+      </div>
       <div className="batt">
         <div className="track">
           <div className={`fill ${level === "unknown" ? "" : level}`} style={{ width: `${Math.max(0, Math.min(100, battery ?? 0))}%` }} />

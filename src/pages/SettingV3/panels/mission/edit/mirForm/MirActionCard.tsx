@@ -17,7 +17,6 @@ import { c, font, space } from "@/theme/tokens";
 import { IconBar, IconButton } from "@/pages/SettingV3/panels/mission/edit/steps/stepPrimitives";
 import StepMoveButtons from "@/pages/SettingV3/panels/mission/edit/steps/StepMoveButtons";
 import {
-  ActionNames,
   ParentSlot,
   isContainerOperation,
   summarizeAction,
@@ -111,7 +110,8 @@ type Props = {
   onDuplicate: () => void;
   onDelete: () => void;
   unfilledVariables?: number;
-  actionNames: ActionNames;
+  /** id → 顯示名稱, 見 summarizeAction */
+  names: ReadonlyMap<string, string>;
 };
 
 const MirActionCard: FC<Props> = ({
@@ -127,7 +127,7 @@ const MirActionCard: FC<Props> = ({
   onDuplicate,
   onDelete,
   unfilledVariables = 0,
-  actionNames,
+  names,
 }) => {
   const { t } = useTranslation();
   const {
@@ -143,7 +143,7 @@ const MirActionCard: FC<Props> = ({
   const isContainer = isContainerOperation(slice.operation);
   const { verb, chip } = slice.includeTitleId
     ? { verb: "Mission", chip: slice.includeTitleName || "-" }
-    : summarizeAction(slice.operation, actionNames);
+    : summarizeAction(slice.operation, names);
 
   return (
     <div

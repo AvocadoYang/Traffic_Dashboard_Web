@@ -34,6 +34,7 @@ import AmrCargoPanel from "@/components/CargoPanel/AmrCargoPanel";
 import MarkPointModal from "./MarkPointModal";
 import AmrLiveMap from "./AmrLiveMap";
 import MaintenanceSection from "./MaintenanceSection";
+import VehicleVersionCard from "./VehicleVersionCard";
 import EStopHistory from "@/components/EStopHistory/EStopHistory";
 import styled from "styled-components";
 
@@ -464,6 +465,8 @@ const AmrDetail = () => {
             )}
 
             <MaintenanceSection amrId={prefixAmrId} />
+
+            <VehicleVersionCard amrId={prefixAmrId} />
 
             <div style={{ marginBottom: 24 }}>
               <EStopHistory amrId={prefixAmrId} compact />

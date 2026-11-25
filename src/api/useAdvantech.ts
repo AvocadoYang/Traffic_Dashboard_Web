@@ -37,6 +37,40 @@ export interface AdvantechButtonRow {
   steps: ButtonStep[];
 }
 
+export type IoSide = "di" | "do";
+
+/** 狀態的一個條件: 某台模組的某個輸入 (di) / 輸出 (do) 是 ON 或 OFF */
+export type StateCondition = {
+  moduleId: string;
+  side: IoSide;
+  channel: number;
+  on: boolean;
+};
+
+export const STATE_TONES = [
+  "green",
+  "blue",
+  "amber",
+  "red",
+  "purple",
+  "gray",
+] as const;
+export type StateTone = (typeof STATE_TONES)[number];
+
+/**
+ * 群組的訊號意義 (後端 advantechGroupState 表): conditions 裡的訊號全部 ON 時, 設備就是 name 這個狀態,
+ * 例如 DO0 + DO1 = 專屬模式啟動、DI0 = 電梯故障。同時可以有好幾個成立; sortOrder 只決定顯示順序。
+ */
+export interface AdvantechStateRow {
+  id: string;
+  groupId: string;
+  name: string;
+  note: string;
+  tone: StateTone;
+  sortOrder: number;
+  conditions: StateCondition[];
+}
+
 /** 好幾台模組合成的一個設備 (後端 advantechGroup 表); modules 已照 groupOrder 排好 */
 export interface AdvantechGroupRow {
   id: string;
@@ -44,6 +78,8 @@ export interface AdvantechGroupRow {
   note: string;
   modules: AdvantechRow[];
   buttons: AdvantechButtonRow[];
+  /** 舊後端沒有這個欄位 */
+  states?: AdvantechStateRow[];
   createdAt: string;
   updatedAt: string;
 }
@@ -142,3 +178,113 @@ export const offlineOf = (status: IoStatusMap | undefined, ids: string[]) =>
         },
     )
     .filter((s) => !s.connected);
+
+/** 一台 ADAM-4000 4 IN 4 OUT */
+const CHANNELS = 4;
+
+/**
+ * 群組裡的訊號照模組順序接續編號: 第 1 台是 DI0–3 / DO0–3, 第 2 台是 DI4–7 / DO4–7…
+ * (模組本身還是各自的 0–3, 送給後端的也是 moduleId + channel)
+ */
+export type GroupSignal = {
+  moduleId: string;
+  moduleName: string;
+  side: IoSide;
+  /** 模組自己的 0–3 */
+  channel: number;
+  /** 群組裡的編號 */
+  index: number;
+  label?: IoLabel;
+};
+
+export const groupSignalName = (side: IoSide, index: number) =>
+  `${side === "do" ? "DO" : "DI"}${index}`;
+
+export const groupSignals = (
+  group: Pick<AdvantechGroupRow, "modules">,
+  side: IoSide,
+): GroupSignal[] =>
+  group.modules.flatMap((m, order) =>
+    Array.from({ length: CHANNELS }, (_, channel) => ({
+      moduleId: m.id,
+      moduleName: m.name,
+      side,
+      channel,
+      index: order * CHANNELS + channel,
+      label: m.ioLabels?.[side][channel],
+    })),
+  );
+
+/** 條件對到群組裡的哪個訊號; 模組已經移出群組 = undefined */
+export const findGroupSignal = (
+  group: Pick<AdvantechGroupRow, "modules">,
+  cond: Pick<StateCondition, "moduleId" | "side" | "channel">,
+) =>
+  groupSignals(group, cond.side).find(
+    (s) => s.moduleId === cond.moduleId && s.channel === cond.channel,
+  );
+
+/** 「DO0 + DO1」 */
+export const describeConditions = (
+  group: Pick<AdvantechGroupRow, "modules">,
+  conds: StateCondition[],
+  missing = "?",
+) =>
+  conds
+    .map((cond) => {
+      const sig = findGroupSignal(group, cond);
+      const name = sig ? groupSignalName(sig.side, sig.index) : missing;
+      return cond.on ? name : `${name} OFF`;
+    })
+    .join(" + ");
+
+/** 訊號現在是不是 ON; 沒連線 / 沒讀到 = null */
+export const signalValue = (
+  status: IoStatusMap | undefined,
+  moduleId: string,
+  side: IoSide,
+  channel: number,
+): boolean | null => {
+  const io = status?.get(moduleId);
+  if (!io?.connected) return null;
+  return io[side][channel] ?? false;
+};
+
+/** 這個條件現在符不符合; 沒連線就不符合 */
+export const conditionMet = (
+  cond: StateCondition,
+  status: IoStatusMap | undefined,
+) => signalValue(status, cond.moduleId, cond.side, cond.channel) === cond.on;
+
+export type GroupStatusResult =
+  /** 還沒拿到 IO 狀態 */
+  | { kind: "loading" }
+  /** 有模組沒連線, 讀到的值不可靠, 不判斷 */
+  | { kind: "offline"; offline: ModuleIoStatus[] }
+  /** active: 現在成立的訊號意義 (可能好幾個, 也可能一個都沒有), 照 sortOrder */
+  | { kind: "ok"; active: AdvantechStateRow[] };
+
+/**
+ * 群組現在有哪些訊號意義成立: 選的訊號全部符合才算。
+ * 訊號的模組被移出群組的話那一筆就不會成立 (設定頁會標出來); 沒選任何訊號的也不算。
+ */
+export const evaluateGroup = (
+  group: AdvantechGroupRow,
+  status: IoStatusMap | undefined,
+): GroupStatusResult => {
+  if (!status) return { kind: "loading" };
+  const offline = offlineOf(
+    status,
+    group.modules.map((m) => m.id),
+  );
+  if (offline.length) return { kind: "offline", offline };
+  const inGroup = new Set(group.modules.map((m) => m.id));
+  const active = (group.states ?? []).filter(
+    (s) =>
+      s.conditions.length > 0 &&
+      s.conditions.every(
+        (cond) => inGroup.has(cond.moduleId) && conditionMet(cond, status),
+      ),
+  );
+  return { kind: "ok", active };
+};
