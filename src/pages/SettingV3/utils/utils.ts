@@ -1,6 +1,6 @@
 import { LocationType } from "@/types/map/locationTypes";
 import { hsl } from "color-convert";
-import { MD5 } from "crypto-js";
+import { md5 } from "@/utils/md5";
 
 export const getLocationInfoById = (
   locationId: string,
@@ -36,7 +36,7 @@ export const getMoveIndex = (
 };
 
 export const borderColor = (id: string) => {
-  const seed = parseInt(`0x${MD5(id).toString()}`, 16);
+  const seed = parseInt(`0x${md5(id)}`, 16);
   const h = seed % 360;
   const s = (seed % 70) + 40;
   const l = (seed % 60) + 20;
@@ -45,7 +45,7 @@ export const borderColor = (id: string) => {
 };
 
 export const tagColor = (id: string) => {
-  const seed = parseInt(`0x${MD5(id).toString()}`, 16);
+  const seed = parseInt(`0x${md5(id)}`, 16);
   const h = seed % 380;
   const s = (seed % 60) + 70;
   const l = (seed % 60) + 30;

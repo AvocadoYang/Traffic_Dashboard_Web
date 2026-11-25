@@ -1,6 +1,6 @@
 import { MessageInstance } from "antd/es/message/interface";
 import { ErrorResponse } from "./globalType";
-import { MD5 } from "crypto-js";
+import { md5 } from "@/utils/md5";
 import convert from "color-convert";
 import i18next from "i18next";
 
@@ -132,7 +132,7 @@ export const editErrorHandler = (
 };
 
 export const amrId2Color = (amrId: string) => {
-  const seed = parseInt(`0x${MD5(amrId).toString()}`, 16);
+  const seed = parseInt(`0x${md5(amrId)}`, 16);
   const h = (seed % 60) + 200;
   const s = (seed % 20) + 40;
   const l = (seed % 20) + 30;
@@ -197,7 +197,7 @@ export const amrId2ColorRainbow = (amrId: string) => {
   if (manual) return manual;
   const idx = amrColorOrder.indexOf(amrId);
   if (idx >= 0) return AMR_COLORS[idx % AMR_COLORS.length];
-  const seed = parseInt(`0x${MD5(amrId).toString()}`, 16);
+  const seed = parseInt(`0x${md5(amrId)}`, 16);
   return AMR_COLORS[seed % AMR_COLORS.length];
 };
 
