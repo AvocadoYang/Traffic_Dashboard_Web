@@ -3091,6 +3091,71 @@
       "change": "Change"
     }
   },
+  "standby_demand_help": {
+    "open": "How pre-positioning works",
+    "title": "Pre-positioning: how it works",
+    "sections": [
+      {
+        "title": "What it does",
+        "items": [
+          "When a car becomes idle, an idle rule can send it to a standby point. Normally it goes to the nearest free one; with pre-positioning it goes to a standby point near where missions are expected next, so the next trip starts closer.",
+          "It only decides where idle cars park. It does not change dispatching and never holds back a mission."
+        ]
+      },
+      {
+        "title": "Two things to set up first",
+        "items": [
+          "Standby points on the map: Settings > Points > Edit points, set the point type to Standby. Pick side branches or dead ends that do not block traffic, at least 4.2 m apart.",
+          "An idle rule: Settings > Missions > Idle tasks, action \"go to standby\", standby choice \"by expected demand\". The rules on this page are only used by such idle rules."
+        ]
+      },
+      {
+        "title": "What \"demand\" means",
+        "items": [
+          "Demand of a standby point at a given hour = on average, how many missions per day start picking up near this standby point in that hour. Unit: missions per hour.",
+          "Automatic: transport missions of the last N days (set on the idle rule, default 14); each mission's first destination is counted for the standby point nearest to it along the roads; weekdays and weekends separately, each hour separately.",
+          "Why decimals: it is a daily average. 2 missions at 13:00 over 10 weekdays = 0.2, i.e. most days nothing, sometimes one. A steady 4 per day gives 4.",
+          "On maps with many one-way roads demand may go to a standby point that looks further away: following the roads it is the quickest way there."
+        ]
+      },
+      {
+        "title": "Manual rules: mode and missions",
+        "items": [
+          "Rules are checked top to bottom; the first one that matches (point, day and time) sets the demand; otherwise the default at the bottom applies.",
+          "Automatic: the number from history, no value needed.",
+          "Automatic plus: history + your number. For \"history is roughly right but a batch always comes at this time\". Negative values subtract; below 0 counts as 0.",
+          "Fixed: your number, history ignored. 0 = don't park here at this time.",
+          "Enter roughly how many missions happen in that hour. Example: 4 missions near 4405 every day at 13:00 → a rule on the standby point near 4405, Mon-Fri, 13:00-14:00, Fixed, 4.",
+          "Setting the bottom default to \"don't park\" means only the points and times you wrote rules for have demand."
+        ]
+      },
+      {
+        "title": "How a car chooses",
+        "items": [
+          "An idle car looks at the free standby points within \"max extra distance\" (on the idle rule, default 60 m) beyond the nearest free one, and takes the one with the highest demand.",
+          "So the numbers are mainly compared: 3.3 beats 0.2. If all are 0 the car takes the nearest, as before.",
+          "One standby point holds one car. A value of 4 does not send 4 cars; the next idle car takes the highest remaining free point. To park several cars near an area, add several standby points there with high values.",
+          "Cars already parked are not moved when the hour changes; only newly idle cars are affected."
+        ]
+      },
+      {
+        "title": "Reading the preview",
+        "items": [
+          "Pick a day and hour to see each standby point's demand under the saved rules. Unsaved edits are not included.",
+          "Automatic = from history; Applied = which rule decided (or the default); Demand = the number that is compared; Car parked = the car standing there now.",
+          "The backend log prints \"standby point by demand\": demand = chosen for demand, nearest = no demand in range, nearest taken."
+        ]
+      },
+      {
+        "title": "Common situations",
+        "items": [
+          "New site or little history: most values are 0 and cars go to the nearest point. Collect a week or two of missions, or use manual rules.",
+          "Missions exist but demand stays 0: only missions with a pick-up step and recorded step times (since 2026-11-16) count.",
+          "To turn it off: set the idle rule's standby choice back to \"nearest free standby point\". The rules here can stay; nothing uses them then."
+        ]
+      }
+    ]
+  },
   "standby_demand": {
     "title": "Pre-positioning",
     "saved": "Saved",

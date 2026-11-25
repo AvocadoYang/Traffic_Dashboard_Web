@@ -8,6 +8,7 @@ import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
 import { editErrorHandler } from "@/utils/utils";
 import { TIME_FORMAT, toDayjs, toHhmm, weekdayOptions } from "@/pages/SettingV3/ui/timeCondition";
+import HelpButton from "@/pages/SettingV3/ui/HelpButton";
 import {
   Field,
   FieldGrid,
@@ -277,7 +278,10 @@ const StandbyDemandPanel: FC = () => {
     <PanelShell>
       {contextHolder}
       <Section>
-        <SectionTitle>{t("standby_demand.title")}</SectionTitle>
+        <SectionTitle>
+          {t("standby_demand.title")}
+          <HelpButton i18nKey="standby_demand_help" label={t("standby_demand_help.open")} />
+        </SectionTitle>
         <Hint>{t("standby_demand.hint")}</Hint>
 
         <Table
