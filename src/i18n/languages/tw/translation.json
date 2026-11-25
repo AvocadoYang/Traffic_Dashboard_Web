@@ -805,7 +805,37 @@
       "overview": "總覽",
       "battery": "電量紀錄",
       "connection": "斷線紀錄",
-      "step_timing": "步驟時間"
+      "step_timing": "步驟時間",
+      "eta_accuracy": "預估準確度"
+    },
+    "eta_accuracy": {
+      "none": "這段期間沒有記錄到預估時間的任務 (派車時才會記錄)",
+      "hint": "派車當下預估的完成時間跟實際完成時間比。誤差 = 實際 - 預估, 正的代表比預估慢。誤差在 1 分鐘內或預估時間的 20% 內算準。",
+      "by_route": "依任務內容",
+      "by_vehicle": "依車輛",
+      "worst": "誤差最大的任務",
+      "largest_first": "誤差大的排前面",
+      "tile": {
+        "count": "任務數",
+        "abs_avg": "平均誤差",
+        "bias": "偏差 (正 = 比預估慢)",
+        "p90": "誤差 P90",
+        "within": "準確比例"
+      },
+      "col": {
+        "route": "任務內容",
+        "vehicle": "車輛",
+        "mission": "任務編號",
+        "assigned_at": "派車時間",
+        "count": "任務數",
+        "predicted": "預估",
+        "actual": "實際",
+        "abs_avg": "平均誤差",
+        "bias": "偏差",
+        "p90": "誤差 P90",
+        "within": "準確比例",
+        "error": "誤差"
+      }
     },
     "step_timing": {
       "none": "這段期間沒有步驟時間紀錄 (2026-11-16 以前的任務沒有記錄)",
@@ -3019,6 +3049,17 @@
       "GENERALLY": "一般使用者",
       "ENGINEER": "工程師"
     }
+  },
+  "eta": {
+    "column": "預計完成",
+    "approx": "約",
+    "soon": "即將完成",
+    "minutes": "{{n}} 分鐘",
+    "hours": "{{h}} 小時 {{m}} 分",
+    "starts": "{{time}} 開始",
+    "queued": "排隊中",
+    "hint": "依歷史車速和取放貨時間估算。排隊中的任務照目前順序模擬由哪台車接，標「約」的估得比較粗。",
+    "vehicle": "目前任務 {{left}}後完成"
   },
   "cancel_reason": {
     "signal_wait_timeout": "等訊號逾時",

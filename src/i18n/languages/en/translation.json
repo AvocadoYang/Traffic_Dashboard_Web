@@ -805,7 +805,37 @@
       "overview": "Overview",
       "battery": "Battery log",
       "connection": "Disconnections",
-      "step_timing": "Step timing"
+      "step_timing": "Step timing",
+      "eta_accuracy": "ETA accuracy"
+    },
+    "eta_accuracy": {
+      "none": "No missions with a recorded estimate in this period (recorded when a mission is assigned)",
+      "hint": "Finish time estimated at assignment compared with the real finish. Error = actual - estimate; positive means later than estimated. Within 1 minute or 20% of the estimate counts as accurate.",
+      "by_route": "By route",
+      "by_vehicle": "By vehicle",
+      "worst": "Largest errors",
+      "largest_first": "Largest error first",
+      "tile": {
+        "count": "Missions",
+        "abs_avg": "Mean abs error",
+        "bias": "Bias (+ = later)",
+        "p90": "Abs error P90",
+        "within": "Within tolerance"
+      },
+      "col": {
+        "route": "Route",
+        "vehicle": "Vehicle",
+        "mission": "Mission",
+        "assigned_at": "Assigned at",
+        "count": "Missions",
+        "predicted": "Estimate",
+        "actual": "Actual",
+        "abs_avg": "Mean abs error",
+        "bias": "Bias",
+        "p90": "P90",
+        "within": "Within tolerance",
+        "error": "Error"
+      }
     },
     "step_timing": {
       "none": "No step timing in this period (missions before 2026-11-16 have none)",
@@ -3018,6 +3048,17 @@
       "GENERALLY": "General User",
       "ENGINEER": "Engineer"
     }
+  },
+  "eta": {
+    "column": "ETA",
+    "approx": "~",
+    "soon": "Finishing",
+    "minutes": "{{n}} min",
+    "hours": "{{h}} h {{m}} min",
+    "starts": "starts {{time}}",
+    "queued": "Queued",
+    "hint": "Estimated from past travel speed and load / offload times. Queued missions are simulated in the current order; values marked ~ are rough.",
+    "vehicle": "Current mission done in {{left}}"
   },
   "cancel_reason": {
     "signal_wait_timeout": "Signal wait timed out",

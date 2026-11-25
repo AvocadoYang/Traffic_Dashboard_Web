@@ -60,6 +60,8 @@ import BatteryReportBody from "./BatteryReport";
 import ConnectionReportBody from "./ConnectionReport";
 import StepTimingReportBody from "./StepTimingReport";
 import useStepTimingReport from "@/api/useStepTimingReport";
+import EtaAccuracyReportBody from "./EtaAccuracyReport";
+import useEtaAccuracyReport from "@/api/useEtaAccuracyReport";
 import useConnectionReport from "@/api/useConnectionReport";
 import {
   ChartBox,
@@ -140,13 +142,14 @@ const formatHours = (sec: number) => `${(sec / 3600).toFixed(1)} h`;
 const percent = (part: number, total: number) =>
   total > 0 ? Math.round((part / total) * 1000) / 10 : 0;
 
-type ReportTab = "overview" | "battery" | "connection" | "step_timing";
+type ReportTab = "overview" | "battery" | "connection" | "step_timing" | "eta_accuracy";
 
 const EXPORT_PATH: Record<ReportTab, string> = {
   overview: "api/report/operation/xlsx",
   battery: "api/report/battery/xlsx",
   connection: "api/report/connection/xlsx",
   step_timing: "api/report/step-timing/xlsx",
+  eta_accuracy: "api/report/eta-accuracy/xlsx",
 };
 
 const EXPORT_NAME: Record<ReportTab, string> = {
@@ -154,6 +157,7 @@ const EXPORT_NAME: Record<ReportTab, string> = {
   battery: "battery_report",
   connection: "connection_report",
   step_timing: "step_timing_report",
+  eta_accuracy: "eta_accuracy_report",
 };
 
 type Preset = "today" | "yesterday" | "last7" | "thisMonth";
@@ -196,6 +200,7 @@ const OperationReport: FC = () => {
   const battery = useBatteryReport(tab === "battery" ? query : null);
   const connection = useConnectionReport(tab === "connection" ? query : null);
   const stepTiming = useStepTimingReport(tab === "step_timing" ? query : null);
+  const etaAccuracy = useEtaAccuracyReport(tab === "eta_accuracy" ? query : null);
   const { data, isFetching, error, refetch } =
     tab === "overview"
       ? overview
@@ -203,7 +208,9 @@ const OperationReport: FC = () => {
         ? battery
         : tab === "connection"
           ? connection
-          : stepTiming;
+          : tab === "step_timing"
+            ? stepTiming
+            : etaAccuracy;
 
   const vehicleOptions = useMemo(
     () =>
@@ -328,6 +335,7 @@ const OperationReport: FC = () => {
             { key: "battery", label: t("report.tab.battery") },
             { key: "connection", label: t("report.tab.connection") },
             { key: "step_timing", label: t("report.tab.step_timing") },
+            { key: "eta_accuracy", label: t("report.tab.eta_accuracy") },
           ]}
         />
 
@@ -347,8 +355,10 @@ const OperationReport: FC = () => {
               <BatteryReportBody report={battery.data!} />
             ) : tab === "connection" ? (
               <ConnectionReportBody report={connection.data!} />
-            ) : (
+            ) : tab === "step_timing" ? (
               <StepTimingReportBody report={stepTiming.data!} />
+            ) : (
+              <EtaAccuracyReportBody report={etaAccuracy.data!} />
             )}
           </Spin>
         )}
