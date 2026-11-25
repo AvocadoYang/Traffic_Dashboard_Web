@@ -32,6 +32,7 @@ const { Title, Text } = Typography;
 
 type FormData = {
   locationId?: string;
+  disable?: boolean;
   name: string;
   description: string;
   ip: string;

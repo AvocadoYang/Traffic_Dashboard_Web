@@ -36,9 +36,9 @@ const reasonKeyMap: { [key in CancelReason]: string } = {
   [CancelReason.AMR_CHARGE_HAS_PROBLEM]: "amr_charge_has_problem",
 };
 
-const I18nCancelReason: FC<{ reason: CancelReason }> = ({ reason }) => {
+const I18nCancelReason: FC<{ reason?: CancelReason }> = ({ reason }) => {
   const { t } = useTranslation();
-  const key = reasonKeyMap[reason];
+  const key = reasonKeyMap[reason ?? CancelReason.NULL];
 
   if (!key) {
     return <>{t("cancel_reason.unknown", "未知原因")}</>;

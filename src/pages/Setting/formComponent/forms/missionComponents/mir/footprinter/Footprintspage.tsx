@@ -448,7 +448,7 @@ export const FootprintsPage: React.FC = () => {
         <Table<FootprintRow>
           rowKey="id"
           columns={columns}
-          dataSource={data}
+          dataSource={data as unknown as FootprintRow[]}
           pagination={{
             current,
             pageSize: PAGE_SIZE,

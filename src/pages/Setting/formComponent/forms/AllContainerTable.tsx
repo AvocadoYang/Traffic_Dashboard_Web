@@ -476,7 +476,7 @@ const AllContainerTable: React.FC<{
             ? t("utils.location_property.none")
             : record.areaType;
         return (
-          <IndustrialTag color={pointTypeWithColor[record.areaType]}>
+          <IndustrialTag color={(pointTypeWithColor as Record<string, string>)[record.areaType]}>
             {label}
           </IndustrialTag>
         );

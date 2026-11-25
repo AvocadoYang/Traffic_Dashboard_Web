@@ -11,7 +11,9 @@ import {
   Typography,
   message,
 } from "antd";
-import type { TableProps } from "antd";
+import type { TableColumnType, TableProps } from "antd";
+
+type EditableColumn = TableColumnType<PeripheralData> & { editable?: boolean };
 import usePeripheralName from "@/api/usePeripheralName";
 import client from "@/api/axiosClient";
 import { ErrorResponse } from "@/utils/globalType";
@@ -24,9 +26,9 @@ import { EndpointStatus } from "@/types/corning";
 
 interface PeripheralData {
   id: string;
-  name: string;
-  description: string;
-  group: string;
+  name?: string | null;
+  description?: string | null;
+  group?: string | null;
   status: EndpointStatus;
   quantity: number;
   peripheralNameDBId: string;
@@ -49,7 +51,7 @@ const StyledTable = styled(Table)`
     padding: 12px;
     font-size: 14px;
   }
-`;
+` as typeof Table;
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
@@ -229,7 +231,7 @@ const PeripheralNameTable: React.FC = () => {
     }
   };
 
-  const columns: TableProps<PeripheralData>["columns"] = [
+  const columns: EditableColumn[] = [
     {
       title: t("peripheral_name_table.locationId"),
       dataIndex: "id",
@@ -303,25 +305,25 @@ const PeripheralNameTable: React.FC = () => {
     },
   ];
 
-  const mergedColumns: TableProps<PeripheralData>["columns"] = columns?.map(
-    (col) => {
+  const mergedColumns: TableProps<PeripheralData>["columns"] = columns.map(
+    (col): EditableColumn => {
       if (!col.editable) {
         return col;
       }
       return {
         ...col,
-        onCell: (record: PeripheralData) => ({
+        onCell: ((record: PeripheralData) => ({
           record,
           dataIndex: col.dataIndex,
           title: col.title,
           editing: isEditing(record),
-        }),
+        })) as EditableColumn["onCell"],
       };
     }
   );
 
   if (error) {
-    return <div>{t("utils.load_error")} {error.message}</div>;
+    return <div>{t("utils.load_error")} {(error as Error).message}</div>;
   }
 
   return (

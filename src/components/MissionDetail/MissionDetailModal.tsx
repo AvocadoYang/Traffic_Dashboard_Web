@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Alert, Descriptions, Modal, Spin, Tag, Typography } from "antd";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import useMissionDetail from "@/api/useMissionDetail";
 import I18nCancelReason from "@/i18n/I18nCancelReason";
@@ -21,7 +21,7 @@ const STATUS_LABEL_KEY: Record<number, string> = {
 };
 
 const fmt = (v?: string | null) =>
-  v ? moment(v).format("YYYY-MM-DD HH:mm:ss") : "—";
+  v ? dayjs(v).format("YYYY-MM-DD HH:mm:ss") : "—";
 
 /** 原地彈出任務詳情 (貨物紀錄點任務 ID 用), 同時列出這個任務搬過的貨物 */
 const MissionDetailModal: FC<{
@@ -88,7 +88,7 @@ const MissionDetailModal: FC<{
                       ) as string}
                     </Tag>
                     {canceled && (
-                      <I18nCancelReason reason={mission.cancel_reason} />
+                      <I18nCancelReason reason={mission.cancel_reason ?? undefined} />
                     )}
                   </>
                 ),

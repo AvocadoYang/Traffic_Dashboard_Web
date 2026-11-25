@@ -10,8 +10,7 @@ import {
   Space,
   Table,
   Tag,
-  Typography,
-} from "antd";
+  Typography, type TableColumnType } from "antd";
 import { DeleteTwoTone, EditOutlined } from "@ant-design/icons";
 import useAllGroupsResources from "@/api/useAllGroupsResources";
 import { useAtomValue } from "jotai";
@@ -42,7 +41,7 @@ const StyledTable = styled(Table)`
   td.zone-col-md {
     min-width: 110px;
   }
-`;
+` as typeof Table;
 
 const ZoneTable: React.FC<{
   sortableId: string;
@@ -162,7 +161,7 @@ const ZoneTable: React.FC<{
     setEditingKey(record.id);
   };
 
-  const columns = [
+  const columns: (TableColumnType<ZoneTableData> & { editable?: boolean })[] = [
     {
       title: t("zone_table_form.zone_name"),
       dataIndex: "name",

@@ -50,7 +50,7 @@ const ElevatorIO: React.FC = () => {
 
   const renderIOList = (
     title: string,
-    ioObj: Record<string, boolean>,
+    ioObj: object | null,
     side: "right" | "left"
   ) => {
     if (!ioObj) return (
@@ -65,7 +65,7 @@ const ElevatorIO: React.FC = () => {
       <div>
         <h4 style={{ marginBottom: 8 }}>{title}</h4>
         <IOGrid>
-          {Object.entries(ioObj).map(([key, value]) => {
+          {Object.entries(ioObj as Record<string, boolean>).map(([key, value]) => {
             const label = key
               .replace(/([A-Z])/g, " $1")
               .replace(/^./, (str) => str.toUpperCase());

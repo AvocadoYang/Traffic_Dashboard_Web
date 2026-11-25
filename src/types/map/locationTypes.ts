@@ -4,12 +4,12 @@ export type LocationType = {
   locationId: string;
   x: number;
   y: number;
-  offset_x: number;
-  offset_y: number;
+  offset_x?: number;
+  offset_y?: number;
   areaType: string;
   rotation: number;
   canRotate: boolean;
-  rotate: number;
+  rotate?: number;
   map_id?: string;
   ip?: string | null;
   wait_area_id?: string | null;

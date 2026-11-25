@@ -1,29 +1,11 @@
-import MonitorCenter from "./pages/SWMoniter/SWMoniter";
+import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
-import {
-  Main,
-  LogIn,
-  Setting,
-  Register,
-  Records,
-} from "./pages";
-import CargoHistory from "./pages/CargoHistory/CargoHistory";
-import AmrDetail from "./pages/AmrDetail/AmrDetail";
-import AmrList from "./pages/AmrDetail/AmrList";
 import { Navigate, useLocation } from "react-router-dom";
 import { SystemAlarmOverlay } from "./pages/Main/components/SystemAlarm";
 import { UserConformOverlay } from "./pages/Main/components/UserConformTaskStep";
-import MissionDispatchBoard from "./pages/MissionDispatchBoard/MissionDispatchBoard";
-import OperationReport from "./pages/OperationReport/OperationReport";
-import FleetReplay from "./pages/FleetReplay/FleetReplay";
-import Kiosk from "./pages/Kiosk/Kiosk";
-import Achievements from "./pages/Achievements/Achievements";
 import AchievementToaster from "./components/Achievements/AchievementToaster";
-import SimulateV2Gate from "./pages/SimulateV2/SimulateV2Gate";
 import MainV2 from "./pages/MainV2/MainV2";
-import SettingV3 from "./pages/SettingV3/SettingV3";
-import Profile from "./pages/Profile/Profile";
 import UserSession from "./components/UserSession/UserSession";
 import PasswordReminder from "./components/UserSession/PasswordReminder";
 import PageGate from "./components/PermissionGate/PageGate";
@@ -32,7 +14,30 @@ import { ThemeVarsProvider, ThemedAppConfigProvider } from "./theme";
 import Ignition from "./components/Ignition/Ignition";
 import { useTranslation } from "react-i18next";
 
-import DevMain from "./pages/DevMain/DevMain";
+// 首頁以外的頁面都按路由載入: 首頁不用先下載設定頁、模擬頁、報表等整包程式碼。
+// (首頁 MainV2 維持一般 import, 登入後第一個畫面不用等額外的 chunk。)
+const MonitorCenter = lazy(() => import("./pages/SWMoniter/SWMoniter"));
+const Main = lazy(() => import("./pages/Main/Main"));
+const LogIn = lazy(() => import("./pages/Login/LogIn"));
+const Setting = lazy(() => import("./pages/Setting/Setting"));
+const Register = lazy(() => import("./pages/Register/Register"));
+const Records = lazy(() => import("./pages/Records/Record"));
+const CargoHistory = lazy(() => import("./pages/CargoHistory/CargoHistory"));
+const AmrDetail = lazy(() => import("./pages/AmrDetail/AmrDetail"));
+const AmrList = lazy(() => import("./pages/AmrDetail/AmrList"));
+const MissionDispatchBoard = lazy(
+  () => import("./pages/MissionDispatchBoard/MissionDispatchBoard"),
+);
+const OperationReport = lazy(
+  () => import("./pages/OperationReport/OperationReport"),
+);
+const FleetReplay = lazy(() => import("./pages/FleetReplay/FleetReplay"));
+const Kiosk = lazy(() => import("./pages/Kiosk/Kiosk"));
+const Achievements = lazy(() => import("./pages/Achievements/Achievements"));
+const SimulateV2Gate = lazy(() => import("./pages/SimulateV2/SimulateV2Gate"));
+const SettingV3 = lazy(() => import("./pages/SettingV3/SettingV3"));
+const Profile = lazy(() => import("./pages/Profile/Profile"));
+
 const client = new QueryClient({
   defaultOptions: {
     queries: {
@@ -79,53 +84,61 @@ function App() {
           <BrowserRouter
             future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
           >
-            <Routes>
-              <Route path="/login" element={<LogIn />}></Route>
+            <Suspense fallback={null}>
+              <Routes>
+                <Route path="/login" element={<LogIn />}></Route>
 
-              <Route element={<ProtectedRoute />}>
-                <Route path="/dashboard" element={<Register />}></Route>
-                {/* 設定頁正式改用 v3 (畫布地圖版)。/setting 保留成轉址,舊書籤跟外部連結不會壞;
-                舊版仍可從 /setting-v2、/setting-v1 進去,真的少了什麼功能時還有得退。 */}
-                <Route
-                  path="/setting"
-                  element={<Navigate to="/setting-v3" replace />}
-                ></Route>
-                <Route path="/setting-v1" element={<Setting></Setting>}></Route>
-                <Route path="/setting-v3" element={<SettingV3 />} />
-                {/* 舊的任務模擬頁拿掉了: 放模擬車改在首頁地圖的「模擬車輛」 */}
-                <Route
-                  path="/simulate"
-                  element={<Navigate to="/" replace />}
-                ></Route>
-                <Route path="/simulate-v2" element={<SimulateV2Gate />} />
-                <Route path="/cargo-history" element={<CargoHistory />}></Route>
-                {/* 首頁正式改用畫布地圖版 (原 /main-v2); 舊首頁留在 /main-v1,
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/dashboard" element={<Register />}></Route>
+                  {/* 設定頁正式改用 v3 (畫布地圖版)。/setting 保留成轉址,舊書籤跟外部連結不會壞;
+                舊版仍可從 /setting-v1 進去,真的少了什麼功能時還有得退。 */}
+                  <Route
+                    path="/setting"
+                    element={<Navigate to="/setting-v3" replace />}
+                  ></Route>
+                  <Route
+                    path="/setting-v1"
+                    element={<Setting></Setting>}
+                  ></Route>
+                  <Route path="/setting-v3" element={<SettingV3 />} />
+                  {/* 舊的任務模擬頁拿掉了: 放模擬車改在首頁地圖的「模擬車輛」 */}
+                  <Route
+                    path="/simulate"
+                    element={<Navigate to="/" replace />}
+                  ></Route>
+                  <Route path="/simulate-v2" element={<SimulateV2Gate />} />
+                  <Route
+                    path="/cargo-history"
+                    element={<CargoHistory />}
+                  ></Route>
+                  {/* 首頁正式改用畫布地圖版 (原 /main-v2); 舊首頁留在 /main-v1,
                 /main-v2 轉回首頁, 舊書籤不會壞 */}
-                <Route path="/" element={<MainV2 />} />
-                <Route path="/main-v1" element={<Main />}></Route>
-                <Route
-                  path="/main-v2"
-                  element={<Navigate to="/" replace />}
-                ></Route>
-                <Route
-                  path="/test"
-                  element={<MonitorCenter></MonitorCenter>}
-                ></Route>
-                <Route path="/records" element={<Records />}></Route>
-                <Route
-                  path="/mission-dispatch"
-                  element={<MissionDispatchBoard />}
-                ></Route>
-                <Route path="/amr" element={<AmrList />} />
-                <Route path="/amr/:amrId" element={<AmrDetail />} />
-                <Route path="/report" element={<OperationReport />} />
-                <Route path="/fleet-replay" element={<FleetReplay />} />
-                <Route path="/kiosk" element={<Kiosk />} />
-                <Route path="/achievements" element={<Achievements />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="*" element={<h1>{t("utils.not_found")}</h1>} />
-              </Route>
-            </Routes>
+                  <Route path="/" element={<MainV2 />} />
+                  <Route path="/main-v1" element={<Main />}></Route>
+                  <Route
+                    path="/main-v2"
+                    element={<Navigate to="/" replace />}
+                  ></Route>
+                  <Route
+                    path="/test"
+                    element={<MonitorCenter></MonitorCenter>}
+                  ></Route>
+                  <Route path="/records" element={<Records />}></Route>
+                  <Route
+                    path="/mission-dispatch"
+                    element={<MissionDispatchBoard />}
+                  ></Route>
+                  <Route path="/amr" element={<AmrList />} />
+                  <Route path="/amr/:amrId" element={<AmrDetail />} />
+                  <Route path="/report" element={<OperationReport />} />
+                  <Route path="/fleet-replay" element={<FleetReplay />} />
+                  <Route path="/kiosk" element={<Kiosk />} />
+                  <Route path="/achievements" element={<Achievements />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="*" element={<h1>{t("utils.not_found")}</h1>} />
+                </Route>
+              </Routes>
+            </Suspense>
           </BrowserRouter>
           {/* 登入成功後的點火轉場: 放在路由外面, 換頁時不會被卸載 */}
           <Ignition />

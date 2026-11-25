@@ -62,7 +62,7 @@ interface MarkerTypeRow {
   x_offset: number;
   y_offset: number;
   created_by?: string;
-  shelf_leg_asymmetry_x: number;
+  shelf_leg_asymmetry_x?: number;
 }
 
 interface MarkerTypeFormValues {

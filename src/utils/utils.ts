@@ -1,6 +1,6 @@
 import { MessageInstance } from "antd/es/message/interface";
 import { ErrorResponse } from "./globalType";
-import { MD5 } from "crypto-js";
+import { md5 } from "@/utils/md5";
 import convert from "color-convert";
 import i18next from "i18next";
 
@@ -100,7 +100,7 @@ export const errorHandler = (e: ErrorResponse, messageApi: MessageInstance) => {
 
   const errorMessage =
     e?.response?.data?.message ||
-    e?.response?.data?.error.message ||
+    e?.response?.data?.error?.message ||
     // 這裡不在元件裡,拿不到 useTranslation 的 t;全域 i18next.t 的 key 型別
     // 又跟 hook 的不一樣,所以收斂成 string
     (i18next.t as (key: string) => string)("utils.unknown_error");
@@ -132,7 +132,7 @@ export const editErrorHandler = (
 };
 
 export const amrId2Color = (amrId: string) => {
-  const seed = parseInt(`0x${MD5(amrId).toString()}`, 16);
+  const seed = parseInt(`0x${md5(amrId)}`, 16);
   const h = (seed % 60) + 200;
   const s = (seed % 20) + 40;
   const l = (seed % 20) + 30;
@@ -197,7 +197,7 @@ export const amrId2ColorRainbow = (amrId: string) => {
   if (manual) return manual;
   const idx = amrColorOrder.indexOf(amrId);
   if (idx >= 0) return AMR_COLORS[idx % AMR_COLORS.length];
-  const seed = parseInt(`0x${MD5(amrId).toString()}`, 16);
+  const seed = parseInt(`0x${md5(amrId)}`, 16);
   return AMR_COLORS[seed % AMR_COLORS.length];
 };
 

@@ -37,10 +37,10 @@ describe("parsePgm", () => {
     expect([...p.pixels]).toEqual([0, 205, 254, 254, 205, 0]);
   });
   it("P2 文字", () => {
-    const p = parsePgm(new TextEncoder().encode("P2 2 1 255 0 255").buffer);
+    const p = parsePgm(new TextEncoder().encode("P2 2 1 255 0 255").buffer as ArrayBuffer);
     expect([...p.pixels]).toEqual([0, 255]);
   });
   it("不是 PGM 就報錯", () => {
-    expect(() => parsePgm(new TextEncoder().encode("PNG").buffer)).toThrow();
+    expect(() => parsePgm(new TextEncoder().encode("PNG").buffer as ArrayBuffer)).toThrow();
   });
 });

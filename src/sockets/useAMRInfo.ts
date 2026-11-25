@@ -1,5 +1,5 @@
 import { hsl } from "color-convert";
-import { MD5 } from "crypto-js";
+import { md5 } from "@/utils/md5";
 import { useState, useEffect } from "react";
 import {
   distinctUntilChanged,
@@ -352,7 +352,7 @@ const regularYaw = (): MonoTypeOperatorFunction<Pose> => (source$) => {
 };
 
 const amrId2Color = (amrId: string) => {
-  const seed = parseInt(`0x${MD5(amrId).toString()}`, 16);
+  const seed = parseInt(`0x${md5(amrId)}`, 16);
   const h = seed % 360;
   const s = (seed % 70) + 80;
   const l = (seed % 60) + 10;

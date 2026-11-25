@@ -139,7 +139,11 @@ export const useSaveCargo = (
   target: CargoPanelTarget | null,
   storageDbId: string | undefined,
 ) =>
-  useMutation({
+  useMutation<
+    unknown,
+    unknown,
+    { cargo: CargoPayload[]; knownCargoIds: string[] }
+  >({
     mutationFn: ({
       cargo,
       knownCargoIds,
