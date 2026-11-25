@@ -24,7 +24,7 @@ import {
   useMemo,
 } from "react";
 import { ColumnsType } from "antd/es/table";
-import moment from "moment";
+import dayjs from "dayjs";
 import {
   SyncOutlined,
   ExclamationCircleOutlined,
@@ -526,21 +526,21 @@ const isCanceled = (status: number) =>
 
 const diffMs = (from?: Date | null, to?: Date | null) => {
   if (!from || !to) return null;
-  const ms = moment(to).diff(moment(from));
+  const ms = dayjs(to).diff(dayjs(from));
   return ms >= 0 ? ms : null;
 };
 
 /** 同一年就不顯示年份，欄位才塞得下 */
 const formatShortTime = (date?: Date | null) => {
   if (!date) return "—";
-  const m = moment(date);
+  const m = dayjs(date);
   return m.format(
-    m.isSame(moment(), "year") ? "MM/DD HH:mm:ss" : "YYYY/MM/DD HH:mm",
+    m.isSame(dayjs(), "year") ? "MM/DD HH:mm:ss" : "YYYY/MM/DD HH:mm",
   );
 };
 
 const formatFullTime = (date?: Date | null) =>
-  date ? moment(date).format("YYYY-MM-DD HH:mm:ss") : "—";
+  date ? dayjs(date).format("YYYY-MM-DD HH:mm:ss") : "—";
 
 type MissionKind =
   | "normal"

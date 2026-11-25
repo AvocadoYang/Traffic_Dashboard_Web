@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Alert, Flex, Spin, Typography } from "antd";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import useMissionDetail from "@/api/useMissionDetail";
 
@@ -41,7 +41,7 @@ const MissionManualActions: FC<{ missionId: string }> = ({ missionId }) => {
             }
             description={
               <Text type="secondary">
-                {moment(a.created_at).format("YYYY-MM-DD HH:mm:ss")} · {who}
+                {dayjs(a.created_at).format("YYYY-MM-DD HH:mm:ss")} · {who}
               </Text>
             }
           />

@@ -24,7 +24,7 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useAtomValue } from "jotai";
 import { darkMode } from "@/utils/gloable"; // Assuming this is imported
 
@@ -282,11 +282,11 @@ const BKBtn = () => {
       key: "createdAt",
       render: (date: Date) => (
         <ConsoleText $isDark={isDark}>
-          {moment(date).format("YYYY-MM-DD HH:mm:ss")}
+          {dayjs(date).format("YYYY-MM-DD HH:mm:ss")}
         </ConsoleText>
       ),
       sorter: (a: any, b: any) =>
-        moment(a.createdAt).unix() - moment(b.createdAt).unix(),
+        dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
       width: 180,
     },
     {
