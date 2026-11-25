@@ -87,7 +87,7 @@
     "react-router-dom": "6.30.6",
     "react-scripts": "5.0.0",
     "react-use": "^17.4.0",
-    "recharts": "^3.1.0",
+    "recharts": "3.1.0",
     "rxjs": "^7.5.5",
     "serve": "^14.2.3",
     "server": "^1.0.39",
