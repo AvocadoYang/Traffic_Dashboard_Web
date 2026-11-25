@@ -1626,19 +1626,96 @@
       "edit_charge_station_config": "編輯充電站配置"
     },
     "station_panel": {
-      "charging_started": "已開始充電",
-      "charging_stopped": "已停止充電",
+      "charging_started": "已送出開始充電",
+      "charging_stopped": "已送出停止充電",
       "location_not_found": "找不到點位",
-      "control_title": "充電站控制",
-      "status_title": "充電站狀態",
-      "location_id": "點位 ID:",
-      "last_heartbeat": "最後心跳:",
-      "heartbeat": "心跳:",
-      "mqtt": "MQTT 連線:",
-      "tcp": "TCP 連線:",
-      "charge_bar": "充電桿:",
+      "station_id": "站點 ID",
+      "disabled": "已停用",
+      "node_fleet": "派車系統",
+      "node_fleet_sub": "mission-control",
+      "node_bridge": "串接程式",
+      "node_bridge_sub": "usr_charge",
+      "node_station": "充電站",
+      "node_station_sub": "通訊模組 + 充電機",
+      "connected": "已連線",
+      "disconnected": "斷線",
+      "unknown": "無法得知",
+      "data": "回傳資料",
+      "data_ok": "正常",
+      "data_stopped": "停止 {{duration}}",
+      "blame_here": "▲ 問題在這裡",
+      "last_data": "最後收到資料",
+      "ago": "{{duration}}前",
+      "never": "串接程式啟動後還沒收到",
+      "charge_bar": "充電桿",
+      "bar_in": "縮回",
+      "bar_out": "伸出",
+      "bar_unknown": "不明",
+      "last_known": "最後一次收到的值",
+      "location_id": "點位 ID",
+      "using_amr": "使用中的車",
       "start": "開始充電",
-      "stop": "停止充電"
+      "stop": "停止充電",
+      "dur_sec": "{{n}} 秒",
+      "dur_min": "{{n}} 分鐘",
+      "dur_hour": "{{n}} 小時",
+      "dur_day": "{{n}} 天",
+      "impact": "這座站恢復前不能充電, 綁定這座站的車進入範圍會被暫停。",
+      "verdict": {
+        "ok": {
+          "title": "正常",
+          "what": "連線正常, 充電站有持續回傳資料, 充電桿{{bar}}。"
+        },
+        "no_data": {
+          "title": "沒有這座充電站的資料",
+          "what": "派車系統沒有送這個點位的充電站狀態過來。",
+          "do": [
+            "重新整理頁面",
+            "還是一樣: 到設定頁確認這個點位有設定成充電站"
+          ]
+        },
+        "stale": {
+          "title": "問題在: 派車系統 / 畫面連線",
+          "what": "畫面已經收不到派車系統的更新, 下面的狀態是舊的。",
+          "do": [
+            "確認派車電腦和 mission-control 有在執行",
+            "重新整理頁面"
+          ]
+        },
+        "bridge": {
+          "title": "問題在: 充電站串接程式",
+          "what": "串接程式 (usr_charge) 沒有連上派車系統, 所有充電站的狀態都收不到。",
+          "do": [
+            "到派車電腦確認 usr_charge 有在執行 (pm2 list)",
+            "沒有在執行或一直重開: 看 usr_charge 的 app.log"
+          ]
+        },
+        "tcp": {
+          "title": "問題在: 充電站的電源或網路",
+          "what": "串接程式連不上這座充電站 (TCP)。",
+          "do": [
+            "確認充電站有電、網路線有接好",
+            "在派車電腦 ping 這座充電站的 IP",
+            "ping 得到但還是連不上, 或狀態在「連上 / 斷線」之間跳: 充電站的通訊模組卡住了, 重開充電站電源"
+          ]
+        },
+        "silent": {
+          "title": "問題在: 充電站本身 (通訊模組或充電機)",
+          "what": "網路是通的, 但充電站沒有回傳資料, 已經 {{duration}}。重開派車系統或串接程式不會好。",
+          "do": [
+            "重開充電站電源",
+            "經常發生: 記下發生時間, 帶串接程式的 station log 聯絡充電站廠商"
+          ]
+        },
+        "bar_unknown": {
+          "title": "充電桿狀態看不懂",
+          "what": "有收到充電站的資料, 但看不懂充電桿是伸出還是縮回, 為了安全當成伸出。",
+          "do": [
+            "確認串接程式設定檔裡這座站的充電機型號 (type) 對不對",
+            "型號沒錯: 帶串接程式的 station log 找軟體人員"
+          ]
+        }
+      }
     },
     "station_label": "充電站標號",
     "station_config": {
