@@ -125,6 +125,9 @@ export type Charge_Status_Info = {
   description: string;
   group: string;
   disable: boolean;
+  /** 後端有送, 設定頁編輯用 */
+  ip?: string | null;
+  port?: number;
   booker: string;
   occupier: string;
 

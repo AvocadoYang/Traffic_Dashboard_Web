@@ -124,7 +124,7 @@ const SystemAlarmPanel: FC<{
       ...prev,
       [code]: {
         enable,
-        description: prev.description,
+        description: prev[code]?.description ?? "",
       },
     }));
   };

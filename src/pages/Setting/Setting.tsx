@@ -6,7 +6,7 @@ import ZoomPad from "@/components/Setting/ZoomPad";
 import BKBtn from "@/components/Setting/BKBtn";
 import useResetSiderSwitch from "@/hooks/setting/useResetSiderSwitch";
 import "@/pages/SettingV3/setting.css";
-import { DndContext } from "@dnd-kit/core";
+import { DndContext, type DragEndEvent } from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
@@ -43,7 +43,7 @@ const Setting: React.FC = () => {
     "100%",
   ]);
 
-  const dragEndEvent = (dragItem) => {
+  const dragEndEvent = (dragItem: DragEndEvent) => {
     setDataList((prevDataList) => {
       const moveDataList = prevDataList;
       const { activeIndex, overIndex } = getMoveIndex(moveDataList, dragItem);
@@ -91,7 +91,7 @@ const Setting: React.FC = () => {
     }
   }, [hasOpenTool, isWeb]);
 
-  const updateSize = (size) => {
+  const updateSize = (size: number[]) => {
     setSplitterSize(size);
   };
 

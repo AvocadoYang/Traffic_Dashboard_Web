@@ -65,10 +65,9 @@ const GaugeCarousel: FC = () => {
         <GlassCard title={t("sw_monitor.heat_warning_count")}>
           <div style={{ textAlign: "center" }}>
             <AnimatedNumber
-              includeComma
+              useThousandsSeparator
               animateToNumber={2}
               fontStyle={{ fontSize: 32, fontWeight: "bold" }}
-              configs={[{ mass: 1, tension: 180, friction: 90 }]}
             />
             <div>
               <FireOutlined style={{ color: "var(--c-danger)", fontSize: 20 }} />

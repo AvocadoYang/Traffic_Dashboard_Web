@@ -16,7 +16,9 @@ import {
   Col,
 } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+import relativeTime from "dayjs/plugin/relativeTime";
 import { FC, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import ReactJsonView from "@uiw/react-json-view";
@@ -27,6 +29,9 @@ import { useReverifyCargoFormat } from "@/hooks/useReverifyCargoFormat";
 import LocateLocationLink from "@/components/LocateLocationLink";
 import { locationFromDescription } from "@/components/CanvasMap/focusLocation";
 import MissionDetailModal from "@/components/MissionDetail/MissionDetailModal";
+
+dayjs.extend(duration);
+dayjs.extend(relativeTime);
 
 const { Text } = Typography;
 
@@ -206,8 +211,8 @@ const HistoryTable: FC = () => {
             ? r.metadata
             : JSON.stringify(r.metadata)
           : "",
-        last ? `${last.action} ${moment(last.timestamp).format("YYYY-MM-DD HH:mm:ss")}` : "",
-        moment(r.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+        last ? `${last.action} ${dayjs(last.timestamp).format("YYYY-MM-DD HH:mm:ss")}` : "",
+        dayjs(r.createdAt).format("YYYY-MM-DD HH:mm:ss"),
       ]
         .map(csvCell)
         .join(",");
@@ -218,7 +223,7 @@ const HistoryTable: FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `cargo-history-${moment().format("YYYYMMDD-HHmmss")}.csv`;
+    a.download = `cargo-history-${dayjs().format("YYYYMMDD-HHmmss")}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -316,7 +321,7 @@ const HistoryTable: FC = () => {
               <Tag style={{ margin: 0 }} color={getActionColor(last.action as CargoAction)}>
                 {last.action}
               </Tag>
-              <Text type="secondary">{moment(last.timestamp).fromNow()}</Text>
+              <Text type="secondary">{dayjs(last.timestamp).fromNow()}</Text>
             </Flex>
           </Tooltip>
         );
@@ -327,7 +332,7 @@ const HistoryTable: FC = () => {
       dataIndex: "createdAt",
       key: "createdAt",
       sorter: (a: CargoData, b: CargoData) =>
-        moment(a.createdAt).unix() - moment(b.createdAt).unix(),
+        dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
       render: (_v: string, record: CargoData) =>
         new Date(record.createdAt).toLocaleString(),
     },
@@ -500,7 +505,7 @@ const HistoryTable: FC = () => {
                         .map((h, i, arr) => {
                           const prev = arr[i - 1];
                           const gap = prev
-                            ? moment(h.timestamp).diff(moment(prev.timestamp))
+                            ? dayjs(h.timestamp).diff(dayjs(prev.timestamp))
                             : null;
                           return (
                             <HistoryItem key={h.id}>
@@ -509,7 +514,7 @@ const HistoryTable: FC = () => {
                                   type="secondary"
                                   style={{ minWidth: 160 }}
                                 >
-                                  {moment(h.timestamp).format(
+                                  {dayjs(h.timestamp).format(
                                     "YYYY-MM-DD HH:mm:ss"
                                   )}
                                 </Text>
@@ -530,7 +535,7 @@ const HistoryTable: FC = () => {
                                 </Tag>
                                 {gap !== null && gap > 0 && (
                                   <Text type="secondary" style={{ fontSize: 12 }}>
-                                    +{moment.duration(gap).humanize()}
+                                    +{dayjs.duration(gap).humanize()}
                                   </Text>
                                 )}
                               </Flex>

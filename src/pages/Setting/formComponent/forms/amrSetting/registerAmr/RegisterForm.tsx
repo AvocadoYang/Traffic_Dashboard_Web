@@ -260,7 +260,9 @@ const RegisterForm: FC<{
   return (
     <FormSection>
       {contextHolder}
-      <StyledForm form={form} onFinish={onFinish} layout="vertical">
+      <StyledForm form={form} onFinish={(values: unknown) => onFinish(values as When_Finish)}
+        layout="vertical"
+      >
         <Form.Item
           name="robot_type"
           label={t("setting_amr.register_amr.type")}

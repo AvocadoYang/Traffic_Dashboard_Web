@@ -32,7 +32,7 @@ const HoverLabelWrapper = styled.div.attrs<{
 
 // 路線的顏色跟著主題走(theme/palettes.ts 的 map* 那一組)。
 // 被車佔用時的顏色是那台車自己的代表色,不是主題色。
-const Line = styled.div.attrs<{
+type RoadLineProps = {
   length: number;
   angle: number;
   color: string;
@@ -41,7 +41,9 @@ const Line = styled.div.attrs<{
   $isClaimed: boolean;
   $limit: boolean;
   $isOnHover: boolean;
-}>(
+};
+
+const Line = styled.div.attrs<RoadLineProps>(
   ({
     length,
     angle,
@@ -63,14 +65,7 @@ const Line = styled.div.attrs<{
           : `${priority === 1 ? "0.5px solid var(--c-map-road-priority)" : "0.5px solid var(--c-map-road)"}`,
     },
   }),
-)<{
-  length: number;
-  angle: number;
-  $isOneWayRoad: boolean;
-  $isClaimed: boolean;
-  $limit: boolean;
-  $isOnHover: boolean;
-}>`
+)<RoadLineProps>`
   height: 4px;
   transform-origin: top left;
 

@@ -31,7 +31,7 @@ export const useRemainSchedule = () => {
       //   ),
       // )
       .subscribe((info) => {
-        setS(info.schedule as File_Mission[]);
+        setS((info as { schedule: File_Mission[] }).schedule);
       });
     return () => {
       sub.unsubscribe();

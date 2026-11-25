@@ -59,7 +59,12 @@ export const useSystemAlarm = () => {
   });
   useEffect(() => {
     const sub = warningId$.subscribe((infos) => {
-      setWarningList({ ...infos, tstamp: infos.tstamp || new Date() });
+      setWarningList({
+        ...infos,
+        alarmType: infos.alarmType as AlarmType,
+        // 後端有時會帶 tstamp, schema 沒宣告
+        tstamp: (infos as { tstamp?: Date }).tstamp || new Date(),
+      });
     });
     return () => {
       sub.unsubscribe();

@@ -220,7 +220,7 @@ const IndustrialTable = styled(Table)`
       }
     }
   }
-`;
+` as typeof Table;
 
 const MissionName = styled.div`
   font-weight: 600;

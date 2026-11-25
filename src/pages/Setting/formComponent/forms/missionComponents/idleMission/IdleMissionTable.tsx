@@ -9,7 +9,7 @@ import {
   ClockCircleOutlined,
 } from "@ant-design/icons";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Button, Flex, Popconfirm, Table, message } from "antd";
+import { Button, Flex, Popconfirm, Table, message, type TableColumnsType } from "antd";
 import { FC } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
@@ -97,7 +97,7 @@ const IndustrialTable = styled(Table)`
     padding: 12px 16px;
     font-size: 12px;
   }
-`;
+` as typeof Table;
 
 const IndustrialButton = styled(Button)`
   font-family: "Roboto Mono", monospace;
@@ -279,7 +279,7 @@ const IdleMissionTable: FC = () => {
     deleteMutation.mutate({ idle_id: id });
   };
 
-  const columns = [
+  const columns: TableColumnsType<DataType> = [
     {
       title: t("mission.idle_mission.status"),
       key: "active",

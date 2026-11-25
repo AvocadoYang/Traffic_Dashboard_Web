@@ -39,8 +39,8 @@ export const useUserConformTaskStep = () => {
     const subInit = fromEventPattern(
       (h) => io.on("init-user-conform-next-step-list", h),
       (h) => io.off("init-user-conform-next-step-list", h),
-    ).subscribe((list: string[]) => {
-      setPendingIds(list);
+    ).subscribe((list) => {
+      setPendingIds(list as string[]);
     });
 
     return () => {

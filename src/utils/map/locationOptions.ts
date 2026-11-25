@@ -1,6 +1,9 @@
-import { t } from "i18next";
+import i18next from "i18next";
 
-export const locationOption = (value) => {
+// 全域 t 的 key 型別跟 useTranslation 不同 (見 i18n 的坑), 這裡只要字串進字串出
+const t = i18next.t as (key: string) => string;
+
+export const locationOption = (value: string) => {
   switch (value) {
     case "ELEVATOR":
       return t("edit_location_panel.elevator");

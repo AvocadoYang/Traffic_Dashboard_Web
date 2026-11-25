@@ -283,22 +283,22 @@ const ChargeDockSetting: React.FC = () => {
               borderColor: "#d9d9d9",
             }}
           >
-            <Text bold type="secondary">
+            <Text strong type="secondary">
               {t("charge_dock.axis_title")}
             </Text>
             <Row gutter={16} style={{ marginTop: 8 }}>
               <Col span={8}>
-                <Text size="small">
+                <Text>
                   • <b>{t("charge_dock.axis_x")}</b>{t("charge_dock.axis_x_desc")}
                 </Text>
               </Col>
               <Col span={8}>
-                <Text size="small">
+                <Text>
                   • <b>{t("charge_dock.axis_y")}</b>{t("charge_dock.axis_y_desc")}
                 </Text>
               </Col>
               <Col span={8}>
-                <Text size="small">
+                <Text>
                   • <b>{t("charge_dock.axis_yaw")}</b>{t("charge_dock.axis_yaw_desc")}
                 </Text>
               </Col>
@@ -306,7 +306,7 @@ const ChargeDockSetting: React.FC = () => {
           </Card>
 
           {/* 第一區塊：精準對接目標值 */}
-          <Divider orientation="left" style={{ margin: "12px 0" }}>
+          <Divider titlePlacement="start" style={{ margin: "12px 0" }}>
             {t("charge_dock.section_target")}
           </Divider>
           <Row gutter={16}>
@@ -387,7 +387,7 @@ const ChargeDockSetting: React.FC = () => {
           </Row>
 
           {/* 第二區塊：容忍誤差 */}
-          <Divider orientation="left" style={{ margin: "12px 0" }}>
+          <Divider titlePlacement="start" style={{ margin: "12px 0" }}>
             {t("charge_dock.section_tolerance")}
           </Divider>
 

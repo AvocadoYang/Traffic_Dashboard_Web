@@ -213,7 +213,7 @@ const StyledTable = styled(Table)`
       color: #1890ff;
     }
   }
-`;
+` as typeof Table;
 
 const SearchDropdown = styled.div`
   padding: 8px;

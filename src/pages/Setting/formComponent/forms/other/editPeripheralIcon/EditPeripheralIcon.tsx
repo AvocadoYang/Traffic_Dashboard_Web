@@ -1,7 +1,6 @@
-import { SingleChargeStation } from "@/api/useAllCharge";
 import FormHr from "@/pages/Setting/utils/FormHr";
 import { PeripheralEditData, IsEditPeripheralStyle } from "@/utils/gloable";
-import { Button, Drawer, Flex, Select, Table, Input } from "antd";
+import { Button, Drawer, Flex, Select, Table, Input, type TableColumnsType } from "antd";
 import { useAtom, useSetAtom } from "jotai";
 import { FC, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -19,6 +18,10 @@ import SettingMultiStyleForm from "@/pages/SettingV3/forms/other/editPeripheralI
 import styled from "styled-components";
 
 // Industrial Styled Components
+type PeripheralRow = NonNullable<
+  ReturnType<typeof usePeripheralStyle>["data"]
+>[number];
+
 const IndustrialContainer = styled.div`
   font-family: "Roboto Mono", monospace;
   background: #ffffff;
@@ -276,7 +279,7 @@ const IndustrialTable = styled(Table)`
       }
     }
   }
-`;
+` as typeof Table;
 
 const IndustrialDrawer = styled(Drawer)`
   .ant-drawer-content {
@@ -397,13 +400,13 @@ const EditPeripheralIcon: FC<{
     setIsEditStation(true);
   };
 
-  const columns = [
+  const columns: TableColumnsType<PeripheralRow> = [
     {
       title: t("other.edit_charge_station_icon_style.edit_position"),
       dataIndex: "operation",
       key: "operation",
 
-      render: (_v: unknown, record: SingleChargeStation) => {
+      render: (_v: unknown, record: PeripheralRow) => {
         return (
           <IndustrialButton
             className="position-btn"
@@ -444,7 +447,7 @@ const EditPeripheralIcon: FC<{
       title: "Position",
       key: "position",
 
-      render: (_v: unknown, record: SingleChargeStation) => (
+      render: (_v: unknown, record: PeripheralRow) => (
         // <BadgeGroup>
         <>
           <ValueBadge>X {record.x}</ValueBadge>
@@ -457,7 +460,7 @@ const EditPeripheralIcon: FC<{
       title: "Translate",
       key: "translate",
 
-      render: (_v: unknown, record: SingleChargeStation) => (
+      render: (_v: unknown, record: PeripheralRow) => (
         <BadgeGroup>
           <>
             <ValueBadge>X {record.translateX}</ValueBadge>
@@ -470,7 +473,7 @@ const EditPeripheralIcon: FC<{
       title: "Transform",
       key: "transform",
 
-      render: (_v: unknown, record: SingleChargeStation) => (
+      render: (_v: unknown, record: PeripheralRow) => (
         <BadgeGroup>
           <ValueBadge>{record.rotate}°</ValueBadge>
           <ValueBadge>{record.scale}x</ValueBadge>
@@ -544,7 +547,7 @@ const EditPeripheralIcon: FC<{
             <IndustrialSelect
               allowClear
               placeholder={t("other.edit_peripheral_style.filter_type")}
-              onChange={(value) => onChangeAreaType(value)}
+              onChange={(value) => onChangeAreaType(value as string)}
               options={uniqueAreaTypes.map((type) => ({
                 label: type,
                 value: type,
@@ -562,9 +565,9 @@ const EditPeripheralIcon: FC<{
 
           <IndustrialTable
             rowSelection={rowSelection}
-            dataSource={filteredData as SingleChargeStation[]}
+            dataSource={filteredData as PeripheralRow[]}
             columns={columns as []}
-            rowKey={(record: SingleChargeStation) => record.locationId}
+            rowKey={(record: PeripheralRow) => record.locationId}
             pagination={{
               pageSize: 20,
               showTotal: (total, range) => (

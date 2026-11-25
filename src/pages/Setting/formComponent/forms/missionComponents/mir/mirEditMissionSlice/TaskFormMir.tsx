@@ -529,7 +529,7 @@ const TaskFormMirContent: FC<{
             >
               <Select
                 placeholder="Select an action"
-                options={getSubActionOptions()}
+                options={getSubActionOptions() as { value: Mir_All_Action; label: string }[]}
                 onChange={(e) => handleAction(e)}
               />
             </Form.Item>
