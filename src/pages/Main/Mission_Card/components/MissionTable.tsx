@@ -1,3 +1,4 @@
+import { etaText } from "@/utils/eta";
 import {
   Additional_Mission_Info,
   MissionInfo,
@@ -329,13 +330,13 @@ const IndustrialCheckboxGroup = styled.div<{ $isDark: boolean }>`
 `;
 
 type SelectMissionT = {
-  amrId?: string;
+  amrId?: string | null;
   taskId?: string;
   missionId?: string;
   status?: string;
 };
 
-const defaultOpenColumn = ["amrId", "missionStatus", "taskInfo"];
+const defaultOpenColumn = ["amrId", "missionStatus", "taskInfo", "eta"];
 
 const MissionTable = () => {
   const { t } = useTranslation();
@@ -374,12 +375,12 @@ const MissionTable = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const columns: TableColumnsType<MissionInfo> = [
+  const allColumns: TableColumnsType<MissionInfo> = [
     {
       title: t("mission_history.mission_id"),
       dataIndex: "missionId",
       key: "missionId",
-      sorter: (a, b) => a.id.localeCompare(b.id),
+      sorter: (a, b) => a.missionId.localeCompare(b.missionId),
       width: 150,
       render: (missionId: string) => {
         const info = rejectEntries(rejectMission?.[missionId]);
@@ -439,7 +440,7 @@ const MissionTable = () => {
         ) {
           return (
             <Tooltip title={<I18nCancelReason reason={record.cancelReason} />}>
-              <StatusBadge $tone={STATUS_TONE[record.status] ?? "warning"} $isDark={isDark}>
+              <StatusBadge $tone={STATUS_TONE[record.status ?? -1] ?? "warning"} $isDark={isDark}>
                 {stripEmoji(String(status))}
               </StatusBadge>
             </Tooltip>
@@ -449,7 +450,7 @@ const MissionTable = () => {
         if (record.status === MissionStatus.WAITING) {
           return (
             <Tooltip title={record.message}>
-              <StatusBadge $tone={STATUS_TONE[record.status] ?? "warning"} $isDark={isDark}>
+              <StatusBadge $tone={STATUS_TONE[record.status ?? -1] ?? "warning"} $isDark={isDark}>
                 {stripEmoji(String(status))}
               </StatusBadge>
             </Tooltip>
@@ -465,7 +466,7 @@ const MissionTable = () => {
               color="var(--c-bg)"
             >
               <Flex gap={6} align="center">
-                <StatusBadge $tone={STATUS_TONE[record.status] ?? "warning"} $isDark={isDark}>
+                <StatusBadge $tone={STATUS_TONE[record.status ?? -1] ?? "warning"} $isDark={isDark}>
                   {stripEmoji(String(status))}
                 </StatusBadge>
                 <WarningOutlined style={{ color: "var(--c-warning)" }} />
@@ -475,7 +476,7 @@ const MissionTable = () => {
         }
 
         return (
-          <StatusBadge $tone={STATUS_TONE[record.status] ?? "warning"} $isDark={isDark}>
+          <StatusBadge $tone={STATUS_TONE[record.status ?? -1] ?? "warning"} $isDark={isDark}>
             {stripEmoji(String(status))}
           </StatusBadge>
         );
@@ -513,6 +514,32 @@ const MissionTable = () => {
       },
     },
     {
+      title: (
+        <Tooltip title={t("eta.hint")}>
+          <span>{t("eta.column")}</span>
+        </Tooltip>
+      ),
+      dataIndex: "etaFinishAt",
+      key: "eta",
+      width: 128,
+      render: (_: unknown, record: MissionInfo) => {
+        const text = etaText(record, Date.now(), t);
+        if (!text) return <span>-</span>;
+        return (
+          <Flex vertical>
+            <span style={{ fontFamily: "Roboto Mono", fontWeight: 600, whiteSpace: "nowrap" }}>
+              {text.main}
+            </span>
+            {text.start && (
+              <span style={{ fontSize: 12, color: "var(--c-text-secondary)", whiteSpace: "nowrap" }}>
+                {text.start}
+              </span>
+            )}
+          </Flex>
+        );
+      },
+    },
+    {
       title: t("utils.cost_time"),
       dataIndex: "totalTime",
       key: "totalTime",
@@ -522,7 +549,8 @@ const MissionTable = () => {
         </span>
       ),
     },
-  ].filter((item) => {
+  ];
+  const columns = allColumns.filter((item) => {
     if (!isMobile) return true;
     return item.key !== "taskInfo";
   });

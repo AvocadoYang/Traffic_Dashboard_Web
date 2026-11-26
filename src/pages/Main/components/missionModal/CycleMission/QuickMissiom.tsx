@@ -139,7 +139,6 @@ const QuickMission = () => {
       <Modal
         title={t("main.card_name.quick_mission")}
         open={openQuickMission}
-        onClose={handleCancel}
         footer={[
           <Button
             key="submit"

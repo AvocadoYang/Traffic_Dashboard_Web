@@ -489,7 +489,50 @@
   "page_record": "告警紀錄",
   "page_mission_dispatch": "任務看板",
   "page_fleet_replay": "車隊回放",
+  "kiosk": {
+    "slide_map": "即時地圖",
+    "slide_report": "今日戰報",
+    "slide_fleet": "車輛狀態",
+    "slide_alarms": "告警",
+    "prev": "上一頁",
+    "next": "下一頁",
+    "pause": "暫停輪播",
+    "resume": "繼續輪播",
+    "fullscreen": "全螢幕",
+    "no_data": "目前沒有資料",
+    "yesterday": "昨天 {{n}}",
+    "vs_yesterday": "昨天 {{n}} ({{pct}}%)",
+    "report_title": "{{date}} 今日戰報",
+    "completed": "完成任務",
+    "canceled": "取消任務",
+    "cargo_moved": "搬運貨物",
+    "distance": "行駛距離",
+    "alarms": "告警次數",
+    "top_vehicle": "今日最勤快",
+    "top_vehicle_n": "完成 {{n}} 個任務",
+    "unit_missions": "個",
+    "unit_cargo": "筆",
+    "unit_times": "次",
+    "fleet_title": "車輛狀態 · 在線 {{online}} / {{total}}",
+    "no_vehicles": "沒有車輛",
+    "offline": "離線",
+    "working": "執行任務中",
+    "idle": "待命",
+    "all_clear": "目前一切正常",
+    "alarms_title": "目前有 {{n}} 則告警",
+    "more": "還有 {{n}} 則",
+    "open": "看板模式"
+  },
   "fleet_replay": {
+    "open_from_mission": "車隊回放",
+    "events_btn": "事件 ({{n}})",
+    "events_none": "這段時間沒有告警、急停或斷線",
+    "events_truncated": "事件太多, 只列最前面 500 筆; 縮小時間範圍可以看到全部",
+    "record_btn": "錄成影片",
+    "recording_stop": "停止並存檔",
+    "record_unsupported": "這個瀏覽器不能錄影 (需要 Chrome / Edge / Firefox 新版)",
+    "record_saved": "影片已存檔 (webm)",
+    "focus_chip": "標出車輛 {{id}} (其他車變淡)",
     "empty_network_real": "這段時間沒有網路紀錄: 只記實車 (模擬車不記), 而且是後端更新到這一版之後才開始記",
     "group_traffic": "車流",
     "group_network": "網路 / 定位",
@@ -762,7 +805,37 @@
       "overview": "總覽",
       "battery": "電量紀錄",
       "connection": "斷線紀錄",
-      "step_timing": "步驟時間"
+      "step_timing": "步驟時間",
+      "eta_accuracy": "預估準確度"
+    },
+    "eta_accuracy": {
+      "none": "這段期間沒有記錄到預估時間的任務 (派車時才會記錄)",
+      "hint": "派車當下預估的完成時間跟實際完成時間比。誤差 = 實際 - 預估, 正的代表比預估慢。誤差在 1 分鐘內或預估時間的 20% 內算準。",
+      "by_route": "依任務內容",
+      "by_vehicle": "依車輛",
+      "worst": "誤差最大的任務",
+      "largest_first": "誤差大的排前面",
+      "tile": {
+        "count": "任務數",
+        "abs_avg": "平均誤差",
+        "bias": "偏差 (正 = 比預估慢)",
+        "p90": "誤差 P90",
+        "within": "準確比例"
+      },
+      "col": {
+        "route": "任務內容",
+        "vehicle": "車輛",
+        "mission": "任務編號",
+        "assigned_at": "派車時間",
+        "count": "任務數",
+        "predicted": "預估",
+        "actual": "實際",
+        "abs_avg": "平均誤差",
+        "bias": "偏差",
+        "p90": "誤差 P90",
+        "within": "準確比例",
+        "error": "誤差"
+      }
     },
     "step_timing": {
       "none": "這段期間沒有步驟時間紀錄 (2026-11-16 以前的任務沒有記錄)",
@@ -1087,7 +1160,6 @@
       "warning_id": "告警ID設定",
       "upload_warning_file": "上傳錯誤表",
       "backup_file": "備份檔案",
-      "start_point": "起始位置",
       "import_map": "引入其他腳本點位路徑",
       "system_alarm": "系統告警顯示"
     },
@@ -1102,7 +1174,8 @@
       "dispatch": "調度規則",
       "cargo": "貨物",
       "alarm": "告警",
-      "records": "紀錄"
+      "records": "紀錄",
+      "system_maintenance": "系統維護"
     },
     "restart": {
       "restart": "重起系統"
@@ -1553,19 +1626,96 @@
       "edit_charge_station_config": "編輯充電站配置"
     },
     "station_panel": {
-      "charging_started": "已開始充電",
-      "charging_stopped": "已停止充電",
+      "charging_started": "已送出開始充電",
+      "charging_stopped": "已送出停止充電",
       "location_not_found": "找不到點位",
-      "control_title": "充電站控制",
-      "status_title": "充電站狀態",
-      "location_id": "點位 ID:",
-      "last_heartbeat": "最後心跳:",
-      "heartbeat": "心跳:",
-      "mqtt": "MQTT 連線:",
-      "tcp": "TCP 連線:",
-      "charge_bar": "充電桿:",
+      "station_id": "站點 ID",
+      "disabled": "已停用",
+      "node_fleet": "派車系統",
+      "node_fleet_sub": "mission-control",
+      "node_bridge": "串接程式",
+      "node_bridge_sub": "usr_charge",
+      "node_station": "充電站",
+      "node_station_sub": "通訊模組 + 充電機",
+      "connected": "已連線",
+      "disconnected": "斷線",
+      "unknown": "無法得知",
+      "data": "回傳資料",
+      "data_ok": "正常",
+      "data_stopped": "停止 {{duration}}",
+      "blame_here": "▲ 問題在這裡",
+      "last_data": "最後收到資料",
+      "ago": "{{duration}}前",
+      "never": "串接程式啟動後還沒收到",
+      "charge_bar": "充電桿",
+      "bar_in": "縮回",
+      "bar_out": "伸出",
+      "bar_unknown": "不明",
+      "last_known": "最後一次收到的值",
+      "location_id": "點位 ID",
+      "using_amr": "使用中的車",
       "start": "開始充電",
-      "stop": "停止充電"
+      "stop": "停止充電",
+      "dur_sec": "{{n}} 秒",
+      "dur_min": "{{n}} 分鐘",
+      "dur_hour": "{{n}} 小時",
+      "dur_day": "{{n}} 天",
+      "impact": "這座站恢復前不能充電, 綁定這座站的車進入範圍會被暫停。",
+      "verdict": {
+        "ok": {
+          "title": "正常",
+          "what": "連線正常, 充電站有持續回傳資料, 充電桿{{bar}}。"
+        },
+        "no_data": {
+          "title": "沒有這座充電站的資料",
+          "what": "派車系統沒有送這個點位的充電站狀態過來。",
+          "do": [
+            "重新整理頁面",
+            "還是一樣: 到設定頁確認這個點位有設定成充電站"
+          ]
+        },
+        "stale": {
+          "title": "問題在: 派車系統 / 畫面連線",
+          "what": "畫面已經收不到派車系統的更新, 下面的狀態是舊的。",
+          "do": [
+            "確認派車電腦和 mission-control 有在執行",
+            "重新整理頁面"
+          ]
+        },
+        "bridge": {
+          "title": "問題在: 充電站串接程式",
+          "what": "串接程式 (usr_charge) 沒有連上派車系統, 所有充電站的狀態都收不到。",
+          "do": [
+            "到派車電腦確認 usr_charge 有在執行 (pm2 list)",
+            "沒有在執行或一直重開: 看 usr_charge 的 app.log"
+          ]
+        },
+        "tcp": {
+          "title": "問題在: 充電站的電源或網路",
+          "what": "串接程式連不上這座充電站 (TCP)。",
+          "do": [
+            "確認充電站有電、網路線有接好",
+            "在派車電腦 ping 這座充電站的 IP",
+            "ping 得到但還是連不上, 或狀態在「連上 / 斷線」之間跳: 充電站的通訊模組卡住了, 重開充電站電源"
+          ]
+        },
+        "silent": {
+          "title": "問題在: 充電站本身 (通訊模組或充電機)",
+          "what": "網路是通的, 但充電站沒有回傳資料, 已經 {{duration}}。重開派車系統或串接程式不會好。",
+          "do": [
+            "重開充電站電源",
+            "經常發生: 記下發生時間, 帶串接程式的 station log 聯絡充電站廠商"
+          ]
+        },
+        "bar_unknown": {
+          "title": "充電桿狀態看不懂",
+          "what": "有收到充電站的資料, 但看不懂充電桿是伸出還是縮回, 為了安全當成伸出。",
+          "do": [
+            "確認串接程式設定檔裡這座站的充電機型號 (type) 對不對",
+            "型號沒錯: 帶串接程式的 station log 找軟體人員"
+          ]
+        }
+      }
     },
     "station_label": "充電站標號",
     "station_config": {
@@ -2977,20 +3127,157 @@
       "ENGINEER": "工程師"
     }
   },
-  "start_point": {
-    "title": "設定初始點",
-    "confirm": "確認",
-    "cancel": "取消",
-    "location_id": "地點編號",
-    "select_location": "選擇初始地點...",
-    "select_error": "請選擇一個地點",
-    "success": "🎇🎆 新年快樂 🎆🎇",
-    "no_locations": "[ 未找到地點 ]",
-    "configuration_required": "需要設定",
-    "description": "選擇系統啟動的初始地點。這將用作預設起始位置。",
-    "path_optimization": "路徑最佳化：當派送沒有選定的車輛時，起點將被考慮用於最短路徑計算。",
-    "route_planning": "路線規劃：此地點作為自動路由決定的參考點。",
-    "critical_warning": "關鍵：如果此地點從系統中刪除，您必須手動更新並配置新的起點以維持最佳的路由功能。"
+  "eta": {
+    "column": "預計完成",
+    "approx": "約",
+    "soon": "即將完成",
+    "minutes": "{{n}} 分鐘",
+    "hours": "{{h}} 小時 {{m}} 分",
+    "starts": "{{time}} 開始",
+    "queued": "排隊中",
+    "hint": "依歷史車速和取放貨時間估算。排隊中的任務照目前順序模擬由哪台車接，標「約」的估得比較粗。",
+    "vehicle": "目前任務 {{left}}後完成"
+  },
+  "vehicle_version": {
+    "title": "車輛軟體版本",
+    "card_title": "amr-core 版本",
+    "hint": "每台車上 amr-core 的版本 (車子每次心跳回報)。版本是 git commit 編號，新舊用 commit 時間比；舊版 amr-core 沒有回報 commit 時間，一律算比最低版本舊。",
+    "min_label": "最低版本",
+    "no_min": "不檢查",
+    "save": "儲存",
+    "saved": "已儲存最低版本",
+    "min_hint": "車連上時如果 amr-core 比最低版本舊，發一筆系統告警 (每台車每個版本一次)，照常派車。只能選有回報 commit 時間的版本。",
+    "below_count": "有 {{count}} 台車的 amr-core 低於最低版本，請更新",
+    "mixed": "車隊目前有 {{count}} 種 amr-core 版本",
+    "below_min": "低於最低版本",
+    "below_min_detail": "低於最低版本 {{min}}，請更新車上的 amr-core",
+    "not_reported": "還沒回報版本",
+    "no_commit_time": "(舊版, 沒有時間)",
+    "offline": "這次啟動後沒收到",
+    "online": "在線",
+    "simulated": "模擬車",
+    "history": "版本更新紀錄",
+    "first_seen": "第一次看到",
+    "no_history": "還沒有更新紀錄",
+    "col": {
+      "vehicle": "車輛",
+      "version": "版本",
+      "commit_at": "版本時間",
+      "since": "使用此版本自",
+      "last_seen": "最後回報",
+      "time": "時間",
+      "change": "變更"
+    }
+  },
+  "standby_demand_help": {
+    "open": "預先停靠的使用說明",
+    "title": "預先停靠：使用說明",
+    "sections": [
+      {
+        "title": "這是什麼",
+        "items": [
+          "車做完任務閒下來時，閒置規則會叫它回待命點。原本是去「最近的空待命點」；開了預先停靠，改成去「接下來最可能有任務的地方附近」的待命點，任務來時車已經在附近，空車跑的路變短。",
+          "它只決定「閒下來的車停在哪裡」，不影響派車，也不會為了等任務而拒絕派車。"
+        ]
+      },
+      {
+        "title": "要先準備的兩件事",
+        "items": [
+          "地圖上要有待命點：設定 > 點位 > 編輯點位，把點的類型改成「待命區」。挑支線或盡頭、不擋主要通道的點，兩個待命點至少隔 4.2 公尺。",
+          "閒置規則要開：設定 > 任務 > 閒置任務，動作選「回待命點」，停靠方式選「依需求預先停靠」。這一頁的規則只有在那裡選了「依需求」才會用到。"
+        ]
+      },
+      {
+        "title": "「需求」是什麼",
+        "items": [
+          "每個待命點在某個時段的需求 = 那個小時，平均每天大約有幾筆任務會從這個待命點附近開始取貨。單位是「每小時幾筆」。",
+          "自動分析：拿最近 N 天 (閒置規則裡設，預設 14 天) 的搬運任務，看每筆任務第一個要去的點位，算給離它最近 (照實際路線) 的待命點；平日和假日分開，每個小時分開。",
+          "為什麼會有小數：它是「平均每天」。例如 14 天裡有 10 個平日，13 點總共出現 2 筆任務，就是 2 ÷ 10 = 0.2，意思是大部分日子這個時段沒任務、偶爾有。每天都固定有 4 筆的話，算出來就是 4。",
+          "單向道多的地圖上，需求可能算給看起來比較遠的待命點：因為照路線走，從那裡過去反而最快。"
+        ]
+      },
+      {
+        "title": "手動規則：方式和筆數",
+        "items": [
+          "規則由上往下比對，第一條符合 (待命點、星期、時段都對得上) 的決定這個待命點這個時段的需求；都不符合，看最下面的「其餘待命點與時段」。",
+          "自動分析：用歷史算出來的數字，筆數不用填。",
+          "自動分析再加：歷史 + 你填的筆數。適合「歷史大致對，但某段時間固定會多一批」。可以填負數往下扣，扣到負的會當成 0。",
+          "固定：直接用你填的筆數，不看歷史。填 0 = 這個時段不要往這個待命點停。",
+          "筆數就填「那個小時大約有幾筆任務」。例如你知道 4405 附近每天 13 點會有 4 筆：在 4405 附近的那個待命點加一條，星期選一到五、時段 13:00 ~ 14:00、方式「固定」、筆數 4。",
+          "最下面「其餘待命點與時段」選「不停靠」的話，只有你寫了規則的待命點和時段才有需求，其他一律當 0。"
+        ]
+      },
+      {
+        "title": "車實際怎麼挑",
+        "items": [
+          "車閒下來時，先找出所有空的待命點，再看「比最近的空待命點最多多走幾公尺」(閒置規則裡設，預設 60 公尺) 範圍內的，去需求最大的那個。",
+          "所以筆數主要是拿來比大小：一個 3.3、一個 0.2，車去 3.3 那個。範圍內都是 0，就去最近的，跟沒開一樣。",
+          "一個待命點只停一台車。筆數填 4 不會派 4 台車過去；第二台閒下來的車會去剩下空的待命點裡數字最大的。想讓某區多停幾台，那附近就多設幾個待命點，每個都給高的數字。",
+          "已經停好的車，時段換了也不會再移動，只影響之後新閒下來的車。"
+        ]
+      },
+      {
+        "title": "預覽怎麼看",
+        "items": [
+          "選星期和時段，就照「已經儲存」的規則算每個待命點的需求。還沒按儲存的修改不會出現在預覽裡。",
+          "「自動分析」= 歷史算出來的數字；「套用」= 是哪一條規則決定的 (或是預設)；「需求」= 最後拿來比大小的數字；「現在停的車」= 現在停在這個待命點上的車。",
+          "想確認車為什麼停那裡：後端視窗會印 standby point by demand，括號裡 demand 表示因為需求挑的，nearest 表示範圍內都沒需求、去最近的。"
+        ]
+      },
+      {
+        "title": "常見狀況",
+        "items": [
+          "新現場或歷史很少：自動分析大多是 0，車都會去最近的。需要累積一兩週的任務，或先用手動規則。",
+          "有任務但需求還是 0：自動分析只算「有取貨」的任務，而且要 2026-11-16 之後、有記錄步驟時間的任務。",
+          "想關掉：在閒置任務把停靠方式改回「最近的空待命點」。這一頁的規則不用刪，沒有閒置規則用到時不會有作用。"
+        ]
+      }
+    ]
+  },
+  "standby_demand": {
+    "title": "預先停靠",
+    "saved": "已儲存",
+    "save": "儲存",
+    "unsaved": "有修改還沒儲存",
+    "hint": "閒置規則「回待命點」選「依需求預先停靠」時，用這裡算每個待命點的需求 (每小時幾筆)。規則由上往下比對，第一條符合的決定；都不符合看最下面的預設。自動分析 = 最近 N 天、同樣是平日 / 假日、同一個小時的搬運任務，第一個要去的點位算給離它最近的待命點。",
+    "no_rules": "沒有規則：全部照最下面的預設",
+    "add": "新增一條",
+    "all_points": "全部待命點",
+    "every_day": "每天",
+    "whole_day": "整天",
+    "per_hour": "筆/時",
+    "default_label": "其餘待命點與時段",
+    "default_auto": "自動分析",
+    "default_none": "不停靠 (需求 0)",
+    "mode": {
+      "AUTO": "自動分析",
+      "AUTO_PLUS": "自動分析再加",
+      "FIXED": "固定"
+    },
+    "col": {
+      "enabled": "啟用",
+      "point": "待命點",
+      "days": "星期",
+      "time": "時段",
+      "mode": "方式",
+      "value": "筆數",
+      "note": "備註",
+      "history": "自動分析",
+      "applied": "套用",
+      "demand": "需求 (筆/時)",
+      "car_here": "現在停的車"
+    },
+    "source": {
+      "default_auto": "預設 (自動分析)",
+      "default_none": "預設 (不停靠)",
+      "rule": "第 {{n}} 條 ({{mode}})"
+    },
+    "preview": "預覽",
+    "preview_hint": "照目前已儲存的規則，算某個時段每個待命點的需求。車閒下來時，在不多走太遠的範圍裡去需求最高的空待命點。",
+    "days_label": "參考天數",
+    "weekday_label": "星期",
+    "hour_label": "時段",
+    "no_points": "地圖上沒有待命區的點位"
   },
   "cancel_reason": {
     "signal_wait_timeout": "等訊號逾時",
@@ -3125,6 +3412,70 @@
     "alarm_code": "告警代碼",
     "description": "說明",
     "enable": "啟用"
+  },
+  "restart_section": {
+    "title": "重新啟動後端",
+    "hint": "重新啟動後端程式 (不是整台電腦)。設定快照還原之後要重啟才會完全生效。重啟期間車輛連線會中斷,重新連上後系統會自動對帳。",
+    "mode_loop": "這台的後端由 start-all.sh 啟動:按下後後端會結束,由啟動腳本在同一個終端機視窗再執行一次。",
+    "mode_supervisor": "這台的後端由 pm2 或 Docker 管理:按下後後端會結束,由它們自動重新拉起來。",
+    "mode_dev": "這台的後端是開發模式 (ts-node-dev):按下後會自動重新編譯並重開。",
+    "mode_self": "這台的後端直接在終端機執行 (沒有用新版 start-all.sh):按下後它會自己再啟動一個新的,大約 5 秒後開始;那個新的不受視窗管理,關視窗不會停它,建議換成新版 start-all.sh。",
+    "active_warning": "目前有 {{count}} 筆車輛正在做的任務,重啟會讓它們中斷後重新對帳。",
+    "restart": "重新啟動",
+    "confirm_title": "確定要重新啟動後端?",
+    "confirm_body": "重啟期間畫面會暫時連不上,回來後會自動重新整理。",
+    "waiting": "重新啟動中,等後端回來後會自動重新整理…",
+    "timeout": "等了 3 分鐘後端還沒回來,請到那台主機檢查後端有沒有起來"
+  },
+  "snapshot": {
+    "title": "設定快照",
+    "hint": "把目前所有設定 (地圖、任務、車輛、設備與貨架、規則、告警設定) 存成一份快照,之後改壞了可以一鍵還原。不含帳號、歷史紀錄、貨物現況,以及貨架有沒有貨、使用中的地圖群組這類即時狀態。",
+    "restart_needed": "已還原快照「{{name}}」({{time}}),但後端要重新啟動才會完全生效。請現在重新啟動後端,在那之前不要派任務或改設定。",
+    "name_placeholder": "快照名稱,例如:改路網之前",
+    "note_placeholder": "備註 (選填)",
+    "create": "建立快照",
+    "created": "快照已建立",
+    "empty": "還沒有任何快照",
+    "kind_manual": "手動",
+    "kind_before_restore": "還原前自動",
+    "by": "建立者",
+    "size": "大小",
+    "rows": "資料列數",
+    "restore": "預覽並還原",
+    "delete": "刪除",
+    "delete_confirm": "刪除快照「{{name}}」?",
+    "deleted": "快照已刪除",
+    "active_missions": "目前有 {{count}} 筆車輛正在做的任務,要等任務做完或取消後才能還原。",
+    "restore_title": "還原快照「{{name}}」",
+    "preview_failed": "讀取還原預覽失敗",
+    "no_difference": "目前的設定和這份快照完全一樣,不需要還原。",
+    "totals": "還原會新增 {{create}} 筆、修改 {{update}} 筆、刪除 {{remove}} 筆設定資料。",
+    "added": "新增",
+    "changed": "修改",
+    "removed": "刪除",
+    "blocked": "還有 {{count}} 筆車輛正在做的任務,不能還原:",
+    "pending_note": "有 {{count}} 筆等待中的任務不會擋還原,後端重新啟動後會重新派發;用到被還原掉的點位的任務會派不出去。",
+    "missing_tables": "快照裡有現在資料庫已經沒有的資料表,這些不會還原:{{tables}}",
+    "restore_note": "還原前會先自動拍一份「還原前」快照,還原錯了可以再還原回來。還原完成後後端要重新啟動才會完全生效。",
+    "confirm_restore": "確定還原",
+    "restored": "已還原,請重新啟動後端",
+    "restore_failed": "還原失敗"
+  },
+  "diagnostic_bundle": {
+    "title": "診斷包",
+    "hint": "把這台主機最近一段時間的 log、任務、告警、斷線和設定變更紀錄、版本與健康狀況打包成一個 zip,現場有問題時下載給 FAE 即可。設定檔裡的密碼和金鑰會遮掉;log 本身不會處理,請不要把診斷包公開。",
+    "range": "資料範圍",
+    "range_options": {
+      "1": "最近 1 小時",
+      "24": "最近 24 小時",
+      "72": "最近 3 天",
+      "168": "最近 7 天"
+    },
+    "download": "下載診斷包",
+    "preparing": "正在打包,log 多的話需要一點時間…",
+    "done": "診斷包已下載",
+    "busy": "診斷包正在製作中,請稍後再試",
+    "failed": "診斷包製作失敗"
   },
   "health_monitor": {
     "title": "主機與程式健康檢查",
@@ -3331,6 +3682,16 @@
     }
   },
   "idle_rules": {
+    "action_STANDBY_demand": "回待命點 (依需求預先停靠)",
+    "standby_mode": "停靠方式",
+    "standby_mode_NEAREST": "最近的空待命點",
+    "standby_mode_DEMAND": "依需求預先停靠",
+    "standby_mode_NEAREST_hint": "去離車最近、沒有車的待命點。",
+    "standby_mode_DEMAND_hint": "去接下來最可能有任務的地方附近的待命點 (需求在「預先停靠」頁設定)。沒有歷史或都沒需求時，跟最近的空待命點一樣。",
+    "demand_days": "參考最近幾天的任務",
+    "days": "天",
+    "demand_max_extra": "最多多走",
+    "demand_max_extra_hint": "需求高的待命點比最近的空待命點遠超過這個距離就不去。",
     "title": "閒置規則",
     "hint": "車閒置時要做什麼。清單由上往下比對，一台車做第一條符合的規則；都不符合就留在原地。",
     "order_hint": "同一台車符合好幾條時只做最上面那一條。上面那條暫時派不出去（例如沒有空的待命點、沒有空的充電站）時，會先試下面的。",
@@ -4216,6 +4577,9 @@
       "reorder_drag": "拖左側把手調整順序",
       "import_empty": "沒有同車型的任務可以引入",
       "include_edit": "更換包含的任務",
+      "include_button": "引用任務",
+      "include_hint": "引用這個任務的內容,會加在最後一步,再用拖曳調整順序。原任務改了,這裡會跟著變;這一項只能調整順序或刪除。",
+      "include_badge": "引用",
       "include_no_folder": "未分類",
       "include_empty": "沒有同車型的任務可以包含",
       "step_json_hint": "這是這個步驟存在後端的原始設定,只能檢視。要修改請用「編輯」。",
@@ -5885,6 +6249,44 @@
       "io_summary": "{{n}} 台模組 · {{io}} IN {{io}} OUT",
       "no_modules": "這個群組沒有模組了",
       "standalone": "獨立"
+    },
+    "state": {
+      "title": "訊號代表的狀態",
+      "add": "新增 {{group}} 的訊號狀態",
+      "edit": "編輯 {{group}} 的訊號狀態",
+      "add_short": "新增",
+      "empty": "還沒有設定。選一個或幾個訊號, 寫下它們亮起來時代表什麼, 例如 DO0 + DO1 → 專屬模式啟動、DI0 → 電梯故障。首頁的 Advantech 4000 方塊會列出現在亮著的。",
+      "signals": "訊號",
+      "signals_hint": "點選訊號, 選好幾個 = 要同時亮才算。群組裡的模組照順序接續編號: 第 1 台是 0–3, 第 2 台是 4–7。右上角小燈是現在讀到的值。",
+      "need_signal": "至少要選一個訊號",
+      "none_picked": "還沒選",
+      "name": "代表什麼",
+      "name_placeholder": "例如 專屬模式啟動、按下開門、電梯故障",
+      "tone": "顏色",
+      "tone_green": "綠 (正常)",
+      "tone_blue": "藍 (動作)",
+      "tone_amber": "黃 (注意)",
+      "tone_red": "紅 (異常)",
+      "tone_purple": "紫",
+      "tone_gray": "灰",
+      "note": "補充說明",
+      "note_placeholder": "顯示在首頁這個狀態底下, 可以留空",
+      "live_met": "照現在的訊號, 首頁會顯示「{{name}}」",
+      "live_not_met": "照現在的訊號, 這個不會顯示",
+      "now": "目前",
+      "broken": "有訊號的模組已經不在這個群組, 這一筆不會顯示, 請重新編輯",
+      "missing_module": "(模組已移出)"
+    },
+    "status": {
+      "title": "Advantech 4000",
+      "current": "目前狀態",
+      "others": "其他狀態",
+      "signals": "訊號",
+      "no_groups": "還沒有模組群組, 到 設定 > 設備 > Advantech 4000 serial 建立",
+      "no_states": "尚未設定訊號代表的狀態",
+      "no_states_hint": "到設定頁的群組卡新增, 例如 DO0 + DO1 → 專屬模式啟動。",
+      "no_active": "沒有觸發中的狀態",
+      "no_active_hint": "設定過的訊號組合現在都沒有亮。"
     }
   }
 }

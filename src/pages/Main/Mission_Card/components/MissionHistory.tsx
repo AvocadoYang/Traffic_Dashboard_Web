@@ -24,7 +24,7 @@ import {
   useMemo,
 } from "react";
 import { ColumnsType } from "antd/es/table";
-import moment from "moment";
+import dayjs from "dayjs";
 import {
   SyncOutlined,
   ExclamationCircleOutlined,
@@ -52,6 +52,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Dayjs } from "dayjs";
 import client from "@/api/axiosClient";
 import { themeAtom } from "@/theme";
+import { missionReplayLink } from "@/utils/replayLink";
 import RedispatchModal, { RedispatchTarget } from "./RedispatchModal";
 
 const { RangePicker } = DatePicker;
@@ -96,6 +97,17 @@ interface Mission {
   /** 分段任務: 後半 / 前半是哪一筆 */
   splitTo?: string | null;
   splitFrom?: string | null;
+  /** 每一步的時間 (毫秒時間戳); 舊任務是 null */
+  step_timing?:
+    | {
+        step: number;
+        type?: string;
+        locationId?: number;
+        startedAt: number;
+        sentAt?: number;
+        doneAt: number;
+      }[]
+    | null;
 }
 
 enum Send_By {
@@ -514,21 +526,21 @@ const isCanceled = (status: number) =>
 
 const diffMs = (from?: Date | null, to?: Date | null) => {
   if (!from || !to) return null;
-  const ms = moment(to).diff(moment(from));
+  const ms = dayjs(to).diff(dayjs(from));
   return ms >= 0 ? ms : null;
 };
 
 /** 同一年就不顯示年份，欄位才塞得下 */
 const formatShortTime = (date?: Date | null) => {
   if (!date) return "—";
-  const m = moment(date);
+  const m = dayjs(date);
   return m.format(
-    m.isSame(moment(), "year") ? "MM/DD HH:mm:ss" : "YYYY/MM/DD HH:mm",
+    m.isSame(dayjs(), "year") ? "MM/DD HH:mm:ss" : "YYYY/MM/DD HH:mm",
   );
 };
 
 const formatFullTime = (date?: Date | null) =>
-  date ? moment(date).format("YYYY-MM-DD HH:mm:ss") : "—";
+  date ? dayjs(date).format("YYYY-MM-DD HH:mm:ss") : "—";
 
 type MissionKind =
   | "normal"
@@ -581,6 +593,7 @@ const MissionHistory: FC<{
 }> = ({ isOpenMissionHistory, setIsOpenMissionHistory }) => {
   const { t, i18n } = useTranslation();
   const canRedispatch = usePermission()("mission.redispatch");
+  const canReplay = usePermission()("page.fleet_replay");
   const isDark = useAtomValue(darkMode);
   // antd 的 token 不能吃 var(),要餵真實色碼,所以這裡直接拿 palette
   const { colors } = useAtomValue(themeAtom);
@@ -948,6 +961,11 @@ const MissionHistory: FC<{
             {amrId || "—"}
           </PrimaryText>
           <MutedText>{sendByLabel(record.send_by)}</MutedText>
+          {canReplay && missionReplayLink(record) && (
+            <a href={missionReplayLink(record)!} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12 }}>
+              {t("fleet_replay.open_from_mission")}
+            </a>
+          )}
           {sourceLabel(record.send_source) && (
             <Tooltip title={sourceLabel(record.send_source, true)}>
               <MutedText style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>

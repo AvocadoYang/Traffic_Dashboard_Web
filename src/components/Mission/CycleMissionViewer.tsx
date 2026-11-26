@@ -618,7 +618,6 @@ const CycleMissionViewer: FC<{
                     <Popover
                       key={index}
                       trigger="click"
-                      disabled={cycle.IsActive}
                       content={
                         <div
                           style={{

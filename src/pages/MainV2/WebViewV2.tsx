@@ -16,6 +16,8 @@ import ScalePad from "@/pages/Main/components/WebView/components/ScalePad";
 import CanvasMap, { CanvasMapApi } from "@/components/CanvasMap/CanvasMap";
 import MainDevices from "./MainDevices";
 import SimCarPanel from "@/components/SimCars/SimCarPanel";
+import AdvantechStatusPanel from "@/components/Advantech/AdvantechStatusPanel";
+import useConfigFlags from "@/api/useConfigFlags";
 import SimCarMarkers from "@/components/SimCars/SimCarMarkers";
 import useSimCarPlacement from "@/components/SimCars/useSimCarPlacement";
 import useUiConfig from "@/api/useUiConfig";
@@ -280,6 +282,7 @@ const WebViewV2 = () => {
   const simCarDrop = useSimCarPlacement(mapApiRef);
   // 實際案場 (YAML SHOW_SIMULATION_UI: false) 不顯示「模擬車輛」
   const { showSimulationUi } = useUiConfig();
+  const { data: configFlags } = useConfigFlags();
 
   // 個人設定: 地圖預設視角 + 圖層 (換帳號登入才重套, 之後工具列切換不會被蓋回去)
   const { data: profile } = useMyProfile();
@@ -442,12 +445,19 @@ const WebViewV2 = () => {
                 <ScalePad></ScalePad>
 
                 {/* 效能監看: 車隊跟不跟得上 + 程式卡不卡。
-                    三顆工具按鈕排成一欄 (各 44px, 間隔 8px): ScalePad top 16px、效能監看 68px、模擬車輛 120px;
+                    工具按鈕排成一欄 (各 44px, 間隔 8px): ScalePad top 16px、效能監看 68px、模擬車輛 120px、Advantech 4000 172px;
                     面板讓開右上角的 MapSelectorSlot */}
                 <OpenPerformanceBtn top="68px" left="16px" />
                 <PerformancePanel top="64px" right="16px" />
                 {/* 模擬車輛: 取代舊的 /simulate 頁; 開始 / 停止模擬還是 Header 的按鈕 */}
                 {showSimulationUi && canSimCars ? <SimCarPanel top="120px" left="16px" /> : null}
+                {/* Advantech 4000: 只有 HAS_MIR 才有; 接在模擬車輛下面, 沒有模擬車輛就往上補位 */}
+                {configFlags?.hasMir ? (
+                  <AdvantechStatusPanel
+                    top={showSimulationUi && canSimCars ? "172px" : "120px"}
+                    left="16px"
+                  />
+                ) : null}
                 {profile && (
                   <Tooltip title={t("profile.prefs.save_view")}>
                     <SaveViewBtn

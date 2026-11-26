@@ -14,6 +14,7 @@ import {
   InboxOutlined,
   AlertOutlined,
   HistoryOutlined,
+  ToolOutlined,
 } from "@ant-design/icons";
 import type { SettingV2PanelKey } from "./panelKeys";
 
@@ -154,6 +155,7 @@ export const navCategories: NavCategory[] = [
       { key: "schedule_mission", labelKey: "toolbar.mission.schedule_mission" },
       { key: "signal_trigger", labelKey: "toolbar.mission.signal_trigger" },
       { key: "idle_mission", labelKey: "toolbar.mission.idle_mission" },
+      { key: "standby_demand", labelKey: "standby_demand.title" },
       { key: "topic_mission", labelKey: "toolbar.mission.topic_mission" },
       { key: "blind_mission", labelKey: "toolbar.mission.blind_mission" },
       {
@@ -268,6 +270,17 @@ export const navCategories: NavCategory[] = [
         key: "setting_change_log",
         labelKey: "toolbar.records.setting_change_log",
       },
+    ],
+  },
+  {
+    key: "system_maintenance",
+    labelKey: "toolbar.category.system_maintenance",
+    icon: ToolOutlined,
+    children: [
+      { key: "diagnostic_bundle", labelKey: "diagnostic_bundle.title" },
+      { key: "settings_snapshot", labelKey: "snapshot.title" },
+      { key: "system_restart", labelKey: "restart_section.title" },
+      { key: "vehicle_versions", labelKey: "vehicle_version.title" },
     ],
   },
   {

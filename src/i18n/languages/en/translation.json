@@ -489,7 +489,50 @@
   "page_record": "warn and alarm records",
   "page_mission_dispatch": "Mission Dispatch Board",
   "page_fleet_replay": "Fleet replay",
+  "kiosk": {
+    "slide_map": "Live map",
+    "slide_report": "Today's report",
+    "slide_fleet": "Fleet status",
+    "slide_alarms": "Alarms",
+    "prev": "Previous",
+    "next": "Next",
+    "pause": "Pause rotation",
+    "resume": "Resume rotation",
+    "fullscreen": "Fullscreen",
+    "no_data": "No data yet",
+    "yesterday": "Yesterday {{n}}",
+    "vs_yesterday": "Yesterday {{n}} ({{pct}}%)",
+    "report_title": "Today's report · {{date}}",
+    "completed": "Missions completed",
+    "canceled": "Missions canceled",
+    "cargo_moved": "Cargo moved",
+    "distance": "Distance driven",
+    "alarms": "Alarms",
+    "top_vehicle": "Busiest vehicle",
+    "top_vehicle_n": "{{n}} missions completed",
+    "unit_missions": "",
+    "unit_cargo": "",
+    "unit_times": "",
+    "fleet_title": "Fleet status · {{online}} / {{total}} online",
+    "no_vehicles": "No vehicles",
+    "offline": "Offline",
+    "working": "On a mission",
+    "idle": "Idle",
+    "all_clear": "All systems normal",
+    "alarms_title": "{{n}} active alarms",
+    "more": "{{n}} more",
+    "open": "Kiosk mode"
+  },
   "fleet_replay": {
+    "open_from_mission": "Fleet replay",
+    "events_btn": "Events ({{n}})",
+    "events_none": "No alarms, e-stops or disconnects in this period",
+    "events_truncated": "Too many events: showing the first 500. Narrow the time range to see all of them",
+    "record_btn": "Record video",
+    "recording_stop": "Stop and save",
+    "record_unsupported": "This browser cannot record video (use a recent Chrome / Edge / Firefox)",
+    "record_saved": "Video saved (webm)",
+    "focus_chip": "Highlighting {{id}} (other vehicles dimmed)",
     "empty_network_real": "No network records in this period: only real vehicles are recorded (not simulated ones), starting with this backend version",
     "group_traffic": "Traffic",
     "group_network": "Network / localization",
@@ -762,7 +805,37 @@
       "overview": "Overview",
       "battery": "Battery log",
       "connection": "Disconnections",
-      "step_timing": "Step timing"
+      "step_timing": "Step timing",
+      "eta_accuracy": "ETA accuracy"
+    },
+    "eta_accuracy": {
+      "none": "No missions with a recorded estimate in this period (recorded when a mission is assigned)",
+      "hint": "Finish time estimated at assignment compared with the real finish. Error = actual - estimate; positive means later than estimated. Within 1 minute or 20% of the estimate counts as accurate.",
+      "by_route": "By route",
+      "by_vehicle": "By vehicle",
+      "worst": "Largest errors",
+      "largest_first": "Largest error first",
+      "tile": {
+        "count": "Missions",
+        "abs_avg": "Mean abs error",
+        "bias": "Bias (+ = later)",
+        "p90": "Abs error P90",
+        "within": "Within tolerance"
+      },
+      "col": {
+        "route": "Route",
+        "vehicle": "Vehicle",
+        "mission": "Mission",
+        "assigned_at": "Assigned at",
+        "count": "Missions",
+        "predicted": "Estimate",
+        "actual": "Actual",
+        "abs_avg": "Mean abs error",
+        "bias": "Bias",
+        "p90": "P90",
+        "within": "Within tolerance",
+        "error": "Error"
+      }
     },
     "step_timing": {
       "none": "No step timing in this period (missions before 2026-11-16 have none)",
@@ -1087,7 +1160,6 @@
       "warning_id": "Warning ID Setting",
       "upload_warning_file": "Upload warning id file",
       "backup_file": "Backup",
-      "start_point": "Start Point",
       "import_map": "Import locations and roads from other script",
       "system_alarm": "system alarm"
     },
@@ -1102,7 +1174,8 @@
       "dispatch": "Dispatch Rules",
       "cargo": "Cargo",
       "alarm": "Alarms",
-      "records": "Records"
+      "records": "Records",
+      "system_maintenance": "System maintenance"
     },
     "restart": {
       "restart": "restart system"
@@ -1553,19 +1626,96 @@
       "ip": "IP"
     },
     "station_panel": {
-      "charging_started": "CHARGING STARTED",
-      "charging_stopped": "CHARGING STOPPED",
-      "location_not_found": "LOCATION NOT FOUND",
-      "control_title": "CHARGE STATION CONTROL",
-      "status_title": "CHARGE STATION STATUS",
-      "location_id": "Location ID:",
-      "last_heartbeat": "Last Heartbeat:",
-      "heartbeat": "Heartbeat:",
-      "mqtt": "MQTT Connection:",
-      "tcp": "TCP Connection:",
-      "charge_bar": "Charge Bar:",
-      "start": "Start Charging",
-      "stop": "Stop Charging"
+      "charging_started": "Start charging sent",
+      "charging_stopped": "Stop charging sent",
+      "location_not_found": "Location not found",
+      "station_id": "Station ID",
+      "disabled": "Disabled",
+      "node_fleet": "Fleet system",
+      "node_fleet_sub": "mission-control",
+      "node_bridge": "Bridge program",
+      "node_bridge_sub": "usr_charge",
+      "node_station": "Charge station",
+      "node_station_sub": "Comm module + charger",
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "unknown": "Unknown",
+      "data": "Data",
+      "data_ok": "OK",
+      "data_stopped": "stopped {{duration}}",
+      "blame_here": "▲ Problem is here",
+      "last_data": "Last data",
+      "ago": "{{duration}} ago",
+      "never": "None since the bridge started",
+      "charge_bar": "Charge bar",
+      "bar_in": "Retracted",
+      "bar_out": "Extended",
+      "bar_unknown": "Unknown",
+      "last_known": "last received",
+      "location_id": "Location ID",
+      "using_amr": "Vehicle",
+      "start": "Start charging",
+      "stop": "Stop charging",
+      "dur_sec": "{{n}} s",
+      "dur_min": "{{n}} min",
+      "dur_hour": "{{n}} h",
+      "dur_day": "{{n}} d",
+      "impact": "This station cannot charge until it recovers. Vehicles bound to it are paused when they enter its area.",
+      "verdict": {
+        "ok": {
+          "title": "OK",
+          "what": "Connected and the station keeps sending data. Charge bar is {{bar}}."
+        },
+        "no_data": {
+          "title": "No data for this charge station",
+          "what": "The fleet system is not sending any status for this location.",
+          "do": [
+            "Reload the page",
+            "Still the same: check in Settings that this location is set up as a charge station"
+          ]
+        },
+        "stale": {
+          "title": "Problem: fleet system / page connection",
+          "what": "This page no longer receives updates from the fleet system. The status below is old.",
+          "do": [
+            "Check that the fleet PC and mission-control are running",
+            "Reload the page"
+          ]
+        },
+        "bridge": {
+          "title": "Problem: charge station bridge program",
+          "what": "The bridge program (usr_charge) is not connected to the fleet system, so no charge station status is received.",
+          "do": [
+            "On the fleet PC, check that usr_charge is running (pm2 list)",
+            "Not running or keeps restarting: check usr_charge app.log"
+          ]
+        },
+        "tcp": {
+          "title": "Problem: charge station power or network",
+          "what": "The bridge program cannot connect to this charge station (TCP).",
+          "do": [
+            "Check that the station is powered and the network cable is plugged in",
+            "Ping the station's IP from the fleet PC",
+            "Ping works but it still cannot connect, or keeps flipping between connected and disconnected: the station's comm module is stuck, power-cycle the station"
+          ]
+        },
+        "silent": {
+          "title": "Problem: the charge station itself (comm module or charger)",
+          "what": "The network is fine, but the station has sent no data for {{duration}}. Restarting the fleet system or the bridge program will not help.",
+          "do": [
+            "Power-cycle the charge station",
+            "Happens often: note the time and contact the charger vendor with the bridge's station log"
+          ]
+        },
+        "bar_unknown": {
+          "title": "Charge bar state not understood",
+          "what": "Data is received, but whether the bar is extended or retracted cannot be read, so it is treated as extended for safety.",
+          "do": [
+            "Check the charger type of this station in the bridge program's config",
+            "Type is correct: contact software with the bridge's station log"
+          ]
+        }
+      }
     },
     "station_label": "Charge station no.",
     "station_config": {
@@ -2976,20 +3126,157 @@
       "ENGINEER": "Engineer"
     }
   },
-  "start_point": {
-    "title": "Set Initial Point",
-    "confirm": "Confirm",
-    "cancel": "Cancel",
-    "location_id": "Location ID",
-    "select_location": "Select initial location...",
-    "select_error": "Please select a location",
-    "success": "🎇🎆 HAPPY NEW YEAR 🎆🎇",
-    "no_locations": "[ No Locations Found ]",
-    "configuration_required": "Configuration Required",
-    "description": "Select the initial location point for system startup. This will be used as the default starting position.",
-    "path_optimization": "Path Optimization: When dispatch has no selected AMR, the start point will be considered for shortest path calculation.",
-    "route_planning": "Route Planning: This location serves as the reference point for automated routing decisions.",
-    "critical_warning": "Critical: If this location point is deleted from the system, you must manually update and configure a new start point to maintain optimal routing functionality."
+  "eta": {
+    "column": "ETA",
+    "approx": "~",
+    "soon": "Finishing",
+    "minutes": "{{n}} min",
+    "hours": "{{h}} h {{m}} min",
+    "starts": "starts {{time}}",
+    "queued": "Queued",
+    "hint": "Estimated from past travel speed and load / offload times. Queued missions are simulated in the current order; values marked ~ are rough.",
+    "vehicle": "Current mission done in {{left}}"
+  },
+  "vehicle_version": {
+    "title": "Vehicle software",
+    "card_title": "amr-core version",
+    "hint": "The amr-core version on each vehicle (reported with every heartbeat). Versions are git commits; age is compared by commit time. Old amr-core builds report no commit time and always count as older than the minimum.",
+    "min_label": "Minimum version",
+    "no_min": "No check",
+    "save": "Save",
+    "saved": "Minimum version saved",
+    "min_hint": "When a vehicle connects with an amr-core older than the minimum, a system alarm is raised (once per vehicle and version); dispatching continues. Only versions with a commit time can be chosen.",
+    "below_count": "{{count}} vehicle(s) run an amr-core older than the minimum, please update",
+    "mixed": "The fleet runs {{count}} different amr-core versions",
+    "below_min": "below minimum",
+    "below_min_detail": "Below the minimum version {{min}}, please update amr-core on this vehicle",
+    "not_reported": "No version reported yet",
+    "no_commit_time": "(old build, no time)",
+    "offline": "Not seen since start",
+    "online": "Online",
+    "simulated": "Simulated",
+    "history": "Version changes",
+    "first_seen": "First seen",
+    "no_history": "No changes yet",
+    "col": {
+      "vehicle": "Vehicle",
+      "version": "Version",
+      "commit_at": "Version time",
+      "since": "On this version since",
+      "last_seen": "Last report",
+      "time": "Time",
+      "change": "Change"
+    }
+  },
+  "standby_demand_help": {
+    "open": "How pre-positioning works",
+    "title": "Pre-positioning: how it works",
+    "sections": [
+      {
+        "title": "What it does",
+        "items": [
+          "When a car becomes idle, an idle rule can send it to a standby point. Normally it goes to the nearest free one; with pre-positioning it goes to a standby point near where missions are expected next, so the next trip starts closer.",
+          "It only decides where idle cars park. It does not change dispatching and never holds back a mission."
+        ]
+      },
+      {
+        "title": "Two things to set up first",
+        "items": [
+          "Standby points on the map: Settings > Points > Edit points, set the point type to Standby. Pick side branches or dead ends that do not block traffic, at least 4.2 m apart.",
+          "An idle rule: Settings > Missions > Idle tasks, action \"go to standby\", standby choice \"by expected demand\". The rules on this page are only used by such idle rules."
+        ]
+      },
+      {
+        "title": "What \"demand\" means",
+        "items": [
+          "Demand of a standby point at a given hour = on average, how many missions per day start picking up near this standby point in that hour. Unit: missions per hour.",
+          "Automatic: transport missions of the last N days (set on the idle rule, default 14); each mission's first destination is counted for the standby point nearest to it along the roads; weekdays and weekends separately, each hour separately.",
+          "Why decimals: it is a daily average. 2 missions at 13:00 over 10 weekdays = 0.2, i.e. most days nothing, sometimes one. A steady 4 per day gives 4.",
+          "On maps with many one-way roads demand may go to a standby point that looks further away: following the roads it is the quickest way there."
+        ]
+      },
+      {
+        "title": "Manual rules: mode and missions",
+        "items": [
+          "Rules are checked top to bottom; the first one that matches (point, day and time) sets the demand; otherwise the default at the bottom applies.",
+          "Automatic: the number from history, no value needed.",
+          "Automatic plus: history + your number. For \"history is roughly right but a batch always comes at this time\". Negative values subtract; below 0 counts as 0.",
+          "Fixed: your number, history ignored. 0 = don't park here at this time.",
+          "Enter roughly how many missions happen in that hour. Example: 4 missions near 4405 every day at 13:00 → a rule on the standby point near 4405, Mon-Fri, 13:00-14:00, Fixed, 4.",
+          "Setting the bottom default to \"don't park\" means only the points and times you wrote rules for have demand."
+        ]
+      },
+      {
+        "title": "How a car chooses",
+        "items": [
+          "An idle car looks at the free standby points within \"max extra distance\" (on the idle rule, default 60 m) beyond the nearest free one, and takes the one with the highest demand.",
+          "So the numbers are mainly compared: 3.3 beats 0.2. If all are 0 the car takes the nearest, as before.",
+          "One standby point holds one car. A value of 4 does not send 4 cars; the next idle car takes the highest remaining free point. To park several cars near an area, add several standby points there with high values.",
+          "Cars already parked are not moved when the hour changes; only newly idle cars are affected."
+        ]
+      },
+      {
+        "title": "Reading the preview",
+        "items": [
+          "Pick a day and hour to see each standby point's demand under the saved rules. Unsaved edits are not included.",
+          "Automatic = from history; Applied = which rule decided (or the default); Demand = the number that is compared; Car parked = the car standing there now.",
+          "The backend log prints \"standby point by demand\": demand = chosen for demand, nearest = no demand in range, nearest taken."
+        ]
+      },
+      {
+        "title": "Common situations",
+        "items": [
+          "New site or little history: most values are 0 and cars go to the nearest point. Collect a week or two of missions, or use manual rules.",
+          "Missions exist but demand stays 0: only missions with a pick-up step and recorded step times (since 2026-11-16) count.",
+          "To turn it off: set the idle rule's standby choice back to \"nearest free standby point\". The rules here can stay; nothing uses them then."
+        ]
+      }
+    ]
+  },
+  "standby_demand": {
+    "title": "Pre-positioning",
+    "saved": "Saved",
+    "save": "Save",
+    "unsaved": "Unsaved changes",
+    "hint": "Used when an idle rule's \"go to standby\" is set to \"by expected demand\": the demand (missions per hour) of each standby point. Rules are checked top to bottom, the first match decides; otherwise the default at the bottom applies. Auto = transport missions of the last N days on the same kind of day (weekday / weekend) and hour, each counted for the standby point nearest to its first destination.",
+    "no_rules": "No rules: the default below applies everywhere",
+    "add": "Add rule",
+    "all_points": "All standby points",
+    "every_day": "Every day",
+    "whole_day": "All day",
+    "per_hour": "/h",
+    "default_label": "Other points and times",
+    "default_auto": "Automatic",
+    "default_none": "Don't park (demand 0)",
+    "mode": {
+      "AUTO": "Automatic",
+      "AUTO_PLUS": "Automatic plus",
+      "FIXED": "Fixed"
+    },
+    "col": {
+      "enabled": "On",
+      "point": "Standby point",
+      "days": "Days",
+      "time": "Time",
+      "mode": "Mode",
+      "value": "Missions",
+      "note": "Note",
+      "history": "Automatic",
+      "applied": "Applied",
+      "demand": "Demand (/h)",
+      "car_here": "Car parked"
+    },
+    "source": {
+      "default_auto": "Default (automatic)",
+      "default_none": "Default (don't park)",
+      "rule": "Rule {{n}} ({{mode}})"
+    },
+    "preview": "Preview",
+    "preview_hint": "Demand of each standby point at a chosen time, using the saved rules. An idle car goes to the free point with the highest demand within the extra-distance limit.",
+    "days_label": "Days of history",
+    "weekday_label": "Day",
+    "hour_label": "Hour",
+    "no_points": "No standby points on the map"
   },
   "cancel_reason": {
     "signal_wait_timeout": "Signal wait timed out",
@@ -3124,6 +3411,70 @@
     "alarm_code": "Alarm Code",
     "description": "Description",
     "enable": "Enable"
+  },
+  "restart_section": {
+    "title": "Restart backend",
+    "hint": "Restarts the backend program (not the computer). Needed after restoring a settings snapshot. Vehicle connections drop during the restart and are reconciled automatically afterwards.",
+    "mode_loop": "The backend on this host is started by start-all.sh: it exits and the script runs it again in the same terminal window.",
+    "mode_supervisor": "The backend on this host is managed by pm2 or Docker: it exits and is started again by them.",
+    "mode_dev": "The backend on this host runs in development mode (ts-node-dev): it recompiles and restarts by itself.",
+    "mode_self": "The backend on this host runs in a terminal: it starts a new copy of itself, which begins in about 5 seconds. Its output continues in the same terminal window.",
+    "active_warning": "{{count}} missions are being carried out by vehicles; restarting interrupts them and they are reconciled afterwards.",
+    "restart": "Restart",
+    "confirm_title": "Restart the backend?",
+    "confirm_body": "The page cannot reach the backend for a while and reloads itself when it is back.",
+    "waiting": "Restarting, the page reloads itself when the backend is back…",
+    "timeout": "The backend has not come back after 3 minutes, please check it on the host"
+  },
+  "snapshot": {
+    "title": "Settings snapshots",
+    "hint": "Saves all current settings (maps, missions, vehicles, devices and shelves, rules, alarm settings) so a bad change can be rolled back in one step. Accounts, history, cargo and live state such as whether a shelf holds cargo or which map group is in use are not included.",
+    "restart_needed": "Snapshot \"{{name}}\" was restored ({{time}}), but the backend must be restarted before it takes full effect. Restart it now and do not dispatch missions or change settings until then.",
+    "name_placeholder": "Snapshot name, e.g. before road changes",
+    "note_placeholder": "Note (optional)",
+    "create": "Create snapshot",
+    "created": "Snapshot created",
+    "empty": "No snapshots yet",
+    "kind_manual": "Manual",
+    "kind_before_restore": "Auto, before restore",
+    "by": "Created by",
+    "size": "Size",
+    "rows": "Rows",
+    "restore": "Preview and restore",
+    "delete": "Delete",
+    "delete_confirm": "Delete snapshot \"{{name}}\"?",
+    "deleted": "Snapshot deleted",
+    "active_missions": "{{count}} missions are being carried out by vehicles. Restoring is possible only after they finish or are cancelled.",
+    "restore_title": "Restore snapshot \"{{name}}\"",
+    "preview_failed": "Could not load the restore preview",
+    "no_difference": "The current settings are identical to this snapshot, nothing to restore.",
+    "totals": "Restoring will add {{create}}, change {{update}} and delete {{remove}} setting rows.",
+    "added": "added",
+    "changed": "changed",
+    "removed": "deleted",
+    "blocked": "{{count}} missions are being carried out by vehicles, restore is not possible:",
+    "pending_note": "{{count}} waiting missions do not block the restore; they are dispatched again after the backend restarts, and ones that use removed points will fail to dispatch.",
+    "missing_tables": "The snapshot has tables that no longer exist in the database, they will not be restored: {{tables}}",
+    "restore_note": "A \"before restore\" snapshot is taken first so a wrong restore can be undone. The backend must be restarted afterwards for it to take full effect.",
+    "confirm_restore": "Restore",
+    "restored": "Restored, please restart the backend",
+    "restore_failed": "Restore failed"
+  },
+  "diagnostic_bundle": {
+    "title": "Diagnostic bundle",
+    "hint": "Packs this host's recent logs, missions, alarms, connection and setting-change records, versions and health status into one zip for support. Passwords and keys in the config are masked; the logs themselves are not scrubbed, so do not share the bundle publicly.",
+    "range": "Data range",
+    "range_options": {
+      "1": "Last 1 hour",
+      "24": "Last 24 hours",
+      "72": "Last 3 days",
+      "168": "Last 7 days"
+    },
+    "download": "Download diagnostic bundle",
+    "preparing": "Packing, this can take a while when there are many logs…",
+    "done": "Diagnostic bundle downloaded",
+    "busy": "A bundle is already being made, please try again shortly",
+    "failed": "Could not make the diagnostic bundle"
   },
   "health_monitor": {
     "title": "Host and software health",
@@ -3330,6 +3681,16 @@
     }
   },
   "idle_rules": {
+    "action_STANDBY_demand": "Go to standby (by demand)",
+    "standby_mode": "Standby choice",
+    "standby_mode_NEAREST": "Nearest free standby point",
+    "standby_mode_DEMAND": "By expected demand",
+    "standby_mode_NEAREST_hint": "Go to the nearest standby point with no car.",
+    "standby_mode_DEMAND_hint": "Go to a standby point near where missions are expected next (demand is set on the Pre-positioning page). Without history or demand it behaves like the nearest free point.",
+    "demand_days": "Use missions of the last",
+    "days": "days",
+    "demand_max_extra": "Max extra distance",
+    "demand_max_extra_hint": "A high-demand point further than this beyond the nearest free point is not used.",
     "title": "Idle rules",
     "hint": "What a vehicle does when it is idle. Rules are checked from the top; a vehicle follows the first one that matches, and stays where it is when none does.",
     "order_hint": "A vehicle that matches several rules only does the topmost one. When that one cannot be dispatched for now (for example no free standby point or no free charging station), the ones below are tried first.",
@@ -4215,6 +4576,9 @@
       "reorder_drag": "Drag the handle on the left to reorder",
       "import_empty": "No missions of the same robot type to import",
       "include_edit": "Change included mission",
+      "include_button": "Link mission",
+      "include_hint": "Adds a live link to another mission as the last step; drag it to reorder. Changes to the original mission apply here too. The item can only be reordered or deleted.",
+      "include_badge": "LINK",
       "include_no_folder": "No folder",
       "include_empty": "No missions of the same robot type to include",
       "step_json_hint": "This is the raw config of this step as stored in the backend, view-only. Use \"Edit\" to change it.",
@@ -5884,6 +6248,44 @@
       "io_summary": "{{n}} modules · {{io}} IN {{io}} OUT",
       "no_modules": "This group has no modules",
       "standalone": "Standalone"
+    },
+    "state": {
+      "title": "What the signals mean",
+      "add": "Add signal state for {{group}}",
+      "edit": "Edit signal state for {{group}}",
+      "add_short": "Add",
+      "empty": "Nothing set up yet. Pick one or more signals and write what it means when they are on, e.g. DO0 + DO1 → Exclusive mode on, DI0 → Elevator fault. The Advantech 4000 box on the main screen lists the ones that are on now.",
+      "signals": "Signals",
+      "signals_hint": "Click to pick signals. Picking several = they must all be on at the same time. Modules in a group are numbered in order: the 1st is 0–3, the 2nd is 4–7. The dot in the corner is the live value.",
+      "need_signal": "Pick at least one signal",
+      "none_picked": "None picked",
+      "name": "Meaning",
+      "name_placeholder": "e.g. Exclusive mode on, Door open pressed, Elevator fault",
+      "tone": "Color",
+      "tone_green": "Green (normal)",
+      "tone_blue": "Blue (action)",
+      "tone_amber": "Amber (caution)",
+      "tone_red": "Red (fault)",
+      "tone_purple": "Purple",
+      "tone_gray": "Gray",
+      "note": "Extra note",
+      "note_placeholder": "Shown under this state on the main screen. Optional.",
+      "live_met": "With the current signals, the main screen would show \"{{name}}\"",
+      "live_not_met": "With the current signals, this would not show",
+      "now": "NOW",
+      "broken": "A signal belongs to a module that is no longer in this group, so this never shows. Edit it.",
+      "missing_module": "(module removed)"
+    },
+    "status": {
+      "title": "Advantech 4000",
+      "current": "Current state",
+      "others": "Other states",
+      "signals": "Signals",
+      "no_groups": "No module groups yet. Create one in Settings > Devices > Advantech 4000 serial.",
+      "no_states": "No signal states set up",
+      "no_states_hint": "Add them on the group card in Settings, e.g. DO0 + DO1 → Exclusive mode on.",
+      "no_active": "Nothing triggered",
+      "no_active_hint": "None of the signal combinations you set up are on right now."
     }
   }
 }

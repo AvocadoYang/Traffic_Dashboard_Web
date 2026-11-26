@@ -1,7 +1,7 @@
 import client from "@/api/axiosClient";
 import { EBLM } from "@/atoms/map/mapEditModalAtoms";
 import { useMutation } from "@tanstack/react-query";
-import { Table, Flex, Popconfirm } from "antd";
+import { Table, Flex, Popconfirm, type TableColumnsType } from "antd";
 import { useAtom } from "jotai";
 import React, { FC, useMemo, useState } from "react";
 import styled from "styled-components";
@@ -11,6 +11,10 @@ import AddBlindLocationMissionModal from "./AddBlindLocationMissionModal";
 import { useTranslation } from "react-i18next";
 
 // ===== 共用 Industrial Style（直接複用 TaskFormFork） =====
+type BlindRow = NonNullable<
+  ReturnType<typeof useBlindMission>["data"]
+>[number];
+
 const IndustrialContainer = styled.div`
   background: #f5f5f5;
   min-height: 100vh;
@@ -108,7 +112,7 @@ const IndustrialTable = styled(Table)`
   .ant-table-tbody > tr:hover > td {
     background: #fafafa;
   }
-`;
+` as typeof Table;
 
 const IndustrialSearchInput = styled.input`
   width: 280px;
@@ -169,7 +173,7 @@ const BlindTable: FC = () => {
     deleteMutation.mutate({ id });
   };
 
-  const columns = [
+  const columns: TableColumnsType<BlindRow> = [
     {
       title: t("blind_location.location_name"),
       dataIndex: "name",
@@ -179,7 +183,7 @@ const BlindTable: FC = () => {
       title: t("blind_location.locationId"),
       dataIndex: "locationId",
       key: "locationId",
-      sorter: (a, b) => a.locationId - b.locationId,
+      sorter: (a, b) => Number(a.locationId) - Number(b.locationId),
     },
     {
       title: t("blind_location.bound_mission"),

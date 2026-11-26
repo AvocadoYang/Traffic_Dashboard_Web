@@ -63,3 +63,19 @@ export const useTrackHeat = (range: TrackRange | null, cell: number) =>
     staleTime: 60_000,
     keepPreviousData: true,
   });
+
+/** 回放時間軸上的事件 (後端 /api/amr/track-events): 告警、警告、急停、斷線、定位失準、換 AP */
+export type TimelineEventKind = "alarm" | "warning" | "estop" | "disconnect" | "localization" | "roam";
+export type TimelineEvent = { at: number; kind: TimelineEventKind; amrId: string; text: string; x?: number; y?: number };
+export type TimelineEventsData = { from: number; to: number; truncated: boolean; events: TimelineEvent[] };
+
+export const useTrackEvents = (range: TrackRange | null) =>
+  useQuery({
+    queryKey: ["track-events", range?.from, range?.to],
+    enabled: !!range,
+    queryFn: async () => (await client.get<TimelineEventsData>("api/amr/track-events", { params: range })).data,
+    staleTime: 60_000,
+    keepPreviousData: true,
+    // 舊版後端沒有這支 API: 沒事件就好, 回放照常
+    retry: false,
+  });

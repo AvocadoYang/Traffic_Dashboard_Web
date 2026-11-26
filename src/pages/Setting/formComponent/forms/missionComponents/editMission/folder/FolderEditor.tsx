@@ -224,7 +224,7 @@ const IndustrialTable = styled(Table)`
   .ant-table-pagination {
     margin: 16px 0 0 0;
   }
-`;
+` as typeof Table;
 
 const SectionDivider = styled.div`
   height: 2px;

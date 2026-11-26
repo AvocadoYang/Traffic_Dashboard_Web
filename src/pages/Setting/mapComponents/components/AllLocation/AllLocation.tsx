@@ -111,7 +111,7 @@ const AllLocation: FC<{
                   rotation={loc.rotate}
                   onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
                   onMouseLeave={() => handleLeave()}
-                  onMouseDown={(e) =>
+                  onMouseDown={(e: React.MouseEvent) =>
                     handleClick(e, loc.locationId, loc.areaType)
                   }
                 />
@@ -145,7 +145,7 @@ const AllLocation: FC<{
                 $standby={isStandbyAreaType(loc.areaType)}
                 onMouseEnter={() => handleEnter(loc.locationId, loc.x, loc.y)}
                 onMouseLeave={() => handleLeave()}
-                onMouseDown={(e) =>
+                onMouseDown={(e: React.MouseEvent) =>
                   handleClick(e, loc.locationId, loc.areaType)
                 }
               ></Point>

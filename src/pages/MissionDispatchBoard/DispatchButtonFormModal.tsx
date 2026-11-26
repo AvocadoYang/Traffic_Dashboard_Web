@@ -200,7 +200,7 @@ const DispatchButtonFormModal: FC<{
       }));
   }, [transferConfig]);
 
-  const mutation = useMutation({
+  const mutation = useMutation<unknown, ErrorResponse, Record<string, unknown>>({
     mutationFn: (payload: Record<string, unknown>) =>
       isEdit
         ? client.patch("api/setting/dispatch-button", {

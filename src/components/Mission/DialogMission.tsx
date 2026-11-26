@@ -557,7 +557,7 @@ const DialogMission = () => {
           <Form.Item name="amrId" style={{ marginBottom: 0 }}>
             <StyledSelect
               options={AmrOption}
-              onChange={(v: string) => setAmrGenre(v)}
+              onChange={(v) => setAmrGenre(v as string)}
               placeholder={t("main.queue_mir_task_modal.select_amr")}
               onMouseDown={(e) => e.preventDefault()}
               onPopupScroll={(e) => {
@@ -640,7 +640,7 @@ const DialogMission = () => {
                 const kind = variableFieldKinds.get(name);
                 const selectOptionsByKind: Record<
                   VariableFieldKind,
-                  { label: string; value: string }[]
+                  { label: string; value: string | undefined }[]
                 > = {
                   location: locationsOption,
                   footprint: footprintOption,
