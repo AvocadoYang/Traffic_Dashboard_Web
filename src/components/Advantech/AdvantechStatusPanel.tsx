@@ -1,23 +1,24 @@
 import { FC, useEffect, useMemo, useState } from "react";
-import { Button, Empty, Select, Tooltip } from "antd";
+import { Button, Empty, Select, Tooltip, message } from "antd";
 import { CloseOutlined, DisconnectOutlined } from "@ant-design/icons";
+import { useMutation } from "@tanstack/react-query";
 import { useAtom, useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import styled, { css, keyframes } from "styled-components";
+import client from "@/api/axiosClient";
 import {
+  AdvantechButtonRow,
   AdvantechGroupRow,
   GroupStatusResult,
-  IoSide,
   StateTone,
   describeConditions,
   evaluateGroup,
-  groupSignalName,
-  groupSignals,
-  signalValue,
   useAdvantechGroups,
   useAdvantechIoSocket,
   useAdvantechIoStatus,
 } from "@/api/useAdvantech";
+import { ErrorResponse } from "@/utils/globalType";
+import { errorHandler } from "@/utils/utils";
 import { OpenSimCarPanel } from "@/components/SimCars/simCarAtoms";
 import { toneSoft, toneSolid } from "./stateTone";
 import { OpenAdvantechPanel } from "./atoms";
@@ -243,93 +244,31 @@ const QuietCard = styled.div<{ $danger?: boolean }>`
   }
 `;
 
-/** 沒成立的: 淡淡列出來, 看得出還會出現哪些狀態 */
-const IdlePills = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-`;
-
-const IdlePill = styled.span<{ $tone: StateTone }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 2px 9px;
-  border-radius: 999px;
-  border: 1px solid var(--c-border);
-  font-size: 12px;
-  color: var(--c-text-secondary);
-
-  &::before {
-    content: "";
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: ${({ $tone }) => toneSolid($tone)};
-    opacity: 0.6;
-  }
-`;
-
-const IoBlock = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const IoRowLabel = styled.span`
-  font-size: 11px;
-  color: var(--c-text-muted);
-`;
-
-/** 群組全部的訊號, 照接續編號一格一格排 */
-const IoGrid = styled.div`
+/** 群組的自訂按鈕 (設定頁群組卡設的), 首頁直接按 */
+const ActionGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
-  gap: 4px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+
+  .ant-btn {
+    height: auto;
+    min-height: 38px;
+    padding: 6px 10px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    font-weight: 600;
+  }
 `;
 
-const IoCell = styled.span<{ $on: boolean | null }>`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 34px;
-  border-radius: 5px;
-  font-family: "Roboto Mono", ui-monospace, monospace;
-  font-size: 11px;
-  font-weight: ${({ $on }) => ($on ? 700 : 400)};
-  background: ${({ $on }) =>
-    $on === null
-      ? "transparent"
-      : $on
-        ? "var(--c-header-accent)"
-        : "var(--c-bg)"};
-  color: ${({ $on }) =>
-    $on
-      ? "var(--c-bg)"
-      : $on === null
-        ? "var(--c-text-muted)"
-        : "var(--c-text-secondary)"};
-  border: 1px solid
-    ${({ $on }) => ($on ? "var(--c-header-accent)" : "var(--c-border)")};
-  transition:
-    background 0.15s,
-    color 0.15s;
-
-  small {
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 9px;
-    opacity: 0.8;
-  }
+const Hint = styled.div`
+  font-size: 12px;
+  color: var(--c-text-muted);
 `;
 
 /**
  * 首頁 (MainV2) 地圖上的「Advantech 4000」方塊 (只有 HAS_MIR 才有): 選一個模組群組,
  * 列出現在成立的訊號意義 (設定頁 設備 > Advantech 4000 serial 的群組卡設的, 例如 DO0 + DO1 → 專屬模式啟動),
- * 好幾個可以同時成立。只能看, 不能操作; IO 狀態靠 socket 即時更新。
+ * 好幾個可以同時成立; 下面是群組的自訂按鈕, 直接按就會跑。IO 狀態靠 socket 即時更新。
  */
 const AdvantechStatusPanel: FC<{ top?: string; left?: string }> = ({
   top = "172px",
@@ -358,9 +297,29 @@ const AdvantechStatusPanel: FC<{ top?: string; left?: string }> = ({
     : { kind: "loading" };
   const dot = dotTone(result);
   const states = group?.states ?? [];
-  const activeIds = new Set(
-    result.kind === "ok" ? result.active.map((s) => s.id) : [],
-  );
+  const buttons = group?.buttons ?? [];
+
+  const [messageApi, contextHolder] = message.useMessage();
+  // 同時可以按好幾顆, 各自轉圈
+  const [running, setRunning] = useState<Set<string>>(() => new Set());
+  const setButtonRunning = (id: string, on: boolean) =>
+    setRunning((prev) => {
+      const next = new Set(prev);
+      if (on) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  const triggerMutation = useMutation({
+    mutationFn: (button: AdvantechButtonRow) =>
+      client.post("api/setting/trigger-advantech-button", { id: button.id }),
+    onMutate: (button) => setButtonRunning(button.id, true),
+    onSuccess: (_, button) =>
+      void messageApi.success(
+        t("advantech.button.done", { name: button.name }),
+      ),
+    onError: (e: ErrorResponse) => errorHandler(e, messageApi),
+    onSettled: (_, __, button) => setButtonRunning(button.id, false),
+  });
 
   const toggle = () => {
     if (!open) setSimOpen(false);
@@ -431,46 +390,44 @@ const AdvantechStatusPanel: FC<{ top?: string; left?: string }> = ({
     );
   };
 
-  const renderIo = (side: IoSide) => {
-    if (!group) return null;
+  const renderButtons = () => {
+    if (!group || !buttons.length) return null;
+    const offline = result.kind === "offline";
     return (
-      <IoBlock>
-        <IoRowLabel>
-          {side === "do" ? t("advantech.outputs") : t("advantech.inputs")}
-        </IoRowLabel>
-        <IoGrid>
-          {groupSignals(group, side).map((s) => {
-            const on = signalValue(status, s.moduleId, s.side, s.channel);
-            const tip = [
-              groupSignalName(s.side, s.index),
-              s.label?.code,
-              s.label?.name,
-              group.modules.length > 1 ? `(${s.moduleName})` : "",
-            ]
-              .filter(Boolean)
-              .join(" · ");
+      <div>
+        <SectionLabel>{t("advantech.button.title")}</SectionLabel>
+        <ActionGrid>
+          {buttons.map((button) => {
+            const isRunning = running.has(button.id);
             return (
               <Tooltip
-                key={`${s.moduleId}${s.channel}`}
-                title={tip}
-                mouseEnterDelay={0.3}
+                key={button.id}
+                title={button.note || undefined}
+                mouseEnterDelay={0.4}
               >
-                <IoCell $on={on}>
-                  {groupSignalName(s.side, s.index)}
-                  {s.label?.code && <small>{s.label.code}</small>}
-                </IoCell>
+                <Button
+                  type="primary"
+                  block
+                  loading={isRunning}
+                  disabled={offline || result.kind === "loading"}
+                  onClick={() => triggerMutation.mutate(button)}
+                >
+                  {button.name}
+                </Button>
               </Tooltip>
             );
           })}
-        </IoGrid>
-      </IoBlock>
+        </ActionGrid>
+        {offline && (
+          <Hint style={{ marginTop: 6 }}>{t("advantech.offline")}</Hint>
+        )}
+      </div>
     );
   };
 
-  const idle = states.filter((s) => !activeIds.has(s.id));
-
   return (
     <>
+      {contextHolder}
       <Tooltip title={t("advantech.status.title")} placement="right">
         <Btn
           $top={top}
@@ -523,28 +480,7 @@ const AdvantechStatusPanel: FC<{ top?: string; left?: string }> = ({
                   {renderCurrent()}
                 </div>
 
-                {result.kind === "ok" && idle.length > 0 && (
-                  <div>
-                    <SectionLabel>{t("advantech.status.others")}</SectionLabel>
-                    <IdlePills>
-                      {idle.map((s) => (
-                        <IdlePill key={s.id} $tone={s.tone}>
-                          {s.name}
-                        </IdlePill>
-                      ))}
-                    </IdlePills>
-                  </div>
-                )}
-
-                {group && group.modules.length > 0 && (
-                  <div>
-                    <SectionLabel>{t("advantech.status.signals")}</SectionLabel>
-                    <IoBlock style={{ gap: 8 }}>
-                      {renderIo("do")}
-                      {renderIo("di")}
-                    </IoBlock>
-                  </div>
-                )}
+                {renderButtons()}
               </Body>
             </>
           )}
