@@ -2,7 +2,7 @@ import { CancelReason } from "@/types/mission";
 import React, { FC } from "react";
 import { useTranslation } from "react-i18next";
 
-const reasonKeyMap: { [key in CancelReason]: string } = {
+export const reasonKeyMap: { [key in CancelReason]: string } = {
   [CancelReason.NULL]: "null",
   [CancelReason.OFFLINE]: "offline",
   [CancelReason.CANCEL]: "cancel",
