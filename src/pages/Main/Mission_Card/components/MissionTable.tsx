@@ -220,7 +220,8 @@ const AmrBadge = styled.span<{ $isDark: boolean; $color?: string }>`
         `}
 `;
 
-type StatusTone = "success" | "info" | "warning" | "waiting" | "muted" | "danger";
+type StatusTone =
+  "success" | "info" | "warning" | "waiting" | "muted" | "danger";
 // 狀態顏色看任務狀態的數字。以前是拿翻譯後的字 (例如「🤖 進行中」) 去對英文代號, 永遠對不到, 全部變成黃色
 const STATUS_TONE: Record<number, StatusTone> = {
   [MissionStatus.EXECUTING]: "success",
@@ -231,16 +232,44 @@ const STATUS_TONE: Record<number, StatusTone> = {
   [MissionStatus.ABORTING]: "danger",
   [MissionStatus.CANCELED]: "danger",
 };
-const TONE_COLOR: Record<StatusTone, { bg: string; dot: string; text: string }> = {
-  success: { bg: "var(--c-success-soft)", dot: "var(--c-success)", text: "var(--c-text)" },
-  info: { bg: "var(--c-header-accent-soft)", dot: "var(--c-header-accent)", text: "var(--c-header-accent)" },
-  warning: { bg: "var(--c-warning-soft)", dot: "var(--c-warning)", text: "var(--c-text)" },
-  waiting: { bg: "transparent", dot: "var(--c-warning)", text: "var(--c-text-secondary)" },
-  muted: { bg: "var(--c-bg-subtle)", dot: "var(--c-border-strong)", text: "var(--c-text-muted)" },
-  danger: { bg: "var(--c-danger-soft)", dot: "var(--c-danger)", text: "var(--c-danger)" },
+const TONE_COLOR: Record<
+  StatusTone,
+  { bg: string; dot: string; text: string }
+> = {
+  success: {
+    bg: "var(--c-success-soft)",
+    dot: "var(--c-success)",
+    text: "var(--c-text)",
+  },
+  info: {
+    bg: "var(--c-header-accent-soft)",
+    dot: "var(--c-header-accent)",
+    text: "var(--c-header-accent)",
+  },
+  warning: {
+    bg: "var(--c-warning-soft)",
+    dot: "var(--c-warning)",
+    text: "var(--c-text)",
+  },
+  waiting: {
+    bg: "transparent",
+    dot: "var(--c-warning)",
+    text: "var(--c-text-secondary)",
+  },
+  muted: {
+    bg: "var(--c-bg-subtle)",
+    dot: "var(--c-border-strong)",
+    text: "var(--c-text-muted)",
+  },
+  danger: {
+    bg: "var(--c-danger-soft)",
+    dot: "var(--c-danger)",
+    text: "var(--c-danger)",
+  },
 };
 /** 狀態翻譯字串前面帶 emoji (別的頁面還在用), 任務欄裡拿掉, 改用色點 */
-const stripEmoji = (label: string) => label.replace(/^(?:\p{Extended_Pictographic}|\u200d|\uFE0F|\s)+/u, "");
+const stripEmoji = (label: string) =>
+  label.replace(/^(?:\p{Extended_Pictographic}|\u200d|\uFE0F|\s)+/u, "");
 
 const pulse = keyframes`
   0%, 100% { opacity: 1; }
@@ -258,7 +287,8 @@ const StatusBadge = styled.span<{ $tone: StatusTone; $isDark: boolean }>`
   font-weight: 600;
   background: ${({ $tone }) => TONE_COLOR[$tone].bg};
   color: ${({ $tone }) => TONE_COLOR[$tone].text};
-  border: 1px solid ${({ $tone }) => ($tone === "waiting" ? "var(--c-warning)" : "transparent")};
+  border: 1px solid
+    ${({ $tone }) => ($tone === "waiting" ? "var(--c-warning)" : "transparent")};
 
   &::before {
     content: "";
@@ -389,7 +419,11 @@ const MissionTable = () => {
 
         const tooltipContent = (
           <div
-            style={{ maxWidth: 260, fontFamily: "Roboto Mono", fontSize: "var(--font-xs)" }}
+            style={{
+              maxWidth: 260,
+              fontFamily: "Roboto Mono",
+              fontSize: "var(--font-xs)",
+            }}
           >
             {info.map((entry, idx) => (
               <div key={idx} style={{ marginBottom: 4 }}>
@@ -414,7 +448,10 @@ const MissionTable = () => {
       render: (code: string) => {
         return (
           <Tooltip title={code ? code : t("main_task_list.wait_suitable")}>
-            <AmrBadge $isDark={isDark} $color={code ? amrId2ColorRainbow(code) : undefined}>
+            <AmrBadge
+              $isDark={isDark}
+              $color={code ? amrId2ColorRainbow(code) : undefined}
+            >
               {code
                 ? (code.split("-")[3] ?? code.split("-").pop())
                 : t("main_task_list.wait_suitable")}
@@ -440,7 +477,10 @@ const MissionTable = () => {
         ) {
           return (
             <Tooltip title={<I18nCancelReason reason={record.cancelReason} />}>
-              <StatusBadge $tone={STATUS_TONE[record.status ?? -1] ?? "warning"} $isDark={isDark}>
+              <StatusBadge
+                $tone={STATUS_TONE[record.status ?? -1] ?? "warning"}
+                $isDark={isDark}
+              >
                 {stripEmoji(String(status))}
               </StatusBadge>
             </Tooltip>
@@ -450,7 +490,10 @@ const MissionTable = () => {
         if (record.status === MissionStatus.WAITING) {
           return (
             <Tooltip title={record.message}>
-              <StatusBadge $tone={STATUS_TONE[record.status ?? -1] ?? "warning"} $isDark={isDark}>
+              <StatusBadge
+                $tone={STATUS_TONE[record.status ?? -1] ?? "warning"}
+                $isDark={isDark}
+              >
                 {stripEmoji(String(status))}
               </StatusBadge>
             </Tooltip>
@@ -466,7 +509,10 @@ const MissionTable = () => {
               color="var(--c-bg)"
             >
               <Flex gap={6} align="center">
-                <StatusBadge $tone={STATUS_TONE[record.status ?? -1] ?? "warning"} $isDark={isDark}>
+                <StatusBadge
+                  $tone={STATUS_TONE[record.status ?? -1] ?? "warning"}
+                  $isDark={isDark}
+                >
                   {stripEmoji(String(status))}
                 </StatusBadge>
                 <WarningOutlined style={{ color: "var(--c-warning)" }} />
@@ -476,7 +522,10 @@ const MissionTable = () => {
         }
 
         return (
-          <StatusBadge $tone={STATUS_TONE[record.status ?? -1] ?? "warning"} $isDark={isDark}>
+          <StatusBadge
+            $tone={STATUS_TONE[record.status ?? -1] ?? "warning"}
+            $isDark={isDark}
+          >
             {stripEmoji(String(status))}
           </StatusBadge>
         );
@@ -492,25 +541,26 @@ const MissionTable = () => {
       dataIndex: "taskInfo",
       key: "taskInfo",
       render: (_value, record: MissionInfo) => {
+        let infoName: string[] | undefined;
         if (typeof record.info === "string") {
-          const parseData = JSON.parse(record.info) as Additional_Mission_Info;
-          const fullName =
-            parseData.missionFullName === null
-              ? "-"
-              : parseData.missionFullName;
-
-          return (
-            <TaskInfo $isDark={isDark}>
-              <TaskTitle $isDark={isDark}>
-                {typeof fullName === "string"
-                  ? "-"
-                  : fullName?.join(" - ") || "-"}
-              </TaskTitle>
-              <SubTitle $isDark={isDark}>{record.sub_name}</SubTitle>
-            </TaskInfo>
-          );
+          const parseData = JSON.parse(
+            record.info,
+          ) as Additional_Mission_Info | null;
+          infoName = parseData?.missionFullName;
         }
-        return <span>-</span>;
+        const fullName =
+          record.full_name?.filter(Boolean).join(" - ") ||
+          infoName?.filter(Boolean).join(" - ") ||
+          "-";
+
+        return (
+          <TaskInfo $isDark={isDark}>
+            <TaskTitle $isDark={isDark}>{fullName}</TaskTitle>
+            {record.sub_name && record.sub_name !== fullName && (
+              <SubTitle $isDark={isDark}>{record.sub_name}</SubTitle>
+            )}
+          </TaskInfo>
+        );
       },
     },
     {
@@ -527,11 +577,23 @@ const MissionTable = () => {
         if (!text) return <span>-</span>;
         return (
           <Flex vertical>
-            <span style={{ fontFamily: "Roboto Mono", fontWeight: 600, whiteSpace: "nowrap" }}>
+            <span
+              style={{
+                fontFamily: "Roboto Mono",
+                fontWeight: 600,
+                whiteSpace: "nowrap",
+              }}
+            >
               {text.main}
             </span>
             {text.start && (
-              <span style={{ fontSize: 12, color: "var(--c-text-secondary)", whiteSpace: "nowrap" }}>
+              <span
+                style={{
+                  fontSize: 12,
+                  color: "var(--c-text-secondary)",
+                  whiteSpace: "nowrap",
+                }}
+              >
                 {text.start}
               </span>
             )}
