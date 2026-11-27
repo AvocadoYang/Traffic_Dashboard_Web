@@ -273,6 +273,8 @@ const MissionTable: FC<{
       key: "name",
 
       render: (text: string) => <MissionName>{text}</MissionName>,
+      sorter: (a, b) =>
+        (a.name ?? "").localeCompare(b.name ?? "", undefined, { numeric: true }),
       defaultSortOrder: "ascend",
     },
     {
@@ -283,7 +285,6 @@ const MissionTable: FC<{
       render: (_, record) => {
         return <RobotType>{record.Robot_types?.name || "-"}</RobotType>;
       },
-      sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
       title: t("mission.add_mission.folder"),

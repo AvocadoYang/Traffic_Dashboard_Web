@@ -3,6 +3,11 @@ import { MISSION_CONTROL_URL } from "../configs/config";
 import i18next from "i18next";
 import { clientIdentityHeaders } from "../utils/clientIdentity";
 import { getToken, logout } from "../utils/session";
+import {
+  isOutageError,
+  reportPossibleOutage,
+  setBackendBaseUrl,
+} from "../utils/backendStatus";
 
 /** 跟 utils/permissions 的 permissionLabelKey 一樣; 設定頁的 key 用分類名 + 看 / 改 */
 const permissionLabelKeyOf = (key: string) => {
@@ -18,6 +23,8 @@ const client = axios.create({
   baseURL: `${window.location.origin.replace("5173", "4000")}`,
 });
 
+setBackendBaseUrl(client.defaults.baseURL as string);
+
 client.interceptors.request.use((config: any) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -31,6 +38,8 @@ client.interceptors.request.use((config: any) => {
 client.interceptors.response.use(
   (res) => res,
   (err) => {
+    // 連不上後端 / 閘道錯誤: 交給 backendStatus 確認, 確定掛了就顯示「後端無法連線」頁
+    if (isOutageError(err)) reportPossibleOutage();
     // 功能權限: 後端回 403 { permission } 時, 把訊息換成看得懂的那一項名稱,
     // 各畫面原本顯示 response.data.message 的地方就會顯示這句
     const data = err?.response?.data;

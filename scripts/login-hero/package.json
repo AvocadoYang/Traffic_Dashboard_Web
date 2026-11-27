@@ -5,7 +5,10 @@
   "scripts": {
     "build": "../../node_modules/.bin/esbuild scene.ts --bundle --outfile=out.js --loader:.glb=binary --format=iife --log-level=error",
     "still": "npm run build && MB=1 W=960 H=540 node run.mjs still 1.0 2.0 3.6 6.0 9.6 13.6 17.6 24.0",
-    "video": "npm run build && W=1600 H=900 node run.mjs video ../../public/login-hero.webm 30 2800000"
+    "video": "npm run build && W=1600 H=900 node run.mjs video ../../public/login-hero.webm 30 2800000",
+    "build:rest": "../../node_modules/.bin/esbuild rest.ts --bundle --outfile=rest.js --loader:.glb=binary --format=iife --log-level=error",
+    "still:rest": "npm run build:rest && PAGE=rest.html MB=1 W=960 H=540 node run.mjs still 2.0 4.5 8.0 9.4 12.5 17.0 21.0 25.0 29.0",
+    "video:rest": "npm run build:rest && PAGE=rest.html W=1600 H=900 node run.mjs video ../../public/backend-down.webm 30 3000000"
   },
   "dependencies": {
     "webm-muxer": "^5.1.4"

@@ -12,6 +12,9 @@ import PageGate from "./components/PermissionGate/PageGate";
 import SiteChat from "./components/SiteChat/SiteChat";
 import { ThemeVarsProvider, ThemedAppConfigProvider } from "./theme";
 import Ignition from "./components/Ignition/Ignition";
+import BackendDownGuard from "./components/BackendDown/BackendDownGuard";
+import { setOnBackendRecover } from "./utils/backendStatus";
+import { reconnectSocket } from "./sockets/socketConnect";
 import { useTranslation } from "react-i18next";
 
 // 首頁以外的頁面都按路由載入: 首頁不用先下載設定頁、模擬頁、報表等整包程式碼。
@@ -44,6 +47,12 @@ const client = new QueryClient({
       refetchOnWindowFocus: false,
     },
   },
+});
+
+// 後端從連不上恢復時: 重抓所有資料、確認 socket 有連回去
+setOnBackendRecover(() => {
+  void client.invalidateQueries();
+  reconnectSocket();
 });
 
 function App() {
@@ -142,6 +151,8 @@ function App() {
           </BrowserRouter>
           {/* 登入成功後的點火轉場: 放在路由外面, 換頁時不會被卸載 */}
           <Ignition />
+          {/* 後端連不上時蓋住整個畫面 (放最後, 蓋在所有東西上面) */}
+          <BackendDownGuard />
         </QueryClientProvider>
       </ThemedAppConfigProvider>
     </ThemeVarsProvider>
