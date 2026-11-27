@@ -4,6 +4,8 @@ import fs from "node:fs";
 const [mode, ...rest] = process.argv.slice(2);
 const W = +(process.env.W || 1920), H = +(process.env.H || 1080);
 const dir = new URL(".", import.meta.url).pathname;
+// PAGE=rest.html: 後端無法連線頁的影片 (rest.ts); 沒給是登入頁的 (scene.ts)
+const PAGE = process.env.PAGE || "index.html", PREFIX = PAGE === "index.html" ? "still" : PAGE.replace(".html", "");
 const chrome = spawn("google-chrome", ["--headless=new", "--no-sandbox", "--remote-debugging-pipe", "--user-data-dir=" + dir + "profile",
   "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", ...(process.env.GL ? ["--use-angle=" + process.env.GL] : []), `--window-size=${W},${H}`, "about:blank"],
   { stdio: ["ignore", "ignore", "ignore", "pipe", "pipe"] });
@@ -18,7 +20,7 @@ const { sessionId } = await send("Target.attachToTarget", { targetId: targetInfo
 const S = (m, p) => send(m, p, sessionId);
 await S("Runtime.enable"); await S("Page.enable");
 const ev = async (expression) => { const r = await S("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true }); if (r.exceptionDetails) throw new Error(JSON.stringify(r.exceptionDetails).slice(0, 800)); return r.result.value; };
-await S("Page.navigate", { url: `file://${dir}index.html?w=${W}&h=${H}&mb=${process.env.MB || 5}` });
+await S("Page.navigate", { url: `file://${dir}${PAGE}?w=${W}&h=${H}&mb=${process.env.MB || 5}` });
 for (let i = 0; i < 100; i++) { if (await ev("!!window.HERO")) break; await new Promise((r) => setTimeout(r, 200)); }
 console.log(await ev("HERO.ready()"));
 console.log(await ev("(()=>{const g=document.createElement('canvas').getContext('webgl2');const e=g.getExtension('WEBGL_debug_renderer_info');return g.getParameter(e.UNMASKED_RENDERER_WEBGL)})()"));
@@ -29,7 +31,7 @@ if (mode === "timeline") { await writeTimeline(); }
 else if (mode === "eval") { console.log(await ev(rest[0])); }
 else if (mode === "img") { for (let i = 0; i < rest.length; i += 2) fs.writeFileSync(rest[i], Buffer.from(await ev(rest[i + 1]), "base64")); }
 else if (mode === "still") {
-  for (const t of rest) { const t0 = Date.now(); fs.writeFileSync(`${process.cwd()}/still_${t}.jpg`, Buffer.from(await ev(`HERO.still(${t}, 0.85)`), "base64")); console.log("still", t, Date.now() - t0, "ms"); }
+  for (const t of rest) { const t0 = Date.now(); fs.writeFileSync(`${process.cwd()}/${PREFIX}_${t}.jpg`, Buffer.from(await ev(`HERO.still(${t}, 0.85)`), "base64")); console.log("still", t, Date.now() - t0, "ms"); }
 } else if (mode === "video") {
   const [out, fps = "30", br = "6000000"] = rest; const t0 = Date.now();
   const p = ev(`HERO.video(${fps}, ${br})`);
@@ -38,6 +40,6 @@ else if (mode === "still") {
   const fd = fs.openSync(out, "w");
   for (let i = 0; i * (1 << 20) < len; i++) fs.writeSync(fd, Buffer.from(await ev(`HERO.chunk(${i})`), "base64"));
   fs.closeSync(fd); console.log("wrote", out, len, "bytes", ((Date.now() - t0) / 1000).toFixed(0) + "s");
-  await writeTimeline();
+  if (PAGE === "index.html") await writeTimeline();
 }
 chrome.kill(); process.exit(0);

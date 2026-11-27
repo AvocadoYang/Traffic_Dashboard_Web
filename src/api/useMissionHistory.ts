@@ -76,7 +76,18 @@ const missionSchema = object({
   ),
 });
 
-type MissionHistoryParams = {
+/** 任務歷史的分類篩選; 跟後端 missionHistoryFilter.ts 對應, 多選都是「符合任一」 */
+export type MissionHistoryFilter = {
+  status?: number[];
+  kind?: string[];
+  amrIds?: string[];
+  sendBy?: number[];
+  priority?: number[];
+  cancelReason?: number[];
+  flags?: string[];
+};
+
+type MissionHistoryParams = MissionHistoryFilter & {
   page?: number;
   pageSize?: number;
   search?: string;
@@ -86,6 +97,21 @@ type MissionHistoryParams = {
 
 const normalizeSearch = (search?: string) => search?.trim() || undefined;
 
+/** 多選用逗號串起來 (status=1,3); 空的就不送 */
+const csv = (list?: (string | number)[]) =>
+  list?.length ? [...list].sort().join(",") : undefined;
+
+/** 篩選條件轉成 query string 參數, 列表跟匯出共用 */
+export const missionFilterParams = (f: MissionHistoryFilter) => ({
+  status: csv(f.status),
+  kind: csv(f.kind),
+  amrIds: csv(f.amrIds),
+  sendBy: csv(f.sendBy),
+  priority: csv(f.priority),
+  cancelReason: csv(f.cancelReason),
+  flags: csv(f.flags),
+});
+
 const getAllMission = async (params: MissionHistoryParams = {}) => {
   const { data } = await client.get<unknown>("api/missions/mission-history", {
     params: {
@@ -94,6 +120,7 @@ const getAllMission = async (params: MissionHistoryParams = {}) => {
       search: normalizeSearch(params.search),
       dateFrom: params.dateFrom,
       dateTo: params.dateTo,
+      ...missionFilterParams(params),
     },
   });
   const parsed = await missionSchema.validate(data, { stripUnknown: true });
@@ -110,6 +137,7 @@ const useAllMissionHistory = (params: MissionHistoryParams = {}) => {
       search,
       params.dateFrom,
       params.dateTo,
+      missionFilterParams(params),
     ],
     queryFn: () => getAllMission({ ...params, search }),
     retry: 2,

@@ -25,3 +25,4 @@ dist-ssr
 
 # login-hero 錄影用的 Chrome profile
 scripts/login-hero/profile/
+final-render.log
