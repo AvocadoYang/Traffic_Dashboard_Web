@@ -355,7 +355,28 @@
     "standby_at": "To standby point {{at}}",
     "standby_title": "To standby point",
     "desc_standby": "Idle rule: the vehicle was idle and is sent to a free standby point",
-    "desc_wait_point": "The work area is full, so the vehicle is sent to a wait point to queue"
+    "desc_wait_point": "The work area is full, so the vehicle is sent to a wait point to queue",
+    "filters": {
+      "status": "Status",
+      "kind": "Type",
+      "vehicle": "Vehicle",
+      "send_by": "Sent by",
+      "priority": "Priority",
+      "cancel_reason": "Cancel reason",
+      "flags": "Issues / tags",
+      "flag_warning": "Has warnings",
+      "flag_emergency": "E-stop pressed",
+      "flag_recovery": "Recovery pressed",
+      "flag_manual_mode": "Maintenance mode",
+      "flag_manual_action": "Manual intervention",
+      "flag_cargo": "Moved cargo",
+      "flag_split": "Split mission",
+      "clear": "Clear filters",
+      "active": "{{count}} filters",
+      "any_hint": "Within one field, any selected value matches; across fields, all must match",
+      "only_this_kind": "Show only “{{kind}}” missions",
+      "export_filtered": "Export uses the current filters"
+    }
   },
   "maintenance": {
     "update": "update maintenance level",

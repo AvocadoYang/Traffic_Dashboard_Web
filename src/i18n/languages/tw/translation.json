@@ -355,7 +355,28 @@
     "standby_at": "回待命點 {{at}}",
     "standby_title": "回待命點",
     "desc_standby": "閒置規則：車閒置了，派去空的待命點",
-    "failed": "失敗"
+    "failed": "失敗",
+    "filters": {
+      "status": "狀態",
+      "kind": "任務種類",
+      "vehicle": "車輛",
+      "send_by": "派發來源",
+      "priority": "優先度",
+      "cancel_reason": "取消原因",
+      "flags": "異常 / 標記",
+      "flag_warning": "有警告",
+      "flag_emergency": "按過緊急按鈕",
+      "flag_recovery": "按過復原按鈕",
+      "flag_manual_mode": "維修模式",
+      "flag_manual_action": "有人工介入",
+      "flag_cargo": "有搬貨",
+      "flag_split": "分段任務",
+      "clear": "清除篩選",
+      "active": "{{count}} 個篩選",
+      "any_hint": "同一欄選多個時，符合其中任一個就會顯示；不同欄之間要全部符合",
+      "only_this_kind": "只看「{{kind}}」任務",
+      "export_filtered": "匯出會套用目前的篩選條件"
+    }
   },
   "maintenance": {
     "update": "更新車輛狀態",

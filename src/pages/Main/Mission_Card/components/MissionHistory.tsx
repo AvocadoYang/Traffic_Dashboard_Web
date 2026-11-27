@@ -12,6 +12,7 @@ import {
   Input,
   DatePicker,
   Badge,
+  Select,
   message,
 } from "antd";
 import {
@@ -35,8 +36,14 @@ import {
   RollbackOutlined,
   ToolOutlined,
   RedoOutlined,
+  FilterOutlined,
+  ClearOutlined,
 } from "@ant-design/icons";
-import useAllMissionHistory from "@/api/useMissionHistory";
+import useAllMissionHistory, {
+  MissionHistoryFilter,
+  missionFilterParams,
+} from "@/api/useMissionHistory";
+import useAmrName from "@/api/useAmrName";
 import useWarningTable from "@/api/useWarningTable";
 import { useTranslation } from "react-i18next";
 import styled, { createGlobalStyle } from "styled-components";
@@ -45,7 +52,7 @@ import { darkMode } from "@/utils/gloable";
 import { useAtomValue } from "jotai";
 import { useRejectMission } from "@/sockets/useRejectMission";
 import { CancelReason, MissionStatus } from "@/types/mission";
-import I18nCancelReason from "@/i18n/I18nCancelReason";
+import I18nCancelReason, { reasonKeyMap } from "@/i18n/I18nCancelReason";
 import MissionCargoEvents from "@/components/MissionDetail/MissionCargoEvents";
 import MissionManualActions from "@/components/MissionDetail/MissionManualActions";
 import { useMutation } from "@tanstack/react-query";
@@ -296,6 +303,36 @@ const DrawerTitleActions = styled(Flex)`
     flex-wrap: wrap;
     gap: var(--space-sm) var(--space-md);
   }
+`;
+
+const FilterBar = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  padding: var(--space-sm);
+  background: var(--c-bg-subtle);
+  border: 1px solid var(--c-header-border);
+  border-radius: 4px;
+
+  .ant-select {
+    flex: 1 1 150px;
+    min-width: 140px;
+    max-width: 220px;
+  }
+`;
+
+const FilterLabel = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--c-text-muted);
+  cursor: help;
 `;
 
 const RANGE_POPUP_CLS = "mission-history-range-popup";
@@ -580,6 +617,17 @@ const KIND_COLOR: Record<MissionKind, string | undefined> = {
   other: undefined,
 };
 
+/** 跟後端 missionHistoryFilter.ts 的 MISSION_FLAGS 一樣 */
+const FLAG_OPTIONS = [
+  "warning",
+  "emergency",
+  "recovery",
+  "manual_mode",
+  "manual_action",
+  "cargo",
+  "split",
+] as const;
+
 /** "A -> B -> C" 拆成 ["A", "B", "C"] */
 const splitRoute = (subName?: string | null) =>
   (subName ?? "")
@@ -612,6 +660,15 @@ const MissionHistory: FC<{
   const [searchText, setSearchText] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
+  const [filter, setFilter] = useState<MissionHistoryFilter>({});
+  const { data: amrNames } = useAmrName();
+  const updateFilter = (patch: Partial<MissionHistoryFilter>) =>
+    setFilter((pre) => ({ ...pre, ...patch }));
+  const activeFilterCount = Object.values(filter).filter(
+    (v) => v && v.length > 0,
+  ).length;
+  // 篩選變了 queryKey 才跟著變, 用字串比較避免每次 render 都重設頁碼
+  const filterKey = JSON.stringify(missionFilterParams(filter));
 
   const dateFrom = dateRange?.[0]?.startOf("day").toISOString();
   const dateTo = dateRange?.[1]?.endOf("day").toISOString();
@@ -627,6 +684,7 @@ const MissionHistory: FC<{
     search: debouncedSearch,
     dateFrom,
     dateTo,
+    ...filter,
   });
   const closeHistory = () => {
     setIsOpenMissionHistory(false);
@@ -822,6 +880,26 @@ const MissionHistory: FC<{
     };
   };
 
+  const filterSelect = <K extends keyof MissionHistoryFilter>(
+    key: K,
+    placeholder: string,
+    options: { value: string | number; label: string }[],
+  ) => (
+    <Select
+      mode="multiple"
+      allowClear
+      maxTagCount="responsive"
+      placeholder={placeholder}
+      value={(filter[key] ?? []) as (string | number)[]}
+      onChange={(v) =>
+        updateFilter({ [key]: v } as Partial<MissionHistoryFilter>)
+      }
+      options={options}
+      optionFilterProp="label"
+      popupMatchSelectWidth={false}
+    />
+  );
+
   const exportMutation = useMutation({
     mutationFn: async () => {
       if (!dateRange) {
@@ -832,6 +910,8 @@ const MissionHistory: FC<{
         params: {
           start: start.startOf("day").toISOString(),
           end: end.endOf("day").toISOString(),
+          search: debouncedSearch.trim() || undefined,
+          ...missionFilterParams(filter),
         },
         responseType: "blob",
       });
@@ -864,7 +944,7 @@ const MissionHistory: FC<{
 
   useEffect(() => {
     setPagination((pre) => ({ ...pre, page: 1 }));
-  }, [debouncedSearch, dateFrom, dateTo]);
+  }, [debouncedSearch, dateFrom, dateTo, filterKey]);
 
   useEffect(() => {
     if (!isOpenMissionHistory) return;
@@ -882,9 +962,23 @@ const MissionHistory: FC<{
         return (
           <CellStack>
             <Flex gap={6} align="flex-start">
-              <KindTag bordered={false} color={KIND_COLOR[kind]}>
-                {t(KIND_LABEL_KEY[kind])}
-              </KindTag>
+              <Tooltip
+                title={t("mission_history.filters.only_this_kind", {
+                  kind: t(KIND_LABEL_KEY[kind]),
+                })}
+              >
+                <KindTag
+                  bordered={false}
+                  color={KIND_COLOR[kind]}
+                  style={{ cursor: "pointer" }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    updateFilter({ kind: [kind] });
+                  }}
+                >
+                  {t(KIND_LABEL_KEY[kind])}
+                </KindTag>
+              </Tooltip>
               <PrimaryText>{primary}</PrimaryText>
             </Flex>
             {desc && <MutedText>{desc}</MutedText>}
@@ -1422,7 +1516,11 @@ const MissionHistory: FC<{
 
               <Tooltip
                 title={
-                  dateRange ? undefined : t("mission_history.export_need_range")
+                  !dateRange
+                    ? t("mission_history.export_need_range")
+                    : activeFilterCount || debouncedSearch.trim()
+                      ? t("mission_history.filters.export_filtered")
+                      : undefined
                 }
               >
                 <Button
@@ -1464,6 +1562,79 @@ const MissionHistory: FC<{
           </ErrorMessage>
         ) : (
           <IndustrialTableContainer $isDark={isDark}>
+            <FilterBar>
+              <Tooltip title={t("mission_history.filters.any_hint")}>
+                <FilterLabel>
+                  <Badge count={activeFilterCount} size="small" offset={[4, -2]}>
+                    <FilterOutlined style={{ color: "var(--c-text-muted)" }} />
+                  </Badge>
+                </FilterLabel>
+              </Tooltip>
+              {filterSelect(
+                "status",
+                t("mission_history.filters.status"),
+                Object.entries(STATUS_LABEL_KEY).map(([value, key]) => ({
+                  value: Number(value),
+                  label: t(key),
+                })),
+              )}
+              {filterSelect(
+                "kind",
+                t("mission_history.filters.kind"),
+                (Object.keys(KIND_LABEL_KEY) as MissionKind[]).map((kind) => ({
+                  value: kind,
+                  label: t(KIND_LABEL_KEY[kind]),
+                })),
+              )}
+              {filterSelect(
+                "amrIds",
+                t("mission_history.filters.vehicle"),
+                (amrNames?.amrs ?? []).map((a) => ({
+                  value: a.amrId,
+                  label: a.amrId,
+                })),
+              )}
+              {filterSelect(
+                "sendBy",
+                t("mission_history.filters.send_by"),
+                [Send_By.USER, Send_By.WCS, Send_By.RCS, Send_By.UNKNOWN].map(
+                  (v) => ({ value: v, label: sendByLabel(v) }),
+                ),
+              )}
+              {filterSelect(
+                "priority",
+                t("mission_history.filters.priority"),
+                PRIORITY_LABEL_KEY.map((key, value) => ({
+                  value,
+                  label: t(key),
+                })),
+              )}
+              {filterSelect(
+                "cancelReason",
+                t("mission_history.filters.cancel_reason"),
+                Object.entries(reasonKeyMap).map(([value, key]) => ({
+                  value: Number(value),
+                  label: t(`cancel_reason.${key}`),
+                })),
+              )}
+              {filterSelect(
+                "flags",
+                t("mission_history.filters.flags"),
+                FLAG_OPTIONS.map((flag) => ({
+                  value: flag,
+                  label: t(`mission_history.filters.flag_${flag}`),
+                })),
+              )}
+              <Button
+                type="text"
+                size="small"
+                icon={<ClearOutlined />}
+                disabled={!activeFilterCount}
+                onClick={() => setFilter({})}
+              >
+                {t("mission_history.filters.clear")}
+              </Button>
+            </FilterBar>
             <Table
               columns={columns}
               dataSource={missions?.data as Mission[] | undefined}
