@@ -392,6 +392,7 @@
     "blocking_hint": "Maintenance level is not normal, so some missions will not be assigned to this vehicle"
   },
   "amr_card": {
+    "warning_badge": "Alert",
     "delete_current_mission": "Delete mission",
     "force_delete_mission": "FOrce delete mission",
     "force_next_step": "Skip to next step",

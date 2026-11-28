@@ -392,6 +392,7 @@
     "blocking_hint": "車況不是「正常」，這台車有任務接不到"
   },
   "amr_card": {
+    "warning_badge": "異常",
     "delete_current_mission": "刪除任務",
     "force_delete_mission": "強制刪除任務",
     "force_next_step": "直接下一動",

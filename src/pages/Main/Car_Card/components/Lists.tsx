@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import styled, { css } from "styled-components";
+import styled, { css, keyframes } from "styled-components";
 
 import {
   EnvironmentOutlined,
@@ -197,13 +197,52 @@ const IconBtn = styled.button`
   }
 `;
 
-const WarnBtn = styled(IconBtn)`
-  color: var(--c-danger);
-  font-weight: 600;
+// 按鈕外緣往外擴散再淡掉的紅框; 只動 transform / opacity, 不吃效能
+const warnPulse = keyframes`
+  0% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  70%, 100% {
+    opacity: 0;
+    transform: scale(1.25, 1.6);
+  }
+`;
+
+// 紅底實心 + 「異常 N」字樣 + 擴散動畫; 字色用卡片底色, 深淺主題都有對比
+const WarnBtn = styled(IconBtn)<{ $compact: boolean }>`
+  position: relative;
+  min-width: 28px;
+  height: ${({ $compact }) => ($compact ? "22px" : "28px")};
+  padding: ${({ $compact }) => ($compact ? "0 4px" : "0 10px")};
+  gap: 5px;
+  margin: 0 4px;
+  background: var(--c-danger);
+  color: var(--c-bg);
+  font-size: ${({ $compact }) => ($compact ? "14px" : "15px")};
+  font-weight: 700;
+  white-space: nowrap;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 2px solid var(--c-danger);
+    pointer-events: none;
+    animation: ${warnPulse} 1.6s ease-out infinite;
+  }
 
   &:hover {
-    background: var(--c-danger-soft);
-    color: var(--c-danger);
+    background: var(--c-danger);
+    color: var(--c-bg);
+    filter: brightness(1.12);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::after {
+      animation: none;
+      opacity: 0;
+    }
   }
 `;
 
@@ -384,6 +423,7 @@ export const CardHeader: React.FC<{
             {warnCount > 0 && (
               <WarnBtn
                 type="button"
+                $compact={compact}
                 title={t("file.warning_list.error_code") as string}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -391,7 +431,7 @@ export const CardHeader: React.FC<{
                 }}
               >
                 <WarningFilled />
-                {!compact && warnCount}
+                {!compact && `${t("amr_card.warning_badge")} ${warnCount}`}
               </WarnBtn>
             )}
             {isMiR(amrId) && can("amr.manual") && (
