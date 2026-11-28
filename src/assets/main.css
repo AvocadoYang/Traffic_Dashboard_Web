@@ -105,3 +105,18 @@ body {
     display: none;
   }
 }
+
+/*
+ * antd v6 的 Popover 用 filter: drop-shadow 畫陰影 (連箭頭一起), 外層又是 will-change: transform 的圖層。
+ * Chromium 在這組合下會把 Popover 內容錯位殘影畫到底下的卡片欄 (文字破碎、隨資料更新閃爍)。
+ * 改成在內框用 box-shadow: 箭頭沒有陰影, 但不會再殘影。
+ */
+.ant-popover.ant-popover {
+  filter: none;
+}
+.ant-popover.ant-popover .ant-popover-container {
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.08),
+    0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05);
+}
